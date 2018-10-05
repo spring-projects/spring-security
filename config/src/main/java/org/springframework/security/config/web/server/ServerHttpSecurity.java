@@ -38,8 +38,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.DelegatingReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager;
@@ -70,9 +72,12 @@ import org.springframework.security.oauth2.client.web.server.ServerOAuth2Authori
 import org.springframework.security.oauth2.client.web.server.authentication.OAuth2LoginAuthenticationWebFilter;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.oauth2.server.resource.web.access.server.BearerTokenServerAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
@@ -900,6 +905,8 @@ public class ServerHttpSecurity {
 		public class JwtSpec {
 			private ReactiveAuthenticationManager authenticationManager;
 			private ReactiveJwtDecoder jwtDecoder;
+			private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter
+					= new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter());
 
 			private BearerTokenServerWebExchangeMatcher bearerTokenServerWebExchangeMatcher =
 					new BearerTokenServerWebExchangeMatcher();
@@ -912,6 +919,21 @@ public class ServerHttpSecurity {
 			public JwtSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 				Assert.notNull(authenticationManager, "authenticationManager cannot be null");
 				this.authenticationManager = authenticationManager;
+				return this;
+			}
+
+			/**
+			 * Configures the {@link Converter} to use for converting a {@link Jwt} into
+			 * an {@link AbstractAuthenticationToken}.
+			 *
+			 * @param jwtAuthenticationConverter the converter to use
+			 * @return the {@code JwtSpec} for additional configuration
+			 * @since 5.1.1
+			 */
+			public JwtSpec jwtAuthenticationConverter
+					(Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter) {
+				Assert.notNull(jwtAuthenticationConverter, "jwtAuthenticationConverter cannot be null");
+				this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 				return this;
 			}
 
@@ -976,14 +998,24 @@ public class ServerHttpSecurity {
 				return this.jwtDecoder;
 			}
 
+			protected Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>>
+					getJwtAuthenticationConverter() {
+
+				return this.jwtAuthenticationConverter;
+			}
+
 			private ReactiveAuthenticationManager getAuthenticationManager() {
 				if (this.authenticationManager != null) {
 					return this.authenticationManager;
 				}
 
 				ReactiveJwtDecoder jwtDecoder = getJwtDecoder();
-				ReactiveAuthenticationManager authenticationManager =
+				Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter =
+						getJwtAuthenticationConverter();
+				JwtReactiveAuthenticationManager authenticationManager =
 						new JwtReactiveAuthenticationManager(jwtDecoder);
+				authenticationManager.setJwtAuthenticationConverter(jwtAuthenticationConverter);
+
 				return authenticationManager;
 			}
 
