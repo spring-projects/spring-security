@@ -26,7 +26,6 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 import org.springframework.util.Assert;
 
-import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 
@@ -48,8 +47,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
 	// ~ Instance fields
 	// ================================================================================================
-
-	private final ContextSource contextSource;
 
 	/**
 	 * The LDAP SearchControls object used for the search. Shared between searches so
@@ -76,19 +73,21 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	 */
 	private final String searchFilter;
 
+	private final SpringSecurityLdapTemplate template;
+
 	// ~ Constructors
 	// ===================================================================================================
 
 	public FilterBasedLdapUserSearch(String searchBase, String searchFilter,
 			BaseLdapPathContextSource contextSource) {
-		Assert.notNull(contextSource, "contextSource must not be null");
-		Assert.notNull(searchFilter, "searchFilter must not be null.");
 		Assert.notNull(searchBase,
 				"searchBase must not be null (an empty string is acceptable).");
+		Assert.notNull(searchFilter, "searchFilter must not be null.");
+		Assert.notNull(contextSource, "contextSource must not be null");
 
-		this.searchFilter = searchFilter;
-		this.contextSource = contextSource;
 		this.searchBase = searchBase;
+		this.searchFilter = searchFilter;
+		this.template = new SpringSecurityLdapTemplate(contextSource);
 
 		setSearchSubtree(true);
 
@@ -117,9 +116,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 			logger.debug("Searching for user '" + username + "', with user search "
 					+ this);
 		}
-
-		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(
-				contextSource);
 
 		template.setSearchControls(searchControls);
 
