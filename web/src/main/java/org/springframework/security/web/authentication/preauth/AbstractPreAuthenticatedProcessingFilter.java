@@ -34,6 +34,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.*;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -73,6 +74,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Luke Taylor
  * @author Ruud Senden
  * @author Rob Winch
+ * @author Tadaya Tsuyukubo
  * @since 2.0
  */
 public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFilterBean
@@ -86,6 +88,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	private boolean invalidateSessionOnPrincipalChange = true;
 	private AuthenticationSuccessHandler authenticationSuccessHandler = null;
 	private AuthenticationFailureHandler authenticationFailureHandler = null;
+	private RequestMatcher requiresAuthenticationRequestMatcher = new PreAuthenticatedProcessingRequestMatcher();
 
 	/**
 	 * Check whether all required properties have been set.
@@ -114,7 +117,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 					+ SecurityContextHolder.getContext().getAuthentication());
 		}
 
-		if (requiresAuthentication((HttpServletRequest) request)) {
+		if (requiresAuthenticationRequestMatcher.matches((HttpServletRequest) request)) {
 			doAuthenticate((HttpServletRequest) request, (HttpServletResponse) response);
 		}
 
@@ -191,39 +194,6 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 				throw failed;
 			}
 		}
-	}
-
-	private boolean requiresAuthentication(HttpServletRequest request) {
-		Authentication currentUser = SecurityContextHolder.getContext()
-				.getAuthentication();
-
-		if (currentUser == null) {
-			return true;
-		}
-
-		if (!checkForPrincipalChanges) {
-			return false;
-		}
-
-		if (!principalChanged(request, currentUser)) {
-			return false;
-		}
-
-		logger.debug("Pre-authenticated principal has changed and will be reauthenticated");
-
-		if (invalidateSessionOnPrincipalChange) {
-			SecurityContextHolder.clearContext();
-
-			HttpSession session = request.getSession(false);
-
-			if (session != null) {
-				logger.debug("Invalidating existing session");
-				session.invalidate();
-				request.getSession();
-			}
-		}
-
-		return true;
 	}
 
 	/**
@@ -349,6 +319,14 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	}
 
 	/**
+	 * Sets the request matcher to check whether to proceed the request further.
+	 */
+	public void setRequiresAuthenticationRequestMatcher(RequestMatcher requiresAuthenticationRequestMatcher) {
+		Assert.notNull(requiresAuthenticationRequestMatcher, "requestMatcher cannot be null");
+		this.requiresAuthenticationRequestMatcher = requiresAuthenticationRequestMatcher;
+	}
+
+	/**
 	 * Override to extract the principal information from the current request
 	 */
 	protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest request);
@@ -359,4 +337,46 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	 * return a dummy value.
 	 */
 	protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest request);
+
+	/**
+	 * Request matcher for default auth check logic
+	 */
+	private class PreAuthenticatedProcessingRequestMatcher implements RequestMatcher {
+
+		@Override
+		public boolean matches(HttpServletRequest request) {
+
+			Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+
+			if (currentUser == null) {
+				return true;
+			}
+
+			if (!checkForPrincipalChanges) {
+				return false;
+			}
+
+			if (!principalChanged(request, currentUser)) {
+				return false;
+			}
+
+			logger.debug("Pre-authenticated principal has changed and will be reauthenticated");
+
+			if (invalidateSessionOnPrincipalChange) {
+				SecurityContextHolder.clearContext();
+
+				HttpSession session = request.getSession(false);
+
+				if (session != null) {
+					logger.debug("Invalidating existing session");
+					session.invalidate();
+					request.getSession();
+				}
+			}
+
+			return true;
+		}
+
+	}
+
 }

@@ -45,10 +45,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  *
  * @author Rob Winch
+ * @author Tadaya Tsuyukubo
  *
  */
 public class AbstractPreAuthenticatedProcessingFilterTests {
@@ -374,6 +376,43 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.doFilter(request, response, chain);
 
 		verifyZeroInteractions(am);
+	}
+
+	@Test
+	public void requestNotMatchRequestMatcher() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+		filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/no-matching"));
+
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		filter.setAuthenticationManager(am);
+		filter.afterPropertiesSet();
+
+		filter.doFilter(request, response, chain);
+
+		verifyZeroInteractions(am);
+	}
+
+	@Test
+	public void requestMatchesRequestMatcher() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+		filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/**"));
+
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		filter.setAuthenticationManager(am);
+		filter.afterPropertiesSet();
+
+		filter.doFilter(request, response, chain);
+
+		verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+
 	}
 
 	private void testDoFilter(boolean grantAccess) throws Exception {
