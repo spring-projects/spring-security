@@ -9,7 +9,7 @@ Now the recommended approach for method security is to use <<ns-method-security,
 This way the method security infrastructure beans are configured automatically for you so you don't really need to know about the implementation classes.
 We'll just provide a quick overview of the classes that are involved here.
 
-Method security in enforced using a `MethodSecurityInterceptor`, which secures `MethodInvocation` s.
+Method security is enforced using a `MethodSecurityInterceptor`, which secures `MethodInvocation` s.
 Depending on the configuration approach, an interceptor may be specific to a single bean or shared between multiple beans.
 The interceptor uses a `MethodSecurityMetadataSource` instance to obtain the configuration attributes that apply to a particular method invocation.
 `MapBasedMethodSecurityMetadataSource` is used to store configuration attributes keyed by method names (which can be wildcarded) and will be used internally when the attributes are defined in the application context using the `<intercept-methods>` or `<protect-point>` elements.
