@@ -1,0 +1,26 @@
+[[jc-authentication-userdetailsservice]]
+= UserDetailsService
+
+You can define custom authentication by exposing a custom `UserDetailsService` as a bean.
+For example, the following will customize authentication assuming that `SpringDataUserDetailsService` implements `UserDetailsService`:
+
+NOTE: This is only used if the `AuthenticationManagerBuilder` has not been populated and no `AuthenticationProviderBean` is defined.
+
+[source,java]
+----
+@Bean
+public SpringDataUserDetailsService springDataUserDetailsService() {
+	return new SpringDataUserDetailsService();
+}
+----
+
+You can also customize how passwords are encoded by exposing a `PasswordEncoder` as a bean.
+For example, if you use bcrypt you can add a bean definition as shown below:
+
+[source,java]
+----
+@Bean
+public BCryptPasswordEncoder passwordEncoder() {
+	return new BCryptPasswordEncoder();
+}
+----

@@ -1,0 +1,15 @@
+[[jc-authentication-authenticationprovider]]
+= AuthenticationProvider
+
+You can define custom authentication by exposing a custom `AuthenticationProvider` as a bean.
+For example, the following will customize authentication assuming that `SpringAuthenticationProvider` implements `AuthenticationProvider`:
+
+NOTE: This is only used if the `AuthenticationManagerBuilder` has not been populated
+
+[source,java]
+----
+@Bean
+public SpringAuthenticationProvider springAuthenticationProvider() {
+	return new SpringAuthenticationProvider();
+}
+----
