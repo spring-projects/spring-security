@@ -2,6 +2,8 @@
 [[jc-logout]]
 = Handling Logouts
 
+== Logout Java Configuration
+
 When using the `{security-api-url}org/springframework/security/config/annotation/web/configuration/WebSecurityConfigurerAdapter.html[WebSecurityConfigurerAdapter]`, logout capabilities are automatically applied.
 The default is that accessing the URL `/logout` will log the user out by:
 
@@ -48,12 +50,6 @@ For more information, please consult the {security-api-url}org/springframework/s
 <7> Allows specifying the names of cookies to be removed on logout success.
 This is a shortcut for adding a `CookieClearingLogoutHandler` explicitly.
 
-[NOTE]
-==
-Logouts can of course also be configured using the XML Namespace notation.
-Please see the documentation for the <<nsa-logout, logout element>> in the Spring Security XML Namespace section for further details.
-==
-
 Generally, in order to customize logout functionality, you can add
 `{security-api-url}org/springframework/security/web/authentication/logout/LogoutHandler.html[LogoutHandler]`
 and/or
@@ -61,6 +57,12 @@ and/or
 implementations.
 For many common scenarios, these handlers are applied under the
 covers when using the fluent API.
+
+== Logout XML Configuration
+
+The `logout` element adds support for logging out by navigating to a particular URL.
+The default logout URL is `/logout`, but you can set it to something else using the `logout-url` attribute.
+More information on other available attributes may be found in the namespace appendix.
 
 [[jc-logout-handler]]
 == LogoutHandler

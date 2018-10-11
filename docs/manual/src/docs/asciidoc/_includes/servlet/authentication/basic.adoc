@@ -1,0 +1,14 @@
+= HTTP Basic
+
+If you want to use basic authentication instead of form login, then change the configuration to
+
+[source,xml]
+----
+<http use-expressions="false">
+<intercept-url pattern="/**" access="ROLE_USER" />
+<http-basic />
+</http>
+----
+
+Basic authentication will then take precedence and will be used to prompt for a login when a user attempts to access a protected resource.
+Form login is still available in this configuration if you wish to use it, for example through a login form embedded in another web page.
