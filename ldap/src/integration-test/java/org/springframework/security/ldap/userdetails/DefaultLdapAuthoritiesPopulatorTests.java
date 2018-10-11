@@ -18,9 +18,12 @@ package org.springframework.security.ldap.userdetails;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.*;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -29,10 +32,9 @@ import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.ldap.ApacheDsContainerConfig;
+import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.*;
 
 /**
  *
@@ -184,5 +186,26 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 
 		assertThat(authorities).as("Should have 1 role").hasSize(1);
 		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
+	}
+
+	@Test
+	public void customAuthoritiesMappingFunction() {
+		populator.setAuthorityMapper(record -> {
+			String dn = record.get(SpringSecurityLdapTemplate.DN_KEY).get(0);
+			String role = record.get(populator.getGroupRoleAttribute()).get(0);
+			return new LdapAuthority(role, dn);
+		});
+
+		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
+				"cn=mouse\\, jerry,ou=people,dc=springframework,dc=org"));
+
+		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "notused");
+
+		assertThat(authorities).allMatch(LdapAuthority.class::isInstance);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void customAuthoritiesMappingFunctionThrowsIfNull() {
+		populator.setAuthorityMapper(null);
 	}
 }
