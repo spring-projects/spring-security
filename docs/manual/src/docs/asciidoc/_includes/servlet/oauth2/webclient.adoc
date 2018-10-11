@@ -1,5 +1,5 @@
 [[servlet-webclient]]
-= WebClient for Servlet Environments
+= WebClient OAuth2 for Servlet Environments
 
 [NOTE]
 ====
