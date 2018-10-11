@@ -45,6 +45,8 @@ import org.springframework.util.Assert;
 public abstract class AbstractOAuth2TokenAuthenticationToken<T extends AbstractOAuth2Token> extends AbstractAuthenticationToken {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
+	private Object principal;
+	private Object credentials;
 	private T token;
 
 	/**
@@ -64,9 +66,20 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends AbstractO
 			T token,
 			Collection<? extends GrantedAuthority> authorities) {
 
-		super(authorities);
+		this(token, token, token, authorities);
+	}
 
+	protected AbstractOAuth2TokenAuthenticationToken(
+			T token,
+			Object principal,
+			Object credentials,
+			Collection<? extends GrantedAuthority> authorities) {
+
+		super(authorities);
 		Assert.notNull(token, "token cannot be null");
+		Assert.notNull(principal, "principal cannot be null");
+		this.principal = principal;
+		this.credentials = credentials;
 		this.token = token;
 	}
 
@@ -75,7 +88,7 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends AbstractO
 	 */
 	@Override
 	public Object getPrincipal() {
-		return this.getToken();
+		return this.principal;
 	}
 
 	/**
@@ -83,7 +96,7 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends AbstractO
 	 */
 	@Override
 	public Object getCredentials() {
-		return this.getToken();
+		return this.credentials;
 	}
 
 	/**

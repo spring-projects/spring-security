@@ -7,6 +7,7 @@ dependencies {
 	compile springCoreDependency
 
 	optional project(':spring-security-oauth2-jose')
+	optional 'com.nimbusds:oauth2-oidc-sdk'
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.springframework:spring-webflux'
 
