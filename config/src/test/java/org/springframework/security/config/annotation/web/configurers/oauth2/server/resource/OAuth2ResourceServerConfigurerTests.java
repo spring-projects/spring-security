@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1109,7 +1109,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		assertThatCode(() -> this.spring.register(JwtlessConfig.class).autowire())
 				.isInstanceOf(BeanCreationException.class)
-				.hasMessageContaining("no Jwt configuration was found");
+				.hasMessageContaining("neither was found");
 	}
 
 	@Test
@@ -1118,6 +1118,13 @@ public class OAuth2ResourceServerConfigurerTests {
 		assertThatCode(() -> this.spring.register(JwtHalfConfiguredConfig.class).autowire())
 				.isInstanceOf(BeanCreationException.class)
 				.hasMessageContaining("No qualifying bean of type");
+	}
+
+	@Test
+	public void configureWhenUsingBothJwtAndOpaqueThenWiringException() {
+		assertThatCode(() -> this.spring.register(OpaqueAndJwtConfig.class).autowire())
+				.isInstanceOf(BeanCreationException.class)
+				.hasMessageContaining("Spring Security only supports JWTs or Opaque Tokens");
 	}
 
 	// -- support
@@ -1620,6 +1627,19 @@ public class OAuth2ResourceServerConfigurerTests {
 			RSAPublicKey publicKey = (RSAPublicKey)
 					KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(this.spec));
 			return new NimbusJwtDecoder(withPublicKey(publicKey).build());
+		}
+	}
+
+	@EnableWebSecurity
+	static class OpaqueAndJwtConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2ResourceServer()
+					.jwt()
+						.and()
+					.opaqueToken();
 		}
 	}
 
