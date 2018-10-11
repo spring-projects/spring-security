@@ -397,6 +397,11 @@ Spring Security supports protecting endpoints using https://tools.ietf.org/html/
 This is handy in circumstances where an application has federated its authority management out to an https://tools.ietf.org/html/rfc6749[authorization server] (for example, Okta or Ping Identity).
 This authorization server can be consulted by Resource Servers to validate authority when serving requests.
 
+[NOTE]
+====
+A complete working example can be found in {gh-samples-url}/boot/oauth2resourceserver[*OAuth 2.0 Resource Server Servlet sample*].
+====
+
 === Dependencies
 
 Most Resource Server support is collected into `spring-security-oauth2-resource-server`.
@@ -417,15 +422,17 @@ security:
   oauth2:
     resourceserver:
       jwt:
-        issuer-uri: https://the.issuer.location
+        issuer-uri: https://idp.example.com
 ```
 
-Where `https://the.issuer.location` is the value contained in the `iss` claim for JWT tokens that the authorization server will issue.
-Resource Server will use this property to further self-configure and subsequently validate incoming JWTs.
+Where `https://idp.example.com` is the value contained in the `iss` claim for JWT tokens that the authorization server will issue.
+Resource Server will use this property to further self-configure, discover the authorization server's public keys, and subsequently validate incoming JWTs.
 
 [NOTE]
-To use the `issuer-uri` property, it must also be true that `https://the.issuer.location/.well-known/openid-configuration` is a supported endpoint for the authorization server.
+To use the `issuer-uri` property, it must also be true that `https://idp.example.com/.well-known/openid-configuration` is a supported endpoint for the authorization server.
 This endpoint is referred to as a https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Provider Configuration] endpoint.
+
+And that's it!
 
 ==== Startup Expectations
 
@@ -433,9 +440,9 @@ When this property and these dependencies are used, Resource Server will automat
 
 It achieves this through a deterministic startup process:
 
-1. Hit the Provider Configuration endpoint, `https://the.issuer.location/.well-known/openid-configuration`, processing the response for the `jwks_url` property
+1. Hit the Provider Configuration endpoint, `https://idp.example.com/.well-known/openid-configuration`, processing the response for the `jwks_url` property
 2. Configure the validation strategy to query `jwks_url` for valid public keys
-3. Configure the validation strategy to validate each JWTs `iss` claim against `https://the.issuer.location`.
+3. Configure the validation strategy to validate each JWTs `iss` claim against `https://idp.example.com`.
 
 A consequence of this process is that the authorization server must be up and receiving requests in order for Resource Server to successfully start up.
 
@@ -444,7 +451,7 @@ If the authorization server is down when Resource Server queries it (given appro
 
 ==== Runtime Expectations
 
-Once the application is started up, Resource Server will attempt to process any request containing an `Authorizatization: Bearer` header:
+Once the application is started up, Resource Server will attempt to process any request containing an `Authorization: Bearer` header:
 
 ```http
 GET / HTTP/1.1
@@ -453,10 +460,16 @@ Authorization: Bearer some-token-value # Resource Server will process this
 
 So long as this scheme is indicated, Resource Server will attempt to process the request according to the Bearer Token specification.
 
-Given a well-formed JWT token, Resource Server will validate the JWTs `exp` and `nbf` timestamps and the JWTs `iss` claim.
-It will also validate the signature against a public key obtained from the `jwks_url` endpoint and matched against the JWTs header.
+Given a well-formed JWT token, Resource Server will
 
-The resulting `Authentication#getPrincipal`, by default, is a Spring Security `Jwt` object, and `Authentication#getName` map's to the JWT's `sub` property, if one is present.
+1. Validate its signature against a public key obtained from the `jwks_url` endpoint during startup and matched against the JWTs header
+2. Validate the JWTs `exp` and `nbf` timestamps and the JWTs `iss` claim, and
+3. Map each scope to an authority with the prefix `SCOPE_`.
+
+[NOTE]
+As the authorization server makes available new keys, Spring Security will automatically rotate the keys used to validate the JWT tokens.
+
+The resulting `Authentication#getPrincipal`, by default, is a Spring Security `Jwt` object, and `Authentication#getName` maps to the JWT's `sub` property, if one is present.
 
 From here, consider jumping to:
 
@@ -474,7 +487,7 @@ security:
   oauth2:
     resourceserver:
       jwt:
-        jwk-set-uri: https://the.issuer.location/.well-known/jwks.json
+        jwk-set-uri: https://idp.example.com/.well-known/jwks.json
 ```
 
 [NOTE]
@@ -514,7 +527,7 @@ public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter 
     protected void configure(HttpSecurity http) {
         http
             .authorizeRequests()
-                .mvcMatchers("/admin/**").hasAuthority("SCOPE_admin")
+                .mvcMatchers("/messages/**").hasAuthority("SCOPE_message:read")
                 .anyRequest().authenticated()
                 .and()
             .oauth2ResourceServer()
@@ -523,6 +536,8 @@ public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter 
     }
 }
 ```
+
+The above requires the scope of `message:read` for any URL that starts with `/messages/`.
 
 Methods on the `oauth2ResourceServer` DSL will also override or replace auto configuration.
 
@@ -554,7 +569,7 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
                 .and()
             .oauth2ResourceServer()
                 .jwt()
-                    .jwkSetUri("https://the.issuer.location/.well-known/jwks.json");
+                    .jwkSetUri("https://idp.example.com/.well-known/jwks.json");
     }
 }
 ```
@@ -581,7 +596,7 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
 }
 ```
 
-This is handy when deeper configuration, like <<oauth2resourceserver-validator,validation>>, <<oauth2resourceserver-claimsetmapping,mapping>>, or <<oauth2resourceserver-timeouts,request timeouts>>, is necessary.
+This is handy when deeper configuration, like <<oauth2resourceserver-validation,validation>>, <<oauth2resourceserver-claimsetmapping,mapping>>, or <<oauth2resourceserver-timeouts,request timeouts>>, is necessary.
 
 [[oauth2resourceserver-decoder-bean]]
 ==== Exposing a `JwtDecoder` `@Bean`
@@ -602,7 +617,7 @@ A JWT that is issued from an OAuth 2.0 Authorization Server will typically eithe
 
 `{ ..., "scope" : "messages contacts"}`
 
-When this is the case, Resource Server will attempt to coerce these scopes into a list of granted authorities, prefixing each scope with the prefix "SCOPE_".
+When this is the case, Resource Server will attempt to coerce these scopes into a list of granted authorities, prefixing each scope with the string "SCOPE_".
 
 This means that to protect an endpoint or method with a scope derived from a JWT, the corresponding expressions should include this prefix:
 
@@ -633,7 +648,7 @@ public List<Message> getMessages(...) {}
 ==== Extracting Authorities Manually
 
 However, there are a number of circumstances where this default is insufficient.
-For example, some authorization server's don't use the `scope` attribute, but instead have their own custom attribute.
+For example, some authorization servers don't use the `scope` attribute, but instead have their own custom attribute.
 Or, at other times, the resource server may need to adapt the attribute or a composition of attributes into internalized authorities.
 
 To this end, the DSL exposes `jwtAuthenticationConverter()`:
@@ -775,7 +790,6 @@ For these purposes, Resource Server supports mapping the JWT claim set with `Map
 ==== Customizing the Conversion of a Single Claim
 
 By default, `MappedJwtClaimSetConverter` will attempt to coerce claims into the following types:
-
 
 |============
 | Claim | Java Type
