@@ -20,13 +20,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.naming.directory.SearchControls;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
@@ -137,14 +138,21 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * The pattern to be used for the user search. {0} is the user's DN
 	 */
 	private String groupSearchFilter = "(member={0})";
+
 	/**
 	 * The role prefix that will be prepended to each role name
 	 */
 	private String rolePrefix = "ROLE_";
+
 	/**
 	 * Should we convert the role name to uppercase
 	 */
 	private boolean convertToUpperCase = true;
+
+	/**
+	 * The mapping function to be used to populate authorities.
+	 */
+	private Function<Map<String, List<String>>, GrantedAuthority> authorityMapper;
 
 	// ~ Constructors
 	// ===================================================================================================
@@ -171,6 +179,16 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 			logger.info(
 					"groupSearchBase is empty. Searches will be performed from the context source base");
 		}
+
+		this.authorityMapper = record -> {
+			String role = record.get(this.groupRoleAttribute).get(0);
+
+			if (this.convertToUpperCase) {
+				role = role.toUpperCase();
+			}
+
+			return new SimpleGrantedAuthority(this.rolePrefix + role);
+		};
 	}
 
 	// ~ Methods
@@ -238,21 +256,18 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 					+ " in search base '" + getGroupSearchBase() + "'");
 		}
 
-		Set<String> userRoles = getLdapTemplate().searchForSingleAttributeValues(
-				getGroupSearchBase(), this.groupSearchFilter,
-				new String[] { userDn, username }, this.groupRoleAttribute);
+		Set<Map<String, List<String>>> userRoles = getLdapTemplate()
+				.searchForMultipleAttributeValues(getGroupSearchBase(),
+						this.groupSearchFilter,
+						new String[] { userDn, username },
+						new String[] { this.groupRoleAttribute });
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Roles from search: " + userRoles);
 		}
 
-		for (String role : userRoles) {
-
-			if (this.convertToUpperCase) {
-				role = role.toUpperCase();
-			}
-
-			authorities.add(new SimpleGrantedAuthority(this.rolePrefix + role));
+		for (Map<String, List<String>> role : userRoles) {
+			authorities.add(authorityMapper.apply(role));
 		}
 
 		return authorities;
@@ -323,6 +338,17 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 */
 	public void setIgnorePartialResultException(boolean ignore) {
 		getLdapTemplate().setIgnorePartialResultException(ignore);
+	}
+
+	/**
+	 * Sets the mapping function which will be used to create instances of {@link GrantedAuthority}
+	 * given the context record.
+	 *
+	 * @param authorityMapper the mapping function
+	 */
+	public void setAuthorityMapper(Function<Map<String, List<String>>, GrantedAuthority> authorityMapper) {
+		Assert.notNull(authorityMapper, "authorityMapper must not be null");
+		this.authorityMapper = authorityMapper;
 	}
 
 	/**
