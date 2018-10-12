@@ -1,34 +1,5 @@
 
 
-[[ns-password-encoder]]
-==== Adding a Password Encoder
-Passwords should always be encoded using a secure hashing algorithm designed for the purpose (not a standard algorithm like SHA or MD5).
-This is supported by the `<password-encoder>` element.
-With bcrypt encoded passwords, the original authentication provider configuration would look like this:
-
-[source,xml]
-----
-<beans:bean name="bcryptEncoder"
-	class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
-
-<authentication-manager>
-<authentication-provider>
-	<password-encoder ref="bcryptEncoder"/>
-	<user-service>
-	<user name="jimi" password="$2a$10$ddEWZUl8aU0GdZPPpy7wbu82dvEw/pBpbRvDQRqA41y6mK1CoH00m"
-			authorities="ROLE_USER, ROLE_ADMIN" />
-	<user name="bob" password="$2a$10$/elFpMBnAYYig6KRR5bvOOYeZr1ie1hSogJryg9qDlhza4oCw1Qka"
-			authorities="ROLE_USER" />
-	</user-service>
-</authentication-provider>
-</authentication-manager>
-
-----
-
-
-
-bcrypt is a good choice for most cases, unless you have a legacy system which forces you to use a different algorithm.
-If you are using a simple hashing algorithm or, even worse, storing plain text passwords, then you should consider migrating to a more secure option like bcrypt.
 
 [[ns-web-advanced]]
 == Advanced Web Features
