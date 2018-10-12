@@ -5,6 +5,8 @@ include::jdbc.adoc[leveloffset=+1]
 include::ldap.adoc[leveloffset=+1]
 include::authenticationprovider.adoc[leveloffset=+1]
 include::userdetailsservice.adoc[leveloffset=+1]
+include::authentication-manager.adoc[leveloffset=+1]
+
 include::form.adoc[leveloffset=+1]
 include::basic.adoc[leveloffset=+1]
 include::logout.adoc[leveloffset=+1]
