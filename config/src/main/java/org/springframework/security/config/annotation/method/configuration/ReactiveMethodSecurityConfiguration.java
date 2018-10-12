@@ -16,20 +16,24 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.security.access.expression.method.*;
+import org.springframework.security.access.expression.method.DefaultReactiveMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.ExpressionBasedAnnotationAttributeFactory;
+import org.springframework.security.access.expression.method.ExpressionBasedReactivePostInvocationAuthorizationAdvice;
+import org.springframework.security.access.expression.method.ExpressionBasedReactivePreInvocationAuthorizationAdvice;
+import org.springframework.security.access.expression.method.ReactiveMethodSecurityExpressionHandler;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
 import org.springframework.security.access.method.AbstractMethodSecurityMetadataSource;
 import org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource;
-import org.springframework.security.access.prepost.PrePostAdviceReactiveMethodInterceptor;
 import org.springframework.security.access.prepost.PrePostAnnotationSecurityMetadataSource;
-
-import java.util.Arrays;
+import org.springframework.security.access.prepost.ReactivePrePostAdviceMethodInterceptor;
 
 /**
  * @author Rob Winch
@@ -49,28 +53,28 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	}
 
 	@Bean
-	public DelegatingMethodSecurityMetadataSource methodMetadataSource() {
-		ExpressionBasedAnnotationAttributeFactory attributeFactory = new ExpressionBasedAnnotationAttributeFactory(
-				new DefaultMethodSecurityExpressionHandler());
-		PrePostAnnotationSecurityMetadataSource prePostSource = new PrePostAnnotationSecurityMetadataSource(
-			attributeFactory);
+	public DelegatingMethodSecurityMetadataSource methodMetadataSource(ReactiveMethodSecurityExpressionHandler handler) {
+		ExpressionBasedAnnotationAttributeFactory attributeFactory =
+				new ExpressionBasedAnnotationAttributeFactory(handler);
+		PrePostAnnotationSecurityMetadataSource prePostSource =
+				new PrePostAnnotationSecurityMetadataSource(attributeFactory);
+
 		return new DelegatingMethodSecurityMetadataSource(Arrays.asList(prePostSource));
 	}
 
 	@Bean
-	public PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source, MethodSecurityExpressionHandler handler) {
+	public ReactivePrePostAdviceMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source, ReactiveMethodSecurityExpressionHandler handler) {
+		ExpressionBasedReactivePostInvocationAuthorizationAdvice postAdvice =
+				new ExpressionBasedReactivePostInvocationAuthorizationAdvice(handler);
+		ExpressionBasedReactivePreInvocationAuthorizationAdvice preAdvice =
+				new ExpressionBasedReactivePreInvocationAuthorizationAdvice(handler);
 
-		ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(
-				handler);
-		ExpressionBasedPreInvocationAdvice preAdvice = new ExpressionBasedPreInvocationAdvice();
-		preAdvice.setExpressionHandler(handler);
-
-		return new PrePostAdviceReactiveMethodInterceptor(source, preAdvice, postAdvice);
+		return new ReactivePrePostAdviceMethodInterceptor(source, preAdvice, postAdvice);
 	}
 
 	@Bean
-	public DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
-		return new DefaultMethodSecurityExpressionHandler();
+	public DefaultReactiveMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+		return new DefaultReactiveMethodSecurityExpressionHandler();
 	}
 
 	@Override

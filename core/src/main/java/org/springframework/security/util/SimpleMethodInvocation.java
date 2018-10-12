@@ -16,10 +16,12 @@
 
 package org.springframework.security.util;
 
-import org.aopalliance.intercept.MethodInvocation;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
+
+import org.aopalliance.intercept.MethodInvocation;
+
+import org.springframework.lang.Nullable;
 
 /**
  * Represents the AOP Alliance <code>MethodInvocation</code>.
@@ -49,23 +51,37 @@ public class SimpleMethodInvocation implements MethodInvocation {
 	// ~ Methods
 	// ========================================================================================================
 
+	@Override
 	public Object[] getArguments() {
 		return arguments;
 	}
 
+	@Override
 	public Method getMethod() {
 		return method;
 	}
 
+	@Override
 	public AccessibleObject getStaticPart() {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}
 
+	@Override
 	public Object getThis() {
 		return targetObject;
 	}
 
+	@Override
 	public Object proceed() throws Throwable {
 		throw new UnsupportedOperationException("mock method not implemented");
+	}
+
+	/**
+	 * Sets the arguments
+	 * @param arguments The arguments
+	 * @since 5.1.2
+	 */
+	public void setArguments(@Nullable Object... arguments) {
+		this.arguments = (arguments == null) ? new Object[0] : arguments;
 	}
 }

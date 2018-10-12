@@ -15,9 +15,12 @@
  */
 package org.springframework.security.access.expression.method;
 
+import org.aopalliance.intercept.MethodInvocation;
+
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostInvocationAttribute;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
 import org.springframework.security.access.prepost.PrePostInvocationAttributeFactory;
@@ -34,13 +37,24 @@ public class ExpressionBasedAnnotationAttributeFactory implements
 		PrePostInvocationAttributeFactory {
 	private final Object parserLock = new Object();
 	private ExpressionParser parser;
-	private MethodSecurityExpressionHandler handler;
+	private SecurityExpressionHandler<MethodInvocation> handler;
 
 	public ExpressionBasedAnnotationAttributeFactory(
 			MethodSecurityExpressionHandler handler) {
 		this.handler = handler;
 	}
 
+	/**
+	 * Support for reactive method secutiry
+	 * @param handler The {@link ReactiveMethodSecurityExpressionHandler}
+	 * @since 5.1.2
+	 */
+	public ExpressionBasedAnnotationAttributeFactory(
+			ReactiveMethodSecurityExpressionHandler handler) {
+		this.handler = handler;
+	}
+
+	@Override
 	public PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute,
 			String filterObject, String preAuthorizeAttribute) {
 		try {
@@ -60,6 +74,7 @@ public class ExpressionBasedAnnotationAttributeFactory implements
 		}
 	}
 
+	@Override
 	public PostInvocationAttribute createPostInvocationAttribute(
 			String postFilterAttribute, String postAuthorizeAttribute) {
 		try {

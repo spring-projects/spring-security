@@ -16,9 +16,17 @@
 
 package org.springframework.security.access.prepost;
 
+import java.lang.reflect.Method;
+import java.util.Collection;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.reactivestreams.Publisher;
+
+import reactor.core.Exceptions;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
@@ -28,12 +36,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.Assert;
-import reactor.core.Exceptions;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
 
 /**
  * A {@link MethodInterceptor} that supports {@link PreAuthorize} and {@link PostAuthorize} for methods that return
@@ -41,10 +43,13 @@ import java.util.Collection;
  *
  * @author Rob Winch
  * @since 5.0
+ * @deprecated Use {@link ReactivePrePostAdviceMethodInterceptor} instead
+ * @see ReactivePrePostAdviceMethodInterceptor
  */
+@Deprecated
 public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor {
 	private Authentication anonymous = new AnonymousAuthenticationToken("key", "anonymous",
-		AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+			AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 	private final MethodSecurityMetadataSource attributeSource;
 
@@ -70,7 +75,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 
 	@Override
 	public Object invoke(final MethodInvocation invocation)
-		throws Throwable {
+			throws Throwable {
 		Method method = invocation.getMethod();
 		Class<?> returnType = method.getReturnType();
 		if (!Publisher.class.isAssignableFrom(returnType)) {
@@ -78,36 +83,36 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		}
 		Class<?> targetClass = invocation.getThis().getClass();
 		Collection<ConfigAttribute> attributes = this.attributeSource
-			.getAttributes(method, targetClass);
+				.getAttributes(method, targetClass);
 
 		PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
 		Mono<Authentication> toInvoke = ReactiveSecurityContextHolder.getContext()
-			.map(SecurityContext::getAuthentication)
-			.defaultIfEmpty(this.anonymous)
-			.filter( auth -> this.preInvocationAdvice.before(auth, invocation, preAttr))
-			.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Denied"))));
+				.map(SecurityContext::getAuthentication)
+				.defaultIfEmpty(this.anonymous)
+				.filter( auth -> this.preInvocationAdvice.before(auth, invocation, preAttr))
+				.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Denied"))));
 
 
 		PostInvocationAttribute attr = findPostInvocationAttribute(attributes);
 
 		if (Mono.class.isAssignableFrom(returnType)) {
 			return toInvoke
-				.flatMap( auth -> this.<Mono<?>>proceed(invocation)
-					.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))
-				);
+					.flatMap( auth -> this.<Mono<?>>proceed(invocation)
+							.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))
+					);
 		}
 
 		if (Flux.class.isAssignableFrom(returnType)) {
 			return toInvoke
-				.flatMapMany( auth -> this.<Flux<?>>proceed(invocation)
-					.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))
-				);
+					.flatMapMany( auth -> this.<Flux<?>>proceed(invocation)
+							.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))
+					);
 		}
 
 		return toInvoke
-			.flatMapMany( auth -> Flux.from(this.<Publisher<?>>proceed(invocation))
-				.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))
-			);
+				.flatMapMany( auth -> Flux.from(this.<Publisher<?>>proceed(invocation))
+						.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))
+				);
 	}
 
 	private static <T extends Publisher<?>> T proceed(final MethodInvocation invocation) {
@@ -119,7 +124,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 	}
 
 	private static PostInvocationAttribute findPostInvocationAttribute(
-		Collection<ConfigAttribute> config) {
+			Collection<ConfigAttribute> config) {
 		for (ConfigAttribute attribute : config) {
 			if (attribute instanceof PostInvocationAttribute) {
 				return (PostInvocationAttribute) attribute;
@@ -130,7 +135,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 	}
 
 	private static PreInvocationAttribute findPreInvocationAttribute(
-		Collection<ConfigAttribute> config) {
+			Collection<ConfigAttribute> config) {
 		for (ConfigAttribute attribute : config) {
 			if (attribute instanceof PreInvocationAttribute) {
 				return (PreInvocationAttribute) attribute;

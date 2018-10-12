@@ -16,10 +16,12 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import org.reactivestreams.Publisher;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 public class DelegatingReactiveMessageService implements ReactiveMessageService {
 	private final ReactiveMessageService delegate;
@@ -47,7 +49,7 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 	}
 
 	@Override
-	@PostAuthorize("returnObject?.contains(authentication?.name)")
+	@PostAuthorize("@authz.containsAuthenticationName(returnObject, authentication?.name)")
 	public Mono<String> monoPostAuthorizeFindById(
 			long id) {
 		return delegate.monoPostAuthorizeFindById(id);
@@ -80,7 +82,7 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 	}
 
 	@Override
-	@PostAuthorize("returnObject?.contains(authentication?.name)")
+	@PostAuthorize("@authz.containsAuthenticationName(returnObject, authentication?.name)")
 	public Flux<String> fluxPostAuthorizeFindById(
 			long id) {
 		return delegate.fluxPostAuthorizeFindById(id);
@@ -113,7 +115,7 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 	}
 
 	@Override
-	@PostAuthorize("returnObject?.contains(authentication?.name)")
+	@PostAuthorize("@authz.containsAuthenticationName(returnObject, authentication?.name)")
 	public Publisher<String> publisherPostAuthorizeFindById(
 			long id) {
 		return delegate.publisherPostAuthorizeFindById(id);

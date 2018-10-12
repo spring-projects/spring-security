@@ -16,11 +16,21 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.reactivestreams.Publisher;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import reactor.test.publisher.TestPublisher;
+import reactor.util.context.Context;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,14 +38,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
-import reactor.test.publisher.TestPublisher;
-import reactor.util.context.Context;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Rob Winch
@@ -66,7 +68,7 @@ public class EnableReactiveMethodSecurityTests {
 		assertThatThrownBy(() -> this.messageService.notPublisherPreAuthorizeFindById(1L))
 			.isInstanceOf(IllegalStateException.class)
 			.extracting(Throwable::getMessage)
-			.isEqualTo("The returnType class java.lang.String on public abstract java.lang.String org.springframework.security.config.annotation.method.configuration.ReactiveMessageService.notPublisherPreAuthorizeFindById(long) must return an instance of org.reactivestreams.Publisher (i.e. Mono / Flux) in order to support Reactor Context");
+			.isEqualTo("The return type java.lang.String on method public abstract java.lang.String org.springframework.security.config.annotation.method.configuration.ReactiveMessageService.notPublisherPreAuthorizeFindById(long) must return an instance of org.reactivestreams.Publisher (i.e. Mono / Flux) in order to support Reactor Context");
 	}
 
 	@Test
@@ -589,8 +591,8 @@ public class EnableReactiveMethodSecurityTests {
 		}
 
 		@Bean
-		public Authz authz() {
-			return new Authz();
+		public ReactiveAuthz authz() {
+			return new ReactiveAuthz();
 		}
 	}
 }

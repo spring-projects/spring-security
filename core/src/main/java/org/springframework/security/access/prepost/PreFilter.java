@@ -25,13 +25,16 @@ import java.lang.annotation.Target;
 /**
  * Annotation for specifying a method filtering expression which will be evaluated before
  * a method has been invoked. The name of the argument to be filtered is specified using
- * the <tt>filterTarget</tt> attribute. This must be a Java Collection implementation
+ * the <tt>filterTarget</tt> attribute. For non-reactive types, this must be a Java Collection implementation
  * which supports the {@link java.util.Collection#remove(Object) remove} method.
  * Pre-filtering isn't supported on array types and will fail if the value of named filter
  * target argument is null at runtime.
  * <p>
- * For methods which have a single argument which is a collection type, this argument will
- * be used as the filter target.
+ *   For reactive types, the argument can be either a {@code Flux} or {@code Mono}.
+ * </p>
+ * <p>
+ * For methods which have a single argument which is a collection type or reactive type,
+ * this argument will be used as the filter target.
  * <p>
  * The annotation value contains the expression which will be evaluated for each element
  * in the collection. If the expression evaluates to false, the element will be removed.
@@ -54,8 +57,8 @@ public @interface PreFilter {
 
 	/**
 	 * @return the name of the parameter which should be filtered (must be a non-null
-	 * collection instance) If the method contains a single collection argument, then this
-	 * attribute can be omitted.
+	 * collection instance, or one of the reactive types (i.e. {@code Mono}/{@code Flux}).
+	 * If the method contains a single collection argument/reactive type, then this attribute can be omitted.
 	 */
 	public String filterTarget() default "";
 }
