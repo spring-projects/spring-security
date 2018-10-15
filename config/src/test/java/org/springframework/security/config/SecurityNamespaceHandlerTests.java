@@ -15,22 +15,30 @@
  */
 package org.springframework.security.config;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Matchers.*;
-import static org.powermock.api.mockito.PowerMockito.*;
-
 import org.apache.commons.logging.Log;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.messaging.Message;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ClassUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.powermock.api.mockito.PowerMockito.doThrow;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
+import static org.powermock.api.mockito.PowerMockito.verifyZeroInteractions;
 
 /**
  *
@@ -40,6 +48,7 @@ import org.springframework.util.ClassUtils;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ ClassUtils.class })
+@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class SecurityNamespaceHandlerTests {
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();

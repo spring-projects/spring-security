@@ -15,16 +15,15 @@
  */
 package org.springframework.security.config.annotation.web;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.*;
-
 import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,6 +32,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 /**
  *
  * @author Rob Winch
@@ -40,6 +43,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ SpringFactoriesLoader.class })
+@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class WebSecurityConfigurerAdapterPowermockTests {
 	ConfigurableWebApplicationContext context;
 

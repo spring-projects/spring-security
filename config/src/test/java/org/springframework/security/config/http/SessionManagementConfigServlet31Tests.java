@@ -15,15 +15,7 @@
  */
 package org.springframework.security.config.http;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.same;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-
 import java.lang.reflect.Method;
-
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,14 +24,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -47,12 +39,20 @@ import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.util.ReflectionUtils;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.same;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 /**
  * @author Rob Winch
  *
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ ReflectionUtils.class, Method.class })
+@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class SessionManagementConfigServlet31Tests {
 	private static final String XML_AUTHENTICATION_MANAGER = "<authentication-manager>"
 			+ "  <authentication-provider>" + "    <user-service>"
