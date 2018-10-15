@@ -989,7 +989,9 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public OAuth2LoginConfigurer<HttpSecurity> oauth2Login() throws Exception {
-		return getOrApply(new OAuth2LoginConfigurer<>());
+		OAuth2LoginConfigurer configurer = getOrApply(new OAuth2LoginConfigurer<>());
+		this.postProcess(configurer);
+		return configurer;
 	}
 
 	/**
