@@ -57,6 +57,7 @@ import java.util.Set;
  *
  * @author Joe Grandja
  * @since 5.0
+ * @deprecated Use {@link DefaultAuthorizationCodeTokenResponseClient}
  * @see OAuth2AccessTokenResponseClient
  * @see OAuth2AuthorizationCodeGrantRequest
  * @see OAuth2AccessTokenResponse
@@ -64,6 +65,7 @@ import java.util.Set;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request (Authorization Code Grant)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response (Authorization Code Grant)</a>
  */
+@Deprecated
 public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
