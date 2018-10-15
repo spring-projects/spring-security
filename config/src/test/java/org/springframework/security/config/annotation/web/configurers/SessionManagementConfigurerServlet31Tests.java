@@ -15,15 +15,7 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.same;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-
 import java.lang.reflect.Method;
-
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,8 +24,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.mock.web.MockFilterChain;
@@ -52,12 +46,20 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.util.ReflectionUtils;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.same;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 /**
  *
  * @author Rob Winch
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ ReflectionUtils.class, Method.class })
+@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class SessionManagementConfigurerServlet31Tests {
 	@Mock
 	Method method;

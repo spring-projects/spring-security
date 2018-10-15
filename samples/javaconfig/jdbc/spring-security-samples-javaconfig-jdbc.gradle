@@ -28,6 +28,10 @@ dependencies {
 	compile 'org.hibernate:hibernate-validator'
 	compile slf4jDependencies
 
+	compile 'javax.xml.bind:jaxb-api'
+	compile 'com.sun.xml.bind:jaxb-core'
+	compile 'com.sun.xml.bind:jaxb-impl'
+
 	providedCompile 'javax.servlet.jsp:javax.servlet.jsp-api'
 	providedCompile 'javax.servlet:javax.servlet-api'
 
