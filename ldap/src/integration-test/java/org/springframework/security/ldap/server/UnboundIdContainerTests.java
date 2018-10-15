@@ -22,8 +22,9 @@ import java.util.List;
 
 import org.junit.Test;
 
+import org.springframework.context.support.GenericApplicationContext;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 /**
  * @author Eddú Meléndez
@@ -31,17 +32,18 @@ import static org.junit.Assert.fail;
 public class UnboundIdContainerTests {
 
 	@Test
-	public void startLdapServer() throws IOException {
+	public void startLdapServer() throws Exception {
 		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath:test-server.ldif");
+		server.setApplicationContext(new GenericApplicationContext());
 		List<Integer> ports = getDefaultPorts(1);
 		server.setPort(ports.get(0));
 
 		try {
 			server.afterPropertiesSet();
-			fail("Expected a RuntimeException to be thrown.");
-		} catch (Exception ex) {
-			assertThat(ex).hasMessage("Server startup failed");
+			assertThat(server.getPort()).isEqualTo(ports.get(0));
+		} finally {
+			server.destroy();
 		}
 	}
 
