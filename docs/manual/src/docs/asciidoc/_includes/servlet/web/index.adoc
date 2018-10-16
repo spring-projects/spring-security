@@ -15,8 +15,6 @@ include::csrf.adoc[]
 
 include::cors.adoc[]
 
-include::headers.adoc[]
-
 include::session-management.adoc[]
 
 include::anonymous.adoc[]
