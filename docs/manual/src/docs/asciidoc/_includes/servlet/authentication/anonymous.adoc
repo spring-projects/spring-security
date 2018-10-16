@@ -1,10 +1,9 @@
-
 [[anonymous]]
-== Anonymous Authentication
+= Anonymous Authentication
 
 
 [[anonymous-overview]]
-=== Overview
+== Overview
 It's generally considered good security practice to adopt a "deny-by-default" where you explicitly specify what is allowed and disallow everything else.
 Defining what is accessible to unauthenticated users is a similar situation, particularly for web applications.
 Many sites require that users must be authenticated for anything other than a few URLs (for example the home and login pages).
@@ -22,7 +21,7 @@ Classes can be authored more robustly if they know the `SecurityContextHolder` a
 
 
 [[anonymous-config]]
-=== Configuration
+== Configuration
 Anonymous authentication support is provided automatically when using the HTTP configuration Spring Security 3.0 and can be customized (or disabled) using the `<anonymous>` element.
 You don't need to configure the beans described here unless you are using traditional bean configuration.
 
@@ -89,7 +88,7 @@ For example:
 
 
 [[anonymous-auth-trust-resolver]]
-=== AuthenticationTrustResolver
+== AuthenticationTrustResolver
 Rounding out the anonymous authentication discussion is the `AuthenticationTrustResolver` interface, with its corresponding `AuthenticationTrustResolverImpl` implementation.
 This interface provides an `isAnonymous(Authentication)` method, which allows interested classes to take into account this special type of authentication status.
 The `ExceptionTranslationFilter` uses this interface in processing `AccessDeniedException` s.
