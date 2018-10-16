@@ -1,48 +1,5 @@
-
-[[basic]]
-== Basic and Digest Authentication
-Basic and digest authentication are alternative authentication mechanisms which are popular in web applications.
-Basic authentication is often used with stateless clients which pass their credentials on each request.
-It's quite common to use it in combination with form-based authentication where an application is used through both a browser-based user interface and as a web-service.
-However, basic authentication transmits the password as plain text so it should only really be used over an encrypted transport layer such as HTTPS.
-
-[[basic-processing-filter]]
-=== BasicAuthenticationFilter
-`BasicAuthenticationFilter` is responsible for processing basic authentication credentials presented in HTTP headers.
-This can be used for authenticating calls made by Spring remoting protocols (such as Hessian and Burlap), as well as normal browser user agents (such as Firefox and Internet Explorer).
-The standard governing HTTP Basic Authentication is defined by RFC 1945, Section 11, and `BasicAuthenticationFilter` conforms with this RFC.
-Basic Authentication is an attractive approach to authentication, because it is very widely deployed in user agents and implementation is extremely simple (it's just a Base64 encoding of the username:password, specified in an HTTP header).
-
-[[basic-config]]
-==== Configuration
-To implement HTTP Basic Authentication, you need to add a `BasicAuthenticationFilter` to your filter chain.
-The application context should contain `BasicAuthenticationFilter` and its required collaborator:
-
-
-[source,xml]
-----
-<bean id="basicAuthenticationFilter"
-class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
-<property name="authenticationManager" ref="authenticationManager"/>
-<property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
-</bean>
-
-<bean id="authenticationEntryPoint"
-class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
-<property name="realmName" value="Name Of Your Realm"/>
-</bean>
-----
-
-The configured `AuthenticationManager` processes each authentication request.
-If authentication fails, the configured `AuthenticationEntryPoint` will be used to retry the authentication process.
-Usually you will use the filter in combination with a `BasicAuthenticationEntryPoint`, which returns a 401 response with a suitable header to retry HTTP Basic authentication.
-If authentication is successful, the resulting `Authentication` object will be placed into the `SecurityContextHolder` as usual.
-
-If the authentication event was successful, or authentication was not attempted because the HTTP header did not contain a supported authentication request, the filter chain will continue as normal.
-The only time the filter chain will be interrupted is if authentication fails and the `AuthenticationEntryPoint` is called.
-
-[[digest-processing-filter]]
-=== DigestAuthenticationFilter
+[[digest]]
+= DigestAuthenticationFilter
 `DigestAuthenticationFilter` is capable of processing digest authentication credentials presented in HTTP headers.
 Digest Authentication attempts to solve many of the weaknesses of Basic authentication, specifically by ensuring credentials are never sent in clear text across the wire.
 Many user agents support Digest Authentication, including Mozilla Firefox and Internet Explorer.
@@ -53,12 +10,12 @@ Digest Authentication is a more attractive option if you need to use unencrypted
 Indeed Digest Authentication is a mandatory requirement for the WebDAV protocol, as noted by RFC 2518 Section 17.1.
 
 [NOTE]
-====
+==
 You should not use Digest in modern applications because it is not considered secure.
 The most obvious problem is that you must store your passwords in plaintext, encrypted, or an MD5 format.
 All of these storage formats are considered insecure.
 Instead, you should use a one way adaptive password hash (i.e. bCrypt, PBKDF2, SCrypt, etc).
-====
+==
 
 Central to Digest Authentication is a "nonce".
 This is a value the server generates.
@@ -88,7 +45,7 @@ In our testing, Spring Security's implementation works reliably with Mozilla Fir
 
 
 [[digest-config]]
-==== Configuration
+== Configuration
 Now that we've reviewed the theory, let's see how to use it.
 To implement HTTP Digest Authentication, it is necessary to define `DigestAuthenticationFilter` in the filter chain.
 The application context will need to define the `DigestAuthenticationFilter` and its required collaborators:

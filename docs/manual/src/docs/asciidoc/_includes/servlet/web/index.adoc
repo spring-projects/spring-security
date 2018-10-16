@@ -11,10 +11,6 @@ include::core-filters.adoc[]
 
 include::servlet-api.adoc[]
 
-include::basic.adoc[]
-
-include::rememberme.adoc[]
-
 include::csrf.adoc[]
 
 include::cors.adoc[]

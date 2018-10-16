@@ -11,4 +11,5 @@ include::rememberme.adoc[leveloffset=+1]
 
 include::form.adoc[leveloffset=+1]
 include::basic.adoc[leveloffset=+1]
+include::digest.adoc[leveloffset=+1]
 include::logout.adoc[leveloffset=+1]
