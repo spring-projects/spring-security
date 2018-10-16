@@ -8,6 +8,7 @@ include::userdetailsservice.adoc[leveloffset=+1]
 include::password-encoder.adoc[leveloffset=+1]
 include::authentication-manager.adoc[leveloffset=+1]
 include::rememberme.adoc[leveloffset=+1]
+include::openid.adoc[leveloffset=+1]
 
 include::form.adoc[leveloffset=+1]
 include::basic.adoc[leveloffset=+1]
