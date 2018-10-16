@@ -66,6 +66,21 @@ try {
 				}
 			}
 		}
+	},
+	jdk10: {
+		stage('JDK 10') {
+			node {
+				checkout scm
+				try {
+					withEnv(["JAVA_HOME=${ tool 'jdk10' }"]) {
+						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
+					}
+				} catch(Exception e) {
+					currentBuild.result = 'FAILED: jdk10'
+					throw e
+				}
+			}
+		}
 	}
 
 	if(currentBuild.result == 'SUCCESS') {
