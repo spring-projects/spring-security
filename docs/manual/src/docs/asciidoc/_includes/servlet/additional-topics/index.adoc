@@ -23,6 +23,4 @@ include::runas.adoc[]
 
 include::crypto.adoc[]
 
-include::concurrency.adoc[]
-
 include::mvc.adoc[]
