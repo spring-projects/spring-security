@@ -1,7 +1,5 @@
-
-
 [[concurrency]]
-== Concurrency Support
+= Concurrency Support
 
 In most environments, Security is stored on a per `Thread` basis.
 This means that when work is done on a new `Thread`, the `SecurityContext` is lost.
@@ -9,7 +7,7 @@ Spring Security provides some infrastructure to help make this much easier for u
 Spring Security provides low level abstractions for working with Spring Security in multi-threaded environments.
 In fact, this is what Spring Security builds on to integration with <<servletapi-start-runnable>> and <<mvc-async>>.
 
-=== DelegatingSecurityContextRunnable
+== DelegatingSecurityContextRunnable
 
 One of the most fundamental building blocks within Spring Security's concurrency support is the `DelegatingSecurityContextRunnable`.
 It wraps a delegate `Runnable` in order to initialize the `SecurityContextHolder` with a specified `SecurityContext` for the delegate.
@@ -78,7 +76,7 @@ new Thread(wrappedRunnable).start();
 The code we have is simple to use, but it still requires knowledge that we are using Spring Security.
 In the next section we will take a look at how we can utilize `DelegatingSecurityContextExecutor` to hide the fact that we are using Spring Security.
 
-=== DelegatingSecurityContextExecutor
+== DelegatingSecurityContextExecutor
 
 In the previous section we found that it was easy to use the `DelegatingSecurityContextRunnable`, but it was not ideal since we had to be aware of Spring Security in order to use it.
 Let's take a look at how `DelegatingSecurityContextExecutor` can shield our code from any knowledge that we are using Spring Security.
@@ -152,7 +150,7 @@ DelegatingSecurityContextExecutor executor =
 Now anytime `executor.execute(Runnable)` is executed the `SecurityContext` is first obtained by the `SecurityContextHolder` and then that `SecurityContext` is used to create our `DelegatingSecurityContextRunnable`.
 This means that we are executing our `Runnable` with the same user that was used to invoke the `executor.execute(Runnable)` code.
 
-=== Spring Security Concurrency Classes
+== Spring Security Concurrency Classes
 
 Refer to the Javadoc for additional integrations with both the Java concurrent APIs and the Spring Task abstractions.
 They are quite self-explanatory once you understand the previous code.
