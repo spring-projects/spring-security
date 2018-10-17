@@ -36,7 +36,7 @@ import java.util.regex.Matcher;
  * expression "CN=(.*?)(?:,|$)" matches the common name field. So
  * "CN=Jimi Hendrix, OU=..." will give a user name of "Jimi Hendrix".
  * <p>
- * The matches are case insensitive. So "emailAddress=(.?)," will match
+ * The matches are case insensitive. So "emailAddress=(.*?)," will match
  * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
  *
  * @author Luke Taylor
