@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ public enum CommonOAuth2Provider {
 		public Builder getBuilder(String registrationId) {
 			ClientRegistration.Builder builder = getBuilder(registrationId,
 					ClientAuthenticationMethod.BASIC, DEFAULT_REDIRECT_URL);
-			builder.scope("openid", "profile", "email", "address", "phone");
+			builder.scope("openid", "profile", "email");
 			builder.userNameAttributeName(IdTokenClaimNames.SUB);
 			builder.clientName("Okta");
 			return builder;
