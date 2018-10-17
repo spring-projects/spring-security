@@ -22,6 +22,4 @@ include::web/index.adoc[leveloffset=+1]
 
 include::additional-topics/index.adoc[leveloffset=+1]
 
-include::data/index.adoc[leveloffset=+1]
-
 include::appendix/index.adoc[leveloffset=+1]

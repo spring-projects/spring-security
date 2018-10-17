@@ -2,6 +2,7 @@
 
 Integrations with other frameworks, libraries, and APIs.
 
+include::spring-data.adoc[leveloffset=+1]
 include::concurrency.adoc[leveloffset=+1]
 include::jackson.adoc[leveloffset=+1]
 include::localization.adoc[leveloffset=+1]
