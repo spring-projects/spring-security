@@ -46,7 +46,7 @@ The `subject-principal-regex` should contain a single group.
 For example the default expression "CN=(.*?)," matches the common name field.
 So if the subject name in the certificate is "CN=Jimi Hendrix, OU=...", this will give a user name of "Jimi Hendrix".
 The matches are case insensitive.
-So "emailAddress=(.?)," will match "EMAILADDRESS=jimi@hendrix.org,CN=..." giving a user name "jimi@hendrix.org".
+So "emailAddress=(+.*?+)," will match "EMAILADDRESS=jimi@hendrix.org,CN=..." giving a user name "jimi@hendrix.org".
 If the client presents a certificate and a valid username is successfully extracted, then there should be a valid `Authentication` object in the security context.
 If no certificate is found, or no corresponding user could be found then the security context will remain empty.
 This means that you can easily use X.509 authentication with other options such as a form-based login.
