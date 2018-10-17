@@ -174,5 +174,4 @@ The group schema is also included in the appendix.
 
 include::password-encoder.adoc[leveloffset=+2]
 
-include::jackson.adoc[]
 

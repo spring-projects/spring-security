@@ -10,6 +10,8 @@ include::oauth2/index.adoc[leveloffset=+1]
 
 include::exploits/index.adoc[leveloffset=+1]
 
+include::integrations/index.adoc[leveloffset=+1]
+
 include::preface/index.adoc[leveloffset=+1]
 
 include::architecture/index.adoc[leveloffset=+1]

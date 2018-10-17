@@ -1,5 +1,5 @@
 [[jackson]]
-=== Jackson Support
+= Jackson Support
 
 Spring Security has added Jackson Support for persisting Spring Security related classes.
 This can improve the performance of serializing Spring Security related classes when working with distributed sessions (i.e. session replication, Spring Session, etc).
