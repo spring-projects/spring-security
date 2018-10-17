@@ -4,3 +4,4 @@ Integrations with other frameworks, libraries, and APIs.
 
 include::concurrency.adoc[leveloffset=+1]
 include::jackson.adoc[leveloffset=+1]
+include::localization.adoc[leveloffset=+1]
