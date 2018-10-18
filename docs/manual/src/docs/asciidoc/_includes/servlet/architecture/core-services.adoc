@@ -172,6 +172,5 @@ Some people prefer this approach as a means of administering user rights.
 See the `JdbcDaoImpl` Javadoc for more information on how to enable the use of group authorities.
 The group schema is also included in the appendix.
 
-include::password-encoder.adoc[leveloffset=+2]
 
 

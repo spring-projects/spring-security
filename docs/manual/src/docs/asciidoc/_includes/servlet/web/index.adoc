@@ -9,12 +9,6 @@ include::security-filter-chain.adoc[]
 
 include::core-filters.adoc[]
 
-include::csrf.adoc[]
-
 include::cors.adoc[]
-
-include::session-management.adoc[]
-
-include::anonymous.adoc[]
 
 include::websocket.adoc[]
