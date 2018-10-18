@@ -1,9 +1,8 @@
-
 [[runas]]
-== Run-As Authentication Replacement
+= Run-As Authentication Replacement
 
 [[runas-overview]]
-=== Overview
+== Overview
 The `AbstractSecurityInterceptor` is able to temporarily replace the `Authentication` object in the `SecurityContext` and `SecurityContextHolder` during the secure object callback phase.
 This only occurs if the original `Authentication` object was successfully processed by the `AuthenticationManager` and `AccessDecisionManager`.
 The `RunAsManager` will indicate the replacement `Authentication` object, if any, that should be used during the `SecurityInterceptorCallback`.
@@ -13,7 +12,7 @@ It will also be able to perform any internal security checks for specific `Grant
 Because Spring Security provides a number of helper classes that automatically configure remoting protocols based on the contents of the `SecurityContextHolder`, these run-as replacements are particularly useful when calling remote web services
 
 [[runas-config]]
-=== Configuration
+== Configuration
 A `RunAsManager` interface is provided by Spring Security:
 
 [source,java]

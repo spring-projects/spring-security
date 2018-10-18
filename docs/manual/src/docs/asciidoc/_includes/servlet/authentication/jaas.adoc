@@ -1,22 +1,21 @@
-
 [[jaas]]
-== Java Authentication and Authorization Service (JAAS) Provider
+= Java Authentication and Authorization Service (JAAS) Provider
 
 
-=== Overview
+== Overview
 Spring Security provides a package able to delegate authentication requests to the Java Authentication and Authorization Service (JAAS).
 This package is discussed in detail below.
 
 
 [[jaas-abstractjaasauthenticationprovider]]
-=== AbstractJaasAuthenticationProvider
+== AbstractJaasAuthenticationProvider
 The `AbstractJaasAuthenticationProvider` is the basis for the provided JAAS `AuthenticationProvider` implementations.
 Subclasses must implement a method that creates the `LoginContext`.
 The `AbstractJaasAuthenticationProvider` has a number of dependencies that can be injected into it that are discussed below.
 
 
 [[jaas-callbackhandler]]
-==== JAAS CallbackHandler
+=== JAAS CallbackHandler
 Most JAAS `LoginModule` s require a callback of some sort.
 These callbacks are usually used to obtain the username and password from the user.
 
@@ -34,7 +33,7 @@ If the `LoginModule` requests a callback against the `InternalCallbackHandler` s
 
 
 [[jaas-authoritygranter]]
-==== JAAS AuthorityGranter
+=== JAAS AuthorityGranter
 JAAS works with principals.
 Even "roles" are represented as principals in JAAS.
 Spring Security, on the other hand, works with `Authentication` objects.
@@ -51,14 +50,14 @@ However, there is a `TestAuthorityGranter` in the unit tests that demonstrates a
 
 
 [[jaas-defaultjaasauthenticationprovider]]
-=== DefaultJaasAuthenticationProvider
+== DefaultJaasAuthenticationProvider
 The `DefaultJaasAuthenticationProvider` allows a JAAS `Configuration` object to be injected into it as a dependency.
 It then creates a `LoginContext` using the injected JAAS `Configuration`.
 This means that `DefaultJaasAuthenticationProvider` is not bound any particular implementation of `Configuration` as `JaasAuthenticationProvider` is.
 
 
 [[jaas-inmemoryconfiguration]]
-==== InMemoryConfiguration
+=== InMemoryConfiguration
 In order to make it easy to inject a `Configuration` into `DefaultJaasAuthenticationProvider`, a default in-memory implementation named `InMemoryConfiguration` is provided.
 The implementation constructor accepts a `Map` where each key represents a login configuration name and the value represents an `Array` of `AppConfigurationEntry` s.
 `InMemoryConfiguration` also supports a default `Array` of `AppConfigurationEntry` objects that will be used if no mapping is found within the provided `Map`.
@@ -66,7 +65,7 @@ For details, refer to the class level javadoc of `InMemoryConfiguration`.
 
 
 [[jaas-djap-config]]
-==== DefaultJaasAuthenticationProvider Example Configuration
+=== DefaultJaasAuthenticationProvider Example Configuration
 While the Spring configuration for `InMemoryConfiguration` can be more verbose than the standarad JAAS configuration files, using it in conjuction with `DefaultJaasAuthenticationProvider` is more flexible than `JaasAuthenticationProvider` since it not dependant on the default `Configuration` implementation.
 
 An example configuration of `DefaultJaasAuthenticationProvider` using `InMemoryConfiguration` is provided below.
@@ -117,7 +116,7 @@ class="org.springframework.security.authentication.jaas.DefaultJaasAuthenticatio
 
 
 [[jaas-jaasauthenticationprovider]]
-=== JaasAuthenticationProvider
+== JaasAuthenticationProvider
 The `JaasAuthenticationProvider` assumes the default `Configuration` is an instance of http://download.oracle.com/javase/1.4.2/docs/guide/security/jaas/spec/com/sun/security/auth/login/ConfigFile.html[ ConfigFile].
 This assumption is made in order to attempt to update the `Configuration`.
 The `JaasAuthenticationProvider` then uses the default `Configuration` to create the `LoginContext`.
@@ -158,7 +157,7 @@ class="org.springframework.security.authentication.jaas.JaasAuthenticationProvid
 ----
 
 [[jaas-apiprovision]]
-=== Running as a Subject
+== Running as a Subject
 If configured, the `JaasApiIntegrationFilter` will attempt to run as the `Subject` on the `JaasAuthenticationToken`.
 This means that the `Subject` can be accessed using:
 

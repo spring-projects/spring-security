@@ -1,10 +1,8 @@
-
-
 [[cas]]
-== CAS Authentication
+= CAS Authentication
 
 [[cas-overview]]
-=== Overview
+== Overview
 JA-SIG produces an enterprise-wide single sign on system known as CAS.
 Unlike other initiatives, JA-SIG's Central Authentication Service is open source, widely used, simple to understand, platform independent, and supports proxy capabilities.
 Spring Security fully supports CAS, and provides an easy migration path from single-application deployments of Spring Security through to multiple-application deployments secured by an enterprise-wide CAS server.
@@ -13,7 +11,7 @@ You can learn more about CAS at http://www.ja-sig.org/cas.
 You will also need to visit this site to download the CAS Server files.
 
 [[cas-how-it-works]]
-=== How CAS Works
+== How CAS Works
 Whilst the CAS web site contains documents that detail the architecture of CAS, we present the general overview again here within the context of Spring Security.
 Spring Security 3.x supports CAS 3.
 At the time of writing, the CAS server was at version 3.4.
@@ -36,7 +34,7 @@ Authenticating a proxy ticket differs because the list of proxies must be valida
 
 
 [[cas-sequence]]
-==== Spring Security and CAS Interaction Sequence
+=== Spring Security and CAS Interaction Sequence
 The basic interaction between a web browser, CAS server and a Spring Security-secured service is as follows:
 
 * The web user is browsing the service's public pages.
@@ -89,7 +87,7 @@ It's good that you're still here!
 Let's now look at how this is configured
 
 [[cas-client]]
-=== Configuration of CAS Client
+== Configuration of CAS Client
 The web application side of CAS is made easy due to Spring Security.
 It is assumed you already know the basics of using Spring Security, so these are not covered again below.
 We'll assume a namespace based configuration is being used and add in the CAS beans as required.
@@ -98,7 +96,7 @@ A full<<cas-sample,CAS sample application>> can be found in the Spring Security 
 
 
 [[cas-st]]
-==== Service Ticket Authentication
+=== Service Ticket Authentication
 This section describes how to setup Spring Security to authenticate Service Tickets.
 Often times this is all a web application requires.
 You will need to add a `ServiceProperties` bean to your application context.
@@ -196,7 +194,7 @@ In the following sections we will discuss some (optional) more advanced configur
 
 
 [[cas-singlelogout]]
-==== Single Logout
+=== Single Logout
 The CAS protocol supports Single Logout and can be easily added to your Spring Security configuration.
 Below are updates to the Spring Security configuration that handle Single Logout
 
@@ -273,14 +271,14 @@ The `SingleSignOutHttpSessionListener` ensures that when an `HttpSession` expire
 
 
 [[cas-pt-client]]
-==== Authenticating to a Stateless Service with CAS
+=== Authenticating to a Stateless Service with CAS
 This section describes how to authenticate to a service using CAS.
 In other words, this section discusses how to setup a client that uses a service that authenticates with CAS.
 The next section describes how to setup a stateless service to Authenticate using CAS.
 
 
 [[cas-pt-client-config]]
-===== Configuring CAS to Obtain Proxy Granting Tickets
+==== Configuring CAS to Obtain Proxy Granting Tickets
 In order to authenticate to a stateless service, the application needs to obtain a proxy granting ticket (PGT).
 This section describes how to configure Spring Security to obtain a PGT building upon thencas-st[Service Ticket Authentication] configuration.
 
@@ -337,7 +335,7 @@ An example configuration is shown below.
 ----
 
 [[cas-pt-client-sample]]
-===== Calling a Stateless Service Using a Proxy Ticket
+==== Calling a Stateless Service Using a Proxy Ticket
 Now that Spring Security obtains PGTs, you can use them to create proxy tickets which can be used to authenticate to a stateless service.
 The <<cas-sample,CAS sample application>> contains a working example in the `ProxyTicketSampleServlet`.
 Example code can be found below:
@@ -361,7 +359,7 @@ String proxyResponse = CommonUtils.getResponseFromServer(serviceUrl, "UTF-8");
 ----
 
 [[cas-pt]]
-==== Proxy Ticket Authentication
+=== Proxy Ticket Authentication
 The `CasAuthenticationProvider` distinguishes between stateful and stateless clients.
 A stateful client is considered any that submits to the `filterProcessUrl` of the `CasAuthenticationFilter`.
 A stateless client is any that presents an authentication request to `CasAuthenticationFilter` on a URL other than the `filterProcessUrl`.

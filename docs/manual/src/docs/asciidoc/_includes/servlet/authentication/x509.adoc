@@ -1,10 +1,9 @@
-
 [[x509]]
-== X.509 Authentication
+= X.509 Authentication
 
 
 [[x509-overview]]
-=== Overview
+== Overview
 The most common use of X.509 certificate authentication is in verifying the identity of a server when using SSL, most commonly when using HTTPS from a browser.
 The browser will automatically check that the certificate presented by a server has been issued (ie digitally signed) by one of a list of trusted certificate authorities which it maintains.
 
@@ -20,7 +19,7 @@ For example, if you're using Tomcat then read the instructions here http://tomca
 It's important that you get this working before trying it out with Spring Security
 
 
-=== Adding X.509 Authentication to Your Web Application
+== Adding X.509 Authentication to Your Web Application
 Enabling X.509 client authentication is very straightforward.
 Just add the `<x509/>` element to your http security namespace configuration.
 
@@ -52,7 +51,7 @@ If no certificate is found, or no corresponding user could be found then the sec
 This means that you can easily use X.509 authentication with other options such as a form-based login.
 
 [[x509-ssl-config]]
-=== Setting up SSL in Tomcat
+== Setting up SSL in Tomcat
 There are some pre-generated certificates in the `samples/certificate` directory in the Spring Security project.
 You can use these to enable SSL for testing if you don't want to generate your own.
 The file `server.jks` contains the server certificate, private key and the issuing certificate authority certificate.
