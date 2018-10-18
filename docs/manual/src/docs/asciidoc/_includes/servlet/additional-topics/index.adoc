@@ -5,10 +5,6 @@ In this part we cover features which require knowledge of previous chapters as w
 
 include::acls.adoc[]
 
-include::oauth2.adoc[]
-
 include::jsp-taglibs.adoc[]
 
 include::crypto.adoc[]
-
-include::mvc.adoc[]

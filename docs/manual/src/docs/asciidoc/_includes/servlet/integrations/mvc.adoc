@@ -1,13 +1,11 @@
-
-
 [[mvc]]
-== Spring MVC Integration
+= Spring MVC Integration
 
 Spring Security provides a number of optional integrations with Spring MVC.
 This section covers the integration in further detail.
 
 [[mvc-enablewebmvcsecurity]]
-=== @EnableWebMvcSecurity
+== @EnableWebMvcSecurity
 
 NOTE: As of Spring Security 4.0, `@EnableWebMvcSecurity` is deprecated.
 The replacement is `@EnableWebSecurity` which will determine adding the Spring MVC features based upon the classpath.
@@ -18,7 +16,7 @@ NOTE: Spring Security provides the configuration using Spring MVC's https://docs
 This means that if you are using more advanced options, like integrating with `WebMvcConfigurationSupport` directly, then you will need to manually provide the Spring Security configuration.
 
 [[mvc-requestmatcher]]
-=== MvcRequestMatcher
+== MvcRequestMatcher
 
 Spring Security provides deep integration with how Spring MVC matches on URLs with `MvcRequestMatcher`.
 This is helpful to ensure your Security rules match the logic used to handle your requests.
@@ -148,7 +146,7 @@ or in XML
 ----
 
 [[mvc-authentication-principal]]
-=== @AuthenticationPrincipal
+== @AuthenticationPrincipal
 
 Spring Security provides `AuthenticationPrincipalArgumentResolver` which can automatically resolve the current `Authentication.getPrincipal()` for Spring MVC arguments.
 By using `@EnableWebSecurity` you will automatically have this added to your Spring MVC configuration.
@@ -274,7 +272,7 @@ public ModelAndView findMessagesForUser(@CurrentUser CustomUser customUser) {
 
 
 [[mvc-async]]
-=== Spring MVC Async Integration
+== Spring MVC Async Integration
 
 Spring Web MVC 3.2+ has excellent support for http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-ann-async[Asynchronous Request Processing].
 With no additional configuration, Spring Security will automatically setup the `SecurityContext` to the `Thread` that executes a `Callable` returned by your controllers.
@@ -306,9 +304,9 @@ This is because `DeferredResult` is processed by the users and thus there is no 
 However, you can still use <<concurrency,Concurrency Support>> to provide transparent integration with Spring Security.
 
 [[mvc-csrf]]
-=== Spring MVC and CSRF Integration
+== Spring MVC and CSRF Integration
 
-==== Automatic Token Inclusion
+=== Automatic Token Inclusion
 
 Spring Security will automatically <<csrf-include-csrf-token,include the CSRF Token>> within forms that use the http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag].
 For example, the following JSP:
@@ -352,7 +350,7 @@ Will output HTML that is similar to the following:
 ----
 
 [[mvc-csrf-resolver]]
-==== Resolving the CsrfToken
+=== Resolving the CsrfToken
 
 Spring Security provides `CsrfTokenArgumentResolver` which can automatically resolve the current `CsrfToken` for Spring MVC arguments.
 By using <<jc-hello-wsca,@EnableWebSecurity>> you will automatically have this added to your Spring MVC configuration.
