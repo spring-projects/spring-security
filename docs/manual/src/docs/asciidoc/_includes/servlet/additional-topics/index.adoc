@@ -5,21 +5,9 @@ In this part we cover features which require knowledge of previous chapters as w
 
 include::acls.adoc[]
 
-include::preauth.adoc[]
-
-include::ldap.adoc[]
-
 include::oauth2.adoc[]
 
 include::jsp-taglibs.adoc[]
-
-include::jaas.adoc[]
-
-include::cas.adoc[]
-
-include::x509.adoc[]
-
-include::runas.adoc[]
 
 include::crypto.adoc[]
 
