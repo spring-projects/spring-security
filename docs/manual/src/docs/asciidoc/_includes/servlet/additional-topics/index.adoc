@@ -5,6 +5,4 @@ In this part we cover features which require knowledge of previous chapters as w
 
 include::acls.adoc[]
 
-include::jsp-taglibs.adoc[]
-
 include::crypto.adoc[]
