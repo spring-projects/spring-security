@@ -33,12 +33,14 @@ import java.util.regex.Pattern;
  */
 public class BCryptPasswordEncoder implements PasswordEncoder {
 	private Pattern BCRYPT_PATTERN = Pattern
-			.compile("\\A\\$2a?\\$\\d\\d\\$[./0-9A-Za-z]{53}");
+			.compile("\\A\\$2(a|y|b)?\\$\\d\\d\\$[./0-9A-Za-z]{53}");
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final int strength;
+	private final String version;
 
 	private final SecureRandom random;
+
 
 	public BCryptPasswordEncoder() {
 		this(-1);
@@ -52,30 +54,75 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	/**
+	 * @param version the version of bcrypt, can be 2a,2b,2y
+	 */
+	public BCryptPasswordEncoder(String version) {
+		this(version, null);
+	}
+
+	/**
+	 * @param version the version of bcrypt, can be 2a,2b,2y
+	 * @param random the secure random instance to use
+	 */
+	public BCryptPasswordEncoder(String version, SecureRandom random) {
+		this(version, -1, random);
+	}
+
+	/**
 	 * @param strength the log rounds to use, between 4 and 31
 	 * @param random the secure random instance to use
 	 *
 	 */
 	public BCryptPasswordEncoder(int strength, SecureRandom random) {
+		this(null, strength, random);
+	}
+
+	/**
+	 * @param version the version of bcrypt, can be 2a,2b,2y
+	 * @param strength the log rounds to use, between 4 and 31
+	 */
+	public BCryptPasswordEncoder(String version, int strength) {
+		this(version, strength, null);
+	}
+
+	/**
+	 * @param version the version of bcrypt, can be 2a,2b,2y
+	 * @param strength the log rounds to use, between 4 and 31
+	 * @param random the secure random instance to use
+	 *
+	 */
+	public BCryptPasswordEncoder(String version, int strength, SecureRandom random) {
 		if (strength != -1 && (strength < BCrypt.MIN_LOG_ROUNDS || strength > BCrypt.MAX_LOG_ROUNDS)) {
 			throw new IllegalArgumentException("Bad strength");
 		}
+		this.version = version;
 		this.strength = strength;
 		this.random = random;
 	}
 
 	public String encode(CharSequence rawPassword) {
 		String salt;
-		if (strength > 0) {
-			if (random != null) {
-				salt = BCrypt.gensalt(strength, random);
+		if(version != null) {
+			if (strength > 0) {
+				if (random != null) {
+					salt = BCrypt.gensalt(version, strength, random);
+				} else {
+					System.out.println(version);
+					salt = BCrypt.gensalt(version, strength);
+				}
+			} else {
+				salt = BCrypt.gensalt(version);
 			}
-			else {
-				salt = BCrypt.gensalt(strength);
+		} else {
+			if (strength > 0) {
+				if (random != null) {
+					salt = BCrypt.gensalt(strength, random);
+				} else {
+					salt = BCrypt.gensalt(strength);
+				}
+			} else {
+				salt = BCrypt.gensalt();
 			}
-		}
-		else {
-			salt = BCrypt.gensalt();
 		}
 		return BCrypt.hashpw(rawPassword.toString(), salt);
 	}
@@ -93,4 +140,8 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 
 		return BCrypt.checkpw(rawPassword.toString(), encodedPassword);
 	}
+
+	public static final String BCRYPT_VERSION_2A = "$2a";
+	public static final String BCRYPT_VERSION_2Y = "$2y";
+	public static final String BCRYPT_VERSION_2B = "$2b";
 }
