@@ -33,12 +33,28 @@ public class BCryptPasswordEncoderTests {
 		String result = encoder.encode("password");
 		assertThat(result.equals("password")).isFalse();
 		assertThat(encoder.matches("password", result)).isTrue();
+		encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCRYPT_VERSION_2B);
+		result = encoder.encode("password");
+		assertThat(result.equals("password")).isFalse();
+		assertThat(encoder.matches("password", result)).isTrue();
+		encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCRYPT_VERSION_2Y);
+		result = encoder.encode("password");
+		assertThat(result.equals("password")).isFalse();
+		assertThat(encoder.matches("password", result)).isTrue();
 	}
 
 	@Test
 	public void unicode() {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		String result = encoder.encode("passw\u9292rd");
+		assertThat(encoder.matches("pass\u9292\u9292rd", result)).isFalse();
+		assertThat(encoder.matches("passw\u9292rd", result)).isTrue();
+		encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCRYPT_VERSION_2B);
+		result = encoder.encode("passw\u9292rd");
+		assertThat(encoder.matches("pass\u9292\u9292rd", result)).isFalse();
+		assertThat(encoder.matches("passw\u9292rd", result)).isTrue();
+		encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCRYPT_VERSION_2Y);
+		result = encoder.encode("passw\u9292rd");
 		assertThat(encoder.matches("pass\u9292\u9292rd", result)).isFalse();
 		assertThat(encoder.matches("passw\u9292rd", result)).isTrue();
 	}
@@ -48,6 +64,12 @@ public class BCryptPasswordEncoderTests {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("bogus", result)).isFalse();
+		encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCRYPT_VERSION_2B);
+		result = encoder.encode("password");
+		assertThat(encoder.matches("bogus", result)).isFalse();
+		encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCRYPT_VERSION_2Y);
+		result = encoder.encode("password");
+		assertThat(encoder.matches("bogus", result)).isFalse();
 	}
 
 	@Test
@@ -55,6 +77,13 @@ public class BCryptPasswordEncoderTests {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(8);
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("password", result)).isTrue();
+		encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCRYPT_VERSION_2B, 8);
+		result = encoder.encode("password");
+		assertThat(encoder.matches("password", result)).isTrue();
+		encoder = new BCryptPasswordEncoder(BCryptPasswordEncoder.BCRYPT_VERSION_2Y, 8);
+		result = encoder.encode("password");
+		assertThat(encoder.matches("password", result)).isTrue();
+
 	}
 
 	@Test(expected = IllegalArgumentException.class)
