@@ -9,8 +9,6 @@ include::security-filter-chain.adoc[]
 
 include::core-filters.adoc[]
 
-include::servlet-api.adoc[]
-
 include::csrf.adoc[]
 
 include::cors.adoc[]
