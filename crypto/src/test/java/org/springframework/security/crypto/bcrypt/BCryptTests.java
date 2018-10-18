@@ -43,6 +43,14 @@ public class BCryptTests {
 					"$2a$10$k1wbIrmNyFAPwPVPSVa/zecw2BCEnBwVS2GbrmgzxFUOqW9dk4TCW" },
 			{ "", "$2a$12$k42ZFHFWqBp3vWli.nIn8u",
 					"$2a$12$k42ZFHFWqBp3vWli.nIn8uYyIkbvYRvodzbfbK18SSsY.CsIQPlxO" },
+			{ "", "$2b$06$8eVN9RiU8Yki430X.wBvN.",
+					"$2b$06$8eVN9RiU8Yki430X.wBvN.LWaqh2962emLVSVXVZIXJvDYLsV0oFu" },
+			{ "", "$2b$06$NlgfNgpIc6GlHciCkMEW8u",
+					"$2b$06$NlgfNgpIc6GlHciCkMEW8uKOBsyvAp7QwlHpysOlKdtyEw50WQua2" },
+			{ "", "$2y$06$mFDtkz6UN7B3GZ2qi2hhaO",
+					"$2y$06$mFDtkz6UN7B3GZ2qi2hhaO3OFWzNEdcY84ELw6iHCPruuQfSAXBLK" },
+			{ "", "$2y$06$88kSqVttBx.e9iXTPCLa5u",
+					"$2y$06$88kSqVttBx.e9iXTPCLa5uFPrVFjfLH4D.KcO6pBiAmvUkvdg0EYy" },
 			{ "a", "$2a$06$m0CrhHm10qJ3lXRY.5zDGO",
 					"$2a$06$m0CrhHm10qJ3lXRY.5zDGO3rS2KdeeWLuGmsfGlMfOxih58VYVfxe" },
 			{ "a", "$2a$08$cfcvVd2aQ8CMvoMpP2EBfe",
@@ -51,6 +59,14 @@ public class BCryptTests {
 					"$2a$10$k87L/MF28Q673VKh8/cPi.SUl7MU/rWuSiIDDFayrKk/1tBsSQu4u" },
 			{ "a", "$2a$12$8NJH3LsPrANStV6XtBakCe",
 					"$2a$12$8NJH3LsPrANStV6XtBakCez0cKHXVxmvxIlcz785vxAIZrihHZpeS" },
+			{ "a", "$2b$06$ehKGYiS4wt2HAr7KQXS5z.",
+					"$2b$06$ehKGYiS4wt2HAr7KQXS5z.OaRjB4jHO7rBHJKlGXbqEH3QVJfO7iO" },
+			{ "a", "$2b$06$PWxFFHA3HiCD46TNOZh30e",
+					"$2b$06$PWxFFHA3HiCD46TNOZh30eNto1hg5uM9tHBlI4q/b03SW/gGKUYk6" },
+			{ "a", "$2y$06$LUdD6/aD0e/UbnxVAVbvGu",
+					"$2y$06$LUdD6/aD0e/UbnxVAVbvGuUmIoJ3l/OK94ThhadpMWwKC34LrGEey" },
+			{ "a", "$2y$06$eqgY.T2yloESMZxgp76deO",
+					"$2y$06$eqgY.T2yloESMZxgp76deOROa7nzXDxbO0k.PJvuClTa.Vu1AuemG" },
 			{ "abc", "$2a$06$If6bvum7DFjUnE9p2uDeDu",
 					"$2a$06$If6bvum7DFjUnE9p2uDeDu0YHzrHM6tf.iqN8.yx.jNN1ILEf7h0i" },
 			{ "abc", "$2a$08$Ro0CUfOqk6cXEKf3dyaM7O",
@@ -59,6 +75,14 @@ public class BCryptTests {
 					"$2a$10$WvvTPHKwdBJ3uk0Z37EMR.hLA2W6N9AEBhEgrAOljy2Ae5MtaSIUi" },
 			{ "abc", "$2a$12$EXRkfkdmXn2gzds2SSitu.",
 					"$2a$12$EXRkfkdmXn2gzds2SSitu.MW9.gAVqa9eLS1//RYtYCmB1eLHg.9q" },
+			{ "abc", "$2b$06$5FyQoicpbox1xSHFfhhdXu",
+					"$2b$06$5FyQoicpbox1xSHFfhhdXuR2oxLpO1rYsQh5RTkI/9.RIjtoF0/ta" },
+			{ "abc", "$2b$06$1kJyuho8MCVP3HHsjnRMkO",
+					"$2b$06$1kJyuho8MCVP3HHsjnRMkO1nvCOaKTqLnjG2TX1lyMFbXH/aOkgc." },
+			{ "abc", "$2y$06$ACfku9dT6.H8VjdKb8nhlu",
+					"$2y$06$ACfku9dT6.H8VjdKb8nhluaoBmhJyK7GfoNScEfOfrJffUxoUeCjK" },
+			{ "abc", "$2y$06$9JujYcoWPmifvFA3RUP90e",
+					"$2y$06$9JujYcoWPmifvFA3RUP90e5rSEHAb5Ye6iv3.G9ikiHNv5cxjNEse" },
 			{ "abcdefghijklmnopqrstuvwxyz", "$2a$06$.rCVZVOThsIa97pEDOxvGu",
 					"$2a$06$.rCVZVOThsIa97pEDOxvGuRRgzG64bvtJ0938xuqzv18d3ZpQhstC" },
 			{ "abcdefghijklmnopqrstuvwxyz", "$2a$08$aTsUwsyowQuzRrDqFflhge",
@@ -67,6 +91,14 @@ public class BCryptTests {
 					"$2a$10$fVH8e28OQRj9tqiDXs1e1uxpsjN0c7II7YPKXua2NAKYvM6iQk7dq" },
 			{ "abcdefghijklmnopqrstuvwxyz", "$2a$12$D4G5f18o7aMMfwasBL7Gpu",
 					"$2a$12$D4G5f18o7aMMfwasBL7GpuQWuP3pkrZrOAnqP.bmezbMng.QwJ/pG" },
+			{ "abcdefghijklmnopqrstuvwxyz", "$2b$06$O8E89AQPj1zJQA05YvIAU.",
+					"$2b$06$O8E89AQPj1zJQA05YvIAU.hMpj25BXri1bupl/Q7CJMlpLwZDNBoO" },
+			{ "abcdefghijklmnopqrstuvwxyz", "$2b$06$PDqIWr./o/P3EE/P.Q0A/u",
+					"$2b$06$PDqIWr./o/P3EE/P.Q0A/uFg86WL/PXTbaW267TDALEwDylqk00Z." },
+			{ "abcdefghijklmnopqrstuvwxyz", "$2y$06$34MG90ZLah8/ZNr3ltlHCu",
+					"$2y$06$34MG90ZLah8/ZNr3ltlHCuz6bachF8/3S5jTuzF1h2qg2cUk11sFW" },
+			{ "abcdefghijklmnopqrstuvwxyz", "$2y$06$AK.hSLfMyw706iEW24i68u",
+					"$2y$06$AK.hSLfMyw706iEW24i68uKAc2yorPTrB0cimvjJHEBUrPkOq7VvG" },
 			{ "~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$06$fPIsBO8qRqkjj273rfaOI.",
 					"$2a$06$fPIsBO8qRqkjj273rfaOI.HtSV9jLDpTbZn782DC6/t7qT67P6FfO" },
 			{ "~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$08$Eq2r4G/76Wv39MzSX262hu",
@@ -74,7 +106,15 @@ public class BCryptTests {
 			{ "~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$10$LgfYWkbzEvQ4JakH7rOvHe",
 					"$2a$10$LgfYWkbzEvQ4JakH7rOvHe0y8pHKF9OaFgwUZ2q7W2FFZmZzJYlfS" },
 			{ "~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$12$WApznUOJfkEGSmYRfnkrPO",
-					"$2a$12$WApznUOJfkEGSmYRfnkrPOr466oFDCaj4b6HY3EXGvfxm43seyhgC" } };
+					"$2a$12$WApznUOJfkEGSmYRfnkrPOr466oFDCaj4b6HY3EXGvfxm43seyhgC" },
+			{ "~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2b$06$FGWA8OlY6RtQhXBXuCJ8Wu",
+					"$2b$06$FGWA8OlY6RtQhXBXuCJ8WusVipRI15cWOgJK8MYpBHEkktMfbHRIG" },
+			{ "~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2b$06$G6aYU7UhUEUDJBdTgq3CRe",
+					"$2b$06$G6aYU7UhUEUDJBdTgq3CRekiopCN4O4sNitFXrf5NUscsVZj3a2r6" },
+			{ "~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2y$06$sYDFHqOcXTjBgOsqC0WCKe",
+					"$2y$06$sYDFHqOcXTjBgOsqC0WCKeMd3T1UhHuWQSxncLGtXDLMrcE6vFDti" },
+			{ "~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2y$06$6Xm0gCw4g7ZNDCEp4yTise",
+					"$2y$06$6Xm0gCw4g7ZNDCEp4yTisez0kSdpXEl66MvdxGidnmChIe8dFmMnq" } };
 
 	/**
 	 * Test method for 'BCrypt.hashpw(String, String)'
@@ -152,7 +192,7 @@ public class BCryptTests {
 	public void testCheckpw_failure() {
 		print("BCrypt.checkpw w/ bad passwords: ");
 		for (int i = 0; i < test_vectors.length; i++) {
-			int broken_index = (i + 4) % test_vectors.length;
+			int broken_index = (i + 8) % test_vectors.length;
 			String plain = test_vectors[i][0];
 			String expected = test_vectors[broken_index][2];
 			assertThat(BCrypt.checkpw(plain, expected)).isFalse();
