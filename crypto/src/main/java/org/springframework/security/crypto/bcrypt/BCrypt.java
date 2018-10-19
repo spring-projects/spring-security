@@ -423,9 +423,9 @@ public class BCrypt {
 	 * @return	the decoded value of x
 	 */
 	private static byte char64(char x) {
-		if ((int)x < 0 || (int)x > index_64.length)
+		if ((int) x < 0 || (int) x > index_64.length)
 			return -1;
-		return index_64[(int)x];
+		return index_64[(int) x];
 	}
 
 	/**
@@ -437,7 +437,7 @@ public class BCrypt {
 	 * @return	an array containing the decoded bytes
 	 * @throws IllegalArgumentException if maxolen is invalid
 	 */
-	 static byte[] decode_base64(String s, int maxolen)
+	static byte[] decode_base64(String s, int maxolen)
 			throws IllegalArgumentException {
 		StringBuilder rs = new StringBuilder();
 		int off = 0, slen = s.length(), olen = 0;
@@ -452,29 +452,29 @@ public class BCrypt {
 			c2 = char64(s.charAt(off++));
 			if (c1 == -1 || c2 == -1)
 				break;
-			o = (byte)(c1 << 2);
+			o = (byte) (c1 << 2);
 			o |= (c2 & 0x30) >> 4;
-			rs.append((char)o);
+			rs.append((char) o);
 			if (++olen >= maxolen || off >= slen)
 				break;
 			c3 = char64(s.charAt(off++));
 			if (c3 == -1)
 				break;
-			o = (byte)((c2 & 0x0f) << 4);
+			o = (byte) ((c2 & 0x0f) << 4);
 			o |= (c3 & 0x3c) >> 2;
-			rs.append((char)o);
+			rs.append((char) o);
 			if (++olen >= maxolen || off >= slen)
 				break;
 			c4 = char64(s.charAt(off++));
-			o = (byte)((c3 & 0x03) << 6);
+			o = (byte) ((c3 & 0x03) << 6);
 			o |= c4;
-			rs.append((char)o);
+			rs.append((char) o);
 			++olen;
 		}
 
 		ret = new byte[olen];
 		for (off = 0; off < olen; off++)
-			ret[off] = (byte)rs.charAt(off);
+			ret[off] = (byte) rs.charAt(off);
 		return ret;
 	}
 
@@ -524,7 +524,7 @@ public class BCrypt {
 
 		for (i = 0; i < 4; i++) {
 			words[0] = (words[0] << 8) | (data[off] & 0xff);
-			words[1] = (words[1] << 8) | (int)data[off]; // sign extension bug
+			words[1] = (words[1] << 8) | (int) data[off]; // sign extension bug
 			if (i > 0) sign |= words[1] & 0x80;
 			off = (off + 1) % data.length;
 		}
@@ -562,8 +562,8 @@ public class BCrypt {
 	 * Initialise the Blowfish key schedule
 	 */
 	private void init_key() {
-		P = (int[])P_orig.clone();
-		S = (int[])S_orig.clone();
+		P = P_orig.clone();
+		S = S_orig.clone();
 	}
 
 	/**
@@ -689,7 +689,7 @@ public class BCrypt {
 	private byte[] crypt_raw(byte password[], byte salt[], int log_rounds,
 							 boolean sign_ext_bug, int safety) {
 		int rounds, i, j;
-		int cdata[] = (int[])bf_crypt_ciphertext.clone();
+		int cdata[] =  bf_crypt_ciphertext.clone();
 		int clen = cdata.length;
 		byte ret[];
 
@@ -713,10 +713,10 @@ public class BCrypt {
 
 		ret = new byte[clen * 4];
 		for (i = 0, j = 0; i < clen; i++) {
-			ret[j++] = (byte)((cdata[i] >> 24) & 0xff);
-			ret[j++] = (byte)((cdata[i] >> 16) & 0xff);
-			ret[j++] = (byte)((cdata[i] >> 8) & 0xff);
-			ret[j++] = (byte)(cdata[i] & 0xff);
+			ret[j++] = (byte) ((cdata[i] >> 24) & 0xff);
+			ret[j++] = (byte) ((cdata[i] >> 16) & 0xff);
+			ret[j++] = (byte) ((cdata[i] >> 8) & 0xff);
+			ret[j++] = (byte) (cdata[i] & 0xff);
 		}
 		return ret;
 	}
@@ -751,8 +751,8 @@ public class BCrypt {
 		BCrypt B;
 		String real_salt;
 		byte saltb[], hashed[];
-		char minor = (char)0;
-		int rounds, off = 0;
+		char minor = (char) 0;
+		int rounds, off;
 		StringBuilder rs = new StringBuilder();
 
 		if (salt == null) {
@@ -866,7 +866,7 @@ public class BCrypt {
 	 */
 	public static String gensalt(int log_rounds, SecureRandom random)
 			throws IllegalArgumentException {
-		return gensalt("$2a", log_rounds, random);
+		return gensalt("$2y", log_rounds, random);
 	}
 
 	/**
