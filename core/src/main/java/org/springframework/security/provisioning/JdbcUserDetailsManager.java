@@ -76,7 +76,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	// GroupManager SQL
 	public static final String DEF_FIND_GROUPS_SQL = "select group_name from groups";
 	public static final String DEF_FIND_USERS_IN_GROUP_SQL = "select username from group_members gm, groups g "
-			+ "where gm.group_id = g.id" + " and g.group_name = ?";
+			+ "where gm.group_id = g.id and g.group_name = ?";
 	public static final String DEF_INSERT_GROUP_SQL = "insert into groups (group_name) values (?)";
 	public static final String DEF_FIND_GROUP_ID_SQL = "select id from groups where group_name = ?";
 	public static final String DEF_INSERT_GROUP_AUTHORITY_SQL = "insert into group_authorities (group_id, authority) values (?,?)";
