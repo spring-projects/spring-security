@@ -47,7 +47,7 @@ Create your topic branch to be submitted as a pull request from master. The Spri
 # Use short branch names
 Branches used when submitting pull requests should preferably be named according to GitHub issues, e.g. 'gh-1234' or 'gh-1234-fix-npe'. Otherwise, use succinct, lower-case, dash (-) delimited names, such as 'fix-warnings', 'fix-typo', etc. This is important, because branch names show up in the merge commits that result from accepting pull requests, and should be as expressive and concise as possible.
 
-#Keep commits focused
+# Keep commits focused
 
 Remember each ticket should be focused on a single item of interest since the tickets are used to produce the changelog. Since each commit should be tied to a single GitHub issue, ensure that your commits are focused. For example, do not include an update to a transitive library in your commit unless the GitHub is to update the library. Reviewing your commits is essential before sending a pull request.
 
