@@ -806,7 +806,7 @@ public class BCrypt {
 
 	/**
 	 * Generate a salt for use with the BCrypt.hashpw() method
-	 * @param prefix		the prefix value (default $2y)
+	 * @param prefix		the prefix value (default $2a)
 	 * @param log_rounds	the log2 of the number of rounds of
 	 * hashing to apply - the work factor therefore increases as
 	 * 2**log_rounds.
@@ -843,7 +843,7 @@ public class BCrypt {
 
 	/**
 	 * Generate a salt for use with the BCrypt.hashpw() method
-	 * @param prefix		the prefix value (default $2y)
+	 * @param prefix		the prefix value (default $2a)
 	 * @param log_rounds	the log2 of the number of rounds of
 	 * hashing to apply - the work factor therefore increases as
 	 * 2**log_rounds.
@@ -866,7 +866,7 @@ public class BCrypt {
 	 */
 	public static String gensalt(int log_rounds, SecureRandom random)
 			throws IllegalArgumentException {
-		return gensalt("$2y", log_rounds, random);
+		return gensalt("$2a", log_rounds, random);
 	}
 
 	/**

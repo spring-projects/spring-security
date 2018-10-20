@@ -308,8 +308,8 @@ public class BCryptTests {
 
 	@Test
 	public void genSaltGeneratesCorrectSaltPrefix() {
-		assertThat(BCrypt.gensalt(4)).startsWith("$2y$04$");
-		assertThat(BCrypt.gensalt(31)).startsWith("$2y$31$");
+		assertThat(BCrypt.gensalt(4)).startsWith("$2a$04$");
+		assertThat(BCrypt.gensalt(31)).startsWith("$2a$31$");
 	}
 
 	@Test(expected = IllegalArgumentException.class)

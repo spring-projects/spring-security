@@ -72,7 +72,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 * @param random   the secure random instance to use
 	 */
 	public BCryptPasswordEncoder(int strength, SecureRandom random) {
-		this(BCryptVersion.$2Y, strength, random);
+		this(BCryptVersion.$2A, strength, random);
 	}
 
 	/**
