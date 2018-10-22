@@ -687,7 +687,7 @@ public class BCrypt {
 	 * @return	an array containing the binary hashed password
 	 */
 	private byte[] crypt_raw(byte password[], byte salt[], int log_rounds,
-							 boolean sign_ext_bug, int safety) {
+							boolean sign_ext_bug, int safety) {
 		int rounds, i, j;
 		int cdata[] =  bf_crypt_ciphertext.clone();
 		int clen = cdata.length;
