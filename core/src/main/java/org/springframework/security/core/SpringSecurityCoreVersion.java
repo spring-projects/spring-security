@@ -103,7 +103,7 @@ public class SpringSecurityCoreVersion {
 	}
 
 	/**
-	 * Loads the spring version or null if it cannot be found.AbstractAuthorizeTagTests
+	 * Loads the spring version or null if it cannot be found.
 	 * @return
 	 */
 	private static String getSpringVersion() {
