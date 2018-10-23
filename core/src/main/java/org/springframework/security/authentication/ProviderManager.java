@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.authentication;
 
 import java.util.Collections;
@@ -158,6 +157,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		Class<? extends Authentication> toTest = authentication.getClass();
 		AuthenticationException lastException = null;
 		Authentication result = null;
+		Authentication parentResult = null;
 		boolean debug = logger.isDebugEnabled();
 
 		for (AuthenticationProvider provider : getProviders()) {
@@ -196,7 +196,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		if (result == null && parent != null) {
 			// Allow the parent to try.
 			try {
-				result = parent.authenticate(authentication);
+				result = parentResult = parent.authenticate(authentication);
 			}
 			catch (ProviderNotFoundException e) {
 				// ignore as we will throw below if no other exception occurred prior to
@@ -217,7 +217,11 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 				((CredentialsContainer) result).eraseCredentials();
 			}
 
-			eventPublisher.publishAuthenticationSuccess(result);
+			// If the parent AuthenticationManager was attempted and successful than it will publish an AuthenticationSuccessEvent
+			// This check prevents a duplicate AuthenticationSuccessEvent if the parent AuthenticationManager already published it
+			if (parentResult == null) {
+				eventPublisher.publishAuthenticationSuccess(result);
+			}
 			return result;
 		}
 
