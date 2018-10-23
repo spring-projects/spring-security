@@ -200,6 +200,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 
 		AuthenticationManager authenticationManager = authenticationManager();
 		authenticationBuilder.parentAuthenticationManager(authenticationManager);
+		authenticationBuilder.authenticationEventPublisher(eventPublisher);
 		Map<Class<? extends Object>, Object> sharedObjects = createSharedObjects();
 
 		http = new HttpSecurity(objectPostProcessor, authenticationBuilder,
