@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
@@ -28,6 +29,7 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -154,6 +156,30 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first()
 				.isInstanceOf(OAuth2UserAuthority.class).hasToString("ROLE_USER");
+	}
+
+	// gh-6009
+	@Test
+	public void oauth2LoginWhenSuccessThenAuthenticationSuccessEventPublished() throws Exception {
+		// setup application context
+		loadConfig(OAuth2LoginConfig.class);
+
+		// setup authorization request
+		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
+		this.authorizationRequestRepository.saveAuthorizationRequest(
+				authorizationRequest, this.request, this.response);
+
+		// setup authentication parameters
+		this.request.setParameter("code", "code123");
+		this.request.setParameter("state", authorizationRequest.getState());
+
+		// perform test
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+
+		// assertions
+		assertThat(OAuth2LoginConfig.EVENTS).isNotEmpty();
+		assertThat(OAuth2LoginConfig.EVENTS).hasSize(1);
+		assertThat(OAuth2LoginConfig.EVENTS.get(0)).isInstanceOf(AuthenticationSuccessEvent.class);
 	}
 
 	@Test
@@ -467,7 +493,9 @@ public class OAuth2LoginConfigurerTests {
 	}
 
 	@EnableWebSecurity
-	static class OAuth2LoginConfig extends CommonWebSecurityConfigurerAdapter {
+	static class OAuth2LoginConfig extends CommonWebSecurityConfigurerAdapter implements ApplicationListener<AuthenticationSuccessEvent> {
+		static List<AuthenticationSuccessEvent> EVENTS = new ArrayList<>();
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
@@ -475,6 +503,11 @@ public class OAuth2LoginConfigurerTests {
 					.clientRegistrationRepository(
 						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION));
 			super.configure(http);
+		}
+
+		@Override
+		public void onApplicationEvent(AuthenticationSuccessEvent event) {
+			EVENTS.add(event);
 		}
 	}
 
