@@ -14,7 +14,7 @@ dependencies {
 			 "org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
 			 'org.apache.directory.shared:shared-ldap:0.9.15',
 			 'ldapsdk:ldapsdk:4.1',
-			 'com.unboundid:unboundid-ldapsdk:4.0.8'
+			 'com.unboundid:unboundid-ldapsdk:3.2.1'
 
 	compile ("org.springframework.ldap:spring-ldap-core:$springLdapVersion") {
 		exclude(group: 'commons-logging', module: 'commons-logging')
