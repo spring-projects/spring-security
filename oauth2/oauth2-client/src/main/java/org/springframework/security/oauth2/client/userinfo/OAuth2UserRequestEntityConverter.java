@@ -60,7 +60,7 @@ public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserReq
 			httpMethod = HttpMethod.POST;
 		}
 		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())
 				.build()
 				.toUri();

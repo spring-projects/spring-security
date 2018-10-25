@@ -56,7 +56,7 @@ public class OAuth2UserRequestEntityConverterTests {
 				clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
 
 		HttpHeaders headers = requestEntity.getHeaders();
-		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
 		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo(
 				"Bearer " + userRequest.getAccessToken().getTokenValue());
 	}
@@ -77,7 +77,7 @@ public class OAuth2UserRequestEntityConverterTests {
 				clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri());
 
 		HttpHeaders headers = requestEntity.getHeaders();
-		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON);
 		assertThat(headers.getContentType()).isEqualTo(
 				MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
 
