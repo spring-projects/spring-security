@@ -81,6 +81,21 @@ try {
 				}
 			}
 		}
+	},
+	jdk11: {
+		stage('JDK 11') {
+			node {
+				checkout scm
+				try {
+					withEnv(["JAVA_HOME=${ tool 'jdk11' }"]) {
+						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
+					}
+				} catch(Exception e) {
+					currentBuild.result = 'FAILED: jdk11'
+					throw e
+				}
+			}
+		}
 	}
 
 	if(currentBuild.result == 'SUCCESS') {
