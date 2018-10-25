@@ -316,7 +316,7 @@ public class OidcUserServiceTests {
 
 		this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		assertThat(this.server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
-				.isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
+				.isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 	}
 
 	// gh-5500
@@ -341,7 +341,7 @@ public class OidcUserServiceTests {
 		this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		RecordedRequest request = this.server.takeRequest();
 		assertThat(request.getMethod()).isEqualTo(HttpMethod.GET.name());
-		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
+		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 		assertThat(request.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
 
@@ -367,7 +367,7 @@ public class OidcUserServiceTests {
 		this.userService.loadUser(new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
 		RecordedRequest request = this.server.takeRequest();
 		assertThat(request.getMethod()).isEqualTo(HttpMethod.POST.name());
-		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_UTF8_VALUE);
+		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 		assertThat(request.getHeader(HttpHeaders.CONTENT_TYPE)).contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		assertThat(request.getBody().readUtf8()).isEqualTo("access_token=" + this.accessToken.getTokenValue());
 	}
