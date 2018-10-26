@@ -1,6 +1,5 @@
-
-[[cors]]
-== CORS
+[[servlet-integrations-cors]]
+= CORS
 
 Spring Framework provides https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-cors[first class support for CORS].
 CORS must be processed before Spring Security because the pre-flight request will not contain any cookies (i.e. the `JSESSIONID`).

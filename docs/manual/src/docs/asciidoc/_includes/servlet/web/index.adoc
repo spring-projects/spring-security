@@ -9,6 +9,4 @@ include::security-filter-chain.adoc[]
 
 include::core-filters.adoc[]
 
-include::cors.adoc[]
-
 include::websocket.adoc[]
