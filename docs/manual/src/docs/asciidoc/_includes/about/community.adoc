@@ -1,40 +1,37 @@
 [[community]]
-== Spring Security Community
+= Spring Security Community
 
 Welcome to the Spring Security Community!
 This section discusses how you to make the most of our vast community.
 
 
 [[community-help]]
-=== Getting Help
+== Getting Help
 If you need help with Spring Security, we are here to help.
 Below are some of the best steps to getting help:
 
-* Read our reference documentation
-* Try one of our many sample applications
-// FIXME: Add a link to the samples section
-* Ask a question on https://stackoverflow.com with the tag `spring-security`
+* Read through this documentation
+* Try one of our many <<samples,sample applications>>
+* Ask a question on https://stackoverflow.com/questions/tagged/spring-security[https://stackoverflow.com] with the tag `spring-security`
 * Report a bugs and enhancement requests at https://github.com/spring-projects/spring-security/issues
 
 [[community-becoming-involved]]
-=== Becoming Involved
+== Becoming Involved
 We welcome your involvement in the Spring Security project.
 There are many ways of contributing, including answering questions on StackOverflow, writing new code, improving existing code, assisting with documentation, developing samples or tutorials, reporting bugs, or simply making suggestions.
+For more information refer to our https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.md[Contributing] documentation.
 
 [[community-source]]
-=== Source Code
+== Source Code
 
 Spring Security's source code can be found on GitHub at https://github.com/spring-projects/spring-security/
 
 [[community-license]]
-=== Apache 2 License
+== Apache 2 License
 
 Spring Security is Open Source software released under the http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
 
-=== Social Media
+== Social Media
 
 You may follow https://twitter.com/SpringSecurity[@SpringSecurity] and https://twitter.com/SpringSecurity/lists/team[Spring Security team] on Twitter to stay up to date with the latest news.
 You can also follow https://twitter.com/SpringCentral[@SpringCentral] to keep up to date with the entire Spring portfolio.
-
-// == Getting Started
-// FIXME: Add links to samples

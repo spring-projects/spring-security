@@ -1,4 +1,4 @@
-[[get-spring-security]]
+[[getting]]
 = Getting Spring Security
 
 This section discusses all you need to know about getting the Spring Security binaries.

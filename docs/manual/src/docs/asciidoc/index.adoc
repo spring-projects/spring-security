@@ -6,9 +6,9 @@ Ben Alex; Luke Taylor; Rob Winch; Gunnar Hillert; Joe Grandja; Jay Bryant
 :tabsize: 4
 
 Spring Security is a framework that provides <<servlet-authentication,Authentication>>, <<servlet-authorization,Authorization>>, and <<servlet-exploits,Protection Against Exploits>>.
-With first class support for both web applications deployed in a <<servlet,servlet container>> and <<reactive,reactive applications>>, it is the de-facto standard for securing Java applications.
+With first class support web applications deployed in a <<servlet,servlet container>> and <<reactive,reactive applications>>, it is the de-facto standard for securing Java applications.
 
-include::{include-dir}/preface/index.adoc[]
+include::{include-dir}/about/index.adoc[]
 
 include::{include-dir}/servlet/index.adoc[]
 

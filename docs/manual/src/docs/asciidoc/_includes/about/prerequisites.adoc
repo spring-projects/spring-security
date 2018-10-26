@@ -2,6 +2,7 @@
 = Prerequisites
 
 Spring Security requires a Java 8 Runtime Environment or higher.
+
 As Spring Security aims to operate in a self-contained manner, there is no need to place any special configuration files into your Java Runtime Environment.
 In particular, there is no need to configure a special Java Authentication and Authorization Service (JAAS) policy file or place Spring Security into common classpath locations.
 
