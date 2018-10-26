@@ -2,6 +2,8 @@
 
 include::hello/index.adoc[leveloffset=+1]
 
+include::samples/index.adoc[leveloffset=+1]
+
 include::authentication/index.adoc[leveloffset=+1]
 
 include::authorization/index.adoc[leveloffset=+1]

@@ -12,4 +12,4 @@ include::getting-spring-security.adoc[leveloffset=+1]
 
 include::modules.adoc[leveloffset=+1]
 
-include::samples.adoc[]
+include::samples.adoc[leveloffset=+1]
