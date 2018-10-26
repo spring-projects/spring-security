@@ -1,6 +1,0 @@
-
-[[advanced-topics]]
-= Additional Topics
-In this part we cover features which require knowledge of previous chapters as well as some of the more advanced and less-commonly used features of the framework.
-
-include::crypto.adoc[]
