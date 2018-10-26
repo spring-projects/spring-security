@@ -1,3 +1,4 @@
+[[servlet]]
 = Servlet Applications
 
 include::hello/index.adoc[leveloffset=+1]

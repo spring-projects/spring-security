@@ -1,3 +1,4 @@
+[[servlet-authentication]]
 = Authentication
 
 include::inmemory.adoc[leveloffset=+1]

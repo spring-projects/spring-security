@@ -4,6 +4,7 @@
 Spring Security 5.1 provides a number of new features.
 Below are the highlights of the release.
 
+[[new-servlet]]
 === Servlet
 
 * Automatic password storage upgrades through {security-api-url}org/springframework/security/core/userdetails/UserDetailsPasswordService.html[UserDetailsPasswordService]
@@ -20,6 +21,7 @@ Below are the highlights of the release.
 * Added {security-api-url}core/src/main/java/org/springframework/security/core/Transient.java[@Transient] authentication tokens
 * A modern look-and-feel for the default log in page
 
+[[new-webflux]]
 === WebFlux
 
 * Automatic password storage upgrades through {security-api-url}org/springframework/security/core/userdetails/ReactiveUserDetailsPasswordService.html[ReactiveUserDetailsPasswordService]
@@ -38,6 +40,7 @@ Below are the highlights of the release.
 ** Support for resolving beans
 ** Support for resolving `errorOnInvalidType`
 
+[[new-integrations]]
 === Integrations
 
 * <<jackson,Jackson Support>> works with `BadCredentialsException`
