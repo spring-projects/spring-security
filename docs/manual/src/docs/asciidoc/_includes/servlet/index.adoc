@@ -20,8 +20,6 @@ include::architecture/index.adoc[leveloffset=+1]
 
 include::test/index.adoc[leveloffset=+1]
 
-include::web/index.adoc[leveloffset=+1]
-
 include::crypto/index.adoc[leveloffset=+1]
 
 include::appendix/index.adoc[leveloffset=+1]

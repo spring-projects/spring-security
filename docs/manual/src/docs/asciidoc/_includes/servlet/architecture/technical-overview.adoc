@@ -1,19 +1,19 @@
 
 [[technical-overview]]
-== Technical Overview
+= Technical Overview
 
 
 
 
 [[core-components]]
-=== Core Components
+== Core Components
 In Spring Security 3.0, the contents of the `spring-security-core` jar were stripped down to the bare minimum.
 It no longer contains any code related to web-application security, LDAP or namespace configuration.
 We'll take a look here at some of the Java types that you'll find in the core module.
 They represent the building blocks of the framework, so if you ever need to go beyond a simple namespace configuration then it's important that you understand what they are, even if you don't actually need to interact with them directly.
 
 
-====  SecurityContextHolder, SecurityContext and Authentication Objects
+===  SecurityContextHolder, SecurityContext and Authentication Objects
 The most fundamental object is `SecurityContextHolder`.
 This is where we store details of the present security context of the application, which includes details of the principal currently using the application.
 By default the `SecurityContextHolder` uses a `ThreadLocal` to store these details, which means that the security context is always available to methods in the same thread of execution, even if the security context is not explicitly passed around as an argument to those methods.
@@ -31,7 +31,7 @@ The first is to set a system property, the second is to call a static method on 
 Most applications won't need to change from the default, but if you do, take a look at the JavaDoc for `SecurityContextHolder` to learn more.
 
 
-===== Obtaining information about the current user
+==== Obtaining information about the current user
 Inside the `SecurityContextHolder` we store details of the principal currently interacting with the application.
 Spring Security uses an `Authentication` object to represent this information.
 You won't normally need to create an `Authentication` object yourself, but it is fairly common for users to query the `Authentication` object.
@@ -57,7 +57,7 @@ As we'll see below, most authentication mechanisms within Spring Security return
 
 
 [[tech-userdetailsservice]]
-==== The UserDetailsService
+=== The UserDetailsService
 Another item to note from the above code fragment is that you can obtain a principal from the `Authentication` object.
 The principal is just an `Object`.
 Most of the time this can be cast into a `UserDetails` object.
@@ -94,7 +94,7 @@ In many cases it makes more sense to <<core-services-authentication-manager,impl
 
 
 [[tech-granted-authority]]
-==== GrantedAuthority
+=== GrantedAuthority
 Besides the principal, another important method provided by `Authentication` is `getAuthorities()`.
 This method provides an array of `GrantedAuthority` objects.
 A `GrantedAuthority` is, not surprisingly, an authority that is granted to the principal.
@@ -109,7 +109,7 @@ Thus, you wouldn't likely have a `GrantedAuthority` to represent a permission to
 Of course, Spring Security is expressly designed to handle this common requirement, but you'd instead use the project's domain object security capabilities for this purpose.
 
 
-==== Summary
+=== Summary
 Just to recap, the major building blocks of Spring Security that we've seen so far are:
 
 
@@ -131,12 +131,12 @@ Now that you've gained an understanding of these repeatedly-used components, let
 
 
 [[tech-intro-authentication]]
-=== Authentication
+== Authentication
 Spring Security can participate in many different authentication environments.
 While we recommend people use Spring Security for authentication and not integrate with existing Container Managed Authentication, it is nevertheless supported - as is integrating with your own proprietary authentication system.
 
 
-==== What is authentication in Spring Security?
+=== What is authentication in Spring Security?
 Let's consider a standard authentication scenario that everyone is familiar with.
 
 . A user is prompted to log in with a username and password.
@@ -238,7 +238,7 @@ We've just included the code here to show that the question of what actually con
 A user is authenticated when the `SecurityContextHolder` contains a fully populated `Authentication` object.
 
 
-==== Setting the SecurityContextHolder Contents Directly
+=== Setting the SecurityContextHolder Contents Directly
 In fact, Spring Security doesn't mind how you put the `Authentication` object inside the `SecurityContextHolder`.
 The only critical requirement is that the `SecurityContextHolder` contains an `Authentication` which represents a principal before the `AbstractSecurityInterceptor` (which we'll see more about later) needs to authorize a user operation.
 
@@ -254,7 +254,7 @@ If you're wondering how the `AuthenticationManager` is implemented in a real wor
 
 
 [[tech-intro-web-authentication]]
-=== Authentication in a Web Application
+== Authentication in a Web Application
 Now let's explore the situation where you are using Spring Security in a web application (without `web.xml` security enabled).
 How is a user authenticated and the security context established?
 
@@ -280,7 +280,7 @@ Spring Security has distinct classes responsible for most of the steps described
 The main participants (in the order that they are used) are the `ExceptionTranslationFilter`, an `AuthenticationEntryPoint` and an "authentication mechanism", which is responsible for calling the `AuthenticationManager` which we saw in the previous section.
 
 
-==== ExceptionTranslationFilter
+=== ExceptionTranslationFilter
 `ExceptionTranslationFilter` is a Spring Security filter that has responsibility for detecting any Spring Security exceptions that are thrown.
 Such exceptions will generally be thrown by an `AbstractSecurityInterceptor`, which is the main provider of authorization services.
 We will discuss `AbstractSecurityInterceptor` in the next section, but for now we just need to know that it produces Java exceptions and knows nothing about HTTP or how to go about authenticating a principal.
@@ -288,13 +288,13 @@ Instead the `ExceptionTranslationFilter` offers this service, with specific resp
 
 
 [[tech-intro-auth-entry-point]]
-==== AuthenticationEntryPoint
+=== AuthenticationEntryPoint
 The `AuthenticationEntryPoint` is responsible for step three in the above list.
 As you can imagine, each web application will have a default authentication strategy (well, this can be configured like nearly everything else in Spring Security, but let's keep it simple for now).
 Each major authentication system will have its own `AuthenticationEntryPoint` implementation, which typically performs one of the actions described in step 3.
 
 
-==== Authentication Mechanism
+=== Authentication Mechanism
 Once your browser submits your authentication credentials (either as an HTTP form post or HTTP header) there needs to be something on the server that "collects" these authentication details.
 By now we're at step six in the above list.
 In Spring Security we have a special name for the function of collecting authentication details from a user agent (usually a web browser), referring to it as the "authentication mechanism".
@@ -306,7 +306,7 @@ If, on the other hand, the `AuthenticationManager` rejected the request, the aut
 
 
 [[tech-intro-sec-context-persistence]]
-==== Storing the SecurityContext between requests
+=== Storing the SecurityContext between requests
 Depending on the type of application, there may need to be a strategy in place to store the security context between user operations.
 In a typical web application, a user logs in once and is subsequently identified by their session Id.
 The server caches the principal information for the duration session.
@@ -330,12 +330,12 @@ The method `SecurityContextHolder.createEmptyContext()` always returns a new con
 ====
 
 [[tech-intro-access-control]]
-=== Access-Control (Authorization) in Spring Security
+== Access-Control (Authorization) in Spring Security
 The main interface responsible for making access-control decisions in Spring Security is the `AccessDecisionManager`.
 It has a `decide` method which takes an `Authentication` object representing the principal requesting access, a "secure object" (see below) and a list of security metadata attributes which apply for the object (such as a list of roles which are required for access to be granted).
 
 
-==== Security and AOP Advice
+=== Security and AOP Advice
 If you're familiar with AOP, you'd be aware there are different types of advice available: before, after, throws and around.
 An around advice is very useful, because an advisor can elect whether or not to proceed with a method invocation, whether or not to modify the response, and whether or not to throw an exception.
 Spring Security provides an around advice for method invocations as well as web requests.
@@ -353,7 +353,7 @@ The mainstream usage pattern is to perform some web request authorization, coupl
 
 
 [[secure-objects]]
-==== Secure Objects and the AbstractSecurityInterceptor
+=== Secure Objects and the AbstractSecurityInterceptor
 So what __is__ a "secure object" anyway? Spring Security uses the term to refer to any object that can have security (such as an authorization decision) applied to it.
 The most common examples are method invocations and web requests.
 
@@ -370,7 +370,7 @@ Importantly, by the time the `AbstractSecurityInterceptor` is called, the `Secur
 If the invocation raised an exception, the `AfterInvocationManager` will not be invoked.
 
 [[tech-intro-config-attributes]]
-===== What are Configuration Attributes?
+==== What are Configuration Attributes?
 A "configuration attribute" can be thought of as a String that has special meaning to the classes used by `AbstractSecurityInterceptor`.
 They are represented by the interface `ConfigAttribute` within the framework.
 They may be simple role names or have more complex meaning, depending on the how sophisticated the `AccessDecisionManager` implementation is.
@@ -385,14 +385,14 @@ This is only relevant when a voter-based `AccessDecisionManager` is in use.
 We'll see how the `AccessDecisionManager` is implemented in the <<authz-arch,authorization chapter>>.
 
 
-===== RunAsManager
+==== RunAsManager
 Assuming `AccessDecisionManager` decides to allow the request, the `AbstractSecurityInterceptor` will normally just proceed with the request.
 Having said that, on rare occasions users may want to replace the `Authentication` inside the `SecurityContext` with a different `Authentication`, which is handled by the `AccessDecisionManager` calling a `RunAsManager`.
 This might be useful in reasonably unusual situations, such as if a services layer method needs to call a remote system and present a different identity.
 Because Spring Security automatically propagates security identity from one server to another (assuming you're using a properly-configured RMI or HttpInvoker remoting protocol client), this may be useful.
 
 
-===== AfterInvocationManager
+==== AfterInvocationManager
 Following the secure object invocation proceeding and then returning - which may mean a method invocation completing or a filter chain proceeding - the `AbstractSecurityInterceptor` gets one final chance to handle the invocation.
 At this stage the `AbstractSecurityInterceptor` is interested in possibly modifying the return object.
 We might want this to happen because an authorization decision couldn't be made "on the way in" to a secure object invocation.
@@ -407,7 +407,7 @@ If an exception occurs, the additional checks will be skipped.
 .Security interceptors and the "secure object" model
 image::images/security-interception.png[Abstract Security Interceptor]
 
-===== Extending the Secure Object Model
+==== Extending the Secure Object Model
 Only developers contemplating an entirely new way of intercepting and authorizing requests would need to use secure objects directly.
 For example, it would be possible to build a new secure object to secure calls to a messaging system.
 Anything that requires security and also provides a way of intercepting a call (like the AOP around advice semantics) is capable of being made into a secure object.

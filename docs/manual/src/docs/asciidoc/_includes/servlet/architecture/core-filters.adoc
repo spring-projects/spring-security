@@ -1,11 +1,10 @@
-
 [[core-web-filters]]
-== Core Security Filters
+= Core Security Filters
 There are some key filters which will always be used in a web application which uses Spring Security, so we'll look at these and their supporting classes and interfaces first.
 We won't cover every feature, so be sure to look at the Javadoc for them if you want to get the complete picture.
 
 [[filter-security-interceptor]]
-=== FilterSecurityInterceptor
+== FilterSecurityInterceptor
 We've already seen `FilterSecurityInterceptor` briefly when discussing <<tech-intro-access-control,access-control in general>>, and we've already used it with the namespace where the `<intercept-url>` elements are combined to configure it internally.
 Now we'll see how to explicitly configure it for use with a `FilterChainProxy`, along with its companion filter `ExceptionTranslationFilter`.
 A typical configuration example is shown below:
@@ -71,7 +70,7 @@ This is reflected in our example above, where the more specific `/secure/super/`
 If they were reversed, the `/secure/` pattern would always match and the `/secure/super/` pattern would never be evaluated.
 
 [[exception-translation-filter]]
-=== ExceptionTranslationFilter
+== ExceptionTranslationFilter
 The `ExceptionTranslationFilter` sits above the `FilterSecurityInterceptor` in the security filter stack.
 It doesn't do any actual security enforcement itself, but handles exceptions thrown by the security interceptors and provides suitable and HTTP responses.
 
@@ -97,7 +96,7 @@ class="org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 ----
 
 [[auth-entry-point]]
-==== AuthenticationEntryPoint
+=== AuthenticationEntryPoint
 The `AuthenticationEntryPoint` will be called if the user requests a secure HTTP resource but they are not authenticated.
 An appropriate `AuthenticationException` or `AccessDeniedException` will be thrown by a security interceptor further down the call stack, triggering the `commence` method on the entry point.
 This does the job of presenting the appropriate response to the user so that authentication can begin.
@@ -106,7 +105,7 @@ The actual implementation used will depend on the authentication mechanism you w
 
 
 [[access-denied-handler]]
-==== AccessDeniedHandler
+=== AccessDeniedHandler
 What happens if a user is already authenticated and they try to access a protected resource? In normal usage, this shouldn't happen because the application workflow should be restricted to operations to which a user has access.
 For example, an HTML link to an administration page might be hidden from users who do not have an admin role.
 You can't rely on hiding links for security though, as there's always a possibility that a user will just enter the URL directly in an attempt to bypass the restrictions.
@@ -129,7 +128,7 @@ See <<nsa-access-denied-handler,the namespace appendix>> for more details.
 
 
 [[request-caching]]
-==== SavedRequest s and the RequestCache Interface
+=== SavedRequest s and the RequestCache Interface
 Another responsibility of `ExceptionTranslationFilter` responsibilities is to save the current request before invoking the `AuthenticationEntryPoint`.
 This allows the request to be restored after the user has authenticated (see previous overview of <<tech-intro-web-authentication,web authentication>>).
 A typical example would be where the user logs in with a form, and is then redirected to the original URL by the default `SavedRequestAwareAuthenticationSuccessHandler` (see <<form-login-flow-handling,below>>).
@@ -143,7 +142,7 @@ The use of these interfaces makes it fully pluggable from Spring Security 3.0 on
 
 
 [[security-context-persistence-filter]]
-=== SecurityContextPersistenceFilter
+== SecurityContextPersistenceFilter
 We covered the purpose of this all-important filter in the <<tech-intro-sec-context-persistence,Technical Overview>> chapter so you might want to re-read that section at this point.
 Let's first take a look at how you would configure it for use with a `FilterChainProxy`.
 A basic configuration only requires the bean itself
@@ -161,7 +160,7 @@ This thread might then be used at a later stage, performing operations with the 
 
 
 [[security-context-repository]]
-==== SecurityContextRepository
+=== SecurityContextRepository
 From Spring Security 3.0, the job of loading and storing the security context is now delegated to a separate strategy interface:
 
 [source,java]
@@ -199,7 +198,7 @@ Alternatively you could provide an instance of `NullSecurityContextRepository`, 
 
 
 [[form-login-filter]]
-=== UsernamePasswordAuthenticationFilter
+== UsernamePasswordAuthenticationFilter
 We've now seen the three main filters which are always present in a Spring Security web configuration.
 These are also the three which are automatically created by the namespace `<http>` element and cannot be substituted with alternatives.
 The only thing that's missing now is an actual authentication mechanism, something that will allow a user to authenticate.
@@ -225,7 +224,7 @@ The basic filter configuration looks something like this:
 ----
 
 [[form-login-flow-handling]]
-==== Application Flow on Authentication Success and Failure
+=== Application Flow on Authentication Success and Failure
 The filter calls the configured `AuthenticationManager` to process each authentication request.
 The destination following a successful authentication or an authentication failure is controlled by the `AuthenticationSuccessHandler` and `AuthenticationFailureHandler` strategy interfaces, respectively.
 The filter has properties which allow you to set these so you can customize the behaviour completely footnote:[In versions prior to 3.0, the application flow at this point had evolved to a stage was controlled by a mix of properties on this class and strategy plugins.
