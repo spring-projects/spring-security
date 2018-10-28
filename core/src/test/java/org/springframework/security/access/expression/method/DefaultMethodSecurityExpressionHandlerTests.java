@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +30,9 @@ import org.springframework.expression.Expression;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.List;
+import java.util.stream.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMethodSecurityExpressionHandlerTests {
@@ -67,5 +71,23 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		expression.getValue(context, Boolean.class);
 
 		verify(trustResolver).isAnonymous(authentication);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void testFilteringStream() {
+		final Stream<String> stream = Stream.of("1", "2", "3");
+
+		Expression expression = handler.getExpressionParser().parseExpression("filterObject ne '2'");
+
+		EvaluationContext context = handler.createEvaluationContext(authentication,
+				methodInvocation);
+
+		Object filtered = handler.filter(stream, expression, context);
+
+		Assert.assertTrue("response was wrong type", Stream.class.isAssignableFrom(filtered.getClass()));
+		List<String> list = ((Stream<String>) filtered).collect(Collectors.toList());
+		Assert.assertEquals(2, list.size());
+		Assert.assertFalse("contains filtered element", list.contains("2"));
 	}
 }
