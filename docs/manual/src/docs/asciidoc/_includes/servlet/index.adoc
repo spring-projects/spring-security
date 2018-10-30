@@ -1,6 +1,9 @@
 [[servlet]]
 = Servlet Applications
 
+Spring Security integrates with the Servlet Container using standard Servlet Filter.
+This means it will work with any application that runs in a Servlet Container.
+
 include::hello/index.adoc[leveloffset=+1]
 
 include::samples/index.adoc[leveloffset=+1]
