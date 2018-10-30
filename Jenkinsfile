@@ -21,6 +21,9 @@ try {
 			}
 		}
 	}
+} catch(Exception e) {
+	currentBuild.result = 'FAILED: deploys'
+	throw e
 } finally {
 	def buildStatus = currentBuild.result
 	def buildNotSuccess =  !SUCCESS.equals(buildStatus)
