@@ -15,10 +15,9 @@
  */
 package org.springframework.security.access.expression.method;
 
-import static org.assertj.core.api.Assertions.*;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.After;
@@ -27,14 +26,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.List;
-import java.util.stream.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMethodSecurityExpressionHandlerTests {
@@ -77,7 +80,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void testFilteringStream() {
+	public void filterWhenUsingStreamThenFiltersStream() {
 		final Stream<String> stream = Stream.of("1", "2", "3");
 
 		Expression expression = handler.getExpressionParser().parseExpression("filterObject ne '2'");
