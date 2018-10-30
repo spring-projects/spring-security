@@ -15,11 +15,13 @@
  */
 package org.springframework.security.access.expression.method;
 
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.*;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,9 +87,22 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 		Object filtered = handler.filter(stream, expression, context);
 
-		Assert.assertTrue("response was wrong type", Stream.class.isAssignableFrom(filtered.getClass()));
+		assertThat(filtered).isInstanceOf(Stream.class);
 		List<String> list = ((Stream<String>) filtered).collect(Collectors.toList());
-		Assert.assertEquals(2, list.size());
-		Assert.assertFalse("contains filtered element", list.contains("2"));
+		assertThat(list).containsExactly("1", "3");
+	}
+
+	@Test
+	public void filterStreamWhenClosedThenUpstreamGetsClosed() {
+		final Stream<?> upstream = mock(Stream.class);
+		doReturn(Stream.<String>empty()).when(upstream).filter(any());
+
+		Expression expression = handler.getExpressionParser().parseExpression("true");
+
+		EvaluationContext context = handler.createEvaluationContext(authentication,
+				methodInvocation);
+
+		((Stream) handler.filter(upstream, expression, context)).close();
+		verify(upstream).close();
 	}
 }
