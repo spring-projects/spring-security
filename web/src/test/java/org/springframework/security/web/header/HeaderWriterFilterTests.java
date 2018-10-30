@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.web.header;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.FilterChain;
@@ -84,7 +85,9 @@ public class HeaderWriterFilterTests {
 
 		verify(this.writer1).writeHeaders(request, response);
 		verify(this.writer2).writeHeaders(request, response);
-		assertThat(filterChain.getRequest()).isEqualTo(request); // verify the filterChain
+		HeaderWriterFilter.HeaderWriterRequest wrappedRequest = (HeaderWriterFilter.HeaderWriterRequest)
+			filterChain.getRequest();
+		assertThat(wrappedRequest.getRequest()).isEqualTo(request);	// verify the filterChain
 																	// continued
 	}
 
@@ -108,6 +111,27 @@ public class HeaderWriterFilterTests {
 				verify(HeaderWriterFilterTests.this.writer1).writeHeaders(
 						any(HttpServletRequest.class), any(HttpServletResponse.class));
 			}
+		});
+
+		verifyNoMoreInteractions(this.writer1);
+	}
+
+	// gh-5499
+	@Test
+	public void doFilterWhenRequestContainsIncludeThenHeadersStillWritten() throws Exception {
+		HeaderWriterFilter filter = new HeaderWriterFilter(
+				Collections.singletonList(this.writer1));
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest();
+		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+
+		filter.doFilter(mockRequest, mockResponse, (request, response) -> {
+			verifyZeroInteractions(HeaderWriterFilterTests.this.writer1);
+
+			request.getRequestDispatcher("/").include(request, response);
+
+			verify(HeaderWriterFilterTests.this.writer1).writeHeaders(
+					any(HttpServletRequest.class), any(HttpServletResponse.class));
 		});
 
 		verifyNoMoreInteractions(this.writer1);
