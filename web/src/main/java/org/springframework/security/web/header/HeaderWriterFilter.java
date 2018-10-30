@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,12 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.FilterChain;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.web.util.OnCommittedResponseWrapper;
@@ -33,6 +37,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * and X-Content-Type-Options.
  *
  * @author Marten Deinum
+ * @author Josh Cummings
  * @since 3.2
  *
  */
@@ -62,8 +67,11 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 
 		HeaderWriterResponse headerWriterResponse = new HeaderWriterResponse(request,
 				response, this.headerWriters);
+		HeaderWriterRequest headerWriterRequest = new HeaderWriterRequest(request,
+				headerWriterResponse);
+
 		try {
-			filterChain.doFilter(request, headerWriterResponse);
+			filterChain.doFilter(headerWriterRequest, headerWriterResponse);
 		}
 		finally {
 			headerWriterResponse.writeHeaders();
@@ -104,6 +112,41 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 
 		private HttpServletResponse getHttpResponse() {
 			return (HttpServletResponse) getResponse();
+		}
+	}
+
+	static class HeaderWriterRequest extends HttpServletRequestWrapper {
+		private final HeaderWriterResponse response;
+
+		HeaderWriterRequest(HttpServletRequest request, HeaderWriterResponse response) {
+			super(request);
+			this.response = response;
+		}
+
+		@Override
+		public RequestDispatcher getRequestDispatcher(String path) {
+			return new HeaderWriterRequestDispatcher(super.getRequestDispatcher(path), this.response);
+		}
+	}
+
+	static class HeaderWriterRequestDispatcher implements RequestDispatcher {
+		private final RequestDispatcher delegate;
+		private final HeaderWriterResponse response;
+
+		HeaderWriterRequestDispatcher(RequestDispatcher delegate, HeaderWriterResponse response) {
+			this.delegate = delegate;
+			this.response = response;
+		}
+
+		@Override
+		public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+			this.delegate.forward(request, response);
+		}
+
+		@Override
+		public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+			this.response.onResponseCommitted();
+			this.delegate.include(request, response);
 		}
 	}
 }
