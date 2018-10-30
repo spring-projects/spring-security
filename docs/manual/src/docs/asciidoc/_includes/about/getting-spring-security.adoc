@@ -2,32 +2,34 @@
 = Getting Spring Security
 
 This section discusses all you need to know about getting the Spring Security binaries.
-Please refer to <<community-source>> for how to obtain the source code.
+See <<community-source>> for how to obtain the source code.
 
 == Release Numbering
 
-Spring Security versions are formatted as MAJOR.MINOR.PATCH such that
+Spring Security versions are formatted as MAJOR.MINOR.PATCH such that:
 
 * MAJOR versions may contain breaking changes.
-Typically these are done to provide improved security to match modern security practices.
-* MINOR versions contain enhancements, but are considered passive updates
-* PATCH level should be perfectly compatible, forwards and backwards, with the possible exception of changes which are to fix bugs
+Typically, these are done to provide improved security to match modern security practices.
+* MINOR versions contain enhancements but are considered passive updates
+* PATCH level should be perfectly compatible, forwards and backwards, with the possible exception of changes that fix bugs.
 
 
 [[maven]]
 == Usage with Maven
 
-Like most open source projects, Spring Security deploys its dependencies as Maven artifacts.
-The following sections provide details on how to consume Spring Security when using Maven.
+As most open source projects, Spring Security deploys its dependencies as Maven artifacts.
+The topics in this section provide detail on how to consume Spring Security when using Maven.
 
 === Spring Boot with Maven
 
-Spring Boot provides a spring-boot-starter-security starter which aggregates Spring Security related dependencies together.
-The simplest and preferred method to leverage the starter is to use https://docs.spring.io/initializr/docs/current/reference/htmlsingle/[Spring Initializr] using an IDE integration (http://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
+Spring Boot provides a `spring-boot-starter-security` starter that aggregates Spring Security-related dependencies together.
+The simplest and preferred way to use the starter is to use https://docs.spring.io/initializr/docs/current/reference/htmlsingle/[Spring Initializr] by using an IDE integration (http://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
 
-Alternatively, the starter can be added manually:
+Alternatively, you can manually add the starter, as the following example shows:
+
 
 .pom.xml
+====
 [source,xml]
 [subs="verbatim,attributes"]
 ----
@@ -39,11 +41,13 @@ Alternatively, the starter can be added manually:
 	</dependency>
 </dependencies>
 ----
+====
 
-Since Spring Boot provides a Maven BOM to manage dependency versions, there is no need to specify a version.
-If you wish to override the Spring Security version, you may do so by providing a Maven property:
+Since Spring Boot provides a Maven BOM to manage dependency versions, you do not need to specify a version.
+If you wish to override the Spring Security version, you may do so by providing a Maven property, as the following example shows:
 
 .pom.xml
+====
 [source,xml]
 [subs="verbatim,attributes"]
 ----
@@ -52,12 +56,14 @@ If you wish to override the Spring Security version, you may do so by providing 
 	<spring-security.version>{spring-security-version}</spring.security.version>
 </dependencies>
 ----
+====
 
-Since Spring Security only makes breaking changes in major releases, it is safe to use a newer version of Spring Security with Spring Boot.
-However, at times it may be necessary to update the version of Spring Framework as well.
-This can easily be done by adding a Maven property as well:
+Since Spring Security makes breaking changes only in major releases, it is safe to use a newer version of Spring Security with Spring Boot.
+However, at times, you may need to update the version of Spring Framework as well.
+You can do so by adding a Maven property, as the following example shows:
 
 .pom.xml
+====
 [source,xml]
 [subs="verbatim,attributes"]
 ----
@@ -66,14 +72,16 @@ This can easily be done by adding a Maven property as well:
 	<spring.version>{spring-version}</spring.version>
 </dependencies>
 ----
+====
 
-If you are using additional features like LDAP, OpenID, etc. you will need to also include the appropriate <<modules>>.
+If you use additional features (such as LDAP, OpenID, and others), you need to also include the appropriate <<modules>>.
 
 === Maven Without Spring Boot
 
-When using Spring Security without Spring Boot, the preferred way is to leverage Spring Security's BOM to ensure a consistent version of Spring Security is used throughout the entire project.
+When you use Spring Security without Spring Boot, the preferred way is to use Spring Security's BOM to ensure a consistent version of Spring Security is used throughout the entire project. The following example shows how to do so:
 
 .pom.xml
+====
 [source,xml]
 [subs="verbatim,attributes"]
 ----
@@ -90,11 +98,12 @@ When using Spring Security without Spring Boot, the preferred way is to leverage
 	</dependencies>
 </dependencyManagement>
 ----
-
+====
 
 A minimal Spring Security Maven set of dependencies typically looks like the following:
 
 .pom.xml
+====
 [source,xml]
 [subs="verbatim,attributes"]
 ----
@@ -110,14 +119,16 @@ A minimal Spring Security Maven set of dependencies typically looks like the fol
 	</dependency>
 </dependencies>
 ----
+====
 
-If you are using additional features like LDAP, OpenID, etc. you will need to also include the appropriate <<modules>>.
+If you use additional features (such as LDAP, OpenID, and others), you need to also include the appropriate <<modules>>.
 
-Spring Security builds against Spring Framework {spring-version}, but should generally work with any newer version of Spring Framework 5.x
-The problem that many users will have is that Spring Security's transitive dependencies resolve Spring Framework {spring-version} which can cause strange classpath problems.
-The easiest way to resolve this is to use the `spring-framework-bom` within your `<dependencyManagement>` section of your `pom.xml` as shown below:
+Spring Security builds against Spring Framework {spring-version} but should generally work with any newer version of Spring Framework 5.x.
+Many users are likely to run afoul of the fact that Spring Security's transitive dependencies resolve Spring Framework {spring-version}, which can cause strange classpath problems.
+The easiest way to resolve this is to use the `spring-framework-bom` within the `<dependencyManagement>` section of your `pom.xml` as the following example shows:
 
 .pom.xml
+====
 [source,xml]
 [subs="verbatim,attributes"]
 ----
@@ -134,19 +145,21 @@ The easiest way to resolve this is to use the `spring-framework-bom` within your
 	</dependencies>
 </dependencyManagement>
 ----
+====
 
-This will ensure that all the transitive dependencies of Spring Security use the Spring {spring-version} modules.
+The preceding example ensures that all the transitive dependencies of Spring Security use the Spring {spring-version} modules.
 
-NOTE: This approach uses Maven's "bill of materials" (BOM) concept and is only available in Maven 2.0.9+.
-For additional details about how dependencies are resolved refer to http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html[Maven's Introduction to the Dependency Mechanism documentation].
+NOTE: This approach uses Maven's "`bill of materials`" (BOM) concept and is only available in Maven 2.0.9+.
+For additional details about how dependencies are resolved, see http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html[Maven's Introduction to the Dependency Mechanism documentation].
 
 [[maven-repositories]]
 === Maven Repositories
-All GA releases (i.e. versions ending in .RELEASE) are deployed to Maven Central, so no additional Maven repositories need to be declared in your pom.
+All GA releases (that is, versions ending in .RELEASE) are deployed to Maven Central, so no additional Maven repositories need to be declared in your pom.
 
-If you are using a SNAPSHOT version, you will need to ensure you have the Spring Snapshot repository defined as shown below:
+If you use a SNAPSHOT version, you need to ensure that you have the Spring Snapshot repository defined, as the following example shows:
 
 .pom.xml
+====
 [source,xml]
 ----
 <repositories>
@@ -158,10 +171,12 @@ If you are using a SNAPSHOT version, you will need to ensure you have the Spring
 	</repository>
 </repositories>
 ----
+====
 
-If you are using a milestone or release candidate version, you will need to ensure you have the Spring Milestone repository defined as shown below:
+If you use a milestone or release candidate version, you need to ensure that you have the Spring Milestone repository defined, as the following example shows:
 
 .pom.xml
+====
 [source,xml]
 ----
 <repositories>
@@ -173,22 +188,23 @@ If you are using a milestone or release candidate version, you will need to ensu
 	</repository>
 </repositories>
 ----
-
+====
 
 [[gradle]]
 == Gradle
 
-Like most open source projects, Spring Security deploys its dependencies as Maven artifacts which allows for for first class Gradle support.
-The following sections provide details on how to consume Spring Security when using Gradle.
+As most open source projects, Spring Security deploys its dependencies as Maven artifacts, which allows for for first-class Gradle support.
+The following topics provide detail on how to consume Spring Security when using Gradle.
 
 === Spring Boot with Gradle
 
-Spring Boot provides a spring-boot-starter-security starter which aggregates Spring Security related dependencies together.
-The simplest and preferred method to leverage the starter is to use https://docs.spring.io/initializr/docs/current/reference/htmlsingle/[Spring Initializr] using an IDE integration (http://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
+Spring Boot provides a `spring-boot-starter-security` starter that aggregates Spring Security related dependencies together.
+The simplest and preferred method to use the starter is to use https://docs.spring.io/initializr/docs/current/reference/htmlsingle/[Spring Initializr] by using an IDE integration (http://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
 
-Alternatively, the starter can be added manually:
+Alternatively, you can manually add the starter, as the following example shows:
 
 .build.gradle
+====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
@@ -196,36 +212,42 @@ dependencies {
 	compile "org.springframework.boot:spring-boot-starter-security"
 }
 ----
+====
 
-Since Spring Boot provides a Maven BOM to manage dependency versions, there is no need to specify a version.
-If you wish to override the Spring Security version, you may do so by providing a Gradle property:
+Since Spring Boot provides a Maven BOM to manage dependency versions, you need not specify a version.
+If you wish to override the Spring Security version, you may do so by providing a Gradle property, as the following example shows:
 
 .build.gradle
+====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
 ext['spring-security.version']='{spring-security-version}'
 ----
+====
 
-Since Spring Security only makes breaking changes in major releases, it is safe to use a newer version of Spring Security with Spring Boot.
-However, at times it may be necessary to update the version of Spring Framework as well.
-This can easily be done by adding a Gradle property as well:
+Since Spring Security makes breaking changes only in major releases, it is safe to use a newer version of Spring Security with Spring Boot.
+However, at times, you may need to update the version of Spring Framework as well.
+You can do so by adding a Gradle property, as the following example shows:
 
 .build.gradle
+====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
 ext['spring.version']='{spring-version}'
 ----
+====
 
-If you are using additional features like LDAP, OpenID, etc. you will need to also include the appropriate <<modules>>.
+If you use additional features (such as LDAP, OpenID, and others), you need to also include the appropriate <<modules>>.
 
 === Gradle Without Spring Boot
 
-When using Spring Security without Spring Boot, the preferred way is to leverage Spring Security's BOM to ensure a consistent version of Spring Security is used throughout the entire project.
-This can be done by using the https://github.com/spring-gradle-plugins/dependency-management-plugin[Dependency Management Plugin].
+When you use Spring Security without Spring Boot, the preferred way is to use Spring Security's BOM to ensure a consistent version of Spring Security is used throughout the entire project.
+You can do so by using the https://github.com/spring-gradle-plugins/dependency-management-plugin[Dependency Management Plugin], as the following example shows:
 
 .build.gradle
+====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
@@ -239,11 +261,12 @@ dependencyManagement {
 	}
 }
 ----
-
+====
 
 A minimal Spring Security Maven set of dependencies typically looks like the following:
 
 .build.gradle
+====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
@@ -252,15 +275,17 @@ dependencies {
 	compile "org.springframework.security:spring-security-config"
 }
 ----
+====
 
-If you are using additional features like LDAP, OpenID, etc. you will need to also include the appropriate <<modules>>.
+If you use additional features (such as LDAP, OpenID, and others), you need to also include the appropriate <<modules>>.
 
-Spring Security builds against Spring Framework {spring-version}, but should generally work with any newer version of Spring Framework 5.x
-The problem that many users will have is that Spring Security's transitive dependencies resolve Spring Framework {spring-version} which can cause strange classpath problems.
-The easiest way to resolve this is to use the `spring-framework-bom` within your `<dependencyManagement>` section of your `pom.xml` as shown below:
-This can be done by using the https://github.com/spring-gradle-plugins/dependency-management-plugin[Dependency Management Plugin].
+Spring Security builds against Spring Framework {spring-version} but should generally work with any newer version of Spring Framework 5.x. {JB}
+Many users are likely to run afoul of the fact that Spring Security's transitive dependencies resolve Spring Framework {spring-version}, which can cause strange classpath problems.
+The easiest way to resolve this is to use the `spring-framework-bom` within your `<dependencyManagement>` section of your `pom.xml`.
+You can do so by using the https://github.com/spring-gradle-plugins/dependency-management-plugin[Dependency Management Plugin], as the following example shows:
 
 .build.gradle
+====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
@@ -274,37 +299,44 @@ dependencyManagement {
 	}
 }
 ----
+====
 
-This will ensure that all the transitive dependencies of Spring Security use the Spring {spring-version} modules.
+The preceding example ensures that all the transitive dependencies of Spring Security use the Spring {spring-version} modules.
 
 [[gradle-repositories]]
 === Gradle Repositories
-All GA releases (i.e. versions ending in .RELEASE) are deployed to Maven Central, so using the mavenCentral() repository is sufficient for GA releases.
+All GA releases (that is, versions ending in .RELEASE) are deployed to Maven Central, so using the mavenCentral() repository is sufficient for GA releases. The following example shows how to do so:
 
 .build.gradle
+====
 [source,groovy]
 ----
 repositories {
 	mavenCentral()
 }
 ----
+====
 
-If you are using a SNAPSHOT version, you will need to ensure you have the Spring Snapshot repository defined as shown below:
+If you use a SNAPSHOT version, you need to ensure you have the Spring Snapshot repository defined, as the following example shows:
 
 .build.gradle
+====
 [source,groovy]
 ----
 repositories {
 	maven { url 'https://repo.spring.io/snapshot' }
 }
 ----
+====
 
-If you are using a milestone or release candidate version, you will need to ensure you have the Spring Milestone repository defined as shown below:
+If you use a milestone or release candidate version, you need to ensure that you have the Spring Milestone repository defined, as the following example shows:
 
 .build.gradle
+====
 [source,groovy]
 ----
 repositories {
 	maven { url 'https://repo.spring.io/milestone' }
 }
 ----
+====

@@ -1,4 +1,4 @@
 = Samples
 
-There are lots of {gh-samples-url}[samples] provided with Spring Security.
-There are samples listed for the <<servlet-samples,Servlet>>
+Spring Security includes many {gh-samples-url}[samples], including
+samples for the <<servlet-samples,Servlet>>.
