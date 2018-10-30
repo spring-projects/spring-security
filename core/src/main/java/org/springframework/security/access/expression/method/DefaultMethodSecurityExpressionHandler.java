@@ -175,21 +175,12 @@ public class DefaultMethodSecurityExpressionHandler extends
 
 		if (filterTarget instanceof Stream) {
 			final Stream<?> original = (Stream<?>) filterTarget;
-			if (debug) {
-				logger.debug("Filtering stream with " + original.count() + " elements");
-			}
 
-			Stream<?> filtered = original.filter(filterObject -> {
+			return original.filter(filterObject -> {
 				rootObject.setFilterObject(filterObject);
 				return ExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
 			})
 					.onClose(original::close);
-
-			if (debug) {
-				logger.debug("Retaining elements: " + filtered.collect(Collectors.toList()));
-			}
-
-			return filtered;
 		}
 
 		throw new IllegalArgumentException(
