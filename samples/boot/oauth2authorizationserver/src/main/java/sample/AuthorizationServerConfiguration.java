@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,15 @@ import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,18 +40,23 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.endpoint.FrameworkEndpoint;
 import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -66,17 +74,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @EnableAuthorizationServer
 @Configuration
-public class JwkSetConfiguration extends AuthorizationServerConfigurerAdapter {
+public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
 	AuthenticationManager authenticationManager;
 	KeyPair keyPair;
+	boolean jwtEnabled;
 
-	public JwkSetConfiguration(
+	public AuthorizationServerConfiguration(
 			AuthenticationConfiguration authenticationConfiguration,
-			KeyPair keyPair) throws Exception {
+			KeyPair keyPair,
+			@Value("${security.oauth2.authorizationserver.jwt.enabled:true}") boolean jwtEnabled) throws Exception {
 
 		this.authenticationManager = authenticationConfiguration.getAuthenticationManager();
 		this.keyPair = keyPair;
+		this.jwtEnabled = jwtEnabled;
 	}
 
 	@Override
@@ -94,23 +105,37 @@ public class JwkSetConfiguration extends AuthorizationServerConfigurerAdapter {
 				.authorizedGrantTypes("password")
 				.secret("{noop}secret")
 				.scopes("message:write")
+				.accessTokenValiditySeconds(600_000_000)
+				.and()
+			.withClient("noscopes")
+				.authorizedGrantTypes("password")
+				.secret("{noop}secret")
+				.scopes("none")
 				.accessTokenValiditySeconds(600_000_000);
 		// @formatter:on
 	}
 
 	@Override
-	public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
+	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 		// @formatter:off
 		endpoints
 			.authenticationManager(this.authenticationManager)
-			.accessTokenConverter(accessTokenConverter())
 			.tokenStore(tokenStore());
+
+		if (this.jwtEnabled) {
+			endpoints
+				.accessTokenConverter(accessTokenConverter());
+		}
 		// @formatter:on
 	}
 
 	@Bean
 	public TokenStore tokenStore() {
-		return new JwtTokenStore(accessTokenConverter());
+		if (this.jwtEnabled) {
+			return new JwtTokenStore(accessTokenConverter());
+		} else {
+			return new InMemoryTokenStore();
+		}
 	}
 
 	@Bean
@@ -137,7 +162,11 @@ class UserConfig extends WebSecurityConfigurerAdapter {
 		http
 			.authorizeRequests()
 				.mvcMatchers("/.well-known/jwks.json").permitAll()
-				.anyRequest().authenticated();
+				.anyRequest().authenticated()
+				.and()
+			.httpBasic()
+				.and()
+			.csrf().ignoringRequestMatchers(request -> "/introspect".equals(request.getRequestURI()));
 	}
 
 	@Bean
@@ -149,6 +178,41 @@ class UserConfig extends WebSecurityConfigurerAdapter {
 					.password("password")
 					.roles("USER")
 					.build());
+	}
+}
+
+/**
+ * Legacy Authorization Server (spring-security-oauth2) does not support any
+ * Token Introspection endpoint.
+ *
+ * This class adds ad-hoc support in order to better support the other samples in the repo.
+ */
+@FrameworkEndpoint
+class IntrospectEndpoint {
+	TokenStore tokenStore;
+
+	public IntrospectEndpoint(TokenStore tokenStore) {
+		this.tokenStore = tokenStore;
+	}
+
+	@PostMapping("/introspect")
+	@ResponseBody
+	public Map<String, Object> introspect(@RequestParam("token") String token) {
+		OAuth2AccessToken accessToken = this.tokenStore.readAccessToken(token);
+		Map<String, Object> attributes = new HashMap<>();
+		if (accessToken == null || accessToken.isExpired()) {
+			attributes.put("active", false);
+			return attributes;
+		}
+
+		OAuth2Authentication authentication = this.tokenStore.readAuthentication(token);
+
+		attributes.put("active", true);
+		attributes.put("exp", accessToken.getExpiration().getTime());
+		attributes.put("scope", accessToken.getScope().stream().collect(Collectors.joining(" ")));
+		attributes.put("sub", authentication.getName());
+
+		return attributes;
 	}
 }
 
