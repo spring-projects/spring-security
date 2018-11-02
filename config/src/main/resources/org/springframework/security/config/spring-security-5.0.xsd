@@ -2232,7 +2232,8 @@
       </xs:attribute>
       <xs:attribute name="token-repository-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>The CsrfTokenRepository to use. The default is HttpSessionCsrfTokenRepository
+            <xs:documentation>The CsrfTokenRepository to use. The default is HttpSessionCsrfTokenRepository wrapped by
+                LazyCsrfTokenRepository.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
