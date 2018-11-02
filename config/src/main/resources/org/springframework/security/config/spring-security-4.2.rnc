@@ -748,7 +748,7 @@ csrf-options.attlist &=
 	## The RequestMatcher instance to be used to determine if CSRF should be applied. Default is any HTTP method except "GET", "TRACE", "HEAD", "OPTIONS"
 	attribute request-matcher-ref { xsd:token }?
 csrf-options.attlist &=
-	## The CsrfTokenRepository to use. The default is HttpSessionCsrfTokenRepository
+	## The CsrfTokenRepository to use. The default is HttpSessionCsrfTokenRepository wrapped by LazyCsrfTokenRepository.
 	attribute token-repository-ref { xsd:token }?
 
 headers =
