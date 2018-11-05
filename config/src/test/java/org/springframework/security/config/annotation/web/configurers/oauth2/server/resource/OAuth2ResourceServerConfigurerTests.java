@@ -76,7 +76,7 @@ import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
@@ -109,6 +109,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -737,7 +738,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		jwtConfigurer.decoder(decoder);
 		jwtConfigurer.jwkSetUri(JWK_SET_URI);
 
-		assertThat(jwtConfigurer.getJwtDecoder()).isInstanceOf(NimbusJwtDecoderJwkSupport.class);
+		assertThat(jwtConfigurer.getJwtDecoder()).isInstanceOf(NimbusJwtDecoder.class);
 
 	}
 
@@ -770,7 +771,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		jwtConfigurer.jwkSetUri(JWK_SET_URI);
 
 		assertThat(jwtConfigurer.getJwtDecoder()).isNotEqualTo(decoder);
-		assertThat(jwtConfigurer.getJwtDecoder()).isInstanceOf(NimbusJwtDecoderJwkSupport.class);
+		assertThat(jwtConfigurer.getJwtDecoder()).isInstanceOf(NimbusJwtDecoder.class);
 	}
 
 	@Test
@@ -1460,8 +1461,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			NimbusJwtDecoderJwkSupport jwtDecoder =
-					new NimbusJwtDecoderJwkSupport(this.uri);
+			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(this.uri).build());
 			jwtDecoder.setJwtValidator(this.jwtValidator);
 
 			// @formatter:off
@@ -1488,7 +1488,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			JwtTimestampValidator jwtValidator = new JwtTimestampValidator(Duration.ofHours(1));
 			jwtValidator.setClock(nearlyAnHourFromTokenExpiry);
 
-			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(this.uri);
+			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(this.uri).build());
 			jwtDecoder.setJwtValidator(jwtValidator);
 
 			// @formatter:off
@@ -1511,7 +1511,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			JwtTimestampValidator jwtValidator = new JwtTimestampValidator(Duration.ofHours(1));
 			jwtValidator.setClock(justOverOneHourAfterExpiry);
 
-			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(this.uri);
+			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(this.uri).build());
 			jwtDecoder.setJwtValidator(jwtValidator);
 
 			// @formatter:off

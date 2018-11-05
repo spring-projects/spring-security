@@ -16,43 +16,40 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.net.URL;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.BadJOSEException;
-import com.nimbusds.jose.proc.JWSKeySelector;
-import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
-import com.nimbusds.jose.util.DefaultResourceRetriever;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
-import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
 
 /**
  * Tests for {@link NimbusJwtDecoder}
@@ -98,6 +95,12 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void decodeWhenExpClaimNullThenDoesNotThrowException() {
 		assertThatCode(() -> this.jwtDecoder.decode(EMPTY_EXP_CLAIM_JWT))
+				.doesNotThrowAnyException();
+	}
+
+	@Test
+	public void decodeWhenIatClaimNullThenDoesNotThrowException() {
+		assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT))
 				.doesNotThrowAnyException();
 	}
 
@@ -159,33 +162,26 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
-	public void decodeWhenSignedThenOk() throws Exception {
-		try ( MockWebServer server = new MockWebServer() ) {
-			server.enqueue(new MockResponse().setBody(JWK_SET));
-			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
-			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(jwkSetUri));
-			Jwt jwt = jwtDecoder.decode(SIGNED_JWT);
-			assertThat(jwt.containsClaim(JwtClaimNames.EXP)).isNotNull();
-		}
+	public void decodeWhenSignedThenOk() {
+		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withSigning(JWK_SET));
+		Jwt jwt = jwtDecoder.decode(SIGNED_JWT);
+		assertThat(jwt.containsClaim(JwtClaimNames.EXP)).isNotNull();
 	}
 
 	@Test
-	public void decodeWhenJwkResponseIsMalformedThenReturnsStockException() throws Exception {
-		try ( MockWebServer server = new MockWebServer() ) {
-			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
-			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
-			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(jwkSetUri));
-			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT))
-					.isInstanceOf(JwtException.class)
-					.hasMessage("An error occurred while attempting to decode the Jwt: Malformed Jwk set");
-		}
+	public void decodeWhenJwkResponseIsMalformedThenReturnsStockException() {
+		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withSigning(MALFORMED_JWK_SET));
+		assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT))
+				.isInstanceOf(JwtException.class)
+				.hasMessage("An error occurred while attempting to decode the Jwt: Malformed Jwk set");
 	}
 
 	@Test
 	public void decodeWhenJwkEndpointIsUnresponsiveThenReturnsJwtException() throws Exception {
 		try ( MockWebServer server = new MockWebServer() ) {
 			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
-			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(jwkSetUri));
+			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(
+					withJwkSetUri(jwkSetUri).build());
 
 			server.shutdown();
 			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT))
@@ -194,18 +190,17 @@ public class NimbusJwtDecoderTests {
 		}
 	}
 
-	private JWTProcessor<SecurityContext> withoutSigning() {
-		return new MockJwtProcessor();
+	private static JWTProcessor<SecurityContext> withSigning(String jwkResponse) {
+		RestOperations restOperations = mock(RestOperations.class);
+		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+				.thenReturn(new ResponseEntity<>(jwkResponse, HttpStatus.OK));
+		return withJwkSetUri("http://issuer/.well-known/jwks.json")
+				.restOperations(restOperations)
+				.build();
 	}
 
-	private JWTProcessor<SecurityContext> withJwkSetUri(String jwkSetUri) throws Exception {
-		JWKSource jwkSource =
-				new RemoteJWKSet(new URL(jwkSetUri), new DefaultResourceRetriever(5000, 5000));
-		JWSKeySelector<SecurityContext> jwsKeySelector =
-				new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
-		ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
-		jwtProcessor.setJWSKeySelector(jwsKeySelector);
-		return jwtProcessor;
+	private static JWTProcessor<SecurityContext> withoutSigning() {
+		return new MockJwtProcessor();
 	}
 
 	private static class MockJwtProcessor extends DefaultJWTProcessor<SecurityContext> {

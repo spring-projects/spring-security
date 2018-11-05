@@ -15,14 +15,16 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import java.net.URI;
+import java.util.Map;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-import java.util.Map;
+import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
 
 /**
  * Allows creating a {@link JwtDecoder} from an
@@ -58,8 +60,8 @@ public final class JwtDecoders {
 		OAuth2TokenValidator<Jwt> jwtValidator =
 				JwtValidators.createDefaultWithIssuer(oidcIssuerLocation);
 
-		NimbusJwtDecoderJwkSupport jwtDecoder =
-				new NimbusJwtDecoderJwkSupport(openidConfiguration.get("jwks_uri").toString());
+		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(
+				withJwkSetUri(openidConfiguration.get("jwks_uri").toString()).build());
 		jwtDecoder.setJwtValidator(jwtValidator);
 
 		return jwtDecoder;
