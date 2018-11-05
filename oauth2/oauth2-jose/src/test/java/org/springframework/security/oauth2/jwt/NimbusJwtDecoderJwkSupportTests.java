@@ -17,44 +17,40 @@ package org.springframework.security.oauth2.jwt;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
-import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 /**
  * Tests for {@link NimbusJwtDecoderJwkSupport}.
@@ -111,21 +107,14 @@ public class NimbusJwtDecoderJwkSupportTests {
 	// gh-5168
 	@Test
 	public void decodeWhenExpClaimNullThenDoesNotThrowException() throws Exception {
-		SignedJWT jwt = mock(SignedJWT.class);
-		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.parse(JWS_ALGORITHM)).build();
-		when(jwt.getHeader()).thenReturn(header);
-
-		mockStatic(JWTParser.class);
-		when(JWTParser.parse(anyString())).thenReturn(jwt);
-
-		DefaultJWTProcessor jwtProcessor = mock(DefaultJWTProcessor.class);
-		whenNew(DefaultJWTProcessor.class).withAnyArguments().thenReturn(jwtProcessor);
-
-		JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder().audience("resource1").build();
-		when(jwtProcessor.process(any(JWT.class), eq(null))).thenReturn(jwtClaimsSet);
-
 		NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL);
-		assertThatCode(() -> jwtDecoder.decode("encoded-jwt")).doesNotThrowAnyException();
+		jwtDecoder.setRestOperations(mockJwkSetResponse(JWK_SET));
+		jwtDecoder.setClaimSetConverter(map -> {
+			Map<String, Object> claims = new HashMap<>(map);
+			claims.remove(JwtClaimNames.EXP);
+			return claims;
+		});
+		assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT)).doesNotThrowAnyException();
 	}
 
 	// gh-5457
@@ -255,5 +244,12 @@ public class NimbusJwtDecoderJwkSupportTests {
 	public void setClaimSetConverterWhenIsNullThenThrowsIllegalArgumentException() {
 		assertThatCode(() -> jwtDecoder.setClaimSetConverter(null))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	private static RestOperations mockJwkSetResponse(String response) {
+		RestOperations restOperations = mock(RestOperations.class);
+		Mockito.when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+				.thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
+		return restOperations;
 	}
 }
