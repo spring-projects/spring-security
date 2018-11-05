@@ -21,7 +21,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
@@ -35,6 +37,8 @@ import org.springframework.util.StringUtils;
  * @see <a href="https://tools.ietf.org/html/rfc6750#section-2" target="_blank">RFC 6750 Section 2: Authenticated Requests</a>
  */
 public final class DefaultBearerTokenResolver implements BearerTokenResolver {
+
+	private static final String ACCESS_TOKEN_PARAMETER_NAME = "access_token";
 
 	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$");
 
@@ -104,7 +108,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	}
 
 	private static String resolveFromRequestParameters(HttpServletRequest request) {
-		String[] values = request.getParameterValues("access_token");
+		String[] values = request.getParameterValues(ACCESS_TOKEN_PARAMETER_NAME);
 		if (values == null || values.length == 0)  {
 			return null;
 		}
@@ -121,7 +125,20 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	}
 
 	private boolean isParameterTokenSupportedForRequest(HttpServletRequest request) {
-		return ((this.allowFormEncodedBodyParameter && "POST".equals(request.getMethod()))
-				|| (this.allowUriQueryParameter && "GET".equals(request.getMethod())));
+		return ((this.allowFormEncodedBodyParameter && isFormEncodedRequest(request) && !isGetRequest(request)
+				&& !hasAccessTokenInQueryString(request)) || (this.allowUriQueryParameter && isGetRequest(request)));
 	}
+
+	private static boolean isGetRequest(HttpServletRequest request) {
+		return HttpMethod.GET.name().equals(request.getMethod());
+	}
+
+	private static boolean isFormEncodedRequest(HttpServletRequest request) {
+		return MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(request.getContentType());
+	}
+
+	private static boolean hasAccessTokenInQueryString(HttpServletRequest request) {
+		return (request.getQueryString() != null) && request.getQueryString().contains(ACCESS_TOKEN_PARAMETER_NAME);
+	}
+
 }
