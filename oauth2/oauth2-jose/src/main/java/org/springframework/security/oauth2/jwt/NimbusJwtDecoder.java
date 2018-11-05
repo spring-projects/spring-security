@@ -38,8 +38,15 @@ import org.springframework.util.Assert;
 /**
  * A low-level Nimbus implementation of {@link JwtDecoder} which takes a raw Nimbus configuration.
  *
+ * It's simple to produce an instance of {@code JWTProcessor} using {@link JwtProcessors}:
+ * <pre>
+ * 	JWTProcessor&lt;SecurityContext&gt; jwtProcessor = JwtProcessors.fromJwkSetUri(uri).build();
+ * 	NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(jwtProcessor);
+ * </pre>
+ *
  * @author Josh Cummings
  * @since 5.2
+ * @see JwtProcessors
  */
 public final class NimbusJwtDecoder implements JwtDecoder {
 	private static final String DECODING_ERROR_MESSAGE_TEMPLATE =
