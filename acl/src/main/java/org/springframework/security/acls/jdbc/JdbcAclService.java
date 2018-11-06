@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006, 2017 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2017, 2018 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
@@ -67,7 +68,7 @@ public class JdbcAclService implements AclService {
 	// ~ Instance fields
 	// ================================================================================================
 
-	protected final JdbcTemplate jdbcTemplate;
+	protected final JdbcOperations jdbcOperations;
 	private final LookupStrategy lookupStrategy;
 	private boolean aclClassIdSupported;
 	private String findChildrenSql = DEFAULT_SELECT_ACL_WITH_PARENT_SQL;
@@ -77,9 +78,13 @@ public class JdbcAclService implements AclService {
 	// ===================================================================================================
 
 	public JdbcAclService(DataSource dataSource, LookupStrategy lookupStrategy) {
-		Assert.notNull(dataSource, "DataSource required");
+		this(new JdbcTemplate(dataSource), lookupStrategy);
+	}
+
+	public JdbcAclService(JdbcOperations jdbcOperations, LookupStrategy lookupStrategy) {
+		Assert.notNull(jdbcOperations, "JdbcOperations required");
 		Assert.notNull(lookupStrategy, "LookupStrategy required");
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		this.jdbcOperations = jdbcOperations;
 		this.lookupStrategy = lookupStrategy;
 		this.aclClassIdUtils = new AclClassIdUtils();
 	}
@@ -88,15 +93,14 @@ public class JdbcAclService implements AclService {
 	// ========================================================================================================
 
 	public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
-		Object[] args = { parentIdentity.getIdentifier(), parentIdentity.getType() };
-		List<ObjectIdentity> objects = jdbcTemplate.query(findChildrenSql, args,
+		Object[] args = { parentIdentity.getIdentifier().toString(), parentIdentity.getType() };
+		List<ObjectIdentity> objects = jdbcOperations.query(findChildrenSql, args,
 				new RowMapper<ObjectIdentity>() {
 					public ObjectIdentity mapRow(ResultSet rs, int rowNum)
 							throws SQLException {
 						String javaType = rs.getString("class");
 						Serializable identifier = (Serializable) rs.getObject("obj_id");
 						identifier = aclClassIdUtils.identifierFrom(identifier, rs);
-
 						return new ObjectIdentityImpl(javaType, identifier);
 					}
 				});
