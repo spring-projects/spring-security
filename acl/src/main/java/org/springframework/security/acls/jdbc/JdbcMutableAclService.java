@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006, 2017 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2017, 2018 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 		if (acl.getEntries().isEmpty()) {
 			return;
 		}
-		jdbcTemplate.batchUpdate(insertEntry, new BatchPreparedStatementSetter() {
+		jdbcOperations.batchUpdate(insertEntry, new BatchPreparedStatementSetter() {
 			public int getBatchSize() {
 				return acl.getEntries().size();
 			}
@@ -170,7 +170,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	protected void createObjectIdentity(ObjectIdentity object, Sid owner) {
 		Long sidId = createOrRetrieveSidPrimaryKey(owner, true);
 		Long classId = createOrRetrieveClassPrimaryKey(object.getType(), true, object.getIdentifier().getClass());
-		jdbcTemplate.update(insertObjectIdentity, classId, object.getIdentifier(), sidId,
+		jdbcOperations.update(insertObjectIdentity, classId, object.getIdentifier().toString(), sidId,
 				Boolean.TRUE);
 	}
 
@@ -184,7 +184,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 * @return the primary key or null if not found
 	 */
 	protected Long createOrRetrieveClassPrimaryKey(String type, boolean allowCreate, Class idType) {
-		List<Long> classIds = jdbcTemplate.queryForList(selectClassPrimaryKey,
+		List<Long> classIds = jdbcOperations.queryForList(selectClassPrimaryKey,
 				new Object[] { type }, Long.class);
 
 		if (!classIds.isEmpty()) {
@@ -193,13 +193,13 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 
 		if (allowCreate) {
 			if (!isAclClassIdSupported()) {
-				jdbcTemplate.update(insertClass, type);
+				jdbcOperations.update(insertClass, type);
 			} else {
-				jdbcTemplate.update(insertClass, type, idType.getCanonicalName());
+				jdbcOperations.update(insertClass, type, idType.getCanonicalName());
 			}
 			Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
 					"Transaction must be running");
-			return jdbcTemplate.queryForObject(classIdentityQuery, Long.class);
+			return jdbcOperations.queryForObject(classIdentityQuery, Long.class);
 		}
 
 		return null;
@@ -248,7 +248,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	protected Long createOrRetrieveSidPrimaryKey(String sidName, boolean sidIsPrincipal,
 			boolean allowCreate) {
 
-		List<Long> sidIds = jdbcTemplate.queryForList(selectSidPrimaryKey, new Object[] {
+		List<Long> sidIds = jdbcOperations.queryForList(selectSidPrimaryKey, new Object[] {
 				Boolean.valueOf(sidIsPrincipal), sidName }, Long.class);
 
 		if (!sidIds.isEmpty()) {
@@ -256,10 +256,10 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 		}
 
 		if (allowCreate) {
-			jdbcTemplate.update(insertSid, Boolean.valueOf(sidIsPrincipal), sidName);
+			jdbcOperations.update(insertSid, Boolean.valueOf(sidIsPrincipal), sidName);
 			Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
 					"Transaction must be running");
-			return jdbcTemplate.queryForObject(sidIdentityQuery, Long.class);
+			return jdbcOperations.queryForObject(sidIdentityQuery, Long.class);
 		}
 
 		return null;
@@ -311,7 +311,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 * @param oidPrimaryKey the rows in acl_entry to delete
 	 */
 	protected void deleteEntries(Long oidPrimaryKey) {
-		jdbcTemplate.update(deleteEntryByObjectIdentityForeignKey, oidPrimaryKey);
+		jdbcOperations.update(deleteEntryByObjectIdentityForeignKey, oidPrimaryKey);
 	}
 
 	/**
@@ -325,7 +325,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 */
 	protected void deleteObjectIdentity(Long oidPrimaryKey) {
 		// Delete the acl_object_identity row
-		jdbcTemplate.update(deleteObjectIdentityByPrimaryKey, oidPrimaryKey);
+		jdbcOperations.update(deleteObjectIdentityByPrimaryKey, oidPrimaryKey);
 	}
 
 	/**
@@ -339,8 +339,8 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 */
 	protected Long retrieveObjectIdentityPrimaryKey(ObjectIdentity oid) {
 		try {
-			return jdbcTemplate.queryForObject(selectObjectIdentityPrimaryKey, Long.class,
-					oid.getType(), oid.getIdentifier());
+			return jdbcOperations.queryForObject(selectObjectIdentityPrimaryKey, Long.class,
+					oid.getType(), oid.getIdentifier().toString());
 		}
 		catch (DataAccessException notFound) {
 			return null;
@@ -409,7 +409,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 		Assert.notNull(acl.getOwner(), "Owner is required in this implementation");
 
 		Long ownerSid = createOrRetrieveSidPrimaryKey(acl.getOwner(), true);
-		int count = jdbcTemplate.update(updateObjectIdentity, parentId, ownerSid,
+		int count = jdbcOperations.update(updateObjectIdentity, parentId, ownerSid,
 				Boolean.valueOf(acl.isEntriesInheriting()), acl.getId());
 
 		if (count != 1) {
