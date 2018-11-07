@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -58,6 +59,10 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
+import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
+import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -230,6 +235,27 @@ public class OAuth2ResourceServerSpecTests {
 				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
 				.exchange()
 				.expectStatus().isOk();
+	}
+
+	@Test
+	public void getWhenCustomBearerTokenEntryPointThenResponds() {
+		this.spring.register(CustomErrorHandlingConfig.class).autowire();
+
+		this.client.get()
+				.uri("/authenticated")
+				.exchange()
+				.expectStatus().isEqualTo(HttpStatus.I_AM_A_TEAPOT);
+	}
+
+	@Test
+	public void getWhenCustomBearerTokenDeniedHandlerThenResponds() {
+		this.spring.register(CustomErrorHandlingConfig.class).autowire();
+
+		this.client.get()
+				.uri("/unobtainable")
+				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isEqualTo(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED);
 	}
 
 	@Test
@@ -438,7 +464,30 @@ public class OAuth2ResourceServerSpecTests {
 		}
 	}
 
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class CustomErrorHandlingConfig {
+		private ServerAccessDeniedHandler accessDeniedHandler = mock(ServerAccessDeniedHandler.class);
+		private ServerAuthenticationEntryPoint entryPoint = mock(ServerAuthenticationEntryPoint.class);
 
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeExchange()
+					.pathMatchers("/authenticated").authenticated()
+					.pathMatchers("/unobtainable").hasAuthority("unobtainable")
+					.and()
+				.oauth2ResourceServer()
+					.accessDeniedHandler(new HttpStatusServerAccessDeniedHandler(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED))
+					.authenticationEntryPoint(new HttpStatusServerEntryPoint(HttpStatus.I_AM_A_TEAPOT))
+					.jwt()
+						.publicKey(publicKey());
+			// @formatter:on
+
+			return http.build();
+		}
+	}
 
 	@RestController
 	static class RootController {

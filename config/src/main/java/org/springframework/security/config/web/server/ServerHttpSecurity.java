@@ -881,10 +881,39 @@ public class ServerHttpSecurity {
 	 * Configures OAuth2 Resource Server Support
 	 */
 	public class OAuth2ResourceServerSpec {
-		private BearerTokenServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
-		private BearerTokenServerAccessDeniedHandler accessDeniedHandler = new BearerTokenServerAccessDeniedHandler();
+		private ServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
+		private ServerAccessDeniedHandler accessDeniedHandler = new BearerTokenServerAccessDeniedHandler();
 
 		private JwtSpec jwt;
+
+		/**
+		 * Configures the {@link ServerAccessDeniedHandler} to use for requests authenticating with
+		 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s.
+		 * requests.
+		 *
+		 * @param accessDeniedHandler the {@link ServerAccessDeniedHandler} to use
+		 * @return the {@link OAuth2ResourceServerSpec} for additional configuration
+		 * @since 5.2
+		 */
+		public OAuth2ResourceServerSpec accessDeniedHandler(ServerAccessDeniedHandler accessDeniedHandler) {
+			Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
+			this.accessDeniedHandler = accessDeniedHandler;
+			return this;
+		}
+
+		/**
+		 * Configures the {@link ServerAuthenticationEntryPoint} to use for requests authenticating with
+		 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s.
+		 *
+		 * @param entryPoint the {@link ServerAuthenticationEntryPoint} to use
+		 * @return the {@link OAuth2ResourceServerSpec} for additional configuration
+		 * @since 5.2
+		 */
+		public OAuth2ResourceServerSpec authenticationEntryPoint(ServerAuthenticationEntryPoint entryPoint) {
+			Assert.notNull(entryPoint, "entryPoint cannot be null");
+			this.entryPoint = entryPoint;
+			return this;
+		}
 
 		public JwtSpec jwt() {
 			if (this.jwt == null) {
@@ -1024,7 +1053,7 @@ public class ServerHttpSecurity {
 					http.defaultAccessDeniedHandlers.add(
 							new ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry(
 									this.bearerTokenServerWebExchangeMatcher,
-									new BearerTokenServerAccessDeniedHandler()
+									OAuth2ResourceServerSpec.this.accessDeniedHandler
 							)
 					);
 				}
@@ -1035,7 +1064,7 @@ public class ServerHttpSecurity {
 					http.defaultEntryPoints.add(
 							new DelegateEntry(
 									this.bearerTokenServerWebExchangeMatcher,
-									new BearerTokenServerAuthenticationEntryPoint()
+									OAuth2ResourceServerSpec.this.entryPoint
 							)
 					);
 				}
