@@ -71,6 +71,7 @@ dependencies {
 
 	testRuntime 'cglib:cglib-nodep'
 	testRuntime 'org.hsqldb:hsqldb'
+    testCompile "com.unboundid:unboundid-ldapsdk"
 }
 
 

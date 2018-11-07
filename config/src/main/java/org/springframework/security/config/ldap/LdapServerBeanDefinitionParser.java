@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,13 @@ package org.springframework.security.config.ldap;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -28,11 +32,14 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.ldap.server.ApacheDSContainer;
+import org.springframework.security.ldap.server.UnboundIdContainer;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
 public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String CONTEXT_SOURCE_CLASS = "org.springframework.security.ldap.DefaultSpringSecurityContextSource";
@@ -64,6 +71,22 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	public static final String ATT_PORT = "port";
 	private static final int DEFAULT_PORT = 33389;
 	public static final String OPT_DEFAULT_PORT = String.valueOf(DEFAULT_PORT);
+
+	private static final String APACHEDS_CLASSNAME = "org.apache.directory.server.core.DefaultDirectoryService";
+	private static final String UNBOUNID_CLASSNAME = "com.unboundid.ldap.listener.InMemoryDirectoryServer";
+
+	private static final String APACHEDS_CONTAINER_CLASSNAME = "org.springframework.security.ldap.server.ApacheDSContainer";
+	private static final String UNBOUNDID_CONTAINER_CLASSNAME = "org.springframework.security.ldap.server.UnboundIdContainer";
+
+	private Map<String, EmbeddedLdapServer> embeddedServers;
+
+	public LdapServerBeanDefinitionParser() {
+		Map<String, EmbeddedLdapServer> embeddedLdapServers = new HashMap<>();
+		embeddedLdapServers.put("apacheds", new EmbeddedLdapServer(BeanIds.EMBEDDED_APACHE_DS, APACHEDS_CLASSNAME, APACHEDS_CONTAINER_CLASSNAME));
+		embeddedLdapServers.put("unboundid", new EmbeddedLdapServer(BeanIds.EMBEDDED_UNBOUNDID, UNBOUNID_CLASSNAME, UNBOUNDID_CONTAINER_CLASSNAME));
+
+		this.embeddedServers = Collections.unmodifiableMap(embeddedLdapServers);
+	}
 
 	public BeanDefinition parse(Element elt, ParserContext parserContext) {
 		String url = elt.getAttribute(ATT_URL);
@@ -114,6 +137,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	 * @return the BeanDefinition for the ContextSource for the embedded server.
 	 *
 	 * @see ApacheDSContainer
+	 * @see UnboundIdContainer
 	 */
 	private RootBeanDefinition createEmbeddedServer(Element element,
 			ParserContext parserContext) {
@@ -142,32 +166,76 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 		contextSource.addPropertyValue("userDn", "uid=admin,ou=system");
 		contextSource.addPropertyValue("password", "secret");
 
-		RootBeanDefinition apacheContainer = new RootBeanDefinition(
-				"org.springframework.security.ldap.server.ApacheDSContainer", null, null);
-		apacheContainer.setSource(source);
-		apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(suffix);
+		String mode = element.getAttribute("mode");
+		RootBeanDefinition ldapContainer = getRootBeanDefinition(mode);
+		ldapContainer.setSource(source);
+		ldapContainer.getConstructorArgumentValues().addGenericArgumentValue(suffix);
 
 		String ldifs = element.getAttribute(ATT_LDIF_FILE);
 		if (!StringUtils.hasText(ldifs)) {
 			ldifs = OPT_DEFAULT_LDIF_FILE;
 		}
 
-		apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(ldifs);
-		apacheContainer.getPropertyValues().addPropertyValue("port", port);
+		ldapContainer.getConstructorArgumentValues().addGenericArgumentValue(ldifs);
+		ldapContainer.getPropertyValues().addPropertyValue("port", port);
 
 		logger.info("Embedded LDAP server bean definition created for URL: " + url);
 
 		if (parserContext.getRegistry()
-				.containsBeanDefinition(BeanIds.EMBEDDED_APACHE_DS)) {
+				.containsBeanDefinition(BeanIds.EMBEDDED_APACHE_DS) ||
+				parserContext.getRegistry().containsBeanDefinition(BeanIds.EMBEDDED_UNBOUNDID)) {
 			parserContext.getReaderContext().error(
 					"Only one embedded server bean is allowed per application context",
 					element);
 		}
 
-		parserContext.getRegistry().registerBeanDefinition(BeanIds.EMBEDDED_APACHE_DS,
-				apacheContainer);
+		EmbeddedLdapServer embeddedLdapServer = resolveEmbeddedLdapServer(mode);
+		if (embeddedLdapServer != null) {
+			parserContext.getRegistry().registerBeanDefinition(embeddedLdapServer.getBeanId(),
+					ldapContainer);
+		}
 
 		return (RootBeanDefinition) contextSource.getBeanDefinition();
+	}
+
+	private RootBeanDefinition getRootBeanDefinition(String mode) {
+		if (StringUtils.hasLength(mode)) {
+			if (isEmbeddedServerEnabled(mode)) {
+				return new RootBeanDefinition(this.embeddedServers.get(mode).getContainerClass(), null, null);
+			}
+		}
+		else {
+			for (Map.Entry<String, EmbeddedLdapServer> entry : this.embeddedServers.entrySet()) {
+				EmbeddedLdapServer ldapServer = entry.getValue();
+				if (ClassUtils.isPresent(ldapServer.getClassName(), getClass().getClassLoader())) {
+					return new RootBeanDefinition(ldapServer.getContainerClass(), null, null);
+				}
+			}
+		}
+		throw new IllegalStateException("Embedded LDAP server is not provided");
+	}
+
+	private boolean isEmbeddedServerEnabled(String mode) {
+		EmbeddedLdapServer server = resolveEmbeddedLdapServer(mode);
+		return server != null;
+	}
+
+	private EmbeddedLdapServer resolveEmbeddedLdapServer(String mode) {
+		if (StringUtils.hasLength(mode)) {
+			if (this.embeddedServers.containsKey(mode) ||
+					ClassUtils.isPresent(this.embeddedServers.get(mode).getClassName(), getClass().getClassLoader())) {
+				return this.embeddedServers.get(mode);
+			}
+		}
+		else {
+			for (Map.Entry<String, EmbeddedLdapServer> entry : this.embeddedServers.entrySet()) {
+				EmbeddedLdapServer ldapServer = entry.getValue();
+				if (ClassUtils.isPresent(ldapServer.getClassName(), getClass().getClassLoader())) {
+					return ldapServer;
+				}
+			}
+		}
+		return null;
 	}
 
 	private String getDefaultPort() {
@@ -194,6 +262,33 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 				catch (IOException e) {
 				}
 			}
+		}
+	}
+
+	private class EmbeddedLdapServer {
+
+		private String beanId;
+
+		private String className;
+
+		private String containerClass;
+
+		public EmbeddedLdapServer(String beanId, String className, String containerClass) {
+			this.beanId = beanId;
+			this.className = className;
+			this.containerClass = containerClass;
+		}
+
+		public String getBeanId() {
+			return this.beanId;
+		}
+
+		public String getClassName() {
+			return this.className;
+		}
+
+		public String getContainerClass() {
+			return this.containerClass;
 		}
 	}
 }

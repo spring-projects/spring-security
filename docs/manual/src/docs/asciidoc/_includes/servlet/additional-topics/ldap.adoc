@@ -47,6 +47,8 @@ This can be configured to point at an external LDAP server, using the `url` attr
 <ldap-server url="ldap://springframework.org:389/dc=springframework,dc=org" />
 ----
 
+NOTE: `spring-security` provides integration with `apacheds` and `unboundid` as a embedded ldap servers. You can choose between them using the attribute `mode` in `ldap-server`.
+
 ==== Using an Embedded Test Server
 The `<ldap-server>` element can also be used to create an embedded server, which can be very useful for testing and demonstrations.
 In this case you use it without the `url` attribute:
