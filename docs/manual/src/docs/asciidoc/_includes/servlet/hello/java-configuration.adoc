@@ -2,37 +2,43 @@
 = Hello Spring Security (Java Configuration)
 
 The first step is to create our Spring Security Java Configuration.
-The configuration creates a Servlet Filter known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
+The configuration creates a Servlet `Filter` known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
 You can find the most basic example of a Spring Security Java Configuration below:
 
-[[jc-hello-wsca]]
+.WebSecurity.config
+====
 [source,java]
 ----
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.context.annotation.*;
-import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.provisioning.*;
 
 @EnableWebSecurity
 public class WebSecurityConfig {
 
+	// @formatter:off
 	@Bean
-	public UserDetailsService userDetailsService() throws Exception {
-		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-		manager.createUser(User.withDefaultPasswordEncoder().username("user").password("password").roles("USER").build());
-		return manager;
+	public UserDetailsService userDetailsService() {
+		UserDetails user = User.withDefaultPasswordEncoder()
+			.username("user")
+			.password("password")
+			.roles("USER")
+			.build();
+		return  new InMemoryUserDetailsManager(user);
 	}
+	// @formatter:on
 }
 ----
-// FIXME: The above sample can use constructor injection to simplify.
+====
 
 There really isn't much to this configuration, but it does a lot.
 You can find a summary of the features below:
 
-* Require authentication to every URL in your application
-* Generate a login form for you
+* Require an authenticated user for any interaction with the application
+* Generate a default login form for you
 * Allow the user with the *Username* _user_ and the *Password* _password_ to authenticate with form based authentication
+* Protects the password storage with BCrypt
 * Allow the user to logout
 * http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
 * http://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
@@ -49,10 +55,13 @@ You can find a summary of the features below:
 ** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html#login(java.lang.String, java.lang.String)]
 ** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html#logout()]
 
+// FIXME: After completed rewriting, link to all the sections of doc that this relates to
+
 == AbstractSecurityWebApplicationInitializer
 
 The next step is to register the `springSecurityFilterChain` with the war.
-This can be done in Java Configuration with http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-container-config[Spring's WebApplicationInitializer support] in a Servlet 3.0+ environment.
+This can be done in Java Configuration with https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-servlet[Spring's WebApplicationInitializer support] in a Servlet 3.0+ environment.
+
 Not suprisingly, Spring Security provides a base class `AbstractSecurityWebApplicationInitializer` that will ensure the `springSecurityFilterChain` gets registered for you.
 The way in which we use `AbstractSecurityWebApplicationInitializer` differs depending on if we are already using Spring or if Spring Security is the only Spring component in our application.
 
@@ -64,6 +73,8 @@ The way in which we use `AbstractSecurityWebApplicationInitializer` differs depe
 If you are not using Spring or Spring MVC, you will need to pass in the `WebSecurityConfig` into the superclass to ensure the configuration is picked up.
 You can find an example below:
 
+.SecurityWebApplicationInitializer.java
+====
 [source,java]
 ----
 import org.springframework.security.web.context.*;
@@ -76,6 +87,7 @@ public class SecurityWebApplicationInitializer
 	}
 }
 ----
+====
 
 The `SecurityWebApplicationInitializer` will do the following things:
 
@@ -89,6 +101,8 @@ If we use the previous configuration we would get an error.
 Instead, we should register Spring Security with the existing `ApplicationContext`.
 For example, if we were using Spring MVC our `SecurityWebApplicationInitializer` would look something like the following:
 
+.SecurityWebApplicationInitializer.java
+====
 [source,java]
 ----
 import org.springframework.security.web.context.*;
@@ -98,14 +112,18 @@ public class SecurityWebApplicationInitializer
 
 }
 ----
+====
 
 This would simply only register the springSecurityFilterChain Filter for every URL in your application.
 After that we would ensure that `WebSecurityConfig` was loaded in our existing ApplicationInitializer.
 For example, if we were using Spring MVC it would be added in the `getRootConfigClasses()`
 
-[[message-web-application-inititializer-java]]
+.MvcWebApplicationInitializer
+====
 [source,java]
 ----
+import org.springframework.web.servlet.support.*;
+
 public class MvcWebApplicationInitializer extends
 		AbstractAnnotationConfigDispatcherServletInitializer {
 
@@ -117,3 +135,4 @@ public class MvcWebApplicationInitializer extends
 	// ... other overrides ...
 }
 ----
+====
