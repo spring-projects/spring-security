@@ -1,14 +1,17 @@
-[[hello-jc]]
+[[servlet-hello-jc]]
 = Hello Spring Security (Java Configuration)
 
 In this section we will discuss how to use Spring Security using Java Configuration.
 // FIXME: Link to XML and Boot
 
+[[servlet-hello-jc-ews]]
+== A Minimal @EnableWebSecurity Configuration
+
 The first step is to create our Spring Security Java Configuration.
 The configuration creates a Servlet `Filter` known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
 You can find the most basic example of a Spring Security Java Configuration below:
 
-.WebSecurity.config
+.WebSecurity.java
 ====
 [source,java]
 ----
@@ -63,79 +66,63 @@ You can find a summary of the features below:
 == AbstractSecurityWebApplicationInitializer
 
 The next step is to register the `springSecurityFilterChain` with the war.
-This can be done in Java Configuration with https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-servlet[Spring's WebApplicationInitializer support] in a Servlet 3.0+ environment.
+Spring Security provides a base class `AbstractSecurityWebApplicationInitializer` that leverages https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-servlet[Spring's WebApplicationInitializer support].
 
-Not suprisingly, Spring Security provides a base class `AbstractSecurityWebApplicationInitializer` that will ensure the `springSecurityFilterChain` gets registered for you.
-The way in which we use `AbstractSecurityWebApplicationInitializer` differs depending on if we are already using Spring or if Spring Security is the only Spring component in our application.
+An example configuration can be seen below:
 
-* <<abstractsecuritywebapplicationinitializer-without-existing-spring>> - Use these instructions if you are not using Spring already
-* <<abstractsecuritywebapplicationinitializer-with-spring-mvc>> - Use these instructions if you are already using Spring
 
-== AbstractSecurityWebApplicationInitializer without Existing Spring
-
-If you are not using Spring or Spring MVC, you will need to pass in the `WebSecurityConfig` into the superclass to ensure the configuration is picked up.
-You can find an example below:
-
-.SecurityWebApplicationInitializer.java
+.SecurityInitializer.java
 ====
 [source,java]
 ----
 import org.springframework.security.web.context.*;
 
-public class SecurityWebApplicationInitializer
+public class SecurityInitializer
 	extends AbstractSecurityWebApplicationInitializer {
 
-	public SecurityWebApplicationInitializer() {
+	public SecurityInitializer() {
 		super(WebSecurityConfig.class);
 	}
 }
 ----
 ====
 
-The `SecurityWebApplicationInitializer` will do the following things:
+The `SecurityInitializer` will do the following things:
 
-* Automatically register the springSecurityFilterChain Filter for every URL in your application
-* Add a ContextLoaderListener that loads the <<jc-hello-wsca,WebSecurityConfig>>.
+* Add a `ContextLoaderListener` that loads the <<servlet-hello-ews,WebSecurityConfig>>.
+* Finds the Bean of type `Filter` named `springSecurityFilterChain` and registers it to process every URL in the application
 
-== AbstractSecurityWebApplicationInitializer with Spring MVC
 
-If we were using Spring elsewhere in our application we probably already had a `WebApplicationInitializer` that is loading our Spring Configuration.
-If we use the previous configuration we would get an error.
-Instead, we should register Spring Security with the existing `ApplicationContext`.
-For example, if we were using Spring MVC our `SecurityWebApplicationInitializer` would look something like the following:
-
-.SecurityWebApplicationInitializer.java
+[NOTE]
 ====
+If you are integrating with a Spring MVC application, be sure to configure the `DispatcherServlet` to load the configuration from the root `ApplicationContext` as shown below:
+
+.MvcInitializer.java
 [source,java]
 ----
-import org.springframework.security.web.context.*;
-
-public class SecurityWebApplicationInitializer
-	extends AbstractSecurityWebApplicationInitializer {
-
-}
-----
-====
-
-This would simply only register the springSecurityFilterChain Filter for every URL in your application.
-After that we would ensure that `WebSecurityConfig` was loaded in our existing ApplicationInitializer.
-For example, if we were using Spring MVC it would be added in the `getRootConfigClasses()`
-
-.MvcWebApplicationInitializer
-====
-[source,java]
-----
-import org.springframework.web.servlet.support.*;
-
-public class MvcWebApplicationInitializer extends
+public class MvcInitializer extends
 		AbstractAnnotationConfigDispatcherServletInitializer {
 
+	// the Root Config is registered in SecurityInitializer
 	@Override
 	protected Class<?>[] getRootConfigClasses() {
-		return new Class[] { WebSecurityConfig.class };
+		return null;
 	}
 
-	// ... other overrides ...
+	// the Spring MVC configuration should be added to SecurityInitializer constructor
+	// i.e.
+	// super(MvcConfig.class, WebSecurityConfig.class);
+	@Override
+	protected Class<?>[] getServletConfigClasses() {
+		return null;
+	}
+
+	@Override
+	protected String[] getServletMappings() {
+		return new String[] { "/" };
+	}
+
 }
+
 ----
 ====

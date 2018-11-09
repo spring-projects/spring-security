@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.samples.config;
+package sample.hello;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
-/**
- * No customizations of {@link AbstractSecurityWebApplicationInitializer} are necessary.
- *
- * @author Rob Winch
- */
-@Order(2)
-public class MessageSecurityWebApplicationInitializer extends
-		AbstractSecurityWebApplicationInitializer {
+public class MvcInitializer extends
+		AbstractAnnotationConfigDispatcherServletInitializer {
+
+	@Override
+	protected Class<?>[] getRootConfigClasses() {
+		return null;
+	}
+
+	@Override
+	protected Class<?>[] getServletConfigClasses() {
+		return null;
+	}
+
+	@Override
+	protected String[] getServletMappings() {
+		return new String[] { "/" };
+	}
+
 }

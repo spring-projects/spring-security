@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.samples.config;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+package sample.hello;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.samples.mvc.config.WebMvcConfiguration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @author Rob Winch
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { RootConfiguration.class, WebMvcConfiguration.class })
+@ContextConfiguration(classes = { MvcConfiguration.class, WebSecurityConfig.class })
 @WebAppConfiguration
-public class SecurityConfigTests {
+public class WebSecurityConfigTests {
 	private MockMvc mvc;
 
 	@Autowired
@@ -78,31 +77,6 @@ public class SecurityConfigTests {
 	@WithMockUser
 	public void requestProtectedResourceWithUser() throws Exception {
 		mvc.perform(get("/")).andExpect(status().isOk());
-	}
-
-	@Test
-	@WithMockUser
-	public void composeMessageRequiresCsrfToken() throws Exception {
-		MockHttpServletRequestBuilder composeMessage = post("/").param("summary",
-				"New Message").param("text", "This is a new message");
-
-		mvc.perform(composeMessage).andExpect(status().isForbidden());
-	}
-
-	@Test
-	@WithMockUser
-	public void composeMessage() throws Exception {
-		MockHttpServletRequestBuilder composeMessage = post("/")
-				.param("summary", "New Message").param("text", "This is a new message")
-				.with(csrf());
-
-		mvc.perform(composeMessage).andExpect(redirectedUrlPattern("/*"));
-	}
-
-	@Test
-	@WithMockUser
-	public void logoutRequiresCsrfToken() throws Exception {
-		mvc.perform(post("/logout")).andExpect(status().isForbidden());
 	}
 
 	@Test
