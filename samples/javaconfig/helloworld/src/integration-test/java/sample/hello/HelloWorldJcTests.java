@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.samples;
+package sample.hello;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
-import org.springframework.security.samples.pages.HomePage;
-import org.springframework.security.samples.pages.LoginPage;
+import sample.hello.pages.HomePage;
+import sample.hello.pages.LoginPage;
 
 /**
  * @author Michael Simons
