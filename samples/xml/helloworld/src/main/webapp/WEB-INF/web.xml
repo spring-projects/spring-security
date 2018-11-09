@@ -5,9 +5,16 @@
   http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
 	<!--
-	  - Location of the XML file that defines the root application context
-	  - Applied by ContextLoaderListener.
-	  -->
+		Loads the Spring configurations from contextConfigLocation
+	-->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!--
+		The locations of the Spring Configuration. In this case, all configuration is
+		in /WEB-INF/spring/
+	-->
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
@@ -15,7 +22,10 @@
 		</param-value>
 	</context-param>
 
-
+	<!--
+		DelegatingFilterProxy looks for a Spring bean by the name of filter (springSecurityFilterChain) and delegates
+		all work to that Bean. This is how the Servlet Container can a Spring Bean to act as a Servlet Filter.
+	-->
 	<filter>
 		<filter-name>springSecurityFilterChain</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -26,11 +36,20 @@
 	</filter-mapping>
 
 	<!--
-	  - Loads the root application context of this web app at startup.
-	  - The application context is then available via
-	  - WebApplicationContextUtils.getWebApplicationContext(servletContext).
+	OPTIONAL: If using Spring MVC, makes sure Spring MVC loads in the Root ApplicationContext (contextConfigLocation defined
+	by context-param) by specifying a contextConfigLocation of empty String
+	<servlet>
+		<servlet-name>spring</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value></param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+	  <servlet-name>spring</servlet-name>
+	  <url-pattern>/</url-pattern>
+	</servlet-mapping>
 	-->
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
 </web-app>
