@@ -1,202 +1,135 @@
 [[hello-xml]]
 = Hello Spring Security (XML)
-In this section, we'll look at how you can build up a namespace configuration to use some of the main features of the framework.
-Let's assume you initially want to get up and running as quickly as possible and add authentication support and access control to an existing web application, with a few test logins.
-Then we'll look at how to change over to authenticating against a database or other security repository.
-In later sections we'll introduce more advanced namespace configuration options.
+In this section we will discuss how to use Spring Security using Java Configuration.
+// FIXME: Link to XML and Boot
+
+The first step is to create our Spring Security XML Configuration.
+The configuration creates a Servlet `Filter` known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
+You can find the most basic example of a Spring Security Java Configuration below:
 
 
-== Introduction
+[[ns-minimal]]
+== A Minimal <http> Configuration
 
-// FIXME this is likely heavy for hello-security, but just restructuring for now
-Namespace configuration has been available since version 2.0 of the Spring Framework.
-It allows you to supplement the traditional Spring beans application context syntax with elements from additional XML schema.
-You can find more information in the Spring http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[Reference Documentation].
-A namespace element can be used simply to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax which more closely matches the problem domain and hides the underlying complexity from the user.
-A simple element may conceal the fact that multiple beans and processing steps are being added to the application context.
-For example, adding the following element from the security namespace to an application context will start up an embedded LDAP server for testing use within the application:
+In this section we will discuss how to use Spring Security using XML Configuration.
+// FIXME: Link to JavaConfiguration and Boot
 
+The first step is to create our Spring Security XML Configuration.
+The configuration creates a Servlet `Filter` known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
+You can find the most basic example of a Spring Security Java Configuration below:
+
+.src/main/webapp/WEB-INF/spring/security.xml
+====
 [source,xml]
 ----
-<security:ldap-server />
+<b:beans xmlns="http://www.springframework.org/schema/security"
+		 xmlns:b="http://www.springframework.org/schema/beans"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	<http />
+
+	<user-service>
+		<user name="user" password="{noop}password" authorities="ROLE_USER" />
+	</user-service>
+</b:beans>
+
 ----
-
-This is much simpler than wiring up the equivalent Apache Directory Server beans.
-The most common alternative configuration requirements are supported by attributes on the `ldap-server` element and the user is isolated from worrying about which beans they need to create and what the bean property names are.
-footnote:[You can find out more about the use of the `ldap-server` element in the chapter on pass:specialcharacters,macros[<<ldap>>].].
-Use of a good XML editor while editing the application context file should provide information on the attributes and elements that are available.
-We would recommend that you try out the http://spring.io/tools/sts[Spring Tool Suite] as it has special features for working with standard Spring namespaces.
+====
 
 
-To start using the security namespace in your application context, you need to have the `spring-security-config` jar on your classpath.
-Then all you need to do is add the schema declaration to your application context file:
+There really isn't much to this configuration, but it does a lot.
+You can find a summary of the features below:
 
-[source,xml]
-----
-<beans xmlns="http://www.springframework.org/schema/beans"
-xmlns:security="http://www.springframework.org/schema/security"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-		http://www.springframework.org/schema/security
-		http://www.springframework.org/schema/security/spring-security.xsd">
-	...
-</beans>
-----
+* Require an authenticated user for any interaction with the application
+* Generate a default login form for you
+* Allow the user with the *Username* _user_ and the *Password* _password_ to authenticate with form based authentication
+* Protects the password storage with BCrypt
+* Allow the user to logout
+* http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
+* http://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
+* Security Header integration
+** http://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HTTP Strict Transport Security] for secure requests
+** http://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx[X-Content-Type-Options] integration
+** Cache Control (can be overridden later by your application to allow caching of your static resources)
+** http://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-Protection] integration
+** X-Frame-Options integration to help prevent http://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
+* Integrate with the following Servlet API methods
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[HttpServletRequest#getRemoteUser()]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest.html#getUserPrincipal()]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.html#isUserInRole(java.lang.String)]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html#login(java.lang.String, java.lang.String)]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html#logout()]
 
-In many of the examples you will see (and in the sample applications), we will often use "security" as the default namespace rather than "beans", which means we can omit the prefix on all the security namespace elements, making the content easier to read.
-You may also want to do this if you have your application context divided up into separate files and have most of your security configuration in one of them.
-Your security application context file would then start like this
-
-[source,xml]
-----
-<beans:beans xmlns="http://www.springframework.org/schema/security"
-xmlns:beans="http://www.springframework.org/schema/beans"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-		http://www.springframework.org/schema/security
-		http://www.springframework.org/schema/security/spring-security.xsd">
-	...
-</beans:beans>
-----
-
-We'll assume this syntax is being used from now on in this chapter.
-
-
-== Design of the Namespace
-The namespace is designed to capture the most common uses of the framework and provide a simplified and concise syntax for enabling them within an application.
-The design is based around the large-scale dependencies within the framework, and can be divided up into the following areas:
-
-* __Web/HTTP Security__ - the most complex part.
-Sets up the filters and related service beans used to apply the framework authentication mechanisms, to secure URLs, render login and error pages and much more.
-
-* __Business Object (Method) Security__ - options for securing the service layer.
-
-* __AuthenticationManager__ - handles authentication requests from other parts of the framework.
-
-* __AccessDecisionManager__ - provides access decisions for web and method security.
-A default one will be registered, but you can also choose to use a custom one, declared using normal Spring bean syntax.
-
-* __AuthenticationProvider__s - mechanisms against which the authentication manager authenticates users.
-The namespace provides supports for several standard options and also a means of adding custom beans declared using a traditional syntax.
-
-* __UserDetailsService__ - closely related to authentication providers, but often also required by other beans.
-
-We'll see how to configure these in the following sections.
+// FIXME: After completed rewriting, link to all the sections of doc that this relates to
 
 
 [[ns-web-xml]]
 == web.xml Configuration
-The first thing you need to do is add the following filter declaration to your `web.xml` file:
 
-[source,xml]
-----
-<filter>
-	<filter-name>springSecurityFilterChain</filter-name>
-	<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-</filter>
-
-<filter-mapping>
-	<filter-name>springSecurityFilterChain</filter-name>
-	<url-pattern>/*</url-pattern>
-</filter-mapping>
-----
-
-This provides a hook into the Spring Security web infrastructure.
-`DelegatingFilterProxy` is a Spring Framework class which delegates to a filter implementation which is defined as a Spring bean in your application context.
-In this case, the bean is named "springSecurityFilterChain", which is an internal infrastructure bean created by the namespace to handle web security.
-Note that you should not use this bean name yourself.
-Once you've added this to your `web.xml`, you're ready to start editing your application context file.
-Web security services are configured using the `<http>` element.
-
-[[ns-minimal]]
-== A Minimal <http> Configuration
-All you need to enable web security to begin with is
-
-[source,xml]
-----
-<http>
-	<intercept-url pattern="/**" access="hasRole('USER')" />
-	<form-login />
-	<logout />
-</http>
-----
-
-Which says that we want all URLs within our application to be secured, requiring the role `ROLE_USER` to access them, we want to log in to the application using a form with username and password, and that we want a logout URL registered which will allow us to log out of the application.
-`<http>` element is the parent for all web-related namespace functionality.
-The `<intercept-url>` element defines a `pattern` which is matched against the URLs of incoming requests using an ant path style syntax footnote:[See the section on pass:specialcharacters,macros[<<request-matching>>] in the Web Application Infrastructure chapter for more details on how matches are actually performed.].
-You can also use regular-expression matching as an alternative (see the namespace appendix for more details).
-The `access` attribute defines the access requirements for requests matching the given pattern.
-With the default configuration, this is typically a comma-separated list of roles, one of which a user must have to be allowed to make the request.
-The prefix "ROLE_" is a marker which indicates that a simple comparison with the user's authorities should be made.
-In other words, a normal role-based check should be used.
-Access-control in Spring Security is not limited to the use of simple roles (hence the use of the prefix to differentiate between different types of security attributes).
-We'll see later how the interpretation can vary footnote:[The interpretation of the comma-separated values in the `access` attribute depends on the implementation of the pass:specialcharacters,macros[<<ns-access-manager,AccessDecisionManager>>] which is used.
-In Spring Security 3.0, the attribute can also be populated with an pass:specialcharacters,macros[<<el-access,EL expression>>].
+The next step is to ensure that our Security configuration is being read in.
+To do this we need to ensure a `ContextLoaderListener` is registered and the `contextConfigLocation` is including the configuration
 
 
-[NOTE]
+.src/main/webapp/WEB-INF/web.xml
 ====
-You can use multiple `<intercept-url>` elements to define different access requirements for different sets of URLs, but they will be evaluated in the order listed and the first match will be used.
-So you must put the most specific matches at the top.
-You can also add a `method` attribute to limit the match to a particular HTTP method (`GET`, `POST`, `PUT` etc.).
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+  http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+	<!--
+		Loads the Spring configurations from contextConfigLocation
+	-->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!--
+		The locations of the Spring Configuration. In this case, all configuration is
+		in /WEB-INF/spring/
+	-->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			/WEB-INF/spring/*.xml
+		</param-value>
+	</context-param>
+
+	<!--
+		DelegatingFilterProxy looks for a Spring bean by the name of filter (springSecurityFilterChain) and delegates
+		all work to that Bean. This is how the Servlet Container can a Spring Bean to act as a Servlet Filter.
+	-->
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!--
+	OPTIONAL: If using Spring MVC, makes sure Spring MVC loads in the Root ApplicationContext (contextConfigLocation defined
+	by context-param) by specifying a contextConfigLocation of empty String
+	<servlet>
+		<servlet-name>spring</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value></param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+	  <servlet-name>spring</servlet-name>
+	  <url-pattern>/</url-pattern>
+	</servlet-mapping>
+	-->
+</web-app>
+----
 ====
 
-To add some users, you can define a set of test data directly in the namespace:
-
-[source,xml]
-----
-<authentication-manager>
-	<authentication-provider>
-		<user-service>
-		<!-- Password is prefixed with {noop} to indicate to DelegatingPasswordEncoder that
-		NoOpPasswordEncoder should be used. This is not safe for production, but makes reading
-		in samples easier. Normally passwords should be hashed using BCrypt -->
-		<user name="jimi" password="{noop}jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
-		<user name="bob" password="{noop}bobspassword" authorities="ROLE_USER" />
-		</user-service>
-	</authentication-provider>
-</authentication-manager>
-----
-
-This is an example of a secure way of storing the same passwords.
-The password is prefixed with `{bcrypt}` to instruct `DelegatingPasswordEncoder`, which supports any configured `PasswordEncoder` for matching, that the passwords are hashed using BCrypt:
-
-[source,xml]
-----
-<authentication-manager>
-	<authentication-provider>
-		<user-service>
-		<user name="jimi" password="{bcrypt}$2a$10$ddEWZUl8aU0GdZPPpy7wbu82dvEw/pBpbRvDQRqA41y6mK1CoH00m"
-				authorities="ROLE_USER, ROLE_ADMIN" />
-		<user name="bob" password="{bcrypt}$2a$10$/elFpMBnAYYig6KRR5bvOOYeZr1ie1hSogJryg9qDlhza4oCw1Qka"
-				authorities="ROLE_USER" />
-		<user name="jimi" password="{noop}jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
-		<user name="bob" password="{noop}bobspassword" authorities="ROLE_USER" />
-		</user-service>
-	</authentication-provider>
-</authentication-manager>
-----
-
-
-[subs="quotes"]
-****
-If you are familiar with pre-namespace versions of the framework, you can probably already guess roughly what's going on here.
-The `<http>` element is responsible for creating a `FilterChainProxy` and the filter beans which it uses.
-Common problems like incorrect filter ordering are no longer an issue as the filter positions are predefined.
-
-The `<authentication-provider>` element creates a `DaoAuthenticationProvider` bean and the `<user-service>` element creates an `InMemoryDaoImpl`.
-All `authentication-provider` elements must be children of the `<authentication-manager>` element, which creates a `ProviderManager` and registers the authentication providers with it.
-You can find more detailed information on the beans that are created in the <<appendix-namespace,namespace appendix>>.
-It's worth cross-checking this if you want to start understanding what the important classes in the framework are and how they are used, particularly if you want to customise things later.
-****
-
-The configuration above defines two users, their passwords and their roles within the application (which will be used for access control).
-It is also possible to load user information from a standard properties file using the `properties` attribute on `user-service`.
-See the section on <<core-services-in-memory-service,in-memory authentication>> for more details on the file format.
-Using the `<authentication-provider>` element means that the user information will be used by the authentication manager to process authentication requests.
-You can have multiple `<authentication-provider>` elements to define different authentication sources and each will be consulted in turn.
-
-At this point you should be able to start up your application and you will be required to log in to proceed.
-Try it out, or try experimenting with the "tutorial" sample application that comes with the project.

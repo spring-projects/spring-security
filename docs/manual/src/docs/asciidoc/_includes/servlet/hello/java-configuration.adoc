@@ -1,6 +1,9 @@
 [[hello-jc]]
 = Hello Spring Security (Java Configuration)
 
+In this section we will discuss how to use Spring Security using Java Configuration.
+// FIXME: Link to XML and Boot
+
 The first step is to create our Spring Security Java Configuration.
 The configuration creates a Servlet `Filter` known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
 You can find the most basic example of a Spring Security Java Configuration below:

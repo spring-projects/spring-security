@@ -1,0 +1,78 @@
+= XML Architecture
+
+// FIXME this is likely heavy for hello-security, but just restructuring for now
+Namespace configuration has been available since version 2.0 of the Spring Framework.
+It allows you to supplement the traditional Spring beans application context syntax with elements from additional XML schema.
+You can find more information in the Spring http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[Reference Documentation].
+A namespace element can be used simply to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax which more closely matches the problem domain and hides the underlying complexity from the user.
+A simple element may conceal the fact that multiple beans and processing steps are being added to the application context.
+For example, adding the following element from the security namespace to an application context will start up an embedded LDAP server for testing use within the application:
+
+[source,xml]
+----
+<security:ldap-server />
+----
+
+This is much simpler than wiring up the equivalent Apache Directory Server beans.
+The most common alternative configuration requirements are supported by attributes on the `ldap-server` element and the user is isolated from worrying about which beans they need to create and what the bean property names are.
+footnote:[You can find out more about the use of the `ldap-server` element in the chapter on pass:specialcharacters,macros[<<ldap>>].].
+Use of a good XML editor while editing the application context file should provide information on the attributes and elements that are available.
+We would recommend that you try out the http://spring.io/tools/sts[Spring Tool Suite] as it has special features for working with standard Spring namespaces.
+
+
+To start using the security namespace in your application context, you need to have the `spring-security-config` jar on your classpath.
+Then all you need to do is add the schema declaration to your application context file:
+
+[source,xml]
+----
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:security="http://www.springframework.org/schema/security"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd">
+	...
+</beans>
+----
+
+In many of the examples you will see (and in the sample applications), we will often use "security" as the default namespace rather than "beans", which means we can omit the prefix on all the security namespace elements, making the content easier to read.
+You may also want to do this if you have your application context divided up into separate files and have most of your security configuration in one of them.
+Your security application context file would then start like this
+
+[source,xml]
+----
+<b:beans xmlns="http://www.springframework.org/schema/security"
+xmlns:b="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd">
+	...
+</b:beans>
+----
+
+We'll assume this syntax is being used from now on in this chapter.
+
+
+== Design of the Namespace
+The namespace is designed to capture the most common uses of the framework and provide a simplified and concise syntax for enabling them within an application.
+The design is based around the large-scale dependencies within the framework, and can be divided up into the following areas:
+
+* __Web/HTTP Security__ - the most complex part.
+Sets up the filters and related service beans used to apply the framework authentication mechanisms, to secure URLs, render login and error pages and much more.
+
+* __Business Object (Method) Security__ - options for securing the service layer.
+
+* __AuthenticationManager__ - handles authentication requests from other parts of the framework.
+
+* __AccessDecisionManager__ - provides access decisions for web and method security.
+A default one will be registered, but you can also choose to use a custom one, declared using normal Spring bean syntax.
+
+* __AuthenticationProvider__s - mechanisms against which the authentication manager authenticates users.
+The namespace provides supports for several standard options and also a means of adding custom beans declared using a traditional syntax.
+
+* __UserDetailsService__ - closely related to authentication providers, but often also required by other beans.
+
+We'll see how to configure these in the following sections.

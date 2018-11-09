@@ -8,6 +8,8 @@ In this part of the reference guide we will look at some of these and see how th
 // FIXME: these probably need moved to appropriate sections with just a high level architecture here
 // FIXME: merge in security architecture by dave
 
+include::xml.adoc[leveloffset=+1]
+
 include::technical-overview.adoc[leveloffset=+1]
 
 include::core-services.adoc[leveloffset=+1]
