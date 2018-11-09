@@ -18,6 +18,7 @@ package org.springframework.security.provisioning;
 
 import org.junit.Test;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.assertj.core.api.Assertions.*;
@@ -36,5 +37,16 @@ public class InMemoryUserDetailsManagerTests {
 		String newPassword = "newPassword";
 		this.manager.updatePassword(this.user, newPassword);
 		assertThat(this.manager.loadUserByUsername(this.user.getUsername()).getPassword()).isEqualTo(newPassword);
+	}
+
+	@Test
+	public void changePasswordWhenUsernameIsNotInLowercase() {
+		UserDetails userNotLowerCase = User.withUserDetails(PasswordEncodedUser.user())
+				.username("User")
+				.build();
+
+		String newPassword = "newPassword";
+		this.manager.updatePassword(userNotLowerCase, newPassword);
+		assertThat(this.manager.loadUserByUsername(userNotLowerCase.getUsername()).getPassword()).isEqualTo(newPassword);
 	}
 }
