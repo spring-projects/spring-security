@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -100,5 +101,10 @@ public class WebClientReactiveClientCredentialsTokenResponseClient implements Re
 			body.with(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
 		}
 		return body;
+	}
+
+	public void setWebClient(WebClient webClient){
+		Assert.notNull(webClient, "webClient cannot be null");
+		this.webClient = webClient;
 	}
 }
