@@ -21,10 +21,12 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.RequestBodyUriSpec;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -57,6 +59,8 @@ public class WebClientReactiveClientCredentialsTokenResponseClient implements Re
 
 			String tokenUri = clientRegistration.getProviderDetails().getTokenUri();
 			BodyInserters.FormInserter<String> body = body(authorizationGrantRequest);
+
+			RequestBodyUriSpec spec = webClient.post();
 
 			return this.webClient.post()
 					.uri(tokenUri)
@@ -100,5 +104,10 @@ public class WebClientReactiveClientCredentialsTokenResponseClient implements Re
 			body.with(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
 		}
 		return body;
+	}
+
+	public void setWebClient(WebClient webClient){
+		Assert.notNull(webClient, "webClient cannot be null");
+		this.webClient = webClient;
 	}
 }
