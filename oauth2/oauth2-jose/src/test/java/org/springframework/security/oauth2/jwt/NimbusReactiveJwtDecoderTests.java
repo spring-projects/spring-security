@@ -20,8 +20,10 @@ import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
+import java.time.Instant;
 import java.util.Base64;
-import java.util.Date;
+import java.util.Collections;
+import java.util.Map;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -29,6 +31,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
@@ -37,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -115,7 +119,7 @@ public class NimbusReactiveJwtDecoderTests {
 
 		Jwt jwt = this.decoder.decode(withIssuedAt).block();
 
-		assertThat(jwt.getClaims().get(JwtClaimNames.IAT)).isEqualTo(new Date(1529942448000L));
+		assertThat(jwt.getClaims().get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochSecond(1529942448L));
 	}
 
 	@Test
@@ -178,8 +182,27 @@ public class NimbusReactiveJwtDecoderTests {
 	}
 
 	@Test
+	public void decodeWhenUsingSignedJwtThenReturnsClaimsGivenByClaimSetConverter() {
+		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
+		this.decoder.setClaimSetConverter(claimSetConverter);
+
+		when(claimSetConverter.convert(any(Map.class))).thenReturn(Collections.singletonMap("custom", "value"));
+
+		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
+		assertThat(jwt.getClaims().size()).isEqualTo(1);
+		assertThat(jwt.getClaims().get("custom")).isEqualTo("value");
+		verify(claimSetConverter).convert(any(Map.class));
+	}
+
+	@Test
 	public void setJwtValidatorWhenGivenNullThrowsIllegalArgumentException() {
 		assertThatCode(() -> this.decoder.setJwtValidator(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setClaimSetConverterWhenNullThrowsIllegalArgumentException() {
+		assertThatCode(() -> this.decoder.setClaimSetConverter(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 }

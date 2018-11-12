@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.jwt;
 
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
@@ -70,6 +72,8 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	private final JWKSelectorFactory jwkSelectorFactory;
 
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
+	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
+			.withDefaults(Collections.emptyMap());
 
 	public NimbusReactiveJwtDecoder(RSAPublicKey publicKey) {
 		JWSAlgorithm algorithm = JWSAlgorithm.parse(JwsAlgorithms.RS256);
@@ -122,6 +126,16 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		this.jwtValidator = jwtValidator;
 	}
 
+	/**
+	 * Use the following {@link Converter} for manipulating the JWT's claim set
+	 *
+	 * @param claimSetConverter the {@link Converter} to use
+	 */
+	public void setClaimSetConverter(Converter<Map<String, Object>, Map<String, Object>> claimSetConverter) {
+		Assert.notNull(claimSetConverter, "claimSetConverter cannot be null");
+		this.claimSetConverter = claimSetConverter;
+	}
+
 	@Override
 	public Mono<Jwt> decode(String token) throws JwtException {
 		JWT jwt = parse(token);
@@ -164,21 +178,12 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	private Jwt createJwt(JWT parsedJwt, JWTClaimsSet jwtClaimsSet) {
-		Instant expiresAt = null;
-		if (jwtClaimsSet.getExpirationTime() != null) {
-			expiresAt = jwtClaimsSet.getExpirationTime().toInstant();
-		}
-		Instant issuedAt = null;
-		if (jwtClaimsSet.getIssueTime() != null) {
-			issuedAt = jwtClaimsSet.getIssueTime().toInstant();
-		} else if (expiresAt != null) {
-			// Default to expiresAt - 1 second
-			issuedAt = Instant.from(expiresAt).minusSeconds(1);
-		}
-
 		Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
+		Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
 
-		return new Jwt(parsedJwt.getParsedString(), issuedAt, expiresAt, headers, jwtClaimsSet.getClaims());
+		Instant expiresAt = (Instant) claims.get(JwtClaimNames.EXP);
+		Instant issuedAt = (Instant) claims.get(JwtClaimNames.IAT);
+		return new Jwt(parsedJwt.getParsedString(), issuedAt, expiresAt, headers, claims);
 	}
 
 	private Jwt validateJwt(Jwt jwt) {
