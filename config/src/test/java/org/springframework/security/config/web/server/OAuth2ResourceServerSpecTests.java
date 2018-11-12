@@ -59,10 +59,8 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
-import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -467,9 +465,6 @@ public class OAuth2ResourceServerSpecTests {
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class CustomErrorHandlingConfig {
-		private ServerAccessDeniedHandler accessDeniedHandler = mock(ServerAccessDeniedHandler.class);
-		private ServerAuthenticationEntryPoint entryPoint = mock(ServerAuthenticationEntryPoint.class);
-
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
 			// @formatter:off
