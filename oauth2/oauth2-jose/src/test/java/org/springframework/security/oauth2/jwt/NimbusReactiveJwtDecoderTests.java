@@ -172,7 +172,7 @@ public class NimbusReactiveJwtDecoderTests {
 		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(error);
 		when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
 
-		assertThatCode(() -> this.decoder.decode(messageReadToken).block())
+		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
 				.isInstanceOf(JwtException.class)
 				.hasMessageContaining("mock-description");
 	}
