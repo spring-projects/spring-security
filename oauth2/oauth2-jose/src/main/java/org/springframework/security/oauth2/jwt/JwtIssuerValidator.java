@@ -15,9 +15,6 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -46,14 +43,7 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 	 */
 	public JwtIssuerValidator(String issuer) {
 		Assert.notNull(issuer, "issuer cannot be null");
-
-		try {
-			this.issuer = new URL(issuer).toString();
-		} catch (MalformedURLException ex) {
-			throw new IllegalArgumentException(
-					"Invalid Issuer URL " + issuer + " : " + ex.getMessage(),
-					ex);
-		}
+		this.issuer = issuer;
 	}
 
 	/**
