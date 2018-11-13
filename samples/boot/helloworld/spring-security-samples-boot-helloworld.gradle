@@ -7,7 +7,7 @@ dependencies {
 	compile project(':spring-security-web')
 	compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	compile 'org.springframework.boot:spring-boot-starter-web'
-	compile 'org.thymeleaf.extras:thymeleaf-extras-springsecurity4'
+	compile 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
 
 	testCompile project(':spring-security-test')
 	testCompile 'org.springframework.boot:spring-boot-starter-test'
