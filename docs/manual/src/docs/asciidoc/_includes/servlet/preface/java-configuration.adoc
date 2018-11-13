@@ -796,7 +796,7 @@ By default, `MappedJwtClaimSetConverter` will attempt to coerce claims into the 
 | `aud` | `Collection<String>`
 | `exp` | `Instant`
 | `iat` | `Instant`
-| `iss` | `URL`
+| `iss` | `String`
 | `jti` | `String`
 | `nbf` | `Instant`
 | `sub` | `String`
