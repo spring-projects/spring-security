@@ -23,9 +23,6 @@ import org.junit.Test;
 
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimNames;
-import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -69,6 +66,19 @@ public class JwtIssuerValidatorTests {
 
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
 
+		assertThat(result.getErrors()).isNotEmpty();
+	}
+
+	@Test
+	public void validateWhenJwtHasNoIssuerThenReturnsError() {
+		Jwt jwt = new Jwt(
+				MOCK_TOKEN,
+				MOCK_ISSUED_AT,
+				MOCK_EXPIRES_AT,
+				MOCK_HEADERS,
+				Collections.singletonMap(JwtClaimNames.AUD, "https://aud"));
+
+		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
 		assertThat(result.getErrors()).isNotEmpty();
 	}
 
