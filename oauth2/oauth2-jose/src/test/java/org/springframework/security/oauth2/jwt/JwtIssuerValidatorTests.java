@@ -82,15 +82,24 @@ public class JwtIssuerValidatorTests {
 		assertThat(result.getErrors()).isNotEmpty();
 	}
 
+	// gh-6073
 	@Test
-	public void validateWhenJwtIsNullThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> this.validator.validate(null))
-				.isInstanceOf(IllegalArgumentException.class);
+	public void validateWhenIssuerMatchesAndIsNotAUriThenReturnsSuccess() {
+		Jwt jwt = new Jwt(
+				MOCK_TOKEN,
+				MOCK_ISSUED_AT,
+				MOCK_EXPIRES_AT,
+				MOCK_HEADERS,
+				Collections.singletonMap(JwtClaimNames.ISS, "issuer"));
+		JwtIssuerValidator validator = new JwtIssuerValidator("issuer");
+
+		assertThat(validator.validate(jwt))
+				.isEqualTo(OAuth2TokenValidatorResult.success());
 	}
 
 	@Test
-	public void constructorWhenMalformedIssuerIsGivenThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> new JwtIssuerValidator("issuer"))
+	public void validateWhenJwtIsNullThenThrowsIllegalArgumentException() {
+		assertThatCode(() -> this.validator.validate(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
