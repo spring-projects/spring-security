@@ -236,6 +236,28 @@ public class RequestCacheConfigurerTests {
 		}
 	}
 
+	// gh-6102
+	@Test
+	public void getWhenRequestCacheIsDisabledThenExceptionTranslationFilterDoesNotStoreRequest() throws Exception {
+		this.spring.register(RequestCacheDisabledConfig.class, DefaultSecurityConfig.class).autowire();
+
+		MockHttpSession session = (MockHttpSession)
+				this.mvc.perform(get("/bob"))
+						.andReturn().getRequest().getSession();
+
+		this.mvc.perform(formLogin(session))
+				.andExpect(redirectedUrl("/"));
+	}
+
+	@EnableWebSecurity
+	static class RequestCacheDisabledConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			super.configure(http);
+			http.requestCache().disable();
+		}
+	}
+
 	@EnableWebSecurity
 	static class DefaultSecurityConfig {
 
