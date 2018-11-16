@@ -25,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
@@ -85,6 +86,12 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 	public RequestCacheConfigurer<H> requestCache(RequestCache requestCache) {
 		getBuilder().setSharedObject(RequestCache.class, requestCache);
 		return this;
+	}
+
+	@Override
+	public H disable() {
+		getBuilder().setSharedObject(RequestCache.class, new NullRequestCache());
+		return super.disable();
 	}
 
 	@Override
