@@ -78,6 +78,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -418,6 +419,80 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		ClientRequest request1 = requests.get(1);
 		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer token-1");
+		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request1)).isEmpty();
+	}
+
+	@Test
+	public void filterWhenClientCredentialsTokenNotExpiredThenUseCurrentToken() {
+		this.registration = TestClientRegistrations.clientCredentials().build();
+
+		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,
+				this.authorizedClientRepository);
+		this.function.setClientCredentialsTokenResponseClient(this.clientCredentialsTokenResponseClient);
+
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, null);
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.attributes(authentication(this.authentication))
+				.build();
+
+		this.function.filter(request, this.exchange).block();
+
+		verify(this.authorizedClientRepository, never()).saveAuthorizedClient(any(), eq(this.authentication), any(), any());
+
+		verify(clientCredentialsTokenResponseClient, never()).getTokenResponse(any());
+
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(1);
+
+		ClientRequest request1 = requests.get(0);
+		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer token-0");
+		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request1)).isEmpty();
+	}
+
+	@Test
+	public void filterWhenClientCredentialsTokenExpiredThenGetNewToken() {
+		this.registration = TestClientRegistrations.clientCredentials().build();
+
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses
+				.accessTokenResponse().build();
+		when(this.clientCredentialsTokenResponseClient.getTokenResponse(any())).thenReturn(
+				accessTokenResponse);
+
+		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
+		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
+
+		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(),
+				this.accessToken.getTokenValue(),
+				issuedAt,
+				accessTokenExpiresAt);
+		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,
+				this.authorizedClientRepository);
+		this.function.setClientCredentialsTokenResponseClient(this.clientCredentialsTokenResponseClient);
+
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, null);
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.attributes(authentication(this.authentication))
+				.build();
+
+		this.function.filter(request, this.exchange).block();
+
+		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(this.authentication), any(), any());
+
+		verify(clientCredentialsTokenResponseClient).getTokenResponse(any());
+
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(1);
+
+		ClientRequest request1 = requests.get(0);
+		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer token");
 		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
 		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
 		assertThat(getBody(request1)).isEmpty();
