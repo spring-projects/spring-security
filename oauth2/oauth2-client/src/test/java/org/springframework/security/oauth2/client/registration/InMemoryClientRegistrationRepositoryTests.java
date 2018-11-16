@@ -36,6 +36,12 @@ public class InMemoryClientRegistrationRepositoryTests {
 	private InMemoryClientRegistrationRepository clients = new InMemoryClientRegistrationRepository(this.registration);
 
 	@Test(expected = IllegalArgumentException.class)
+	public void constructorVarArgsListClientRegistrationWhenNullThenIllegalArgumentException() {
+		ClientRegistration nullRegistration = null;
+		new InMemoryClientRegistrationRepository(nullRegistration);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
 	public void constructorListClientRegistrationWhenNullThenIllegalArgumentException() {
 		List<ClientRegistration> registrations = null;
 		new InMemoryClientRegistrationRepository(registrations);

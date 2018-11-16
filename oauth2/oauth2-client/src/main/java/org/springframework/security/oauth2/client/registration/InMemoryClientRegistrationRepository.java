@@ -18,16 +18,13 @@ package org.springframework.security.oauth2.client.registration;
 import org.springframework.util.Assert;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
-import java.util.stream.Collector;
-
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toConcurrentMap;
+import java.util.stream.Collectors;
 
 /**
  * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) in-memory.
@@ -39,6 +36,7 @@ import static java.util.stream.Collectors.toConcurrentMap;
  * @see ClientRegistration
  */
 public final class InMemoryClientRegistrationRepository implements ClientRegistrationRepository, Iterable<ClientRegistration> {
+
 	private final Map<String, ClientRegistration> registrations;
 
 	/**
@@ -47,7 +45,8 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryClientRegistrationRepository(ClientRegistration... registrations) {
-		this(Arrays.asList(registrations));
+		Assert.notEmpty(registrations, "registrations cannot be empty");
+		this.registrations = createClientRegistrationIdToClientRegistration(Arrays.asList(registrations));
 	}
 
 	/**
@@ -57,10 +56,13 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 	 */
 	public InMemoryClientRegistrationRepository(List<ClientRegistration> registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be empty");
-		Collector<ClientRegistration, ?, ConcurrentMap<String, ClientRegistration>> collector =
-			toConcurrentMap(ClientRegistration::getRegistrationId, Function.identity());
-		this.registrations = registrations.stream()
-			.collect(collectingAndThen(collector, Collections::unmodifiableMap));
+		this.registrations = createClientRegistrationIdToClientRegistration(registrations);
+	}
+
+	private static Map<String, ClientRegistration> createClientRegistrationIdToClientRegistration(Collection<ClientRegistration> registrations) {
+		return Collections.unmodifiableMap(registrations.stream()
+				.peek(registration -> Assert.notNull(registration, "registrations cannot contain null values"))
+				.collect(Collectors.toMap(ClientRegistration::getRegistrationId, Function.identity())));
 	}
 
 	@Override
