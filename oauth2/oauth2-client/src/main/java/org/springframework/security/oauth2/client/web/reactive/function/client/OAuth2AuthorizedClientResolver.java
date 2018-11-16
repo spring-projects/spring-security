@@ -133,7 +133,7 @@ class OAuth2AuthorizedClientResolver {
 			});
 }
 
-	private Mono<? extends OAuth2AuthorizedClient> clientCredentials(
+	Mono<OAuth2AuthorizedClient> clientCredentials(
 			ClientRegistration clientRegistration, Authentication authentication, ServerWebExchange exchange) {
 		OAuth2ClientCredentialsGrantRequest grantRequest = new OAuth2ClientCredentialsGrantRequest(clientRegistration);
 		return this.clientCredentialsTokenResponseClient.getTokenResponse(grantRequest)

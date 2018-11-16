@@ -412,6 +412,10 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		throw new ClientAuthorizationRequiredException(clientRegistrationId);
 	}
 
+	private boolean isClientCredentialsGrantType(ClientRegistration clientRegistration) {
+		return AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType());
+	}
+
 	private OAuth2AuthorizedClient getAuthorizedClient(ClientRegistration clientRegistration,
 			Map<String, Object> attrs) {
 
@@ -439,7 +443,11 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	}
 
 	private Mono<OAuth2AuthorizedClient> authorizedClient(ClientRequest request, ExchangeFunction next, OAuth2AuthorizedClient authorizedClient) {
-		if (shouldRefresh(authorizedClient)) {
+		ClientRegistration clientRegistration = authorizedClient.getClientRegistration();
+		if (isClientCredentialsGrantType(clientRegistration) && hasTokenExpired(authorizedClient)) {
+			//Client credentials grant do not have refresh tokens but can expire so we need to get another one
+			return Mono.fromSupplier(() -> getAuthorizedClient(clientRegistration, request.attributes()));
+		} else if (shouldRefresh(authorizedClient)) {
 			return refreshAuthorizedClient(request, next, authorizedClient);
 		}
 		return Mono.just(authorizedClient);
@@ -484,6 +492,10 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		if (refreshToken == null) {
 			return false;
 		}
+		return hasTokenExpired(authorizedClient);
+	}
+
+	private boolean hasTokenExpired(OAuth2AuthorizedClient authorizedClient) {
 		Instant now = this.clock.instant();
 		Instant expiresAt = authorizedClient.getAccessToken().getExpiresAt();
 		if (now.isAfter(expiresAt.minus(this.accessTokenExpiresSkew))) {
