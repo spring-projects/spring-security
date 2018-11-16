@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -65,9 +66,15 @@ public class InMemoryReactiveClientRegistrationRepositoryTests {
 	}
 
 	@Test
+	public void constructorWhenClientRegistrationListHasNullThenIllegalArgumentException() {
+		List<ClientRegistration> registrations = Arrays.asList(null, registration);
+		assertThatThrownBy(() -> new InMemoryReactiveClientRegistrationRepository(registrations))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
 	public void constructorWhenClientRegistrationIsNullThenIllegalArgumentException() {
-		ClientRegistration registration = null;
-		assertThatThrownBy(() -> new InMemoryReactiveClientRegistrationRepository(registration))
+		assertThatThrownBy(() -> new InMemoryReactiveClientRegistrationRepository(registration, null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
