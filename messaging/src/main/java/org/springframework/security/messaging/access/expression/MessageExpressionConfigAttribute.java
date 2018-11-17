@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,42 @@
  */
 package org.springframework.security.messaging.access.expression;
 
+import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.messaging.Message;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.messaging.util.matcher.MessageMatcher;
+import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 import org.springframework.util.Assert;
+
+import java.util.Map;
 
 /**
  * Simple expression configuration attribute for use in {@link Message} authorizations.
  *
  * @since 4.0
  * @author Rob Winch
+ * @author Daniel Bustamante Ospina
  */
 @SuppressWarnings("serial")
-class MessageExpressionConfigAttribute implements ConfigAttribute {
+class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationContextPostProcessor<Message<?>> {
 	private final Expression authorizeExpression;
+	private final MessageMatcher<?> matcher;
+
 
 	/**
 	 * Creates a new instance
 	 *
 	 * @param authorizeExpression the {@link Expression} to use. Cannot be null
+	 * @param matcher the {@link MessageMatcher} used to match the messages.
 	 */
-	public MessageExpressionConfigAttribute(Expression authorizeExpression) {
+	public MessageExpressionConfigAttribute(Expression authorizeExpression, MessageMatcher<?> matcher) {
 		Assert.notNull(authorizeExpression, "authorizeExpression cannot be null");
-
+		Assert.notNull(matcher, "matcher cannot be null");
 		this.authorizeExpression = authorizeExpression;
+		this.matcher = matcher;
 	}
+
 
 	Expression getAuthorizeExpression() {
 		return authorizeExpression;
@@ -52,5 +63,16 @@ class MessageExpressionConfigAttribute implements ConfigAttribute {
 	@Override
 	public String toString() {
 		return authorizeExpression.getExpressionString();
+	}
+
+	@Override
+	public EvaluationContext postProcess(EvaluationContext ctx, Message<?> message) {
+		if (matcher instanceof SimpDestinationMessageMatcher) {
+			final Map<String, String> variables = ((SimpDestinationMessageMatcher) matcher).extractPathVariables(message);
+			for (Map.Entry<String, String> entry : variables.entrySet()){
+				ctx.setVariable(entry.getKey(), entry.getValue());
+			}
+		}
+		return ctx;
 	}
 }

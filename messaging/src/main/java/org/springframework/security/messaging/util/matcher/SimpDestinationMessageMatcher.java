@@ -22,6 +22,9 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * <p>
  * MessageMatcher which compares a pre-defined pattern against the destination of a
@@ -127,6 +130,14 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 		String destination = SimpMessageHeaderAccessor.getDestination(message
 				.getHeaders());
 		return destination != null && matcher.match(pattern, destination);
+	}
+
+
+	public Map<String, String> extractPathVariables(Message<? extends Object> message){
+		final String destination = SimpMessageHeaderAccessor.getDestination(message
+				.getHeaders());
+		return destination != null ? matcher.extractUriTemplateVariables(pattern, destination)
+				: Collections.emptyMap();
 	}
 
 	public MessageMatcher<Object> getMessageTypeMatcher() {

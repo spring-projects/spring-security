@@ -128,6 +128,23 @@ public class SimpDestinationMessageMatcherTests {
 	}
 
 	@Test
+	public void extractPathVariablesFromDestination() throws Exception {
+		matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
+
+		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1");
+		messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER,
+				SimpMessageType.MESSAGE);
+
+		assertThat(matcher.extractPathVariables(messageBuilder.build()).get("topic")).isEqualTo("someTopic");
+	}
+
+	@Test
+	public void extractedVariablesAreEmptyInNullDestination() throws Exception {
+		matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
+		assertThat(matcher.extractPathVariables(messageBuilder.build())).isEmpty();
+	}
+
+	@Test
 	public void typeConstructorParameterIsTransmitted() throws Exception {
 		matcher = SimpDestinationMessageMatcher.createMessageMatcher("/match",
 				pathMatcher);
