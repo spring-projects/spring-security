@@ -48,6 +48,7 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 *     LinkedHashMap&lt;MessageMatcher&lt;?&gt;,String&gt; matcherToExpression = new LinkedHashMap&lt;MessageMatcher&lt;Object&gt;,String&gt;();
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/public/**"), "permitAll");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/admin/**"), "hasRole('ROLE_ADMIN')");
+	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/topics/{name}/**"), "@someBean.customLogic(authentication, #name)");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/**"), "authenticated");
 	 *
 	 *     MessageSecurityMetadataSource metadataSource = createExpressionMessageMetadataSource(matcherToExpression);
@@ -82,6 +83,7 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 *     LinkedHashMap&lt;MessageMatcher&lt;?&gt;,String&gt; matcherToExpression = new LinkedHashMap&lt;MessageMatcher&lt;Object&gt;,String&gt;();
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/public/**"), "permitAll");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/admin/**"), "hasRole('ROLE_ADMIN')");
+	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/topics/{name}/**"), "@someBean.customLogic(authentication, #name)");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/**"), "authenticated");
 	 *
 	 *     MessageSecurityMetadataSource metadataSource = createExpressionMessageMetadataSource(matcherToExpression);
@@ -113,7 +115,7 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 			String rawExpression = entry.getValue();
 			Expression expression = handler.getExpressionParser().parseExpression(
 					rawExpression);
-			ConfigAttribute attribute = new MessageExpressionConfigAttribute(expression);
+			ConfigAttribute attribute = new MessageExpressionConfigAttribute(expression, matcher);
 			matcherToAttrs.put(matcher, Arrays.asList(attribute));
 		}
 		return new DefaultMessageSecurityMetadataSource(matcherToAttrs);

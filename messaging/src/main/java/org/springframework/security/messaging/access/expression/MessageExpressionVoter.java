@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import java.util.Collection;
  *
  * @since 4.0
  * @author Rob Winch
+ * @author Daniel Bustamante Ospina
  */
 public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>> {
 	private SecurityExpressionHandler<Message<T>> expressionHandler = new DefaultMessageSecurityExpressionHandler<>();
@@ -53,6 +54,7 @@ public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>
 
 		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication,
 				message);
+		ctx = attr.postProcess(ctx, message);
 
 		return ExpressionUtils.evaluateAsBoolean(attr.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED
 				: ACCESS_DENIED;
