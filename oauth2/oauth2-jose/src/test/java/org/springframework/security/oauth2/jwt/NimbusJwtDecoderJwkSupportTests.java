@@ -20,16 +20,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nimbusds.jwt.JWTParser;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
@@ -48,9 +42,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link NimbusJwtDecoderJwkSupport}.
@@ -58,9 +52,6 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * @author Joe Grandja
  * @author Josh Cummings
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({NimbusJwtDecoderJwkSupport.class, JWTParser.class})
-@PowerMockIgnore("okhttp3.*")
 public class NimbusJwtDecoderJwkSupportTests {
 	private static final String JWK_SET_URL = "https://provider.com/oauth2/keys";
 	private static final String JWS_ALGORITHM = JwsAlgorithms.RS256;
@@ -248,7 +239,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 
 	private static RestOperations mockJwkSetResponse(String response) {
 		RestOperations restOperations = mock(RestOperations.class);
-		Mockito.when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
 		return restOperations;
 	}
