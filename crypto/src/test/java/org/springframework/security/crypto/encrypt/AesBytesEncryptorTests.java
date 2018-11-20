@@ -46,6 +46,7 @@ public class AesBytesEncryptorTests {
 
 	@Test
 	public void roundtripWhenUsingDefaultsThenEncryptsAndDecrypts() {
+		CryptoAssumptions.assumeCBCJCE();
 		AesBytesEncryptor encryptor = new AesBytesEncryptor(this.password, this.hexSalt);
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
 		byte[] decryption = encryptor.decrypt(encryption);
@@ -54,6 +55,7 @@ public class AesBytesEncryptorTests {
 
 	@Test
 	public void roundtripWhenUsingDefaultCipherThenEncryptsAndDecrypts() {
+		CryptoAssumptions.assumeCBCJCE();
 		AesBytesEncryptor encryptor = new AesBytesEncryptor(this.password, this.hexSalt, this.generator);
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
 		assertThat(new String(Hex.encode(encryption)))
@@ -65,6 +67,7 @@ public class AesBytesEncryptorTests {
 
 	@Test
 	public void roundtripWhenUsingGcmThenEncryptsAndDecrypts() {
+		CryptoAssumptions.assumeGCMJCE();
 		AesBytesEncryptor encryptor = new AesBytesEncryptor(this.password, this.hexSalt, this.generator, GCM);
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
 		assertThat(new String(Hex.encode(encryption)))
