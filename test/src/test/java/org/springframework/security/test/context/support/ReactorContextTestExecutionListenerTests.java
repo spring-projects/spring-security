@@ -177,6 +177,16 @@ public class ReactorContextTestExecutionListenerTests {
 	}
 
 	@Test
+	public void afterTestMethodWhenDifferentHookIsRegistered() throws Exception {
+		Object obj = new Object();
+
+		Hooks.onLastOperator("CUSTOM_HOOK", p -> Mono.just(obj));
+		this.listener.afterTestMethod(this.testContext);
+
+		assertThat(Mono.subscriberContext().block()).isEqualTo(obj);
+	}
+
+	@Test
 	public void orderWhenComparedToWithSecurityContextTestExecutionListenerIsAfter() {
 		OrderComparator comparator = new OrderComparator();
 		WithSecurityContextTestExecutionListener withSecurity = new WithSecurityContextTestExecutionListener();
