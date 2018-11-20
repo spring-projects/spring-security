@@ -175,6 +175,11 @@ public class ReactorContextTestExecutionListenerTests {
 	}
 
 	@Test
+	public void afterTestMethodWhenDifferentHookIsRegistered() throws Exception {
+		this.listener.afterTestMethod(this.testContext);
+	}
+
+	@Test
 	public void orderWhenComparedToWithSecurityContextTestExecutionListenerIsAfter() {
 		OrderComparator comparator = new OrderComparator();
 		WithSecurityContextTestExecutionListener withSecurity = new WithSecurityContextTestExecutionListener();
