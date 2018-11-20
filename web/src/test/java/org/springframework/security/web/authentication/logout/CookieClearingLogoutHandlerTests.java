@@ -60,16 +60,16 @@ public class CookieClearingLogoutHandlerTests {
 			assertThat(c.getMaxAge()).isZero();
 		}
 	}
-	
+
 	@Test
 	public void passedInCookiesAreCleared() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setContextPath("/foo/bar");
-		Cookie cookie1 = new Cookie("my_cookie",null);
+		Cookie cookie1 = new Cookie("my_cookie", null);
 		cookie1.setPath("/foo");
 		cookie1.setMaxAge(0);
-		Cookie cookie2 = new Cookie("my_cookie_too",null);
+		Cookie cookie2 = new Cookie("my_cookie_too", null);
 		cookie2.setPath("/foo");
 		cookie2.setMaxAge(0);
 		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(cookie1, cookie2);
@@ -80,13 +80,13 @@ public class CookieClearingLogoutHandlerTests {
 			assertThat(c.getMaxAge()).isZero();
 		}
 	}
-	
+
 	@Test(expected=IllegalArgumentException.class)
 	public void invalidAge() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setContextPath("/foo/bar");
-		Cookie cookie1 = new Cookie("my_cookie",null);
+		Cookie cookie1 = new Cookie("my_cookie", null);
 		cookie1.setPath("/foo");
 		cookie1.setMaxAge(100);
 		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(cookie1);
