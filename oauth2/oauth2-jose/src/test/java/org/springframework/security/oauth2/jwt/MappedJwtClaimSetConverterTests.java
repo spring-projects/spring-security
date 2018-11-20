@@ -108,7 +108,7 @@ public class MappedJwtClaimSetConverterTests {
 		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(Arrays.asList("audience"));
 		assertThat(target.get(JwtClaimNames.EXP)).isEqualTo(Instant.ofEpochSecond(2000000000L));
 		assertThat(target.get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochSecond(1000000000L));
-		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo(new URL("https://any.url"));
+		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo("https://any.url");
 		assertThat(target.get(JwtClaimNames.NBF)).isEqualTo(Instant.ofEpochSecond(1000000000L));
 		assertThat(target.get(JwtClaimNames.SUB)).isEqualTo("1234");
 	}
@@ -135,7 +135,7 @@ public class MappedJwtClaimSetConverterTests {
 		assertThat(target.get(JwtClaimNames.AUD)).isEqualTo(Arrays.asList("audience"));
 		assertThat(target.get(JwtClaimNames.EXP)).isEqualTo(Instant.ofEpochSecond(2000000000L));
 		assertThat(target.get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochSecond(1000000000L));
-		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo(new URL("https://any.url"));
+		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo("https://any.url");
 		assertThat(target.get(JwtClaimNames.NBF)).isEqualTo(Instant.ofEpochSecond(1000000000L));
 		assertThat(target.get(JwtClaimNames.SUB)).isEqualTo("1234");
 	}
@@ -196,7 +196,7 @@ public class MappedJwtClaimSetConverterTests {
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
 				.withDefaults(Collections.emptyMap());
 
-		Map<String, Object> badIssuer = Collections.singletonMap(JwtClaimNames.ISS, "badly-formed-iss");
+		Map<String, Object> badIssuer = Collections.singletonMap(JwtClaimNames.ISS, "https://badly formed iss");
 		assertThatCode(() -> converter.convert(badIssuer)).isInstanceOf(IllegalStateException.class);
 
 		Map<String, Object> badIssuedAt = Collections.singletonMap(JwtClaimNames.IAT, "badly-formed-iat");
@@ -207,6 +207,28 @@ public class MappedJwtClaimSetConverterTests {
 
 		Map<String, Object> badNotBefore = Collections.singletonMap(JwtClaimNames.NBF, "badly-formed-nbf");
 		assertThatCode(() -> converter.convert(badNotBefore)).isInstanceOf(IllegalStateException.class);
+	}
+
+	// gh-6073
+	@Test
+	public void convertWhenIssuerIsNotAUriThenConvertsToString() {
+		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
+				.withDefaults(Collections.emptyMap());
+
+		Map<String, Object> nonUriIssuer = Collections.singletonMap(JwtClaimNames.ISS, "issuer");
+		Map<String, Object> target = converter.convert(nonUriIssuer);
+		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo("issuer");
+	}
+
+	// gh-6073
+	@Test
+	public void convertWhenIssuerIsOfTypeURLThenConvertsToString() throws Exception {
+		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
+				.withDefaults(Collections.emptyMap());
+
+		Map<String, Object> issuer = Collections.singletonMap(JwtClaimNames.ISS, new URL("https://issuer"));
+		Map<String, Object> target = converter.convert(issuer);
+		assertThat(target.get(JwtClaimNames.ISS)).isEqualTo("https://issuer");
 	}
 
 	@Test

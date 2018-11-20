@@ -15,9 +15,6 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -37,7 +34,7 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 					"This iss claim is not equal to the configured issuer",
 					"https://tools.ietf.org/html/rfc6750#section-3.1");
 
-	private final URL issuer;
+	private final String issuer;
 
 	/**
 	 * Constructs a {@link JwtIssuerValidator} using the provided parameters
@@ -46,14 +43,7 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 	 */
 	public JwtIssuerValidator(String issuer) {
 		Assert.notNull(issuer, "issuer cannot be null");
-
-		try {
-			this.issuer = new URL(issuer);
-		} catch (MalformedURLException ex) {
-			throw new IllegalArgumentException(
-					"Invalid Issuer URL " + issuer + " : " + ex.getMessage(),
-					ex);
-		}
+		this.issuer = issuer;
 	}
 
 	/**
@@ -63,7 +53,8 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 	public OAuth2TokenValidatorResult validate(Jwt token) {
 		Assert.notNull(token, "token cannot be null");
 
-		if (this.issuer.equals(token.getIssuer())) {
+		String tokenIssuer = token.getClaimAsString(JwtClaimNames.ISS);
+		if (this.issuer.equals(tokenIssuer)) {
 			return OAuth2TokenValidatorResult.success();
 		} else {
 			return OAuth2TokenValidatorResult.failure(INVALID_ISSUER);

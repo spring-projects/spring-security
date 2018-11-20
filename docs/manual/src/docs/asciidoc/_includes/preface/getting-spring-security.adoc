@@ -49,7 +49,7 @@ If you wish to override the Spring Security version, you may do so by providing 
 ----
 <properties>
 	<!-- ... -->
-	<spring-security.version>{spring-security-version}</spring.security.version>
+	<spring-security.version>{spring-security-version}</spring-security.version>
 </dependencies>
 ----
 

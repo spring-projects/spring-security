@@ -23,9 +23,6 @@ import org.junit.Test;
 
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimNames;
-import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -73,14 +70,36 @@ public class JwtIssuerValidatorTests {
 	}
 
 	@Test
-	public void validateWhenJwtIsNullThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> this.validator.validate(null))
-				.isInstanceOf(IllegalArgumentException.class);
+	public void validateWhenJwtHasNoIssuerThenReturnsError() {
+		Jwt jwt = new Jwt(
+				MOCK_TOKEN,
+				MOCK_ISSUED_AT,
+				MOCK_EXPIRES_AT,
+				MOCK_HEADERS,
+				Collections.singletonMap(JwtClaimNames.AUD, "https://aud"));
+
+		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
+		assertThat(result.getErrors()).isNotEmpty();
+	}
+
+	// gh-6073
+	@Test
+	public void validateWhenIssuerMatchesAndIsNotAUriThenReturnsSuccess() {
+		Jwt jwt = new Jwt(
+				MOCK_TOKEN,
+				MOCK_ISSUED_AT,
+				MOCK_EXPIRES_AT,
+				MOCK_HEADERS,
+				Collections.singletonMap(JwtClaimNames.ISS, "issuer"));
+		JwtIssuerValidator validator = new JwtIssuerValidator("issuer");
+
+		assertThat(validator.validate(jwt))
+				.isEqualTo(OAuth2TokenValidatorResult.success());
 	}
 
 	@Test
-	public void constructorWhenMalformedIssuerIsGivenThenThrowsIllegalArgumentException() {
-		assertThatCode(() -> new JwtIssuerValidator("issuer"))
+	public void validateWhenJwtIsNullThenThrowsIllegalArgumentException() {
+		assertThatCode(() -> this.validator.validate(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 

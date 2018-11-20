@@ -17,31 +17,28 @@ package org.springframework.security.oauth2.client.endpoint;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges.success;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeGrantRequest}.
  *
  * @author Joe Grandja
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ClientRegistration.class, OAuth2AuthorizationExchange.class})
 public class OAuth2AuthorizationCodeGrantRequestTests {
 	private ClientRegistration clientRegistration;
 	private OAuth2AuthorizationExchange authorizationExchange;
 
 	@Before
 	public void setUp() {
-		this.clientRegistration = mock(ClientRegistration.class);
-		this.authorizationExchange = mock(OAuth2AuthorizationExchange.class);
+		this.clientRegistration = clientRegistration().build();
+		this.authorizationExchange = success();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

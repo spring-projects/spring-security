@@ -15,13 +15,16 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,7 +45,6 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -51,24 +53,22 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges.success;
 
 /**
  * Tests for {@link OAuth2LoginAuthenticationFilter}.
  *
  * @author Joe Grandja
  */
-@PowerMockIgnore("javax.security.*")
-@PrepareForTest({OAuth2AuthorizationExchange.class, OAuth2LoginAuthenticationFilter.class})
-@RunWith(PowerMockRunner.class)
 public class OAuth2LoginAuthenticationFilterTests {
 	private ClientRegistration registration1;
 	private ClientRegistration registration2;
@@ -440,7 +440,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		when(this.loginAuthentication.getName()).thenReturn(this.principalName1);
 		when(this.loginAuthentication.getAuthorities()).thenReturn(AuthorityUtils.createAuthorityList("ROLE_USER"));
 		when(this.loginAuthentication.getClientRegistration()).thenReturn(registration);
-		when(this.loginAuthentication.getAuthorizationExchange()).thenReturn(mock(OAuth2AuthorizationExchange.class));
+		when(this.loginAuthentication.getAuthorizationExchange()).thenReturn(success());
 		when(this.loginAuthentication.getAccessToken()).thenReturn(mock(OAuth2AccessToken.class));
 		when(this.loginAuthentication.getRefreshToken()).thenReturn(mock(OAuth2RefreshToken.class));
 		when(this.loginAuthentication.isAuthenticated()).thenReturn(true);

@@ -19,7 +19,6 @@ package org.springframework.security.oauth2.client.registration;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,14 +38,14 @@ public class InMemoryClientRegistrationRepositoryTests {
 	private InMemoryClientRegistrationRepository clients = new InMemoryClientRegistrationRepository(this.registration);
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorListClientRegistrationWhenNullThenIllegalArgumentException() {
-		List<ClientRegistration> registrations = null;
-		new InMemoryClientRegistrationRepository(registrations);
+	public void constructorVarArgsListClientRegistrationWhenNullThenIllegalArgumentException() {
+		ClientRegistration nullRegistration = null;
+		new InMemoryClientRegistrationRepository(nullRegistration);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorListClientRegistrationWhenEmptyThenIllegalArgumentException() {
-		List<ClientRegistration> registrations = Collections.emptyList();
+	public void constructorListClientRegistrationWhenNullThenIllegalArgumentException() {
+		List<ClientRegistration> registrations = null;
 		new InMemoryClientRegistrationRepository(registrations);
 	}
 

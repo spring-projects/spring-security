@@ -55,15 +55,15 @@ class OAuth2AccessTokenResponseBodyExtractor
 	@Override
 	public Mono<OAuth2AccessTokenResponse> extract(ReactiveHttpInputMessage inputMessage,
 			Context context) {
-		ParameterizedTypeReference<Map<String, String>> type = new ParameterizedTypeReference<Map<String, String>>() {};
-		BodyExtractor<Mono<Map<String, String>>, ReactiveHttpInputMessage> delegate = BodyExtractors.toMono(type);
+		ParameterizedTypeReference<Map<String, Object>> type = new ParameterizedTypeReference<Map<String, Object>>() {};
+		BodyExtractor<Mono<Map<String, Object>>, ReactiveHttpInputMessage> delegate = BodyExtractors.toMono(type);
 		return delegate.extract(inputMessage, context)
-				.map(json -> parse(json))
+				.map(OAuth2AccessTokenResponseBodyExtractor::parse)
 				.flatMap(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse)
 				.map(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse);
 	}
 
-	private static TokenResponse parse(Map<String, String> json) {
+	private static TokenResponse parse(Map<String, Object> json) {
 		try {
 			return TokenResponse.parse(new JSONObject(json));
 		}

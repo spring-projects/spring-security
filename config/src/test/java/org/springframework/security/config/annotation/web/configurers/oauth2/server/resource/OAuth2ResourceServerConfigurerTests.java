@@ -20,10 +20,14 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.security.KeyFactory;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.X509EncodedKeySpec;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -76,7 +80,7 @@ import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
@@ -109,6 +113,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
+import static org.springframework.security.oauth2.jwt.JwtProcessors.withPublicKey;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -737,7 +743,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		jwtConfigurer.decoder(decoder);
 		jwtConfigurer.jwkSetUri(JWK_SET_URI);
 
-		assertThat(jwtConfigurer.getJwtDecoder()).isInstanceOf(NimbusJwtDecoderJwkSupport.class);
+		assertThat(jwtConfigurer.getJwtDecoder()).isInstanceOf(NimbusJwtDecoder.class);
 
 	}
 
@@ -770,7 +776,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		jwtConfigurer.jwkSetUri(JWK_SET_URI);
 
 		assertThat(jwtConfigurer.getJwtDecoder()).isNotEqualTo(decoder);
-		assertThat(jwtConfigurer.getJwtDecoder()).isInstanceOf(NimbusJwtDecoderJwkSupport.class);
+		assertThat(jwtConfigurer.getJwtDecoder()).isInstanceOf(NimbusJwtDecoder.class);
 	}
 
 	@Test
@@ -944,6 +950,44 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/requires-read-scope")
 				.with(bearerToken(JWT_TOKEN)))
 				.andExpect(status().isOk());
+	}
+
+	// -- single key
+
+	@Test
+	public void requestWhenUsingPublicKeyAndValidTokenThenAuthenticates()
+			throws Exception {
+
+		this.spring.register(SingleKeyConfig.class, BasicController.class).autowire();
+		String token = this.token("ValidNoScopes");
+
+		this.mvc.perform(get("/")
+				.with(bearerToken(token)))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void requestWhenUsingPublicKeyAndSignatureFailsThenReturnsInvalidToken()
+			throws Exception {
+
+		this.spring.register(SingleKeyConfig.class).autowire();
+		String token = this.token("WrongSignature");
+
+		this.mvc.perform(get("/")
+				.with(bearerToken(token)))
+				.andExpect(invalidTokenHeader("signature"));
+	}
+
+	@Test
+	public void requestWhenUsingPublicKeyAlgorithmDoesNotMatchThenReturnsInvalidToken()
+			throws Exception {
+
+		this.spring.register(SingleKeyConfig.class).autowire();
+		String token = this.token("WrongAlgorithm");
+
+		this.mvc.perform(get("/")
+				.with(bearerToken(token)))
+				.andExpect(invalidTokenHeader("algorithm"));
 	}
 
 	// -- In combination with other authentication providers
@@ -1460,8 +1504,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			NimbusJwtDecoderJwkSupport jwtDecoder =
-					new NimbusJwtDecoderJwkSupport(this.uri);
+			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(this.uri).build());
 			jwtDecoder.setJwtValidator(this.jwtValidator);
 
 			// @formatter:off
@@ -1488,7 +1531,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			JwtTimestampValidator jwtValidator = new JwtTimestampValidator(Duration.ofHours(1));
 			jwtValidator.setClock(nearlyAnHourFromTokenExpiry);
 
-			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(this.uri);
+			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(this.uri).build());
 			jwtDecoder.setJwtValidator(jwtValidator);
 
 			// @formatter:off
@@ -1511,7 +1554,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			JwtTimestampValidator jwtValidator = new JwtTimestampValidator(Duration.ofHours(1));
 			jwtValidator.setClock(justOverOneHourAfterExpiry);
 
-			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(this.uri);
+			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(this.uri).build());
 			jwtDecoder.setJwtValidator(jwtValidator);
 
 			// @formatter:off
@@ -1519,7 +1562,37 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.decoder(jwtDecoder);
+		}
+	}
+
+	@EnableWebSecurity
+	static class SingleKeyConfig extends WebSecurityConfigurerAdapter {
+		byte[] spec = Base64.getDecoder().decode(
+				"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoXJ8OyOv/eRnce4akdan" +
+				"R4KYRfnC2zLV4uYNQpcFn6oHL0dj7D6kxQmsXoYgJV8ZVDn71KGmuLvolxsDncc2" +
+				"UrhyMBY6DVQVgMSVYaPCTgW76iYEKGgzTEw5IBRQL9w3SRJWd3VJTZZQjkXef48O" +
+				"cz06PGF3lhbz4t5UEZtdF4rIe7u+977QwHuh7yRPBQ3sII+cVoOUMgaXB9SHcGF2" +
+				"iZCtPzL/IffDUcfhLQteGebhW8A6eUHgpD5A1PQ+JCw/G7UOzZAjjDjtNM2eqm8j" +
+				"+Ms/gqnm4MiCZ4E+9pDN77CAAPVN7kuX6ejs9KBXpk01z48i9fORYk9u7rAkh1Hu" +
+				"QwIDAQAB");
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2ResourceServer()
+					.jwt();
 			// @formatter:on
+		}
+
+		@Bean
+		JwtDecoder decoder() throws Exception {
+			RSAPublicKey publicKey = (RSAPublicKey)
+					KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(this.spec));
+			return new NimbusJwtDecoder(withPublicKey(publicKey).build());
 		}
 	}
 

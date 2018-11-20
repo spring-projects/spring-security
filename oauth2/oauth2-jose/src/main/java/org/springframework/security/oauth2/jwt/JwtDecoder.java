@@ -44,5 +44,4 @@ public interface JwtDecoder {
 	 * @throws JwtException if an error occurs while attempting to decode the JWT
 	 */
 	Jwt decode(String token) throws JwtException;
-
 }

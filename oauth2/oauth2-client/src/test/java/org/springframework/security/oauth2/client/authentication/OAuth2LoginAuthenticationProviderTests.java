@@ -15,15 +15,21 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -34,7 +40,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
@@ -42,30 +47,22 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.error;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
 
 /**
  * Tests for {@link OAuth2LoginAuthenticationProvider}.
  *
  * @author Joe Grandja
  */
-@PrepareForTest({ClientRegistration.class, OAuth2AuthorizationRequest.class,
-	OAuth2AuthorizationResponse.class, OAuth2AccessTokenResponse.class})
-@RunWith(PowerMockRunner.class)
 public class OAuth2LoginAuthenticationProviderTests {
 	private ClientRegistration clientRegistration;
 	private OAuth2AuthorizationRequest authorizationRequest;
@@ -81,19 +78,13 @@ public class OAuth2LoginAuthenticationProviderTests {
 	@Before
 	@SuppressWarnings("unchecked")
 	public void setUp() throws Exception {
-		this.clientRegistration = mock(ClientRegistration.class);
-		this.authorizationRequest = mock(OAuth2AuthorizationRequest.class);
-		this.authorizationResponse = mock(OAuth2AuthorizationResponse.class);
+		this.clientRegistration = clientRegistration().build();
+		this.authorizationRequest = request().scope("scope1", "scope2").build();
+		this.authorizationResponse = success().build();
 		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest, this.authorizationResponse);
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 		this.userService = mock(OAuth2UserService.class);
 		this.authenticationProvider = new OAuth2LoginAuthenticationProvider(this.accessTokenResponseClient, this.userService);
-
-		when(this.authorizationRequest.getScopes()).thenReturn(new LinkedHashSet<>(Arrays.asList("scope1", "scope2")));
-		when(this.authorizationRequest.getState()).thenReturn("12345");
-		when(this.authorizationResponse.getState()).thenReturn("12345");
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example.com");
 	}
 
 	@Test
@@ -121,11 +112,13 @@ public class OAuth2LoginAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationRequestContainsOpenidScopeThenReturnNull() {
-		when(this.authorizationRequest.getScopes()).thenReturn(new LinkedHashSet<>(Collections.singleton("openid")));
+		OAuth2AuthorizationRequest authorizationRequest = request().scope("openid").build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(authorizationRequest, this.authorizationResponse);
 
 		OAuth2LoginAuthenticationToken authentication =
 			(OAuth2LoginAuthenticationToken) this.authenticationProvider.authenticate(
-				new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+				new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 
 		assertThat(authentication).isNull();
 	}
@@ -135,11 +128,13 @@ public class OAuth2LoginAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString(OAuth2ErrorCodes.INVALID_REQUEST));
 
-		when(this.authorizationResponse.statusError()).thenReturn(true);
-		when(this.authorizationResponse.getError()).thenReturn(new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST));
+		OAuth2AuthorizationResponse authorizationResponse =
+				error().errorCode(OAuth2ErrorCodes.INVALID_REQUEST).build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+			new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 	}
 
 	@Test
@@ -147,11 +142,13 @@ public class OAuth2LoginAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_state_parameter"));
 
-		when(this.authorizationRequest.getState()).thenReturn("12345");
-		when(this.authorizationResponse.getState()).thenReturn("67890");
+		OAuth2AuthorizationResponse authorizationResponse =
+				success().state("67890").build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+			new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 	}
 
 	@Test
@@ -159,11 +156,13 @@ public class OAuth2LoginAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_redirect_uri_parameter"));
 
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example2.com");
+		OAuth2AuthorizationResponse authorizationResponse =
+				success().redirectUri("http://example2.com").build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+			new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 	}
 
 	@Test
