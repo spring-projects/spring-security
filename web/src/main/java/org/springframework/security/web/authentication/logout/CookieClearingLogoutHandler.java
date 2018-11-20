@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,28 +24,49 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * A logout handler which clears a defined list of cookies, using the context path as the
- * cookie path.
+ * A logout handler which clears either
+ * - A defined list of cookie names, using the context path as the cookie path
+ * OR
+ * - A given list of Cookies
  *
  * @author Luke Taylor
  * @since 3.1
  */
 public final class CookieClearingLogoutHandler implements LogoutHandler {
-	private final List<String> cookiesToClear;
+	private final List<Object> cookiesToClear;
 
 	public CookieClearingLogoutHandler(String... cookiesToClear) {
 		Assert.notNull(cookiesToClear, "List of cookies cannot be null");
-		this.cookiesToClear = Arrays.asList(cookiesToClear);
+		this.cookiesToClear =  Arrays.asList((Object[]) cookiesToClear);
+	}
+
+	/**
+	 * @since 5.X
+	 * @param cookiesToClear - One or more Cookie objects that must have maxAge of 0
+	 */
+	public CookieClearingLogoutHandler(Cookie... cookiesToClear) {
+		Assert.notNull(cookiesToClear, "List of cookies cannot be null");
+		List<Object> cookieList = new ArrayList<Object>();
+		for (Cookie cookie : cookiesToClear) {
+			Assert.isTrue(cookie.getMaxAge() == 0, "Cookie maxAge must be 0");
+			cookieList.add(cookie);
+		}
+		this.cookiesToClear = cookieList;
 	}
 
 	public void logout(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) {
-		for (String cookieName : cookiesToClear) {
-			Cookie cookie = new Cookie(cookieName, null);
-			String cookiePath = request.getContextPath() + "/";
-			cookie.setPath(cookiePath);
-			cookie.setMaxAge(0);
-			response.addCookie(cookie);
+		for (Object cookie : cookiesToClear) {
+			Cookie realCookie = null;
+			if (cookie instanceof String) {
+				realCookie = new Cookie((String) cookie, null);
+				String cookiePath = request.getContextPath() + "/";
+				realCookie.setPath(cookiePath);
+				realCookie.setMaxAge(0);
+			}else if (cookie instanceof Cookie){
+				realCookie = (Cookie) cookie;
+			}
+			response.addCookie(realCookie);
 		}
 	}
 }
