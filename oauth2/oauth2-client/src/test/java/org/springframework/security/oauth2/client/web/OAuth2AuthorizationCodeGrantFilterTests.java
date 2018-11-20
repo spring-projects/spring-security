@@ -15,13 +15,17 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -39,36 +43,31 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
-import org.springframework.security.oauth2.core.OAuth2RefreshToken;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
+import static org.springframework.security.oauth2.core.TestOAuth2RefreshTokens.refreshToken;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges.success;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeGrantFilter}.
  *
  * @author Joe Grandja
  */
-@PowerMockIgnore("javax.security.*")
-@PrepareForTest({OAuth2AuthorizationRequest.class, OAuth2AuthorizationExchange.class, OAuth2AuthorizationCodeGrantFilter.class})
-@RunWith(PowerMockRunner.class)
 public class OAuth2AuthorizationCodeGrantFilterTests {
 	private ClientRegistration registration1;
 	private String principalName1 = "principal-1";
@@ -367,19 +366,15 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 											ClientRegistration registration) {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, registration.getRegistrationId());
-		OAuth2AuthorizationRequest authorizationRequest = mock(OAuth2AuthorizationRequest.class);
-		when(authorizationRequest.getAdditionalParameters()).thenReturn(additionalParameters);
-		when(authorizationRequest.getRedirectUri()).thenReturn(request.getRequestURL().toString());
-		when(authorizationRequest.getState()).thenReturn("state");
+		OAuth2AuthorizationRequest authorizationRequest = request()
+				.additionalParameters(additionalParameters)
+				.redirectUri(request.getRequestURL().toString()).build();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 	}
 
 	private void setUpAuthenticationResult(ClientRegistration registration) {
-		OAuth2AuthorizationCodeAuthenticationToken authentication = mock(OAuth2AuthorizationCodeAuthenticationToken.class);
-		when(authentication.getClientRegistration()).thenReturn(registration);
-		when(authentication.getAuthorizationExchange()).thenReturn(mock(OAuth2AuthorizationExchange.class));
-		when(authentication.getAccessToken()).thenReturn(mock(OAuth2AccessToken.class));
-		when(authentication.getRefreshToken()).thenReturn(mock(OAuth2RefreshToken.class));
+		OAuth2AuthorizationCodeAuthenticationToken authentication =
+				new OAuth2AuthorizationCodeAuthenticationToken(registration, success(), noScopes(), refreshToken());
 		when(this.authenticationManager.authenticate(any(Authentication.class))).thenReturn(authentication);
 	}
 }
