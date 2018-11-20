@@ -15,30 +15,27 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeAuthenticationToken}.
  *
  * @author Joe Grandja
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ClientRegistration.class, OAuth2AuthorizationExchange.class, OAuth2AuthorizationResponse.class})
 public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 	private ClientRegistration clientRegistration;
 	private OAuth2AuthorizationExchange authorizationExchange;
@@ -46,9 +43,10 @@ public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 
 	@Before
 	public void setUp() {
-		this.clientRegistration = mock(ClientRegistration.class);
-		this.authorizationExchange = mock(OAuth2AuthorizationExchange.class);
-		this.accessToken = mock(OAuth2AccessToken.class);
+		this.clientRegistration = clientRegistration().build();
+		this.authorizationExchange = new OAuth2AuthorizationExchange(request().build(),
+				success().code("code").build());
+		this.accessToken = noScopes();
 	}
 
 	@Test
@@ -65,10 +63,6 @@ public class OAuth2AuthorizationCodeAuthenticationTokenTests {
 
 	@Test
 	public void constructorAuthorizationRequestResponseWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2AuthorizationResponse authorizationResponse = mock(OAuth2AuthorizationResponse.class);
-		when(authorizationResponse.getCode()).thenReturn("code");
-		when(this.authorizationExchange.getAuthorizationResponse()).thenReturn(authorizationResponse);
-
 		OAuth2AuthorizationCodeAuthenticationToken authentication =
 			new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, this.authorizationExchange);
 

@@ -15,16 +15,22 @@
  */
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -36,7 +42,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
@@ -47,33 +52,27 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.error;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
 
 /**
  * Tests for {@link OidcAuthorizationCodeAuthenticationProvider}.
  *
  * @author Joe Grandja
  */
-@PrepareForTest({ClientRegistration.class, OAuth2AuthorizationRequest.class, OAuth2AuthorizationResponse.class,
-	OAuth2AccessTokenResponse.class, OidcAuthorizationCodeAuthenticationProvider.class})
-@RunWith(PowerMockRunner.class)
 public class OidcAuthorizationCodeAuthenticationProviderTests {
 	private ClientRegistration clientRegistration;
-	private ClientRegistration.ProviderDetails providerDetails;
 	private OAuth2AuthorizationRequest authorizationRequest;
 	private OAuth2AuthorizationResponse authorizationResponse;
 	private OAuth2AuthorizationExchange authorizationExchange;
@@ -88,26 +87,16 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	@Before
 	@SuppressWarnings("unchecked")
 	public void setUp() throws Exception {
-		this.clientRegistration = mock(ClientRegistration.class);
-		this.providerDetails = mock(ClientRegistration.ProviderDetails.class);
-		this.authorizationRequest = mock(OAuth2AuthorizationRequest.class);
-		this.authorizationResponse = mock(OAuth2AuthorizationResponse.class);
+		this.clientRegistration = clientRegistration().clientId("client1").build();
+		this.authorizationRequest = request().scope("openid", "profile", "email").build();
+		this.authorizationResponse = success().build();
 		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest, this.authorizationResponse);
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 		this.accessTokenResponse = this.accessTokenSuccessResponse();
 		this.userService = mock(OAuth2UserService.class);
-		this.authenticationProvider = PowerMockito.spy(
-			new OidcAuthorizationCodeAuthenticationProvider(this.accessTokenResponseClient, this.userService));
+		this.authenticationProvider =
+			new OidcAuthorizationCodeAuthenticationProvider(this.accessTokenResponseClient, this.userService);
 
-		when(this.clientRegistration.getRegistrationId()).thenReturn("client-registration-id-1");
-		when(this.clientRegistration.getClientId()).thenReturn("client1");
-		when(this.clientRegistration.getProviderDetails()).thenReturn(this.providerDetails);
-		when(this.providerDetails.getJwkSetUri()).thenReturn("https://provider.com/oauth2/keys");
-		when(this.authorizationRequest.getScopes()).thenReturn(new LinkedHashSet<>(Arrays.asList("openid", "profile", "email")));
-		when(this.authorizationRequest.getState()).thenReturn("12345");
-		when(this.authorizationResponse.getState()).thenReturn("12345");
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example.com");
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(this.accessTokenResponse);
 	}
 
@@ -136,11 +125,13 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationRequestDoesNotContainOpenidScopeThenReturnNull() {
-		when(this.authorizationRequest.getScopes()).thenReturn(new LinkedHashSet<>(Collections.singleton("scope1")));
+		OAuth2AuthorizationRequest authorizationRequest = request().scope("scope1").build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(authorizationRequest, this.authorizationResponse);
 
 		OAuth2LoginAuthenticationToken authentication =
 			(OAuth2LoginAuthenticationToken) this.authenticationProvider.authenticate(
-				new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+				new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 
 		assertThat(authentication).isNull();
 	}
@@ -150,11 +141,12 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString(OAuth2ErrorCodes.INVALID_SCOPE));
 
-		when(this.authorizationResponse.statusError()).thenReturn(true);
-		when(this.authorizationResponse.getError()).thenReturn(new OAuth2Error(OAuth2ErrorCodes.INVALID_SCOPE));
+		OAuth2AuthorizationResponse authorizationResponse = error().errorCode(OAuth2ErrorCodes.INVALID_SCOPE).build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+			new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 	}
 
 	@Test
@@ -162,11 +154,12 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_state_parameter"));
 
-		when(this.authorizationRequest.getState()).thenReturn("34567");
-		when(this.authorizationResponse.getState()).thenReturn("89012");
+		OAuth2AuthorizationResponse authorizationResponse = success().state("89012").build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+			new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 	}
 
 	@Test
@@ -174,11 +167,12 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_redirect_uri_parameter"));
 
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example1.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example2.com");
+		OAuth2AuthorizationResponse authorizationResponse = success().redirectUri("http://example2.com").build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+			new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 	}
 
 	@Test
@@ -201,10 +195,10 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("missing_signature_verifier"));
 
-		when(this.providerDetails.getJwkSetUri()).thenReturn(null);
+		ClientRegistration clientRegistration = clientRegistration().jwkSetUri(null).build();
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+			new OAuth2LoginAuthenticationToken(clientRegistration, this.authorizationExchange));
 	}
 
 	@Test
@@ -434,7 +428,8 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 		JwtDecoder jwtDecoder = mock(JwtDecoder.class);
 		when(jwtDecoder.decode(anyString())).thenReturn(idToken);
-		PowerMockito.doReturn(jwtDecoder).when(this.authenticationProvider, "getJwtDecoder", any(ClientRegistration.class));
+		ReflectionTestUtils.setField(this.authenticationProvider,
+				"jwtDecoders", Collections.singletonMap("registration-id", jwtDecoder));
 	}
 
 	private OAuth2AccessTokenResponse accessTokenSuccessResponse() {
