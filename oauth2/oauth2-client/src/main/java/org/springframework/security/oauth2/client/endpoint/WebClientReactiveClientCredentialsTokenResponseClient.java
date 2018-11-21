@@ -26,6 +26,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+<<<<<<< HEAD
+=======
+import org.springframework.web.reactive.function.client.WebClient.RequestBodyUriSpec;
+>>>>>>> f6f70687c4b71e2def8c269103b7c32c9f743386
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
@@ -59,6 +63,8 @@ public class WebClientReactiveClientCredentialsTokenResponseClient implements Re
 
 			String tokenUri = clientRegistration.getProviderDetails().getTokenUri();
 			BodyInserters.FormInserter<String> body = body(authorizationGrantRequest);
+
+			RequestBodyUriSpec spec = webClient.post();
 
 			return this.webClient.post()
 					.uri(tokenUri)

@@ -125,6 +125,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	}
 
 	@Test
+
 	public void setWebClientCustomThenCustomClientIsUsed() {
 		WebClient customClient = mock(WebClient.class);
 		when(customClient.post()).thenReturn(WebClient.builder().build().post());
@@ -142,6 +143,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 
 		verify(customClient, atLeastOnce());
+
 	}
 
 	@Test(expected = WebClientResponseException.class)
