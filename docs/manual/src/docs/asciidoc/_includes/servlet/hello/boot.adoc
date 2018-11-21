@@ -1,18 +1,13 @@
-[[servlet-hello-jc]]
-= Hello Spring Security (Java Configuration)
+[[servlet-hello-boot]]
+= Hello Spring Security (Boot)
 
-In this section we will discuss how to use Spring Security using Java Configuration.
+In this section we will discuss how to use Spring Security using Spring Boot.
 
 [NOTE]
 ====
-The completed application can be found at {gh-samples-url}/javaconfig/helloworld[samples/javaconfig/helloworld]
+The completed application can be found at {gh-samples-url}/boot/helloworld[samples/boot/helloworld]
 ====
 // FIXME: Link to XML and Boot
-
-== Updating Dependencies
-
-The first step is to update the dependencies using <<maven-without-spring-boot,Maven>> or <<gradle-without-spring-boot,Gradle>>.
-
 
 [[servlet-hello-jc-ews]]
 == A Minimal @EnableWebSecurity Configuration

@@ -3,15 +3,20 @@
 In this section we will discuss how to use Spring Security using XML Configuration.
 // FIXME: Link to XML and Boot
 
-The first step is to create our Spring Security XML Configuration.
-The configuration creates a Servlet `Filter` known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
-You can find the most basic example of a Spring Security Java Configuration below:
+== Updating Dependencies
+
+The first step is to update the dependencies using <<maven-without-spring-boot,Maven>> or <<gradle-without-spring-boot,Gradle>>.
 
 
 [[servlet-hello-xml-http]]
 == A Minimal <http> Configuration
 
 In this section we will discuss how to use Spring Security using XML Configuration.
+
+[NOTE]
+====
+The completed application can be found at {gh-samples-url}/xml/helloworld[samples/xml/helloworld]
+====
 // FIXME: Link to JavaConfiguration and Boot
 
 The first step is to create our Spring Security XML Configuration.
