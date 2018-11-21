@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.annotation.Secured;
@@ -505,5 +506,28 @@ public class AuthenticationConfigurationTests {
 	static class UsesServiceMethodSecurityConfig {
 		@Autowired
 		Service service;
+	}
+
+	@Test
+	public void getAuthenticationManagerBeanWhenMultipleDefinedAndOnePrimaryThenNoException() throws Exception {
+		this.spring.register(MultipleAuthenticationManagerBeanConfig.class).autowire();
+		this.spring.getContext().getBeanFactory().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
+	}
+
+	@Configuration
+	@Import(AuthenticationConfiguration.class)
+	static class MultipleAuthenticationManagerBeanConfig {
+
+		@Bean
+		@Primary
+		public AuthenticationManager manager1() {
+			return mock(AuthenticationManager.class);
+		}
+
+		@Bean
+		public AuthenticationManager manager2() {
+			return mock(AuthenticationManager.class);
+		}
+
 	}
 }

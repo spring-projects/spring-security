@@ -15,21 +15,15 @@
  */
 package org.springframework.security.config.annotation.authentication.configuration;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.target.LazyInitTargetSource;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -48,6 +42,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Exports the authentication {@link Configuration}
@@ -151,10 +152,23 @@ public class AuthenticationConfiguration {
 		if (beanNamesForType.length == 0) {
 			return null;
 		}
-		Assert.isTrue(beanNamesForType.length == 1,
-				() -> "Expecting to only find a single bean for type " + interfaceName
-						+ ", but found " + Arrays.asList(beanNamesForType));
-		lazyTargetSource.setTargetBeanName(beanNamesForType[0]);
+		String beanName;
+		if (beanNamesForType.length > 1) {
+			List<String> primaryBeanNames = Arrays.stream(beanNamesForType)
+				.filter(i -> applicationContext instanceof ConfigurableApplicationContext)
+				.filter(n -> ((ConfigurableApplicationContext) applicationContext).getBeanFactory().getBeanDefinition(n).isPrimary())
+				.collect(Collectors.toList());
+
+			Assert.isTrue(primaryBeanNames.size() != 0, () -> "Found " + beanNamesForType.length
+					+ " beans for type " + interfaceName + ", but none marked as primary");
+			Assert.isTrue(primaryBeanNames.size() == 1, () -> "Found " + primaryBeanNames.size()
+					+ " beans for type " + interfaceName + " marked as primary");
+			beanName = primaryBeanNames.get(0);
+		} else {
+			beanName = beanNamesForType[0];
+		}
+
+		lazyTargetSource.setTargetBeanName(beanName);
 		lazyTargetSource.setBeanFactory(applicationContext);
 		ProxyFactoryBean proxyFactory = new ProxyFactoryBean();
 		proxyFactory = objectPostProcessor.postProcess(proxyFactory);

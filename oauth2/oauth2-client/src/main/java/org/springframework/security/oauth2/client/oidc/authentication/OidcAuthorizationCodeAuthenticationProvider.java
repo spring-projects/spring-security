@@ -43,9 +43,11 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
 
 /**
  * An implementation of an {@link AuthenticationProvider}
@@ -209,7 +211,8 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 				);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			jwtDecoder = new NimbusJwtDecoderJwkSupport(clientRegistration.getProviderDetails().getJwkSetUri());
+			String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
+			jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(jwkSetUri).build());
 			this.jwtDecoders.put(clientRegistration.getRegistrationId(), jwtDecoder);
 		}
 		return jwtDecoder;

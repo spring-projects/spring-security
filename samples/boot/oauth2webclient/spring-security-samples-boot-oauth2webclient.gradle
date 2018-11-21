@@ -9,7 +9,7 @@ dependencies {
 	compile 'org.springframework:spring-webflux'
 	compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	compile 'org.springframework.boot:spring-boot-starter-web'
-	compile 'org.thymeleaf.extras:thymeleaf-extras-springsecurity4'
+	compile 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
 	compile 'io.projectreactor.netty:reactor-netty'
 
 	testCompile project(':spring-security-test')

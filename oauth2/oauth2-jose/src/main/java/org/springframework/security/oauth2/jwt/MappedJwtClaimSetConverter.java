@@ -16,7 +16,6 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
@@ -42,7 +41,7 @@ public final class MappedJwtClaimSetConverter
 		implements Converter<Map<String, Object>, Map<String, Object>> {
 
 	private static final Converter<Object, Collection<String>> AUDIENCE_CONVERTER = new AudienceConverter();
-	private static final Converter<Object, URL> ISSUER_CONVERTER = new IssuerConverter();
+	private static final Converter<Object, String> ISSUER_CONVERTER = new IssuerConverter();
 	private static final Converter<Object, String> STRING_CONVERTER = new StringConverter();
 	private static final Converter<Object, Instant> TEMPORAL_CONVERTER = new InstantConverter();
 
@@ -157,39 +156,27 @@ public final class MappedJwtClaimSetConverter
 	 * Coerces an <a target="_blank" href="https://tools.ietf.org/html/rfc7519#section-4.1.1">Issuer</a> claim
 	 * into a {@link URL}, ignoring null values, and throwing an error if its coercion efforts fail.
 	 */
-	private static class IssuerConverter implements Converter<Object, URL> {
+	private static class IssuerConverter implements Converter<Object, String> {
 
 		@Override
-		public URL convert(Object source) {
+		public String convert(Object source) {
 			if (source == null) {
 				return null;
 			}
 
 			if (source instanceof URL) {
-				return (URL) source;
+				return ((URL) source).toExternalForm();
 			}
 
-			if (source instanceof URI) {
-				return toUrl((URI) source);
+			if (source instanceof String && ((String) source).contains(":")) {
+				try {
+					return URI.create((String) source).toString();
+				} catch (Exception e) {
+					throw new IllegalStateException("Could not coerce " + source + " into a URI String", e);
+				}
 			}
 
-			return toUrl(source.toString());
-		}
-
-		private URL toUrl(URI source) {
-			try {
-				return source.toURL();
-			} catch (MalformedURLException e) {
-				throw new IllegalStateException("Could not coerce " + source + " into a URL", e);
-			}
-		}
-
-		private URL toUrl(String source) {
-			try {
-				return new URL(source);
-			} catch (MalformedURLException e) {
-				throw new IllegalStateException("Could not coerce " + source + " into a URL", e);
-			}
+			return source.toString();
 		}
 	}
 

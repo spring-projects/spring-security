@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -23,10 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -37,25 +36,18 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
-import java.util.concurrent.TimeUnit;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 
 /**
  * Tests for {@link DefaultOAuth2UserService}.
  *
  * @author Joe Grandja
  */
-@PowerMockIgnore({"okhttp3.*", "okio.Buffer"})
-@PrepareForTest(ClientRegistration.class)
-@RunWith(PowerMockRunner.class)
 public class DefaultOAuth2UserServiceTests {
-	private ClientRegistration clientRegistration;
-	private ClientRegistration.ProviderDetails providerDetails;
-	private ClientRegistration.ProviderDetails.UserInfoEndpoint userInfoEndpoint;
+	private ClientRegistration.Builder clientRegistrationBuilder;
 	private OAuth2AccessToken accessToken;
 	private DefaultOAuth2UserService userService = new DefaultOAuth2UserService();
 	private MockWebServer server;
@@ -67,12 +59,10 @@ public class DefaultOAuth2UserServiceTests {
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
-		this.clientRegistration = mock(ClientRegistration.class);
-		this.providerDetails = mock(ClientRegistration.ProviderDetails.class);
-		this.userInfoEndpoint = mock(ClientRegistration.ProviderDetails.UserInfoEndpoint.class);
-		when(this.clientRegistration.getProviderDetails()).thenReturn(this.providerDetails);
-		when(this.providerDetails.getUserInfoEndpoint()).thenReturn(this.userInfoEndpoint);
-		this.accessToken = mock(OAuth2AccessToken.class);
+		this.clientRegistrationBuilder = clientRegistration()
+				.userInfoUri(null)
+				.userNameAttributeName(null);
+		this.accessToken = noScopes();
 	}
 
 	@After
@@ -103,8 +93,8 @@ public class DefaultOAuth2UserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("missing_user_info_uri"));
 
-		when(this.userInfoEndpoint.getUri()).thenReturn(null);
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
+		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	@Test
@@ -112,9 +102,9 @@ public class DefaultOAuth2UserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("missing_user_name_attribute"));
 
-		when(this.userInfoEndpoint.getUri()).thenReturn("http://provider.com/user");
-		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn(null);
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri("http://provider.com/user").build();
+		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	@Test
@@ -131,12 +121,12 @@ public class DefaultOAuth2UserServiceTests {
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
-		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri(userInfoUri)
+				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+				.userNameAttributeName("user-name").build();
 
-		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 
 		assertThat(user.getName()).isEqualTo("user1");
 		assertThat(user.getAttributes().size()).isEqualTo(6);
@@ -171,12 +161,12 @@ public class DefaultOAuth2UserServiceTests {
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
-		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri(userInfoUri)
+				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+				.userNameAttributeName("user-name").build();
 
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	@Test
@@ -194,12 +184,12 @@ public class DefaultOAuth2UserServiceTests {
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
-		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri(userInfoUri)
+				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+				.userNameAttributeName("user-name").build();
 
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	@Test
@@ -215,12 +205,12 @@ public class DefaultOAuth2UserServiceTests {
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
-		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri(userInfoUri)
+				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+				.userNameAttributeName("user-name").build();
 
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	@Test
@@ -232,12 +222,12 @@ public class DefaultOAuth2UserServiceTests {
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
-		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri(userInfoUri)
+				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+				.userNameAttributeName("user-name").build();
 
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	@Test
@@ -247,12 +237,12 @@ public class DefaultOAuth2UserServiceTests {
 
 		String userInfoUri = "http://invalid-provider.com/user";
 
-		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
-		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri(userInfoUri)
+				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+				.userNameAttributeName("user-name").build();
 
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
 	// gh-5294
@@ -270,12 +260,12 @@ public class DefaultOAuth2UserServiceTests {
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
-		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri(userInfoUri)
+				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+				.userNameAttributeName("user-name").build();
 
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 		assertThat(this.server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
 				.isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 	}
@@ -295,12 +285,12 @@ public class DefaultOAuth2UserServiceTests {
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.HEADER);
-		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri(userInfoUri)
+				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+				.userNameAttributeName("user-name").build();
 
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 		RecordedRequest request = this.server.takeRequest();
 		assertThat(request.getMethod()).isEqualTo(HttpMethod.GET.name());
 		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
@@ -322,12 +312,12 @@ public class DefaultOAuth2UserServiceTests {
 
 		String userInfoUri = this.server.url("/user").toString();
 
-		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
-		when(this.userInfoEndpoint.getAuthenticationMethod()).thenReturn(AuthenticationMethod.FORM);
-		when(this.userInfoEndpoint.getUserNameAttributeName()).thenReturn("user-name");
-		when(this.accessToken.getTokenValue()).thenReturn("access-token");
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri(userInfoUri)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.userNameAttributeName("user-name").build();
 
-		this.userService.loadUser(new OAuth2UserRequest(this.clientRegistration, this.accessToken));
+		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 		RecordedRequest request = this.server.takeRequest();
 		assertThat(request.getMethod()).isEqualTo(HttpMethod.POST.name());
 		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
