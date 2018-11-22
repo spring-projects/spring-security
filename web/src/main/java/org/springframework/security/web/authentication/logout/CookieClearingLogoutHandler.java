@@ -16,6 +16,8 @@
 package org.springframework.security.web.authentication.logout;
 
 import java.util.*;
+import java.util.function.Function;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,40 +35,45 @@ import org.springframework.util.Assert;
  * @since 3.1
  */
 public final class CookieClearingLogoutHandler implements LogoutHandler {
-	private final List<Object> cookiesToClear;
+	private final List<Function<HttpServletRequest, Cookie>> cookiesToClear;
 
 	public CookieClearingLogoutHandler(String... cookiesToClear) {
 		Assert.notNull(cookiesToClear, "List of cookies cannot be null");
-		this.cookiesToClear =  Arrays.asList((Object[]) cookiesToClear);
+		List<Function<HttpServletRequest, Cookie>> cookieList = new ArrayList<>();
+		for (String cookieName : cookiesToClear) {
+			Function<HttpServletRequest, Cookie> f = (request) -> {
+				Cookie cookie = new Cookie(cookieName, null);
+				String cookiePath = request.getContextPath() + "/";
+				cookie.setPath(cookiePath);
+				cookie.setMaxAge(0);
+				return cookie;
+			};
+			cookieList.add(f);
+		}
+		this.cookiesToClear =  cookieList;
 	}
 
 	/**
-	 * @since 5.X
+	 * @since 5.2
 	 * @param cookiesToClear - One or more Cookie objects that must have maxAge of 0
 	 */
 	public CookieClearingLogoutHandler(Cookie... cookiesToClear) {
 		Assert.notNull(cookiesToClear, "List of cookies cannot be null");
-		List<Object> cookieList = new ArrayList<Object>();
+		List<Function<HttpServletRequest, Cookie>> cookieList = new ArrayList<>();
 		for (Cookie cookie : cookiesToClear) {
 			Assert.isTrue(cookie.getMaxAge() == 0, "Cookie maxAge must be 0");
-			cookieList.add(cookie);
+			Function<HttpServletRequest, Cookie> f = (request) -> {
+				return cookie;
+			};
+			cookieList.add(f);
 		}
 		this.cookiesToClear = cookieList;
 	}
 
 	public void logout(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) {
-		for (Object cookie : cookiesToClear) {
-			Cookie realCookie = null;
-			if (cookie instanceof String) {
-				realCookie = new Cookie((String) cookie, null);
-				String cookiePath = request.getContextPath() + "/";
-				realCookie.setPath(cookiePath);
-				realCookie.setMaxAge(0);
-			}else if (cookie instanceof Cookie){
-				realCookie = (Cookie) cookie;
-			}
-			response.addCookie(realCookie);
-		}
+		cookiesToClear.forEach(
+			f -> response.addCookie(f.apply(request))
+		);
 	}
 }
