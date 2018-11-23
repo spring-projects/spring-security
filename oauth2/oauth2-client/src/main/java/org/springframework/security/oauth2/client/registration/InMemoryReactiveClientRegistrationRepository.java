@@ -18,11 +18,6 @@ package org.springframework.security.oauth2.client.registration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.springframework.util.Assert;
-import org.springframework.util.ConcurrentReferenceHashMap;
 
 import reactor.core.publisher.Mono;
 
@@ -38,7 +33,7 @@ import reactor.core.publisher.Mono;
 public final class InMemoryReactiveClientRegistrationRepository
 		implements ReactiveClientRegistrationRepository, Iterable<ClientRegistration> {
 
-	private final Map<String, ClientRegistration> clientIdToClientRegistration;
+	private final InMemoryClientRegistrationRepository delegate;
 
 	/**
 	 * Constructs an {@code InMemoryReactiveClientRegistrationRepository} using the provided parameters.
@@ -46,12 +41,7 @@ public final class InMemoryReactiveClientRegistrationRepository
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryReactiveClientRegistrationRepository(ClientRegistration... registrations) {
-		Assert.notEmpty(registrations, "registrations cannot be empty");
-		this.clientIdToClientRegistration = new ConcurrentReferenceHashMap<>();
-		for (ClientRegistration registration : registrations) {
-			Assert.notNull(registration, "registrations cannot contain null values");
-			this.clientIdToClientRegistration.put(registration.getRegistrationId(), registration);
-		}
+		this.delegate = new InMemoryClientRegistrationRepository(registrations);
 	}
 
 	/**
@@ -60,9 +50,7 @@ public final class InMemoryReactiveClientRegistrationRepository
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryReactiveClientRegistrationRepository(List<ClientRegistration> registrations) {
-		Assert.notEmpty(registrations, "registrations cannot be null or empty");
-		this.clientIdToClientRegistration = registrations.stream()
-				.collect(Collectors.toConcurrentMap(ClientRegistration::getRegistrationId, Function.identity()));
+		this.delegate = new InMemoryClientRegistrationRepository(registrations);
 	}
 
 	/**
@@ -73,14 +61,13 @@ public final class InMemoryReactiveClientRegistrationRepository
 	 * @since 5.2
 	 * @param registrations the {@code Map} of client registration(s)
 	 */
-	public InMemoryReactiveClientRegistrationRepository(Map<String, ClientRegistration> registrations) {
-		Assert.notNull(registrations, "registrations cannot be null");
-		this.clientIdToClientRegistration = registrations;
+	public InMemoryReactiveClientRegistrationRepository(
+			Map<String, ClientRegistration> registrations) {
+		this.delegate = new InMemoryClientRegistrationRepository(registrations);
 	}
 
-	@Override
 	public Mono<ClientRegistration> findByRegistrationId(String registrationId) {
-		return Mono.justOrEmpty(this.clientIdToClientRegistration.get(registrationId));
+		return Mono.justOrEmpty(this.delegate.findByRegistrationId(registrationId));
 	}
 
 	/**
@@ -90,6 +77,6 @@ public final class InMemoryReactiveClientRegistrationRepository
 	 */
 	@Override
 	public Iterator<ClientRegistration> iterator() {
-		return this.clientIdToClientRegistration.values().iterator();
+		return delegate.iterator();
 	}
 }

@@ -16,36 +16,32 @@
 package org.springframework.security.oauth2.core.endpoint;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
 
 /**
  * Tests for {@link OAuth2AuthorizationExchange}.
  *
  * @author Joe Grandja
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({OAuth2AuthorizationExchange.class, OAuth2AuthorizationRequest.class, OAuth2AuthorizationResponse.class})
 public class OAuth2AuthorizationExchangeTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenAuthorizationRequestIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizationExchange(null, mock(OAuth2AuthorizationResponse.class));
+		new OAuth2AuthorizationExchange(null, success().build());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenAuthorizationResponseIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizationExchange(mock(OAuth2AuthorizationRequest.class), null);
+		new OAuth2AuthorizationExchange(request().build(), null);
 	}
 
 	@Test
 	public void constructorWhenRequiredArgsProvidedThenCreated() {
-		OAuth2AuthorizationRequest authorizationRequest = mock(OAuth2AuthorizationRequest.class);
-		OAuth2AuthorizationResponse authorizationResponse = mock(OAuth2AuthorizationResponse.class);
+		OAuth2AuthorizationRequest authorizationRequest = request().build();
+		OAuth2AuthorizationResponse authorizationResponse = success().build();
 		OAuth2AuthorizationExchange authorizationExchange =
 			new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse);
 		assertThat(authorizationExchange.getAuthorizationRequest()).isEqualTo(authorizationRequest);

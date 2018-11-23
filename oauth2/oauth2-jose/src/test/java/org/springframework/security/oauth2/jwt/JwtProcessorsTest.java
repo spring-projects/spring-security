@@ -16,18 +16,30 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+
+import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.JWTProcessor;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -39,9 +51,18 @@ import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUr
  * Tests for {@link JwtProcessors}
  */
 public class JwtProcessorsTest {
-	private static final String JWK_SET = "{\"keys\":[{\"p\":\"49neceJFs8R6n7WamRGy45F5Tv0YM-R2ODK3eSBUSLOSH2tAqjEVKOkLE5fiNA3ygqq15NcKRadB2pTVf-Yb5ZIBuKzko8bzYIkIqYhSh_FAdEEr0vHF5fq_yWSvc6swsOJGqvBEtuqtJY027u-G2gAQasCQdhyejer68zsTn8M\",\"kty\":\"RSA\",\"q\":\"tWR-ysspjZ73B6p2vVRVyHwP3KQWL5KEQcdgcmMOE_P_cPs98vZJfLhxobXVmvzuEWBpRSiqiuyKlQnpstKt94Cy77iO8m8ISfF3C9VyLWXi9HUGAJb99irWABFl3sNDff5K2ODQ8CmuXLYM25OwN3ikbrhEJozlXg_NJFSGD4E\",\"d\":\"FkZHYZlw5KSoqQ1i2RA2kCUygSUOf1OqMt3uomtXuUmqKBm_bY7PCOhmwbvbn4xZYEeHuTR8Xix-0KpHe3NKyWrtRjkq1T_un49_1LLVUhJ0dL-9_x0xRquVjhl_XrsRXaGMEHs8G9pLTvXQ1uST585gxIfmCe0sxPZLvwoic-bXf64UZ9BGRV3lFexWJQqCZp2S21HfoU7wiz6kfLRNi-K4xiVNB1gswm_8o5lRuY7zB9bRARQ3TS2G4eW7p5sxT3CgsGiQD3_wPugU8iDplqAjgJ5ofNJXZezoj0t6JMB_qOpbrmAM1EnomIPebSLW7Ky9SugEd6KMdL5lW6AuAQ\",\"e\":\"AQAB\",\"use\":\"sig\",\"kid\":\"one\",\"qi\":\"wdkFu_tV2V1l_PWUUimG516Zvhqk2SWDw1F7uNDD-Lvrv_WNRIJVzuffZ8WYiPy8VvYQPJUrT2EXL8P0ocqwlaSTuXctrORcbjwgxDQDLsiZE0C23HYzgi0cofbScsJdhcBg7d07LAf7cdJWG0YVl1FkMCsxUlZ2wTwHfKWf-v4\",\"dp\":\"uwnPxqC-IxG4r33-SIT02kZC1IqC4aY7PWq0nePiDEQMQWpjjNH50rlq9EyLzbtdRdIouo-jyQXB01K15-XXJJ60dwrGLYNVqfsTd0eGqD1scYJGHUWG9IDgCsxyEnuG3s0AwbW2UolWVSsU2xMZGb9PurIUZECeD1XDZwMp2s0\",\"dq\":\"hra786AunB8TF35h8PpROzPoE9VJJMuLrc6Esm8eZXMwopf0yhxfN2FEAvUoTpLJu93-UH6DKenCgi16gnQ0_zt1qNNIVoRfg4rw_rjmsxCYHTVL3-RDeC8X_7TsEySxW0EgFTHh-nr6I6CQrAJjPM88T35KHtdFATZ7BCBB8AE\",\"n\":\"oXJ8OyOv_eRnce4akdanR4KYRfnC2zLV4uYNQpcFn6oHL0dj7D6kxQmsXoYgJV8ZVDn71KGmuLvolxsDncc2UrhyMBY6DVQVgMSVYaPCTgW76iYEKGgzTEw5IBRQL9w3SRJWd3VJTZZQjkXef48Ocz06PGF3lhbz4t5UEZtdF4rIe7u-977QwHuh7yRPBQ3sII-cVoOUMgaXB9SHcGF2iZCtPzL_IffDUcfhLQteGebhW8A6eUHgpD5A1PQ-JCw_G7UOzZAjjDjtNM2eqm8j-Ms_gqnm4MiCZ4E-9pDN77CAAPVN7kuX6ejs9KBXpk01z48i9fORYk9u7rAkh1HuQw\"}]}";
-	private static final String SIGNED_JWT = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0LXN1YmplY3QiLCJzY3AiOlsibWVzc2FnZTpyZWFkIl0sImV4cCI6NDY4Mzg5Nzc3Nn0.LtMVtIiRIwSyc3aX35Zl0JVwLTcQZAB3dyBOMHNaHCKUljwMrf20a_gT79LfhjDzE_fUVUmFiAO32W1vFnYpZSVaMDUgeIOIOpxfoe9shj_uYenAwIS-_UxqGVIJiJoXNZh_MK80ShNpvsQwamxWEEOAMBtpWNiVYNDMdfgho9n3o5_Z7Gjy8RLBo1tbDREbO9kTFwGIxm_EYpezmRCRq4w1DdS6UDW321hkwMxPnCMSWOvp-hRpmgY2yjzLgPJ6Aucmg9TJ8jloAP1DjJoF1gRR7NTAk8LOGkSjTzVYDYMbCF51YdpojhItSk80YzXiEsv1mTz4oMM49jXBmfXFMA";
+	private static final String JWK_SET = "{\"keys\":[{\"p\":\"5VhDhCcOp9D3krJi2W2uF-LPovIKqtU59Jdt_gF6iwPw_0Bgo8UlbFRv3HdnVYUExLdkvHOoA9bmbkV0w_6TUwLP65PKPu6P8JfeWsIuGi3wY91_CsfahxGmVZxlZookBUIMMnylvM9fGR6-daNgkl31CKqDpkJt9XF35yjVpbM\",\"kty\":\"RSA\",\"q\":\"v3yrgOhimojmLVsLBdynmw_pfAlZPw2eXVzoJ514xP94UZJQRY_NOUjYV0O9Vqict_Qv42sUa-uurY8n_0Btslt--iJsMyTHYMIKjbyeFAqAGFuXYbQPnorEOkuZhT1NIBZhlLLuKSD8DVCtsEv2EVgBTwyzFJ6QbXLqVpNUvZs\",\"d\":\"ZyjCopsw7TszSV4qMIyunb0PaGfHbQ_0LJcAxhNwQsf3MYR6j0J9k1GVxq2SjpRylgKJg8CKjySaU4frewH7MEaNLNdfR2_XMFSKW3KFggdNRtW1TFwjcHfpBLTvB3MEaTx56Sohn0eXqd_Wa2EAfRiLjllwOeqwXqgdSXdvKfkkmV2DBZ2h100wLJB87Y5kvlGvbNDs0KgTFaPWRZkCQz3CGhGPDyTJVwzgJvIxbHgzl9DnW6FlgrP_DZmyfGbJ833FZSiBczTQGDWT7euR3h491fKPCHTXjdULtU1578NldRAo8SOXH4ThXXA_kwKafIGlKx5LZPNwMWgNuVvE6Q\",\"e\":\"AQAB\",\"use\":\"sig\",\"kid\":\"one\",\"qi\":\"eaGTNLhJf1K82YqB6VKrYWz1hxsKnjRBg-V-kuWJXvW7HQsLFKx56kXy_ximz_IQDZOO3F-rW_7Saz3RvWuFt_Yq7sRcLCMtpiDRbZ-nGDgHxQHedtLoalLLPmJkMMsZwZzXf9l6LO6a8r30lrC_C-kPY5K7lz97ZToKeper7c8\",\"dp\":\"QQJ4-O_dTqKEWvfn3zwg2jJ3qvezIGOarwNxsUuYAenXGXOVMTcD-aYhozvRdcNj66MUkfqyyIvU-7MCe0AhYKluaJeW_6m98XQLGmzqho85EgXKKjMmdZ0CKkhP0fYcacUkEfeVP2UEzukREeWCzVqGx7MV6D3yT12foE3J6dM\",\"dq\":\"PsH2V5ZSEsHBZqYLE83ApMJvTHan6FFnUMQNVkZ2-WGdJmbkphe-NAMa3GbYHBnA201NkKRcmg4xPrLHchHEogr4r7QucAiiy6Rs3w0tZfYXC2ShVaU05Uoni8-RLijsKRMMwjZudc5YrWh-tGQA7qhALY9E9gIN5cEe6mb5A_c\",\"n\":\"q4yKxb6SNePdDmQi9xFCrP6QvHosErQzryknQTTTffs0t3cy3Er3lIceuhZ7yQNSCDfPFqG8GoyoKhuChRiA5D-J2ab7bqTa1QJKfnCyERoscftgN2fXPHjHoiKbpGV2tMVw8mXl__tePOAiKbMJaBUnlAvJgkk1rVm08dSwpLC1sr2M19euf9jwnRGkMRZuhp9iCPgECRke5T8Ixpv0uQjSmGHnWUKTFlbj8sM83suROR1Ue64JSGScANc5vk3huJ_J97qTC-K2oKj6L8d9O8dpc4obijEOJwpydNvTYDgbiivYeSB00KS9jlBkQ5B2QqLvLVEygDl3dp59nGx6YQ\"}]}";
 	private static final String JWK_SET_URI = "http://issuer/.well-known/jwks.json";
+	private static final String RS512_SIGNED_JWT = "eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJ0ZXN0LXN1YmplY3QiLCJleHAiOjE5NzQzMjYxMTl9.LKAx-60EBfD7jC1jb1eKcjO4uLvf3ssISV-8tN-qp7gAjSvKvj4YA9-V2mIb6jcS1X_xGmNy6EIimZXpWaBR3nJmeu-jpe85u4WaW2Ztr8ecAi-dTO7ZozwdtljKuBKKvj4u1nF70zyCNl15AozSG0W1ASrjUuWrJtfyDG6WoZ8VfNMuhtU-xUYUFvscmeZKUYQcJ1KS-oV5tHeF8aNiwQoiPC_9KXCOZtNEJFdq6-uzFdHxvOP2yex5Gbmg5hXonauIFXG2ZPPGdXzm-5xkhBpgM8U7A_6wb3So8wBvLYYm2245QUump63AJRAy8tQpwt4n9MvQxQgS3z9R-NK92A";
+	private static final String RS256_SIGNED_JWT = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0LXN1YmplY3QiLCJleHAiOjE5NzQzMjYzMzl9.CT-H2OWEqmSs1NWmnta5ealLFvM8OlbQTjGhfRcKLNxrTrzsOkqBJl-AN3k16BQU7mS32o744TiiZ29NcDlxPsr1MqTlN86-dobPiuNIDLp3A1bOVdXMcVFuMYkrNv0yW0tGS9OjEqsCCuZDkZ1by6AhsHLbGwRY-6AQdcRouZygGpOQu1hNun5j8q5DpSTY4AXKARIFlF-O3OpVbPJ0ebr3Ki-i3U9p_55H0e4-wx2bqcApWlqgofl1I8NKWacbhZgn81iibup2W7E0CzCzh71u1Mcy3xk1sYePx-dwcxJnHmxJReBBWjJZEAeCrkbnn_OCuo2fA-EQyNJtlN5F2w";
+	private static final String VERIFY_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq4yKxb6SNePdDmQi9xFCrP6QvHosErQzryknQTTTffs0t3cy3Er3lIceuhZ7yQNSCDfPFqG8GoyoKhuChRiA5D+J2ab7bqTa1QJKfnCyERoscftgN2fXPHjHoiKbpGV2tMVw8mXl//tePOAiKbMJaBUnlAvJgkk1rVm08dSwpLC1sr2M19euf9jwnRGkMRZuhp9iCPgECRke5T8Ixpv0uQjSmGHnWUKTFlbj8sM83suROR1Ue64JSGScANc5vk3huJ/J97qTC+K2oKj6L8d9O8dpc4obijEOJwpydNvTYDgbiivYeSB00KS9jlBkQ5B2QqLvLVEygDl3dp59nGx6YQIDAQAB";
+
+	private static KeyFactory kf;
+
+	@BeforeClass
+	public static void keyFactory() throws NoSuchAlgorithmException {
+		kf = KeyFactory.getInstance("RSA");
+	}
 
 	@Test
 	public void withJwkSetUriWhenNullOrEmptyThenThrowsException() {
@@ -68,10 +89,55 @@ public class JwtProcessorsTest {
 		RestOperations restOperations = mockJwkSetResponse(JWK_SET);
 		JWTProcessor<SecurityContext> processor =
 				withJwkSetUri(JWK_SET_URI).restOperations(restOperations).build();
-		assertThat(processor.process(SIGNED_JWT, null))
+		assertThat(processor.process(RS256_SIGNED_JWT, null))
 				.extracting(JWTClaimsSet::getExpirationTime)
 				.isNotNull();
 		verify(restOperations).exchange(any(RequestEntity.class), eq(String.class));
+	}
+
+	@Test
+	public void withPublicKeyWhenNullThenThrowsException() {
+		assertThatThrownBy(() -> JwtProcessors.withPublicKey(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void buildWhenSignatureAlgorithmMismatchesKeyTypeThenThrowsException() {
+		assertThatCode(() -> JwtProcessors.withPublicKey(key())
+				.jwsAlgorithm(JwsAlgorithms.ES256)
+				.build())
+				.isInstanceOf(IllegalStateException.class);
+	}
+
+	@Test
+	public void processWhenUsingPublicKeyThenSuccessfullyDecodes() throws Exception {
+		JWTProcessor<SecurityContext> processor = JwtProcessors.withPublicKey(key()).build();
+		assertThat(processor.process(RS256_SIGNED_JWT, null))
+				.extracting(JWTClaimsSet::getSubject)
+				.isEqualTo("test-subject");
+	}
+
+	@Test
+	public void processWhenUsingPublicKeyWithRs512ThenSuccessfullyDecodes() throws Exception {
+		JWTProcessor<SecurityContext> processor = JwtProcessors
+				.withPublicKey(key()).jwsAlgorithm(JwsAlgorithms.RS512).build();
+		assertThat(processor.process(RS512_SIGNED_JWT, null))
+				.extracting(JWTClaimsSet::getSubject)
+				.isEqualTo("test-subject");
+	}
+
+	@Test
+	public void processWhenSignatureMismatchesAlgorithmThenThrowsException() throws Exception {
+		JWTProcessor<SecurityContext> processor = JwtProcessors
+				.withPublicKey(key()).jwsAlgorithm(JwsAlgorithms.RS512).build();
+		assertThatCode(() -> processor.process(RS256_SIGNED_JWT, null))
+				.isInstanceOf(BadJOSEException.class);
+	}
+
+	private RSAPublicKey key() throws InvalidKeySpecException {
+		byte[] decoded = Base64.getDecoder().decode(VERIFY_KEY.getBytes());
+		EncodedKeySpec spec = new X509EncodedKeySpec(decoded);
+		return (RSAPublicKey) kf.generatePublic(spec);
 	}
 
 	private static RestOperations mockJwkSetResponse(String response) {
