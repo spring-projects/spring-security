@@ -59,7 +59,7 @@ class AspectJPlugin implements Plugin<Project> {
 				aspectPath = project.configurations.aspectpath
 			}
 
-			javaCompileTask.deleteAllActions()
+			javaCompileTask.setActions Arrays.asList()
 			javaCompileTask.dependsOn ajCompileTask
 
 		}
