@@ -8,10 +8,7 @@ dependencies {
 	compile 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api'
 	compile 'javax.validation:validation-api'
 	compile 'org.hibernate:hibernate-validator'
-	compile 'org.slf4j:jcl-over-slf4j'
-	compile 'org.slf4j:jul-to-slf4j'
-	compile 'org.slf4j:log4j-over-slf4j'
-	compile 'org.slf4j:slf4j-api'
+	compile 'ch.qos.logback:logback-classic'
 	compile 'org.springframework:spring-jdbc'
 	compile 'org.springframework:spring-webmvc'
 
