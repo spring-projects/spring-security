@@ -112,7 +112,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 	public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
 		throw new UnsupportedOperationException(
 				"LdapUserDetailsMapper only supports reading from a context. Please"
-						+ "use a subclass if mapUserToContext() is required.");
+						+ " use a subclass if mapUserToContext() is required.");
 	}
 
 	/**
