@@ -70,8 +70,8 @@ def customizePom(pom, gradleProject) {
 				email = 'rwinch@gopivotal.com'
 			}
 		}
-
-		if(!gradleProject.name.endsWith('-bom')) {
+		// Exclude spring-framework-bom for sample Boot projects since spring-boot-starter-parent imports spring-framework-bom
+		if(!gradleProject.name.endsWith('-bom') && !sampleBootProjects.contains(gradleProject)) {
 			dependencyManagement {
 				dependencies {
 					dependency {

@@ -11,7 +11,7 @@ buildscript {
 		classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.1')
 		classpath("io.spring.gradle:docbook-reference-plugin:0.3.1")
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.2.RELEASE")
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.17.RELEASE")
 	}
 }
 
@@ -61,6 +61,7 @@ sonarqube {
 // Set up different subproject lists for individual configuration
 ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'manual' && project.name != 'guides' && project.name != 'spring-security-bom' }
 ext.sampleProjects = subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
+ext.sampleBootProjects = subprojects.findAll { project -> project.name.startsWith('spring-security-samples-boot') }
 ext.itestProjects = subprojects.findAll { project -> project.name.startsWith('itest') }
 ext.coreModuleProjects = javaProjects - sampleProjects - itestProjects
 ext.aspectjProjects = [project(':spring-security-aspects'), project(':spring-security-samples-xml-aspectj'), project(':spring-security-samples-javaconfig-aspectj')]
