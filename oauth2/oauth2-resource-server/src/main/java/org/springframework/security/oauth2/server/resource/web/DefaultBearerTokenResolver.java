@@ -36,7 +36,9 @@ import org.springframework.util.StringUtils;
  */
 public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
-	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$");
+	private static final Pattern authorizationPattern = Pattern.compile(
+		"^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
+		Pattern.CASE_INSENSITIVE);
 
 	private boolean allowFormEncodedBodyParameter = false;
 
@@ -87,7 +89,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
 	private static String resolveFromAuthorizationHeader(HttpServletRequest request) {
 		String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-		if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer")) {
+		if (StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
 			Matcher matcher = authorizationPattern.matcher(authorization);
 
 			if (!matcher.matches()) {

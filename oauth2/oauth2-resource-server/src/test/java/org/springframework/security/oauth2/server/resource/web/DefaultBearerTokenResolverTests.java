@@ -52,6 +52,14 @@ public class DefaultBearerTokenResolverTests {
 	}
 
 	@Test
+	public void resolveWhenLowercaseHeaderIsPresentThenTokenIsResolved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("authorization", "bearer " + TEST_TOKEN);
+
+		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
+	}
+
+	@Test
 	public void resolveWhenNoHeaderIsPresentThenTokenIsNotResolved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
