@@ -93,6 +93,17 @@ public class ClaimAccessorTests {
 				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
 	}
 
+	// gh-6187
+	@Test
+	public void getClaimAsInstantWhenISODateStringThenReturnInstant() {
+		Instant expectedClaimValue = Instant.now();
+		String claimName = "isoDate";
+		this.claims.put(claimName, expectedClaimValue.toString());
+
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
+				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+	}
+
 	// gh-5608
 	@Test
 	public void getClaimAsStringWhenValueIsNullThenReturnNull() {

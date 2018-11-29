@@ -20,6 +20,7 @@ import org.springframework.util.Assert;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -98,8 +99,18 @@ public interface ClaimAccessor {
 		if (Instant.class.isAssignableFrom(claimValue.getClass())) {
 			return (Instant) claimValue;
 		}
+		if (String.class.isAssignableFrom(claimValue.getClass())) {
+			try {
+				return Instant.parse((String) claimValue);
+			}
+			catch(DateTimeParseException e){
+				throw new IllegalArgumentException("Unable to convert claim '" + claim +
+														   "' from string '" + claimValue + "' to Instant.");
+			}
+		}
 		throw new IllegalArgumentException("Unable to convert claim '" + claim +
-				"' of type '" + claimValue.getClass() + "' to Instant.");
+												   "' of type '" + claimValue.getClass() + "' to Instant.");
+
 	}
 
 	/**
