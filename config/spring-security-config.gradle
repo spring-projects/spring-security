@@ -73,9 +73,6 @@ dependencies {
 	testRuntime 'org.hsqldb:hsqldb'
 }
 
-test {
-	inputs.file file("$rootDir/docs/manual/src/docbook/appendix-namespace.xml")
-}
 
 rncToXsd {
 	rncDir = file('src/main/resources/org/springframework/security/config/')
