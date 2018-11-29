@@ -37,6 +37,7 @@ import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
@@ -154,7 +155,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 		String header = request.getHeader("Authorization");
 
-		if (header == null || !header.toLowerCase().startsWith("basic ")) {
+		if (!StringUtils.startsWithIgnoreCase(header, "basic ")) {
 			chain.doFilter(request, response);
 			return;
 		}
