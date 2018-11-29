@@ -16,6 +16,10 @@
 
 package org.springframework.security.config.web.server;
 
+import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
+import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
+import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.notMatch;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -154,10 +158,6 @@ import org.springframework.web.cors.reactive.DefaultCorsProcessor;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-
-import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.notMatch;
 
 /**
  * A {@link ServerHttpSecurity} is similar to Spring Security's {@code HttpSecurity} but for WebFlux.
@@ -883,6 +883,7 @@ public class ServerHttpSecurity {
 	public class OAuth2ResourceServerSpec {
 		private ServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
 		private ServerAccessDeniedHandler accessDeniedHandler = new BearerTokenServerAccessDeniedHandler();
+		private ServerAuthenticationConverter bearerTokenConverter = new ServerBearerTokenAuthenticationConverter();
 
 		private JwtSpec jwt;
 
@@ -912,6 +913,20 @@ public class ServerHttpSecurity {
 		public OAuth2ResourceServerSpec authenticationEntryPoint(ServerAuthenticationEntryPoint entryPoint) {
 			Assert.notNull(entryPoint, "entryPoint cannot be null");
 			this.entryPoint = entryPoint;
+			return this;
+		}
+
+		/**
+		 * Configures the {@link ServerAuthenticationConverter} to use for requests authenticating with
+		 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s.
+		 *
+		 * @param bearerTokenConverter The {@link ServerAuthenticationConverter} to use
+		 * @return The {@link OAuth2ResourceServerSpec} for additional configuration
+		 * @since 5.2
+		 */
+		public OAuth2ResourceServerSpec bearerTokenConverter(ServerAuthenticationConverter bearerTokenConverter) {
+			Assert.notNull(bearerTokenConverter, "bearerTokenConverter cannot be null");
+			this.bearerTokenConverter = bearerTokenConverter;
 			return this;
 		}
 
@@ -1003,8 +1018,6 @@ public class ServerHttpSecurity {
 			}
 
 			protected void configure(ServerHttpSecurity http) {
-				ServerBearerTokenAuthenticationConverter bearerTokenConverter =
-						new ServerBearerTokenAuthenticationConverter();
 				this.bearerTokenServerWebExchangeMatcher.setBearerTokenConverter(bearerTokenConverter);
 
 				registerDefaultAccessDeniedHandler(http);
@@ -1083,7 +1096,7 @@ public class ServerHttpSecurity {
 			}
 
 			private class BearerTokenServerWebExchangeMatcher implements ServerWebExchangeMatcher {
-				ServerBearerTokenAuthenticationConverter bearerTokenConverter;
+				ServerAuthenticationConverter bearerTokenConverter;
 
 				@Override
 				public Mono<MatchResult> matches(ServerWebExchange exchange) {
@@ -1092,7 +1105,7 @@ public class ServerHttpSecurity {
 							.onErrorResume(e -> notMatch());
 				}
 
-				public void setBearerTokenConverter(ServerBearerTokenAuthenticationConverter bearerTokenConverter) {
+				public void setBearerTokenConverter(ServerAuthenticationConverter bearerTokenConverter) {
 					Assert.notNull(bearerTokenConverter, "bearerTokenConverter cannot be null");
 					this.bearerTokenConverter = bearerTokenConverter;
 				}

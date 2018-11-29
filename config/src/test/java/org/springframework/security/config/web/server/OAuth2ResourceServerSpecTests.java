@@ -15,6 +15,15 @@
  */
 package org.springframework.security.config.web.server;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -27,14 +36,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.annotation.PreDestroy;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import org.apache.http.HttpHeaders;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -56,10 +65,12 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -70,14 +81,8 @@ import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.reactive.DispatcherHandler;
 import org.springframework.web.reactive.config.EnableWebFlux;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.hamcrest.core.StringStartsWith.startsWith;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 
 /**
  * Tests for {@link org.springframework.security.config.web.server.ServerHttpSecurity.OAuth2ResourceServerSpec}
@@ -223,6 +228,16 @@ public class OAuth2ResourceServerSpecTests {
 		this.client.post()
 				.exchange()
 				.expectStatus().isForbidden();
+	}
+
+	@Test
+	public void getWhenCustomBearerTokenServerAuthenticationConverterThenResponds() {
+		this.spring.register(CustomBearerTokenServerAuthenticationConverter.class, RootController.class).autowire();
+
+		this.client.get()
+				.cookie("TOKEN", this.messageReadToken)
+				.exchange()
+				.expectStatus().isOk();
 	}
 
 	@Test
@@ -426,6 +441,32 @@ public class OAuth2ResourceServerSpecTests {
 		@Bean
 		ReactiveAuthenticationManager authenticationManager() {
 			return mock(ReactiveAuthenticationManager.class);
+		}
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class CustomBearerTokenServerAuthenticationConverter {
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeExchange()
+					.anyExchange().hasAuthority("SCOPE_message:read")
+					.and()
+				.oauth2ResourceServer()
+					.bearerTokenConverter(bearerTokenAuthenticationConverter())
+					.jwt()
+						.publicKey(publicKey());
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		ServerAuthenticationConverter bearerTokenAuthenticationConverter() {
+			return exchange -> Mono.justOrEmpty(exchange.getRequest().getCookies().getFirst("TOKEN").getValue())
+					.map(BearerTokenAuthenticationToken::new);
 		}
 	}
 
