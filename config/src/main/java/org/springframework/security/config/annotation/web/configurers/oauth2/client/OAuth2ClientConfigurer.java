@@ -211,7 +211,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 		private OAuth2AuthorizationRequestRedirectFilter createAuthorizationRequestRedirectFilter(B builder) {
 			OAuth2AuthorizationRequestResolver resolver = getAuthorizationRequestResolver();
 			OAuth2AuthorizationRequestRedirectFilter authorizationRequestRedirectFilter =
-					new OAuth2AuthorizationRequestRedirectFilter(resolver,OAuth2ClientConfigurerUtils.getAuthorizationRequestRepository(builder));
+					new OAuth2AuthorizationRequestRedirectFilter(resolver, OAuth2ClientConfigurerUtils.getAuthorizationRequestRepository(builder));
 
 			if (this.authorizationRequestRepository != null) {
 				authorizationRequestRedirectFilter.setAuthorizationRequestRepository(this.authorizationRequestRepository);

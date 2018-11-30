@@ -45,7 +45,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
-import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
@@ -507,14 +506,15 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 		if (this.authorizationEndpointConfig.authorizationRequestResolver != null) {
 			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-					this.authorizationEndpointConfig.authorizationRequestResolver,OAuth2ClientConfigurerUtils.getAuthorizationRequestRepository(this.getBuilder()));
+					this.authorizationEndpointConfig.authorizationRequestResolver,
+					OAuth2ClientConfigurerUtils.getAuthorizationRequestRepository(this.getBuilder()));
 		} else {
 			String authorizationRequestBaseUri = this.authorizationEndpointConfig.authorizationRequestBaseUri;
 			if (authorizationRequestBaseUri == null) {
 				authorizationRequestBaseUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 			}
 			authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-					OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()), authorizationRequestBaseUri,OAuth2ClientConfigurerUtils.getAuthorizationRequestRepository(this.getBuilder()));
+					OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()), authorizationRequestBaseUri, OAuth2ClientConfigurerUtils.getAuthorizationRequestRepository(this.getBuilder()));
 		}
 
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
