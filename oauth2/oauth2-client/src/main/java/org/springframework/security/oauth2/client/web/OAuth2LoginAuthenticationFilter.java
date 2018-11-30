@@ -102,8 +102,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	private static final String CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE = "client_registration_not_found";
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private OAuth2AuthorizedClientRepository authorizedClientRepository;
-	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-		new HttpSessionOAuth2AuthorizationRequestRepository();
+	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
 	/**
 	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided parameters.
@@ -112,8 +111,9 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	 * @param authorizedClientService the authorized client service
 	 */
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
-											OAuth2AuthorizedClientService authorizedClientService) {
-		this(clientRegistrationRepository, authorizedClientService, DEFAULT_FILTER_PROCESSES_URI);
+											OAuth2AuthorizedClientService authorizedClientService,
+											AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+		this(clientRegistrationRepository, authorizedClientService, DEFAULT_FILTER_PROCESSES_URI,authorizationRequestRepository);
 	}
 
 	/**
@@ -125,9 +125,10 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	 */
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
 											OAuth2AuthorizedClientService authorizedClientService,
-											String filterProcessesUrl) {
+											String filterProcessesUrl,
+											AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		this(clientRegistrationRepository,
-				new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService), filterProcessesUrl);
+				new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService), filterProcessesUrl,authorizationRequestRepository);
 	}
 
 	/**
@@ -140,12 +141,15 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	 */
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
 											OAuth2AuthorizedClientRepository authorizedClientRepository,
-											String filterProcessesUrl) {
+											String filterProcessesUrl,
+											AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		super(filterProcessesUrl);
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
+		Assert.notNull(authorizationRequestRepository,"authorizationRequestRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientRepository = authorizedClientRepository;
+		this.authorizationRequestRepository=authorizationRequestRepository;
 	}
 
 	@Override

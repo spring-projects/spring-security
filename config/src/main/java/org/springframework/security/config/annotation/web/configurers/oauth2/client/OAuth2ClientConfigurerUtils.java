@@ -24,7 +24,10 @@ import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
@@ -95,5 +98,15 @@ final class OAuth2ClientConfigurerUtils {
 					authorizedClientServiceMap.size() + ": " + StringUtils.collectionToCommaDelimitedString(authorizedClientServiceMap.keySet()));
 		}
 		return (!authorizedClientServiceMap.isEmpty() ? authorizedClientServiceMap.values().iterator().next() : null);
+	}
+
+	static <B extends HttpSecurityBuilder<B>> AuthorizationRequestRepository<OAuth2AuthorizationRequest> getAuthorizationRequestRepository(B builder) {
+		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = builder
+				.getSharedObject(ApplicationContext.class).getBean(AuthorizationRequestRepository.class);
+		if (authorizationRequestRepository == null) {
+			authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
+			builder.setSharedObject(AuthorizationRequestRepository.class, authorizationRequestRepository);
+		}
+		return authorizationRequestRepository;
 	}
 }

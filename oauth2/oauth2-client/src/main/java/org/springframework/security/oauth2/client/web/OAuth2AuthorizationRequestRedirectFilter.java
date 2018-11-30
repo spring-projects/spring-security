@@ -56,9 +56,9 @@ import java.io.IOException;
  *
  * <p>
  * The default base {@code URI} {@code /oauth2/authorization} may be overridden
- * via the constructor {@link #OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository, String)},
+ * via the constructor {@link #OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository, String,AuthorizationRequestRepository)},
  * or alternatively, an {@code OAuth2AuthorizationRequestResolver} may be provided to the constructor
- * {@link #OAuth2AuthorizationRequestRedirectFilter(OAuth2AuthorizationRequestResolver)}
+ * {@link #OAuth2AuthorizationRequestRedirectFilter(OAuth2AuthorizationRequestResolver,AuthorizationRequestRepository)}
  * to override the resolving of authorization requests.
 
  * @author Joe Grandja
@@ -69,6 +69,7 @@ import java.io.IOException;
  * @see AuthorizationRequestRepository
  * @see ClientRegistration
  * @see ClientRegistrationRepository
+ * @see AuthorizationRequestRepository
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Request (Authorization Code)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2">Section 4.2 Implicit Grant</a>
@@ -82,8 +83,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	private final ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
 	private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
-	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
-		new HttpSessionOAuth2AuthorizationRequestRepository();
+	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 	private RequestCache requestCache = new HttpSessionRequestCache();
 
 	/**
@@ -91,8 +91,9 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	 *
 	 * @param clientRegistrationRepository the repository of client registrations
 	 */
-	public OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository) {
-		this(clientRegistrationRepository, DEFAULT_AUTHORIZATION_REQUEST_BASE_URI);
+	public OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository,
+													AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+		this(clientRegistrationRepository, DEFAULT_AUTHORIZATION_REQUEST_BASE_URI,authorizationRequestRepository);
 	}
 
 	/**
@@ -102,11 +103,14 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	 * @param authorizationRequestBaseUri the base {@code URI} used for authorization requests
 	 */
 	public OAuth2AuthorizationRequestRedirectFilter(ClientRegistrationRepository clientRegistrationRepository,
-													String authorizationRequestBaseUri) {
+													String authorizationRequestBaseUri,
+													AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
+		Assert.notNull(authorizationRequestRepository,"authorizationRequestRepository cannot be null");
 		this.authorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(
 				clientRegistrationRepository, authorizationRequestBaseUri);
+		this.authorizationRequestRepository=authorizationRequestRepository;
 	}
 
 	/**
@@ -115,9 +119,12 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	 * @since 5.1
 	 * @param authorizationRequestResolver the resolver used for resolving authorization requests
 	 */
-	public OAuth2AuthorizationRequestRedirectFilter(OAuth2AuthorizationRequestResolver authorizationRequestResolver) {
+	public OAuth2AuthorizationRequestRedirectFilter(OAuth2AuthorizationRequestResolver authorizationRequestResolver,
+													AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");
+		Assert.notNull(authorizationRequestRepository,"authorizationRequestRepository cannot be null");
 		this.authorizationRequestResolver = authorizationRequestResolver;
+		this.authorizationRequestRepository=authorizationRequestRepository;
 	}
 
 	/**
