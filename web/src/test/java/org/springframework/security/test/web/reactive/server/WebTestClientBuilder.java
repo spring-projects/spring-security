@@ -43,6 +43,14 @@ public class WebTestClientBuilder {
 		return bindToWebFilters(new WebFilterChainProxy(securityWebFilterChain));
 	}
 
+	public static Builder bindToControllerAndWebFilters(Class<?> controller, WebFilter... webFilters) {
+		return WebTestClient.bindToController(controller).webFilter(webFilters).configureClient();
+	}
+
+	public static Builder bindToControllerAndWebFilters(Class<?> controller, SecurityWebFilterChain securityWebFilterChain) {
+		return bindToControllerAndWebFilters(controller, new WebFilterChainProxy(securityWebFilterChain));
+	}
+
 	@RestController
 	public static class Http200RestController {
 		@RequestMapping("/**")
@@ -51,4 +59,5 @@ public class WebTestClientBuilder {
 			return "ok";
 		}
 	}
+
 }

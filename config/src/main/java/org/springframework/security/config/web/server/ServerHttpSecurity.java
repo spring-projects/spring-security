@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.UUID;
 
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
@@ -158,6 +159,9 @@ import org.springframework.web.cors.reactive.DefaultCorsProcessor;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  * A {@link ServerHttpSecurity} is similar to Spring Security's {@code HttpSecurity} but for WebFlux.
@@ -263,6 +267,8 @@ public class ServerHttpSecurity {
 	private ApplicationContext context;
 
 	private Throwable built;
+
+	private AnonymousSpec anonymous;
 
 	/**
 	 * The ServerExchangeMatcher that determines which requests apply to this HttpSecurity instance.
@@ -423,6 +429,29 @@ public class ServerHttpSecurity {
 			this.cors = new CorsSpec();
 		}
 		return this.cors;
+	}
+
+	/**
+	 * @since 5.2.0
+	 * @author Ankur Pathak
+	 * Enables and Configures annonymous authentication. Anonymous Authentication is disabled by default.
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	 *      http
+	 *          // ...
+	 *          .anonymous().key("key")
+	 *          .authorities("ROLE_ANONYMOUS");
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 */
+	public AnonymousSpec anonymous(){
+		if (this.anonymous == null) {
+			this.anonymous = new AnonymousSpec();
+		}
+		return this.anonymous;
 	}
 
 	/**
@@ -1355,6 +1384,9 @@ public class ServerHttpSecurity {
 		}
 		if (this.client != null) {
 			this.client.configure(this);
+		}
+		if (this.anonymous != null) {
+			this.anonymous.configure(this);
 		}
 		this.loginPage.configure(this);
 		if (this.logout != null) {
@@ -2588,5 +2620,125 @@ public class ServerHttpSecurity {
 			return chain.filter(exchange)
 					.subscriberContext(Context.of(ServerWebExchange.class, exchange));
 		}
+	}
+
+	/**
+	 * Configures annonymous authentication
+	 * @author Ankur Pathak
+	 * @since 5.2.0
+	 */
+	public final class AnonymousSpec {
+		private String key;
+		private AnonymousAuthenticationWebFilter authenticationFilter;
+		private Object principal = "anonymousUser";
+		private List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
+
+		/**
+		 * Sets the key to identify tokens created for anonymous authentication. Default is a
+		 * secure randomly generated key.
+		 *
+		 * @param key the key to identify tokens created for anonymous authentication. Default
+		 * is a secure randomly generated key.
+		 * @return the {@link AnonymousSpec} for further customization of anonymous
+		 * authentication
+		 */
+		public AnonymousSpec key(String key) {
+			this.key = key;
+			return this;
+		}
+
+		/**
+		 * Sets the principal for {@link Authentication} objects of anonymous users
+		 *
+		 * @param principal used for the {@link Authentication} object of anonymous users
+		 * @return the {@link AnonymousSpec} for further customization of anonymous
+		 * authentication
+		 */
+		public AnonymousSpec principal(Object principal) {
+			this.principal = principal;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link org.springframework.security.core.Authentication#getAuthorities()}
+		 * for anonymous users
+		 *
+		 * @param authorities Sets the
+		 * {@link org.springframework.security.core.Authentication#getAuthorities()} for
+		 * anonymous users
+		 * @return the {@link AnonymousSpec} for further customization of anonymous
+		 * authentication
+		 */
+		public AnonymousSpec authorities(List<GrantedAuthority> authorities) {
+			this.authorities = authorities;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link org.springframework.security.core.Authentication#getAuthorities()}
+		 * for anonymous users
+		 *
+		 * @param authorities Sets the
+		 * {@link org.springframework.security.core.Authentication#getAuthorities()} for
+		 * anonymous users (i.e. "ROLE_ANONYMOUS")
+		 * @return the {@link AnonymousSpec} for further customization of anonymous
+		 * authentication
+		 */
+		public AnonymousSpec authorities(String... authorities) {
+			return authorities(AuthorityUtils.createAuthorityList(authorities));
+		}
+
+		/**
+		 * Sets the {@link AnonymousAuthenticationWebFilter} used to populate an anonymous user.
+		 * If this is set, no attributes on the {@link AnonymousSpec} will be set on the
+		 * {@link AnonymousAuthenticationWebFilter}.
+		 *
+		 * @param authenticationFilter the {@link AnonymousAuthenticationWebFilter} used to
+		 * populate an anonymous user.
+		 *
+		 * @return the {@link AnonymousSpec} for further customization of anonymous
+		 * authentication
+		 */
+		public AnonymousSpec authenticationFilter(
+				AnonymousAuthenticationWebFilter authenticationFilter) {
+			this.authenticationFilter = authenticationFilter;
+			return this;
+		}
+
+		/**
+		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
+		 * @return the {@link ServerHttpSecurity} to continue configuring
+		 */
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		/**
+		 * Disables anonymous authentication.
+		 * @return the {@link ServerHttpSecurity} to continue configuring
+		 */
+		public ServerHttpSecurity disable() {
+			ServerHttpSecurity.this.anonymous = null;
+			return ServerHttpSecurity.this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			if (authenticationFilter == null) {
+				authenticationFilter = new AnonymousAuthenticationWebFilter(getKey(), principal,
+						authorities);
+			}
+			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.ANONYMOUS_AUTHENTICATION);
+		}
+
+		private String getKey() {
+			if (key == null) {
+				key = UUID.randomUUID().toString();
+			}
+			return key;
+		}
+
+
+		private AnonymousSpec() {}
+
 	}
 }

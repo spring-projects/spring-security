@@ -48,6 +48,10 @@ public enum SecurityWebFiltersOrder {
 	 */
 	FORM_LOGIN,
 	AUTHENTICATION,
+	/**
+	 * Instance of AnonymousAuthenticationWebFilter
+	 */
+	ANONYMOUS_AUTHENTICATION,
 	OAUTH2_AUTHORIZATION_CODE,
 	LOGIN_PAGE_GENERATING,
 	LOGOUT_PAGE_GENERATING,
