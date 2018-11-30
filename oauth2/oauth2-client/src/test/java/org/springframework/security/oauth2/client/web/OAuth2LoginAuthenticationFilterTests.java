@@ -94,7 +94,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		this.failureHandler = mock(AuthenticationFailureHandler.class);
 		this.authenticationManager = mock(AuthenticationManager.class);
 		this.filter = spy(new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository,
-				this.authorizedClientRepository, OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI));
+				this.authorizedClientRepository, OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI,authorizationRequestRepository));
 		this.filter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 		this.filter.setAuthenticationFailureHandler(this.failureHandler);
 		this.filter.setAuthenticationManager(this.authenticationManager);
@@ -102,26 +102,26 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(null, this.authorizedClientService))
+		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(null, this.authorizedClientService,authorizationRequestRepository))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorWhenAuthorizedClientServiceIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository, null))
+		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository, null,authorizationRequestRepository))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorWhenAuthorizedClientRepositoryIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository,
-				(OAuth2AuthorizedClientRepository) null, OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI))
+				(OAuth2AuthorizedClientRepository) null, OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI,authorizationRequestRepository))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void constructorWhenFilterProcessesUrlIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository, this.authorizedClientRepository, null))
+		assertThatThrownBy(() -> new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository, this.authorizedClientRepository, null,authorizationRequestRepository))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -279,7 +279,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 	public void doFilterWhenCustomFilterProcessesUrlThenFilterProcesses() throws Exception {
 		String filterProcessesUrl = "/login/oauth2/custom/*";
 		this.filter = spy(new OAuth2LoginAuthenticationFilter(
-			this.clientRegistrationRepository, this.authorizedClientRepository, filterProcessesUrl));
+			this.clientRegistrationRepository, this.authorizedClientRepository, filterProcessesUrl,authorizationRequestRepository));
 		this.filter.setAuthenticationManager(this.authenticationManager);
 
 		String requestUri = "/login/oauth2/custom/" + this.registration2.getRegistrationId();

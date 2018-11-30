@@ -57,6 +57,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private OAuth2AuthorizationRequestRedirectFilter filter;
 	private RequestCache requestCache;
+	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
 	@Before
 	public void setUp() {
@@ -69,15 +70,17 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 			.build();
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(
 			this.registration1, this.registration2, this.registration3);
-		this.filter = new OAuth2AuthorizationRequestRedirectFilter(this.clientRegistrationRepository);
+		this.authorizationRequestRepository=mock(AuthorizationRequestRepository.class);
+		this.filter = new OAuth2AuthorizationRequestRedirectFilter(this.clientRegistrationRepository,this.authorizationRequestRepository);
 		this.requestCache = mock(RequestCache.class);
 		this.filter.setRequestCache(this.requestCache);
+
 	}
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
 		Constructor<OAuth2AuthorizationRequestRedirectFilter> constructor = ClassUtils.getConstructorIfAvailable(
-				OAuth2AuthorizationRequestRedirectFilter.class, ClientRegistrationRepository.class);
+				OAuth2AuthorizationRequestRedirectFilter.class, ClientRegistrationRepository.class,AuthorizationRequestRepository.class);
 		assertThatThrownBy(() -> constructor.newInstance(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
@@ -91,7 +94,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	@Test
 	public void constructorWhenAuthorizationRequestResolverIsNullThenThrowIllegalArgumentException() {
 		Constructor<OAuth2AuthorizationRequestRedirectFilter> constructor = ClassUtils.getConstructorIfAvailable(
-				OAuth2AuthorizationRequestRedirectFilter.class, OAuth2AuthorizationRequestResolver.class);
+				OAuth2AuthorizationRequestRedirectFilter.class, OAuth2AuthorizationRequestResolver.class,AuthorizationRequestRepository.class);
 		assertThatThrownBy(() -> constructor.newInstance(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
@@ -213,7 +216,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	@Test
 	public void doFilterWhenCustomAuthorizationRequestBaseUriThenRedirectForAuthorization() throws Exception {
 		String authorizationRequestBaseUri = "/custom/authorization";
-		this.filter = new OAuth2AuthorizationRequestRedirectFilter(this.clientRegistrationRepository, authorizationRequestBaseUri);
+		this.filter = new OAuth2AuthorizationRequestRedirectFilter(this.clientRegistrationRepository, authorizationRequestBaseUri,authorizationRequestRepository);
 
 		String requestUri = authorizationRequestBaseUri + "/" + this.registration1.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
@@ -259,7 +262,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 				.when(filterChain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 
 		OAuth2AuthorizationRequestResolver resolver = mock(OAuth2AuthorizationRequestResolver.class);
-		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
+		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver,authorizationRequestRepository);
 
 		filter.doFilter(request, response, filterChain);
 
@@ -292,7 +295,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 						Collections.singletonMap("idp", request.getParameter("idp")))
 				.build();
 		when(resolver.resolve(any())).thenReturn(result);
-		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
+		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver,authorizationRequestRepository);
 
 		filter.doFilter(request, response, filterChain);
 
@@ -333,7 +336,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 				.build();
 		when(resolver.resolve(any())).thenReturn(result);
 
-		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
+		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver,authorizationRequestRepository);
 
 		filter.doFilter(request, response, filterChain);
 
