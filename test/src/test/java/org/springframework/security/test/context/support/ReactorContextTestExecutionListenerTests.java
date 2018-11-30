@@ -181,7 +181,8 @@ public class ReactorContextTestExecutionListenerTests {
 		Hooks.onLastOperator("CUSTOM_HOOK", p -> Mono.just(obj));
 		this.listener.afterTestMethod(this.testContext);
 
-		assertThat(Mono.subscriberContext().block()).isEqualTo(obj);
+		Object result = Mono.subscriberContext().block();
+		assertThat(result).isEqualTo(obj);
 	}
 
 	@Test
