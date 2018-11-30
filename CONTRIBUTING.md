@@ -125,7 +125,7 @@ Update the [RELAX NG](http://www.relaxng.org) schema `spring-security-x.y.rnc` i
 Changes to the XML schema will be overwritten by the Gradle build task.
 
 # Squash commits
-Use git rebase --interactive, git add --patch and other tools to "squash" multiple commits into atomic changes. In addition to the man pages for git, there are many resources online to help you understand how these tools work. Here is one: http://book.git-scm.com/4_interactive_rebasing.html.
+Use `git rebase --interactive`, `git add --patch` and other tools to "squash" multiple commits into atomic changes. In addition to the man pages for git, there are many resources online to help you understand how these tools work. Here from the [Git SCM Book](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History).
 
 # Use real name in git commits
 Please configure git to use your real first and last name for any commits you intend to submit as pull requests. For example, this is not acceptable:
