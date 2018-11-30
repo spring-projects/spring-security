@@ -31,7 +31,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
@@ -115,7 +114,7 @@ import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUr
  * @since 5.1
  * @see BearerTokenAuthenticationFilter
  * @see JwtAuthenticationProvider
- * @see NimbusJwtDecoderJwkSupport
+ * @see NimbusJwtDecoder
  * @see AbstractHttpConfigurer
  */
 public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<H>> extends
