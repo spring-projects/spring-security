@@ -289,6 +289,32 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Adds a {@link WebFilter} before specific position.
+	 * @param webFilter the {@link WebFilter} to add
+	 * @param order the place before which to insert the {@link WebFilter}
+	 * @return the {@link ServerHttpSecurity} to continue configuring
+	 * @since 5.2.0
+	 * @author Ankur Pathak
+	 */
+	public ServerHttpSecurity addFilterBefore(WebFilter webFilter, SecurityWebFiltersOrder order) {
+		this.webFilters.add(new OrderedWebFilter(webFilter, order.getOrder() - 1));
+		return this;
+	}
+
+	/**
+	 * Adds a {@link WebFilter} after specific position.
+	 * @param webFilter the {@link WebFilter} to add
+	 * @param order the place after which to insert the {@link WebFilter}
+	 * @return the {@link ServerHttpSecurity} to continue configuring
+	 * @since 5.2.0
+	 * @author Ankur Pathak
+	 */
+	public ServerHttpSecurity addFilterAfter(WebFilter webFilter, SecurityWebFiltersOrder order) {
+		this.webFilters.add(new OrderedWebFilter(webFilter, order.getOrder() + 1));
+		return this;
+	}
+
+	/**
 	 * Gets the ServerExchangeMatcher that determines which requests apply to this HttpSecurity instance.
 	 * @return the ServerExchangeMatcher that determines which requests apply to this HttpSecurity instance.
 	 */
