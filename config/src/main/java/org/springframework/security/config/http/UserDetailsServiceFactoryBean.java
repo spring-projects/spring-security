@@ -25,7 +25,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.security.config.authentication.AbstractUserDetailsServiceBeanDefinitionParser;
-import org.springframework.security.config.authentication.CachingUserDetailsService;
+import org.springframework.security.authentication.CachingUserDetailsService;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -24,6 +24,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.authentication.CachingUserDetailsService;
 import org.springframework.security.config.BeanIds;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;

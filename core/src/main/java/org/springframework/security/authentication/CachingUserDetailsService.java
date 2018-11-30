@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.authentication;
+package org.springframework.security.authentication;
 
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +30,7 @@ public class CachingUserDetailsService implements UserDetailsService {
 	private UserCache userCache = new NullUserCache();
 	private final UserDetailsService delegate;
 
-	CachingUserDetailsService(UserDetailsService delegate) {
+	public CachingUserDetailsService(UserDetailsService delegate) {
 		this.delegate = delegate;
 	}
 
