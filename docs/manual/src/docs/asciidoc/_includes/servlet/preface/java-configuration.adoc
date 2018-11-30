@@ -606,7 +606,7 @@ Or, exposing a `JwtDecoder` `@Bean` has the same effect as `decoder()`:
 ```java
 @Bean
 public JwtDecoder jwtDecoder() {
-    return new NimbusJwtDecoderJwkSupport(jwkSetUri);
+    return new NimbusJwtDecoder(JwtProcessors.withJwkSetUri(jwkSetUri).build());
 }
 ```
 
@@ -719,7 +719,7 @@ Resource Server uses `JwtTimestampValidator` to verify a token's validity window
 ```java
 @Bean
 JwtDecoder jwtDecoder() {
-     NimbusJwtDecoderJwkSupport jwtDecoder = (NimbusJwtDecoderJwkSupport)
+     NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)
              JwtDecoders.withOidcIssuerLocation(issuerUri);
 
      OAuth2TokenValidator<Jwt> withClockSkew = new DelegatingOAuth2TokenValidator<>(
@@ -759,7 +759,7 @@ Then, to add into a resource server, it's a matter of specifying the `JwtDecoder
 ```java
 @Bean
 JwtDecoder jwtDecoder() {
-    NimbusJwtDecoderJwkSupport jwtDecoder = (NimbusJwtDecoderJwkSupport)
+    NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)
         JwtDecoders.withOidcIssuerLocation(issuerUri);
 
     OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator();
@@ -807,11 +807,11 @@ An individual claim's conversion strategy can be configured using `MappedJwtClai
 ```java
 @Bean
 JwtDecoder jwtDecoder() {
-    NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUri);
+    NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(JwtProcessors.withJwkSetUri(jwkSetUri).build());
 
     MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
             .withDefaults(Collections.singletonMap("sub", this::lookupUserIdBySub));
-    jwtDecoder.setJwtClaimSetConverter(converter);
+    jwtDecoder.setClaimSetConverter(converter);
 
     return jwtDecoder;
 }
@@ -862,8 +862,8 @@ And then, the instance can be supplied like normal:
 ```java
 @Bean
 JwtDecoder jwtDecoder() {
-    NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUri);
-    jwtDecoder.setJwtClaimSetConverter(new UsernameSubClaimAdapter());
+    NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(JwtProcessors.withJwkSetUri(jwkSetUri).build());
+    jwtDecoder.setClaimSetConverter(new UsernameSubClaimAdapter());
     return jwtDecoder;
 }
 ```
@@ -876,7 +876,7 @@ By default, Resource Server uses connection and socket timeouts of 30 seconds ea
 This may be too short in some scenarios.
 Further, it doesn't take into account more sophisticated patterns like back-off and discovery.
 
-To adjust the way in which Resource Server connects to the authorization server, `NimbusJwtDecoderJwkSupport` accepts an instance of `RestOperations`:
+To adjust the way in which Resource Server connects to the authorization server, `NimbusJwtDecoder` accepts an instance of `RestOperations`:
 
 ```java
 @Bean
@@ -886,8 +886,7 @@ public JwtDecoder jwtDecoder(RestTemplateBuilder builder) {
             .setReadTimeout(60000)
             .build();
 
-    NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUri);
-    jwtDecoder.setRestOperations(rest);
+    NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(JwtProcessors.withJwkSetUri(jwkSetUri).restOperations(rest).build());
     return jwtDecoder;
 }
 ```
