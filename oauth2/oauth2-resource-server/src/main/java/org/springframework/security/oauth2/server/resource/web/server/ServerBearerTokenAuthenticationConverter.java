@@ -43,7 +43,9 @@ import java.util.regex.Pattern;
  */
 public class ServerBearerTokenAuthenticationConverter
 		implements ServerAuthenticationConverter {
-	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$");
+	private static final Pattern authorizationPattern = Pattern.compile(
+		"^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
+		Pattern.CASE_INSENSITIVE);
 
 	private boolean allowUriQueryParameter = false;
 
@@ -85,7 +87,7 @@ public class ServerBearerTokenAuthenticationConverter
 
 	private static String resolveFromAuthorizationHeader(HttpHeaders headers) {
 		String authorization = headers.getFirst(HttpHeaders.AUTHORIZATION);
-		if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer")) {
+		if (StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
 			Matcher matcher = authorizationPattern.matcher(authorization);
 
 			if ( !matcher.matches() ) {

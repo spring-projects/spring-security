@@ -53,6 +53,15 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	}
 
 	@Test
+	public void resolveWhenLowercaseHeaderIsPresentThenTokenIsResolved() {
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest
+				.get("/")
+				.header(HttpHeaders.AUTHORIZATION, "bearer " + TEST_TOKEN);
+
+		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
+	}
+
+	@Test
 	public void resolveWhenNoHeaderIsPresentThenTokenIsNotResolved() {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest
 				.get("/");
