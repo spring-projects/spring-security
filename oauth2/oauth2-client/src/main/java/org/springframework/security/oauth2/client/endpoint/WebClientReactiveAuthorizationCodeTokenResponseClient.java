@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExch
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors.oauth2AccessTokenResponse;
@@ -48,11 +49,18 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient implements Re
 	private WebClient webClient = WebClient.builder()
 			.build();
 
+	/**
+	 * @param webClient the webClient to set
+	 */
+	public void setWebClient(WebClient webClient) {
+		Assert.notNull(webClient, "webClient cannot be null");
+		this.webClient = webClient;
+	}
+
 	@Override
 	public Mono<OAuth2AccessTokenResponse> getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 		return Mono.defer(() -> {
 			ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
-
 			OAuth2AuthorizationExchange authorizationExchange = authorizationGrantRequest.getAuthorizationExchange();
 			String tokenUri = clientRegistration.getProviderDetails().getTokenUri();
 			BodyInserters.FormInserter<String> body = body(authorizationExchange);

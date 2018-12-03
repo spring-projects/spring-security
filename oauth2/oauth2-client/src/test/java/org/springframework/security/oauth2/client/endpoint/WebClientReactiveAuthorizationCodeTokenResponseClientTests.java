@@ -32,11 +32,13 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Rob Winch
@@ -258,5 +260,32 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		return new MockResponse()
 			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 			.setBody(json);
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void setWebClientNullThenIllegalArgumentException(){
+		tokenResponseClient.setWebClient(null);
+	}
+
+	@Test
+	public void setCustomWebClientThenCustomWebClientIsUsed() {
+		WebClient customClient = mock(WebClient.class);
+		when(customClient.post()).thenReturn(WebClient.builder().build().post());
+
+		tokenResponseClient.setWebClient(customClient);
+
+		String accessTokenSuccessResponse = "{\n" +
+				"	\"access_token\": \"access-token-1234\",\n" +
+				"   \"token_type\": \"bearer\",\n" +
+				"   \"expires_in\": \"3600\",\n" +
+				"   \"scope\": \"openid profile\"\n" +
+				"}\n";
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+
+		this.clientRegistration.scope("openid", "profile", "email", "address");
+
+		OAuth2AccessTokenResponse response = this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block();
+
+		verify(customClient, atLeastOnce()).post();
 	}
 }
