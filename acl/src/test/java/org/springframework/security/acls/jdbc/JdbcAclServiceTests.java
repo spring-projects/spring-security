@@ -15,7 +15,7 @@
  */
 package org.springframework.security.acls.jdbc;
 
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -57,8 +57,8 @@ public class JdbcAclServiceTests {
 	public void readAclByIdMissingAcl() {
 		Map<ObjectIdentity, Acl> result = new HashMap<>();
 		when(
-				lookupStrategy.readAclsById(anyListOf(ObjectIdentity.class),
-						anyListOf(Sid.class))).thenReturn(result);
+				lookupStrategy.readAclsById(anyList(),
+						anyList())).thenReturn(result);
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(Object.class, 1);
 		List<Sid> sids = Arrays.<Sid> asList(new PrincipalSid("user"));
 
