@@ -16,27 +16,26 @@
 
 package org.springframework.security.authentication;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -55,6 +54,9 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 	@Mock
 	private Scheduler scheduler;
+
+	@Mock
+	private UserDetailsChecker postAuthenticationChecks;
 
 	private UserDetails user = User.withUsername("user")
 		.password("password")
@@ -139,5 +141,34 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		Authentication result = this.manager.authenticate(token).block();
 
 		verifyZeroInteractions(this.userDetailsPasswordService);
+	}
+
+	@Test
+	public void authenticateWhenPostAuthenticationChecksFail() {
+		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
+		doThrow(new LockedException("account is locked")).when(this.postAuthenticationChecks).check(any());
+		when(this.encoder.matches(any(), any())).thenReturn(true);
+		this.manager.setPasswordEncoder(this.encoder);
+		this.manager.setPostAuthenticationChecks(this.postAuthenticationChecks);
+
+		assertThatExceptionOfType(LockedException.class)
+				.isThrownBy(() -> this.manager.authenticate(new UsernamePasswordAuthenticationToken(this.user, this.user.getPassword())).block())
+				.withMessage("account is locked");
+
+		verify(this.postAuthenticationChecks).check(eq(this.user));
+	}
+
+	@Test
+	public void authenticateWhenPostAuthenticationChecksNotSet() {
+		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(this.user));
+		when(this.encoder.matches(any(), any())).thenReturn(true);
+		this.manager.setPasswordEncoder(this.encoder);
+
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				this.user, this.user.getPassword());
+
+		this.manager.authenticate(token).block();
+
+		verifyZeroInteractions(this.postAuthenticationChecks);
 	}
 }

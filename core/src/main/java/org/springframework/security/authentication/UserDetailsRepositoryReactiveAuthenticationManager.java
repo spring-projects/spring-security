@@ -16,16 +16,17 @@
 
 package org.springframework.security.authentication;
 
-import org.springframework.security.core.Authentication;
-
-import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ReactiveAuthenticationManager} that uses a {@link ReactiveUserDetailsService} to validate the provided
@@ -42,6 +43,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManager implements React
 	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
 
 	private Scheduler scheduler = Schedulers.parallel();
+
+	private UserDetailsChecker postAuthenticationChecks = userDetails -> {};
 
 	public UserDetailsRepositoryReactiveAuthenticationManager(ReactiveUserDetailsService userDetailsService) {
 		Assert.notNull(userDetailsService, "userDetailsService cannot be null");
@@ -65,6 +68,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManager implements React
 					}
 					return Mono.just(u);
 				})
+				.doOnNext(this.postAuthenticationChecks::check)
 				.map(u -> new UsernamePasswordAuthenticationToken(u, u.getPassword(), u.getAuthorities()) );
 	}
 
@@ -101,5 +105,17 @@ public class UserDetailsRepositoryReactiveAuthenticationManager implements React
 	public void setUserDetailsPasswordService(
 			ReactiveUserDetailsPasswordService userDetailsPasswordService) {
 		this.userDetailsPasswordService = userDetailsPasswordService;
+	}
+
+	/**
+	 * Sets the strategy which will be used to validate the loaded <tt>UserDetails</tt>
+	 * object after authentication occurs.
+	 *
+	 * @param postAuthenticationChecks The {@link UserDetailsChecker}
+	 * @since 5.2
+	 */
+	public void setPostAuthenticationChecks(UserDetailsChecker postAuthenticationChecks) {
+		Assert.notNull(this.postAuthenticationChecks, "postAuthenticationChecks cannot be null");
+		this.postAuthenticationChecks = postAuthenticationChecks;
 	}
 }
