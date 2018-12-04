@@ -20,6 +20,7 @@ Typically, these are done to provide improved security to match modern security 
 As most open source projects, Spring Security deploys its dependencies as Maven artifacts.
 The topics in this section provide detail on how to consume Spring Security when using Maven.
 
+[[getting-boot-maven]]
 === Spring Boot with Maven
 
 Spring Boot provides a `spring-boot-starter-security` starter that aggregates Spring Security-related dependencies together.
@@ -190,12 +191,13 @@ If you use a milestone or release candidate version, you need to ensure that you
 ----
 ====
 
-[[gradle]]
+[[getting-gradle]]
 == Gradle
 
 As most open source projects, Spring Security deploys its dependencies as Maven artifacts, which allows for for first-class Gradle support.
 The following topics provide detail on how to consume Spring Security when using Gradle.
 
+[[getting-gradle-boot]]
 === Spring Boot with Gradle
 
 Spring Boot provides a `spring-boot-starter-security` starter that aggregates Spring Security related dependencies together.

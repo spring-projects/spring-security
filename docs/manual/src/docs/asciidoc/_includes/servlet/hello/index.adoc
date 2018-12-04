@@ -3,6 +3,6 @@
 In this section we discuss a minimal Spring Security application using <<hello-jc,Java Configuration>> and <<hello-xml,XML Configuration>>.
 // FIXME add Spring Boot
 
+include::boot.adoc[leveloffset=+1]
 include::java-configuration.adoc[leveloffset=+1]
-
 include::xml-configuration.adoc[leveloffset=+1]

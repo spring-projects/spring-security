@@ -1,7 +1,7 @@
 [[servlet-hello-boot]]
 = Hello Spring Security (Boot)
 
-In this section we will discuss how to use Spring Security using Spring Boot.
+In this section we will discuss the minimum setup in how to use Spring Security with Spring Boot.
 
 [NOTE]
 ====
@@ -9,46 +9,26 @@ The completed application can be found at {gh-samples-url}/boot/helloworld[sampl
 ====
 // FIXME: Link to XML and Boot
 
-[[servlet-hello-jc-ews]]
-== A Minimal @EnableWebSecurity Configuration
+[[servlet-hello-boot-dependencies]]
+== Updating Dependencies
 
-The first step is to create our Spring Security Java Configuration.
-The configuration creates a Servlet `Filter` known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
-You can find the most basic example of a Spring Security Java Configuration below:
+The only necessary step is to update the dependencies using <<getting-maven-boot,Maven>> or <<getting-gradle-boot,Gradle>>.
 
-.WebSecurity.java
-====
-[source,java]
-----
-import org.springframework.context.annotation.*;
-import org.springframework.security.config.annotation.web.configuration.*;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.security.provisioning.*;
+[[servlet-hello-boot-auto-configuration]]
+== Spring Boot Auto Configuration
 
-@EnableWebSecurity
-public class WebSecurityConfig {
+Spring Boot will automatically
 
-	// @formatter:off
-	@Bean
-	public UserDetailsService userDetailsService() {
-		UserDetails user = User.withDefaultPasswordEncoder()
-			.username("user")
-			.password("password")
-			.roles("USER")
-			.build();
-		return  new InMemoryUserDetailsManager(user);
-	}
-	// @formatter:on
-}
-----
-====
+* Enable Spring Security's default configuration which creates a Servlet `Filter` as a Bean named `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
+* Create a `UserDetailsService` Bean with a username of `user` and a randomly generated password that is logged to the console
+* Register the `Filter` with Bean name `springSecurityFilterChain` with the Servlet container for every request.
 
-There really isn't much to this configuration, but it does a lot.
+Spring Boot isn't configuring much, but it does a lot.
 You can find a summary of the features below:
 
 * Require an authenticated user for any interaction with the application
 * Generate a default login form for you
-* Allow the user with the *Username* _user_ and the *Password* _password_ to authenticate with form based authentication
+* Allow the user with the *Username* _user_ and the *Password* that is logged to the console to authenticate with form based authentication
 * Protects the password storage with BCrypt
 * Allow the user to logout
 * http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
@@ -65,69 +45,3 @@ You can find a summary of the features below:
 ** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.html#isUserInRole(java.lang.String)]
 ** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html#login(java.lang.String, java.lang.String)]
 ** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html#logout()]
-
-// FIXME: After completed rewriting, link to all the sections of doc that this relates to
-
-== AbstractSecurityWebApplicationInitializer
-
-The next step is to register the `springSecurityFilterChain` with the war.
-Spring Security provides a base class `AbstractSecurityWebApplicationInitializer` that leverages https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-servlet[Spring's WebApplicationInitializer support].
-
-An example configuration can be seen below:
-
-
-.SecurityInitializer.java
-====
-[source,java]
-----
-import org.springframework.security.web.context.*;
-
-public class SecurityInitializer
-	extends AbstractSecurityWebApplicationInitializer {
-
-	public SecurityInitializer() {
-		super(WebSecurityConfig.class);
-	}
-}
-----
-====
-
-The `SecurityInitializer` will do the following things:
-
-* Add a `ContextLoaderListener` that loads the <<servlet-hello-ews,WebSecurityConfig>>.
-* Finds the Bean of type `Filter` named `springSecurityFilterChain` and registers it to process every URL in the application
-
-
-[NOTE]
-====
-If you are integrating with a Spring MVC application, be sure to configure the `DispatcherServlet` to load the configuration from the root `ApplicationContext` as shown below:
-
-.MvcInitializer.java
-[source,java]
-----
-public class MvcInitializer extends
-		AbstractAnnotationConfigDispatcherServletInitializer {
-
-	// the Root Config is registered in SecurityInitializer
-	@Override
-	protected Class<?>[] getRootConfigClasses() {
-		return null;
-	}
-
-	// the Spring MVC configuration should be added to SecurityInitializer constructor
-	// i.e.
-	// super(MvcConfig.class, WebSecurityConfig.class);
-	@Override
-	protected Class<?>[] getServletConfigClasses() {
-		return null;
-	}
-
-	@Override
-	protected String[] getServletMappings() {
-		return new String[] { "/" };
-	}
-
-}
-
-----
-====

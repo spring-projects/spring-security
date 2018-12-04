@@ -11,7 +11,7 @@ The completed application can be found at {gh-samples-url}/javaconfig/helloworld
 
 == Updating Dependencies
 
-The first step is to update the dependencies using <<maven-without-spring-boot,Maven>> or <<gradle-without-spring-boot,Gradle>>.
+The first step is to update the dependencies using <<getting-maven-without-spring-boot,Maven>> or <<gradle-without-spring-boot,Gradle>>.
 
 
 [[servlet-hello-jc-ews]]
