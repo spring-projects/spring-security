@@ -132,17 +132,7 @@ public class SessionRegistryImpl implements SessionRegistry,
 		sessionIds.put(sessionId,
 				new SessionInformation(principal, sessionId, new Date()));
 
-		Set<String> sessionsUsedByPrincipal = principals.get(principal);
-
-		if (sessionsUsedByPrincipal == null) {
-			sessionsUsedByPrincipal = new CopyOnWriteArraySet<>();
-			Set<String> prevSessionsUsedByPrincipal = principals.putIfAbsent(principal,
-					sessionsUsedByPrincipal);
-			if (prevSessionsUsedByPrincipal != null) {
-				sessionsUsedByPrincipal = prevSessionsUsedByPrincipal;
-			}
-		}
-
+		Set<String> sessionsUsedByPrincipal = principals.computeIfAbsent(principal, key -> new CopyOnWriteArraySet<>());
 		sessionsUsedByPrincipal.add(sessionId);
 
 		if (logger.isTraceEnabled()) {
