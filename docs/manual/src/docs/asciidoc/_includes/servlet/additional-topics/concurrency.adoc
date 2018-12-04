@@ -165,3 +165,4 @@ They are quite self-explanatory once you understand the previous code.
 * DelegatingSecurityContextSchedulingTaskExecutor
 * DelegatingSecurityContextAsyncTaskExecutor
 * DelegatingSecurityContextTaskExecutor
+* DelegatingSecurityContextTaskScheduler
