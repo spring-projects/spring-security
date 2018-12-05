@@ -137,6 +137,12 @@ public class ClientRegistrationsTest {
 		assertThat(provider.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/oauth2/v3/userinfo");
 	}
 
+	@Test
+	public void issuerWhenContainsTrailingSlashThenSuccess() throws Exception {
+		assertThat(registration("")).isNotNull();
+		assertThat(this.issuer.endsWith("/")).isTrue();
+	}
+
 	/**
 	 * https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
 	 *

@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
@@ -89,6 +90,14 @@ public class JwtDecodersTests {
 		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH))
 				.isInstanceOf(JwtValidationException.class)
 				.hasMessageContaining("This iss claim is not equal to the configured issuer");
+	}
+
+	@Test
+	public void issuerWhenContainsTrailingSlashThenSuccess() {
+		prepareOpenIdConfigurationResponse();
+		this.server.enqueue(new MockResponse().setBody(JWK_SET));
+		assertThat(JwtDecoders.fromOidcIssuerLocation(this.issuer)).isNotNull();
+		assertThat(this.issuer.endsWith("/")).isTrue();
 	}
 
 	@Test
