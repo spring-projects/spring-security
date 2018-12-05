@@ -20,6 +20,8 @@ import org.springframework.util.Assert;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -101,15 +103,21 @@ public interface ClaimAccessor {
 		}
 		if (String.class.isAssignableFrom(claimValue.getClass())) {
 			try {
-				return Instant.parse((String) claimValue);
+				return Instant.from(DateTimeFormatter.ISO_INSTANT.parse((String)claimValue));
 			}
 			catch(DateTimeParseException e){
-				throw new IllegalArgumentException("Unable to convert claim '" + claim +
-														   "' from string '" + claimValue + "' to Instant.");
+				try {
+					return ZonedDateTime.from(DateTimeFormatter.ISO_ZONED_DATE_TIME.parse((String)claimValue))
+							.toInstant();
+				}
+				catch(DateTimeParseException e2){
+					throw new IllegalArgumentException("Unable to convert claim '" + claim +
+							"' from string '" + claimValue + "' to Instant.");
+				}
 			}
 		}
 		throw new IllegalArgumentException("Unable to convert claim '" + claim +
-												   "' of type '" + claimValue.getClass() + "' to Instant.");
+				"' of type '" + claimValue.getClass() + "' to Instant.");
 
 	}
 

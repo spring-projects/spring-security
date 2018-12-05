@@ -96,12 +96,26 @@ public class ClaimAccessorTests {
 	// gh-6187
 	@Test
 	public void getClaimAsInstantWhenISODateStringThenReturnInstant() {
-		Instant expectedClaimValue = Instant.now();
+		Instant expectedClaimValue = Instant.parse("2011-12-03T09:15:30Z");
 		String claimName = "isoDate";
-		this.claims.put(claimName, expectedClaimValue.toString());
 
+		this.claims.put(claimName, "2011-12-03T09:15:30Z");
 		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
 				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		this.claims.put(claimName, "2011-12-03T10:15:30+01:00");
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
+				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+		this.claims.put(claimName, "2011-12-03T10:15:30+01:00[Europe/Paris]");
+		assertThat(this.claimAccessor.getClaimAsInstant(claimName)).isBetween(
+				expectedClaimValue.minusSeconds(1), expectedClaimValue.plusSeconds(1));
+	}
+
+	// gh-6187
+	@Test(expected = IllegalArgumentException.class)
+	public void getClaimAsInstantWithoutTimezoneThrowsIAE() {
+		String claimName = "isoDate";
+		this.claims.put(claimName, "2011-12-03T09:15:30");
+		this.claimAccessor.getClaimAsInstant(claimName);
 	}
 
 	// gh-5608
