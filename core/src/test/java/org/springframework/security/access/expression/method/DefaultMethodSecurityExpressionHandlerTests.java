@@ -35,9 +35,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMethodSecurityExpressionHandlerTests {
@@ -53,6 +51,8 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	@Before
 	public void setup() {
 		handler = new DefaultMethodSecurityExpressionHandler();
+		when(methodInvocation.getThis()).thenReturn(new Foo());
+		when(methodInvocation.getMethod()).thenReturn(Foo.class.getMethods()[0]);
 	}
 
 	@After
@@ -82,7 +82,6 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	@SuppressWarnings("unchecked")
 	public void filterWhenUsingStreamThenFiltersStream() {
 		final Stream<String> stream = Stream.of("1", "2", "3");
-
 		Expression expression = handler.getExpressionParser().parseExpression("filterObject ne '2'");
 
 		EvaluationContext context = handler.createEvaluationContext(authentication,
@@ -107,5 +106,10 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 
 		((Stream) handler.filter(upstream, expression, context)).close();
 		verify(upstream).close();
+	}
+
+	private static class Foo {
+		public void bar(){
+		}
 	}
 }
