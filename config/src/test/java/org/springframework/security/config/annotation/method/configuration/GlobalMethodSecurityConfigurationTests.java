@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
@@ -512,6 +513,44 @@ public class GlobalMethodSecurityConfigurationTests {
 		static class CustomAuthorityService {
 			@PreAuthorize("hasRole('ROLE:USER')")
 			public void customPrefixRoleUser() {}
+		}
+	}
+
+	@Test
+	@WithMockUser(authorities = "USER")
+	public void grantedAuthorityDefaultsWithEmptyRolePrefix() {
+		this.spring.register(EmptyRolePrefixGrantedAuthorityConfig.class).autowire();
+
+		EmptyRolePrefixGrantedAuthorityConfig.CustomAuthorityService customService = this.spring.getContext()
+				.getBean(EmptyRolePrefixGrantedAuthorityConfig.CustomAuthorityService.class);
+
+		assertThatThrownBy(() -> this.service.securedUser())
+				.isInstanceOf(AccessDeniedException.class);
+
+		customService.emptyPrefixRoleUser();
+		// no exception
+	}
+
+	@EnableGlobalMethodSecurity(securedEnabled = true)
+	static class EmptyRolePrefixGrantedAuthorityConfig {
+		@Bean
+		public GrantedAuthorityDefaults ga() {
+			return new GrantedAuthorityDefaults("");
+		}
+
+		@Bean
+		public CustomAuthorityService service() {
+			return new CustomAuthorityService();
+		}
+
+		@Bean
+		public MethodSecurityServiceImpl methodSecurityService() {
+			return new MethodSecurityServiceImpl();
+		}
+
+		static class CustomAuthorityService {
+			@Secured("USER")
+			public void emptyPrefixRoleUser() {}
 		}
 	}
 }
