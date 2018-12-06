@@ -255,7 +255,13 @@ public class GlobalMethodSecurityConfiguration
 		if (jsr250Enabled()) {
 			decisionVoters.add(new Jsr250Voter());
 		}
-		decisionVoters.add(new RoleVoter());
+		RoleVoter roleVoter = new RoleVoter();
+		GrantedAuthorityDefaults grantedAuthorityDefaults =
+				getSingleBeanOrNull(GrantedAuthorityDefaults.class);
+		if (grantedAuthorityDefaults != null) {
+			roleVoter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
+		}
+		decisionVoters.add(roleVoter);
 		decisionVoters.add(new AuthenticatedVoter());
 		return new AffirmativeBased(decisionVoters);
 	}
