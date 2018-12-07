@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
@@ -145,15 +146,51 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	// ~ UserDetailsManager implementation
 	// ==============================================================================
 
+	/**
+	 * Executes the SQL <tt>usersByUsernameQuery</tt> and returns a list of UserDetails
+	 * objects. There should normally only be one matching user.
+	 */
+	protected List<UserDetails> loadUsersByUsername(String username) {
+		return getJdbcTemplate().query(getUsersByUsernameQuery(), new String[]{username},
+				(rs, rowNum) -> {
+
+					String userName = rs.getString(1);
+					String password = rs.getString(2);
+					boolean enabled = rs.getBoolean(3);
+
+					boolean accLocked = false;
+					boolean accExpired = false;
+					boolean credsExpired = false;
+
+					if (rs.getMetaData().getColumnCount() > 3) {
+						//NOTE: acc_locked, acc_expired and creds_expired are also to be loaded
+						accLocked = rs.getBoolean(4);
+						accExpired = rs.getBoolean(5);
+						credsExpired = rs.getBoolean(6);
+					}
+					return new User(userName, password, enabled, !accExpired, !credsExpired, !accLocked,
+							AuthorityUtils.NO_AUTHORITIES);
+				});
+	}
+
 	public void createUser(final UserDetails user) {
 		validateUserDetails(user);
+
 		getJdbcTemplate().update(createUserSql, new PreparedStatementSetter() {
+			@Override
 			public void setValues(PreparedStatement ps) throws SQLException {
 				ps.setString(1, user.getUsername());
 				ps.setString(2, user.getPassword());
 				ps.setBoolean(3, user.isEnabled());
-			}
 
+				int paramCount = ps.getParameterMetaData().getParameterCount();
+				if (paramCount > 3) {
+					//NOTE: acc_locked, acc_expired and creds_expired are also to be inserted
+					ps.setBoolean(4, !user.isAccountNonLocked());
+					ps.setBoolean(5, !user.isAccountNonExpired());
+					ps.setBoolean(6, !user.isCredentialsNonExpired());
+				}
+			}
 		});
 
 		if (getEnableAuthorities()) {
@@ -163,11 +200,25 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	public void updateUser(final UserDetails user) {
 		validateUserDetails(user);
+
 		getJdbcTemplate().update(updateUserSql, new PreparedStatementSetter() {
+			@Override
 			public void setValues(PreparedStatement ps) throws SQLException {
 				ps.setString(1, user.getPassword());
 				ps.setBoolean(2, user.isEnabled());
-				ps.setString(3, user.getUsername());
+
+				int paramCount = ps.getParameterMetaData().getParameterCount();
+				if (paramCount == 3) {
+					ps.setString(3, user.getUsername());
+				} else {
+					//NOTE: acc_locked, acc_expired and creds_expired are also updated
+					ps.setBoolean(3, !user.isAccountNonLocked());
+					ps.setBoolean(4, !user.isAccountNonExpired());
+					ps.setBoolean(5, !user.isCredentialsNonExpired());
+
+					ps.setString(6, user.getUsername());
+				}
+
 			}
 		});
 

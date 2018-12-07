@@ -295,7 +295,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport
 		}
 
 		return new User(returnUsername, userFromUserQuery.getPassword(),
-				userFromUserQuery.isEnabled(), true, true, true, combinedAuthorities);
+				userFromUserQuery.isEnabled(), userFromUserQuery.isAccountNonExpired(),
+				userFromUserQuery.isCredentialsNonExpired(), userFromUserQuery.isAccountNonLocked(), combinedAuthorities);
 	}
 
 	/**
