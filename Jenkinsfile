@@ -30,7 +30,11 @@ try {
 				checkout scm
 				withCredentials([string(credentialsId: 'spring-sonar.login', variable: 'SONAR_LOGIN')]) {
 					try {
-						sh "./gradlew sonarqube -PexcludeProjects='**/samples/**' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --stacktrace"
+						if ("master" == env.BRANCH_NAME) {
+							sh "./gradlew sonarqube -PexcludeProjects='**/samples/**' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --stacktrace"
+						} else {
+							sh "./gradlew sonarqube -PexcludeProjects='**/samples/**' -Dsonar.projectKey="spring-security-${env.BRANCH_NAME}" -Dsonar.projectName="spring-security-${env.BRANCH_NAME}" -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --stacktrace"
+						}
 					} catch(Exception e) {
 						currentBuild.result = 'FAILED: sonar'
 						throw e
