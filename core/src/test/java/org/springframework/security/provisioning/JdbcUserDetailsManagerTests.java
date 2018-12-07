@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,6 +106,19 @@ public class JdbcUserDetailsManagerTests {
 		SecurityContextHolder.clearContext();
 	}
 
+	private void setUpAccLockingColumns() {
+		template.execute("alter table users add column acc_locked boolean default false not null");
+		template.execute("alter table users add column acc_expired boolean default false not null");
+		template.execute("alter table users add column creds_expired boolean default false not null");
+
+		manager.setUsersByUsernameQuery(
+				"select username,password,enabled, acc_locked, acc_expired, creds_expired from users where username = ?");
+		manager.setCreateUserSql(
+				"insert into users (username, password, enabled, acc_locked, acc_expired, creds_expired) values (?,?,?,?,?,?)");
+		manager.setUpdateUserSql(
+				"update users set password = ?, enabled = ?, acc_locked=?, acc_expired=?, creds_expired=? where username = ?");
+	}
+
 	@Test
 	public void createUserInsertsCorrectData() {
 		manager.createUser(joe);
@@ -113,6 +126,19 @@ public class JdbcUserDetailsManagerTests {
 		UserDetails joe2 = manager.loadUserByUsername("joe");
 
 		assertThat(joe2).isEqualTo(joe);
+	}
+
+	@Test
+	public void createUserInsertsCorrectDataWithLocking() {
+		setUpAccLockingColumns();
+
+		UserDetails user = new User("joe", "pass", true, false, true, false,
+				AuthorityUtils.createAuthorityList("A", "B"));
+		manager.createUser(user);
+
+		UserDetails user2 = manager.loadUserByUsername(user.getUsername());
+
+		assertThat(user2).isEqualToComparingFieldByField(user);
 	}
 
 	@Test
@@ -138,6 +164,24 @@ public class JdbcUserDetailsManagerTests {
 		assertThat(joe).isEqualTo(newJoe);
 		assertThat(cache.getUserMap().containsKey("joe")).isFalse();
 	}
+
+	@Test
+	public void updateUserChangesDataCorrectlyAndClearsCacheWithLocking() {
+		setUpAccLockingColumns();
+
+		insertJoe();
+
+		User newJoe = new User("joe", "newpassword", false, false, false, true,
+				AuthorityUtils.createAuthorityList("D", "F", "E"));
+
+		manager.updateUser(newJoe);
+
+		UserDetails joe = manager.loadUserByUsername(newJoe.getUsername());
+
+		assertThat(joe).isEqualToComparingFieldByField(newJoe);
+		assertThat(cache.getUserMap().containsKey(newJoe.getUsername())).isFalse();
+	}
+
 
 	@Test
 	public void userExistsReturnsFalseForNonExistentUsername() {
