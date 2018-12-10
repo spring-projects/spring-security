@@ -16,6 +16,8 @@
 
 package org.springframework.security.authorization;
 
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
 
@@ -30,11 +32,23 @@ import reactor.core.publisher.Mono;
  */
 public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
 
+	private AuthenticationTrustResolver authTrustResolver = new AuthenticationTrustResolverImpl();
+
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
 		return authentication
+			.filter(this::isNotAnonymous)
 			.map(a -> new AuthorizationDecision(a.isAuthenticated()))
 			.defaultIfEmpty(new AuthorizationDecision(false));
+	}
+
+	/**
+	 * Verify (via {@link AuthenticationTrustResolver}) that the given authentication is not anonymous.
+	 * @param authentication to be checked
+	 * @return <code>true</code> if not anonymous, otherwise <code>false</code>.
+	 */
+	private boolean isNotAnonymous(Authentication authentication) {
+		return !authTrustResolver.isAnonymous(authentication);
 	}
 
 	/**
