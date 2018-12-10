@@ -20,11 +20,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -62,6 +64,14 @@ public class AuthenticatedReactiveAuthorizationManagerTests {
 		assertThat(granted).isFalse();
 	}
 
+	@Test
+	public void checkWhenAnonymousAuthenticatedThenReturnFalse() {
+		AnonymousAuthenticationToken anonymousAuthenticationToken = mock(AnonymousAuthenticationToken.class);
+
+		boolean granted = manager.check(Mono.just(anonymousAuthenticationToken), null).block().isGranted();
+
+		assertThat(granted).isFalse();
+	}
 
 	@Test
 	public void checkWhenErrorThenError() {
