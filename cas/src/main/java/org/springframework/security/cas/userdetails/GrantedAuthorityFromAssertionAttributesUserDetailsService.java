@@ -22,8 +22,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.Assert;
 import org.jasig.cas.client.validation.Assertion;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Populates the {@link org.springframework.security.core.GrantedAuthority}s for a user by
@@ -56,33 +59,39 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService ext
 	protected UserDetails loadUserDetails(final Assertion assertion) {
 		final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 
+		Map<String, Object> assertionAttributes = assertion.getPrincipal().getAttributes();
 		for (final String attribute : this.attributes) {
-			final Object value = assertion.getPrincipal().getAttributes().get(attribute);
+			final Object value = assertionAttributes.get(attribute);
 
-			if (value == null) {
-				continue;
-			}
-
-			if (value instanceof List) {
-				final List list = (List) value;
-
-				for (final Object o : list) {
-					grantedAuthorities.add(new SimpleGrantedAuthority(
-							this.convertToUpperCase ? o.toString().toUpperCase() : o
-									.toString()));
-				}
-
-			}
-			else {
-				grantedAuthorities.add(new SimpleGrantedAuthority(
-						this.convertToUpperCase ? value.toString().toUpperCase() : value
-								.toString()));
-			}
-
+			grantedAuthorities.addAll(getAuthoritiesFromAttribute(value));
 		}
 
 		return new User(assertion.getPrincipal().getName(), NON_EXISTENT_PASSWORD_VALUE,
 				true, true, true, true, grantedAuthorities);
+	}
+
+	protected Collection<GrantedAuthority> getAuthoritiesFromAttribute(final Object value) {
+		if (value == null) {
+			return Collections.emptyList();
+		} else if (value instanceof Collection) {
+			final Collection collection = (Collection) value;
+			final Collection<GrantedAuthority> authorities = new ArrayList<>();
+
+			for (final Object o : collection) {
+				authorities.add(toAuthority(o.toString()));
+			}
+			return authorities;
+		} else {
+			return Collections.singletonList(toAuthority(value.toString()));
+		}
+	}
+
+	protected GrantedAuthority toAuthority(final String s) {
+		return new SimpleGrantedAuthority(isConvertToUpperCase() ? s.toUpperCase() : s);
+	}
+
+	protected boolean isConvertToUpperCase() {
+		return convertToUpperCase;
 	}
 
 	/**
