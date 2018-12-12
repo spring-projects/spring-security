@@ -25,57 +25,45 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
- * Tests for {@link JwtAuthenticationConverter}
+ * Tests for {@link ReactiveJwtGrantedAuthoritiesConverterAdapter}
  *
- * @author Josh Cummings
+ * @author Eric Deandrea
+ * @since 5.2
  */
-public class JwtAuthenticationConverterTests {
-	JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-
+public class ReactiveJwtGrantedAuthoritiesConverterAdapterTests {
 	@Test
-	public void convertWhenDefaultGrantedAuthoritiesConverterSet() {
-		Jwt jwt = this.jwt(Collections.singletonMap("scope", "message:read message:write"));
-
-		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-
-		assertThat(authorities).containsExactly(
-				new SimpleGrantedAuthority("SCOPE_message:read"),
-				new SimpleGrantedAuthority("SCOPE_message:write"));
-	}
-
-	@Test
-	public void whenSettingNullGrantedAuthoritiesConverter() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(null))
-				.withMessage("jwtGrantedAuthoritiesConverter cannot be null");
-	}
-
-	@Test
-	public void convertWithOverriddenGrantedAuthoritiesConverter() {
+	public void convertWithGrantedAuthoritiesConverter() {
 		Jwt jwt = this.jwt(Collections.singletonMap("scope", "message:read message:write"));
 
 		Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter =
 				token -> Arrays.asList(new SimpleGrantedAuthority("blah"));
 
-		this.jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-
-		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
+		Collection<GrantedAuthority> authorities =
+				new ReactiveJwtGrantedAuthoritiesConverterAdapter(grantedAuthoritiesConverter)
+						.convert(jwt)
+						.toStream()
+						.collect(Collectors.toList());
 
 		assertThat(authorities).containsExactly(
 				new SimpleGrantedAuthority("blah"));
+	}
+
+	@Test
+	public void whenConstructingWithInvalidConverter() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new ReactiveJwtGrantedAuthoritiesConverterAdapter(null))
+				.withMessage("grantedAuthoritiesConverter cannot be null");
 	}
 
 	private Jwt jwt(Map<String, Object> claims) {

@@ -20,13 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
+
+import reactor.core.publisher.Flux;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -36,18 +37,19 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
- * Tests for {@link JwtAuthenticationConverter}
+ * Tests for {@link ReactiveJwtAuthenticationConverter}
  *
- * @author Josh Cummings
+ * @author Eric Deandrea
+ * @since 5.2
  */
-public class JwtAuthenticationConverterTests {
-	JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+public class ReactiveJwtAuthenticationConverterTests {
+	ReactiveJwtAuthenticationConverter jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();
 
 	@Test
 	public void convertWhenDefaultGrantedAuthoritiesConverterSet() {
 		Jwt jwt = this.jwt(Collections.singletonMap("scope", "message:read message:write"));
 
-		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
 		assertThat(authorities).containsExactly(
@@ -66,12 +68,12 @@ public class JwtAuthenticationConverterTests {
 	public void convertWithOverriddenGrantedAuthoritiesConverter() {
 		Jwt jwt = this.jwt(Collections.singletonMap("scope", "message:read message:write"));
 
-		Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter =
-				token -> Arrays.asList(new SimpleGrantedAuthority("blah"));
+		Converter<Jwt, Flux<GrantedAuthority>> grantedAuthoritiesConverter =
+				token -> Flux.just(new SimpleGrantedAuthority("blah"));
 
 		this.jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
 
-		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
 		assertThat(authorities).containsExactly(
