@@ -16,8 +16,6 @@
 package org.springframework.security.web.authentication.rememberme;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -41,7 +39,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -369,17 +366,16 @@ public class AbstractRememberMeServicesTests {
 	}
 
 	@Test
-	public void setHttpOnlyIgnoredForServlet25() throws Exception {
-		spy(ReflectionUtils.class);
-		when(ReflectionUtils.findMethod(Cookie.class, "setHttpOnly",
-				boolean.class)).thenReturn(null);
+	public void setCookieSetsIsHttpOnlyFlagByDefault() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		request.setContextPath("contextpath");
 
 		MockRememberMeServices services = new MockRememberMeServices(uds);
-		assertThat(ReflectionTestUtils.getField(services, "setHttpOnlyMethod")).isNull();
-
-		services = new MockRememberMeServices("key",
-				new MockUserDetailsService(joe, false));
-		assertThat(ReflectionTestUtils.getField(services, "setHttpOnlyMethod")).isNull();
+		services.setCookie(new String[] { "mycookie" }, 1000, request, response);
+		Cookie cookie = response.getCookie(
+				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		assertThat(cookie.isHttpOnly()).isTrue();
 	}
 
 	// SEC-2791
