@@ -39,6 +39,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -46,7 +47,6 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 /**
  * An implementation of an {@link org.springframework.security.authentication.AuthenticationProvider} for OAuth 2.0 Login,
@@ -86,7 +86,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
-	private Function<ClientRegistration, ReactiveJwtDecoder> decoderFactory = new DefaultDecoderFactory();
+	private ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new DefaultJwtDecoderFactory();
 
 	public OidcAuthorizationCodeReactiveAuthenticationManager(
 			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient,
@@ -143,13 +143,15 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 	}
 
 	/**
-	 * Provides a way to customize the {@link ReactiveJwtDecoder} given a {@link ClientRegistration}
-	 * @param decoderFactory the {@link Function} used to create {@link ReactiveJwtDecoder} instance. Cannot be null.
+	 * Sets the {@link ReactiveJwtDecoderFactory} used for {@link OidcIdToken} signature verification.
+	 * The factory returns a {@link ReactiveJwtDecoder} associated to the provided {@link ClientRegistration}.
+	 *
+	 * @since 5.2
+	 * @param jwtDecoderFactory the {@link ReactiveJwtDecoderFactory} used for {@link OidcIdToken} signature verification
 	 */
-	void setDecoderFactory(
-			Function<ClientRegistration, ReactiveJwtDecoder> decoderFactory) {
-		Assert.notNull(decoderFactory, "decoderFactory cannot be null");
-		this.decoderFactory = decoderFactory;
+	public final void setJwtDecoderFactory(ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory) {
+		Assert.notNull(jwtDecoderFactory, "jwtDecoderFactory cannot be null");
+		this.jwtDecoderFactory = jwtDecoderFactory;
 	}
 
 	private Mono<OAuth2LoginAuthenticationToken> authenticationResult(OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication, OAuth2AccessTokenResponse accessTokenResponse) {
@@ -183,33 +185,31 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 	}
 
 	private Mono<OidcIdToken> createOidcToken(ClientRegistration clientRegistration, OAuth2AccessTokenResponse accessTokenResponse) {
-		ReactiveJwtDecoder jwtDecoder = this.decoderFactory.apply(clientRegistration);
+		ReactiveJwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(clientRegistration);
 		String rawIdToken = (String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN);
 		return jwtDecoder.decode(rawIdToken)
 				.map(jwt -> new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims()))
 				.doOnNext(idToken -> OidcTokenValidator.validateIdToken(idToken, clientRegistration));
 	}
 
-	private static class DefaultDecoderFactory implements Function<ClientRegistration, ReactiveJwtDecoder> {
+	private static class DefaultJwtDecoderFactory implements ReactiveJwtDecoderFactory<ClientRegistration> {
 		private final Map<String, ReactiveJwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
 
 		@Override
-		public ReactiveJwtDecoder apply(ClientRegistration clientRegistration) {
-			ReactiveJwtDecoder jwtDecoder = this.jwtDecoders.get(clientRegistration.getRegistrationId());
-			if (jwtDecoder == null) {
+		public ReactiveJwtDecoder createDecoder(ClientRegistration clientRegistration) {
+			return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), key -> {
 				if (!StringUtils.hasText(clientRegistration.getProviderDetails().getJwkSetUri())) {
 					OAuth2Error oauth2Error = new OAuth2Error(
 							MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
 							"Failed to find a Signature Verifier for Client Registration: '" +
-									clientRegistration.getRegistrationId() + "'. Check to ensure you have configured the JwkSet URI.",
+									clientRegistration.getRegistrationId() +
+									"'. Check to ensure you have configured the JwkSet URI.",
 							null
 					);
 					throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 				}
-				jwtDecoder = new NimbusReactiveJwtDecoder(clientRegistration.getProviderDetails().getJwkSetUri());
-				this.jwtDecoders.put(clientRegistration.getRegistrationId(), jwtDecoder);
-			}
-			return jwtDecoder;
+				return new NimbusReactiveJwtDecoder(clientRegistration.getProviderDetails().getJwkSetUri());
+			});
 		}
 	}
 }

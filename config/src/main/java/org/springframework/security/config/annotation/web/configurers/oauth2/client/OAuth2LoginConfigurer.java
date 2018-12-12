@@ -16,6 +16,7 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
 import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -55,6 +56,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -488,6 +490,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 			OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
 				new OidcAuthorizationCodeAuthenticationProvider(accessTokenResponseClient, oidcUserService);
+			JwtDecoderFactory<ClientRegistration> jwtDecoderFactory = this.getJwtDecoderFactoryBean();
+			if (jwtDecoderFactory != null) {
+				oidcAuthorizationCodeAuthenticationProvider.setJwtDecoderFactory(jwtDecoderFactory);
+			}
 			if (userAuthoritiesMapper != null) {
 				oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
 			}
@@ -539,6 +545,19 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return new AntPathRequestMatcher(loginProcessingUrl);
+	}
+
+	@SuppressWarnings("unchecked")
+	private JwtDecoderFactory<ClientRegistration> getJwtDecoderFactoryBean() {
+		ResolvableType type = ResolvableType.forClassWithGenerics(JwtDecoderFactory.class, ClientRegistration.class);
+		String[] names = this.getBuilder().getSharedObject(ApplicationContext.class).getBeanNamesForType(type);
+		if (names.length > 1) {
+			throw new NoUniqueBeanDefinitionException(type, names);
+		}
+		if (names.length == 1) {
+			return (JwtDecoderFactory<ClientRegistration>) this.getBuilder().getSharedObject(ApplicationContext.class).getBean(names[0]);
+		}
+		return null;
 	}
 
 	private GrantedAuthoritiesMapper getGrantedAuthoritiesMapper() {

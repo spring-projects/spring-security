@@ -15,22 +15,12 @@
  */
 package org.springframework.security.oauth2.client.oidc.authentication;
 
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -52,13 +42,19 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
@@ -110,6 +106,12 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	public void constructorWhenUserServiceIsNullThenThrowIllegalArgumentException() {
 		this.exception.expect(IllegalArgumentException.class);
 		new OidcAuthorizationCodeAuthenticationProvider(this.accessTokenResponseClient, null);
+	}
+
+	@Test
+	public void setJwtDecoderFactoryWhenNullThenThrowIllegalArgumentException() {
+		this.exception.expect(IllegalArgumentException.class);
+		this.authenticationProvider.setJwtDecoderFactory(null);
 	}
 
 	@Test
@@ -428,8 +430,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 		JwtDecoder jwtDecoder = mock(JwtDecoder.class);
 		when(jwtDecoder.decode(anyString())).thenReturn(idToken);
-		ReflectionTestUtils.setField(this.authenticationProvider,
-				"jwtDecoders", Collections.singletonMap("registration-id", jwtDecoder));
+		this.authenticationProvider.setJwtDecoderFactory(registration -> jwtDecoder);
 	}
 
 	private OAuth2AccessTokenResponse accessTokenSuccessResponse() {
