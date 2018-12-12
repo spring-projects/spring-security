@@ -55,6 +55,8 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private String cookiePath;
 
+	private String cookieDomain;
+
 	public CookieCsrfTokenRepository() {
 		this.setHttpOnlyMethod = ReflectionUtils.findMethod(Cookie.class, "setHttpOnly", boolean.class);
 		if (this.setHttpOnlyMethod != null) {
@@ -87,6 +89,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		}
 		if (cookieHttpOnly && setHttpOnlyMethod != null) {
 			ReflectionUtils.invokeMethod(setHttpOnlyMethod, cookie, Boolean.TRUE);
+		}
+		if (this.cookieDomain != null && !this.cookieDomain.isEmpty()) {
+			cookie.setDomain(this.cookieDomain);
 		}
 
 		response.addCookie(cookie);
@@ -194,4 +199,16 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	public String getCookiePath() {
 		return this.cookiePath;
 	}
+
+	/**
+	 * Sets the domain of the cookie that the expected CSRF token is saved to and read from.
+	 *
+	 * @since 5.2
+	 * @param cookieDomain the domain of the cookie that the expected CSRF token is saved to
+	 * and read from
+	 */
+	public void setCookieDomain(String cookieDomain) {
+		this.cookieDomain = cookieDomain;
+	}
+
 }

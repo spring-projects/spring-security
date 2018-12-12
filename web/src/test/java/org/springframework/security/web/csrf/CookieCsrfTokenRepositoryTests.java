@@ -190,6 +190,20 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
+	public void saveTokenWithCookieDomain() {
+		String domainName = "example.com";
+		this.repository.setCookieDomain(domainName);
+
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+
+		Cookie tokenCookie = this.response
+				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+
+		assertThat(tokenCookie.getDomain()).isEqualTo(domainName);
+	}
+
+	@Test
 	public void loadTokenNoCookiesNull() {
 		assertThat(this.repository.loadToken(this.request)).isNull();
 	}
