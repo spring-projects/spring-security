@@ -15,10 +15,6 @@
  */
 package org.springframework.security.oauth2.client.oidc.authentication;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -43,9 +39,14 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
 
@@ -80,7 +81,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private static final String MISSING_SIGNATURE_VERIFIER_ERROR_CODE = "missing_signature_verifier";
 	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 	private final OAuth2UserService<OidcUserRequest, OidcUser> userService;
-	private final Map<String, JwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
+	private JwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new DefaultJwtDecoderFactory();
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	/**
@@ -175,6 +176,18 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	}
 
 	/**
+	 * Sets the {@link JwtDecoderFactory} used for {@link OidcIdToken} signature verification.
+	 * The factory returns a {@link JwtDecoder} associated to the provided {@link ClientRegistration}.
+	 *
+	 * @since 5.2
+	 * @param jwtDecoderFactory the {@link JwtDecoderFactory} used for {@link OidcIdToken} signature verification
+	 */
+	public final void setJwtDecoderFactory(JwtDecoderFactory<ClientRegistration> jwtDecoderFactory) {
+		Assert.notNull(jwtDecoderFactory, "jwtDecoderFactory cannot be null");
+		this.jwtDecoderFactory = jwtDecoderFactory;
+	}
+
+	/**
 	 * Sets the {@link GrantedAuthoritiesMapper} used for mapping {@link OidcUser#getAuthorities()}}
 	 * to a new set of authorities which will be associated to the {@link OAuth2LoginAuthenticationToken}.
 	 *
@@ -191,30 +204,32 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	}
 
 	private OidcIdToken createOidcToken(ClientRegistration clientRegistration, OAuth2AccessTokenResponse accessTokenResponse) {
-		JwtDecoder jwtDecoder = getJwtDecoder(clientRegistration);
-		Jwt jwt = jwtDecoder.decode((String) accessTokenResponse.getAdditionalParameters().get(
-				OidcParameterNames.ID_TOKEN));
+		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(clientRegistration);
+		Jwt jwt = jwtDecoder.decode((String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN));
 		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 		OidcTokenValidator.validateIdToken(idToken, clientRegistration);
 		return idToken;
 	}
 
-	private JwtDecoder getJwtDecoder(ClientRegistration clientRegistration) {
-		JwtDecoder jwtDecoder = this.jwtDecoders.get(clientRegistration.getRegistrationId());
-		if (jwtDecoder == null) {
-			if (!StringUtils.hasText(clientRegistration.getProviderDetails().getJwkSetUri())) {
-				OAuth2Error oauth2Error = new OAuth2Error(
-						MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
-						"Failed to find a Signature Verifier for Client Registration: '" +
-								clientRegistration.getRegistrationId() + "'. Check to ensure you have configured the JwkSet URI.",
-						null
-				);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-			}
-			String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
-			jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(jwkSetUri).build());
-			this.jwtDecoders.put(clientRegistration.getRegistrationId(), jwtDecoder);
+	private static class DefaultJwtDecoderFactory implements JwtDecoderFactory<ClientRegistration> {
+		private final Map<String, JwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
+
+		@Override
+		public JwtDecoder createDecoder(ClientRegistration clientRegistration) {
+			return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), key -> {
+				if (!StringUtils.hasText(clientRegistration.getProviderDetails().getJwkSetUri())) {
+					OAuth2Error oauth2Error = new OAuth2Error(
+							MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
+							"Failed to find a Signature Verifier for Client Registration: '" +
+									clientRegistration.getRegistrationId() +
+									"'. Check to ensure you have configured the JwkSet URI.",
+							null
+					);
+					throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+				}
+				String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
+				return new NimbusJwtDecoder(withJwkSetUri(jwkSetUri).build());
+			});
 		}
-		return jwtDecoder;
 	}
 }

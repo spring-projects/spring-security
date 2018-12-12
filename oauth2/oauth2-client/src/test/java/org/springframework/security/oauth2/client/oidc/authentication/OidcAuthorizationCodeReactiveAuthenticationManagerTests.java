@@ -53,9 +53,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -102,6 +100,12 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	public void constructorWhenNullUserServiceThenIllegalArgumentException() {
 		this.userService = null;
 		assertThatThrownBy(() -> new OidcAuthorizationCodeReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setJwtDecoderFactoryWhenNullThenIllegalArgumentException() {
+		assertThatThrownBy(() -> this.manager.setJwtDecoderFactory(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -157,7 +161,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 		when(this.userService.loadUser(any())).thenReturn(Mono.empty());
 		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
-		this.manager.setDecoderFactory(c -> this.jwtDecoder);
+		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 		assertThat(this.manager.authenticate(loginToken()).block()).isNull();
 	}
 
@@ -180,7 +184,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
 		when(this.userService.loadUser(any())).thenReturn(Mono.just(user));
 		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
-		this.manager.setDecoderFactory(c -> this.jwtDecoder);
+		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken()).block();
 
@@ -209,7 +213,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
 		when(this.userService.loadUser(any())).thenReturn(Mono.just(user));
 		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
-		this.manager.setDecoderFactory(c -> this.jwtDecoder);
+		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken()).block();
 
@@ -245,7 +249,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		ArgumentCaptor<OidcUserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OidcUserRequest.class);
 		when(this.userService.loadUser(userRequestArgCaptor.capture())).thenReturn(Mono.just(user));
 		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
-		this.manager.setDecoderFactory(c -> this.jwtDecoder);
+		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
 
 		this.manager.authenticate(loginToken()).block();
 

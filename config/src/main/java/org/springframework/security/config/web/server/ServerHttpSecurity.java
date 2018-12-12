@@ -16,28 +16,6 @@
 
 package org.springframework.security.config.web.server;
 
-import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.notMatch;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.security.interfaces.RSAPublicKey;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.UUID;
-
-import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
-
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
@@ -55,6 +33,8 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
@@ -80,6 +60,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
@@ -92,6 +73,7 @@ import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
@@ -159,9 +141,27 @@ import org.springframework.web.cors.reactive.DefaultCorsProcessor;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
+
+import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
+import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
+import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.notMatch;
 
 /**
  * A {@link ServerHttpSecurity} is similar to Spring Security's {@code HttpSecurity} but for WebFlux.
@@ -618,7 +618,14 @@ public class ServerHttpSecurity {
 			boolean oidcAuthenticationProviderEnabled = ClassUtils.isPresent(
 					"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 			if (oidcAuthenticationProviderEnabled) {
-				OidcAuthorizationCodeReactiveAuthenticationManager oidc = new OidcAuthorizationCodeReactiveAuthenticationManager(client, getOidcUserService());
+				OidcAuthorizationCodeReactiveAuthenticationManager oidc =
+						new OidcAuthorizationCodeReactiveAuthenticationManager(client, getOidcUserService());
+				ResolvableType type = ResolvableType.forClassWithGenerics(
+						ReactiveJwtDecoderFactory.class, ClientRegistration.class);
+				ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = getBeanOrNull(type);
+				if (jwtDecoderFactory != null) {
+					oidc.setJwtDecoderFactory(jwtDecoderFactory);
+				}
 				result = new DelegatingReactiveAuthenticationManager(oidc, result);
 			}
 			return result;

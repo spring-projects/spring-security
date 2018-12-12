@@ -19,11 +19,12 @@ import org.apache.http.HttpHeaders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.PropertyAccessorFactory;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -50,7 +51,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
-import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -66,6 +66,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -81,6 +82,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -369,8 +371,7 @@ public class OAuth2LoginConfigurerTests {
 	@Test
 	public void oidcLogin() throws Exception {
 		// setup application context
-		loadConfig(OAuth2LoginConfig.class);
-		registerJwtDecoder();
+		loadConfig(OAuth2LoginConfig.class, JwtDecoderFactoryConfig.class);
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
@@ -396,8 +397,7 @@ public class OAuth2LoginConfigurerTests {
 	@Test
 	public void oidcLoginCustomWithConfigurer() throws Exception {
 		// setup application context
-		loadConfig(OAuth2LoginConfigCustomWithConfigurer.class);
-		registerJwtDecoder();
+		loadConfig(OAuth2LoginConfigCustomWithConfigurer.class, JwtDecoderFactoryConfig.class);
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
@@ -423,8 +423,7 @@ public class OAuth2LoginConfigurerTests {
 	@Test
 	public void oidcLoginCustomWithBeanRegistration() throws Exception {
 		// setup application context
-		loadConfig(OAuth2LoginConfigCustomWithBeanRegistration.class);
-		registerJwtDecoder();
+		loadConfig(OAuth2LoginConfigCustomWithBeanRegistration.class, JwtDecoderFactoryConfig.class);
 
 		// setup authorization request
 		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
@@ -447,31 +446,21 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OIDC_USER");
 	}
 
+	@Test
+	public void oidcLoginCustomWithNoUniqueJwtDecoderFactory() {
+		assertThatThrownBy(() -> loadConfig(OAuth2LoginConfig.class, NoUniqueJwtDecoderFactoryConfig.class))
+				.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
+				.hasMessageContaining("No qualifying bean of type " +
+						"'org.springframework.security.oauth2.jwt.JwtDecoderFactory<org.springframework.security.oauth2.client.registration.ClientRegistration>' " +
+						"available: expected single matching bean but found 2: jwtDecoderFactory1,jwtDecoderFactory2");
+	}
+
 	private void loadConfig(Class<?>... configs) {
 		AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
 		applicationContext.register(configs);
 		applicationContext.refresh();
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
 		this.context = applicationContext;
-	}
-
-	private void registerJwtDecoder() {
-		JwtDecoder decoder = token -> {
-			Map<String, Object> claims = new HashMap<>();
-			claims.put(IdTokenClaimNames.SUB, "sub123");
-			claims.put(IdTokenClaimNames.ISS, "http://localhost/iss");
-			claims.put(IdTokenClaimNames.AUD, Arrays.asList("clientId", "a", "u", "d"));
-			claims.put(IdTokenClaimNames.AZP, "clientId");
-			return new Jwt("token123", Instant.now(), Instant.now().plusSeconds(3600),
-					Collections.singletonMap("header1", "value1"), claims);
-		};
-		this.springSecurityFilterChain.getFilters("/login/oauth2/code/google").stream()
-				.filter(OAuth2LoginAuthenticationFilter.class::isInstance)
-				.findFirst()
-				.ifPresent(filter -> PropertyAccessorFactory.forDirectFieldAccess(filter)
-					.setPropertyValue(
-						"authenticationManager.providers[2].jwtDecoders['google']",
-						decoder));
 	}
 
 	private OAuth2AuthorizationRequest createOAuth2AuthorizationRequest(String... scopes) {
@@ -630,6 +619,42 @@ public class OAuth2LoginConfigurerTests {
 		HttpSessionOAuth2AuthorizationRequestRepository oauth2AuthorizationRequestRepository() {
 			return new HttpSessionOAuth2AuthorizationRequestRepository();
 		}
+	}
+
+	@Configuration
+	static class JwtDecoderFactoryConfig {
+
+		@Bean
+		JwtDecoderFactory<ClientRegistration> jwtDecoderFactory() {
+			return clientRegistration -> getJwtDecoder();
+		}
+
+		private static JwtDecoder getJwtDecoder() {
+			return token -> {
+				Map<String, Object> claims = new HashMap<>();
+				claims.put(IdTokenClaimNames.SUB, "sub123");
+				claims.put(IdTokenClaimNames.ISS, "http://localhost/iss");
+				claims.put(IdTokenClaimNames.AUD, Arrays.asList("clientId", "a", "u", "d"));
+				claims.put(IdTokenClaimNames.AZP, "clientId");
+				return new Jwt("token123", Instant.now(), Instant.now().plusSeconds(3600),
+						Collections.singletonMap("header1", "value1"), claims);
+			};
+		}
+	}
+
+	@Configuration
+	static class NoUniqueJwtDecoderFactoryConfig {
+
+		@Bean
+		JwtDecoderFactory<ClientRegistration> jwtDecoderFactory1() {
+			return clientRegistration -> JwtDecoderFactoryConfig.getJwtDecoder();
+		}
+
+		@Bean
+		JwtDecoderFactory<ClientRegistration> jwtDecoderFactory2() {
+			return clientRegistration -> JwtDecoderFactoryConfig.getJwtDecoder();
+		}
+
 	}
 
 	private static OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> createOauth2AccessTokenResponseClient() {
