@@ -64,6 +64,7 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilterTests;
+import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 
 /**
  * @author Rob Winch
@@ -250,6 +251,29 @@ public class ServerHttpSecurityTests {
 				.expectStatus().isOk()
 				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
 				.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"))
+				.returnResult();
+
+		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
+	}
+
+	@Test
+	public void basicWithCustomRealmName() {
+		this.http.securityContextRepository(new WebSessionServerSecurityContextRepository());
+		HttpBasicServerAuthenticationEntryPoint authenticationEntryPoint = new HttpBasicServerAuthenticationEntryPoint();
+		authenticationEntryPoint.setRealm("myrealm");
+		this.http.httpBasic().authenticationEntryPoint(authenticationEntryPoint);
+		this.http.authenticationManager(this.authenticationManager);
+		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
+		authorize.anyExchange().authenticated();
+
+		WebTestClient client = buildClient();
+
+		EntityExchangeResult<String> result = client.get()
+				.uri("/")
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, value -> assertThat(value).contains("myrealm"))
+				.expectBody(String.class)
 				.returnResult();
 
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();

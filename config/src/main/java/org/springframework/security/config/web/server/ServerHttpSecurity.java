@@ -1879,6 +1879,19 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Allows easily setting the entry point.
+		 * @param authenticationEntryPoint the {@link ServerAuthenticationEntryPoint} to use
+		 * @return {@link HttpBasicSpec} for additional customization
+		 * @since 5.2.0
+		 * @author Ankur Pathak
+		 */
+		public HttpBasicSpec authenticationEntryPoint(ServerAuthenticationEntryPoint authenticationEntryPoint){
+			Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
+			this.entryPoint = authenticationEntryPoint;
+			return this;
+		}
+
+		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
 		 */
