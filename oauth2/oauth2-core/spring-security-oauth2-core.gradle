@@ -3,6 +3,7 @@ apply plugin: 'io.spring.convention.spring-module'
 dependencies {
 	compile project(':spring-security-core')
 	compile springCoreDependency
+	compile 'org.springframework:spring-web'
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'com.nimbusds:oauth2-oidc-sdk'
