@@ -15,16 +15,19 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
-import org.junit.Test;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.Test;
+
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequest}.
@@ -194,7 +197,11 @@ public class OAuth2AuthorizationRequestTests {
 				.state(STATE)
 				.build();
 
-		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo("https://provider.com/oauth2/authorize?response_type=token&client_id=client-id&scope=scope1+scope2&state=state&redirect_uri=http%3A%2F%2Fexample.com");
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.isEqualTo("https://provider.com/oauth2/authorize?" +
+						"response_type=token&client_id=client-id&" +
+						"scope=scope1%20scope2&state=state&" +
+						"redirect_uri=http://example.com");
 	}
 
 	@Test
@@ -226,7 +233,11 @@ public class OAuth2AuthorizationRequestTests {
 				.build();
 
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
-		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo("https://provider.com/oauth2/authorize?response_type=code&client_id=client-id&scope=scope1+scope2&state=state&redirect_uri=http%3A%2F%2Fexample.com&param1=value1&param2=value2");
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.isEqualTo("https://provider.com/oauth2/authorize?" +
+						"response_type=code&client_id=client-id&" +
+						"scope=scope1%20scope2&state=state&" +
+						"redirect_uri=http://example.com&param1=value1&param2=value2");
 	}
 
 	@Test
@@ -248,13 +259,17 @@ public class OAuth2AuthorizationRequestTests {
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(AUTHORIZATION_URI)
 				.clientId(CLIENT_ID)
-				.redirectUri(REDIRECT_URI)
+				.redirectUri(REDIRECT_URI + "?rparam1=rvalue1&rparam2=rvalue2")
 				.scopes(SCOPES)
 				.state(STATE)
 				.additionalParameters(additionalParameters)
 				.build();
 
-		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo("https://provider.com/oauth2/authorize?response_type=code&client_id=client-id&scope=scope1+scope2&state=state&redirect_uri=http%3A%2F%2Fexample.com&param1=value1");
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.isEqualTo("https://provider.com/oauth2/authorize?" +
+						"response_type=code&client_id=client-id&" +
+						"scope=scope1%20scope2&state=state&" +
+						"redirect_uri=http://example.com?rparam1%3Drvalue1%26rparam2%3Drvalue2&param1=value1");
 	}
 
 	@Test
@@ -289,5 +304,20 @@ public class OAuth2AuthorizationRequestTests {
 		assertThat(authorizationRequestCopy.getState()).isEqualTo(authorizationRequest.getState());
 		assertThat(authorizationRequestCopy.getAdditionalParameters()).isEqualTo(authorizationRequest.getAdditionalParameters());
 		assertThat(authorizationRequestCopy.getAuthorizationRequestUri()).isEqualTo(authorizationRequest.getAuthorizationRequestUri());
+	}
+
+	@Test
+	public void buildWhenAuthorizationUriIncludesQueryParameterThenAuthorizationRequestUrlIncludesIt() {
+		OAuth2AuthorizationRequest authorizationRequest =
+				TestOAuth2AuthorizationRequests.request()
+						.authorizationUri(AUTHORIZATION_URI +
+								"?param1=value1&param2=value2").build();
+
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.isEqualTo("https://provider.com/oauth2/authorize?" +
+						"param1=value1&param2=value2&" +
+						"response_type=code&client_id=client-id&state=state&" +
+						"redirect_uri=https://example.com/authorize/oauth2/code/registration-id");
 	}
 }
