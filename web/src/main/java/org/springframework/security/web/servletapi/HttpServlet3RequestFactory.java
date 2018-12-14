@@ -48,9 +48,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 /**
- * Provides integration with the Servlet 3 APIs in addition to the ones found in
- * {@link HttpServlet25RequestFactory}. The additional methods that are integrated with
- * can be found below:
+ * Provides integration with the Servlet 3 APIs. The additional methods that are
+ * integrated with can be found below:
  *
  * <ul>
  * <li>{@link HttpServletRequest#authenticate(HttpServletResponse)} - Allows the user to
@@ -71,7 +70,6 @@ import org.springframework.util.CollectionUtils;
  * @author Rob Winch
  *
  * @see SecurityContextHolderAwareRequestFilter
- * @see HttpServlet25RequestFactory
  * @see Servlet3SecurityContextHolderAwareRequestWrapper
  * @see SecurityContextAsyncContext
  */
