@@ -15,13 +15,6 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.oauth2.core.AuthenticationMethod;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +23,13 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.oauth2.core.AuthenticationMethod;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * A representation of a client registration with an OAuth 2.0 or OpenID Connect 1.0 Provider.
@@ -489,6 +489,7 @@ public final class ClientRegistration implements Serializable {
 			} else {
 				this.validateAuthorizationCodeGrantType();
 			}
+			this.validateScopes();
 			return this.create();
 		}
 
@@ -544,6 +545,28 @@ public final class ClientRegistration implements Serializable {
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
+		}
+
+		private void validateScopes() {
+			if (this.scopes == null) {
+				return;
+			}
+
+			for (String scope : this.scopes) {
+				Assert.isTrue(validateScope(scope), "scope \"" + scope + "\" contains invalid characters");
+			}
+		}
+
+		private static boolean validateScope(String scope) {
+			return scope == null ||
+					scope.chars().allMatch(c ->
+							withinTheRangeOf(c, 0x21, 0x21) ||
+							withinTheRangeOf(c, 0x23, 0x5B) ||
+							withinTheRangeOf(c, 0x5D, 0x7E));
+		}
+
+		private static boolean withinTheRangeOf(int c, int min, int max) {
+			return c >= min && c <= max;
 		}
 	}
 }

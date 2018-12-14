@@ -535,4 +535,23 @@ public class ClientRegistrationTests {
 						.build()
 		).isInstanceOf(IllegalArgumentException.class);
 	}
+
+	// gh-6256
+	@Test
+	public void buildWhenScopesContainASpaceThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() ->
+				TestClientRegistrations.clientCredentials()
+						.scope("openid profile email")
+						.build()
+		).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void buildWhenScopesContainAnInvalidCharacterThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() ->
+				TestClientRegistrations.clientCredentials()
+						.scope("an\"invalid\"scope")
+						.build()
+		).isInstanceOf(IllegalArgumentException.class);
+	}
 }
