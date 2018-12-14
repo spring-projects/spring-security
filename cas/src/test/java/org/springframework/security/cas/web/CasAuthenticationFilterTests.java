@@ -94,7 +94,7 @@ public class CasAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testRequiresAuthenticationFilterProcessUrl() {
+	public void testRequiresAuthenticationFilterProcessUrl() throws Exception {
 		String url = "/login/cas";
 		CasAuthenticationFilter filter = new CasAuthenticationFilter();
 		filter.setFilterProcessesUrl(url);
@@ -106,7 +106,7 @@ public class CasAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testRequiresAuthenticationProxyRequest() {
+	public void testRequiresAuthenticationProxyRequest() throws Exception {
 		CasAuthenticationFilter filter = new CasAuthenticationFilter();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -122,7 +122,7 @@ public class CasAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testRequiresAuthenticationAuthAll() {
+	public void testRequiresAuthenticationAuthAll() throws Exception {
 		ServiceProperties properties = new ServiceProperties();
 		properties.setAuthenticateAllArtifacts(true);
 

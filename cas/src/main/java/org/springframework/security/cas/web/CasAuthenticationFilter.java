@@ -242,7 +242,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	@Override
 	public Authentication attemptAuthentication(final HttpServletRequest request,
 			final HttpServletResponse response) throws AuthenticationException,
-			IOException {
+			IOException, ServletException {
 		// if the request is a proxy request process it and return null to indicate the
 		// request has been processed
 		if (proxyReceptorRequest(request)) {
@@ -281,9 +281,11 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	/**
 	 * Overridden to provide proxying capabilities.
+	 * @throws ServletException 
+	 * @throws IOException 
 	 */
 	protected boolean requiresAuthentication(final HttpServletRequest request,
-			final HttpServletResponse response) {
+			final HttpServletResponse response) throws IOException, ServletException {
 		final boolean serviceTicketRequest = serviceTicketRequest(request, response);
 		final boolean result = serviceTicketRequest || proxyReceptorRequest(request)
 				|| (proxyTicketRequest(serviceTicketRequest, request));
@@ -334,9 +336,11 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * @param request
 	 * @param response
 	 * @return
+	 * @throws ServletException 
+	 * @throws IOException 
 	 */
 	private boolean serviceTicketRequest(final HttpServletRequest request,
-			final HttpServletResponse response) {
+			final HttpServletResponse response) throws IOException, ServletException {
 		boolean result = super.requiresAuthentication(request, response);
 		if (logger.isDebugEnabled()) {
 			logger.debug("serviceTicketRequest = " + result);
