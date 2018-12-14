@@ -77,7 +77,10 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/not-found-id");
 
-		assertThat(request.getAuthorizationRequestUri()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id&scope=read%3Auser&state=.*?&redirect_uri=%2Flogin%2Foauth2%2Fcode%2Fregistration-id");
+		assertThat(request.getAuthorizationRequestUri()).matches("https://example.com/login/oauth/authorize\\?" +
+				"response_type=code&client_id=client-id&" +
+				"scope=read:user&state=.*?&" +
+				"redirect_uri=/login/oauth2/code/registration-id");
 	}
 
 	private OAuth2AuthorizationRequest resolve(String path) {

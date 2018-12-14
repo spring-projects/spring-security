@@ -15,23 +15,24 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
+
+import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * A representation of an OAuth 2.0 Authorization Request
@@ -336,34 +337,30 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		private String buildAuthorizationRequestUri() {
-			Map<String, String> parameters = new LinkedHashMap<>();
-			parameters.put(OAuth2ParameterNames.RESPONSE_TYPE, this.responseType.getValue());
-			parameters.put(OAuth2ParameterNames.CLIENT_ID, this.clientId);
+			MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+			parameters.set(OAuth2ParameterNames.RESPONSE_TYPE, this.responseType.getValue());
+			parameters.set(OAuth2ParameterNames.CLIENT_ID, this.clientId);
 			if (!CollectionUtils.isEmpty(this.scopes)) {
-				parameters.put(OAuth2ParameterNames.SCOPE,
+				parameters.set(OAuth2ParameterNames.SCOPE,
 						StringUtils.collectionToDelimitedString(this.scopes, " "));
 			}
 			if (this.state != null) {
-				parameters.put(OAuth2ParameterNames.STATE, this.state);
+				parameters.set(OAuth2ParameterNames.STATE, this.state);
 			}
 			if (this.redirectUri != null) {
-				parameters.put(OAuth2ParameterNames.REDIRECT_URI, this.redirectUri);
+				parameters.set(OAuth2ParameterNames.REDIRECT_URI, this.redirectUri);
 			}
 			if (!CollectionUtils.isEmpty(this.additionalParameters)) {
 				this.additionalParameters.entrySet().stream()
 						.filter(e -> !e.getKey().equals(OAuth2ParameterNames.REGISTRATION_ID))
-						.forEach(e -> parameters.put(e.getKey(), e.getValue().toString()));
+						.forEach(e -> parameters.set(e.getKey(), e.getValue().toString()));
 			}
 
-			try {
-				StringJoiner queryParams = new StringJoiner("&");
-				for (String paramName : parameters.keySet()) {
-					queryParams.add(paramName + "=" + URLEncoder.encode(parameters.get(paramName), "UTF-8"));
-				}
-				return this.authorizationUri + "?" + queryParams.toString();
-			} catch (UnsupportedEncodingException ex) {
-				throw new IllegalArgumentException("Unable to build authorization request uri: " + ex.getMessage(), ex);
-			}
+			return UriComponentsBuilder.fromHttpUrl(this.authorizationUri)
+					.queryParams(parameters)
+					.encode(StandardCharsets.UTF_8)
+					.build()
+					.toUriString();
 		}
 	}
 }

@@ -151,7 +151,10 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-id");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
+				"response_type=code&client_id=client-id&" +
+				"scope=read:user&state=.{15,}&" +
+				"redirect_uri=http://localhost/login/oauth2/code/registration-id");
 	}
 
 	@Test
@@ -187,7 +190,10 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=token&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fimplicit%2Fregistration-3");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
+				"response_type=token&client_id=client-id&" +
+				"scope=read:user&state=.{15,}&" +
+				"redirect_uri=http://localhost/authorize/oauth2/implicit/registration-3");
 	}
 
 	@Test
@@ -225,7 +231,10 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-id");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
+				"response_type=code&client_id=client-id&" +
+				"scope=read:user&state=.{15,}&" +
+				"redirect_uri=http://localhost/login/oauth2/code/registration-id");
 	}
 
 	@Test
@@ -243,7 +252,10 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Fauthorize%2Foauth2%2Fcode%2Fregistration-id");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
+				"response_type=code&client_id=client-id&" +
+				"scope=read:user&state=.{15,}&" +
+				"redirect_uri=http://localhost/authorize/oauth2/code/registration-id");
 		verify(this.requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -298,7 +310,11 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-id&idp=https%3A%2F%2Fother.provider.com");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
+				"response_type=code&client_id=client-id&" +
+				"scope=read:user&state=.{15,}&" +
+				"redirect_uri=http://localhost/login/oauth2/code/registration-id&" +
+				"idp=https://other.provider.com");
 	}
 
 	// gh-4911, gh-5244
@@ -339,6 +355,10 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?response_type=code&client_id=client-id&scope=read%3Auser&state=.{15,}&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fregistration-id&login_hint=user@provider\\.com");
+		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
+				"response_type=code&client_id=client-id&" +
+				"scope=read:user&state=.{15,}&" +
+				"redirect_uri=http://localhost/login/oauth2/code/registration-id&" +
+				"login_hint=user@provider\\.com");
 	}
 }
