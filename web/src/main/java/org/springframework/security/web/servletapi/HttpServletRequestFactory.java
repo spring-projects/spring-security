@@ -19,13 +19,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Internal interface for creating a {@link HttpServletRequest}. This allows for creating
- * a different implementation for Servlet 2.5 and Servlet 3.0 environments.
+ * Internal interface for creating a {@link HttpServletRequest}.
  *
  * @author Rob Winch
  * @since 3.2
  * @see HttpServlet3RequestFactory
- * @see HttpServlet25RequestFactory
  */
 interface HttpServletRequestFactory {
 
