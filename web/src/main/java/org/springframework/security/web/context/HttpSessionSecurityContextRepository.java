@@ -35,7 +35,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.util.WebUtils;
 
 /**
@@ -95,7 +94,6 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	private final Object contextObject = SecurityContextHolder.createEmptyContext();
 	private boolean allowSessionCreation = true;
 	private boolean disableUrlRewriting = false;
-	private boolean isServlet3 = ClassUtils.hasMethod(ServletRequest.class, "startAsync");
 	private String springSecurityContextKey = SPRING_SECURITY_CONTEXT_KEY;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
@@ -127,10 +125,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 				response, request, httpSession != null, context);
 		requestResponseHolder.setResponse(wrappedResponse);
 
-		if (isServlet3) {
-			requestResponseHolder.setRequest(new Servlet3SaveToSessionRequestWrapper(
-					request, wrappedResponse));
-		}
+		requestResponseHolder.setRequest(new SaveToSessionRequestWrapper(
+				request, wrappedResponse));
 
 		return context;
 	}
@@ -269,11 +265,11 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	// ~ Inner Classes
 	// ==================================================================================================
 
-	private static class Servlet3SaveToSessionRequestWrapper extends
+	private static class SaveToSessionRequestWrapper extends
 			HttpServletRequestWrapper {
 		private final SaveContextOnUpdateOrErrorResponseWrapper response;
 
-		public Servlet3SaveToSessionRequestWrapper(HttpServletRequest request,
+		public SaveToSessionRequestWrapper(HttpServletRequest request,
 				SaveContextOnUpdateOrErrorResponseWrapper response) {
 			super(request);
 			this.response = response;
