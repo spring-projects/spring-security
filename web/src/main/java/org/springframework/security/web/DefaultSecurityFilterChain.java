@@ -15,13 +15,15 @@
  */
 package org.springframework.security.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Standard implementation of {@code SecurityFilterChain}.
@@ -30,10 +32,11 @@ import java.util.*;
  *
  * @since 3.1
  */
-public final class DefaultSecurityFilterChain implements SecurityFilterChain {
+public final class DefaultSecurityFilterChain implements SecurityFilterChain, BeanNameAware {
 	private static final Log logger = LogFactory.getLog(DefaultSecurityFilterChain.class);
 	private final RequestMatcher requestMatcher;
 	private final List<Filter> filters;
+	private String beanName;
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, Filter... filters) {
 		this(requestMatcher, Arrays.asList(filters));
@@ -61,4 +64,30 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 	public String toString() {
 		return "[ " + requestMatcher + ", " + filters + "]";
 	}
+
+	/**
+	 * Stores the bean name as defined in the Spring bean factory.
+	 * Only relevant in case of initialization as bean.
+	 * @see org.springframework.beans.factory.BeanNameAware
+	 * @since 5.2.0
+	 * @author Ankur Pathak
+	 */
+	@Override
+	public void setBeanName(String beanName) {
+		logger.info("Created filter chain "+ beanName +": " + requestMatcher + ", " + filters);
+		this.beanName = beanName;
+	}
+
+	/**
+	 * Make the name of this bean available as defined in the Spring bean factory.
+	 * Only relevant in case of initialization as bean.
+	 * @return the bean name, or {@code null} if none available
+	 * @see #setBeanName
+	 * @since 5.2.0
+	 * @author Ankur Pathak
+	 */
+	public String getBeanName(){
+		return beanName;
+	}
+
 }
