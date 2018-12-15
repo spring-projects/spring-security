@@ -2,13 +2,11 @@ package org.springframework.security.config.ldap
 
 import org.springframework.security.crypto.password.NoOpPasswordEncoder
 
-import static org.mockito.Mockito.*
 
 import java.text.MessageFormat
 
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.config.AbstractXmlConfigTests
 import org.springframework.security.config.BeanIds
 import org.springframework.security.util.FieldUtils

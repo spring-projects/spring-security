@@ -15,13 +15,14 @@
  */
 package org.springframework.security.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Standard implementation of {@code SecurityFilterChain}.
@@ -30,10 +31,11 @@ import java.util.*;
  *
  * @since 3.1
  */
-public final class DefaultSecurityFilterChain implements SecurityFilterChain {
+public final class DefaultSecurityFilterChain implements SecurityFilterChain{
 	private static final Log logger = LogFactory.getLog(DefaultSecurityFilterChain.class);
 	private final RequestMatcher requestMatcher;
 	private final List<Filter> filters;
+	private String beanName;
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, Filter... filters) {
 		this(requestMatcher, Arrays.asList(filters));
@@ -61,4 +63,5 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 	public String toString() {
 		return "[ " + requestMatcher + ", " + filters + "]";
 	}
+
 }

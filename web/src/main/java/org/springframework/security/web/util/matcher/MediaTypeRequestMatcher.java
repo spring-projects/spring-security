@@ -138,7 +138,7 @@ import org.springframework.web.context.request.ServletWebRequest;
  * @since 3.2
  */
 
-public final class MediaTypeRequestMatcher implements RequestMatcher {
+public final class MediaTypeRequestMatcher extends AbstractRequestMatcher {
 	private final Log logger = LogFactory.getLog(getClass());
 	private final ContentNegotiationStrategy contentNegotiationStrategy;
 	private final Collection<MediaType> matchingMediaTypes;
@@ -250,6 +250,6 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 		return "MediaTypeRequestMatcher [contentNegotiationStrategy="
 				+ this.contentNegotiationStrategy + ", matchingMediaTypes="
 				+ this.matchingMediaTypes + ", useEquals=" + this.useEquals
-				+ ", ignoredMediaTypes=" + this.ignoredMediaTypes + "]";
+				+ ", ignoredMediaTypes=" + this.ignoredMediaTypes + ", id="+ getId()+"]";
 	}
 }

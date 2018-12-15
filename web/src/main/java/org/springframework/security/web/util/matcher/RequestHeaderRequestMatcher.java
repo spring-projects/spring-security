@@ -17,7 +17,6 @@ package org.springframework.security.web.util.matcher;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -50,7 +49,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  */
-public final class RequestHeaderRequestMatcher implements RequestMatcher {
+public final class RequestHeaderRequestMatcher extends AbstractRequestMatcher {
 	private final String expectedHeaderName;
 	private final String expectedHeaderValue;
 
@@ -94,6 +93,6 @@ public final class RequestHeaderRequestMatcher implements RequestMatcher {
 	@Override
 	public String toString() {
 		return "RequestHeaderRequestMatcher [expectedHeaderName=" + expectedHeaderName
-				+ ", expectedHeaderValue=" + expectedHeaderValue + "]";
+				+ ", expectedHeaderValue=" + expectedHeaderValue + ", id=" + getId() + "]";
 	}
 }

@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.AbstractRequestMatcher;
 
 /**
  *
@@ -62,7 +62,7 @@ public class HttpSessionRequestCacheTests {
 	@Test
 	public void requestMatcherDefinesCorrectSubsetOfCachedRequests() throws Exception {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
-		cache.setRequestMatcher(new RequestMatcher() {
+		cache.setRequestMatcher(new AbstractRequestMatcher() {
 
 			public boolean matches(HttpServletRequest request) {
 				return request.getMethod().equals("GET");

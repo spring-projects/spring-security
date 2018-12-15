@@ -23,7 +23,6 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * A RequestMatcher implementation which uses a SpEL expression
@@ -41,7 +40,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @author Mike Wiesner
  * @since 3.0.2
  */
-public class ELRequestMatcher implements RequestMatcher {
+public class ELRequestMatcher extends AbstractRequestMatcher {
 
 	private final Expression expression;
 
@@ -69,6 +68,7 @@ public class ELRequestMatcher implements RequestMatcher {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("EL [el=\"").append(this.expression.getExpressionString()).append("\"");
+		sb.append(", id=").append(getId());
 		sb.append("]");
 		return sb.toString();
 	}

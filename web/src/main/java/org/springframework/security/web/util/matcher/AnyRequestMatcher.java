@@ -17,15 +17,13 @@ package org.springframework.security.web.util.matcher;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.web.util.matcher.RequestMatcher;
-
 /**
  * Matches any supplied request.
  *
  * @author Luke Taylor
  * @since 3.1
  */
-public final class AnyRequestMatcher implements RequestMatcher {
+public final class AnyRequestMatcher extends AbstractRequestMatcher {
 	public static final RequestMatcher INSTANCE = new AnyRequestMatcher();
 
 	public boolean matches(HttpServletRequest request) {
@@ -46,7 +44,7 @@ public final class AnyRequestMatcher implements RequestMatcher {
 
 	@Override
 	public String toString() {
-		return "any request";
+		return "any request[id=" + getId() + "]";
 	}
 
 	private AnyRequestMatcher() {

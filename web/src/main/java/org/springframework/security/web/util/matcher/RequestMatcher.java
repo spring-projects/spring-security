@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Luke Taylor
  * @since 3.0.2
  */
+@FunctionalInterface
 public interface RequestMatcher {
 
 	/**
@@ -32,5 +33,15 @@ public interface RequestMatcher {
 	 * @return true if the request matches, false otherwise
 	 */
 	boolean matches(HttpServletRequest request);
+
+	/**
+	 * Helps to identify which rule implemented by the strategy is in use for matching
+	 * supplied request.
+	 *
+	 * @return id
+	 * @since 5.2.0
+	 * @author Ankur Pathak
+	 */
+	default String getId() {return ""; }
 
 }

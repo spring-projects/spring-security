@@ -53,8 +53,8 @@ import org.springframework.web.util.UrlPathHelper;
  *
  * @see org.springframework.util.AntPathMatcher
  */
-public final class AntPathRequestMatcher
-		implements RequestMatcher, RequestVariablesExtractor {
+public final class AntPathRequestMatcher extends AbstractRequestMatcher
+		implements RequestVariablesExtractor {
 	private static final Log logger = LogFactory.getLog(AntPathRequestMatcher.class);
 	private static final String MATCH_ALL = "/**";
 
@@ -236,6 +236,7 @@ public final class AntPathRequestMatcher
 			sb.append(", ").append(this.httpMethod);
 		}
 
+		sb.append(", id=").append(getId());
 		sb.append("]");
 
 		return sb.toString();

@@ -41,9 +41,9 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
+import org.springframework.security.web.util.matcher.AbstractRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -386,7 +386,7 @@ public class NamespaceHttpTests {
 				.requestMatcher(new MyRequestMatcher());
 		}
 
-		static class MyRequestMatcher implements RequestMatcher {
+		static class MyRequestMatcher extends AbstractRequestMatcher {
 			public boolean matches(HttpServletRequest request) {
 				return true;
 			}

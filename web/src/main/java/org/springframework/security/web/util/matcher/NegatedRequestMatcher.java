@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -31,7 +30,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  */
-public class NegatedRequestMatcher implements RequestMatcher {
+public class NegatedRequestMatcher extends AbstractRequestMatcher {
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final RequestMatcher requestMatcher;
@@ -55,6 +54,6 @@ public class NegatedRequestMatcher implements RequestMatcher {
 
 	@Override
 	public String toString() {
-		return "NegatedRequestMatcher [requestMatcher=" + requestMatcher + "]";
+		return "NegatedRequestMatcher [requestMatcher=" + requestMatcher + ", id=" +getId()+ "]";
 	}
 }

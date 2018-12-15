@@ -21,7 +21,6 @@ import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
 
 /**
@@ -34,7 +33,7 @@ import org.springframework.util.StringUtils;
  * @author Luke Taylor
  * @since 3.0.2
  */
-public final class IpAddressMatcher implements RequestMatcher {
+public final class IpAddressMatcher extends AbstractRequestMatcher {
 	private final int nMaskBits;
 	private final InetAddress requiredAddress;
 

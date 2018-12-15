@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.server.resource.web.DefaultBearerToke
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.AbstractRequestMatcher;
 import org.springframework.util.Assert;
 
 import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
@@ -294,7 +294,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return this.bearerTokenResolver;
 	}
 
-	private static final class BearerTokenRequestMatcher implements RequestMatcher {
+	private static final class BearerTokenRequestMatcher extends AbstractRequestMatcher {
 		private BearerTokenResolver bearerTokenResolver;
 
 		@Override

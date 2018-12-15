@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
 
 /**
@@ -39,7 +38,7 @@ import org.springframework.util.StringUtils;
  * @author Rob Winch
  * @since 3.1
  */
-public final class RegexRequestMatcher implements RequestMatcher {
+public final class RegexRequestMatcher extends AbstractRequestMatcher {
 	private final static Log logger = LogFactory.getLog(RegexRequestMatcher.class);
 
 	private final Pattern pattern;
@@ -140,6 +139,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 			sb.append(", ").append(this.httpMethod);
 		}
 
+		sb.append(", id=").append(getId());
 		sb.append("]");
 
 		return sb.toString();

@@ -111,7 +111,7 @@ public class RegexRequestMatcherTests {
 	@Test
 	public void toStringThenFormatted() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher("/blah", "GET");
-		assertThat(matcher.toString()).isEqualTo("Regex [pattern='/blah', GET]");
+		assertThat(matcher.toString()).isEqualTo("Regex [pattern='/blah', GET, id="+matcher.getId()+"]");
 	}
 
 	private HttpServletRequest createRequestWithNullMethod(String path) {

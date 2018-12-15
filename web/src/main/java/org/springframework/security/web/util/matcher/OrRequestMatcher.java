@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -32,7 +31,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  */
-public final class OrRequestMatcher implements RequestMatcher {
+public final class OrRequestMatcher extends AbstractRequestMatcher {
 	private final Log logger = LogFactory.getLog(getClass());
 	private final List<RequestMatcher> requestMatchers;
 
@@ -75,6 +74,6 @@ public final class OrRequestMatcher implements RequestMatcher {
 
 	@Override
 	public String toString() {
-		return "OrRequestMatcher [requestMatchers=" + requestMatchers + "]";
+		return "OrRequestMatcher [requestMatchers=" + requestMatchers + ", id="+ getId() + "]";
 	}
 }

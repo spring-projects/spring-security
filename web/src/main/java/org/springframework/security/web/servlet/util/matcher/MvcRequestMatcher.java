@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.util.matcher.AbstractRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.AntPathMatcher;
@@ -45,7 +46,7 @@ import org.springframework.web.util.UrlPathHelper;
  * @author Rob Winch
  * @since 4.1.1
  */
-public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
+public class MvcRequestMatcher extends AbstractRequestMatcher implements RequestVariablesExtractor {
 
 	private final DefaultMatcher defaultMatcher = new DefaultMatcher();
 
@@ -141,7 +142,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		return sb.toString();
 	}
 
-	private class DefaultMatcher implements RequestMatcher, RequestVariablesExtractor {
+	private class DefaultMatcher extends AbstractRequestMatcher implements RequestVariablesExtractor {
 
 		private final UrlPathHelper pathHelper = new UrlPathHelper();
 

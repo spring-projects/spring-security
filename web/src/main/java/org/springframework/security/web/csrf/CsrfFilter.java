@@ -31,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.security.web.util.matcher.AbstractRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -159,7 +160,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		this.accessDeniedHandler = accessDeniedHandler;
 	}
 
-	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
+	private static final class DefaultRequiresCsrfMatcher extends AbstractRequestMatcher {
 		private final HashSet<String> allowedMethods = new HashSet<>(
 				Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
 

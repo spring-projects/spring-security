@@ -18,6 +18,7 @@ package org.springframework.security.web.header.writers;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.header.HeaderWriter;
+import org.springframework.security.web.util.matcher.AbstractRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -430,7 +431,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 		this.hpkpHeaderValue = headerValue;
 	}
 
-	private static final class SecureRequestMatcher implements RequestMatcher {
+	private static final class SecureRequestMatcher extends AbstractRequestMatcher {
 		public boolean matches(HttpServletRequest request) {
 			return request.isSecure();
 		}

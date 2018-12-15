@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry.UrlMapping;
+import org.springframework.security.web.util.matcher.AbstractRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -64,7 +65,7 @@ final class PermitAllSupport {
 		}
 	}
 
-	private final static class ExactUrlRequestMatcher implements RequestMatcher {
+	private final static class ExactUrlRequestMatcher extends AbstractRequestMatcher {
 		private String processUrl;
 
 		private ExactUrlRequestMatcher(String processUrl) {
@@ -89,7 +90,7 @@ final class PermitAllSupport {
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			sb.append("ExactUrl [processUrl='").append(processUrl).append("']");
+			sb.append("ExactUrl [processUrl='").append(processUrl).append("', id=").append(getId()).append("]");
 			return sb.toString();
 		}
 	}
