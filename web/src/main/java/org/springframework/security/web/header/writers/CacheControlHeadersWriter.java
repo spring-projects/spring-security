@@ -15,7 +15,6 @@
  */
 package org.springframework.security.web.header.writers;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.header.Header;
 import org.springframework.security.web.header.HeaderWriter;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Inserts headers to prevent caching if no cache control headers have been specified.
@@ -44,8 +42,6 @@ public final class CacheControlHeadersWriter implements HeaderWriter {
 	private static final String PRAGMA = "Pragma";
 	private static final String CACHE_CONTROL = "Cache-Control";
 
-	private final Method getHeaderMethod;
-
 	private final HeaderWriter delegate;
 
 	/**
@@ -53,8 +49,6 @@ public final class CacheControlHeadersWriter implements HeaderWriter {
 	 */
 	public CacheControlHeadersWriter() {
 		this.delegate = new StaticHeadersWriter(createHeaders());
-		this.getHeaderMethod = ReflectionUtils.findMethod(HttpServletResponse.class,
-				"getHeader", String.class);
 	}
 
 	@Override
@@ -67,11 +61,7 @@ public final class CacheControlHeadersWriter implements HeaderWriter {
 	}
 
 	private boolean hasHeader(HttpServletResponse response, String headerName) {
-		if (this.getHeaderMethod == null) {
-			return false;
-		}
-		return ReflectionUtils.invokeMethod(this.getHeaderMethod, response,
-				headerName) != null;
+		return response.getHeader(headerName) != null;
 	}
 
 	private static List<Header> createHeaders() {
