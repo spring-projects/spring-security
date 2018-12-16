@@ -15,7 +15,6 @@
  */
 package org.springframework.security.web.header.writers;
 
-import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,10 +28,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.spy;
 
 /**
  * @author Rob Winch
@@ -62,26 +57,6 @@ public class CacheControlHeadersWriterTests {
 		assertThat(this.response.getHeaderNames().size()).isEqualTo(3);
 		assertThat(this.response.getHeaderValues("Cache-Control")).containsOnly(
 				"no-cache, no-store, max-age=0, must-revalidate");
-		assertThat(this.response.getHeaderValues("Pragma"))
-				.containsOnly("no-cache");
-		assertThat(this.response.getHeaderValues("Expires"))
-				.containsOnly("0");
-	}
-
-	@Test
-	public void writeHeadersServlet25() {
-		spy(ReflectionUtils.class);
-		when(ReflectionUtils.findMethod(HttpServletResponse.class, "getHeader",
-				String.class)).thenReturn(null);
-		this.response = spy(this.response);
-		doThrow(NoSuchMethodError.class).when(this.response).getHeader(anyString());
-		this.writer = new CacheControlHeadersWriter();
-
-		this.writer.writeHeaders(this.request, this.response);
-
-		assertThat(this.response.getHeaderNames().size()).isEqualTo(3);
-		assertThat(this.response.getHeaderValues("Cache-Control"))
-				.containsOnly("no-cache, no-store, max-age=0, must-revalidate");
 		assertThat(this.response.getHeaderValues("Pragma"))
 				.containsOnly("no-cache");
 		assertThat(this.response.getHeaderValues("Expires"))
