@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
- * The default implementation of {@link SessionAuthenticationStrategy} when using &lt;
+ * The implementation of {@link SessionAuthenticationStrategy} when using &lt;
  * Servlet 3.1.
  * <p>
  * Creates a new session for the newly authenticated user if they already have a session
