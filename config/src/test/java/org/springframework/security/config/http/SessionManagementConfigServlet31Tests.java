@@ -17,7 +17,6 @@ package org.springframework.security.config.http;
 
 import java.lang.reflect.Method;
 import javax.servlet.Filter;
-import javax.servlet.http.HttpServletRequest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,12 +38,7 @@ import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.util.ReflectionUtils;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.same;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.verifyStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * @author Rob Winch
@@ -86,17 +80,17 @@ public class SessionManagementConfigServlet31Tests {
 	}
 
 	@Test
-	public void changeSessionIdDefaultsInServlet31Plus() throws Exception {
-		spy(ReflectionUtils.class);
-		Method method = mock(Method.class);
+	public void changeSessionIdThenPreserveParameters() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		request.getSession();
 		request.setServletPath("/login");
 		request.setMethod("POST");
 		request.setParameter("username", "user");
 		request.setParameter("password", "password");
-		when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId"))
-				.thenReturn(method);
+
+		request.getSession().setAttribute("attribute1", "value1");
+
+		String id = request.getSession().getId();
 
 		loadContext("<http>\n" + "        <form-login/>\n"
 				+ "        <session-management/>\n" + "        <csrf disabled='true'/>\n"
@@ -104,22 +98,22 @@ public class SessionManagementConfigServlet31Tests {
 
 		springSecurityFilterChain.doFilter(request, response, chain);
 
-		verifyStatic(ReflectionUtils.class);
-		ReflectionUtils.invokeMethod(same(method), any(HttpServletRequest.class));
+
+		assertThat(!request.getSession().getId().equals(id));
+		assertThat(request.getSession().getAttribute("attribute1").equals("value1"));
 	}
 
 	@Test
 	public void changeSessionId() throws Exception {
-		spy(ReflectionUtils.class);
-		Method method = mock(Method.class);
+
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
 		request.getSession();
 		request.setServletPath("/login");
 		request.setMethod("POST");
 		request.setParameter("username", "user");
 		request.setParameter("password", "password");
-		when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId"))
-				.thenReturn(method);
+
+		String id = request.getSession().getId();
 
 		loadContext("<http>\n"
 				+ "        <form-login/>\n"
@@ -129,8 +123,8 @@ public class SessionManagementConfigServlet31Tests {
 
 		springSecurityFilterChain.doFilter(request, response, chain);
 
-		verifyStatic(ReflectionUtils.class);
-		ReflectionUtils.invokeMethod(same(method), any(HttpServletRequest.class));
+		assertThat(!request.getSession().getId().equals(id));
+
 	}
 
 	private void loadContext(String context) {

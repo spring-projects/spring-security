@@ -212,8 +212,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Allows explicitly specifying the {@link SessionAuthenticationStrategy}.
-	 * The default is to use {@link SessionFixationProtectionStrategy} for Servlet 3.1 or
-	 * {@link ChangeSessionIdAuthenticationStrategy} for Servlet 3.1+.
+	 * The default is to use {@link ChangeSessionIdAuthenticationStrategy}.
 	 * If restricting the maximum number of sessions is configured, then
 	 * {@link CompositeSessionAuthenticationStrategy} delegating to
 	 * {@link ConcurrentSessionControlAuthenticationStrategy},
@@ -305,13 +304,11 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 		/**
 		 * Specifies that the Servlet container-provided session fixation protection
-		 * should be used. When a session authenticates, the Servlet 3.1 method
+		 * should be used. When a session authenticates, the Servlet method
 		 * {@code HttpServletRequest#changeSessionId()} is called to change the session ID
-		 * and retain all session attributes. Using this option in a Servlet 3.0 or older
-		 * container results in an {@link IllegalStateException}.
+		 * and retain all session attributes.
 		 *
 		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 * @throws IllegalStateException if the container is not Servlet 3.1 or newer.
 		 */
 		public SessionManagementConfigurer<H> changeSessionId() {
 			setSessionFixationAuthenticationStrategy(
@@ -664,11 +661,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the default {@link SessionAuthenticationStrategy} for session fixation
 	 */
 	private static SessionAuthenticationStrategy createDefaultSessionFixationProtectionStrategy() {
-		try {
 			return new ChangeSessionIdAuthenticationStrategy();
-		}
-		catch (IllegalStateException e) {
-			return new SessionFixationProtectionStrategy();
-		}
 	}
 }
