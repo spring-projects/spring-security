@@ -26,14 +26,15 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SavedCookie;
 
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.springframework.util.ClassUtils;
 
 /**
  * Jackson module for spring-security-web. This module register {@link CookieMixin},
  * {@link DefaultCsrfTokenMixin}, {@link DefaultSavedRequestMixin} and {@link WebAuthenticationDetailsMixin}. If no
  * default typing enabled by default then it'll enable it because typing info is needed to properly serialize/deserialize objects.
  * In order to use this module just add this module into your ObjectMapper configuration.
+ * If there is no javax.servlet package in classpath all mixins that depends on it will be skipped.
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
@@ -53,12 +54,14 @@ public class WebJackson2Module extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		SecurityJackson2Modules.enableDefaultTyping((ObjectMapper) context.getOwner());
-		context.setMixInAnnotations(Cookie.class, CookieMixin.class);
-		context.setMixInAnnotations(SavedCookie.class, SavedCookieMixin.class);
+		SecurityJackson2Modules.enableDefaultTyping(context.getOwner());
+		if (ClassUtils.isPresent("javax.servlet.http.Cookie", this.getClass().getClassLoader())) {
+			context.setMixInAnnotations(Cookie.class, CookieMixin.class);
+			context.setMixInAnnotations(SavedCookie.class, SavedCookieMixin.class);
+			context.setMixInAnnotations(DefaultSavedRequest.class, DefaultSavedRequestMixin.class);
+			context.setMixInAnnotations(WebAuthenticationDetails.class, WebAuthenticationDetailsMixin.class);
+		}
 		context.setMixInAnnotations(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);
-		context.setMixInAnnotations(DefaultSavedRequest.class, DefaultSavedRequestMixin.class);
-		context.setMixInAnnotations(WebAuthenticationDetails.class, WebAuthenticationDetailsMixin.class);
 		context.setMixInAnnotations(PreAuthenticatedAuthenticationToken.class, PreAuthenticatedAuthenticationTokenMixin.class);
 	}
 }
