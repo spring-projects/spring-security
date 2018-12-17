@@ -140,7 +140,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 			return "";
 		}
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div class=\"container\"><h2 class=\"form-signin-heading\">Login with OAuth 2.0</h3>");
+		sb.append("<div class=\"container\"><h2 class=\"form-signin-heading\">Login with OAuth 2.0</h2>");
 		sb.append("<table class=\"table table-striped\">\n");
 		for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName.entrySet()) {
 			sb.append(" <tr><td>");
