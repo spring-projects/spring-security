@@ -630,15 +630,16 @@ public class OAuth2LoginConfigurerTests {
 		}
 
 		private static JwtDecoder getJwtDecoder() {
-			return token -> {
-				Map<String, Object> claims = new HashMap<>();
-				claims.put(IdTokenClaimNames.SUB, "sub123");
-				claims.put(IdTokenClaimNames.ISS, "http://localhost/iss");
-				claims.put(IdTokenClaimNames.AUD, Arrays.asList("clientId", "a", "u", "d"));
-				claims.put(IdTokenClaimNames.AZP, "clientId");
-				return new Jwt("token123", Instant.now(), Instant.now().plusSeconds(3600),
-						Collections.singletonMap("header1", "value1"), claims);
-			};
+			Map<String, Object> claims = new HashMap<>();
+			claims.put(IdTokenClaimNames.SUB, "sub123");
+			claims.put(IdTokenClaimNames.ISS, "http://localhost/iss");
+			claims.put(IdTokenClaimNames.AUD, Arrays.asList("clientId", "a", "u", "d"));
+			claims.put(IdTokenClaimNames.AZP, "clientId");
+			Jwt jwt = new Jwt("token123", Instant.now(), Instant.now().plusSeconds(3600),
+					Collections.singletonMap("header1", "value1"), claims);
+			JwtDecoder jwtDecoder = mock(JwtDecoder.class);
+			when(jwtDecoder.decode(any())).thenReturn(jwt);
+			return jwtDecoder;
 		}
 	}
 

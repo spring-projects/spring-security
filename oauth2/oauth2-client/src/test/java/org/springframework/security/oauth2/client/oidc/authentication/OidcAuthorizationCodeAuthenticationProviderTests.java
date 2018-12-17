@@ -42,6 +42,7 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -82,7 +83,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 	@Before
 	@SuppressWarnings("unchecked")
-	public void setUp() throws Exception {
+	public void setUp() {
 		this.clientRegistration = clientRegistration().clientId("client1").build();
 		this.authorizationRequest = request().scope("openid", "profile", "email").build();
 		this.authorizationResponse = success().build();
@@ -204,139 +205,20 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateWhenIdTokenIssuerClaimIsNullThenThrowOAuth2AuthenticationException() throws Exception {
+	public void authenticateWhenIdTokenValidationErrorThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
+		this.exception.expectMessage(containsString("[invalid_id_token] ID Token Validation Error"));
 
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-
-		this.setUpIdToken(claims);
+		JwtDecoder jwtDecoder = mock(JwtDecoder.class);
+		when(jwtDecoder.decode(anyString())).thenThrow(new JwtException("ID Token Validation Error"));
+		this.authenticationProvider.setJwtDecoderFactory(registration -> jwtDecoder);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+				new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
 	}
 
 	@Test
-	public void authenticateWhenIdTokenSubjectClaimIsNullThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-
-		this.setUpIdToken(claims);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenIdTokenAudienceClaimIsNullThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-
-		this.setUpIdToken(claims);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenIdTokenAudienceClaimDoesNotContainClientIdThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-		claims.put(IdTokenClaimNames.AUD, Collections.singletonList("other-client"));
-
-		this.setUpIdToken(claims);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenIdTokenMultipleAudienceClaimAndAuthorizedPartyClaimIsNullThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
-
-		this.setUpIdToken(claims);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenIdTokenAuthorizedPartyClaimNotEqualToClientIdThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
-		claims.put(IdTokenClaimNames.AZP, "other-client");
-
-		this.setUpIdToken(claims);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenIdTokenExpiresAtIsBeforeNowThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
-		claims.put(IdTokenClaimNames.AZP, "client1");
-
-		Instant issuedAt = Instant.now().minusSeconds(10);
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(5);
-
-		this.setUpIdToken(claims, issuedAt, expiresAt);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenIdTokenIssuedAtIsAfterMaxIssuedAtThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
-		claims.put(IdTokenClaimNames.AZP, "client1");
-
-		Instant issuedAt = Instant.now().plusSeconds(35);
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(60);
-
-		this.setUpIdToken(claims, issuedAt, expiresAt);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenLoginSuccessThenReturnAuthentication() throws Exception {
+	public void authenticateWhenLoginSuccessThenReturnAuthentication() {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
 		claims.put(IdTokenClaimNames.SUB, "subject1");
@@ -365,7 +247,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateWhenAuthoritiesMapperSetThenReturnMappedAuthorities() throws Exception {
+	public void authenticateWhenAuthoritiesMapperSetThenReturnMappedAuthorities() {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
 		claims.put(IdTokenClaimNames.SUB, "subject1");
@@ -394,7 +276,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 	// gh-5368
 	@Test
-	public void authenticateWhenTokenSuccessResponseThenAdditionalParametersAddedToUserRequest() throws Exception {
+	public void authenticateWhenTokenSuccessResponseThenAdditionalParametersAddedToUserRequest() {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
 		claims.put(IdTokenClaimNames.SUB, "subject1");
@@ -416,13 +298,13 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 				this.accessTokenResponse.getAdditionalParameters());
 	}
 
-	private void setUpIdToken(Map<String, Object> claims) throws Exception {
+	private void setUpIdToken(Map<String, Object> claims) {
 		Instant issuedAt = Instant.now();
 		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
 		this.setUpIdToken(claims, issuedAt, expiresAt);
 	}
 
-	private void setUpIdToken(Map<String, Object> claims, Instant issuedAt, Instant expiresAt) throws Exception {
+	private void setUpIdToken(Map<String, Object> claims, Instant issuedAt, Instant expiresAt) {
 		Map<String, Object> headers = new HashMap<>();
 		headers.put("alg", "RS256");
 
