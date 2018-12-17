@@ -26,10 +26,12 @@ import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessT
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
@@ -37,6 +39,9 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
@@ -138,7 +143,11 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 
 			return this.accessTokenResponseClient.getTokenResponse(authzRequest)
 					.flatMap(accessTokenResponse -> authenticationResult(authorizationCodeAuthentication, accessTokenResponse))
-					.onErrorMap(OAuth2AuthorizationException.class, e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()));
+					.onErrorMap(OAuth2AuthorizationException.class, e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
+					.onErrorMap(JwtException.class, e -> {
+						OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, e.getMessage(), null);
+						throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString(), e);
+					});
 		});
 	}
 
@@ -188,8 +197,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 		ReactiveJwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(clientRegistration);
 		String rawIdToken = (String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN);
 		return jwtDecoder.decode(rawIdToken)
-				.map(jwt -> new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims()))
-				.doOnNext(idToken -> OidcTokenValidator.validateIdToken(idToken, clientRegistration));
+				.map(jwt -> new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims()));
 	}
 
 	private static class DefaultJwtDecoderFactory implements ReactiveJwtDecoderFactory<ClientRegistration> {
@@ -208,7 +216,12 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 					);
 					throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 				}
-				return new NimbusReactiveJwtDecoder(clientRegistration.getProviderDetails().getJwkSetUri());
+				NimbusReactiveJwtDecoder jwtDecoder = new NimbusReactiveJwtDecoder(
+						clientRegistration.getProviderDetails().getJwkSetUri());
+				OAuth2TokenValidator<Jwt> jwtValidator = new DelegatingOAuth2TokenValidator<>(
+						new JwtTimestampValidator(), new OidcIdTokenValidator(clientRegistration));
+				jwtDecoder.setJwtValidator(jwtValidator);
+				return jwtDecoder;
 			});
 		}
 	}

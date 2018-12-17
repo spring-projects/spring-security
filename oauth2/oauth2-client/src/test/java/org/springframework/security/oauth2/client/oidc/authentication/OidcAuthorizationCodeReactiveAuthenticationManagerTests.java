@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import reactor.core.publisher.Mono;
 
@@ -141,6 +142,22 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		this.authorizationResponseBldr.state("notmatch");
 		assertThatThrownBy(() -> this.manager.authenticate(loginToken()).block())
 				.isInstanceOf(OAuth2AuthenticationException.class);
+	}
+
+	@Test
+	public void authenticateWhenIdTokenValidationErrorThenOAuth2AuthenticationException() {
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
+				.build();
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+
+		when(this.jwtDecoder.decode(any())).thenThrow(new JwtException("ID Token Validation Error"));
+		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
+
+		assertThatThrownBy(() -> this.manager.authenticate(loginToken()).block())
+				.isInstanceOf(OAuth2AuthenticationException.class)
+				.hasMessageContaining("[invalid_id_token] ID Token Validation Error");
 	}
 
 	@Test
