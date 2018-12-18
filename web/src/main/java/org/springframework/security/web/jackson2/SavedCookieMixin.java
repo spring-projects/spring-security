@@ -24,11 +24,11 @@ import com.fasterxml.jackson.annotation.*;
  *
  * <pre>
  * 		ObjectMapper mapper = new ObjectMapper();
- *		mapper.registerModule(new WebJackson2Module());
+ *		mapper.registerModule(new WebServletJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh.
- * @see WebJackson2Module
+ * @see WebServletJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
  * @since 4.2
  */
