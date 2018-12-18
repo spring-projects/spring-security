@@ -16,17 +16,19 @@
 
 package org.springframework.security.authentication;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Test;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests {@link ProviderManager}.
@@ -257,7 +259,6 @@ public class ProviderManagerTests {
 		catch (BadCredentialsException e) {
 			assertThat(e).isSameAs(expected);
 		}
-		verify(publisher).publishAuthenticationFailure(expected, authReq);
 	}
 
 	@Test
@@ -296,6 +297,32 @@ public class ProviderManagerTests {
 		}
 		catch (InternalAuthenticationServiceException success) {
 		}
+	}
+
+	// gh-6281
+	@Test
+	public void authenticateWhenFailsInParentAndPublishesThenChildDoesNotPublish() {
+		BadCredentialsException badCredentialsExParent = new BadCredentialsException("Bad Credentials in parent");
+		ProviderManager parentMgr = new ProviderManager(
+				Collections.singletonList(createProviderWhichThrows(badCredentialsExParent)));
+		ProviderManager childMgr = new ProviderManager(Collections.singletonList(createProviderWhichThrows(
+						new BadCredentialsException("Bad Credentials in child"))), parentMgr);
+
+		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
+		parentMgr.setAuthenticationEventPublisher(publisher);
+		childMgr.setAuthenticationEventPublisher(publisher);
+
+		final Authentication authReq = mock(Authentication.class);
+
+		try {
+			childMgr.authenticate(authReq);
+			fail("Expected exception");
+		}
+		catch (BadCredentialsException e) {
+			assertThat(e).isSameAs(badCredentialsExParent);
+		}
+		verify(publisher).publishAuthenticationFailure(badCredentialsExParent, authReq);		// Parent publishes
+		verifyNoMoreInteractions(publisher);		// Child should not publish (duplicate event)
 	}
 
 	private AuthenticationProvider createProviderWhichThrows(
