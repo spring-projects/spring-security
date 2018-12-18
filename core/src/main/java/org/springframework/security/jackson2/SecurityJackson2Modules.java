@@ -58,6 +58,7 @@ import java.util.Set;
  *     mapper.registerModule(new CasJackson2Module());
  *     mapper.registerModule(new WebJackson2Module());
  *     mapper.registerModule(new WebServletJackson2Module());
+ *     mapper.registerModule(new WebServerJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh.
@@ -69,7 +70,8 @@ public final class SecurityJackson2Modules {
 	private static final List<String> securityJackson2ModuleClasses = Arrays.asList(
 			"org.springframework.security.jackson2.CoreJackson2Module",
 			"org.springframework.security.cas.jackson2.CasJackson2Module",
-			"org.springframework.security.web.jackson2.WebJackson2Module"
+			"org.springframework.security.web.jackson2.WebJackson2Module",
+			"org.springframework.security.web.server.jackson2.WebServerJackson2Module"
 	);
 	private static final String webServletJackson2ModuleClass =
 			"org.springframework.security.web.jackson2.WebServletJackson2Module";
