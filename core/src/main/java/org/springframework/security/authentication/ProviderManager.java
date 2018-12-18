@@ -156,6 +156,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			throws AuthenticationException {
 		Class<? extends Authentication> toTest = authentication.getClass();
 		AuthenticationException lastException = null;
+		AuthenticationException parentException = null;
 		Authentication result = null;
 		Authentication parentResult = null;
 		boolean debug = logger.isDebugEnabled();
@@ -205,7 +206,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 				// handled the request
 			}
 			catch (AuthenticationException e) {
-				lastException = e;
+				lastException = parentException = e;
 			}
 		}
 
@@ -234,7 +235,11 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 					"No AuthenticationProvider found for {0}"));
 		}
 
-		prepareException(lastException, authentication);
+		// If the parent AuthenticationManager was attempted and failed than it will publish an AbstractAuthenticationFailureEvent
+		// This check prevents a duplicate AbstractAuthenticationFailureEvent if the parent AuthenticationManager already published it
+		if (parentException == null) {
+			prepareException(lastException, authentication);
+		}
 
 		throw lastException;
 	}
