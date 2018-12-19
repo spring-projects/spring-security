@@ -1564,12 +1564,30 @@ public class ServerHttpSecurity {
 			}
 
 			/**
+			 * Require any specific role. This is a shortcut for {@link #hasAnyAuthority(String...)}
+			 * @param roles the roles (i.e. "USER" would require "ROLE_USER")
+			 * @return the {@link AuthorizeExchangeSpec} to configure
+			 */
+			public AuthorizeExchangeSpec hasAnyRole(String... roles) {
+				return access(AuthorityReactiveAuthorizationManager.hasAnyRole(roles));
+			}
+
+			/**
 			 * Require a specific authority.
 			 * @param authority the authority to require (i.e. "USER" woudl require authority of "USER").
 			 * @return the {@link AuthorizeExchangeSpec} to configure
 			 */
 			public AuthorizeExchangeSpec hasAuthority(String authority) {
 				return access(AuthorityReactiveAuthorizationManager.hasAuthority(authority));
+			}
+
+			/**
+			 * Require any authority
+			 * @param authorities the authorities to require (i.e. "USER" would require authority of "USER").
+			 * @return the {@link AuthorizeExchangeSpec} to configure
+			 */
+			public AuthorizeExchangeSpec hasAnyAuthority(String... authorities) {
+				return access(AuthorityReactiveAuthorizationManager.hasAnyAuthority(authorities));
 			}
 
 			/**
