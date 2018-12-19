@@ -62,43 +62,64 @@ public class OidcIdTokenValidatorTests {
 	@Test
 	public void validateIdTokenWhenIssuerNullThenHasErrors() {
 		this.claims.remove(IdTokenClaimNames.ISS);
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	@Test
 	public void validateIdTokenWhenSubNullThenHasErrors() {
 		this.claims.remove(IdTokenClaimNames.SUB);
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	@Test
 	public void validateIdTokenWhenAudNullThenHasErrors() {
 		this.claims.remove(IdTokenClaimNames.AUD);
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	@Test
 	public void validateIdTokenWhenIssuedAtNullThenHasErrors() {
 		this.issuedAt = null;
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	@Test
 	public void validateIdTokenWhenExpiresAtNullThenHasErrors() {
 		this.expiresAt = null;
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	@Test
 	public void validateIdTokenWhenAudMultipleAndAzpNullThenHasErrors() {
 		this.claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id", "other"));
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	@Test
 	public void validateIdTokenWhenAzpNotClientIdThenHasErrors() {
 		this.claims.put(IdTokenClaimNames.AZP, "other");
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	@Test
@@ -112,34 +133,49 @@ public class OidcIdTokenValidatorTests {
 	public void validateIdTokenWhenMultipleAudAzpNotClientIdThenHasErrors() {
 		this.claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id-1", "client-id-2"));
 		this.claims.put(IdTokenClaimNames.AZP, "other-client");
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	@Test
 	public void validateIdTokenWhenAudNotClientIdThenHasErrors() {
 		this.claims.put(IdTokenClaimNames.AUD, Collections.singletonList("other-client"));
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	@Test
 	public void validateIdTokenWhenExpiredThenHasErrors() {
 		this.issuedAt = Instant.now().minus(Duration.ofMinutes(1));
 		this.expiresAt = this.issuedAt.plus(Duration.ofSeconds(1));
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	@Test
 	public void validateIdTokenWhenIssuedAtWayInFutureThenHasErrors() {
 		this.issuedAt = Instant.now().plus(Duration.ofMinutes(5));
 		this.expiresAt = this.issuedAt.plus(Duration.ofSeconds(1));
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	@Test
 	public void validateIdTokenWhenExpiresAtBeforeNowThenHasErrors() {
 		this.issuedAt = Instant.now().minusSeconds(10);
 		this.expiresAt = Instant.from(this.issuedAt).plusSeconds(5);
-		assertThat(this.validateIdToken()).isNotEmpty();
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getErrorCode)
+				.contains("invalid_id_token");
 	}
 
 	private Collection<OAuth2Error> validateIdToken() {
