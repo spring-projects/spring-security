@@ -105,9 +105,29 @@ public class AuthorityReactiveAuthorizationManagerTests {
 	}
 
 	@Test
-	public void checkWhenHasRoleAndNotAuthorizedThenReturnTrue() {
+	public void checkWhenHasRoleAndNotAuthorizedThenReturnFalse() {
 		manager = AuthorityReactiveAuthorizationManager.hasRole("ADMIN");
 		authentication = new TestingAuthenticationToken("rob", "secret", "ADMIN");
+
+		boolean granted = manager.check(Mono.just(authentication), null).block().isGranted();
+
+		assertThat(granted).isFalse();
+	}
+
+	@Test
+	public void checkWhenHasAnyRoleAndAuthorizedThenReturnTrue() {
+		manager = AuthorityReactiveAuthorizationManager.hasAnyRole("GENERAL", "USER", "TEST");
+		authentication = new TestingAuthenticationToken("rob", "secret", "ROLE_USER", "ROLE_AUDITING", "ROLE_ADMIN");
+
+		boolean granted = manager.check(Mono.just(authentication), null).block().isGranted();
+
+		assertThat(granted).isTrue();
+	}
+
+	@Test
+	public void checkWhenHasAnyRoleAndNotAuthorizedThenReturnFalse() {
+		manager = AuthorityReactiveAuthorizationManager.hasAnyRole("GENERAL", "USER", "TEST");
+		authentication = new TestingAuthenticationToken("rob", "secret", "USER", "AUDITING", "ADMIN");
 
 		boolean granted = manager.check(Mono.just(authentication), null).block().isGranted();
 
@@ -124,5 +144,31 @@ public class AuthorityReactiveAuthorizationManagerTests {
 	public void hasAuthorityWhenNullThenException() {
 		String authority = null;
 		AuthorityReactiveAuthorizationManager.hasAuthority(authority);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void hasAnyRoleWhenNullThenException() {
+		String role = null;
+		AuthorityReactiveAuthorizationManager.hasAnyRole(role);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void hasAnyAuthorityWhenNullThenException() {
+		String authority = null;
+		AuthorityReactiveAuthorizationManager.hasAnyAuthority(authority);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void hasAnyRoleWhenOneIsNullThenException() {
+		String role1 = "ROLE_ADMIN";
+		String role2 = null;
+		AuthorityReactiveAuthorizationManager.hasAnyRole(role1, role2);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void hasAnyAuthorityWhenOneIsNullThenException() {
+		String authority1 = "ADMIN";
+		String authority2 = null;
+		AuthorityReactiveAuthorizationManager.hasAnyAuthority(authority1, authority2);
 	}
 }
