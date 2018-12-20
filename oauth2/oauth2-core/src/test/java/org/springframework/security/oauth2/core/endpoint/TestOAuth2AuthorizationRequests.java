@@ -32,7 +32,6 @@ public class TestOAuth2AuthorizationRequests {
 		return OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri("https://example.com/login/oauth/authorize")
 				.clientId(clientId)
-				.scope("openid")
 				.redirectUri("https://example.com/authorize/oauth2/code/registration-id")
 				.state("state")
 				.additionalParameters(additionalParameters);
