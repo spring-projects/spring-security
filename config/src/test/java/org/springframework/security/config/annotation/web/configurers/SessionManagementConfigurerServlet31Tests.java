@@ -96,8 +96,8 @@ public class SessionManagementConfigurerServlet31Tests {
 
 		springSecurityFilterChain.doFilter(request, response, chain);
 
-		assertThat(!request.getSession().getId().equals(id));
-		assertThat(request.getSession().getAttribute("attribute1").equals("value1"));
+		assertThat(request.getSession().getId()).isNotEqualTo(id);
+		assertThat(request.getSession().getAttribute("attribute1")).isEqualTo("value1");
 	}
 
 	@EnableWebSecurity

@@ -24,8 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
- * The implementation of {@link SessionAuthenticationStrategy} when using &lt;
- * Servlet 3.1.
+ * Uses {@code HttpServletRequest.invalidate()} to protect against session fixation
+ * attacks.
  * <p>
  * Creates a new session for the newly authenticated user if they already have a session
  * (as a defence against session-fixation protection attacks), and copies their session
