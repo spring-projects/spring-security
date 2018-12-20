@@ -17,16 +17,20 @@
 package org.springframework.security.authentication;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  * Tests {@link ProviderManager}.
@@ -215,41 +219,133 @@ public class ProviderManagerTests {
 
 	@Test
 	public void providerNotFoundFromParentIsIgnored() throws Exception {
-		final Authentication authReq = mock(Authentication.class);
-		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
-		AuthenticationManager parent = mock(AuthenticationManager.class);
-		when(parent.authenticate(authReq)).thenThrow(new ProviderNotFoundException(""));
+        final Authentication authReq = mock(Authentication.class);
+        AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
+        AuthenticationManager parent = mock(AuthenticationManager.class);
+        when(parent.authenticate(authReq)).thenThrow(new ProviderNotFoundException(""));
 
-		// Set a provider that throws an exception - this is the exception we expect to be
-		// propagated
-		ProviderManager mgr = new ProviderManager(
-				Arrays.asList(createProviderWhichThrows(new BadCredentialsException(""))),
-				parent);
-		mgr.setAuthenticationEventPublisher(publisher);
+        // Set a provider that throws an exception - this is the exception we expect to be
+        // propagated
+        ProviderManager mgr = new ProviderManager(
+                Arrays.asList(createProviderWhichThrows(new BadCredentialsException(""))),
+                parent);
+        mgr.setAuthenticationEventPublisher(publisher);
 
-		try {
-			mgr.authenticate(authReq);
-			fail("Expected exception");
-		}
-		catch (BadCredentialsException expected) {
-			verify(publisher).publishAuthenticationFailure(expected, authReq);
-		}
+        try {
+            mgr.authenticate(authReq);
+            fail("Expected exception");
+        }
+        catch (BadCredentialsException expected) {
+            verify(publisher).publishAuthenticationFailure(expected, authReq);
+        }
 	}
+
+    @Test
+    public void providerNotFoundShouldThrow() throws Exception {
+        final Authentication authReq = mock(Authentication.class);
+        AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
+        AuthenticationManager parent = mock(AuthenticationManager.class);
+        when(parent.authenticate(authReq)).thenThrow(new ProviderNotFoundException(""));
+
+        // Set a provider that throws an exception - this is the exception we expect to be
+        // propagated
+        ProviderManager mgr = new ProviderManager(
+                new ArrayList<>(), parent);
+        mgr.setAuthenticationEventPublisher(publisher);
+
+        try {
+            mgr.authenticate(authReq);
+            fail("Expected exception");
+        }
+        catch (ProviderNotFoundException expected) {
+            verify(publisher).publishAuthenticationFailure(expected, authReq);
+        }
+    }
 
 	@Test
 	public void authenticationExceptionFromParentOverridesPreviousOnes() throws Exception {
-		AuthenticationManager parent = mock(AuthenticationManager.class);
+        AuthenticationManager parent = mock(AuthenticationManager.class);
+        ProviderManager mgr = new ProviderManager(
+                Arrays.asList(createProviderWhichThrows(new BadCredentialsException(""))),
+                parent);
+        final Authentication authReq = mock(Authentication.class);
+        AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
+        mgr.setAuthenticationEventPublisher(publisher);
+        // Set a provider that throws an exception - this is the exception we expect to be
+        // propagated
+        final BadCredentialsException expected = new BadCredentialsException(
+                "I'm the one from the parent");
+        when(parent.authenticate(authReq)).thenThrow(expected);
+        try {
+            mgr.authenticate(authReq);
+            fail("Expected exception");
+        }
+        catch (BadCredentialsException e) {
+            assertThat(e).isSameAs(expected);
+        }
+        verify(publisher).publishAuthenticationFailure(expected, authReq);
+	}
+
+    @Test
+    public void authenticationExceptionMockPublishOnce() throws Exception {
+        AuthenticationManager parent = mock(AuthenticationManager.class);
+        ProviderManager mgr = new ProviderManager(
+                Arrays.asList(createProviderWhichThrows(new BadCredentialsException(""))),
+                parent);
+        final Authentication authReq = mock(Authentication.class);
+        AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
+        mgr.setAuthenticationEventPublisher(publisher);
+        // Set a provider that throws an exception - this is the exception we expect to be
+        // propagated
+        final BadCredentialsException expected = new BadCredentialsException(
+                "I'm the one from the parent");
+        when(parent.authenticate(authReq)).thenThrow(expected);
+        try {
+            mgr.authenticate(authReq);
+            fail("Expected exception");
+        }
+        catch (BadCredentialsException e) {
+            assertThat(e).isSameAs(expected);
+        }
+        verify(publisher).publishAuthenticationFailure(expected, authReq);
+    }
+
+	@Test
+	public void authenticationExceptionPublishOnce() throws Exception {
+        final AtomicInteger failureCount = new AtomicInteger(0);
+        final BadCredentialsException expected = new BadCredentialsException(
+                "I'm the one from the parent");
+        ProviderManager parent = new ProviderManager(
+                Arrays.asList(createProviderWhichThrows(expected)),
+                null);
+        AuthenticationEventPublisher parentPublisher = new AuthenticationEventPublisher() {
+            @Override
+            public void publishAuthenticationSuccess(Authentication authentication) {
+
+            }
+            @Override
+            public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
+                failureCount.incrementAndGet();
+            }
+        };
+        parent.setAuthenticationEventPublisher(parentPublisher);
 		ProviderManager mgr = new ProviderManager(
-				Arrays.asList(createProviderWhichThrows(new BadCredentialsException(""))),
+				Arrays.asList(createProviderWhichThrows(new BadCredentialsException("i am the one from the child"))),
 				parent);
 		final Authentication authReq = mock(Authentication.class);
-		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
-		mgr.setAuthenticationEventPublisher(publisher);
+		AuthenticationEventPublisher childPublisher = new AuthenticationEventPublisher() {
+            @Override
+            public void publishAuthenticationSuccess(Authentication authentication) {
+
+            }
+            @Override
+            public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
+                failureCount.incrementAndGet();
+            }
+        };
+		mgr.setAuthenticationEventPublisher(childPublisher);
 		// Set a provider that throws an exception - this is the exception we expect to be
 		// propagated
-		final BadCredentialsException expected = new BadCredentialsException(
-				"I'm the one from the parent");
-		when(parent.authenticate(authReq)).thenThrow(expected);
 		try {
 			mgr.authenticate(authReq);
 			fail("Expected exception");
@@ -257,10 +353,60 @@ public class ProviderManagerTests {
 		catch (BadCredentialsException e) {
 			assertThat(e).isSameAs(expected);
 		}
-		verify(publisher).publishAuthenticationFailure(expected, authReq);
+		assertEquals(1, failureCount.get());
 	}
 
-	@Test
+    @Test
+    public void authenticationExceptionRespectively() throws Exception {
+        final AtomicInteger failureCount = new AtomicInteger(0);
+        final BadCredentialsException childEx = new BadCredentialsException(
+                "");
+        final AuthenticationCredentialsNotFoundException parentEx = new AuthenticationCredentialsNotFoundException(
+                "");
+        ProviderManager parent = new ProviderManager(
+                Arrays.asList(createProviderWhichThrows(parentEx)),
+                null);
+
+        ProviderManager mgr = new ProviderManager(
+                Arrays.asList(createProviderWhichThrows(childEx)),
+                parent);
+        final Authentication authReq = mock(Authentication.class);
+        AuthenticationEventPublisher parentPublisher = new AuthenticationEventPublisher() {
+            @Override
+            public void publishAuthenticationSuccess(Authentication authentication) {
+
+            }
+            @Override
+            public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
+                failureCount.incrementAndGet();
+            }
+        };
+        parent.setAuthenticationEventPublisher(parentPublisher);
+        AuthenticationEventPublisher childPublisher = new AuthenticationEventPublisher() {
+            @Override
+            public void publishAuthenticationSuccess(Authentication authentication) {
+
+            }
+            @Override
+            public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
+                failureCount.incrementAndGet();
+            }
+        };
+        mgr.setAuthenticationEventPublisher(childPublisher);
+        // Set a provider that throws an exception - this is the exception we expect to be
+        // propagated
+        try {
+            mgr.authenticate(authReq);
+            fail("Expected exception");
+        }
+        catch (AuthenticationCredentialsNotFoundException e) {
+            assertThat(e).isSameAs(parentEx);
+        }
+        assertEquals(2, failureCount.get());
+    }
+
+
+    @Test
 	@SuppressWarnings("deprecation")
 	public void statusExceptionIsPublished() throws Exception {
 		AuthenticationManager parent = mock(AuthenticationManager.class);

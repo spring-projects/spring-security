@@ -15,9 +15,6 @@
  */
 package org.springframework.security.authentication;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -29,6 +26,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Iterates an {@link Authentication} request through a list of
@@ -99,8 +102,15 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 	private AuthenticationManager parent;
 	private boolean eraseCredentialsAfterAuthentication = true;
+    private static ThreadLocal<Map<String, AuthenticationExceptionHolder>> authenticationExceptions = new ThreadLocal<Map<String, AuthenticationExceptionHolder>>() {
+        @Override
+        protected Map<String, AuthenticationExceptionHolder> initialValue() {
+            return new HashMap<>();
+        }
+    };
 
-	public ProviderManager(List<AuthenticationProvider> providers) {
+
+    public ProviderManager(List<AuthenticationProvider> providers) {
 		this(providers, null);
 	}
 
@@ -190,6 +200,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			}
 			catch (AuthenticationException e) {
 				lastException = e;
+                storeAuthenticationException(e);
 			}
 		}
 
@@ -206,6 +217,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			}
 			catch (AuthenticationException e) {
 				lastException = e;
+                storeAuthenticationException(e);
 			}
 		}
 
@@ -232,16 +244,30 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 					"ProviderManager.providerNotFound",
 					new Object[] { toTest.getName() },
 					"No AuthenticationProvider found for {0}"));
+            prepareException(lastException, authentication);
 		}
 
-		prepareException(lastException, authentication);
+		if (!(parent instanceof ProviderManager)) {
+            Iterator<Map.Entry<String, AuthenticationExceptionHolder>> entryIt = authenticationExceptions.get().entrySet().iterator();
+
+            while (entryIt.hasNext()) {
+                Map.Entry<String, AuthenticationExceptionHolder> entry = entryIt.next();
+                entry.getValue().getPublisher().publishAuthenticationFailure(entry.getValue().getEx(), authentication);
+            }
+        }
+        authenticationExceptions.get().clear();
 
 		throw lastException;
 	}
 
+	private void storeAuthenticationException(AuthenticationException e) {
+        AuthenticationExceptionHolder holder = new AuthenticationExceptionHolder(e, this.eventPublisher);
+        authenticationExceptions.get().put(e.getClass().getName(), holder);
+    }
+
 	@SuppressWarnings("deprecation")
 	private void prepareException(AuthenticationException ex, Authentication auth) {
-		eventPublisher.publishAuthenticationFailure(ex, auth);
+        eventPublisher.publishAuthenticationFailure(ex, auth);
 	}
 
 	/**
@@ -298,4 +324,30 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		public void publishAuthenticationSuccess(Authentication authentication) {
 		}
 	}
+
+    private static final class AuthenticationExceptionHolder {
+        private AuthenticationException ex;
+        private AuthenticationEventPublisher publisher;
+
+        public AuthenticationExceptionHolder(AuthenticationException ex, AuthenticationEventPublisher publisher) {
+            this.ex = ex;
+            this.publisher = publisher;
+        }
+
+        public AuthenticationException getEx() {
+            return ex;
+        }
+
+        public void setEx(AuthenticationException ex) {
+            this.ex = ex;
+        }
+
+        public AuthenticationEventPublisher getPublisher() {
+            return publisher;
+        }
+
+        public void setPublisher(AuthenticationEventPublisher publisher) {
+            this.publisher = publisher;
+        }
+    }
 }
