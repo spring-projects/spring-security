@@ -295,10 +295,13 @@ For example the following would instruct the browser to treat the domain as an H
 
 [source]
 ----
-Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains ; preload
 ----
 
 The optional includeSubDomains directive instructs Spring Security that subdomains (i.e. secure.mybank.example.com) should also be treated as an HSTS domain.
+
+The optional preload directive instructs Spring Security that domain should be preloaded in browser as HSTS domain. For more details on HSTS preload please see
+https://hstspreload.org.
 
 As with the other headers, Spring Security adds HSTS by default.
 You can customize HSTS headers with the <<nsa-hsts,<hsts>>> element as shown below:
@@ -311,7 +314,7 @@ You can customize HSTS headers with the <<nsa-hsts,<hsts>>> element as shown bel
 	<headers>
 		<hsts
 			include-subdomains="true"
-			max-age-seconds="31536000" />
+			max-age-seconds="31536000" preload="true" />
 	</headers>
 </http>
 ----
@@ -331,6 +334,7 @@ protected void configure(HttpSecurity http) throws Exception {
 	.headers()
 		.httpStrictTransportSecurity()
 			.includeSubdomains(true)
+			.preload(true)
 			.maxAgeSeconds(31536000);
 }
 }

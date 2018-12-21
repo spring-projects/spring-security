@@ -2376,6 +2376,26 @@ public class ServerHttpSecurity {
 			}
 
 			/**
+			 * <p>
+			 * Configures if preload should be included. Default is false
+			 * </p>
+			 *
+			 * <p>
+			 * See <a href="https://hstspreload.org/">Website hstspreload.org</a>
+			 * for additional details.
+			 * </p>
+			 *
+			 * @param preload if subdomains should be included
+			 * @return the {@link HstsSpec} to continue configuring
+			 * @since 5.2.0
+			 * @author Ankur Pathak
+			 */
+			public HstsSpec preload(boolean preload) {
+				HeaderSpec.this.hsts.setPreload(preload);
+				return this;
+			}
+
+			/**
 			 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */

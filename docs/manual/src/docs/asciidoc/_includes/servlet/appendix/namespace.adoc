@@ -336,6 +336,10 @@ Default one year.
 The RequestMatcher instance to be used to determine if the header should be set.
 Default is if HttpServletRequest.isSecure() is true.
 
+[[nsa-hsts-preload]]
+* **preload**
+Specifies if preload should be included.
+Default false.
 
 [[nsa-hsts-parents]]
 ===== Parent Elements of <hsts>

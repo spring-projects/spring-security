@@ -126,6 +126,17 @@ public class HeaderSpecTests {
 	}
 
 	@Test
+	public void headersWhenHstsCustomWithPreloadThenCustomHstsWritten() {
+		this.expectedHeaders.remove(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY);
+		this.expectedHeaders.add(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY, "max-age=60 ; includeSubDomains ; preload");
+		this.headers.hsts()
+				.maxAge(Duration.ofSeconds(60))
+				.preload(true);
+
+		assertHeaders();
+	}
+
+	@Test
 	public void headersWhenFrameOptionsDisableThenFrameOptionsNotWritten() {
 		expectHeaderNamesNotPresent(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS);
 		this.headers.frameOptions().disable();

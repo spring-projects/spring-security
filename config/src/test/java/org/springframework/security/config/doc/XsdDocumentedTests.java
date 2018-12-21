@@ -50,7 +50,7 @@ public class XsdDocumentedTests {
 	String referenceLocation = "../docs/manual/src/docs/asciidoc/_includes/servlet/appendix/namespace.adoc";
 
 	String schema31xDocumentLocation = "org/springframework/security/config/spring-security-3.1.xsd";
-	String schemaDocumentLocation = "org/springframework/security/config/spring-security-5.1.xsd";
+	String schemaDocumentLocation = "org/springframework/security/config/spring-security-5.2.xsd";
 
 	XmlSupport xml = new XmlSupport();
 
@@ -142,8 +142,8 @@ public class XsdDocumentedTests {
 
 		String[] schemas = resource.getFile().getParentFile().list((dir, name) -> name.endsWith(".xsd"));
 
-		assertThat(schemas.length).isEqualTo(13)
-			.withFailMessage("the count is equal to 12, if not then schemaDocument needs updating");
+		assertThat(schemas.length).isEqualTo(14)
+			.withFailMessage("the count is equal to 14, if not then schemaDocument needs updating");
 	}
 
 	/**

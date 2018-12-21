@@ -30,9 +30,10 @@ import org.springframework.util.Assert;
  * Security (HSTS)</a>.
  *
  * <p>
- * By default the expiration is one year and subdomains will be included. This can be
- * customized using {@link #setMaxAgeInSeconds(long)} and
- * {@link #setIncludeSubDomains(boolean)} respectively.
+ * By default the expiration is one year, subdomains will be included and preload will not
+ * be included. This can be customized using {@link #setMaxAgeInSeconds(long)},
+ * {@link #setIncludeSubDomains(boolean)} and {@link #setPreload(boolean)}
+ * respectively.
  * </p>
  *
  * <p>
@@ -44,6 +45,11 @@ import org.springframework.util.Assert;
  * else may be used to determine if SSL was used. For these circumstances,
  * {@link #setRequestMatcher(RequestMatcher)} can be invoked with a custom
  * {@link RequestMatcher}.
+ * </p>
+ *
+ * <p>
+ * See <a href="https://hstspreload.org/">Website hstspreload.org</a>
+ * for additional details on HSTS preload.
  * </p>
  *
  * @author Rob Winch
@@ -62,7 +68,28 @@ public final class HstsHeaderWriter implements HeaderWriter {
 
 	private boolean includeSubDomains;
 
+	private boolean preload;
+
 	private String hstsHeaderValue;
+
+	/**
+	 * Creates a new instance
+	 *
+	 * @param requestMatcher maps to {@link #setRequestMatcher(RequestMatcher)}
+	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
+	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
+	 * @param preload maps to {@link #setPreload(boolean)}
+	 * @since 5.2.0
+	 * @author Ankur Pathak
+	 */
+	public HstsHeaderWriter(RequestMatcher requestMatcher, long maxAgeInSeconds,
+			boolean includeSubDomains, boolean preload) {
+		this.requestMatcher = requestMatcher;
+		this.maxAgeInSeconds = maxAgeInSeconds;
+		this.includeSubDomains = includeSubDomains;
+		this.preload = preload;
+		updateHstsHeaderValue();
+	}
 
 	/**
 	 * Creates a new instance
@@ -73,10 +100,20 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	 */
 	public HstsHeaderWriter(RequestMatcher requestMatcher, long maxAgeInSeconds,
 			boolean includeSubDomains) {
-		this.requestMatcher = requestMatcher;
-		this.maxAgeInSeconds = maxAgeInSeconds;
-		this.includeSubDomains = includeSubDomains;
-		updateHstsHeaderValue();
+		this(requestMatcher, maxAgeInSeconds, includeSubDomains, false);
+	}
+
+	/**
+	 * Creates a new instance
+	 *
+	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
+	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
+	 * @param preload maps to {@link #setPreload(boolean)}
+	 * @since 5.2.0
+	 * @author Ankur Pathak
+	 */
+	public HstsHeaderWriter(long maxAgeInSeconds, boolean includeSubDomains, boolean preload) {
+		this(new SecureRequestMatcher(), maxAgeInSeconds, includeSubDomains, preload);
 	}
 
 	/**
@@ -86,7 +123,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
 	 */
 	public HstsHeaderWriter(long maxAgeInSeconds, boolean includeSubDomains) {
-		this(new SecureRequestMatcher(), maxAgeInSeconds, includeSubDomains);
+		this(new SecureRequestMatcher(), maxAgeInSeconds, includeSubDomains, false);
 	}
 
 	/**
@@ -95,7 +132,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 */
 	public HstsHeaderWriter(long maxAgeInSeconds) {
-		this(new SecureRequestMatcher(), maxAgeInSeconds, true);
+		this(new SecureRequestMatcher(), maxAgeInSeconds, true, false);
 	}
 
 	/**
@@ -104,7 +141,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
 	 */
 	public HstsHeaderWriter(boolean includeSubDomains) {
-		this(new SecureRequestMatcher(), DEFAULT_MAX_AGE_SECONDS, includeSubDomains);
+		this(new SecureRequestMatcher(), DEFAULT_MAX_AGE_SECONDS, includeSubDomains, false);
 	}
 
 	/**
@@ -186,11 +223,32 @@ public final class HstsHeaderWriter implements HeaderWriter {
 		this.includeSubDomains = includeSubDomains;
 		updateHstsHeaderValue();
 	}
+     /**
+	 * <p>
+	 * If true, preload will be included in HSTS Header. The default is false.
+	 * </p>
+	 *
+	 * <p>
+	 * See <a href="http://tools.ietf.org/html/rfc6797#section-6.1.2">Section 6.1.2</a>
+	 * for additional details.
+	 * </p>
+	 *
+	 * @param preload true to include preload, else false
+     * @since 5.2.0
+     * @autor Ankur Pathak
+	 */
+	public void setPreload(boolean preload) {
+		this.preload = preload;
+		updateHstsHeaderValue();
+	}
 
 	private void updateHstsHeaderValue() {
 		String headerValue = "max-age=" + this.maxAgeInSeconds;
 		if (this.includeSubDomains) {
 			headerValue += " ; includeSubDomains";
+		}
+		if (this.preload) {
+			headerValue += " ; preload";
 		}
 		this.hstsHeaderValue = headerValue;
 	}

@@ -503,12 +503,12 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 
 	def "headers.featurePolicy default header"() {
 		setup:
-		loadConfig(FeaturePolicyDefaultConfig)
-		request.secure = true
+		    loadConfig(FeaturePolicyDefaultConfig)
+		    request.secure = true
 		when:
-		springSecurityFilterChain.doFilter(request, response, chain)
+		    springSecurityFilterChain.doFilter(request, response, chain)
 		then:
-		responseHeaders == ['Feature-Policy': 'geolocation \'self\'']
+		    responseHeaders == ['Feature-Policy': 'geolocation \'self\'']
 	}
 
 	@EnableWebSecurity
@@ -540,6 +540,29 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 					.defaultsDisabled()
 					.featurePolicy("");
 		}
+	}
+
+	@EnableWebSecurity
+	static class HstsWithPreloadConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.headers()
+					.defaultsDisabled()
+					.httpStrictTransportSecurity()
+					.preload(true)
+		}
+	}
+
+	def "headers.hstsWithPreload"() {
+	    setup:
+		    loadConfig(HstsWithPreloadConfig)
+		    request.secure = true
+	    when:
+		    springSecurityFilterChain.doFilter(request, response, chain)
+	    then:
+		    responseHeaders == ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains ; preload']
 	}
 
 }
