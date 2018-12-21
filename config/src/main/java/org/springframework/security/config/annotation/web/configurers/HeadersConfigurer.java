@@ -380,6 +380,25 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		}
 
 		/**
+		 * <p>
+		 * If true, preload will be included in HSTS Header. The default is false.
+		 * </p>
+		 *
+		 * <p>
+		 * See <a href="https://hstspreload.org/">Website hstspreload.org</a>
+		 * for additional details.
+		 * </p>
+		 *
+		 * @param preload true to include preload, else false
+		 * @since 5.2.0
+		 * @author Ankur Pathak
+		 */
+		public HstsConfig preload(boolean preload) {
+			writer.setPreload(preload);
+			return this;
+		}
+
+		/**
 		 * Disables Strict Transport Security
 		 *
 		 * @return the {@link HeadersConfigurer} for additional configuration

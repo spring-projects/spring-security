@@ -68,6 +68,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String ATT_INCLUDE_SUBDOMAINS = "include-subdomains";
 	private static final String ATT_MAX_AGE_SECONDS = "max-age-seconds";
 	private static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
+	private static final String ATT_PRELOAD = "preload";
 	private static final String ATT_REPORT_ONLY = "report-only";
 	private static final String ATT_REPORT_URI = "report-uri";
 	private static final String ATT_ALGORITHM = "algorithm";
@@ -193,6 +194,14 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 							hstsElement);
 				}
 				headersWriter.addPropertyReference("requestMatcher", requestMatcherRef);
+			}
+			String preload = hstsElement.getAttribute(ATT_PRELOAD);
+			if (StringUtils.hasText(preload)) {
+				if (disabled) {
+					attrNotAllowed(context, ATT_PRELOAD, ATT_DISABLED,
+							hstsElement);
+				}
+				headersWriter.addPropertyValue("preload", preload);
 			}
 
 			if (disabled == true) {
