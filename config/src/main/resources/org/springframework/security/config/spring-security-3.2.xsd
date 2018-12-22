@@ -2299,7 +2299,7 @@
       </xs:attribute>
       <xs:attribute name="max-age-seconds" type="xs:integer">
          <xs:annotation>
-            <xs:documentation>Specifies the maximum ammount of time the host should be considered a Known HSTS Host.
+            <xs:documentation>Specifies the maximum amount of time the host should be considered a Known HSTS Host.
                 Default one year.
                 </xs:documentation>
          </xs:annotation>

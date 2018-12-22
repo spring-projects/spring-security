@@ -760,7 +760,7 @@ hsts-options.attlist &=
 	## Specifies if subdomains should be included. Default true.
 	attribute include-subdomains {xsd:boolean}?
 hsts-options.attlist &=
-	## Specifies the maximum ammount of time the host should be considered a Known HSTS Host. Default one year.
+	## Specifies the maximum amount of time the host should be considered a Known HSTS Host. Default one year.
 	attribute max-age-seconds {xsd:integer}?
 hsts-options.attlist &=
 	## The RequestMatcher instance to be used to determine if the header should be set. Default is if HttpServletRequest.isSecure() is true.
