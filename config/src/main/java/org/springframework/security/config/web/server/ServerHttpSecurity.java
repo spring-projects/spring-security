@@ -432,9 +432,7 @@ public class ServerHttpSecurity {
 	}
 
 	/**
-	 * @since 5.2.0
-	 * @author Ankur Pathak
-	 * Enables and Configures annonymous authentication. Anonymous Authentication is disabled by default.
+	 * Enables and Configures anonymous authentication. Anonymous Authentication is disabled by default.
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
@@ -446,6 +444,9 @@ public class ServerHttpSecurity {
 	 *      return http.build();
 	 *  }
 	 * </pre>
+	 * @return the {@link AnonymousSpec} to customize
+	 * @since 5.2.0
+	 * @author Ankur Pathak
 	 */
 	public AnonymousSpec anonymous(){
 		if (this.anonymous == null) {
@@ -2654,7 +2655,7 @@ public class ServerHttpSecurity {
 	}
 
 	/**
-	 * Configures annonymous authentication
+	 * Configures anonymous authentication
 	 * @author Ankur Pathak
 	 * @since 5.2.0
 	 */
