@@ -41,6 +41,7 @@ import org.springframework.security.core.GrantedAuthority;
  *
  * @author Jitendra Singh
  * @author Greg Turnquist
+ * @author Onur Kagan Ozcan
  * @see UsernamePasswordAuthenticationTokenMixin
  * @since 4.2
  */
@@ -69,7 +70,7 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 		}
 		JsonNode credentialsNode = readJsonNode(jsonNode, "credentials");
 		Object credentials;
-		if (credentialsNode.isNull()) {
+		if (credentialsNode.isNull() || credentialsNode.isMissingNode()) {
 			credentials = null;
 		} else {
 			credentials = credentialsNode.asText();
@@ -83,7 +84,7 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 			token = new UsernamePasswordAuthenticationToken(principal, credentials);
 		}
 		JsonNode detailsNode = readJsonNode(jsonNode, "details");
-		if (detailsNode.isNull()) {
+		if (detailsNode.isNull() || detailsNode.isMissingNode()) {
 			token.setDetails(null);
 		} else {
 			token.setDetails(detailsNode);
