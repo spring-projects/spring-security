@@ -112,7 +112,9 @@ class MethodSecurityEvaluationContext extends StandardEvaluationContext {
 		}
 
 		for (int i = 0; i < args.length; i++) {
-			super.setVariable(paramNames[i], args[i]);
+			if (paramNames[i] != null) {
+				setVariable(paramNames[i], args[i]);
+			}
 		}
 	}
 
