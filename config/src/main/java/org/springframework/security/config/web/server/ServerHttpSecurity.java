@@ -56,6 +56,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeReactiveAuthenticationManager;
@@ -91,6 +92,8 @@ import org.springframework.security.oauth2.server.resource.web.access.server.Bea
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.PortMapper;
+import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
+import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -99,6 +102,7 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.ReactivePreAuthenticatedAuthenticationManager;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
@@ -108,6 +112,7 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.ServerFormLoginAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerHttpBasicAuthenticationConverter;
+import org.springframework.security.web.server.authentication.ServerX509AuthenticationConverter;
 import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
@@ -240,6 +245,8 @@ public class ServerHttpSecurity {
 	private ExceptionHandlingSpec exceptionHandling = new ExceptionHandlingSpec();
 
 	private HttpBasicSpec httpBasic;
+
+	private X509Spec x509;
 
 	private final RequestCacheSpec requestCache = new RequestCacheSpec();
 
@@ -576,6 +583,93 @@ public class ServerHttpSecurity {
 			this.formLogin = new FormLoginSpec();
 		}
 		return this.formLogin;
+	}
+
+	/**
+	 * Configures x509 authentication using a certificate provided by a client.
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	 *      http
+	 *          .x509()
+	 *          	.authenticationManager(authenticationManager)
+	 *              .principalExtractor(principalExtractor);
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * Note that if extractor is not specified, {@link SubjectDnX509PrincipalExtractor} will be used.
+	 * If authenticationManager is not specified, {@link ReactivePreAuthenticatedAuthenticationManager} will be used.
+	 *
+	 * @return the {@link X509Spec} to customize
+	 * @author Alexey Nesterov
+	 * @since 5.2
+	 */
+	public X509Spec x509() {
+		if (this.x509 == null) {
+			this.x509 = new X509Spec();
+		}
+
+		return this.x509;
+	}
+
+	/**
+	 * Configures X509 authentication
+	 *
+	 * @author Alexey Nesterov
+	 * @since 5.2
+	 * @see #x509()
+	 */
+	public class X509Spec {
+
+		private X509PrincipalExtractor principalExtractor;
+		private ReactiveAuthenticationManager authenticationManager;
+
+		public X509Spec principalExtractor(X509PrincipalExtractor principalExtractor) {
+			this.principalExtractor = principalExtractor;
+			return this;
+		}
+
+		public X509Spec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
+			X509PrincipalExtractor principalExtractor = getPrincipalExtractor();
+
+			AuthenticationWebFilter filter = new AuthenticationWebFilter(authenticationManager);
+			filter.setServerAuthenticationConverter(new ServerX509AuthenticationConverter(principalExtractor));
+			http.addFilterAt(filter, SecurityWebFiltersOrder.AUTHENTICATION);
+		}
+
+		private X509PrincipalExtractor getPrincipalExtractor() {
+			if (this.principalExtractor != null) {
+				return this.principalExtractor;
+			}
+
+			return new SubjectDnX509PrincipalExtractor();
+		}
+
+		private ReactiveAuthenticationManager getAuthenticationManager() {
+			if (this.authenticationManager != null) {
+				return this.authenticationManager;
+			}
+
+			ReactiveUserDetailsService userDetailsService = getBean(ReactiveUserDetailsService.class);
+			ReactivePreAuthenticatedAuthenticationManager authenticationManager = new ReactivePreAuthenticatedAuthenticationManager(userDetailsService);
+
+			return authenticationManager;
+		}
+
+		private X509Spec() {
+		}
 	}
 
 	public OAuth2LoginSpec oauth2Login() {
@@ -1507,6 +1601,9 @@ public class ServerHttpSecurity {
 		}
 		if (this.httpsRedirectSpec != null) {
 			this.httpsRedirectSpec.configure(this);
+		}
+		if (this.x509 != null) {
+			this.x509.configure(this);
 		}
 		if (this.csrf != null) {
 			this.csrf.configure(this);

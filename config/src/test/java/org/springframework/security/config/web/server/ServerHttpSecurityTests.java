@@ -19,6 +19,7 @@ package org.springframework.security.config.web.server;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -34,6 +35,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
+import org.springframework.security.web.server.authentication.ServerX509AuthenticationConverter;
 import reactor.core.publisher.Mono;
 import reactor.test.publisher.TestPublisher;
 
@@ -277,6 +280,43 @@ public class ServerHttpSecurityTests {
 				.returnResult();
 
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void addsX509FilterWhenX509AuthenticationIsConfigured() {
+		X509PrincipalExtractor mockExtractor = mock(X509PrincipalExtractor.class);
+		ReactiveAuthenticationManager mockAuthenticationManager = mock(ReactiveAuthenticationManager.class);
+
+		this.http.x509()
+				.principalExtractor(mockExtractor)
+				.authenticationManager(mockAuthenticationManager)
+				.and();
+
+		SecurityWebFilterChain securityWebFilterChain = this.http.build();
+		WebFilter x509WebFilter = securityWebFilterChain.getWebFilters().filter(this::isX509Filter).blockFirst();
+
+		assertThat(x509WebFilter).isNotNull();
+	}
+
+	@Test
+	public void addsX509FilterWhenX509AuthenticationIsConfiguredWithDefaults() {
+		this.http.x509();
+
+		SecurityWebFilterChain securityWebFilterChain = this.http.build();
+		WebFilter x509WebFilter = securityWebFilterChain.getWebFilters().filter(this::isX509Filter).blockFirst();
+
+		assertThat(x509WebFilter).isNotNull();
+	}
+
+	private boolean isX509Filter(WebFilter filter) {
+		try {
+			Object converter = ReflectionTestUtils.getField(filter, "authenticationConverter");
+			return converter.getClass().isAssignableFrom(ServerX509AuthenticationConverter.class);
+		} catch (IllegalArgumentException e) {
+			// field doesn't exist
+			return false;
+		}
 	}
 
 	private <T extends WebFilter> Optional<T> getWebFilter(SecurityWebFilterChain filterChain, Class<T> filterClass) {
