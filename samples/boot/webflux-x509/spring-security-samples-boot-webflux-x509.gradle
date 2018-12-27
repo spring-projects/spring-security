@@ -1,0 +1,11 @@
+apply plugin: 'io.spring.convention.spring-sample-boot'
+
+dependencies {
+    compile project(':spring-security-core')
+    compile project(':spring-security-config')
+    compile project(':spring-security-web')
+    compile 'org.springframework.boot:spring-boot-starter-webflux'
+
+    testCompile project(':spring-security-test')
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+}
