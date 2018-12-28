@@ -34,6 +34,8 @@ public final class DelegatingRequestMatcherHeaderWriter implements HeaderWriter 
 
 	private final HeaderWriter delegateHeaderWriter;
 
+	private final String attributeNameRequestMatched = super.toString() + "." + "REQUEST_MATCHED";
+
 	/**
 	 * Creates a new instance
 	 *
@@ -50,6 +52,15 @@ public final class DelegatingRequestMatcherHeaderWriter implements HeaderWriter 
 		this.delegateHeaderWriter = delegateHeaderWriter;
 	}
 
+	/**
+	 * Determine whether or not the request matches.
+	 *
+	 * @param request the request
+	 */
+	public void determineRequestMatches(HttpServletRequest request) {
+		request.setAttribute(this.attributeNameRequestMatched, this.requestMatcher.matches(request));
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -58,7 +69,8 @@ public final class DelegatingRequestMatcherHeaderWriter implements HeaderWriter 
 	 * .http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		if (this.requestMatcher.matches(request)) {
+		Object requestMatched = request.getAttribute(this.attributeNameRequestMatched);
+		if (requestMatched != null && requestMatched instanceof Boolean && (Boolean) requestMatched) {
 			this.delegateHeaderWriter.writeHeaders(request, response);
 		}
 	}

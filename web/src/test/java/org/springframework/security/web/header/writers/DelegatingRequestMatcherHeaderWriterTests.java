@@ -68,6 +68,7 @@ public class DelegatingRequestMatcherHeaderWriterTests {
 	public void writeHeadersOnMatch() {
 		when(matcher.matches(request)).thenReturn(true);
 
+		headerWriter.determineRequestMatches(request);
 		headerWriter.writeHeaders(request, response);
 
 		verify(delegate).writeHeaders(request, response);
@@ -77,6 +78,14 @@ public class DelegatingRequestMatcherHeaderWriterTests {
 	public void writeHeadersOnNoMatch() {
 		when(matcher.matches(request)).thenReturn(false);
 
+		headerWriter.determineRequestMatches(request);
+		headerWriter.writeHeaders(request, response);
+
+		verify(delegate, times(0)).writeHeaders(request, response);
+	}
+
+	@Test
+	public void writeHeadersWithoutMatch() {
 		headerWriter.writeHeaders(request, response);
 
 		verify(delegate, times(0)).writeHeaders(request, response);

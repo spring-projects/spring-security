@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter;
 import org.springframework.security.web.util.OnCommittedResponseWrapper;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -87,6 +88,11 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 			super(response);
 			this.request = request;
 			this.headerWriters = headerWriters;
+			for (HeaderWriter headerWriter : headerWriters) {
+				if (headerWriter instanceof DelegatingRequestMatcherHeaderWriter) {
+					((DelegatingRequestMatcherHeaderWriter) headerWriter).determineRequestMatches(request);
+				}
+			}
 		}
 
 		/*
