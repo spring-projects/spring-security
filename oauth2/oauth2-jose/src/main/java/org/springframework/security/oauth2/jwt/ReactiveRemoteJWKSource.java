@@ -40,12 +40,13 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	 */
 	private final AtomicReference<Mono<JWKSet>> cachedJWKSet = new AtomicReference<>(Mono.empty());
 
-	private WebClient webClient = WebClient.create();
+	private WebClient webClient;
 
 	private final String jwkSetURL;
 
-	ReactiveRemoteJWKSource(String jwkSetURL) {
+	ReactiveRemoteJWKSource(String jwkSetURL, WebClient webClient) {
 		this.jwkSetURL = jwkSetURL;
+		this.webClient = webClient;
 	}
 
 	public Mono<List<JWK>> get(JWKSelector jwkSelector) {

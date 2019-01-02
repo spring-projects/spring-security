@@ -46,6 +46,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.util.Assert;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * An implementation of a {@link ReactiveJwtDecoder} that &quot;decodes&quot; a
@@ -98,6 +99,16 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 * @param jwkSetUrl the JSON Web Key (JWK) Set {@code URL}
 	 */
 	public NimbusReactiveJwtDecoder(String jwkSetUrl) {
+		this(jwkSetUrl, WebClient.create());
+	}
+
+	/**
+	 * Constructs a {@code NimbusJwtDecoderJwkSupport} using the provided parameters.
+	 *
+	 * @param jwkSetUrl the JSON Web Key (JWK) Set {@code URL}
+	 * @param webClient the client to be used to contact jwkSetUrl. For instance you can configure a proxy on it.
+	 */
+	public NimbusReactiveJwtDecoder(String jwkSetUrl, WebClient webClient) {
 		Assert.hasText(jwkSetUrl, "jwkSetUrl cannot be empty");
 		String jwsAlgorithm = JwsAlgorithms.RS256;
 		JWSAlgorithm algorithm = JWSAlgorithm.parse(jwsAlgorithm);
@@ -110,7 +121,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
 		this.jwtProcessor = jwtProcessor;
 
-		this.reactiveJwkSource = new ReactiveRemoteJWKSource(jwkSetUrl);
+		this.reactiveJwkSource = new ReactiveRemoteJWKSource(jwkSetUrl, webClient);
 
 		this.jwkSelectorFactory = new JWKSelectorFactory(algorithm);
 

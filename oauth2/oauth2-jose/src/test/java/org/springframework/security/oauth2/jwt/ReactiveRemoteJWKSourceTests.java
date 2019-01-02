@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Collections;
 import java.util.List;
@@ -89,7 +90,7 @@ public class ReactiveRemoteJWKSourceTests {
 	@Before
 	public void setup() {
 		this.server = new MockWebServer();
-		this.source = new ReactiveRemoteJWKSource(this.server.url("/").toString());
+		this.source = new ReactiveRemoteJWKSource(this.server.url("/").toString(), WebClient.create());
 
 		this.server.enqueue(new MockResponse().setBody(this.keys));
 		this.selector = new JWKSelector(this.matcher);
