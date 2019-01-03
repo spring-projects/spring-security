@@ -25,7 +25,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.util.ArrayList;
@@ -161,7 +160,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 */
 	protected final List<MvcRequestMatcher> createMvcMatchers(HttpMethod method,
 			String... mvcPatterns) {
-		boolean isServlet30 = ClassUtils.isPresent("javax.servlet.ServletRegistration", getClass().getClassLoader());
+
 		ObjectPostProcessor<Object> opp = this.context.getBean(ObjectPostProcessor.class);
 		if (!this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
 			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME +" of type " + HandlerMappingIntrospector.class.getName()
@@ -173,9 +172,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 				mvcPatterns.length);
 		for (String mvcPattern : mvcPatterns) {
 			MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
-			if (isServlet30) {
-				opp.postProcess(matcher);
-			}
+			opp.postProcess(matcher);
+
 			if (method != null) {
 				matcher.setMethod(method);
 			}
