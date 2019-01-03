@@ -97,7 +97,7 @@ public class JwtDecodersTests {
 		prepareOpenIdConfigurationResponse();
 		this.server.enqueue(new MockResponse().setBody(JWK_SET));
 		assertThat(JwtDecoders.fromOidcIssuerLocation(this.issuer)).isNotNull();
-		assertThat(this.issuer.endsWith("/")).isTrue();
+		assertThat(this.issuer).endsWith("/");
 	}
 
 	@Test

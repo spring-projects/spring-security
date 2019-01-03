@@ -140,7 +140,7 @@ public class ClientRegistrationsTest {
 	@Test
 	public void issuerWhenContainsTrailingSlashThenSuccess() throws Exception {
 		assertThat(registration("")).isNotNull();
-		assertThat(this.issuer.endsWith("/")).isTrue();
+		assertThat(this.issuer).endsWith("/");
 	}
 
 	/**

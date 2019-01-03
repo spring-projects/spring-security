@@ -92,7 +92,7 @@ public class AbstractRememberMeServicesTests {
 
 		String encoded = services.encodeCookie(cookie);
 		// '=' aren't allowed in version 0 cookies.
-		assertThat(encoded.endsWith("=")).isFalse();
+		assertThat(encoded).doesNotEndWith("=");
 		String[] decoded = services.decodeCookie(encoded);
 
 		assertThat(decoded).containsExactly("name:with:colon", "cookie", "tokens", "blah");
