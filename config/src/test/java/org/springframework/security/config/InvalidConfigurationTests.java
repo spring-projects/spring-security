@@ -16,6 +16,7 @@
 package org.springframework.security.config;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Test;
@@ -57,14 +58,15 @@ public class InvalidConfigurationTests {
 	public void missingAuthenticationManagerGivesSensibleErrorMessage() {
 		try {
 			setContext("<http auto-config='true' />");
+			fail();
 		}
 		catch (BeanCreationException e) {
 			Throwable cause = ultimateCause(e);
 			assertThat(cause instanceof NoSuchBeanDefinitionException).isTrue();
 			NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) cause;
 			assertThat(nsbe.getBeanName()).isEqualTo(BeanIds.AUTHENTICATION_MANAGER);
-			assertThat(nsbe.getMessage().endsWith(
-					AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE));
+			assertThat(nsbe.getMessage()).endsWith(
+					AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE);
 		}
 	}
 
