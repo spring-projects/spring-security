@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,8 +64,9 @@ public class OidcIdTokenValidatorTests {
 		this.claims.remove(IdTokenClaimNames.ISS);
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.ISS));
+
 	}
 
 	@Test
@@ -73,8 +74,8 @@ public class OidcIdTokenValidatorTests {
 		this.claims.remove(IdTokenClaimNames.SUB);
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.SUB));
 	}
 
 	@Test
@@ -82,8 +83,8 @@ public class OidcIdTokenValidatorTests {
 		this.claims.remove(IdTokenClaimNames.AUD);
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.AUD));
 	}
 
 	@Test
@@ -91,8 +92,8 @@ public class OidcIdTokenValidatorTests {
 		this.issuedAt = null;
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.IAT));
 	}
 
 	@Test
@@ -100,8 +101,8 @@ public class OidcIdTokenValidatorTests {
 		this.expiresAt = null;
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.EXP));
 	}
 
 	@Test
@@ -109,8 +110,8 @@ public class OidcIdTokenValidatorTests {
 		this.claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id", "other"));
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.AZP));
 	}
 
 	@Test
@@ -118,8 +119,8 @@ public class OidcIdTokenValidatorTests {
 		this.claims.put(IdTokenClaimNames.AZP, "other");
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.AZP));
 	}
 
 	@Test
@@ -135,8 +136,8 @@ public class OidcIdTokenValidatorTests {
 		this.claims.put(IdTokenClaimNames.AZP, "other-client");
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.AZP));
 	}
 
 	@Test
@@ -144,8 +145,8 @@ public class OidcIdTokenValidatorTests {
 		this.claims.put(IdTokenClaimNames.AUD, Collections.singletonList("other-client"));
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.AUD));
 	}
 
 	@Test
@@ -154,8 +155,8 @@ public class OidcIdTokenValidatorTests {
 		this.expiresAt = this.issuedAt.plus(Duration.ofSeconds(1));
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.EXP));
 	}
 
 	@Test
@@ -164,8 +165,8 @@ public class OidcIdTokenValidatorTests {
 		this.expiresAt = this.issuedAt.plus(Duration.ofSeconds(1));
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.IAT));
 	}
 
 	@Test
@@ -174,8 +175,34 @@ public class OidcIdTokenValidatorTests {
 		this.expiresAt = Instant.from(this.issuedAt).plusSeconds(5);
 		assertThat(this.validateIdToken())
 				.hasSize(1)
-				.extracting(OAuth2Error::getErrorCode)
-				.contains("invalid_id_token");
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.EXP));
+	}
+
+	@Test
+	public void validateIdTokenWhenMissingClaimsThenHasErrors() {
+		this.claims.remove(IdTokenClaimNames.SUB);
+		this.claims.remove(IdTokenClaimNames.AUD);
+		this.issuedAt = null;
+		this.expiresAt = null;
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.SUB))
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.AUD))
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.IAT))
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.EXP));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void validateIdTokenWhenNoClaimsThenHasErrors() {
+		this.claims.remove(IdTokenClaimNames.ISS);
+		this.claims.remove(IdTokenClaimNames.SUB);
+		this.claims.remove(IdTokenClaimNames.AUD);
+		this.issuedAt = null;
+		this.expiresAt = null;
+		assertThat(this.validateIdToken())
+				.hasSize(1);
 	}
 
 	private Collection<OAuth2Error> validateIdToken() {
