@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,7 +105,7 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter
 	private static OAuth2AuthorizationResponse convertResponse(ServerWebExchange exchange) {
 		MultiValueMap<String, String> queryParams = exchange.getRequest()
 				.getQueryParams();
-		String redirectUri = UriComponentsBuilder.fromUri(exchange.getRequest().getURI())
+		String redirectUri = UriComponentsBuilder.fromHttpRequest(exchange.getRequest())
 				.query(null)
 				.build()
 				.toUriString();
