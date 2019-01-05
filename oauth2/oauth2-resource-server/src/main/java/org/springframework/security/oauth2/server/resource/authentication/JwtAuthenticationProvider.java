@@ -68,7 +68,6 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 
 	public JwtAuthenticationProvider(JwtDecoder jwtDecoder) {
 		Assert.notNull(jwtDecoder, "jwtDecoder cannot be null");
-
 		this.jwtDecoder = jwtDecoder;
 	}
 
