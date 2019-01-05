@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -32,9 +33,9 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -128,6 +129,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	private final ApplicationContext context;
 
+	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 	private BearerTokenResolver bearerTokenResolver;
 
 	private JwtConfigurer jwtConfigurer;
@@ -151,6 +153,13 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	public OAuth2ResourceServerConfigurer<H> authenticationEntryPoint(AuthenticationEntryPoint entryPoint) {
 		Assert.notNull(entryPoint, "entryPoint cannot be null");
 		this.authenticationEntryPoint = entryPoint;
+		return this;
+	}
+
+	public OAuth2ResourceServerConfigurer<H> authenticationManagerResolver
+			(AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
+		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
+		this.authenticationManagerResolver = authenticationManagerResolver;
 		return this;
 	}
 
@@ -188,10 +197,12 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		BearerTokenResolver bearerTokenResolver = getBearerTokenResolver();
 		this.requestMatcher.setBearerTokenResolver(bearerTokenResolver);
 
-		AuthenticationManager manager = http.getSharedObject(AuthenticationManager.class);
+		AuthenticationManagerResolver resolver = this.authenticationManagerResolver;
+		if (resolver == null) {
+			resolver = request -> http.getSharedObject(AuthenticationManager.class);
+		}
 
-		BearerTokenAuthenticationFilter filter =
-				new BearerTokenAuthenticationFilter(manager);
+		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(resolver);
 		filter.setBearerTokenResolver(bearerTokenResolver);
 		filter.setAuthenticationEntryPoint(this.authenticationEntryPoint);
 		filter = postProcess(filter);
@@ -203,7 +214,9 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 					"same time");
 		}
 
-		if (this.jwtConfigurer == null && this.opaqueTokenConfigurer == null) {
+		if (this.jwtConfigurer == null && this.opaqueTokenConfigurer == null &&
+				this.authenticationManagerResolver == null ) {
+
 			throw new IllegalStateException("Jwt and Opaque Token are the only supported formats for bearer tokens " +
 					"in Spring Security and neither was found. Make sure to configure JWT " +
 					"via http.oauth2ResourceServer().jwt() or Opaque Tokens via " +

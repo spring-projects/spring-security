@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -51,7 +52,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @see JwtAuthenticationProvider
  */
 public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
-	private final AuthenticationManager authenticationManager;
+	private final AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
 	private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource =
 			new WebAuthenticationDetailsSource();
@@ -62,11 +63,22 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 
 	/**
 	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided parameter(s)
+	 * @param authenticationManagerResolver
+	 */
+	public BearerTokenAuthenticationFilter
+			(AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
+
+		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
+		this.authenticationManagerResolver = authenticationManagerResolver;
+	}
+
+	/**
+	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided parameter(s)
 	 * @param authenticationManager
 	 */
 	public BearerTokenAuthenticationFilter(AuthenticationManager authenticationManager) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
-		this.authenticationManager = authenticationManager;
+		this.authenticationManagerResolver = request -> authenticationManager;
 	}
 
 	/**
@@ -104,7 +116,8 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 		authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
 		try {
-			Authentication authenticationResult = this.authenticationManager.authenticate(authenticationRequest);
+			AuthenticationManager authenticationManager = this.authenticationManagerResolver.resolve(request);
+			Authentication authenticationResult = authenticationManager.authenticate(authenticationRequest);
 
 			SecurityContext context = SecurityContextHolder.createEmptyContext();
 			context.setAuthentication(authenticationResult);
@@ -139,5 +152,4 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
-
 }
