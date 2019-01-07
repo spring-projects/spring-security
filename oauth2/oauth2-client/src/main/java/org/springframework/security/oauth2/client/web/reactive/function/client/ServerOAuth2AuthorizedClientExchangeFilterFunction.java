@@ -253,9 +253,9 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		if (isClientCredentialsGrantType(clientRegistration) && hasTokenExpired(authorizedClient)) {
 			return createRequest(request)
 					.flatMap(r -> authorizeWithClientCredentials(clientRegistration, r));
-		} else if (shouldRefresh(authorizedClient)) {
+		} else if (shouldRefreshToken(authorizedClient)) {
 			return createRequest(request)
-				.flatMap(r -> refreshAuthorizedClient(next, authorizedClient, r));
+				.flatMap(r -> authorizeWithRefreshToken(next, authorizedClient, r));
 		}
 		return Mono.just(authorizedClient);
 	}
@@ -273,8 +273,9 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 						.thenReturn(result));
 	}
 
-	private Mono<OAuth2AuthorizedClient> refreshAuthorizedClient(ExchangeFunction next,
-			OAuth2AuthorizedClient authorizedClient, OAuth2AuthorizedClientResolver.Request r) {
+	private Mono<OAuth2AuthorizedClient> authorizeWithRefreshToken(ExchangeFunction next,
+																	OAuth2AuthorizedClient authorizedClient,
+																	OAuth2AuthorizedClientResolver.Request r) {
 		ServerWebExchange exchange = r.getExchange();
 		Authentication authentication = r.getAuthentication();
 		ClientRegistration clientRegistration = authorizedClient
@@ -293,7 +294,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 						.thenReturn(result));
 	}
 
-	private boolean shouldRefresh(OAuth2AuthorizedClient authorizedClient) {
+	private boolean shouldRefreshToken(OAuth2AuthorizedClient authorizedClient) {
 		if (this.authorizedClientRepository == null) {
 			return false;
 		}
