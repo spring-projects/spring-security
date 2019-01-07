@@ -89,7 +89,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
 	@Mock
-	private OAuth2AuthorizedClientResolver oAuth2AuthorizedClientResolver;
+	private OAuth2AuthorizedClientResolver authorizedClientResolver;
 
 	@Mock
 	private ServerWebExchange serverWebExchange;
@@ -155,7 +155,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		ClientRegistration registration = TestClientRegistrations.clientCredentials().build();
 		String clientRegistrationId = registration.getClientId();
 
-		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientRepository, this.oAuth2AuthorizedClientResolver);
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientRepository, this.authorizedClientResolver);
 
 		OAuth2AccessToken newAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				"new-token",
@@ -164,8 +164,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthorizedClient newAuthorizedClient = new OAuth2AuthorizedClient(registration,
 				"principalName", newAccessToken, null);
 		Request r = new Request(clientRegistrationId, authentication, null);
-		when(this.oAuth2AuthorizedClientResolver.clientCredentials(any(), any(), any())).thenReturn(Mono.just(newAuthorizedClient));
-		when(this.oAuth2AuthorizedClientResolver.createDefaultedRequest(any(), any(), any())).thenReturn(Mono.just(r));
+		when(this.authorizedClientResolver.clientCredentials(any(), any(), any())).thenReturn(Mono.just(newAuthorizedClient));
+		when(this.authorizedClientResolver.createDefaultedRequest(any(), any(), any())).thenReturn(Mono.just(r));
 
 		when(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
 
@@ -190,8 +190,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.block();
 
 		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(authentication), any());
-		verify(this.oAuth2AuthorizedClientResolver).clientCredentials(any(), any(), any());
-		verify(this.oAuth2AuthorizedClientResolver).createDefaultedRequest(any(), any(), any());
+		verify(this.authorizedClientResolver).clientCredentials(any(), any(), any());
+		verify(this.authorizedClientResolver).createDefaultedRequest(any(), any(), any());
 
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(1);
@@ -207,7 +207,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("test", "this");
 		ClientRegistration registration = TestClientRegistrations.clientCredentials().build();
 
-		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientRepository, this.oAuth2AuthorizedClientResolver);
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientRepository, this.authorizedClientResolver);
 
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(registration,
 				"principalName", this.accessToken, null);
@@ -219,8 +219,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
 
-		verify(this.oAuth2AuthorizedClientResolver, never()).clientCredentials(any(), any(), any());
-		verify(this.oAuth2AuthorizedClientResolver, never()).createDefaultedRequest(any(), any(), any());
+		verify(this.authorizedClientResolver, never()).clientCredentials(any(), any(), any());
+		verify(this.authorizedClientResolver, never()).createDefaultedRequest(any(), any(), any());
 
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(1);
