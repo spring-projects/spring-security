@@ -53,7 +53,7 @@ public class PrincipalSid implements Sid {
 			this.principal = ((UserDetails) authentication.getPrincipal()).getUsername();
 		}
 		else {
-			this.principal = authentication.getPrincipal().toString();
+			this.principal = authentication.getName();
 		}
 	}
 
