@@ -66,7 +66,6 @@ public class OidcIdTokenValidatorTests {
 				.hasSize(1)
 				.extracting(OAuth2Error::getDescription)
 				.allMatch(msg -> msg.contains(IdTokenClaimNames.ISS));
-
 	}
 
 	@Test
@@ -192,17 +191,6 @@ public class OidcIdTokenValidatorTests {
 				.allMatch(msg -> msg.contains(IdTokenClaimNames.AUD))
 				.allMatch(msg -> msg.contains(IdTokenClaimNames.IAT))
 				.allMatch(msg -> msg.contains(IdTokenClaimNames.EXP));
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void validateIdTokenWhenNoClaimsThenHasErrors() {
-		this.claims.remove(IdTokenClaimNames.ISS);
-		this.claims.remove(IdTokenClaimNames.SUB);
-		this.claims.remove(IdTokenClaimNames.AUD);
-		this.issuedAt = null;
-		this.expiresAt = null;
-		assertThat(this.validateIdToken())
-				.hasSize(1);
 	}
 
 	private Collection<OAuth2Error> validateIdToken() {

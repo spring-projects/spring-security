@@ -55,10 +55,10 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	public OAuth2TokenValidatorResult validate(Jwt idToken) {
 		// 3.1.3.7  ID Token Validation
 		// http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
-		Map<String, Object> invalidClaims = validateRequiredClaims(idToken);
 
-		if (!invalidClaims.isEmpty()){
-			return  OAuth2TokenValidatorResult.failure(invalidIdToken(invalidClaims));
+		Map<String, Object> invalidClaims = validateRequiredClaims(idToken);
+		if (!invalidClaims.isEmpty()) {
+			return OAuth2TokenValidatorResult.failure(invalidIdToken(invalidClaims));
 		}
 
 		// 2. The Issuer Identifier for the OpenID Provider (which is typically obtained during Discovery)
@@ -121,13 +121,14 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 
 	private static OAuth2Error invalidIdToken(Map<String, Object> invalidClaims) {
 		String claimsDetail = invalidClaims.entrySet().stream()
-				.map(it -> it.getKey()+ "("+it.getValue()+")")
+				.map(it -> it.getKey() + " (" + it.getValue() + ")")
 				.collect(Collectors.joining(", "));
-
-		return new OAuth2Error("invalid_id_token", "The ID Token contains invalid claims: "+claimsDetail, null);
+		return new OAuth2Error("invalid_id_token",
+				"The ID Token contains invalid claims: " + claimsDetail,
+				"https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation");
 	}
 
-	private static Map<String, Object>  validateRequiredClaims(Jwt idToken){
+	private static Map<String, Object> validateRequiredClaims(Jwt idToken) {
 		Map<String, Object> requiredClaims = new HashMap<>();
 
 		URL issuer = idToken.getIssuer();
