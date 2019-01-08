@@ -15,11 +15,12 @@
  */
 package org.springframework.security.ldap.server;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,7 +69,10 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @author Rob Winch
  * @author Gunnar Hillert
+ * @deprecated Use {@link UnboundIdContainer} instead because ApacheDS 1.x is no longer 
+ * supported with no GA version to replace it.
  */
+@Deprecated
 public class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle,
 		ApplicationContextAware {
 	private final Log logger = LogFactory.getLog(getClass());
