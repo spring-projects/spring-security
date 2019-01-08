@@ -45,6 +45,7 @@ public class OidcIdTokenValidatorTests {
 	private Map<String, Object> claims = new HashMap<>();
 	private Instant issuedAt = Instant.now();
 	private Instant expiresAt = this.issuedAt.plusSeconds(3600);
+	private Duration clockSkew = Duration.ofSeconds(60);
 
 	@Before
 	public void setup() {
@@ -55,12 +56,12 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenValidThenNoErrors() {
+	public void validateWhenValidThenNoErrors() {
 		assertThat(this.validateIdToken()).isEmpty();
 	}
 
 	@Test
-	public void validateIdTokenWhenIssuerNullThenHasErrors() {
+	public void validateWhenIssuerNullThenHasErrors() {
 		this.claims.remove(IdTokenClaimNames.ISS);
 		assertThat(this.validateIdToken())
 				.hasSize(1)
@@ -69,7 +70,7 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenSubNullThenHasErrors() {
+	public void validateWhenSubNullThenHasErrors() {
 		this.claims.remove(IdTokenClaimNames.SUB);
 		assertThat(this.validateIdToken())
 				.hasSize(1)
@@ -78,7 +79,7 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenAudNullThenHasErrors() {
+	public void validateWhenAudNullThenHasErrors() {
 		this.claims.remove(IdTokenClaimNames.AUD);
 		assertThat(this.validateIdToken())
 				.hasSize(1)
@@ -87,7 +88,7 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenIssuedAtNullThenHasErrors() {
+	public void validateWhenIssuedAtNullThenHasErrors() {
 		this.issuedAt = null;
 		assertThat(this.validateIdToken())
 				.hasSize(1)
@@ -96,7 +97,7 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenExpiresAtNullThenHasErrors() {
+	public void validateWhenExpiresAtNullThenHasErrors() {
 		this.expiresAt = null;
 		assertThat(this.validateIdToken())
 				.hasSize(1)
@@ -105,7 +106,7 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenAudMultipleAndAzpNullThenHasErrors() {
+	public void validateWhenAudMultipleAndAzpNullThenHasErrors() {
 		this.claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id", "other"));
 		assertThat(this.validateIdToken())
 				.hasSize(1)
@@ -114,7 +115,7 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenAzpNotClientIdThenHasErrors() {
+	public void validateWhenAzpNotClientIdThenHasErrors() {
 		this.claims.put(IdTokenClaimNames.AZP, "other");
 		assertThat(this.validateIdToken())
 				.hasSize(1)
@@ -123,14 +124,14 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenMultipleAudAzpClientIdThenNoErrors() {
+	public void validateWhenMultipleAudAzpClientIdThenNoErrors() {
 		this.claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id", "other"));
 		this.claims.put(IdTokenClaimNames.AZP, "client-id");
 		assertThat(this.validateIdToken()).isEmpty();
 	}
 
 	@Test
-	public void validateIdTokenWhenMultipleAudAzpNotClientIdThenHasErrors() {
+	public void validateWhenMultipleAudAzpNotClientIdThenHasErrors() {
 		this.claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id-1", "client-id-2"));
 		this.claims.put(IdTokenClaimNames.AZP, "other-client");
 		assertThat(this.validateIdToken())
@@ -140,7 +141,7 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenAudNotClientIdThenHasErrors() {
+	public void validateWhenAudNotClientIdThenHasErrors() {
 		this.claims.put(IdTokenClaimNames.AUD, Collections.singletonList("other-client"));
 		assertThat(this.validateIdToken())
 				.hasSize(1)
@@ -149,9 +150,18 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenExpiredThenHasErrors() {
-		this.issuedAt = Instant.now().minus(Duration.ofMinutes(1));
-		this.expiresAt = this.issuedAt.plus(Duration.ofSeconds(1));
+	public void validateWhenExpiredAnd60secClockSkewThenNoErrors() {
+		this.issuedAt = Instant.now().minus(Duration.ofSeconds(60));
+		this.expiresAt = this.issuedAt.plus(Duration.ofSeconds(30));
+		this.clockSkew = Duration.ofSeconds(60);
+		assertThat(this.validateIdToken()).isEmpty();
+	}
+
+	@Test
+	public void validateWhenExpiredAnd0secClockSkewThenHasErrors() {
+		this.issuedAt = Instant.now().minus(Duration.ofSeconds(60));
+		this.expiresAt = this.issuedAt.plus(Duration.ofSeconds(30));
+		this.clockSkew = Duration.ofSeconds(0);
 		assertThat(this.validateIdToken())
 				.hasSize(1)
 				.extracting(OAuth2Error::getDescription)
@@ -159,9 +169,18 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenIssuedAtWayInFutureThenHasErrors() {
+	public void validateWhenIssuedAt5minAheadAnd5minClockSkewThenNoErrors() {
 		this.issuedAt = Instant.now().plus(Duration.ofMinutes(5));
-		this.expiresAt = this.issuedAt.plus(Duration.ofSeconds(1));
+		this.expiresAt = this.issuedAt.plus(Duration.ofSeconds(60));
+		this.clockSkew = Duration.ofMinutes(5);
+		assertThat(this.validateIdToken()).isEmpty();
+	}
+
+	@Test
+	public void validateWhenIssuedAt1minAheadAnd0minClockSkewThenHasErrors() {
+		this.issuedAt = Instant.now().plus(Duration.ofMinutes(1));
+		this.expiresAt = this.issuedAt.plus(Duration.ofSeconds(60));
+		this.clockSkew = Duration.ofMinutes(0);
 		assertThat(this.validateIdToken())
 				.hasSize(1)
 				.extracting(OAuth2Error::getDescription)
@@ -169,9 +188,10 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenExpiresAtBeforeNowThenHasErrors() {
-		this.issuedAt = Instant.now().minusSeconds(10);
-		this.expiresAt = Instant.from(this.issuedAt).plusSeconds(5);
+	public void validateWhenExpiresAtBeforeNowThenHasErrors() {
+		this.issuedAt = Instant.now().minus(Duration.ofSeconds(10));
+		this.expiresAt = this.issuedAt.plus(Duration.ofSeconds(5));
+		this.clockSkew = Duration.ofSeconds(0);
 		assertThat(this.validateIdToken())
 				.hasSize(1)
 				.extracting(OAuth2Error::getDescription)
@@ -179,7 +199,7 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
-	public void validateIdTokenWhenMissingClaimsThenHasErrors() {
+	public void validateWhenMissingClaimsThenHasErrors() {
 		this.claims.remove(IdTokenClaimNames.SUB);
 		this.claims.remove(IdTokenClaimNames.AUD);
 		this.issuedAt = null;
@@ -196,6 +216,7 @@ public class OidcIdTokenValidatorTests {
 	private Collection<OAuth2Error> validateIdToken() {
 		Jwt idToken = new Jwt("token123", this.issuedAt, this.expiresAt, this.headers, this.claims);
 		OidcIdTokenValidator validator = new OidcIdTokenValidator(this.registration.build());
+		validator.setClockSkew(this.clockSkew);
 		return validator.validate(idToken).getErrors();
 	}
 }

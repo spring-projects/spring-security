@@ -22,10 +22,12 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.net.URL;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +46,9 @@ import java.util.stream.Collectors;
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">ID Token Validation</a>
  */
 public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
+	private static final Duration DEFAULT_CLOCK_SKEW = Duration.ofSeconds(60);
 	private final ClientRegistration clientRegistration;
+	private Duration clockSkew = DEFAULT_CLOCK_SKEW;
 
 	public OidcIdTokenValidator(ClientRegistration clientRegistration) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
@@ -93,15 +97,14 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 
 		// 9. The current time MUST be before the time represented by the exp Claim.
 		Instant now = Instant.now();
-		if (!now.isBefore(idToken.getExpiresAt())) {
+		if (now.minus(this.clockSkew).isAfter(idToken.getExpiresAt())) {
 			invalidClaims.put(IdTokenClaimNames.EXP, idToken.getExpiresAt());
 		}
 
 		// 10. The iat Claim can be used to reject tokens that were issued too far away from the current time,
 		// limiting the amount of time that nonces need to be stored to prevent attacks.
 		// The acceptable range is Client specific.
-		Instant maxIssuedAt = now.plusSeconds(30);
-		if (idToken.getIssuedAt().isAfter(maxIssuedAt)) {
+		if (now.plus(this.clockSkew).isBefore(idToken.getIssuedAt())) {
 			invalidClaims.put(IdTokenClaimNames.IAT, idToken.getIssuedAt());
 		}
 
@@ -117,6 +120,19 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		}
 
 		return OAuth2TokenValidatorResult.success();
+	}
+
+	/**
+	 * Sets the maximum acceptable clock skew. The default is 60 seconds.
+	 * The clock skew is used when validating the {@link JwtClaimNames#EXP exp}
+	 * and {@link JwtClaimNames#IAT iat} claims.
+	 *
+	 * @since 5.2
+	 * @param clockSkew the maximum acceptable clock skew
+	 */
+	public final void setClockSkew(Duration clockSkew) {
+		Assert.notNull(clockSkew, "clockSkew cannot be null");
+		this.clockSkew = clockSkew;
 	}
 
 	private static OAuth2Error invalidIdToken(Map<String, Object> invalidClaims) {
