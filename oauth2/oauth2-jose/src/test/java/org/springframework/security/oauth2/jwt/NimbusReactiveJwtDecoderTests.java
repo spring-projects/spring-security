@@ -16,6 +16,16 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+
 import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
@@ -25,23 +35,10 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Map;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Rob Winch
@@ -76,6 +73,8 @@ public class NimbusReactiveJwtDecoderTests {
 		this.server = new MockWebServer();
 		this.server.start();
 		this.server.enqueue(new MockResponse().setBody(jwkSet));
+
+
 		this.decoder = new NimbusReactiveJwtDecoder(this.server.url("/certs").toString());
 	}
 
@@ -96,7 +95,7 @@ public class NimbusReactiveJwtDecoderTests {
 
 	@Test
 	public void decodeWhenMessageReadScopeThenSuccess() {
-		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
+		Jwt jwt = (Jwt) this.decoder.decode(this.messageReadToken).block();
 
 		assertThat(jwt.getClaims().get("scope")).isEqualTo("message:read");
 	}
@@ -117,7 +116,7 @@ public class NimbusReactiveJwtDecoderTests {
 	public void decodeWhenIssuedAtThenSuccess() {
 		String withIssuedAt = "eyJraWQiOiJrZXktaWQtMSIsImFsZyI6IlJTMjU2In0.eyJzY29wZSI6IiIsImV4cCI6OTIyMzM3MjAwNjA5NjM3NSwiaWF0IjoxNTI5OTQyNDQ4fQ.LBzAJO-FR-uJDHST61oX4kimuQjz6QMJPW_mvEXRB6A-fMQWpfTQ089eboipAqsb33XnwWth9ELju9HMWLk0FjlWVVzwObh9FcoKelmPNR8mZIlFG-pAYGgSwi8HufyLabXHntFavBiFtqwp_z9clSOFK1RxWvt3lywEbGgtCKve0BXOjfKWiH1qe4QKGixH-NFxidvz8Qd5WbJwyb9tChC6ZKoKPv7Jp-N5KpxkY-O2iUtINvn4xOSactUsvKHgF8ZzZjvJGzG57r606OZXaNtoElQzjAPU5xDGg5liuEJzfBhvqiWCLRmSuZ33qwp3aoBnFgEw0B85gsNe3ggABg";
 
-		Jwt jwt = this.decoder.decode(withIssuedAt).block();
+		Jwt jwt = (Jwt) this.decoder.decode(withIssuedAt).block();
 
 		assertThat(jwt.getClaims().get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochSecond(1529942448L));
 	}
@@ -188,7 +187,7 @@ public class NimbusReactiveJwtDecoderTests {
 
 		when(claimSetConverter.convert(any(Map.class))).thenReturn(Collections.singletonMap("custom", "value"));
 
-		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
+		Jwt jwt = (Jwt) this.decoder.decode(this.messageReadToken).block();
 		assertThat(jwt.getClaims().size()).isEqualTo(1);
 		assertThat(jwt.getClaims().get("custom")).isEqualTo("value");
 		verify(claimSetConverter).convert(any(Map.class));

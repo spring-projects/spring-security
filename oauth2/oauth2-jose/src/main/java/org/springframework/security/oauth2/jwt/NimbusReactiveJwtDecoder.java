@@ -15,37 +15,22 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.security.interfaces.RSAPublicKey;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSelector;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.BadJOSEException;
-import com.nimbusds.jose.proc.JWSKeySelector;
-import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import com.nimbusds.jwt.proc.JWTProcessor;
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.util.Assert;
+import reactor.core.publisher.Mono;
+
+import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * An implementation of a {@link ReactiveJwtDecoder} that &quot;decodes&quot; a
@@ -64,56 +49,23 @@ import org.springframework.util.Assert;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a>
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus JOSE + JWT SDK</a>
  */
-public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
-	private final JWTProcessor<JWKContext> jwtProcessor;
-
-	private final ReactiveJWKSource reactiveJwkSource;
-
-	private final JWKSelectorFactory jwkSelectorFactory;
+public final class NimbusReactiveJwtDecoder<T extends SecurityContext> implements ReactiveJwtDecoder {
+	private final ReactiveJWTProcessor jwtProcessor;
 
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
 			.withDefaults(Collections.emptyMap());
 
-	public NimbusReactiveJwtDecoder(RSAPublicKey publicKey) {
-		JWSAlgorithm algorithm = JWSAlgorithm.parse(JwsAlgorithms.RS256);
-
-		RSAKey rsaKey = rsaKey(publicKey);
-		JWKSet jwkSet = new JWKSet(rsaKey);
-		JWKSource jwkSource = new ImmutableJWKSet<>(jwkSet);
-		JWSKeySelector<JWKContext> jwsKeySelector =
-				new JWSVerificationKeySelector<>(algorithm, jwkSource);
-		DefaultJWTProcessor jwtProcessor = new DefaultJWTProcessor<>();
-		jwtProcessor.setJWSKeySelector(jwsKeySelector);
-		jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
-
-		this.jwtProcessor = jwtProcessor;
-		this.reactiveJwkSource = new ReactiveJWKSourceAdapter(jwkSource);
-		this.jwkSelectorFactory = new JWKSelectorFactory(algorithm);
+	public NimbusReactiveJwtDecoder(String jwksUri){
+		this(new ReactiveJWKSJWTProcessor(jwksUri));
 	}
 
-	/**
-	 * Constructs a {@code NimbusJwtDecoderJwkSupport} using the provided parameters.
-	 *
-	 * @param jwkSetUrl the JSON Web Key (JWK) Set {@code URL}
-	 */
-	public NimbusReactiveJwtDecoder(String jwkSetUrl) {
-		Assert.hasText(jwkSetUrl, "jwkSetUrl cannot be empty");
-		String jwsAlgorithm = JwsAlgorithms.RS256;
-		JWSAlgorithm algorithm = JWSAlgorithm.parse(jwsAlgorithm);
-		JWKSource jwkSource = new JWKContextJWKSource();
-		JWSKeySelector<JWKContext> jwsKeySelector =
-				new JWSVerificationKeySelector<>(algorithm, jwkSource);
+	public NimbusReactiveJwtDecoder(RSAPublicKey publicKey){
+		this(new ReactivePublicKeyJWTProcessor(publicKey));
+	}
 
-		DefaultJWTProcessor<JWKContext> jwtProcessor = new DefaultJWTProcessor<>();
-		jwtProcessor.setJWSKeySelector(jwsKeySelector);
-		jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
-		this.jwtProcessor = jwtProcessor;
-
-		this.reactiveJwkSource = new ReactiveRemoteJWKSource(jwkSetUrl);
-
-		this.jwkSelectorFactory = new JWKSelectorFactory(algorithm);
-
+	public NimbusReactiveJwtDecoder(ReactiveJWTProcessor jwtProcessor){
+		this.jwtProcessor=jwtProcessor;
 	}
 
 	/**
@@ -155,25 +107,13 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 	private Mono<Jwt> decode(SignedJWT parsedToken) {
 		try {
-			JWKSelector selector = this.jwkSelectorFactory
-					.createSelector(parsedToken.getHeader());
-			return this.reactiveJwkSource.get(selector)
-				.onErrorMap(e -> new IllegalStateException("Could not obtain the keys", e))
-				.map(jwkList -> createClaimsSet(parsedToken, jwkList))
+			return jwtProcessor.process(parsedToken)
+				.onErrorMap(e -> !(e instanceof IllegalStateException) && !(e instanceof JwtException), e -> new IllegalStateException("Could not obtain the keys", e))
 				.map(set -> createJwt(parsedToken, set))
 				.map(this::validateJwt)
 				.onErrorMap(e -> !(e instanceof IllegalStateException) && !(e instanceof JwtException), e -> new JwtException("An error occurred while attempting to decode the Jwt: ", e));
 		} catch (RuntimeException ex) {
 			throw new JwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
-		}
-	}
-
-	private JWTClaimsSet createClaimsSet(JWT parsedToken, List<JWK> jwkList) {
-		try {
-			return this.jwtProcessor.process(parsedToken, new JWKContext(jwkList));
-		}
-		catch (BadJOSEException | JOSEException e) {
-			throw new JwtException("Failed to validate the token", e);
 		}
 	}
 
@@ -195,10 +135,5 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		}
 
 		return jwt;
-	}
-
-	private static RSAKey rsaKey(RSAPublicKey publicKey) {
-		return new RSAKey.Builder(publicKey)
-				.build();
 	}
 }
