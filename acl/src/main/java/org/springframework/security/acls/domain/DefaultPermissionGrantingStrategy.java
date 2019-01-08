@@ -87,7 +87,7 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
 
 				for (AccessControlEntry ace : aces) {
 
-					if ((ace.getPermission().getMask() == p.getMask())
+					if (((ace.getPermission().getMask() & p.getMask()) != 0)
 							&& ace.getSid().equals(sid)) {
 						// Found a matching ACE, so its authorization decision will
 						// prevail
