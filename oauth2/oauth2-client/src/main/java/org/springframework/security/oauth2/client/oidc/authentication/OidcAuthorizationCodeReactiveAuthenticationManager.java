@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,10 @@ import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessT
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
@@ -39,19 +37,14 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
-import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An implementation of an {@link org.springframework.security.authentication.AuthenticationProvider} for OAuth 2.0 Login,
@@ -83,7 +76,6 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
-	private static final String MISSING_SIGNATURE_VERIFIER_ERROR_CODE = "missing_signature_verifier";
 
 	private final ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
@@ -91,7 +83,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
-	private ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new DefaultJwtDecoderFactory();
+	private ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new ReactiveOidcIdTokenDecoderFactory();
 
 	public OidcAuthorizationCodeReactiveAuthenticationManager(
 			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient,
@@ -198,31 +190,5 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 		String rawIdToken = (String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN);
 		return jwtDecoder.decode(rawIdToken)
 				.map(jwt -> new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims()));
-	}
-
-	private static class DefaultJwtDecoderFactory implements ReactiveJwtDecoderFactory<ClientRegistration> {
-		private final Map<String, ReactiveJwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
-
-		@Override
-		public ReactiveJwtDecoder createDecoder(ClientRegistration clientRegistration) {
-			return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), key -> {
-				if (!StringUtils.hasText(clientRegistration.getProviderDetails().getJwkSetUri())) {
-					OAuth2Error oauth2Error = new OAuth2Error(
-							MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
-							"Failed to find a Signature Verifier for Client Registration: '" +
-									clientRegistration.getRegistrationId() +
-									"'. Check to ensure you have configured the JwkSet URI.",
-							null
-					);
-					throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-				}
-				NimbusReactiveJwtDecoder jwtDecoder = new NimbusReactiveJwtDecoder(
-						clientRegistration.getProviderDetails().getJwkSetUri());
-				OAuth2TokenValidator<Jwt> jwtValidator = new DelegatingOAuth2TokenValidator<>(
-						new JwtTimestampValidator(), new OidcIdTokenValidator(clientRegistration));
-				jwtDecoder.setJwtValidator(jwtValidator);
-				return jwtDecoder;
-			});
-		}
 	}
 }
