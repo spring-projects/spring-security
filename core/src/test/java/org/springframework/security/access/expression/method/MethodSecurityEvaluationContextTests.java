@@ -21,10 +21,9 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.ReflectionUtils;
 
@@ -64,7 +63,7 @@ public class MethodSecurityEvaluationContextTests {
 		}
 
 		@Override
-		public void setVariable(String name, @Nullable Object value) {
+		public void setVariable(String name, Object value) {
 			if ( name == null ) {
 				throw new IllegalArgumentException("name  should not be null");
 			}
