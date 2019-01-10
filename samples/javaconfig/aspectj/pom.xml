@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-javaconfig-aspectj</artifactId>
-  <version>4.2.10.RELEASE</version>
+  <version>4.2.11.RELEASE</version>
   <name>spring-security-samples-javaconfig-aspectj</name>
   <description>spring-security-samples-javaconfig-aspectj</description>
   <url>http://spring.io/spring-security</url>
@@ -35,7 +35,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>4.3.21.RELEASE</version>
+        <version>4.3.22.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -45,13 +45,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -71,7 +71,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-aspects</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>

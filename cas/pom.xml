@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-cas</artifactId>
-  <version>4.2.10.RELEASE</version>
+  <version>4.2.11.RELEASE</version>
   <name>spring-security-cas</name>
   <description>spring-security-cas</description>
   <url>http://spring.io/spring-security</url>
@@ -35,7 +35,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>4.3.21.RELEASE</version>
+        <version>4.3.22.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -51,13 +51,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -103,7 +103,7 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
-      <version>2.10.5</version>
+      <version>2.10.6</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>

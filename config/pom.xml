@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-config</artifactId>
-  <version>4.2.10.RELEASE</version>
+  <version>4.2.11.RELEASE</version>
   <name>spring-security-config</name>
   <description>spring-security-config</description>
   <url>http://spring.io/spring-security</url>
@@ -35,7 +35,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>4.3.21.RELEASE</version>
+        <version>4.3.22.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -51,7 +51,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -97,28 +97,28 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-ldap</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-messaging</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-openid</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
@@ -161,7 +161,7 @@
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
-      <version>3.2.9</version>
+      <version>3.2.10</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -347,7 +347,7 @@
     <dependency>
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-jpa</artifactId>
-      <version>1.11.17.RELEASE</version>
+      <version>1.11.18.RELEASE</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -365,13 +365,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-aspects</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-cas</artifactId>
-      <version>4.2.10.RELEASE</version>
+      <version>4.2.11.RELEASE</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-xml-insecure</artifactId>
-  <version>4.2.10.RELEASE</version>
+  <version>4.2.11.RELEASE</version>
   <packaging>war</packaging>
   <name>spring-security-samples-xml-insecure</name>
   <description>spring-security-samples-xml-insecure</description>
@@ -39,7 +39,7 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>4.3.21.RELEASE</version>
+        <version>4.3.22.RELEASE</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
