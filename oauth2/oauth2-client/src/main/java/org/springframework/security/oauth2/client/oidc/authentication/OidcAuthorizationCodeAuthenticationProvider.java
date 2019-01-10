@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,9 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
@@ -43,16 +41,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
 
 /**
  * An implementation of an {@link AuthenticationProvider}
@@ -82,10 +74,9 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
-	private static final String MISSING_SIGNATURE_VERIFIER_ERROR_CODE = "missing_signature_verifier";
 	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 	private final OAuth2UserService<OidcUserRequest, OidcUser> userService;
-	private JwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new DefaultJwtDecoderFactory();
+	private JwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new OidcIdTokenDecoderFactory();
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
 	/**
@@ -218,31 +209,5 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		}
 		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 		return idToken;
-	}
-
-	private static class DefaultJwtDecoderFactory implements JwtDecoderFactory<ClientRegistration> {
-		private final Map<String, JwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
-
-		@Override
-		public JwtDecoder createDecoder(ClientRegistration clientRegistration) {
-			return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), key -> {
-				if (!StringUtils.hasText(clientRegistration.getProviderDetails().getJwkSetUri())) {
-					OAuth2Error oauth2Error = new OAuth2Error(
-							MISSING_SIGNATURE_VERIFIER_ERROR_CODE,
-							"Failed to find a Signature Verifier for Client Registration: '" +
-									clientRegistration.getRegistrationId() +
-									"'. Check to ensure you have configured the JwkSet URI.",
-							null
-					);
-					throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-				}
-				String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
-				NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(jwkSetUri).build());
-				OAuth2TokenValidator<Jwt> jwtValidator = new DelegatingOAuth2TokenValidator<>(
-						new JwtTimestampValidator(), new OidcIdTokenValidator(clientRegistration));
-				jwtDecoder.setJwtValidator(jwtValidator);
-				return jwtDecoder;
-			});
-		}
 	}
 }
