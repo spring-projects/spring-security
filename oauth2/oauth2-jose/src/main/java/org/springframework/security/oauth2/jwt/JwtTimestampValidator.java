@@ -44,7 +44,7 @@ import org.springframework.util.Assert;
 public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 	private static final Duration DEFAULT_MAX_CLOCK_SKEW = Duration.of(60, ChronoUnit.SECONDS);
 
-	private final Duration maxClockSkew;
+	private final Duration clockSkew;
 
 	private Clock clock = Clock.systemUTC();
 
@@ -55,10 +55,10 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 		this(DEFAULT_MAX_CLOCK_SKEW);
 	}
 
-	public JwtTimestampValidator(Duration maxClockSkew) {
-		Assert.notNull(maxClockSkew, "maxClockSkew cannot be null");
+	public JwtTimestampValidator(Duration clockSkew) {
+		Assert.notNull(clockSkew, "clockSkew cannot be null");
 
-		this.maxClockSkew = maxClockSkew;
+		this.clockSkew = clockSkew;
 	}
 
 	/**
@@ -71,7 +71,7 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 		Instant expiry = jwt.getExpiresAt();
 
 		if (expiry != null) {
-			if (Instant.now(this.clock).minus(maxClockSkew).isAfter(expiry)) {
+			if (Instant.now(this.clock).minus(clockSkew).isAfter(expiry)) {
 				OAuth2Error error = new OAuth2Error(
 						OAuth2ErrorCodes.INVALID_REQUEST,
 						String.format("Jwt expired at %s", jwt.getExpiresAt()),
@@ -83,7 +83,7 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 		Instant notBefore = jwt.getNotBefore();
 
 		if (notBefore != null) {
-			if (Instant.now(this.clock).plus(maxClockSkew).isBefore(notBefore)) {
+			if (Instant.now(this.clock).plus(clockSkew).isBefore(notBefore)) {
 				OAuth2Error error = new OAuth2Error(
 						OAuth2ErrorCodes.INVALID_REQUEST,
 						String.format("Jwt used before %s", jwt.getNotBefore()),
