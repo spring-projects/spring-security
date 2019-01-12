@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,21 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import com.nimbusds.jose.RemoteKeySourceException;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKMatcher;
-import com.nimbusds.jose.jwk.JWKSelector;
-import com.nimbusds.jose.jwk.JWKSet;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+
+import com.nimbusds.jose.RemoteKeySourceException;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKMatcher;
+import com.nimbusds.jose.jwk.JWKSelector;
+import com.nimbusds.jose.jwk.JWKSet;
+import reactor.core.publisher.Mono;
+
+import org.springframework.util.Assert;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * @author Rob Winch
@@ -45,14 +47,15 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	private final String jwkSetURL;
 
 	ReactiveRemoteJWKSource(String jwkSetURL) {
+		Assert.hasText(jwkSetURL, "jwkSetURL cannot be empty");
 		this.jwkSetURL = jwkSetURL;
 	}
 
 	public Mono<List<JWK>> get(JWKSelector jwkSelector) {
 		return this.cachedJWKSet.get()
-				.switchIfEmpty(getJWKSet())
+				.switchIfEmpty(Mono.defer(() -> getJWKSet()))
 				.flatMap(jwkSet -> get(jwkSelector, jwkSet))
-				.switchIfEmpty(getJWKSet().map(jwkSet -> jwkSelector.select(jwkSet)));
+				.switchIfEmpty(Mono.defer(() -> getJWKSet().map(jwkSet -> jwkSelector.select(jwkSet))));
 	}
 
 	private Mono<List<JWK>> get(JWKSelector jwkSelector, JWKSet jwkSet) {
@@ -132,5 +135,9 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 			}
 		}
 		return null; // No kid in matcher
+	}
+
+	public void setWebClient(WebClient webClient) {
+		this.webClient = webClient;
 	}
 }
