@@ -344,7 +344,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 		 * @return the {@link UrlAuthorizationConfigurer} for further customization
 		 */
 		public StandardInterceptUrlRegistry anonymous() {
-			return hasRole("ROLE_ANONYMOUS");
+			return hasRole("ANONYMOUS");
 		}
 
 		/**
