@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,32 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSecurityContextJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.proc.JWKSecurityContext;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
@@ -46,6 +52,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.util.Assert;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * An implementation of a {@link ReactiveJwtDecoder} that &quot;decodes&quot; a
@@ -65,31 +72,14 @@ import org.springframework.util.Assert;
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus JOSE + JWT SDK</a>
  */
 public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
-	private final JWTProcessor<JWKContext> jwtProcessor;
-
-	private final ReactiveJWKSource reactiveJwkSource;
-
-	private final JWKSelectorFactory jwkSelectorFactory;
+	private final Converter<SignedJWT, Mono<JWTClaimsSet>> jwtProcessor;
 
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
 			.withDefaults(Collections.emptyMap());
 
 	public NimbusReactiveJwtDecoder(RSAPublicKey publicKey) {
-		JWSAlgorithm algorithm = JWSAlgorithm.parse(JwsAlgorithms.RS256);
-
-		RSAKey rsaKey = rsaKey(publicKey);
-		JWKSet jwkSet = new JWKSet(rsaKey);
-		JWKSource jwkSource = new ImmutableJWKSet<>(jwkSet);
-		JWSKeySelector<JWKContext> jwsKeySelector =
-				new JWSVerificationKeySelector<>(algorithm, jwkSource);
-		DefaultJWTProcessor jwtProcessor = new DefaultJWTProcessor<>();
-		jwtProcessor.setJWSKeySelector(jwsKeySelector);
-		jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
-
-		this.jwtProcessor = jwtProcessor;
-		this.reactiveJwkSource = new ReactiveJWKSourceAdapter(jwkSource);
-		this.jwkSelectorFactory = new JWKSelectorFactory(algorithm);
+		this.jwtProcessor = withPublicKey(publicKey).processor();
 	}
 
 	/**
@@ -98,22 +88,11 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 * @param jwkSetUrl the JSON Web Key (JWK) Set {@code URL}
 	 */
 	public NimbusReactiveJwtDecoder(String jwkSetUrl) {
-		Assert.hasText(jwkSetUrl, "jwkSetUrl cannot be empty");
-		String jwsAlgorithm = JwsAlgorithms.RS256;
-		JWSAlgorithm algorithm = JWSAlgorithm.parse(jwsAlgorithm);
-		JWKSource jwkSource = new JWKContextJWKSource();
-		JWSKeySelector<JWKContext> jwsKeySelector =
-				new JWSVerificationKeySelector<>(algorithm, jwkSource);
+		this.jwtProcessor = withJwkSetUri(jwkSetUrl).processor();
+	}
 
-		DefaultJWTProcessor<JWKContext> jwtProcessor = new DefaultJWTProcessor<>();
-		jwtProcessor.setJWSKeySelector(jwsKeySelector);
-		jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
+	public NimbusReactiveJwtDecoder(Converter<SignedJWT, Mono<JWTClaimsSet>> jwtProcessor) {
 		this.jwtProcessor = jwtProcessor;
-
-		this.reactiveJwkSource = new ReactiveRemoteJWKSource(jwkSetUrl);
-
-		this.jwkSelectorFactory = new JWKSelectorFactory(algorithm);
-
 	}
 
 	/**
@@ -155,25 +134,12 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 	private Mono<Jwt> decode(SignedJWT parsedToken) {
 		try {
-			JWKSelector selector = this.jwkSelectorFactory
-					.createSelector(parsedToken.getHeader());
-			return this.reactiveJwkSource.get(selector)
-				.onErrorMap(e -> new IllegalStateException("Could not obtain the keys", e))
-				.map(jwkList -> createClaimsSet(parsedToken, jwkList))
+			return this.jwtProcessor.convert(parsedToken)
 				.map(set -> createJwt(parsedToken, set))
 				.map(this::validateJwt)
 				.onErrorMap(e -> !(e instanceof IllegalStateException) && !(e instanceof JwtException), e -> new JwtException("An error occurred while attempting to decode the Jwt: ", e));
 		} catch (RuntimeException ex) {
 			throw new JwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
-		}
-	}
-
-	private JWTClaimsSet createClaimsSet(JWT parsedToken, List<JWK> jwkList) {
-		try {
-			return this.jwtProcessor.process(parsedToken, new JWKContext(jwkList));
-		}
-		catch (BadJOSEException | JOSEException e) {
-			throw new JwtException("Failed to validate the token", e);
 		}
 	}
 
@@ -197,8 +163,251 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		return jwt;
 	}
 
-	private static RSAKey rsaKey(RSAPublicKey publicKey) {
-		return new RSAKey.Builder(publicKey)
-				.build();
+	/**
+	 * Use the given
+	 * <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri to validate JWTs.
+	 *
+	 * @param jwkSetUri the JWK Set uri to use
+	 * @return a {@link JwkSetUriReactiveJwtDecoderBuilder} for further configurations
+	 *
+	 * @since 5.2
+	 */
+	public static JwkSetUriReactiveJwtDecoderBuilder withJwkSetUri(String jwkSetUri) {
+		return new JwkSetUriReactiveJwtDecoderBuilder(jwkSetUri);
+	}
+
+	/**
+	 * Use the given public key to validate JWTs
+	 *
+	 * @param key the public key to use
+	 * @return a {@link PublicKeyReactiveJwtDecoderBuilder} for further configurations
+	 *
+	 * @since 5.2
+	 */
+	public static PublicKeyReactiveJwtDecoderBuilder withPublicKey(RSAPublicKey key) {
+		return new PublicKeyReactiveJwtDecoderBuilder(key);
+	}
+
+	/**
+	 * Use the given {@link Function} to validate JWTs
+	 *
+	 * @param source the {@link Function}
+	 * @return a {@link JwkSourceReactiveJwtDecoderBuilder} for further configurations
+	 *
+	 * @since 5.2
+	 */
+	public static JwkSourceReactiveJwtDecoderBuilder withJwkSource(Function<JWT, Flux<JWK>> source) {
+		return new JwkSourceReactiveJwtDecoderBuilder(source);
+	}
+
+	/**
+	 * A builder for creating {@link NimbusReactiveJwtDecoder} instances based on a
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri.
+	 *
+	 * @since 5.2
+	 */
+	public static final class JwkSetUriReactiveJwtDecoderBuilder {
+
+		private String jwkSetUri;
+		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
+		private WebClient webClient = WebClient.create();
+
+		private JwkSetUriReactiveJwtDecoderBuilder(String jwkSetUri) {
+			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
+			this.jwkSetUri = jwkSetUri;
+		}
+
+		/**
+		 * Use the given signing
+		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithm</a>.
+		 *
+		 * @param jwsAlgorithm the algorithm to use
+		 * @return a {@link JwkSetUriReactiveJwtDecoderBuilder} for further configurations
+		 */
+		public JwkSetUriReactiveJwtDecoderBuilder jwsAlgorithm(String jwsAlgorithm) {
+			Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
+			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm);
+			return this;
+		}
+
+		/**
+		 * Use the given {@link WebClient} to coordinate with the authorization servers indicated in the
+		 * <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri
+		 * as well as the
+		 * <a href="http://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>.
+		 *
+		 * @param webClient
+		 * @return a {@link JwkSetUriReactiveJwtDecoderBuilder} for further configurations
+		 */
+		public JwkSetUriReactiveJwtDecoderBuilder webClient(WebClient webClient) {
+			Assert.notNull(webClient, "webClient cannot be null");
+			this.webClient = webClient;
+			return this;
+		}
+
+		/**
+		 * Build the configured {@link NimbusReactiveJwtDecoder}.
+		 *
+		 * @return the configured {@link NimbusReactiveJwtDecoder}
+		 */
+		public NimbusReactiveJwtDecoder build() {
+			return new NimbusReactiveJwtDecoder(processor());
+		}
+
+		Converter<SignedJWT, Mono<JWTClaimsSet>> processor() {
+			JWKSecurityContextJWKSet jwkSource = new JWKSecurityContextJWKSet();
+
+			JWSKeySelector<JWKSecurityContext> jwsKeySelector =
+					new JWSVerificationKeySelector<>(this.jwsAlgorithm, jwkSource);
+			DefaultJWTProcessor<JWKSecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
+			jwtProcessor.setJWSKeySelector(jwsKeySelector);
+			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
+
+			ReactiveRemoteJWKSource source = new ReactiveRemoteJWKSource(this.jwkSetUri);
+			source.setWebClient(this.webClient);
+
+			return signedJWT -> {
+				JWKSelector selector = createSelector(signedJWT.getHeader());
+				return source.get(selector)
+						.onErrorMap(e -> new IllegalStateException("Could not obtain the keys", e))
+						.map(jwkList -> createClaimsSet(jwtProcessor, signedJWT, new JWKSecurityContext(jwkList)));
+			};
+		}
+
+		private JWKSelector createSelector(JWSHeader header) {
+			if (!this.jwsAlgorithm.equals(header.getAlgorithm())) {
+				throw new JwtException("Unsupported algorithm of " + header.getAlgorithm());
+			}
+
+			return new JWKSelector(JWKMatcher.forJWSHeader(header));
+		}
+	}
+
+	/**
+	 * A builder for creating Nimbus {@link JWTProcessor} instances based on a
+	 * public key.
+	 *
+	 * @since 5.2
+	 */
+	public static final class PublicKeyReactiveJwtDecoderBuilder {
+		private JWSAlgorithm jwsAlgorithm;
+		private RSAKey key;
+
+		private PublicKeyReactiveJwtDecoderBuilder(RSAPublicKey key) {
+			Assert.notNull(key, "key cannot be null");
+			this.jwsAlgorithm = JWSAlgorithm.parse(JwsAlgorithms.RS256);
+			this.key = rsaKey(key);
+		}
+
+		private static RSAKey rsaKey(RSAPublicKey publicKey) {
+			return new RSAKey.Builder(publicKey)
+					.build();
+		}
+
+		/**
+		 * Use the given signing
+		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithm</a>.
+		 * The value should be one of
+		 * <a href="https://tools.ietf.org/html/rfc7518#section-3.3" target="_blank">RS256, RS384, or RS512</a>.
+		 *
+		 * @param jwsAlgorithm the algorithm to use
+		 * @return a {@link PublicKeyReactiveJwtDecoderBuilder} for further configurations
+		 */
+		public PublicKeyReactiveJwtDecoderBuilder jwsAlgorithm(String jwsAlgorithm) {
+			Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
+			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm);
+			return this;
+		}
+
+		/**
+		 * Build the configured {@link NimbusReactiveJwtDecoder}.
+		 *
+		 * @return the configured {@link NimbusReactiveJwtDecoder}
+		 */
+		public NimbusReactiveJwtDecoder build() {
+			return new NimbusReactiveJwtDecoder(processor());
+		}
+
+		Converter<SignedJWT, Mono<JWTClaimsSet>> processor() {
+			if (!JWSAlgorithm.Family.RSA.contains(this.jwsAlgorithm)) {
+				throw new IllegalStateException("The provided key is of type RSA; " +
+						"however the signature algorithm is of some other type: " +
+						this.jwsAlgorithm + ". Please indicate one of RS256, RS384, or RS512.");
+			}
+
+			JWKSet jwkSet = new JWKSet(this.key);
+			JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(jwkSet);
+			JWSKeySelector<SecurityContext> jwsKeySelector =
+					new JWSVerificationKeySelector<>(this.jwsAlgorithm, jwkSource);
+			DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
+			jwtProcessor.setJWSKeySelector(jwsKeySelector);
+
+			// Spring Security validates the claim set independent from Nimbus
+			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> { });
+
+			return signedJWT -> Mono.just(signedJWT).map(jwt -> createClaimsSet(jwtProcessor, jwt, null));
+		}
+	}
+
+	/**
+	 * A builder for creating {@link NimbusReactiveJwtDecoder} instances.
+	 *
+	 * @since 5.2
+	 */
+	public static final class JwkSourceReactiveJwtDecoderBuilder {
+		private Function<JWT, Flux<JWK>> jwkSource;
+		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
+
+		private JwkSourceReactiveJwtDecoderBuilder(Function<JWT, Flux<JWK>> jwkSource) {
+			Assert.notNull(jwkSource, "jwkSource cannot be empty");
+			this.jwkSource = jwkSource;
+		}
+
+		/**
+		 * Use the given signing
+		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithm</a>.
+		 *
+		 * @param jwsAlgorithm the algorithm to use
+		 * @return a {@link JwkSourceReactiveJwtDecoderBuilder} for further configurations
+		 */
+		public JwkSourceReactiveJwtDecoderBuilder jwsAlgorithm(String jwsAlgorithm) {
+			Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
+			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm);
+			return this;
+		}
+
+		/**
+		 * Build the configured {@link NimbusReactiveJwtDecoder}.
+		 *
+		 * @return the configured {@link NimbusReactiveJwtDecoder}
+		 */
+		public NimbusReactiveJwtDecoder build() {
+			return new NimbusReactiveJwtDecoder(processor());
+		}
+
+		Converter<SignedJWT, Mono<JWTClaimsSet>> processor() {
+			JWKSecurityContextJWKSet jwkSource = new JWKSecurityContextJWKSet();
+			JWSKeySelector<JWKSecurityContext> jwsKeySelector =
+					new JWSVerificationKeySelector<>(this.jwsAlgorithm, jwkSource);
+			DefaultJWTProcessor<JWKSecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
+			jwtProcessor.setJWSKeySelector(jwsKeySelector);
+			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
+
+			return signedJWT ->
+					this.jwkSource.apply(signedJWT)
+							.onErrorMap(e -> new IllegalStateException("Could not obtain the keys", e))
+							.collectList()
+							.map(jwks -> createClaimsSet(jwtProcessor, signedJWT, new JWKSecurityContext(jwks)));
+		}
+	}
+
+	private static <C extends SecurityContext> JWTClaimsSet createClaimsSet(JWTProcessor<C> jwtProcessor,
+																			JWT parsedToken, C context) {
+		try {
+			return jwtProcessor.process(parsedToken, context);
+		}
+		catch (BadJOSEException | JOSEException e) {
+			throw new JwtException("Failed to validate the token", e);
+		}
 	}
 }
