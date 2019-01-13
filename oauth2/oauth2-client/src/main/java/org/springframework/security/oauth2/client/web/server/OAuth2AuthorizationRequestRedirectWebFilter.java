@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
+import org.springframework.security.web.server.savedrequest.ServerRequestCache;
+import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -67,6 +69,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 	private final ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
 	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new WebSessionOAuth2ServerAuthorizationRequestRepository();
+	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided parameters.
@@ -98,11 +101,23 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 		this.authorizationRequestRepository = authorizationRequestRepository;
 	}
 
+	/**
+	 * The request cache to use to save the request before sending a redirect.
+	 * @param requestCache the cache to redirect to.
+	 */
+	public void setRequestCache(ServerRequestCache requestCache) {
+		Assert.notNull(requestCache, "requestCache cannot be null");
+		this.requestCache = requestCache;
+	}
+
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return this.authorizationRequestResolver.resolve(exchange)
 			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-			.onErrorResume(ClientAuthorizationRequiredException.class, e -> this.authorizationRequestResolver.resolve(exchange, e.getClientRegistrationId()))
+			.onErrorResume(ClientAuthorizationRequiredException.class, e -> {
+				return this.requestCache.saveRequest(exchange)
+					.then(this.authorizationRequestResolver.resolve(exchange, e.getClientRegistrationId()));
+			})
 			.flatMap(clientRegistration -> sendRedirectForAuthorization(exchange, clientRegistration));
 	}
 
