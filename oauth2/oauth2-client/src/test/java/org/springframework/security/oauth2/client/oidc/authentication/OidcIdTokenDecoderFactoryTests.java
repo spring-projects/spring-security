@@ -23,15 +23,12 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.time.Duration;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Joe Grandja
@@ -45,55 +42,47 @@ public class OidcIdTokenDecoderFactoryTests {
 
 	private OidcIdTokenDecoderFactory idTokenDecoderFactory;
 
+	private Function<ClientRegistration, OAuth2TokenValidator<Jwt>> defaultJwtValidatorFactory = OidcIdTokenValidator::new;
+
 	@Before
 	public void setUp() {
-		idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
+		this.idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
 	}
 
 	@Test
-	public void setJwtValidatorFactoryWhenNullThenThrowIllegalArgumentException(){
-		assertThatThrownBy(()-> idTokenDecoderFactory.setJwtValidatorFactory(null))
+	public void setJwtValidatorFactoryWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.idTokenDecoderFactory.setJwtValidatorFactory(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
-	public void createDecoderWhenClientRegistrationNullThenThrowIllegalArgumentException(){
-		assertThatThrownBy(() -> idTokenDecoderFactory.createDecoder(null))
+	public void createDecoderWhenClientRegistrationNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
-	public void createDecoderWhenJwkSetUriEmptyThenThrowOAuth2AuthenticationException(){
-		assertThatThrownBy(()-> idTokenDecoderFactory.createDecoder(registration.jwkSetUri(null).build()))
-		.isInstanceOf(OAuth2AuthenticationException.class);
+	public void createDecoderWhenJwkSetUriEmptyThenThrowOAuth2AuthenticationException() {
+		assertThatThrownBy(() -> this.idTokenDecoderFactory.createDecoder(this.registration.jwkSetUri(null).build()))
+				.isInstanceOf(OAuth2AuthenticationException.class);
 	}
 
 	@Test
-	public void createDecoderWhenClientRegistrationValidThenReturnDecoder(){
-		assertThat(idTokenDecoderFactory.createDecoder(registration.build()))
+	public void createDecoderWhenClientRegistrationValidThenReturnDecoder() {
+		assertThat(this.idTokenDecoderFactory.createDecoder(this.registration.build()))
 				.isNotNull();
 	}
 
 	@Test
-	public void createDecoderWhenCustomJwtValidatorFactorySetThenApplied(){
-		Function<ClientRegistration, OAuth2TokenValidator<Jwt>> customValidator = mock(Function.class);
-		idTokenDecoderFactory.setJwtValidatorFactory(customValidator);
+	public void createDecoderWhenCustomJwtValidatorFactorySetThenApplied() {
+		Function<ClientRegistration, OAuth2TokenValidator<Jwt>> customJwtValidatorFactory = mock(Function.class);
+		this.idTokenDecoderFactory.setJwtValidatorFactory(customJwtValidatorFactory);
 
-		when(customValidator.apply(any(ClientRegistration.class)))
-				.thenReturn(customJwtValidatorFactory.apply(registration.build()));
+		when(customJwtValidatorFactory.apply(any(ClientRegistration.class)))
+				.thenReturn(this.defaultJwtValidatorFactory.apply(this.registration.build()));
 
-		idTokenDecoderFactory.createDecoder(registration.build());
+		this.idTokenDecoderFactory.createDecoder(this.registration.build());
 
-		verify(customValidator).apply(any(ClientRegistration.class));
+		verify(customJwtValidatorFactory).apply(any(ClientRegistration.class));
 	}
-
-	private Function<ClientRegistration, OAuth2TokenValidator<Jwt>> customJwtValidatorFactory = (c) -> {
-		OidcIdTokenValidator idTokenValidator = new OidcIdTokenValidator(c);
-		if (c.getRegistrationId().equals("registration-id1")) {
-			idTokenValidator.setClockSkew(Duration.ofSeconds(30));
-		} else if (c.getRegistrationId().equals("registration-id2")) {
-			idTokenValidator.setClockSkew(Duration.ofSeconds(70));
-		}
-		return idTokenValidator;
-	};
 }

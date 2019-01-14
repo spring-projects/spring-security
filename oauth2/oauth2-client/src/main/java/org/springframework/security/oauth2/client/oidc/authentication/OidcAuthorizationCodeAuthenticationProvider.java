@@ -66,6 +66,7 @@ import java.util.Map;
  * @see OAuth2AccessTokenResponseClient
  * @see OidcUserService
  * @see OidcUser
+ * @see OidcIdTokenDecoderFactory
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest">Section 3.1.3.1 Token Request</a>
  * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">Section 3.1.3.3 Token Response</a>

@@ -66,6 +66,7 @@ import java.util.Map;
  * @see ReactiveOAuth2AccessTokenResponseClient
  * @see ReactiveOAuth2UserService
  * @see OAuth2User
+ * @see ReactiveOidcIdTokenDecoderFactory
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant Flow</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response</a>

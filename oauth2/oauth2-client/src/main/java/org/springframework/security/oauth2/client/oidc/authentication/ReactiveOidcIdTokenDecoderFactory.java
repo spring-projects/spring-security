@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
@@ -31,14 +32,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * Provides a default or custom reactive implementation for {@link OAuth2TokenValidator}
+ * A {@link ReactiveJwtDecoderFactory factory} that provides a {@link ReactiveJwtDecoder}
+ * used for {@link OidcIdToken} signature verification.
+ * The provided {@link ReactiveJwtDecoder} is associated to a specific {@link ClientRegistration}.
  *
  * @author Joe Grandja
  * @author Rafael Dominguez
  * @since 5.2
- *
- * @see OAuth2TokenValidator
- * @see Jwt
+ * @see ReactiveJwtDecoderFactory
+ * @see ClientRegistration
+ * @see OidcIdToken
  */
 public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecoderFactory<ClientRegistration> {
 	private static final String MISSING_SIGNATURE_VERIFIER_ERROR_CODE = "missing_signature_verifier";
@@ -47,7 +50,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	@Override
 	public ReactiveJwtDecoder createDecoder(ClientRegistration clientRegistration) {
-		Assert.notNull(clientRegistration, "clientRegistration cannot be null.");
+		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), key -> {
 			if (!StringUtils.hasText(clientRegistration.getProviderDetails().getJwkSetUri())) {
 				OAuth2Error oauth2Error = new OAuth2Error(
@@ -61,19 +64,20 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 			}
 			NimbusReactiveJwtDecoder jwtDecoder = new NimbusReactiveJwtDecoder(
 					clientRegistration.getProviderDetails().getJwkSetUri());
-			OAuth2TokenValidator<Jwt> jwtValidator = jwtValidatorFactory.apply(clientRegistration);
+			OAuth2TokenValidator<Jwt> jwtValidator = this.jwtValidatorFactory.apply(clientRegistration);
 			jwtDecoder.setJwtValidator(jwtValidator);
 			return jwtDecoder;
 		});
 	}
 
 	/**
-	 * Allows user customization for the {@link OAuth2TokenValidator}
+	 * Sets the factory that provides an {@link OAuth2TokenValidator}, which is used by the {@link ReactiveJwtDecoder}.
+	 * The default is {@link OidcIdTokenValidator}.
 	 *
-	 * @param jwtValidatorFactory
+	 * @param jwtValidatorFactory the factory that provides an {@link OAuth2TokenValidator}
 	 */
 	public final void setJwtValidatorFactory(Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory) {
-		Assert.notNull(jwtValidatorFactory, "jwtValidatorFactory cannot be null.");
+		Assert.notNull(jwtValidatorFactory, "jwtValidatorFactory cannot be null");
 		this.jwtValidatorFactory = jwtValidatorFactory;
 	}
 }
