@@ -69,7 +69,7 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @author Rob Winch
  * @author Gunnar Hillert
- * @deprecated Use {@link UnboundIdContainer} instead because ApacheDS 1.x is no longer 
+ * @deprecated Use {@link UnboundIdContainer} instead because ApacheDS 1.x is no longer
  * supported with no GA version to replace it.
  */
 @Deprecated
