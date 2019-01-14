@@ -86,7 +86,7 @@ dependencyManagement {
 		dependency 'net.jcip:jcip-annotations:1.0'
 		dependency 'net.minidev:accessors-smart:1.2'
 		dependency 'net.minidev:json-smart:2.3'
-		dependency 'net.sf.ehcache:ehcache:2.10.5'
+		dependency 'net.sf.ehcache:ehcache:2.10.6'
 		dependency 'net.sourceforge.htmlunit:htmlunit:2.33'
 		dependency 'net.sourceforge.htmlunit:neko-htmlunit:2.33'
 		dependency 'net.sourceforge.nekohtml:nekohtml:1.9.22'
