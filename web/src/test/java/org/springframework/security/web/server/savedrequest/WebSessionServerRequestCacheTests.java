@@ -17,6 +17,7 @@
 package org.springframework.security.web.server.savedrequest;
 
 import org.junit.Test;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -44,6 +45,15 @@ public class WebSessionServerRequestCacheTests {
 	}
 
 	@Test
+	public void saveRequestGetRequestWithQueryParamsWhenGetThenFound() {
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/").queryParam("key", "value").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+
+		URI saved = this.cache.getRedirectUri(exchange).block();
+
+		assertThat(saved).isEqualTo(exchange.getRequest().getURI());
+	}
+
 	public void saveRequestGetRequestWhenPostThenNotFound() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/secured/"));
 		this.cache.saveRequest(exchange).block();
