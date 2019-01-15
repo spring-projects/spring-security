@@ -88,6 +88,8 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final List<String> FORBIDDEN_FORWARDSLASH = Collections.unmodifiableList(Arrays.asList("%2f", "%2F"));
 
+	private static final List<String> FORBIDDEN_DOUBLE_FORWARDSLASH = Collections.unmodifiableList(Arrays.asList("//", "%2f%2f", "%2f%2F", "%2F%2f", "%2F%2F"));
+
 	private static final List<String> FORBIDDEN_BACKSLASH = Collections.unmodifiableList(Arrays.asList("\\", "%5c", "%5C"));
 
 	private Set<String> encodedUrlBlacklist = new HashSet<String>();
@@ -99,6 +101,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 	public StrictHttpFirewall() {
 		urlBlacklistsAddAll(FORBIDDEN_SEMICOLON);
 		urlBlacklistsAddAll(FORBIDDEN_FORWARDSLASH);
+		urlBlacklistsAddAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
 		urlBlacklistsAddAll(FORBIDDEN_BACKSLASH);
 
 		this.encodedUrlBlacklist.add(ENCODED_PERCENT);
@@ -200,6 +203,23 @@ public class StrictHttpFirewall implements HttpFirewall {
 			urlBlacklistsRemoveAll(FORBIDDEN_FORWARDSLASH);
 		} else {
 			urlBlacklistsAddAll(FORBIDDEN_FORWARDSLASH);
+		}
+	}
+
+	/**
+	 * <p>
+	 * Determines if double slash "//" that is URL encoded "%2F%2F" should be allowed in the path or
+	 * not. The default is to not allow.
+	 * </p>
+	 *
+	 * @param allowUrlEncodedDoubleSlash should a slash "//" that is URL encoded "%2F%2F" be allowed
+	 *        in the path or not. Default is false.
+	 */
+	public void setAllowUrlEncodedDoubleSlash(boolean allowUrlEncodedDoubleSlash) {
+		if (allowUrlEncodedDoubleSlash) {
+			urlBlacklistsRemoveAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
+		} else {
+			urlBlacklistsAddAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
 		}
 	}
 
@@ -412,10 +432,6 @@ public class StrictHttpFirewall implements HttpFirewall {
 			return true;
 		}
 
-		if (path.indexOf("//") > -1) {
-			return false;
-		}
-
 		for (int j = path.length(); j > 0;) {
 			int i = path.lastIndexOf('/', j - 1);
 			int gap = j - i;
@@ -433,4 +449,21 @@ public class StrictHttpFirewall implements HttpFirewall {
 		return true;
 	}
 
+	/**
+	 * Provides the existing encoded url blacklist which can add/remove entries from
+	 *
+	 * @return the existing encoded url blacklist, never null
+	 */
+	public Set<String> getEncodedUrlBlacklist() {
+		return encodedUrlBlacklist;
+	}
+
+	/**
+	 * Provides the existing decoded url blacklist which can add/remove entries from
+	 *
+	 * @return the existing decoded url blacklist, never null
+	 */
+	public Set<String> getDecodedUrlBlacklist() {
+		return decodedUrlBlacklist;
+	}
 }
