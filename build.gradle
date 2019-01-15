@@ -1,6 +1,6 @@
 buildscript {
 	dependencies {
-		classpath 'io.spring.gradle:spring-build-conventions:0.0.23.BUILD-SNAPSHOT'
+		classpath 'io.spring.gradle:spring-build-conventions:0.0.23.RELEASE'
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
 	}
 	repositories {
