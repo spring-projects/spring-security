@@ -45,6 +45,16 @@ public class WebSessionServerRequestCacheTests {
 	}
 
 	@Test
+	public void saveRequestGetRequestWithQueryParamsWhenGetThenFound() {
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/secured/").queryParam("key", "value").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+
+		URI saved = this.cache.getRedirectUri(exchange).block();
+
+		assertThat(saved).isEqualTo(exchange.getRequest().getURI());
+	}
+
+	@Test
 	public void saveRequestGetRequestWhenFaviconThenNotFound() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/favicon.png").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
