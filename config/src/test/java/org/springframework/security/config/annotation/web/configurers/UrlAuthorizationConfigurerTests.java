@@ -41,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
+ * @author M.S. Dousti
  *
  */
 public class UrlAuthorizationConfigurerTests {
@@ -200,6 +201,24 @@ public class UrlAuthorizationConfigurerTests {
 			public String path() {
 				return "path";
 			}
+		}
+	}
+
+	@Test
+	public void anonymousUrlAuthorization() {
+		loadConfig(AnonymousUrlAuthorizationConfig.class);
+	}
+
+	@EnableWebSecurity
+	@Configuration
+	static class AnonymousUrlAuthorizationConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		public void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.apply(new UrlAuthorizationConfigurer<>(null)).getRegistry()
+					.anyRequest().anonymous();
+			// @formatter:on
 		}
 	}
 
