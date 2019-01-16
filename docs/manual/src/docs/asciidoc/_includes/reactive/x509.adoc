@@ -1,0 +1,55 @@
+[[reactive-x509]]
+= Reactive X.509 Authentication
+
+Similar to <<x509,Servlet X.509 authentication>>, reactive x509 authentication filter allows extracting an authentication token from a certificate provided by a client.
+
+Below is an example of a reactive x509 security configuration:
+[source,java]
+----
+@Bean
+public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    http
+        .x509()
+        .and()
+        .authorizeExchange()
+            .anyExchange().permitAll();
+
+    return http.build();
+}
+----
+
+In the configuration above, when neither `principalExtractor` nor `authenticationManager` is provided defaults will be used. The default principal extractor is `SubjectDnX509PrincipalExtractor` which extracts the CN (common name) field from a certificate provided by a client. The default authentication manager is `ReactivePreAuthenticatedAuthenticationManager` which performs user account validation, checking that user account with a name extracted by `principalExtractor` exists and it is not locked, disabled, or expired.
+
+The next example demonstrates how these defaults can be overridden.
+
+[source,java]
+----
+@Bean
+public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    SubjectDnX509PrincipalExtractor principalExtractor =
+            new SubjectDnX509PrincipalExtractor();
+
+    principalExtractor.setSubjectDnRegex("OU=(.*?)(?:,|$)");
+
+    ReactiveAuthenticationManager authenticationManager = authentication -> {
+        authentication.setAuthenticated("Trusted Org Unit".equals(authentication.getName()));
+        return Mono.just(authentication);
+    };
+
+    // @formatter:off
+    http
+        .x509()
+            .principalExtractor(principalExtractor)
+            .authenticationManager(authenticationManager)
+        .and()
+            .authorizeExchange()
+            .anyExchange().authenticated();
+    // @formatter:on
+
+    return http.build();
+}
+----
+
+In this example, a username is extracted from the OU field of a client certificate instead of CN, and account lookup using `ReactiveUserDetailsService` is not performed at all. Instead, if the provided certificate issued to an OU named "Trusted Org Unit", a request will be authenticated.
+
+For an example of configuring Netty and `WebClient` or `curl` command-line tool to use mutual TLS and enable X.509 authentication, please refer to https://github.com/spring-projects/spring-security/tree/master/samples/boot/webflux-x509.
