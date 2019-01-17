@@ -80,6 +80,7 @@ public class FormLoginBeanDefinitionParserTests {
 						+ "        </p>\n"
 						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 						+ "      </form>\n"
+						+ "</div>\n"
 						+ "</body></html>";
 
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
@@ -126,6 +127,7 @@ public class FormLoginBeanDefinitionParserTests {
 						+ "        </p>\n"
 						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 						+ "      </form>\n"
+						+ "</div>\n"
 						+ "</body></html>";
 
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
@@ -171,6 +173,7 @@ public class FormLoginBeanDefinitionParserTests {
 						+ "        </p>\n"
 						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 						+ "      </form>\n"
+						+ "</div>\n"
 						+ "</body></html>";
 
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
@@ -214,6 +217,7 @@ public class FormLoginBeanDefinitionParserTests {
 						+ "        </p>\n"
 						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 						+ "      </form>\n"
+						+ "</div>\n"
 						+ "</body></html>";
 
 		this.mvc.perform(get("/login")).andExpect(content().string(expectedContent));
