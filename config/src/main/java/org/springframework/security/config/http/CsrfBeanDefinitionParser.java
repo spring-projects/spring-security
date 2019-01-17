@@ -45,6 +45,7 @@ import org.springframework.util.StringUtils;
  * Parser for the {@code CsrfFilter}.
  *
  * @author Rob Winch
+ * @author Ankur Pathak
  * @since 3.2
  */
 public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
@@ -67,11 +68,13 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		boolean webmvcPresent = ClassUtils.isPresent(DISPATCHER_SERVLET_CLASS_NAME,
 				getClass().getClassLoader());
 		if (webmvcPresent) {
-			RootBeanDefinition beanDefinition = new RootBeanDefinition(
-					CsrfRequestDataValueProcessor.class);
-			BeanComponentDefinition componentDefinition = new BeanComponentDefinition(
-					beanDefinition, REQUEST_DATA_VALUE_PROCESSOR);
-			pc.registerBeanComponent(componentDefinition);
+			if (!pc.getRegistry().containsBeanDefinition(REQUEST_DATA_VALUE_PROCESSOR)) {
+				RootBeanDefinition beanDefinition = new RootBeanDefinition(
+						CsrfRequestDataValueProcessor.class);
+				BeanComponentDefinition componentDefinition = new BeanComponentDefinition(
+						beanDefinition, REQUEST_DATA_VALUE_PROCESSOR);
+				pc.registerBeanComponent(componentDefinition);
+			}
 		}
 
 		String matcherRef = null;
