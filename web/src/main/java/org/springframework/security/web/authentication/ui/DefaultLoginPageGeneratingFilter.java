@@ -285,9 +285,9 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 				sb.append("</a>");
 				sb.append("</td></tr>\n");
 			}
-			sb.append("</table></div>\n");
+			sb.append("</table>\n");
 		}
-
+		sb.append("</div>\n");
 		sb.append("</body></html>");
 
 		return sb.toString();

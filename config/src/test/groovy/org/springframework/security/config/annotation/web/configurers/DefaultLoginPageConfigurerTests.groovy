@@ -79,6 +79,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
       </form>
+</div>
 </body></html>"""
 		when: "fail to log in"
 			super.setup()
@@ -121,6 +122,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
       </form>
+</div>
 </body></html>"""
 		when: "login success"
 			super.setup()
@@ -168,6 +170,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
       </form>
+</div>
 </body></html>"""
 	}
 
@@ -272,6 +275,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
       </form>
+</div>
 </body></html>"""
 	}
 
@@ -318,6 +322,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
       </form>
+</div>
 </body></html>"""
 	}
 
@@ -377,6 +382,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
       </form>
+</div>
 </body></html>"""
 	}
 
