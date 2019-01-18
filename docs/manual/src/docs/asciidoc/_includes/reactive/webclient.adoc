@@ -50,7 +50,7 @@ WebClient webClient(ReactiveClientRegistrationRepository clientRegistrations,
 [[webclient-implicit]]
 == Implicit OAuth2AuthorizedClient
 
-If we set `defaultOAuth2AuthorizedClient` to `true`in our setup and the user authenticated with oauth2Login (i.e. OIDC), then the current authentication is used to automatically provide the access token.
+If we set `defaultOAuth2AuthorizedClient` to `true` in our setup and the user authenticated with oauth2Login (i.e. OIDC), then the current authentication is used to automatically provide the access token.
 Alternatively,  if we set `defaultClientRegistrationId` to a valid `ClientRegistration` id, that registration is used to provide the access token.
 This is convenient, but in environments where not all endpoints should get the access token, it is dangerous (you might provide the wrong access token to an endpoint).
 
