@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.Assert;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import java.util.List;
  * @param <C> The object that is returned or Chained after creating the RequestMatcher
  *
  * @author Rob Winch
+ * @author Ankur Pathak
  * @since 3.2
  */
 public abstract class AbstractRequestMatcherRegistry<C> {
@@ -47,6 +49,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	private static final RequestMatcher ANY_REQUEST = AnyRequestMatcher.INSTANCE;
 
 	private ApplicationContext context;
+
+	private boolean anyRequestConfigured = false;
 
 	protected final void setApplicationContext(ApplicationContext context) {
 		this.context = context;
@@ -67,7 +71,10 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C anyRequest() {
-		return requestMatchers(ANY_REQUEST);
+		Assert.state(!this.anyRequestConfigured, "Can't configure anyRequest after itself");
+		C configurer = requestMatchers(ANY_REQUEST);
+		this.anyRequestConfigured = true;
+		return configurer;
 	}
 
 	/**
@@ -97,6 +104,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C antMatchers(HttpMethod method, String... antPatterns) {
+		Assert.state(!this.anyRequestConfigured, "Can't configure antMatchers after anyRequest");
 		return chainRequestMatchers(RequestMatchers.antMatchers(method, antPatterns));
 	}
 
@@ -111,6 +119,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C antMatchers(String... antPatterns) {
+		Assert.state(!this.anyRequestConfigured, "Can't configure antMatchers after anyRequest");
 		return chainRequestMatchers(RequestMatchers.antMatchers(antPatterns));
 	}
 
@@ -160,7 +169,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 */
 	protected final List<MvcRequestMatcher> createMvcMatchers(HttpMethod method,
 			String... mvcPatterns) {
-
+		Assert.state(!this.anyRequestConfigured, "Can't configure mvcMatchers after anyRequest");
 		ObjectPostProcessor<Object> opp = this.context.getBean(ObjectPostProcessor.class);
 		if (!this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
 			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME +" of type " + HandlerMappingIntrospector.class.getName()
@@ -195,6 +204,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C regexMatchers(HttpMethod method, String... regexPatterns) {
+		Assert.state(!this.anyRequestConfigured, "Can't configure regexMatchers after anyRequest");
 		return chainRequestMatchers(RequestMatchers.regexMatchers(method, regexPatterns));
 	}
 
@@ -209,6 +219,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C regexMatchers(String... regexPatterns) {
+		Assert.state(!this.anyRequestConfigured, "Can't configure regexMatchers after anyRequest");
 		return chainRequestMatchers(RequestMatchers.regexMatchers(regexPatterns));
 	}
 
@@ -221,6 +232,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C requestMatchers(RequestMatcher... requestMatchers) {
+		Assert.state(!this.anyRequestConfigured, "Can't configure requestMatchers after anyRequest");
 		return chainRequestMatchers(Arrays.asList(requestMatchers));
 	}
 
