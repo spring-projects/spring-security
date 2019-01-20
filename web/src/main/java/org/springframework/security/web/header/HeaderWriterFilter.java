@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.web.header.writers.CompositeHeaderWriter;
 import org.springframework.security.web.util.OnCommittedResponseWrapper;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -38,55 +39,55 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  * @author Marten Deinum
  * @author Josh Cummings
+ * @author Ankur Pathak
  * @since 3.2
- *
  */
 public class HeaderWriterFilter extends OncePerRequestFilter {
 
+
 	/**
-	 * Collection of {@link HeaderWriter} instances to write out the headers to the
+	 * Composite {@link CompositeHeaderWriter} containing Collection of {@link HeaderWriter} instances to write out the headers to the
 	 * response.
 	 */
-	private final List<HeaderWriter> headerWriters;
+	private final HeaderWriter headerWriter;
 
 	/**
 	 * Creates a new instance.
 	 *
 	 * @param headerWriters the {@link HeaderWriter} instances to write out headers to the
-	 * {@link HttpServletResponse}.
+	 *                      {@link HttpServletResponse}.
 	 */
 	public HeaderWriterFilter(List<HeaderWriter> headerWriters) {
 		Assert.notEmpty(headerWriters, "headerWriters cannot be null or empty");
-		this.headerWriters = headerWriters;
+		this.headerWriter = new CompositeHeaderWriter(headerWriters);
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
-			HttpServletResponse response, FilterChain filterChain)
-					throws ServletException, IOException {
+									HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 
 		HeaderWriterResponse headerWriterResponse = new HeaderWriterResponse(request,
-				response, this.headerWriters);
+				response, this.headerWriter);
 		HeaderWriterRequest headerWriterRequest = new HeaderWriterRequest(request,
 				headerWriterResponse);
 
 		try {
 			filterChain.doFilter(headerWriterRequest, headerWriterResponse);
-		}
-		finally {
+		} finally {
 			headerWriterResponse.writeHeaders();
 		}
 	}
 
 	static class HeaderWriterResponse extends OnCommittedResponseWrapper {
 		private final HttpServletRequest request;
-		private final List<HeaderWriter> headerWriters;
+		private final HeaderWriter headerWriter;
 
 		HeaderWriterResponse(HttpServletRequest request, HttpServletResponse response,
-				List<HeaderWriter> headerWriters) {
+				HeaderWriter headerWriter) {
 			super(response);
 			this.request = request;
-			this.headerWriters = headerWriters;
+			this.headerWriter = headerWriter;
 		}
 
 		/*
@@ -105,9 +106,7 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 			if (isDisableOnResponseCommitted()) {
 				return;
 			}
-			for (HeaderWriter headerWriter : this.headerWriters) {
-				headerWriter.writeHeaders(this.request, getHttpResponse());
-			}
+			this.headerWriter.writeHeaders(this.request, getHttpResponse());
 		}
 
 		private HttpServletResponse getHttpResponse() {
