@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ import org.springframework.security.oauth2.client.web.server.AuthenticatedPrinci
 import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationCodeGrantWebFilter;
 import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationRequestRedirectWebFilter;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationCodeAuthenticationTokenConverter;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.authentication.OAuth2LoginAuthenticationWebFilter;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -588,6 +589,10 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationConverter authenticationConverter;
 
+		private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
+
+		private ServerWebExchangeMatcher authenticationMatcher;
+
 		/**
 		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
 		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
@@ -664,6 +669,23 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
+		public OAuth2LoginSpec authorizationRequestResolver(ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver) {
+			this.authorizationRequestResolver = authorizationRequestResolver;
+			return this;
+		}
+
+		public OAuth2LoginSpec authenticationMatcher(ServerWebExchangeMatcher authenticationMatcher) {
+			this.authenticationMatcher = authenticationMatcher;
+			return this;
+		}
+
+		private ServerWebExchangeMatcher getAuthenticationMatcher() {
+			if (this.authenticationMatcher == null) {
+				this.authenticationMatcher = createAttemptAuthenticationRequestMatcher();
+			}
+			return this.authenticationMatcher;
+		}
+
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
@@ -676,12 +698,12 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
-			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(clientRegistrationRepository);
+			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = getRedirectWebFilter();
 
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
 
 			AuthenticationWebFilter authenticationFilter = new OAuth2LoginAuthenticationWebFilter(manager, authorizedClientRepository);
-			authenticationFilter.setRequiresAuthenticationMatcher(createAttemptAuthenticationRequestMatcher());
+			authenticationFilter.setRequiresAuthenticationMatcher(getAuthenticationMatcher());
 			authenticationFilter.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
 			RedirectServerAuthenticationSuccessHandler redirectHandler = new RedirectServerAuthenticationSuccessHandler();
 
@@ -754,6 +776,16 @@ public class ServerHttpSecurity {
 				this.clientRegistrationRepository = getBeanOrNull(ReactiveClientRegistrationRepository.class);
 			}
 			return this.clientRegistrationRepository;
+		}
+
+		private OAuth2AuthorizationRequestRedirectWebFilter getRedirectWebFilter() {
+			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter;
+			if (this.authorizationRequestResolver == null) {
+				oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(getClientRegistrationRepository());
+			} else {
+				oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(this.authorizationRequestResolver);
+			}
+			return oauthRedirectFilter;
 		}
 
 		private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
