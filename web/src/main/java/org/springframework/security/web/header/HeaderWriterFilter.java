@@ -46,8 +46,8 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 
 
 	/**
-	 * Composite {@link CompositeHeaderWriter} containing Collection of {@link HeaderWriter} instances to write out the headers to the
-	 * response.
+	 * The {@link HeaderWriter} to write headers to the response.
+	 * {@see CompositeHeaderWriter}
 	 */
 	private final HeaderWriter headerWriter;
 
@@ -55,7 +55,7 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	 * Creates a new instance.
 	 *
 	 * @param headerWriters the {@link HeaderWriter} instances to write out headers to the
-	 *                      {@link HttpServletResponse}.
+	 * {@link HttpServletResponse}.
 	 */
 	public HeaderWriterFilter(List<HeaderWriter> headerWriters) {
 		Assert.notEmpty(headerWriters, "headerWriters cannot be null or empty");
@@ -64,7 +64,7 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
-									HttpServletResponse response, FilterChain filterChain)
+			HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
 		HeaderWriterResponse headerWriterResponse = new HeaderWriterResponse(request,
