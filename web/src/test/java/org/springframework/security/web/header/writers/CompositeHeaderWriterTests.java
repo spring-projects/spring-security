@@ -15,16 +15,17 @@
  */
 package org.springframework.security.web.header.writers;
 
-import java.util.Arrays;
-
-import org.junit.Before;
 import org.junit.Test;
-
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.HeaderWriter;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for class {@link CompositeHeaderWriter}/.
@@ -33,37 +34,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.2
  */
 public class CompositeHeaderWriterTests {
-	private MockHttpServletRequest request;
-
-	private MockHttpServletResponse response;
-
-	private CompositeHeaderWriter writer;
-
-	@Before
-	public void setup() {
-		this.request = new MockHttpServletRequest();
-		this.response = new MockHttpServletResponse();
-		HeaderWriter writerA = (request, response) -> {
-			if (!response.containsHeader("A")) {
-				response.setHeader("A", "a");
-			}
-		};
-
-		HeaderWriter writerB = (request, response) -> {
-			if (!response.containsHeader("B")) {
-				response.setHeader("B", "b");
-			}
-		};
-		this.writer = new CompositeHeaderWriter(Arrays.asList(writerA, writerB));
-	}
-
 
 	@Test
-	public void doCompositeHeaderWrite(){
-		this.writer.writeHeaders(request, response);
-		assertThat(this.response.containsHeader("A")).isTrue();
-		assertThat(this.response.containsHeader("B")).isTrue();
-		assertThat(this.response.getHeader("A")).isEqualTo("a");
-		assertThat(this.response.getHeader("B")).isEqualTo("b");
+	public void writeHeadersWhenConfiguredWithDelegatesThenInvokesEach() {
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		HttpServletResponse response = mock(HttpServletResponse.class);
+		HeaderWriter one = mock(HeaderWriter.class);
+		HeaderWriter two = mock(HeaderWriter.class);
+
+		CompositeHeaderWriter headerWriter = new CompositeHeaderWriter(
+				Arrays.asList(one, two));
+
+		headerWriter.writeHeaders(request, response);
+		verify(one).writeHeaders(request, response);
+		verify(two).writeHeaders(request, response);
+	}
+
+	@Test
+	public void constructorWhenPassingEmptyListThenThrowsException() {
+		assertThatCode(() -> new CompositeHeaderWriter(Collections.emptyList()))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 }
