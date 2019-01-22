@@ -28,11 +28,11 @@ public class CsrfBeanDefinitionParserTests {
 
 	@Test
 	public void registerDataValueProcessorOnlyIfNotRegistered() throws Exception {
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext()) {
-			context.setAllowBeanDefinitionOverriding(false);
-			context.setConfigLocation(this.xml("RegisterDataValueProcessorOnyIfNotRegistered"));
-			context.refresh();
-		}
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext();
+		context.setAllowBeanDefinitionOverriding(false);
+		context.setConfigLocation(this.xml("RegisterDataValueProcessorOnyIfNotRegistered"));
+		context.refresh();
+		context.close();
 	}
 
 	private String xml(String configName) {
