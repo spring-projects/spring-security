@@ -94,11 +94,12 @@ If the authorization server doesn't support the Provider Configuration endpoint,
 
 [source,yaml]
 ----
-security:
-  oauth2:
-    resourceserver:
-      jwt:
-        jwk-set-uri: https://idp.example.com/.well-known/jwks.json
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://idp.example.com/.well-known/jwks.json
 ----
 
 [NOTE]
