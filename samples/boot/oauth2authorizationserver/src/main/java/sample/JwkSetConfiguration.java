@@ -169,7 +169,7 @@ class JwkSetEndpoint {
 
 	@GetMapping("/.well-known/jwks.json")
 	@ResponseBody
-	public Map<String, Object> getKey(Principal principal) {
+	public Map<String, Object> getKey() {
 		RSAPublicKey publicKey = (RSAPublicKey) this.keyPair.getPublic();
 		RSAKey key = new RSAKey.Builder(publicKey).build();
 		return new JWKSet(key).toJSONObject();
