@@ -86,7 +86,7 @@ If instead you wished to configure an LDAP search filter to locate the user, you
 [source,xml]
 ----
 <ldap-authentication-provider user-search-filter="(uid={0})"
-	user-search-base="ou=people"/>
+	    user-search-base="ou=people"/>
 ----
 
 If used with the server definition above, this would perform a search under the DN `ou=people,dc=springframework,dc=org` using the value of the `user-search-filter` attribute as a filter.
@@ -205,29 +205,28 @@ A typical configuration, using some of the beans we've discussed here, might loo
 ----
 <bean id="contextSource"
 		class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
-<constructor-arg value="ldap://monkeymachine:389/dc=springframework,dc=org"/>
-<property name="userDn" value="cn=manager,dc=springframework,dc=org"/>
-<property name="password" value="password"/>
+    <constructor-arg value="ldap://monkeymachine:389/dc=springframework,dc=org"/>
+    <property name="userDn" value="cn=manager,dc=springframework,dc=org"/>
+    <property name="password" value="password"/>
 </bean>
 
 <bean id="ldapAuthProvider"
-	class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
-<constructor-arg>
-<bean class="org.springframework.security.ldap.authentication.BindAuthenticator">
-	<constructor-arg ref="contextSource"/>
-	<property name="userDnPatterns">
-	<list><value>uid={0},ou=people</value></list>
-	</property>
-</bean>
-</constructor-arg>
-<constructor-arg>
-<bean
-	class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
-	<constructor-arg ref="contextSource"/>
-	<constructor-arg value="ou=groups"/>
-	<property name="groupRoleAttribute" value="ou"/>
-</bean>
-</constructor-arg>
+	    class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
+    <constructor-arg>
+        <bean class="org.springframework.security.ldap.authentication.BindAuthenticator">
+	        <constructor-arg ref="contextSource"/>
+	        <property name="userDnPatterns">
+	            <list><value>uid={0},ou=people</value></list>
+	        </property>
+        </bean>
+    </constructor-arg>
+    <constructor-arg>
+        <bean class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
+            <constructor-arg ref="contextSource"/>
+            <constructor-arg value="ou=groups"/>
+            <property name="groupRoleAttribute" value="ou"/>
+        </bean>
+    </constructor-arg>
 </bean>
 ----
 
@@ -242,10 +241,10 @@ To configure a user search object, which uses the filter `(uid=<user-login-name>
 ----
 
 <bean id="userSearch"
-	class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
-<constructor-arg index="0" value=""/>
-<constructor-arg index="1" value="(uid={0})"/>
-<constructor-arg index="2" ref="contextSource" />
+        class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+    <constructor-arg index="0" value=""/>
+    <constructor-arg index="1" value="(uid={0})"/>
+    <constructor-arg index="2" ref="contextSource" />
 </bean>
 ----
 
@@ -265,10 +264,10 @@ The creation of the `UserDetails` object is controlled by the provider's `UserDe
 ----
 public interface UserDetailsContextMapper {
 
-UserDetails mapUserFromContext(DirContextOperations ctx, String username,
-		Collection<GrantedAuthority> authorities);
+    UserDetails mapUserFromContext(DirContextOperations ctx, String username,
+	    	Collection<GrantedAuthority> authorities);
 
-void mapUserToContext(UserDetails user, DirContextAdapter ctx);
+    void mapUserToContext(UserDetails user, DirContextAdapter ctx);
 }
 ----
 
@@ -298,11 +297,10 @@ An example configuration would then look like this:
 ----
 
 <bean id="adAuthenticationProvider"
-class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
+        class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
 	<constructor-arg value="mydomain.com" />
 	<constructor-arg value="ldap://adserver.mydomain.com/" />
 </bean>
-}
 ----
 
 Note that there is no need to specify a separate `ContextSource` in order to define the server location - the bean is completely self-contained.
