@@ -13,6 +13,26 @@ The completed application can be found at {gh-samples-url}/boot/helloworld[sampl
 == Updating Dependencies
 
 The only necessary step is to update the dependencies using <<getting-maven-boot,Maven>> or <<getting-gradle-boot,Gradle>>.
+For your convenience you can easily download a minimal Spring Boot + Spring Security application by https://start.spring.io/starter.zip?type=maven-project&language=java&bootVersion=2.1.2.RELEASE&baseDir=hello-spring-security&groupId=sample&artifactId=sample&name=hello-spring-security&description=Demo+project+for+Spring+Boot&packageName=sample&packaging=jar&javaVersion=1.8&autocomplete=&style=security&style=web&generate-project=[clicking here]
+
+== Starting Hello Spring Security Boot
+
+You can now https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-running-with-the-maven-plugin[run the Spring Boot application] using the Maven Plugin's `run` goal.
+
+.Running Spring Boot Application
+====
+[source,bash]
+----
+$ ./mvn spring-boot:run
+...
+INFO 23689 --- [  restartedMain] .s.s.UserDetailsServiceAutoConfiguration :
+
+Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
+
+...
+----
+====
+
 
 [[servlet-hello-boot-auto-configuration]]
 == Spring Boot Auto Configuration
@@ -28,7 +48,7 @@ You can find a summary of the features below:
 
 * Require an authenticated user for any interaction with the application
 * Generate a default login form for you
-* Allow the user with the *Username* _user_ and the *Password* that is logged to the console to authenticate with form based authentication
+* Allow the user with the *Username* _user_ and the *Password* that is logged to the console to authenticate with form based authentication (in this case the password is `8e557245-73e2-4286-969a-ff57fe326336`)
 * Protects the password storage with BCrypt
 * Allow the user to logout
 * http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention

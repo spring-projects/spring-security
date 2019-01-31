@@ -20,7 +20,7 @@ Typically, these are done to provide improved security to match modern security 
 As most open source projects, Spring Security deploys its dependencies as Maven artifacts.
 The topics in this section provide detail on how to consume Spring Security when using Maven.
 
-[[getting-boot-maven]]
+[[getting-maven-boot]]
 === Spring Boot with Maven
 
 Spring Boot provides a `spring-boot-starter-security` starter that aggregates Spring Security-related dependencies together.

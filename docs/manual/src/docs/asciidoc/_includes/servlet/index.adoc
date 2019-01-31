@@ -7,8 +7,6 @@ More concretely, you do not need to be using Spring in your Servlet Based to tak
 
 include::hello/index.adoc[leveloffset=+1]
 
-include::samples/index.adoc[leveloffset=+1]
-
 include::authentication/index.adoc[leveloffset=+1]
 
 include::authorization/index.adoc[leveloffset=+1]

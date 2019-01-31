@@ -1,4 +1,3 @@
 = Samples
 
-Spring Security includes many {gh-samples-url}[samples], including
-samples for the <<servlet-samples,Servlet>>.
+Spring Security includes many {gh-samples-url}[samples] applications.
