@@ -252,9 +252,9 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 *
 	 * @return <code>true</code> if the filter should attempt authentication,
 	 * <code>false</code> otherwise.
-	 * 
-	 * @throws ServletException 
-	 * @throws IOException 
+	 *
+	 * @throws ServletException
+	 * @throws IOException
 	 */
 	protected boolean requiresAuthentication(HttpServletRequest request,
 			HttpServletResponse response) throws IOException, ServletException {
