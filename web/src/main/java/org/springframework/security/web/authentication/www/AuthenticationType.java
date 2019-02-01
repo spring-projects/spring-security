@@ -2,9 +2,9 @@ package org.springframework.security.web.authentication.www;
 
 /**
  * This class represents a supported Authentication type, which can be `Basic`, `Digest` etc.
- * 
+ *
  * @author Sergey Bespalov
- * 
+ *
  * @see AuthenticationTypeParser
  */
 public class AuthenticationType {

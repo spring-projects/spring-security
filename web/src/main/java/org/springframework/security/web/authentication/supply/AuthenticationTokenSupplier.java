@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.www.AuthenticationType;
 /**
  * This class decorates a underlying {@link AuthenticationSupplier} with common
  * logic needed for {@link AbstractAuthenticationToken}.
- * 
+ *
  * @author Sergey Bespalov
  *
  * @param <T>

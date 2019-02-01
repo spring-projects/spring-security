@@ -55,7 +55,7 @@ public class GenericAuthenticationFilter extends AbstractAuthenticationProcessin
 	public void setAuthenticationSupplierRegistry(AuthenticationSupplierRegistry authenticationSupplierRegistry) {
 		this.authenticationSupplierRegistry = authenticationSupplierRegistry;
 	}
-	
+
 	@Override
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
@@ -74,7 +74,7 @@ public class GenericAuthenticationFilter extends AbstractAuthenticationProcessin
 		}
 
 		request.setAttribute(ATTRIBUTE_NAME_AUTHENTICATION_TYPE, authenticationType);
-		
+
 		AuthenticationSupplier<?> authenticationSupplier = getAuthenticationSupplierRegistry()
 				.lookupSupplierByAuthenticationType(authenticationType);
 		if (authenticationSupplier == null) {
@@ -86,7 +86,7 @@ public class GenericAuthenticationFilter extends AbstractAuthenticationProcessin
 			authentication = authenticationSupplier.supply(request);
 		} catch (AuthenticationException e) {
 			onAuthenticationFailure(request, response, e);
-			
+
 			return true;
 		}
 		SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -123,9 +123,9 @@ public class GenericAuthenticationFilter extends AbstractAuthenticationProcessin
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
 		super.successfulAuthentication(request, response, chain, authResult);
-		
+
 		chain.doFilter(request, response);
 	}
 
-	
+
 }

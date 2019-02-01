@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
  * <pre>
  * Authorization: &#60;type&#62; &#60;credentials&#62;
  * </pre>
- * 
+ *
  * @author Sergey Bespalov
  *
  */

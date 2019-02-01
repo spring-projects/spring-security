@@ -46,11 +46,11 @@ public class GenericAuthenticationFilterTests {
 	private GenericAuthenticationFilter filter;
 	private AuthenticationManager manager;
 	private AuthenticationSupplier<UsernamePasswordAuthenticationToken> basicAuthenticationSupplier;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		SecurityContextHolder.clearContext();
-		
+
 		UsernamePasswordAuthenticationToken requestedAuthentication = new UsernamePasswordAuthenticationToken(
 				"vasya", "pupkin");
 		requestedAuthentication.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
@@ -60,13 +60,13 @@ public class GenericAuthenticationFilterTests {
 		RequestMatcher requestMatcher = mock(RequestMatcher.class);
 		when(requestMatcher.matches(any(HttpServletRequest.class))).thenReturn(true);
 		filter = new GenericAuthenticationFilter(requestMatcher);
-		
+
 		manager = mock(AuthenticationManager.class);
 		when(manager.authenticate(requestedAuthentication)).thenReturn(authenticatedAuthentication);
 		when(manager.authenticate(not(eq(requestedAuthentication)))).thenThrow(
 				new BadCredentialsException(""));
 		filter.setAuthenticationManager(manager);
-		
+
 		BasicAuthenticationSupplier basicAuthenticationSupplier = new BasicAuthenticationSupplier();
 		basicAuthenticationSupplier.setRealmName("springframework.com");
 		AuthenticationTokenSupplier authenticationTokenSupplier = new AuthenticationTokenSupplier<>(basicAuthenticationSupplier);
@@ -76,7 +76,7 @@ public class GenericAuthenticationFilterTests {
 		when(authenticationSupplierRegistry
 				.lookupSupplierByAuthenticationType(not(eq(BasicAuthenticationSupplier.AUTHENTICATION_TYPE_BASIC))))
 						.thenReturn(null);
-		
+
 		filter.setAuthenticationSupplierRegistry(authenticationSupplierRegistry);
 	}
 
@@ -165,7 +165,7 @@ public class GenericAuthenticationFilterTests {
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
-	
+
 	@Test
 	public void testInvalidAuthenticationReturnsUnauthorized()
 			throws Exception {
@@ -187,5 +187,5 @@ public class GenericAuthenticationFilterTests {
 		assertThat(response.getHeader("WWW-Authenticate")).isNotNull();
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"springframework.com\"");
 	}
-	
+
 }
