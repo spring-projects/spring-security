@@ -281,8 +281,8 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	/**
 	 * Overridden to provide proxying capabilities.
-	 * @throws ServletException 
-	 * @throws IOException 
+	 * @throws ServletException
+	 * @throws IOException
 	 */
 	protected boolean requiresAuthentication(final HttpServletRequest request,
 			final HttpServletResponse response) throws IOException, ServletException {
@@ -336,8 +336,8 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * @param request
 	 * @param response
 	 * @return
-	 * @throws ServletException 
-	 * @throws IOException 
+	 * @throws ServletException
+	 * @throws IOException
 	 */
 	private boolean serviceTicketRequest(final HttpServletRequest request,
 			final HttpServletResponse response) throws IOException, ServletException {
