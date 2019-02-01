@@ -1,0 +1,122 @@
+= Servlet Architecture Overview
+
+Spring Security’s servlet support relies on servlet `Filter` API.
+This means it can work with any application that runs in a Servlet container.
+It does not require that you use Spring in any other part of your application.
+
+// FIXME: This might be a primer to describe in summary some of the external items (servlet container, spring's ApplicationContext being initialized, etc)
+
+== Understanding the Servlet Filter API
+
+Spring Security's Servlet container support (i.e. if you run in Tomcat or other Servlet container) is built on top of the `Filter` API.
+This is done because the `Filter` API is a standard that allows injecting logic into an application that in any Servlet container.
+
+Since Spring Security is built on top of ``Filter``s, it is valuable to review how Servlet ``Filter``s work.
+
+A simple `Filter` implementation looks like this:
+
+.SimpleFilter Example
+====
+[source,java]
+----
+public class SimpleFilter implements Filter {
+
+	public void init(FilterConfig filterConfig)
+			throws ServletException {
+			// optional initialization
+	}
+
+	// invoked every request the Filter is mapped for
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		System.out.println("Before"); // <1>
+		chain.doFilter(request, response); // <2>
+		System.out.println("After"); // <3>
+	}
+
+	public void destroy() {
+		// optional cleanup
+	}
+}
+----
+<1> Happens before the application is invoked
+<2> Invokes the rest of the application. This could be additional ``Filter``s and/or a `Servlet`.
+If `chain.doFilter` is never invoked, then neither is the rest of the application.
+<3> Happens after the application is invoked
+====
+
+As you can see a Servlet `Filter` allows us to apply logic around the rest of the application.
+This means we can perform logic before, conditionally invoke the rest of the application, and perform logic afterwards in any Servlet container.
+
+== Registering Servlet Filter
+
+In order for a Servlet `Filter` to be invoked it must be registered with the Servlet container.
+
+In XML this will typically look something like this:
+
+.web.xml
+====
+[source,xml]
+----
+<!--1-->
+<filter>
+	<filter-name>simpleFilter</filter-name>
+	<filter-class>sample.SimpleFilter</filter-class>
+</filter>
+
+<!--2-->
+<filter-mapping>
+	<filter-name>simpleFilter</filter-name>
+	<url-pattern>/*</url-pattern>
+</filter-mapping>
+----
+<1> Define the Filter to be mapped
+<2> Provide one more mappings for the Filter.
+In this case `simpleFilter` is mapped using the pattern `/*` which signifies it should be mapped for every request.
+====
+
+In Java configuration a `ServletContextListener` can be used:
+
+
+.RegisterServletContextListener.java
+====
+[source,java]
+----
+@WebListener
+public class FilterStartupListener
+		implements ServletContextListener {
+
+	@Override
+	public void contextInitialized(ServletContextEvent sce) {
+		ServletContext ctx = sce.getServletContext();
+
+		// <1>
+		FilterRegistration fltrReg = ctx.addFilter("simpleFilter", SimpleFilter.class);
+
+		// <2>
+		EnumSet<DispatcherType> dispatchers =
+			EnumSet.of(DispatcherType.REQUEST);
+		// <3>
+		boolean isMatchAfter = true;
+		// <4>
+		fltrReg.addMappingsForUrlPatterns(dispatchers, isMatchAfter, "/*");
+	}
+}
+----
+<1> Define the Filter to be mapped
+<2> In Java configuration we must explicitly provide the <<Dispatch Types>>
+<3> In Java configuration we must explicitly provide if the `Filter` should be after already registered ``Filter``s or before.
+<4> Provide one more mappings for the Filter.
+In this case `simpleFilter` is mapped using the pattern `/*` which signifies it should be mapped for every request.
+====
+
+== Dispatch Types
+
+== Filter Ordering
+
+== DelegatingFilterProxy
+
+At the heart of integrating Spring with a servlet `Filter` is the `DelegatingFilterProxy`.
+The `DelegatingFilterProxy` is registered directly with the servlet container and it delegates all work to a Spring Bean that implements `Filter`.
+
+
