@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors.oauth2AccessTokenResponse;
@@ -289,7 +290,11 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 				.build();
 		return next.exchange(refreshRequest)
 				.flatMap(refreshResponse -> refreshResponse.body(oauth2AccessTokenResponse()))
-				.map(accessTokenResponse -> new OAuth2AuthorizedClient(authorizedClient.getClientRegistration(), authorizedClient.getPrincipalName(), accessTokenResponse.getAccessToken(), accessTokenResponse.getRefreshToken()))
+				.map(accessTokenResponse -> {
+					OAuth2RefreshToken refreshToken = Optional.ofNullable(accessTokenResponse.getRefreshToken())
+							.orElse(authorizedClient.getRefreshToken());
+					return new OAuth2AuthorizedClient(authorizedClient.getClientRegistration(), authorizedClient.getPrincipalName(), accessTokenResponse.getAccessToken(), refreshToken);
+				})
 				.flatMap(result -> this.authorizedClientRepository.saveAuthorizedClient(result, authentication, exchange)
 						.thenReturn(result));
 	}
