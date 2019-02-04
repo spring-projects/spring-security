@@ -45,6 +45,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
@@ -172,6 +173,16 @@ public class OAuth2ResourceServerSpecTests {
 				.exchange()
 				.expectStatus().isUnauthorized()
 				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"invalid_token\""));
+	}
+
+	@Test
+	public void getWhenValidUsingPlaceholderThenReturnsOk() {
+		this.spring.register(PlaceholderConfig.class, RootController.class).autowire();
+
+		this.client.get()
+				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isOk();
 	}
 
 	@Test
@@ -376,6 +387,29 @@ public class OAuth2ResourceServerSpecTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.publicKey(publicKey());
+			// @formatter:on
+
+
+			return http.build();
+		}
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class PlaceholderConfig {
+		@Value("${classpath:org/springframework/security/config/web/server/OAuth2ResourceServerSpecTests-simple.pub}")
+		RSAPublicKey key;
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeExchange()
+					.anyExchange().hasAuthority("SCOPE_message:read")
+					.and()
+				.oauth2ResourceServer()
+					.jwt()
+						.publicKey(this.key);
 			// @formatter:on
 
 
