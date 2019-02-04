@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -385,7 +385,11 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 				.build();
 		return next.exchange(refreshRequest)
 				.flatMap(response -> response.body(oauth2AccessTokenResponse()))
-				.map(accessTokenResponse -> new OAuth2AuthorizedClient(authorizedClient.getClientRegistration(), authorizedClient.getPrincipalName(), accessTokenResponse.getAccessToken(), accessTokenResponse.getRefreshToken()))
+				.map(accessTokenResponse -> {
+					OAuth2RefreshToken refreshToken = Optional.ofNullable(accessTokenResponse.getRefreshToken())
+							.orElse(authorizedClient.getRefreshToken());
+					return new OAuth2AuthorizedClient(authorizedClient.getClientRegistration(), authorizedClient.getPrincipalName(), accessTokenResponse.getAccessToken(), refreshToken);
+				})
 				.map(result -> {
 					Authentication principal = (Authentication) request.attribute(
 							AUTHENTICATION_ATTR_NAME).orElse(new PrincipalNameAuthentication(authorizedClient.getPrincipalName()));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,6 +100,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	private WebClient.RequestHeadersSpec<?> spec;
 	@Captor
 	private ArgumentCaptor<Consumer<Map<String, Object>>> attrs;
+	@Captor
+	private ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor;
 
 	/**
 	 * Used for get the attributes from defaultRequest.
@@ -405,7 +407,61 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		this.function.filter(request, this.exchange).block();
 
-		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(this.authentication), any(), any());
+		verify(this.authorizedClientRepository).saveAuthorizedClient(this.authorizedClientCaptor.capture(), eq(this.authentication), any(), any());
+
+		OAuth2AuthorizedClient newAuthorizedClient = authorizedClientCaptor.getValue();
+		assertThat(newAuthorizedClient.getAccessToken()).isEqualTo(response.getAccessToken());
+		assertThat(newAuthorizedClient.getRefreshToken()).isEqualTo(response.getRefreshToken());
+
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(2);
+
+		ClientRequest request0 = requests.get(0);
+		assertThat(request0.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
+		assertThat(request0.url().toASCIIString()).isEqualTo("https://example.com/login/oauth/access_token");
+		assertThat(request0.method()).isEqualTo(HttpMethod.POST);
+		assertThat(getBody(request0)).isEqualTo("grant_type=refresh_token&refresh_token=refresh-token");
+
+		ClientRequest request1 = requests.get(1);
+		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer token-1");
+		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request1)).isEmpty();
+	}
+
+	@Test
+	public void filterWhenRefreshRequiredThenRefreshAndResponseDoesNotContainRefreshToken() {
+		OAuth2AccessTokenResponse response = OAuth2AccessTokenResponse.withToken("token-1")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(3600)
+//				.refreshToken(xxx)  // No refreshToken in response
+				.build();
+		when(this.exchange.getResponse().body(any())).thenReturn(Mono.just(response));
+		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
+		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
+
+		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(),
+				this.accessToken.getTokenValue(),
+				issuedAt,
+				accessTokenExpiresAt);
+		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,
+				this.authorizedClientRepository);
+
+		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, refreshToken);
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.attributes(authentication(this.authentication))
+				.build();
+
+		this.function.filter(request, this.exchange).block();
+
+		verify(this.authorizedClientRepository).saveAuthorizedClient(this.authorizedClientCaptor.capture(), eq(this.authentication), any(), any());
+
+		OAuth2AuthorizedClient newAuthorizedClient = authorizedClientCaptor.getValue();
+		assertThat(newAuthorizedClient.getAccessToken()).isEqualTo(response.getAccessToken());
+		assertThat(newAuthorizedClient.getRefreshToken()).isEqualTo(refreshToken);
 
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(2);
