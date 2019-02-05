@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,15 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -24,15 +33,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * A representation of an OAuth 2.0 Authorization Request
@@ -56,6 +56,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	private String state;
 	private Map<String, Object> additionalParameters;
 	private String authorizationRequestUri;
+	private Map<String, Object> attributes;
 
 	private OAuth2AuthorizationRequest() {
 	}
@@ -133,6 +134,29 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
+	 * Returns the attributes associated to the request.
+	 *
+	 * @since 5.2
+	 * @return a {@code Map} of the attributes associated to the request
+	 */
+	public Map<String, Object> getAttributes() {
+		return this.attributes;
+	}
+
+	/**
+	 * Returns the value of an attribute associated to the request, or {@code null} if not available.
+	 *
+	 * @since 5.2
+	 * @param name the name of the attribute
+	 * @param <T> the type of the attribute
+	 * @return the value of the attribute associated to the request
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getAttribute(String name) {
+		return (T) this.getAttributes().get(name);
+	}
+
+	/**
 	 * Returns the {@code URI} string representation of the OAuth 2.0 Authorization Request.
 	 *
 	 * <p>
@@ -181,7 +205,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 				.redirectUri(authorizationRequest.getRedirectUri())
 				.scopes(authorizationRequest.getScopes())
 				.state(authorizationRequest.getState())
-				.additionalParameters(authorizationRequest.getAdditionalParameters());
+				.additionalParameters(authorizationRequest.getAdditionalParameters())
+				.attributes(authorizationRequest.getAttributes());
 	}
 
 	/**
@@ -197,6 +222,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		private String state;
 		private Map<String, Object> additionalParameters;
 		private String authorizationRequestUri;
+		private Map<String, Object> attributes;
 
 		private Builder(AuthorizationGrantType authorizationGrantType) {
 			Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
@@ -289,6 +315,18 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		/**
+		 * Sets the attributes associated to the request.
+		 *
+		 * @since 5.2
+		 * @param attributes the attributes associated to the request
+		 * @return the {@link Builder}
+		 */
+		public Builder attributes(Map<String, Object> attributes) {
+			this.attributes = attributes;
+			return this;
+		}
+
+		/**
 		 * Sets the {@code URI} string representation of the OAuth 2.0 Authorization Request.
 		 *
 		 * <p>
@@ -332,6 +370,9 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			authorizationRequest.authorizationRequestUri =
 					StringUtils.hasText(this.authorizationRequestUri) ?
 						this.authorizationRequestUri : this.buildAuthorizationRequestUri();
+			authorizationRequest.attributes = Collections.unmodifiableMap(
+					CollectionUtils.isEmpty(this.attributes) ?
+							Collections.emptyMap() : new LinkedHashMap<>(this.attributes));
 
 			return authorizationRequest;
 		}
@@ -351,9 +392,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 				parameters.set(OAuth2ParameterNames.REDIRECT_URI, this.redirectUri);
 			}
 			if (!CollectionUtils.isEmpty(this.additionalParameters)) {
-				this.additionalParameters.entrySet().stream()
-						.filter(e -> !e.getKey().equals(OAuth2ParameterNames.REGISTRATION_ID))
-						.forEach(e -> parameters.set(e.getKey(), e.getValue().toString()));
+				this.additionalParameters.forEach((k, v) -> parameters.set(k, v.toString()));
 			}
 
 			return UriComponentsBuilder.fromHttpUrl(this.authorizationUri)

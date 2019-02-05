@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTest {
 			.clientId("client-id")
 			.redirectUri("http://localhost/client-1")
 			.state("state")
-			.additionalParameters(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID, this.clientRegistrationId));
+			.attributes(Collections.singletonMap(OAuth2ParameterNames.REGISTRATION_ID, this.clientRegistrationId));
 
 	private final MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/");
 
@@ -95,8 +95,8 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTest {
 	}
 
 	@Test
-	public void applyWhenAdditionalParametersMissingThenOAuth2AuthorizationException() {
-		this.authorizationRequest.additionalParameters(Collections.emptyMap());
+	public void applyWhenAttributesMissingThenOAuth2AuthorizationException() {
+		this.authorizationRequest.attributes(Collections.emptyMap());
 		when(this.authorizationRequestRepository.removeAuthorizationRequest(any())).thenReturn(Mono.just(this.authorizationRequest.build()));
 
 		assertThatThrownBy(() -> applyConverter())

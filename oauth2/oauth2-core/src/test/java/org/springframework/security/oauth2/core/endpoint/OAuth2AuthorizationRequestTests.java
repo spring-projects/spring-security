@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,16 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
+import org.junit.Test;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Test;
-
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequest}.
@@ -166,6 +163,10 @@ public class OAuth2AuthorizationRequestTests {
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
 
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put("attribute1", "value1");
+		attributes.put("attribute2", "value2");
+
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(AUTHORIZATION_URI)
 				.clientId(CLIENT_ID)
@@ -173,6 +174,7 @@ public class OAuth2AuthorizationRequestTests {
 				.scopes(SCOPES)
 				.state(STATE)
 				.additionalParameters(additionalParameters)
+				.attributes(attributes)
 				.authorizationRequestUri(AUTHORIZATION_URI)
 				.build();
 
@@ -184,6 +186,7 @@ public class OAuth2AuthorizationRequestTests {
 		assertThat(authorizationRequest.getScopes()).isEqualTo(SCOPES);
 		assertThat(authorizationRequest.getState()).isEqualTo(STATE);
 		assertThat(authorizationRequest.getAdditionalParameters()).isEqualTo(additionalParameters);
+		assertThat(authorizationRequest.getAttributes()).isEqualTo(attributes);
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo(AUTHORIZATION_URI);
 	}
 
@@ -251,28 +254,6 @@ public class OAuth2AuthorizationRequestTests {
 	}
 
 	@Test
-	public void buildWhenAuthorizationRequestIncludesRegistrationIdParameterThenAuthorizationRequestUriDoesNotIncludeRegistrationIdParameter() {
-		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put("param1", "value1");
-		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, "registration1");
-
-		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri(AUTHORIZATION_URI)
-				.clientId(CLIENT_ID)
-				.redirectUri(REDIRECT_URI + "?rparam1=rvalue1&rparam2=rvalue2")
-				.scopes(SCOPES)
-				.state(STATE)
-				.additionalParameters(additionalParameters)
-				.build();
-
-		assertThat(authorizationRequest.getAuthorizationRequestUri())
-				.isEqualTo("https://provider.com/oauth2/authorize?" +
-						"response_type=code&client_id=client-id&" +
-						"scope=scope1%20scope2&state=state&" +
-						"redirect_uri=http://example.com?rparam1%3Drvalue1%26rparam2%3Drvalue2&param1=value1");
-	}
-
-	@Test
 	public void fromWhenAuthorizationRequestIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> OAuth2AuthorizationRequest.from(null)).isInstanceOf(IllegalArgumentException.class);
 	}
@@ -283,6 +264,10 @@ public class OAuth2AuthorizationRequestTests {
 		additionalParameters.put("param1", "value1");
 		additionalParameters.put("param2", "value2");
 
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put("attribute1", "value1");
+		attributes.put("attribute2", "value2");
+
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(AUTHORIZATION_URI)
 				.clientId(CLIENT_ID)
@@ -290,6 +275,7 @@ public class OAuth2AuthorizationRequestTests {
 				.scopes(SCOPES)
 				.state(STATE)
 				.additionalParameters(additionalParameters)
+				.attributes(attributes)
 				.build();
 
 		OAuth2AuthorizationRequest authorizationRequestCopy =
@@ -303,6 +289,7 @@ public class OAuth2AuthorizationRequestTests {
 		assertThat(authorizationRequestCopy.getScopes()).isEqualTo(authorizationRequest.getScopes());
 		assertThat(authorizationRequestCopy.getState()).isEqualTo(authorizationRequest.getState());
 		assertThat(authorizationRequestCopy.getAdditionalParameters()).isEqualTo(authorizationRequest.getAdditionalParameters());
+		assertThat(authorizationRequestCopy.getAttributes()).isEqualTo(authorizationRequest.getAttributes());
 		assertThat(authorizationRequestCopy.getAuthorizationRequestUri()).isEqualTo(authorizationRequest.getAuthorizationRequestUri());
 	}
 

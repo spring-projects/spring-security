@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -402,15 +402,15 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 	private void setUpAuthorizationRequest(HttpServletRequest request, HttpServletResponse response,
 											ClientRegistration registration, String state) {
-		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, registration.getRegistrationId());
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, registration.getRegistrationId());
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
 				.clientId(registration.getClientId())
 				.redirectUri(expandRedirectUri(request, registration))
 				.scopes(registration.getScopes())
 				.state(state)
-				.additionalParameters(additionalParameters)
+				.attributes(attributes)
 				.build();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 	}

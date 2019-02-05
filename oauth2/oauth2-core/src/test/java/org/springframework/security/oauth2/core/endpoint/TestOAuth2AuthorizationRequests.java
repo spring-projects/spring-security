@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,13 @@ public class TestOAuth2AuthorizationRequests {
 	public static OAuth2AuthorizationRequest.Builder request() {
 		String registrationId = "registration-id";
 		String clientId = "client-id";
-		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, registrationId);
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, registrationId);
 		return OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri("https://example.com/login/oauth/authorize")
 				.clientId(clientId)
 				.redirectUri("https://example.com/authorize/oauth2/code/registration-id")
 				.state("state")
-				.additionalParameters(additionalParameters);
+				.attributes(attributes);
 	}
 }
