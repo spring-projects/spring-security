@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,9 +85,9 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverter
 
 	private Mono<OAuth2AuthorizationCodeAuthenticationToken> authenticationRequest(ServerWebExchange exchange, OAuth2AuthorizationRequest authorizationRequest) {
 		return Mono.just(authorizationRequest)
-				.map(OAuth2AuthorizationRequest::getAdditionalParameters)
-				.flatMap(additionalParams -> {
-					String id = (String) additionalParams.get(OAuth2ParameterNames.REGISTRATION_ID);
+				.map(OAuth2AuthorizationRequest::getAttributes)
+				.flatMap(attributes -> {
+					String id = (String) attributes.get(OAuth2ParameterNames.REGISTRATION_ID);
 					if (id == null) {
 						return oauth2AuthorizationException(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE);
 					}
