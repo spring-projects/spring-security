@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,11 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.*;
+import static org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
 /**
  * @author Eddú Meléndez
+ * @author Ankur Pathak
  */
 public class ReferrerPolicyHeaderWriterTests {
 
@@ -33,6 +34,8 @@ public class ReferrerPolicyHeaderWriterTests {
 	private MockHttpServletRequest request;
 	private MockHttpServletResponse response;
 	private ReferrerPolicyHeaderWriter writer;
+
+	private static final String REFERRER_POLICY_HEADER = "Referrer-Policy";
 
 	@Before
 	public void setup() {
@@ -65,4 +68,11 @@ public class ReferrerPolicyHeaderWriterTests {
 		this.writer = new ReferrerPolicyHeaderWriter(null);
 	}
 
+	@Test
+	public void writeHeaderOnlyIfNotPresent(){
+		String value = new String("value");
+		this.response.setHeader(REFERRER_POLICY_HEADER, value);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeader(REFERRER_POLICY_HEADER)).isSameAs(value);
+	}
 }

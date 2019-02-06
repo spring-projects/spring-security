@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * Tests for {@link FeaturePolicyHeaderWriter}.
  *
  * @author Vedran Pavic
+ * @author Ankur Pathak
  */
 public class FeaturePolicyHeaderWriterTests {
 
@@ -39,6 +40,8 @@ public class FeaturePolicyHeaderWriterTests {
 	private MockHttpServletResponse response;
 
 	private FeaturePolicyHeaderWriter writer;
+
+	private static final String FEATURE_POLICY_HEADER = "Feature-Policy";
 
 	@Before
 	public void setUp() {
@@ -68,6 +71,14 @@ public class FeaturePolicyHeaderWriterTests {
 		assertThatThrownBy(() -> new FeaturePolicyHeaderWriter(""))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("policyDirectives must not be null or empty");
+	}
+
+	@Test
+	public void writeHeaderOnlyIfNotPresent(){
+		String value = new String("value");
+		this.response.setHeader(FEATURE_POLICY_HEADER, value);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeader(FEATURE_POLICY_HEADER)).isSameAs(value);
 	}
 
 }
