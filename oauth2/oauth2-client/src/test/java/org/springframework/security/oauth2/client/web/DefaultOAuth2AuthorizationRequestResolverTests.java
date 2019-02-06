@@ -105,6 +105,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				.isEqualTo("http://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
 		assertThat(authorizationRequest.getScopes()).isEqualTo(clientRegistration.getScopes());
 		assertThat(authorizationRequest.getState()).isNotNull();
+		assertThat(authorizationRequest.getAdditionalParameters()).doesNotContainKey(OAuth2ParameterNames.REGISTRATION_ID);
 		assertThat(authorizationRequest.getAttributes())
 				.containsExactly(entry(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
