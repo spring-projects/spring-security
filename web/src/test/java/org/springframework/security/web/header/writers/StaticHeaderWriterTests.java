@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.Header;
-import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 /**
  * Test for the {@code StaticHeadersWriter}
  *
  * @author Marten Deinum
  * @author Rob Winch
+ * @author Ankur Pathak
  * @since 3.2
  */
 public class StaticHeaderWriterTests {
@@ -95,5 +95,24 @@ public class StaticHeaderWriterTests {
 				pragma.getValues());
 		assertThat(response.getHeaderValues(cacheControl.getName())).isEqualTo(
 				cacheControl.getValues());
+	}
+
+	@Test
+	public void writeHeaderOnlyIfNotPresent() {
+		String pragmaValue = new String("pragmaValue");
+		String cacheControlValue = new String("cacheControlValue");
+		this.response.setHeader("Pragma", pragmaValue);
+		this.response.setHeader("Cache-Control", cacheControlValue);
+		Header pragma = new Header("Pragma", "no-cache");
+		Header cacheControl = new Header("Cache-Control", "no-cache", "no-store",
+				"must-revalidate");
+		StaticHeadersWriter factory = new StaticHeadersWriter(Arrays.asList(pragma,
+				cacheControl));
+		factory.writeHeaders(this.request, this.response);
+
+		assertThat(this.response.getHeaderNames()).hasSize(2);
+		assertThat(this.response.getHeader("Pragma")).isSameAs(pragmaValue);
+		assertThat(this.response.getHeader("Cache-Control")).isSameAs(cacheControlValue);
+
 	}
 }

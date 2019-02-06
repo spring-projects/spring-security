@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 /**
  * @author Tim Ysewyn
+ * @author Ankur Pathak
  *
  */
 public class HpkpHeaderWriterTests {
@@ -46,6 +47,10 @@ public class HpkpHeaderWriterTests {
 	private MockHttpServletResponse response;
 
 	private HpkpHeaderWriter writer;
+
+	private static final String HPKP_HEADER_NAME = "Public-Key-Pins";
+
+	private static final String HPKP_RO_HEADER_NAME = "Public-Key-Pins-Report-Only";
 
 	@Before
 	public void setup() {
@@ -195,5 +200,23 @@ public class HpkpHeaderWriterTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void setIncorrectReportUri() {
 		writer.setReportUri("some url here...");
+	}
+
+	@Test
+	public void writeHeaderOnlyIfNotPresentPublicKeyPins(){
+		String value = new String("value");
+		this.response.setHeader(HPKP_HEADER_NAME, value);
+		this.writer.setReportOnly(false);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeader(HPKP_HEADER_NAME)).isSameAs(value);
+	}
+
+	@Test
+	public void writeHeaderOnlyIfNotPresentPublicKeyPinsReportOnly(){
+		String value = new String("value");
+		this.response.setHeader(HPKP_RO_HEADER_NAME, value);
+		this.writer.setReportOnly(false);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeader(HPKP_RO_HEADER_NAME)).isSameAs(value);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
  *
  * @author Marten Deinum
  * @author Rob Winch
+ * @author Ankur Pathak
  * @since 3.2
  */
 public class StaticHeadersWriter implements HeaderWriter {
@@ -56,8 +57,10 @@ public class StaticHeadersWriter implements HeaderWriter {
 
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		for (Header header : headers) {
-			for (String value : header.getValues()) {
-				response.addHeader(header.getName(), value);
+			if (!response.containsHeader(header.getName())) {
+				for (String value : header.getValues()) {
+					response.addHeader(header.getName(), value);
+				}
 			}
 		}
 	}

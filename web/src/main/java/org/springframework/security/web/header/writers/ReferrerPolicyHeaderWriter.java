@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import org.springframework.util.Assert;
  *
  * @author Eddú Meléndez
  * @author Kazuki Shimizu
+ * @author Ankur Pathak
  * @since 4.2
  */
 public class ReferrerPolicyHeaderWriter implements HeaderWriter {
@@ -89,7 +90,9 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 	 */
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader(REFERRER_POLICY_HEADER, this.policy.getPolicy());
+		if (!response.containsHeader(REFERRER_POLICY_HEADER)) {
+			response.setHeader(REFERRER_POLICY_HEADER, this.policy.getPolicy());
+		}
 	}
 
 	public enum ReferrerPolicy {

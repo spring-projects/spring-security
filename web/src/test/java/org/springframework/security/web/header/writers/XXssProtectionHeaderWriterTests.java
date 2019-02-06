@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 /**
  * @author Rob Winch
+ * @author Ankur Pathak
  *
  */
 public class XXssProtectionHeaderWriterTests {
@@ -33,6 +34,8 @@ public class XXssProtectionHeaderWriterTests {
 	private MockHttpServletResponse response;
 
 	private XXssProtectionHeaderWriter writer;
+
+	private static final String XSS_PROTECTION_HEADER = "X-XSS-Protection";
 
 	@Before
 	public void setup() {
@@ -86,5 +89,13 @@ public class XXssProtectionHeaderWriterTests {
 		writer.setEnabled(false);
 
 		writer.setBlock(true);
+	}
+
+	@Test
+	public void writeHeaderOnlyIfNotPresent(){
+		String value = new String("value");
+		this.response.setHeader(XSS_PROTECTION_HEADER, value);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeader(XSS_PROTECTION_HEADER)).isSameAs(value);
 	}
 }
