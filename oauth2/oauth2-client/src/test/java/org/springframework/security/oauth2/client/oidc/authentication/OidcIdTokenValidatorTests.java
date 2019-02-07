@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Rob Winch
@@ -46,9 +47,11 @@ public class OidcIdTokenValidatorTests {
 	private Instant issuedAt = Instant.now();
 	private Instant expiresAt = this.issuedAt.plusSeconds(3600);
 	private Duration clockSkew = Duration.ofSeconds(60);
+	private OidcIdTokenValidator idTokenValidator;
 
 	@Before
 	public void setup() {
+		this.idTokenValidator = new OidcIdTokenValidator(this.registration.build());
 		this.headers.put("alg", JwsAlgorithms.RS256);
 		this.claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
 		this.claims.put(IdTokenClaimNames.SUB, "rob");
@@ -58,6 +61,19 @@ public class OidcIdTokenValidatorTests {
 	@Test
 	public void validateWhenValidThenNoErrors() {
 		assertThat(this.validateIdToken()).isEmpty();
+	}
+
+
+	@Test
+	public void setClockSkewWhenNullThenThrowIllegalArgumentException(){
+		assertThatThrownBy(() -> this.idTokenValidator.setClockSkew(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setClockSkewWhenNegativeSecondsThenThrowIllegalArgumentException(){
+		assertThatThrownBy(() -> this.idTokenValidator.setClockSkew(Duration.ofSeconds(-1)))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
