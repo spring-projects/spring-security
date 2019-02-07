@@ -15,8 +15,6 @@
  */
 package org.springframework.security.web.header.writers;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -25,8 +23,11 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Tim Ysewyn
@@ -203,7 +204,7 @@ public class HpkpHeaderWriterTests {
 	}
 
 	@Test
-	public void writeHeaderOnlyIfNotPresentPublicKeyPins(){
+	public void writePublicKeyPinsHeaderOnlyWhenNotPresent() {
 		String value = new String("value");
 		this.response.setHeader(HPKP_HEADER_NAME, value);
 		this.writer.setReportOnly(false);
@@ -212,7 +213,7 @@ public class HpkpHeaderWriterTests {
 	}
 
 	@Test
-	public void writeHeaderOnlyIfNotPresentPublicKeyPinsReportOnly(){
+	public void writePublicKeyPinsReportOnlyHeaderWhenNotPresent() {
 		String value = new String("value");
 		this.response.setHeader(HPKP_RO_HEADER_NAME, value);
 		this.writer.setReportOnly(false);

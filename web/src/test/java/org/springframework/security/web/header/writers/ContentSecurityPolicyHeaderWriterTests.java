@@ -93,7 +93,7 @@ public class ContentSecurityPolicyHeaderWriterTests {
 
 
 	@Test
-	public void writeHeaderOnlyIfNotPresentContentSecurityPolicyHeader(){
+	public void writeContentSecurityPolicyHeaderWhenNotPresent() {
 		String value = new String("value");
 		this.response.setHeader(CONTENT_SECURITY_POLICY_HEADER, value);
 		this.writer.writeHeaders(this.request, this.response);
@@ -101,7 +101,7 @@ public class ContentSecurityPolicyHeaderWriterTests {
 	}
 
 	@Test
-	public void writeHeaderOnlyIfNotPresentContentSecurityPolicyReportOnlyHeader(){
+	public void writeContentSecurityPolicyReportOnlyHeaderWhenNotPresent() {
 		String value = new String("value");
 		this.response.setHeader(CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER, value);
 		this.writer.setReportOnly(true);

@@ -69,7 +69,7 @@ public class ReferrerPolicyHeaderWriterTests {
 	}
 
 	@Test
-	public void writeHeaderOnlyIfNotPresent(){
+	public void writeHeaderWhenNotPresent() {
 		String value = new String("value");
 		this.response.setHeader(REFERRER_POLICY_HEADER, value);
 		this.writer.writeHeaders(this.request, this.response);

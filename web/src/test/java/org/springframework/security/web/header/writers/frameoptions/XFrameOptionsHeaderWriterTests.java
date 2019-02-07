@@ -16,18 +16,19 @@
 
 package org.springframework.security.web.header.writers.frameoptions;
 
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
 import java.util.Arrays;
 import java.util.Collections;
+
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
- * @author AnkurPathak
+ * @author Ankur Pathak
  * @since 5.0
  */
 public class XFrameOptionsHeaderWriterTests {
@@ -48,7 +49,7 @@ public class XFrameOptionsHeaderWriterTests {
 	}
 
 	@Test
-	public void writeHeaderOnlyIfNotPresent(){
+	public void writeHeaderWhenNotPresent() {
 		WhiteListedAllowFromStrategy whitelist = new WhiteListedAllowFromStrategy(Collections.singletonList("example.com"));
 		XFrameOptionsHeaderWriter writer = new XFrameOptionsHeaderWriter(whitelist);
 		String value = new String("value");

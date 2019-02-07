@@ -15,16 +15,17 @@
  */
 package org.springframework.security.web.header.writers;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.Header;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test for the {@code StaticHeadersWriter}
@@ -98,7 +99,7 @@ public class StaticHeaderWriterTests {
 	}
 
 	@Test
-	public void writeHeaderOnlyIfNotPresent() {
+	public void writeHeaderWhenNotPresent() {
 		String pragmaValue = new String("pragmaValue");
 		String cacheControlValue = new String("cacheControlValue");
 		this.response.setHeader("Pragma", pragmaValue);
