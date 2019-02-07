@@ -132,6 +132,7 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	 */
 	public final void setClockSkew(Duration clockSkew) {
 		Assert.notNull(clockSkew, "clockSkew cannot be null");
+		Assert.isTrue(clockSkew.getSeconds() >= 0, "clockSkew must be >= 0");
 		this.clockSkew = clockSkew;
 	}
 
