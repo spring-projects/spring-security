@@ -15,11 +15,9 @@
  */
 package sample;
 
-import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,6 +30,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
  */
 @EnableWebSecurity
 public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+	@Value("${spring.security.oauth2.resourceserver.jwt.key-value}")
+	RSAPublicKey key;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -49,16 +50,6 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 
 	@Bean
 	JwtDecoder jwtDecoder() throws Exception {
-		return NimbusJwtDecoder.withPublicKey(key()).build();
-	}
-
-	private RSAPublicKey key() throws Exception {
-		String encoded = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDdlatRjRjogo3WojgGHFHYLugd" +
-				"UWAY9iR3fy4arWNA1KoS8kVw33cJibXr8bvwUAUparCwlvdbH6dvEOfou0/gCFQs" +
-				"HUfQrSDv+MuSUMAe8jzKE4qW+jK+xQU9a03GUnKHkkle+Q0pX/g6jXZ7r1/xAK5D" +
-				"o2kQ+X5xK9cipRgEKwIDAQAB";
-		byte[] bytes = Base64.getDecoder().decode(encoded.getBytes());
-		return (RSAPublicKey) KeyFactory.getInstance("RSA")
-				.generatePublic(new X509EncodedKeySpec(bytes));
+		return NimbusJwtDecoder.withPublicKey(this.key).build();
 	}
 }
