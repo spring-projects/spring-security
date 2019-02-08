@@ -16,6 +16,24 @@
 
 package org.springframework.security.config.web.server;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
+
+import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
@@ -65,6 +83,7 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
+import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.oauth2.server.resource.web.access.server.BearerTokenServerAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
@@ -143,23 +162,6 @@ import org.springframework.web.cors.reactive.DefaultCorsProcessor;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
-
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.security.interfaces.RSAPublicKey;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Function;
 
 import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
 import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
@@ -994,8 +996,11 @@ public class ServerHttpSecurity {
 		private ServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
 		private ServerAccessDeniedHandler accessDeniedHandler = new BearerTokenServerAccessDeniedHandler();
 		private ServerAuthenticationConverter bearerTokenConverter = new ServerBearerTokenAuthenticationConverter();
+		private BearerTokenServerWebExchangeMatcher bearerTokenServerWebExchangeMatcher =
+				new BearerTokenServerWebExchangeMatcher();
 
 		private JwtSpec jwt;
+		private OpaqueTokenSpec opaqueToken;
 
 		/**
 		 * Configures the {@link ServerAccessDeniedHandler} to use for requests authenticating with
@@ -1047,9 +1052,93 @@ public class ServerHttpSecurity {
 			return this.jwt;
 		}
 
+		public OpaqueTokenSpec opaqueToken() {
+			if (this.opaqueToken == null) {
+				this.opaqueToken = new OpaqueTokenSpec();
+			}
+			return this.opaqueToken;
+		}
+
 		protected void configure(ServerHttpSecurity http) {
+			this.bearerTokenServerWebExchangeMatcher
+					.setBearerTokenConverter(this.bearerTokenConverter);
+
+			registerDefaultAccessDeniedHandler(http);
+			registerDefaultAuthenticationEntryPoint(http);
+			registerDefaultCsrfOverride(http);
+
+			if (this.jwt != null && this.opaqueToken != null) {
+				throw new IllegalStateException("Spring Security only supports JWTs or Opaque Tokens, not both at the " +
+						"same time");
+			}
+
+			if (this.jwt == null && this.opaqueToken == null) {
+				throw new IllegalStateException("Jwt and Opaque Token are the only supported formats for bearer tokens " +
+						"in Spring Security and neither was found. Make sure to configure JWT " +
+						"via http.oauth2ResourceServer().jwt() or Opaque Tokens via " +
+						"http.oauth2ResourceServer().opaqueToken().");
+			}
+
 			if (this.jwt != null) {
 				this.jwt.configure(http);
+			}
+
+			if (this.opaqueToken != null) {
+				this.opaqueToken.configure(http);
+			}
+		}
+
+		private void registerDefaultAccessDeniedHandler(ServerHttpSecurity http) {
+			if ( http.exceptionHandling != null ) {
+				http.defaultAccessDeniedHandlers.add(
+						new ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry(
+								this.bearerTokenServerWebExchangeMatcher,
+								OAuth2ResourceServerSpec.this.accessDeniedHandler
+						)
+				);
+			}
+		}
+
+		private void registerDefaultAuthenticationEntryPoint(ServerHttpSecurity http) {
+			if (http.exceptionHandling != null) {
+				http.defaultEntryPoints.add(
+						new DelegateEntry(
+								this.bearerTokenServerWebExchangeMatcher,
+								OAuth2ResourceServerSpec.this.entryPoint
+						)
+				);
+			}
+		}
+
+		private void registerDefaultCsrfOverride(ServerHttpSecurity http) {
+			if ( http.csrf != null && !http.csrf.specifiedRequireCsrfProtectionMatcher ) {
+				http
+					.csrf()
+					.requireCsrfProtectionMatcher(
+							new AndServerWebExchangeMatcher(
+									CsrfWebFilter.DEFAULT_CSRF_MATCHER,
+									new NegatedServerWebExchangeMatcher(
+											this.bearerTokenServerWebExchangeMatcher)));
+			}
+		}
+
+		private class BearerTokenServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+			ServerAuthenticationConverter bearerTokenConverter;
+
+			@Override
+			public Mono<MatchResult> matches(ServerWebExchange exchange) {
+				return this.bearerTokenConverter.convert(exchange)
+						.flatMap(this::nullAuthentication)
+						.onErrorResume(e -> notMatch());
+			}
+
+			public void setBearerTokenConverter(ServerAuthenticationConverter bearerTokenConverter) {
+				Assert.notNull(bearerTokenConverter, "bearerTokenConverter cannot be null");
+				this.bearerTokenConverter = bearerTokenConverter;
+			}
+
+			private Mono<MatchResult> nullAuthentication(Authentication authentication) {
+				return authentication == null ? notMatch() : match();
 			}
 		}
 
@@ -1061,9 +1150,6 @@ public class ServerHttpSecurity {
 			private ReactiveJwtDecoder jwtDecoder;
 			private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter
 					= new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter());
-
-			private BearerTokenServerWebExchangeMatcher bearerTokenServerWebExchangeMatcher =
-					new BearerTokenServerWebExchangeMatcher();
 
 			/**
 			 * Configures the {@link ReactiveAuthenticationManager} to use
@@ -1128,17 +1214,10 @@ public class ServerHttpSecurity {
 			}
 
 			protected void configure(ServerHttpSecurity http) {
-				this.bearerTokenServerWebExchangeMatcher.setBearerTokenConverter(bearerTokenConverter);
-
-				registerDefaultAccessDeniedHandler(http);
-				registerDefaultAuthenticationEntryPoint(http);
-				registerDefaultCsrfOverride(http);
-
 				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
-
 				http
 					.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
@@ -1170,59 +1249,63 @@ public class ServerHttpSecurity {
 
 				return authenticationManager;
 			}
+		}
 
-			private void registerDefaultAccessDeniedHandler(ServerHttpSecurity http) {
-				if ( http.exceptionHandling != null ) {
-					http.defaultAccessDeniedHandlers.add(
-							new ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry(
-									this.bearerTokenServerWebExchangeMatcher,
-									OAuth2ResourceServerSpec.this.accessDeniedHandler
-							)
-					);
-				}
+		/**
+		 * Configures Opaque Token Resource Server support
+		 *
+		 * @author Josh Cummings
+		 * @since 5.2
+		 */
+		public class OpaqueTokenSpec {
+			private String introspectionUri;
+			private String introspectionClientId;
+			private String introspectionClientSecret;
+
+			/**
+			 * Configures the URI of the Introspection endpoint
+			 * @param introspectionUri The URI of the Introspection endpoint
+			 * @return the {@code OpaqueTokenSpec} for additional configuration
+			 */
+			public OpaqueTokenSpec introspectionUri(String introspectionUri) {
+				Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
+				this.introspectionUri = introspectionUri;
+				return this;
 			}
 
-			private void registerDefaultAuthenticationEntryPoint(ServerHttpSecurity http) {
-				if (http.exceptionHandling != null) {
-					http.defaultEntryPoints.add(
-							new DelegateEntry(
-									this.bearerTokenServerWebExchangeMatcher,
-									OAuth2ResourceServerSpec.this.entryPoint
-							)
-					);
-				}
+			/**
+			 * Configures the credentials for Introspection endpoint
+			 * @param clientId The clientId part of the credentials
+			 * @param clientSecret The clientSecret part of the credentials
+			 * @return the {@code OpaqueTokenSpec} for additional configuration
+			 */
+			public OpaqueTokenSpec introspectionClientCredentials(String clientId, String clientSecret) {
+				Assert.hasText(clientId, "clientId cannot be empty");
+				Assert.notNull(clientSecret, "clientSecret cannot be null");
+				this.introspectionClientId = clientId;
+				this.introspectionClientSecret = clientSecret;
+				return this;
 			}
 
-			private void registerDefaultCsrfOverride(ServerHttpSecurity http) {
-				if ( http.csrf != null && !http.csrf.specifiedRequireCsrfProtectionMatcher ) {
-					http
-						.csrf()
-							.requireCsrfProtectionMatcher(
-									new AndServerWebExchangeMatcher(
-											CsrfWebFilter.DEFAULT_CSRF_MATCHER,
-											new NegatedServerWebExchangeMatcher(
-													this.bearerTokenServerWebExchangeMatcher)));
-				}
+			/**
+			 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
+			 * @return the {@link ServerHttpSecurity} to continue configuring
+			 */
+			public OAuth2ResourceServerSpec and() {
+				return OAuth2ResourceServerSpec.this;
 			}
 
-			private class BearerTokenServerWebExchangeMatcher implements ServerWebExchangeMatcher {
-				ServerAuthenticationConverter bearerTokenConverter;
+			protected ReactiveAuthenticationManager getAuthenticationManager() {
+				return new OAuth2IntrospectionReactiveAuthenticationManager(
+						this.introspectionUri, this.introspectionClientId, this.introspectionClientSecret);
+			}
 
-				@Override
-				public Mono<MatchResult> matches(ServerWebExchange exchange) {
-					return this.bearerTokenConverter.convert(exchange)
-							.flatMap(this::nullAuthentication)
-							.onErrorResume(e -> notMatch());
-				}
-
-				public void setBearerTokenConverter(ServerAuthenticationConverter bearerTokenConverter) {
-					Assert.notNull(bearerTokenConverter, "bearerTokenConverter cannot be null");
-					this.bearerTokenConverter = bearerTokenConverter;
-				}
-
-				private Mono<MatchResult> nullAuthentication(Authentication authentication) {
-					return authentication == null ? notMatch() : match();
-				}
+			protected void configure(ServerHttpSecurity http) {
+				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
+				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
+				oauth2.setServerAuthenticationConverter(bearerTokenConverter);
+				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
+				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 		}
 
