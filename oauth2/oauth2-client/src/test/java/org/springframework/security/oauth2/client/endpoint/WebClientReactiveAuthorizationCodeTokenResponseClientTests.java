@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,12 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -84,6 +87,9 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block();
+		String body = this.server.takeRequest().getBody().readUtf8();
+
+		assertThat(body).isEqualTo("grant_type=authorization_code&code=code&redirect_uri=%7BbaseUrl%7D%2F%7Baction%7D%2Foauth2%2Fcode%2F%7BregistrationId%7D");
 
 		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
 
@@ -287,5 +293,52 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		OAuth2AccessTokenResponse response = this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block();
 
 		verify(customClient, atLeastOnce()).post();
+	}
+
+	@Test
+	public void getTokenResponseWhenOAuth2AuthorizationRequestContainsPkceParametersThenTokenRequestBodyShouldContainCodeVerifier() throws Exception {
+		String accessTokenSuccessResponse = "{\n" +
+				"	\"access_token\": \"access-token-1234\",\n" +
+				"   \"token_type\": \"bearer\",\n" +
+				"   \"expires_in\": \"3600\"\n" +
+				"}\n";
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+
+		this.tokenResponseClient.getTokenResponse(pkceAuthorizationCodeGrantRequest()).block();
+		String body = this.server.takeRequest().getBody().readUtf8();
+
+		assertThat(body).isEqualTo("grant_type=authorization_code&code=code&redirect_uri=%7BbaseUrl%7D%2F%7Baction%7D%2Foauth2%2Fcode%2F%7BregistrationId%7D&client_id=client-id&code_verifier=code-verifier-1234");
+	}
+
+	private OAuth2AuthorizationCodeGrantRequest pkceAuthorizationCodeGrantRequest() {
+		ClientRegistration registration = this.clientRegistration
+				.clientSecret(null)
+				.build();
+
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(PkceParameterNames.CODE_VERIFIER, "code-verifier-1234");
+
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, "code-challenge-1234");
+		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
+
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest
+				.authorizationCode()
+				.clientId(registration.getClientId())
+				.state("state")
+				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
+				.redirectUri(registration.getRedirectUriTemplate())
+				.scopes(registration.getScopes())
+				.attributes(attributes)
+				.additionalParameters(additionalParameters)
+				.build();
+		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponse
+				.success("code")
+				.state("state")
+				.redirectUri(registration.getRedirectUriTemplate())
+				.build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
+				authorizationResponse);
+		return new OAuth2AuthorizationCodeGrantRequest(registration, authorizationExchange);
 	}
 }

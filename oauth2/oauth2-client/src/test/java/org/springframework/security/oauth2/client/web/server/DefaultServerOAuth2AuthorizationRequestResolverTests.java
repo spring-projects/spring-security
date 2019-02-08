@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,9 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -86,5 +88,25 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	private OAuth2AuthorizationRequest resolve(String path) {
 		ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(path));
 		return this.resolver.resolve(exchange).block();
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestWithValidPkceClientThenResolves() {
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(
+				Mono.just(TestClientRegistrations.clientRegistration()
+						.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+						.clientSecret(null)
+						.build()));
+
+		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/registration-id");
+
+		assertThat((String) request.getAttribute(PkceParameterNames.CODE_VERIFIER)).matches("^([a-zA-Z0-9\\-\\.\\_\\~]){128}$");
+
+		assertThat(request.getAuthorizationRequestUri()).matches("https://example.com/login/oauth/authorize\\?" +
+				"response_type=code&client_id=client-id&" +
+				"scope=read:user&state=.*?&" +
+				"redirect_uri=/login/oauth2/code/registration-id&" +
+				"code_challenge_method=S256&" +
+				"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 }

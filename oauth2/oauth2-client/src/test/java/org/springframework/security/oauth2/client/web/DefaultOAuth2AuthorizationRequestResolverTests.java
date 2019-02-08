@@ -23,9 +23,11 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponseType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,6 +41,7 @@ import static org.assertj.core.api.Assertions.entry;
 public class DefaultOAuth2AuthorizationRequestResolverTests {
 	private ClientRegistration registration1;
 	private ClientRegistration registration2;
+	private ClientRegistration pkceRegistration;
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private String authorizationRequestBaseUri = "/oauth2/authorization";
 	private DefaultOAuth2AuthorizationRequestResolver resolver;
@@ -47,8 +50,15 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	public void setUp() {
 		this.registration1 = TestClientRegistrations.clientRegistration().build();
 		this.registration2 = TestClientRegistrations.clientRegistration2().build();
+		this.pkceRegistration = TestClientRegistrations.clientRegistration()
+				.registrationId("pkce-client-registration-id")
+				.clientId("pkce-client-id")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+				.clientSecret(null)
+				.build();
+
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(
-				this.registration1, this.registration2);
+				this.registration1, this.registration2, this.pkceRegistration);
 		this.resolver = new DefaultOAuth2AuthorizationRequestResolver(
 				this.clientRegistrationRepository, this.authorizationRequestBaseUri);
 	}
@@ -254,5 +264,41 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 						"response_type=code&client_id=client-id-2&" +
 						"scope=read:user&state=.{15,}&" +
 						"redirect_uri=http://localhost/login/oauth2/code/registration-id-2");
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestWithValidPkceClientThenResolves() {
+		ClientRegistration clientRegistration = this.pkceRegistration;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest).isNotNull();
+		assertThat(authorizationRequest.getAuthorizationUri()).isEqualTo(
+				clientRegistration.getProviderDetails().getAuthorizationUri());
+		assertThat(authorizationRequest.getGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+		assertThat(authorizationRequest.getResponseType()).isEqualTo(OAuth2AuthorizationResponseType.CODE);
+		assertThat(authorizationRequest.getClientId()).isEqualTo(clientRegistration.getClientId());
+		assertThat(authorizationRequest.getRedirectUri())
+				.isEqualTo("http://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
+		assertThat(authorizationRequest.getScopes()).isEqualTo(clientRegistration.getScopes());
+		assertThat(authorizationRequest.getState()).isNotNull();
+		assertThat(authorizationRequest.getAdditionalParameters()).doesNotContainKey(OAuth2ParameterNames.REGISTRATION_ID);
+		assertThat(authorizationRequest.getAdditionalParameters()).containsKey(PkceParameterNames.CODE_CHALLENGE);
+		assertThat(authorizationRequest.getAdditionalParameters())
+				.contains(entry(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256"));
+		assertThat(authorizationRequest.getAttributes())
+				.contains(entry(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
+		assertThat(authorizationRequest.getAttributes())
+				.containsKey(PkceParameterNames.CODE_VERIFIER);
+		assertThat((String) authorizationRequest.getAttribute(PkceParameterNames.CODE_VERIFIER)).matches("^([a-zA-Z0-9\\-\\.\\_\\~]){128}$");
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.matches("https://example.com/login/oauth/authorize\\?" +
+						"response_type=code&client_id=pkce-client-id&" +
+						"scope=read:user&state=.{15,}&" +
+						"redirect_uri=http://localhost/login/oauth2/code/pkce-client-registration-id&" +
+						"code_challenge_method=S256&" +
+						"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 }
