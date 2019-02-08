@@ -40,7 +40,7 @@ spring:
             client-id: replace-with-client-id
             client-secret: replace-with-client-secret
             provider: github
-            scopes: read:user,public_repo
+            scope: read:user,public_repo
 ----
 +
 .OAuth Client properties

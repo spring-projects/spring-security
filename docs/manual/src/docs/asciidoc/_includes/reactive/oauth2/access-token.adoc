@@ -14,7 +14,7 @@ spring:
           github:
             client-id: replace-with-client-id
             client-secret: replace-with-client-secret
-            scopes: read:user,public_repo
+            scope: read:user,public_repo
 ----
 
 You will need to replace the `client-id` and `client-secret` with values registered with GitHub.
