@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -500,6 +500,11 @@ public final class ClientRegistration implements Serializable {
 			clientRegistration.clientId = this.clientId;
 			clientRegistration.clientSecret = StringUtils.hasText(this.clientSecret) ? this.clientSecret : "";
 			clientRegistration.clientAuthenticationMethod = this.clientAuthenticationMethod;
+			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType) &&
+					!StringUtils.hasText(this.clientSecret)) {
+				clientRegistration.clientAuthenticationMethod = ClientAuthenticationMethod.NONE;
+			}
+
 			clientRegistration.authorizationGrantType = this.authorizationGrantType;
 			clientRegistration.redirectUriTemplate = this.redirectUriTemplate;
 			clientRegistration.scopes = this.scopes;
