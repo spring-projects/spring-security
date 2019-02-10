@@ -18,6 +18,13 @@ package org.springframework.security.oauth2.client.web.server;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
@@ -97,6 +104,36 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 		StepVerifier.create(saveAndLoad)
 				.expectNext(this.authorizationRequest)
 				.verifyComplete();
+	}
+
+	@Test
+	public void multipleSavedAuthorizationRequestAndRedisCookie() {
+		String oldState = "state0";
+		MockServerHttpRequest oldRequest = MockServerHttpRequest.get("/")
+				.queryParam(OAuth2ParameterNames.STATE, oldState).build();
+
+		OAuth2AuthorizationRequest oldAuthorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri("https://example.com/oauth2/authorize")
+				.clientId("client-id")
+				.redirectUri("http://localhost/client-1")
+				.state(oldState)
+				.build();
+
+		Map<String, Object> sessionAttrs = spy(new HashMap<>());
+		WebSession session = mock(WebSession.class);
+		when(session.getAttributes()).thenReturn(sessionAttrs);
+		WebSessionManager sessionManager = e -> Mono.just(session);
+
+		this.exchange = new DefaultServerWebExchange(this.exchange.getRequest(), new MockServerHttpResponse(), sessionManager,
+				ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
+		ServerWebExchange oldExchange = new DefaultServerWebExchange(oldRequest, new MockServerHttpResponse(), sessionManager,
+				ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
+
+		Mono<Void> saveAndSave = this.repository.saveAuthorizationRequest(oldAuthorizationRequest, oldExchange)
+				.then(this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange));
+
+		StepVerifier.create(saveAndSave).verifyComplete();
+		verify(sessionAttrs, times(2)).put(any(), any());
 	}
 
 	@Test
