@@ -258,6 +258,7 @@ public class OAuth2LoginTests {
 				.expectStatus().is3xxRedirection();
 
 		verify(config.jwtDecoderFactory).createDecoder(any());
+		verify(tokenResponseClient).getTokenResponse(any()).thenReturn(Mono.just(accessTokenResponse));
 	}
 
 	@Configuration
@@ -296,6 +297,11 @@ public class OAuth2LoginTests {
 		@Bean
 		public ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory() {
 			return jwtDecoderFactory;
+		}
+
+		@Bean
+		public ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> oAuth2AccessTokenResponseClient() {
+			return tokenResponseClient;
 		}
 
 		private static class JwtDecoderFactory implements ReactiveJwtDecoderFactory<ClientRegistration> {
