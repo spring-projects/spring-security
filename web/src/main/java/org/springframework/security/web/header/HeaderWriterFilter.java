@@ -52,6 +52,11 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	private final HeaderWriter headerWriter;
 
 	/**
+	 * Indicates whether to write the headers at the beginning of the request.
+	 */
+	private boolean shouldWriteHeadersEagerly = false;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param headerWriters the {@link HeaderWriter} instances to write out headers to the
@@ -67,16 +72,39 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 			HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
+		if (this.shouldWriteHeadersEagerly) {
+			doHeadersBefore(request, response, filterChain);
+		} else {
+			doHeadersAfter(request, response, filterChain);
+		}
+	}
+
+	private void doHeadersBefore(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+		this.headerWriter.writeHeaders(request, response);
+		filterChain.doFilter(request, response);
+	}
+
+	private void doHeadersAfter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 		HeaderWriterResponse headerWriterResponse = new HeaderWriterResponse(request,
 				response, this.headerWriter);
 		HeaderWriterRequest headerWriterRequest = new HeaderWriterRequest(request,
 				headerWriterResponse);
-
 		try {
 			filterChain.doFilter(headerWriterRequest, headerWriterResponse);
 		} finally {
 			headerWriterResponse.writeHeaders();
 		}
+	}
+
+	/**
+	 * Allow writing headers at the beginning of the request.
+	 *
+	 * @param shouldWriteHeadersEagerly boolean to allow writing headers at the beginning of the request.
+	 * @author Ankur Pathak
+	 * @since 5.2
+	 */
+	public void setShouldWriteHeadersEagerly(boolean shouldWriteHeadersEagerly) {
+		this.shouldWriteHeadersEagerly = shouldWriteHeadersEagerly;
 	}
 
 	static class HeaderWriterResponse extends OnCommittedResponseWrapper {

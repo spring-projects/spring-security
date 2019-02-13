@@ -136,4 +136,25 @@ public class HeaderWriterFilterTests {
 
 		verifyNoMoreInteractions(this.writer1);
 	}
+
+	@Test
+	public void headersWrittenAtBeginningOfRequest() throws Exception {
+		HeaderWriterFilter filter = new HeaderWriterFilter(
+				Collections.singletonList(this.writer1));
+		filter.setShouldWriteHeadersEagerly(true);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		filter.doFilter(request, response, new FilterChain() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response)
+					throws IOException, ServletException {
+				verify(HeaderWriterFilterTests.this.writer1).writeHeaders(
+						any(HttpServletRequest.class), any(HttpServletResponse.class));
+			}
+		});
+
+		verifyNoMoreInteractions(this.writer1);
+	}
 }
