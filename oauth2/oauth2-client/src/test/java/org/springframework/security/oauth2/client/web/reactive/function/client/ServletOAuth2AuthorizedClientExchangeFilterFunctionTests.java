@@ -74,13 +74,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.*;
 
@@ -570,6 +568,55 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(request0.url().toASCIIString()).isEqualTo("https://example.com");
 		assertThat(request0.method()).isEqualTo(HttpMethod.GET);
 		assertThat(getBody(request0)).isEmpty();
+	}
+
+	// gh-6483
+	@Test
+	public void filterWhenChainedThenDefaultsStillAvailable() {
+		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(
+				this.clientRegistrationRepository, this.authorizedClientRepository);
+		this.function.setDefaultOAuth2AuthorizedClient(true);
+
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servletRequest, servletResponse));
+
+		OAuth2User user = mock(OAuth2User.class);
+		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
+				user, authorities, this.registration.getRegistrationId());
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.registration, "principalName", this.accessToken);
+		when(this.authorizedClientRepository.loadAuthorizedClient(eq(authentication.getAuthorizedClientRegistrationId()),
+				eq(authentication), eq(servletRequest))).thenReturn(authorizedClient);
+
+		// Default request attributes set
+		final ClientRequest request1 = ClientRequest.create(GET, URI.create("https://example1.com"))
+				.attributes(attrs -> attrs.putAll(getDefaultRequestAttributes())).build();
+
+		// Default request attributes NOT set
+		final ClientRequest request2 = ClientRequest.create(GET, URI.create("https://example2.com")).build();
+
+		this.function.filter(request1, this.exchange)
+				.flatMap(response -> this.function.filter(request2, this.exchange))
+				.block();
+
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(2);
+
+		ClientRequest request = requests.get(0);
+		assertThat(request.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer token-0");
+		assertThat(request.url().toASCIIString()).isEqualTo("https://example1.com");
+		assertThat(request.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request)).isEmpty();
+
+		request = requests.get(1);
+		assertThat(request.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer token-0");
+		assertThat(request.url().toASCIIString()).isEqualTo("https://example2.com");
+		assertThat(request.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request)).isEmpty();
 	}
 
 	private static String getBody(ClientRequest request) {
