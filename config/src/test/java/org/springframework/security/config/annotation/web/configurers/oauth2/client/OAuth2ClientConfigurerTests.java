@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,14 +146,14 @@ public class OAuth2ClientConfigurerTests {
 		this.spring.register(OAuth2ClientConfig.class).autowire();
 
 		// Setup the Authorization Request in the session
-		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, this.registration1.getRegistrationId());
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, this.registration1.getRegistrationId());
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(this.registration1.getProviderDetails().getAuthorizationUri())
 				.clientId(this.registration1.getClientId())
 				.redirectUri("http://localhost/client-1")
 				.state("state")
-				.additionalParameters(additionalParameters)
+				.attributes(attributes)
 				.build();
 
 		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =

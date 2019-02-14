@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,18 @@
  */
 package org.springframework.security.web.header.writers;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.header.writers.HstsHeaderWriter;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
+ * @author Ankur Pathak
  *
  */
 public class HstsHeaderWriterTests {
@@ -33,6 +34,8 @@ public class HstsHeaderWriterTests {
 	private MockHttpServletResponse response;
 
 	private HstsHeaderWriter writer;
+
+	private static final String HSTS_HEADER_NAME = "Strict-Transport-Security";
 
 	@Before
 	public void setup() {
@@ -149,5 +152,13 @@ public class HstsHeaderWriterTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void setRequestMatcherToNull() {
 		writer.setRequestMatcher(null);
+	}
+
+	@Test
+	public void writeHeaderWhenNotPresent() {
+		String value = new String("value");
+		this.response.setHeader(HSTS_HEADER_NAME, value);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeader(HSTS_HEADER_NAME)).isSameAs(value);
 	}
 }

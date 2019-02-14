@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,6 +100,7 @@ import java.util.Map;
  * </p>
  *
  * @author Tim Ysewyn
+ * @author Ankur Pathak
  * @since 4.1
  */
 public final class HpkpHeaderWriter implements HeaderWriter {
@@ -174,7 +175,10 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (requestMatcher.matches(request)) {
 			if (!pins.isEmpty()) {
-				response.setHeader(reportOnly ? HPKP_RO_HEADER_NAME : HPKP_HEADER_NAME, hpkpHeaderValue);
+				String headerName = reportOnly ? HPKP_RO_HEADER_NAME : HPKP_HEADER_NAME;
+				if (!response.containsHeader(headerName)) {
+					response.setHeader(headerName, hpkpHeaderValue);
+				}
 			} if (logger.isDebugEnabled()) {
 				logger.debug("Not injecting HPKP header since there aren't any pins");
 			}

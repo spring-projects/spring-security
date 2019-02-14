@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,8 +115,8 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 		String redirectUriStr = this.expandRedirectUri(request, clientRegistration, redirectUriAction);
 
-		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 
 		OAuth2AuthorizationRequest authorizationRequest = builder
 				.clientId(clientRegistration.getClientId())
@@ -124,7 +124,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 				.redirectUri(redirectUriStr)
 				.scopes(clientRegistration.getScopes())
 				.state(this.stateGenerator.generateKey())
-				.additionalParameters(additionalParameters)
+				.attributes(attributes)
 				.build();
 
 		return authorizationRequest;
