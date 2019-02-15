@@ -55,7 +55,9 @@ public final class JaasGrantedAuthority implements GrantedAuthority {
 
 	@Override
 	public int hashCode() {
-		return 31 ^ principal.hashCode() ^ role.hashCode();
+		int result = this.principal.hashCode();
+		result = 31 * result + this.role.hashCode();
+		return result;
 	}
 
 	@Override
