@@ -220,11 +220,10 @@ public final class AntPathRequestMatcher
 
 	@Override
 	public int hashCode() {
-		int code = 31 ^ this.pattern.hashCode();
-		if (this.httpMethod != null) {
-			code ^= this.httpMethod.hashCode();
-		}
-		return code;
+		int result = this.pattern != null ? this.pattern.hashCode() : 0;
+		result = 31 * result + (this.httpMethod != null ? this.httpMethod.hashCode() : 0);
+		result = 31 * result + (this.caseSensitive ? 1231 : 1237);
+		return result;
 	}
 
 	@Override

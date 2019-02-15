@@ -152,11 +152,9 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 	 */
 	@Override
 	public int hashCode() {
-		int code = 31;
-		code ^= this.type.hashCode();
-		code ^= this.identifier.hashCode();
-
-		return code;
+		int result = this.type.hashCode();
+		result = 31 * result + this.identifier.hashCode();
+		return result;
 	}
 
 	@Override

@@ -70,7 +70,9 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 
 	@Override
 	public int hashCode() {
-		return 31 ^ source.hashCode() ^ role.hashCode();
+		int result = this.role.hashCode();
+		result = 31 * result + this.source.hashCode();
+		return result;
 	}
 
 	@Override

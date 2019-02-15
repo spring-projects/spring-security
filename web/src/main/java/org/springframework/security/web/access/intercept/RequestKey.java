@@ -45,14 +45,9 @@ public class RequestKey {
 
 	@Override
 	public int hashCode() {
-		int code = 31;
-		code ^= url.hashCode();
-
-		if (method != null) {
-			code ^= method.hashCode();
-		}
-
-		return code;
+		int result = this.url.hashCode();
+		result = 31 * result + (this.method != null ? this.method.hashCode() : 0);
+		return result;
 	}
 
 	@Override
