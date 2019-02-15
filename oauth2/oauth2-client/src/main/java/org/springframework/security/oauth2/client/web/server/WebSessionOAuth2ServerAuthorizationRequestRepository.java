@@ -62,8 +62,9 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 	public Mono<Void> saveAuthorizationRequest(
 			OAuth2AuthorizationRequest authorizationRequest, ServerWebExchange exchange) {
 		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
-		return saveStateToAuthorizationRequest(exchange).doOnNext(stateToAuthorizationRequest ->
-				stateToAuthorizationRequest.put(authorizationRequest.getState(), authorizationRequest)).then();
+		return saveStateToAuthorizationRequest(exchange)
+				.doOnNext(stateToAuthorizationRequest -> stateToAuthorizationRequest.put(authorizationRequest.getState(), authorizationRequest))
+				.then();
 	}
 
 	@Override
