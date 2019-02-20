@@ -1,9 +1,9 @@
 [[servlet]]
 = Servlet Applications
 
-Spring Security integrates with the Servlet Container using standard Servlet `Filter`.
-This means it will work with any application that runs in a Servlet Container.
-More concretely, you do not need to be using Spring in your Servlet Based to take advantage of Spring Security.
+Spring Security integrates with the Servlet Container by using a standard Servlet `Filter`.
+This means it works with any application that runs in a Servlet Container.
+More concretely, you do not need to use Spring in your Servlet-based application to take advantage of Spring Security.
 
 include::hello/index.adoc[leveloffset=+1]
 

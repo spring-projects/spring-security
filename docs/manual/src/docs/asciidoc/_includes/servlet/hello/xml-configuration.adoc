@@ -1,27 +1,26 @@
 [[servlet-hello-xml]]
 = Hello Spring Security (XML)
-In this section we will discuss how to use Spring Security using XML Configuration.
-// FIXME: Link to XML and Boot
+
+This section covers how to use Spring Security with XML Configuration.
+For how to use Spring Security with Java configuration, see <<servlet-hello-jc>>.
+For how to use Spring Security with Spring Boot configuration, see <<servlet-hello-boot>>.
 
 == Updating Dependencies
 
-The first step is to update the dependencies using <<maven-without-spring-boot,Maven>> or <<gradle-without-spring-boot,Gradle>>.
+The first step is to update the dependencies by using <<maven-without-spring-boot,Maven>> or <<gradle-without-spring-boot,Gradle>>.
 
 
 [[servlet-hello-xml-http]]
-== A Minimal <http> Configuration
+== Minimal `<http>` Configuration
 
-In this section we will discuss how to use Spring Security using XML Configuration.
+In this section, we discuss how to use Spring Security with XML Configuration.
 
-[NOTE]
-====
-The completed application can be found at {gh-samples-url}/xml/helloworld[samples/xml/helloworld]
-====
-// FIXME: Link to JavaConfiguration and Boot
+NOTE: The completed application can be found at {gh-samples-url}/xml/helloworld[samples/xml/helloworld]
+// FIXME: Link to Java Configuration and Boot
 
 The first step is to create our Spring Security XML Configuration.
-The configuration creates a Servlet `Filter` known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
-You can find the most basic example of a Spring Security XML Configuration below:
+The configuration creates a Servlet `Filter` (known as the `springSecurityFilterChain`), which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, and so on) within your application.
+The following example shows the most basic example of a Spring Security XML Configuration:
 
 .src/main/webapp/WEB-INF/spring/security.xml
 ====
@@ -43,14 +42,14 @@ You can find the most basic example of a Spring Security XML Configuration below
 ====
 
 
-There really isn't much to this configuration, but it does a lot.
-You can find a summary of the features below:
+There really is not much to this configuration, but it does a lot.
+A summary of the features follows:
 
 * Require an authenticated user for any interaction with the application
 * Generate a default login form for you
-* Allow the user with the *Username* _user_ and the *Password* _password_ to authenticate with form based authentication
+* Lets the user with a username of `user` and a password of `password` authenticate with form-based authentication
 * Protects the password storage with BCrypt
-* Allow the user to logout
+* Lets the user to log out
 * http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
 * http://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
 * Security Header integration
@@ -59,22 +58,22 @@ You can find a summary of the features below:
 ** Cache Control (can be overridden later by your application to allow caching of your static resources)
 ** http://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-Protection] integration
 ** X-Frame-Options integration to help prevent http://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
-* Integrate with the following Servlet API methods
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[HttpServletRequest#getRemoteUser()]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest.html#getUserPrincipal()]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.html#isUserInRole(java.lang.String)]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html#login(java.lang.String, java.lang.String)]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html#logout()]
+* Integrate with the following Servlet API methods:
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[`HttpServletRequest#getRemoteUser()`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[`HttpServletRequest.html#getUserPrincipal()`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[`HttpServletRequest.html#isUserInRole(java.lang.String)`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[`HttpServletRequest.html#login(java.lang.String, java.lang.String)`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[`HttpServletRequest.html#logout()`]
 
 // FIXME: After completed rewriting, link to all the sections of doc that this relates to
 
 
 [[servlet-hello-xml-webxml]]
-== web.xml Configuration
+== `web.xml` Configuration
 
 The next step is to ensure that our Security configuration is being read in.
-To do this we need to ensure a `ContextLoaderListener` is registered and the `contextConfigLocation` is including the configuration
-
+To do so, we need to ensure a `ContextLoaderListener` is registered and the `contextConfigLocation` is including the configuration.
+The following example shows how to do so:
 
 .src/main/webapp/WEB-INF/web.xml
 ====
@@ -123,8 +122,10 @@ To do this we need to ensure a `ContextLoaderListener` is registered and the `co
 
 [NOTE]
 ====
-If you are integrating with an existing Spring MVC application, be sure to configure the `DispatcherServlet` to load the configuration from the root `ApplicationContext` as shown below:
+If you integrate with an existing Spring MVC application, be sure to configure the `DispatcherServlet` to load the configuration from the root `ApplicationContext`.
+The following example shows how to do so:
 
+=====
 .src/main/webapp/WEB-INF/web.xml
 [source,xml]
 ----
@@ -143,4 +144,5 @@ If you are integrating with an existing Spring MVC application, be sure to confi
   <url-pattern>/</url-pattern>
 </servlet-mapping>
 ----
+=====
 ====

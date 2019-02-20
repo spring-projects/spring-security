@@ -1,19 +1,19 @@
 = Servlet Architecture Overview
 
-Spring Security’s servlet support relies on servlet `Filter` API.
-This means it can work with any application that runs in a Servlet container.
+Spring Security’s servlet support relies on the servlet `Filter` API.
+This means that it can work with any application that runs in a servlet container.
 It does not require that you use Spring in any other part of your application.
 
 // FIXME: This might be a primer to describe in summary some of the external items (servlet container, spring's ApplicationContext being initialized, etc)
 
 == Understanding the Servlet Filter API
 
-Spring Security's Servlet container support (i.e. if you run in Tomcat or other Servlet container) is built on top of the `Filter` API.
-This is done because the `Filter` API is a standard that allows injecting logic into an application that in any Servlet container.
+Spring Security's servlet container support (whether you run in Tomcat or other Servlet container) is built on top of the `Filter` API.
+This is done because the `Filter` API is a standard that allows injecting logic into an application in any Servlet container.
 
-Since Spring Security is built on top of ``Filter``s, it is valuable to review how Servlet ``Filter``s work.
+Since Spring Security is built on top of `Filter` objects, you should know how Servlet `Filter` objects work.
 
-A simple `Filter` implementation looks like this:
+The following example shows a simple `Filter` implementation:
 
 .SimpleFilter Example
 ====
@@ -39,20 +39,21 @@ public class SimpleFilter implements Filter {
 	}
 }
 ----
-<1> Happens before the application is invoked
-<2> Invokes the rest of the application. This could be additional ``Filter``s and/or a `Servlet`.
-If `chain.doFilter` is never invoked, then neither is the rest of the application.
+<1> Happens before the application is invoked.
+<2> Invokes the rest of the application. This could be additional `Filter` objects, a `Servlet`, or both.
 <3> Happens after the application is invoked
 ====
 
-As you can see a Servlet `Filter` allows us to apply logic around the rest of the application.
-This means we can perform logic before, conditionally invoke the rest of the application, and perform logic afterwards in any Servlet container.
+IMPORTANT: If `chain.doFilter` is never invoked, neither is the rest of the application.
 
-== Registering Servlet Filter
+A Servlet `Filter` lets us apply logic around the rest of the application.
+This means that we can perform logic before, conditionally invoke the rest of the application, and perform logic afterwards in any servlet container.
 
-In order for a Servlet `Filter` to be invoked it must be registered with the Servlet container.
+== Registering a Servlet Filter
 
-In XML this will typically look something like this:
+In order for a servlet `Filter` to be invoked, it must be registered with the Servlet container.
+
+The following example shows how to do so in XML:
 
 .web.xml
 ====
@@ -70,13 +71,13 @@ In XML this will typically look something like this:
 	<url-pattern>/*</url-pattern>
 </filter-mapping>
 ----
-<1> Define the Filter to be mapped
-<2> Provide one more mappings for the Filter.
-In this case `simpleFilter` is mapped using the pattern `/*` which signifies it should be mapped for every request.
+<1> Define the `Filter` to be mapped
+<2> Provide one or more mappings for the `Filter`.
+In this case, `simpleFilter` is mapped by using the `/*` pattern, which signifies that it should be mapped for every request.
 ====
 
-In Java configuration a `ServletContextListener` can be used:
-
+In Java configuration, you can use a `ServletContextListener`.
+The following example shows how to do so:
 
 .RegisterServletContextListener.java
 ====
@@ -103,20 +104,18 @@ public class FilterStartupListener
 	}
 }
 ----
-<1> Define the Filter to be mapped
-<2> In Java configuration we must explicitly provide the <<Dispatch Types>>
-<3> In Java configuration we must explicitly provide if the `Filter` should be after already registered ``Filter``s or before.
-<4> Provide one more mappings for the Filter.
-In this case `simpleFilter` is mapped using the pattern `/*` which signifies it should be mapped for every request.
+<1> Define the `Filter` to be mapped.
+<2> In Java configuration, we must explicitly provide the <<Dispatch Types>>.
+<3> In Java configuration, we must explicitly indicate whether the `Filter` should be before or after already registered `Filter` objects.
+<4> Provide one more mapping for the Filter.
+In this case, `simpleFilter` is mapped by using the `/*` pattern, which signifies that it should be mapped for every request.
 ====
 
 == Dispatch Types
 
 == Filter Ordering
 
-== DelegatingFilterProxy
+== Using `DelegatingFilterProxy`
 
 At the heart of integrating Spring with a servlet `Filter` is the `DelegatingFilterProxy`.
-The `DelegatingFilterProxy` is registered directly with the servlet container and it delegates all work to a Spring Bean that implements `Filter`.
-
-
+The `DelegatingFilterProxy` is registered directly with the servlet container, and it delegates all work to a Spring Bean that implements `Filter`.

@@ -1,25 +1,23 @@
 [[servlet-hello-jc]]
 = Hello Spring Security (Java Configuration)
 
-In this section we will discuss how to use Spring Security using Java Configuration.
+This section covers how to use Spring Security with Java Configuration.
+For how to use Spring Security with XML configuration, see <<servlet-hello-xml>>.
+For how to use Spring Security with Spring Boot configuration, see <<servlet-hello-boot>>.
 
-[NOTE]
-====
-The completed application can be found at {gh-samples-url}/javaconfig/helloworld[samples/javaconfig/helloworld]
-====
-// FIXME: Link to XML and Boot
+NOTE: You can find the completed application at {gh-samples-url}/javaconfig/helloworld[samples/javaconfig/helloworld].
 
 == Updating Dependencies
 
-The first step is to update the dependencies using <<getting-maven-without-spring-boot,Maven>> or <<gradle-without-spring-boot,Gradle>>.
+The first step is to update the dependencies by using <<getting-maven-without-spring-boot,Maven>> or <<gradle-without-spring-boot,Gradle>>.
 
 
 [[servlet-hello-jc-ews]]
-== A Minimal @EnableWebSecurity Configuration
+== Minimal `@EnableWebSecurity` Configuration
 
-The first step is to create our Spring Security Java Configuration.
-The configuration creates a Servlet `Filter` known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application.
-You can find the most basic example of a Spring Security Java Configuration below:
+The first step is to create our Spring Security Java configuration.
+The configuration creates a servlet `Filter` (known as the `springSecurityFilterChain`), which is responsible for all the security features (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, and so on) within your application.
+The following example shows the most basic example of a Spring Security Java Configuration:
 
 .WebSecurity.java
 ====
@@ -48,14 +46,14 @@ public class WebSecurityConfig {
 ----
 ====
 
-There really isn't much to this configuration, but it does a lot.
-You can find a summary of the features below:
+There really is not much to this configuration, but it does a lot.
+A summary of the features follows:
 
 * Require an authenticated user for any interaction with the application
 * Generate a default login form for you
-* Allow the user with the *Username* _user_ and the *Password* _password_ to authenticate with form based authentication
+* Lets the user with a username of `user` and a password of `password` authenticate with form-based authentication
 * Protects the password storage with BCrypt
-* Allow the user to logout
+* Lets the user log out
 * http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
 * http://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
 * Security Header integration
@@ -64,22 +62,21 @@ You can find a summary of the features below:
 ** Cache Control (can be overridden later by your application to allow caching of your static resources)
 ** http://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-Protection] integration
 ** X-Frame-Options integration to help prevent http://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
-* Integrate with the following Servlet API methods
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[HttpServletRequest#getRemoteUser()]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest.html#getUserPrincipal()]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.html#isUserInRole(java.lang.String)]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html#login(java.lang.String, java.lang.String)]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html#logout()]
+* Integrate with the following Servlet API methods:
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[`HttpServletRequest#getRemoteUser()`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[`HttpServletRequest.html#getUserPrincipal()`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[`HttpServletRequest.html#isUserInRole(java.lang.String)`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[`HttpServletRequest.html#login(java.lang.String, java.lang.String)`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[`HttpServletRequest.html#logout()`]
 
 // FIXME: After completed rewriting, link to all the sections of doc that this relates to
 
-== AbstractSecurityWebApplicationInitializer
+== Using `AbstractSecurityWebApplicationInitializer`
 
 The next step is to register the `springSecurityFilterChain` with the war.
-Spring Security provides a base class `AbstractSecurityWebApplicationInitializer` that leverages https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-servlet[Spring's WebApplicationInitializer support].
+Spring Security provides a base class (`AbstractSecurityWebApplicationInitializer`) that leverages https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-servlet[Spring's WebApplicationInitializer support].
 
-An example configuration can be seen below:
-
+The following example shows an example configuration:
 
 .SecurityInitializer.java
 ====
@@ -97,17 +94,19 @@ public class SecurityInitializer
 ----
 ====
 
-The `SecurityInitializer` will do the following things:
+The `SecurityInitializer` does the following things:
 
-* Add a `ContextLoaderListener` that loads the <<servlet-hello-ews,WebSecurityConfig>>.
-* Finds the Bean of type `Filter` named `springSecurityFilterChain` and registers it to process every URL in the application
+* Adds a `ContextLoaderListener` that loads the <<servlet-hello-ews,`WebSecurityConfig`>>.
+* Finds the bean of type `Filter` named `springSecurityFilterChain` and registers it to process every URL in the application.
 
 
 [NOTE]
 ====
-If you are integrating with a Spring MVC application, be sure to configure the `DispatcherServlet` to load the configuration from the root `ApplicationContext` as shown below:
+If you are integrating with a Spring MVC application, be sure to configure the `DispatcherServlet` to load the configuration from the root `ApplicationContext`.
+The following example shows how to do so:
 
 .MvcInitializer.java
+=====
 [source,java]
 ----
 public class MvcInitializer extends
@@ -135,4 +134,5 @@ public class MvcInitializer extends
 }
 
 ----
+=====
 ====
