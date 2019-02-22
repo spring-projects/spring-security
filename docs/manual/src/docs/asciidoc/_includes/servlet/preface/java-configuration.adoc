@@ -343,6 +343,7 @@ Various implementations are provided:
 - {security-api-url}org/springframework/security/web/authentication/logout/CookieClearingLogoutHandler.html[CookieClearingLogoutHandler]
 - {security-api-url}org/springframework/security/web/csrf/CsrfLogoutHandler.html[CsrfLogoutHandler]
 - {security-api-url}org/springframework/security/web/authentication/logout/SecurityContextLogoutHandler.html[SecurityContextLogoutHandler]
+- {security-api-url}org/springframework/security/web/authentication/logout/HeaderWriterLogoutHandler.html[HeaderWriterLogoutHandler]
 
 Please see <<remember-me-impls>> for details.
 
