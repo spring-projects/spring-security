@@ -17,7 +17,7 @@ Below are the highlights of the release.
 * <<exception-translation-filter,ExceptionTranslationFilter>> support for selecting an `AccessDeniedHandler` by `RequestMatcher`
 * <<csrf,CSRF>> support for excluding certain requests
 * Added Support for <<headers-feature,Feature Policy>>
-* Added {security-api-url}core/src/main/java/org/springframework/security/core/Transient.java[@Transient] authentication tokens
+* Added {security-api-url}org/springframework/security/core/Transient.html[@Transient] authentication tokens
 * A modern look-and-feel for the default log in page
 
 === WebFlux
