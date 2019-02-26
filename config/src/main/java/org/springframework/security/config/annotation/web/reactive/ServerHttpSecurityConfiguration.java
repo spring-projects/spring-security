@@ -33,6 +33,7 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsPassword
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
+import org.springframework.security.web.reactive.result.method.annotation.CurrentSecurityContextArgumentResolver;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 
@@ -77,6 +78,17 @@ class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 		}
 		return resolver;
 	}
+
+	@Bean
+	public CurrentSecurityContextArgumentResolver reactiveCurrentSecurityContextArgumentResolver() {
+		CurrentSecurityContextArgumentResolver resolver = new CurrentSecurityContextArgumentResolver(
+				this.adapterRegistry);
+		if (this.beanFactory != null) {
+			resolver.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
+		}
+		return resolver;
+	}
+
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
