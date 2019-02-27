@@ -4,14 +4,15 @@ Spring Security’s servlet support relies on the servlet `Filter` API.
 This means that it can work with any application that runs in a servlet container.
 It does not require that you use Spring in any other part of your application.
 
-// FIXME: This might be a primer to describe in summary some of the external items (servlet container, spring's ApplicationContext being initialized, etc)
+// FIXME: This might be a primer to describe in summary some of the external items (servlet container, Spring Frameworks's ApplicationContext being initialized, etc)
 
 == Understanding the Servlet Filter API
 
-Spring Security's servlet container support (whether you run in Tomcat or other Servlet container) is built on top of the `Filter` API.
-This is done because the `Filter` API is a standard that allows injecting logic into an application in any Servlet container.
+Spring Security's servlet container support (whether you run in Apache Tomcat or other servlet container) is built on top of the `Filter` API.
+This is done because the `Filter` API is a standard that allows injecting logic into an application in any servlet container.
 
-Since Spring Security is built on top of `Filter` objects, you should know how Servlet `Filter` objects work.
+Since Spring Security is built on top of `javax.servlet.Filter` objects.
+It will greatly benefit you if you understand the concept of interceptors and how `Filter` objects work.
 
 The following example shows a simple `Filter` implementation:
 
@@ -46,12 +47,12 @@ public class SimpleFilter implements Filter {
 
 IMPORTANT: If `chain.doFilter` is never invoked, neither is the rest of the application.
 
-A Servlet `Filter` lets us apply logic around the rest of the application.
+A servlet `Filter` lets us apply logic around the rest of the application.
 This means that we can perform logic before, conditionally invoke the rest of the application, and perform logic afterwards in any servlet container.
 
 == Registering a Servlet Filter
 
-In order for a servlet `Filter` to be invoked, it must be registered with the Servlet container.
+In order for a servlet `Filter` to be invoked, it must be registered with the servlet container.
 
 The following example shows how to do so in XML:
 
