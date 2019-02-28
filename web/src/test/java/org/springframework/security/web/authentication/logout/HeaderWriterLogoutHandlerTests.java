@@ -20,24 +20,23 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
+import org.springframework.security.web.header.HeaderWriter;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.mockito.Mockito.verify;
 
 /**
  *
  * @author Rafiullah Hamedy
+ * @author Josh Cummings
  *
  * @see {@link HeaderWriterLogoutHandler}
  */
 public class HeaderWriterLogoutHandlerTests {
-	private static final String HEADER_NAME = "Clear-Site-Data";
-
 	private MockHttpServletResponse response;
 	private MockHttpServletRequest request;
 
@@ -51,54 +50,19 @@ public class HeaderWriterLogoutHandlerTests {
 	}
 
 	@Test
-	public void createInstanceWhenHeaderWriterIsNullThenThrowsException() {
+	public void constructorWhenHeaderWriterIsNullThenThrowsException() {
 		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("headerWriter cannot be null.");
+		this.thrown.expectMessage("headerWriter cannot be null");
 
 		new HeaderWriterLogoutHandler(null);
 	}
 
 	@Test
-	public void createInstanceWhenSourceIsNullThenThrowsException() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Sources cannot be empty or null.");
+	public void logoutWhenHasHeaderWriterThenInvoked() {
+		HeaderWriter headerWriter = mock(HeaderWriter.class);
+		HeaderWriterLogoutHandler handler = new HeaderWriterLogoutHandler(headerWriter);
+		handler.logout(this.request, this.response, mock(Authentication.class));
 
-		new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter());
-	}
-
-	@Test
-	public void logoutWhenRequestIsNotSecureThenHeaderIsNotPresent() {
-		HeaderWriterLogoutHandler handler = new HeaderWriterLogoutHandler(
-				new ClearSiteDataHeaderWriter("cache"));
-
-		handler.logout(request, response, mock(Authentication.class));
-
-		assertThat(header().doesNotExist(HEADER_NAME));
-	}
-
-	@Test
-	public void logoutWhenRequestIsSecureThenHeaderIsPresentMatchesWildCardSource() {
-		HeaderWriterLogoutHandler handler = new HeaderWriterLogoutHandler(
-				new ClearSiteDataHeaderWriter("*"));
-
-		this.request.setSecure(true);
-
-		handler.logout(request, response, mock(Authentication.class));
-
-		assertThat(header().stringValues(HEADER_NAME, "\"*\""));
-	}
-
-	@Test
-	public void logoutWhenRequestIsSecureThenHeaderValueMatchesSource() {
-		HeaderWriterLogoutHandler handler = new HeaderWriterLogoutHandler(
-				new ClearSiteDataHeaderWriter("cache", "cookies", "storage",
-						"executionContexts"));
-
-		this.request.setSecure(true);
-
-		handler.logout(request, response, mock(Authentication.class));
-
-		assertThat(header().stringValues(HEADER_NAME, "\"cache\", \"cookies\", \"storage\", "
-				+ "\"executionContexts\""));
+		verify(headerWriter).writeHeaders(this.request, this.response);
 	}
 }

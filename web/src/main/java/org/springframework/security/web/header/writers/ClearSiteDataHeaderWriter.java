@@ -67,7 +67,7 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 	 * @throws {@link IllegalArgumentException} if sources is null or empty.
 	 */
 	public ClearSiteDataHeaderWriter(String ...sources) {
-		Assert.notEmpty(sources, "Sources cannot be empty or null.");
+		Assert.notEmpty(sources, "sources cannot be empty or null");
 		this.requestMatcher = new SecureRequestMatcher();
 		this.headerValue = Stream.of(sources).map(this::quote).collect(Collectors.joining(", "));
 	}

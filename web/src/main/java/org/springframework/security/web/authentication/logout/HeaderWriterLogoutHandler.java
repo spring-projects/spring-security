@@ -38,7 +38,7 @@ public final class HeaderWriterLogoutHandler implements LogoutHandler {
 	 * @throws {@link IllegalArgumentException} if headerWriter is null.
 	 */
 	public HeaderWriterLogoutHandler(HeaderWriter headerWriter) {
-		Assert.notNull(headerWriter, "headerWriter cannot be null.");
+		Assert.notNull(headerWriter, "headerWriter cannot be null");
 		this.headerWriter = headerWriter;
 	}
 
