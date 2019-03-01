@@ -39,7 +39,7 @@ allprojects {
 	mavenCentral()
 	maven { url "https://repo.spring.io/libs-snapshot" }
 	maven { url "https://repo.spring.io/plugins-release" }
-	maven { url "http://repo.terracotta.org/maven2/" }
+	maven { url "https://repo.terracotta.org/maven2/" }
 	}
 
 }
