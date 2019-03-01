@@ -4,11 +4,11 @@ repositories {
     mavenCentral()
     maven {
         name = 'SpringSource Enterprise Release'
-        url = 'http://repository.springsource.com/maven/bundles/release'
+        url = 'https://repository.springsource.com/maven/bundles/release'
     }
     maven {
         name = 'SpringSource Enterprise External'
-        url = 'http://repository.springsource.com/maven/bundles/external'
+        url = 'https://repository.springsource.com/maven/bundles/external'
     }
 }
 

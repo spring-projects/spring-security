@@ -164,9 +164,9 @@ javadoc {
         header = project.name
         outputLevel = org.gradle.external.javadoc.JavadocOutputLevel.QUIET
         links = [
-            "http://static.springsource.org/spring/docs/3.2.x/javadoc-api/",
-            "http://static.springsource.org/spring-ldap/docs/1.3.x/apidocs/",
-            "http://download.oracle.com/javase/6/docs/api/"
+            "https://docs.spring.io/spring/docs/3.2.x/javadoc-api/",
+            "https://docs.spring.io/spring-ldap/docs/1.3.x/apidocs/",
+            "https://download.oracle.com/javase/6/docs/api/"
         ]
         groups = [
             'Spring Security Core':[
@@ -190,7 +190,7 @@ javadoc {
 
 eclipse.classpath.downloadSources = true
 
-// http://forums.gradle.org/gradle/topics/eclipse_wtp_deploys_testcode_to_server_example_provided
+// https://discuss.gradle.org/gradle/topics/eclipse_wtp_deploys_testcode_to_server_example_provided
 eclipse.classpath {
     defaultOutputDir = file('bin/main')
     file.whenMerged { cp ->
