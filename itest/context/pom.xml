@@ -6,15 +6,15 @@
   <version>4.2.11.RELEASE</version>
   <name>itest-context</name>
   <description>itest-context</description>
-  <url>http://spring.io/spring-security</url>
+  <url>https://spring.io/spring-security</url>
   <organization>
     <name>spring.io</name>
-    <url>http://spring.io/</url>
+    <url>https://spring.io/</url>
   </organization>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
