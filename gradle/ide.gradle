@@ -57,7 +57,7 @@ eclipse {
 	}
 }
 
-// http://forums.gradle.org/gradle/topics/eclipse_wtp_deploys_testcode_to_server_example_provided
+// https://discuss.gradle.org/gradle/topics/eclipse_wtp_deploys_testcode_to_server_example_provided
 eclipse.classpath {
 	defaultOutputDir = file('bin/main')
 	file.whenMerged { cp ->
