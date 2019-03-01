@@ -13,7 +13,7 @@ repositories {
     maven {
         // GAE Jars
         name =  'GAE'
-        url = 'http://maven-gae-plugin.googlecode.com/svn/repository'
+        url = 'https://maven-gae-plugin.googlecode.com/svn/repository'
     }
 }
 
