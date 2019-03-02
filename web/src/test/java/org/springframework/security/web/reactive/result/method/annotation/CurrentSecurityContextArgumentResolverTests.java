@@ -21,6 +21,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.expression.BeanResolver;
@@ -33,15 +36,14 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.method.ResolvableMethod;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 
 /**
  * @author Dan Zheng
- * @since 5.2.x
+ * @since 5.2
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CurrentSecurityContextArgumentResolverTests {
@@ -94,6 +96,17 @@ public class CurrentSecurityContextArgumentResolverTests {
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
 		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange);
 		SecurityContext securityContext = (SecurityContext) argument.subscriberContext(context).cast(Mono.class).block().block();
+		assertThat(securityContext.getAuthentication()).isSameAs(auth);
+		ReactiveSecurityContextHolder.clearContext();
+	}
+
+	@Test
+	public void resolveArgumentWithCustomSecurityContext() throws Exception {
+		MethodParameter parameter = ResolvableMethod.on(getClass()).named("customSecurityContext").build().arg(Mono.class, SecurityContext.class);
+		Authentication auth = buildAuthenticationWithPrincipal("hello");
+		Context context = ReactiveSecurityContextHolder.withSecurityContext(Mono.just(new CustomSecurityContext(auth)));
+		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange);
+		CustomSecurityContext securityContext = (CustomSecurityContext) argument.subscriberContext(context).cast(Mono.class).block().block();
 		assertThat(securityContext.getAuthentication()).isSameAs(auth);
 		ReactiveSecurityContextHolder.clearContext();
 	}
@@ -216,6 +229,8 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 	void securityContext(@CurrentSecurityContext Mono<SecurityContext> monoSecurityContext) {}
 
+	void customSecurityContext(@CurrentSecurityContext Mono<SecurityContext> monoSecurityContext) {}
+
 	void securityContextWithAuthentication(@CurrentSecurityContext(expression = "authentication") Mono<Authentication> authentication) {}
 
 	void securityContextWithDepthPropOptional(@CurrentSecurityContext(expression = "authentication?.principal") Mono<Object> principal) {}
@@ -230,7 +245,21 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 	void errorOnInvalidTypeWhenExplicitTrue(@CurrentSecurityContext(errorOnInvalidType = true) Mono<String> implicit) {}
 
+	static class CustomSecurityContext implements SecurityContext {
+		private Authentication authentication;
+		public CustomSecurityContext(Authentication authentication) {
+			this.authentication = authentication;
+		}
+		@Override
+		public Authentication getAuthentication() {
+			return authentication;
+		}
 
+		@Override
+		public void setAuthentication(Authentication authentication) {
+			this.authentication = authentication;
+		}
+	}
 	private Authentication buildAuthenticationWithPrincipal(Object principal) {
 		return new TestingAuthenticationToken(principal, "password",
 				"ROLE_USER");

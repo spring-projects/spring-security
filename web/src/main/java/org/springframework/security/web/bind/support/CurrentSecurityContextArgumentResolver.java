@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package org.springframework.security.web.bind.support;
+
+import java.lang.annotation.Annotation;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -31,8 +33,6 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-
-import java.lang.annotation.Annotation;
 
 /**
  * Allows resolving the {@link SecurityContext} using the
@@ -69,7 +69,7 @@ import java.lang.annotation.Annotation;
  * </p>
  *
  * @author Dan Zheng
- * @since 5.2.x
+ * @since 5.2
  */
 public final class CurrentSecurityContextArgumentResolver
 		implements HandlerMethodArgumentResolver {

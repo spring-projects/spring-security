@@ -40,7 +40,7 @@ import java.lang.annotation.Annotation;
 /**
  * Resolves the SecurityContext
  * @author Dan Zheng
- * @since 5.2.x
+ * @since 5.2
  */
 public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumentResolverSupport {
 
