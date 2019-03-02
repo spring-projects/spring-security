@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
  * argument.
  *
  * @author Dan Zheng
- * @since 5.2.x
+ * @since 5.2
  *
  * See: <a href=
  * "{@docRoot}/org/springframework/security/web/bind/support/CurrentSecurityContextArgumentResolver.html"
@@ -43,29 +43,21 @@ public @interface CurrentSecurityContext {
 	 * @return
 	 */
 	boolean errorOnInvalidType() default false;
+
 	/**
 	 * If specified will use the provided SpEL expression to resolve the security context. This
 	 * is convenient if users need to transform the result.
 	 *
+	 * <pre>
+	 * &#64;CurrentSecurityContext(expression = "authentication") Authentication authentication
+	 * </pre>
+	 *
 	 * <p>
-	 * For example, perhaps the user wants to resolve a CustomUser object that is final
-	 * and is leveraging a UserDetailsService. This can be handled by returning an object
-	 * that looks like:
+	 *    if you want to retrieve more object from the authentcation, you can see the following the expression
 	 * </p>
 	 *
 	 * <pre>
-	 * public class CustomUserUserDetails extends User {
-	 *     // ...
-	 *     public CustomUser getCustomUser() {
-	 *         return customUser;
-	 *     }
-	 * }
-	 * </pre>
-	 *
-	 * Then the user can specify an annotation that looks like:
-	 *
-	 * <pre>
-	 * &#64;CurrentSecurityContext(expression = "authentication")
+	 * &#64;CurrentSecurityContext(expression = "authentication.principal") Object principal
 	 * </pre>
 	 *
 	 * @return the expression to use.
