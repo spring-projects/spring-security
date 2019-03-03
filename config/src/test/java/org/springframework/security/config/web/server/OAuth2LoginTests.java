@@ -218,16 +218,16 @@ public class OAuth2LoginTests {
 	}
 
 	@Test
-	public void oauth2LoginWhenCustomJwtDecoderFactoryThenUsed() {
+	public void oauth2LoginWhenCustomBeansThenUsed() {
 		this.spring.register(OAuth2LoginWithMultipleClientRegistrations.class,
-				OAuth2LoginWithJwtDecoderFactoryBeanConfig.class).autowire();
+				OAuth2LoginWithCustomBeansConfig.class).autowire();
 
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(this.springSecurity)
 				.build();
 
-		OAuth2LoginWithJwtDecoderFactoryBeanConfig config = this.spring.getContext()
-				.getBean(OAuth2LoginWithJwtDecoderFactoryBeanConfig.class);
+		OAuth2LoginWithCustomBeansConfig config = this.spring.getContext()
+				.getBean(OAuth2LoginWithCustomBeansConfig.class);
 
 		OAuth2AuthorizationRequest request = TestOAuth2AuthorizationRequests.request().scope("openid").build();
 		OAuth2AuthorizationResponse response = TestOAuth2AuthorizationResponses.success().build();
@@ -258,10 +258,11 @@ public class OAuth2LoginTests {
 				.expectStatus().is3xxRedirection();
 
 		verify(config.jwtDecoderFactory).createDecoder(any());
+		verify(tokenResponseClient).getTokenResponse(any());
 	}
 
 	@Configuration
-	static class OAuth2LoginWithJwtDecoderFactoryBeanConfig {
+	static class OAuth2LoginWithCustomBeansConfig {
 
 		ServerAuthenticationConverter authenticationConverter = mock(ServerAuthenticationConverter.class);
 
@@ -296,6 +297,11 @@ public class OAuth2LoginTests {
 		@Bean
 		public ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory() {
 			return jwtDecoderFactory;
+		}
+
+		@Bean
+		public ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> oAuth2AccessTokenResponseClient() {
+			return tokenResponseClient;
 		}
 
 		private static class JwtDecoderFactory implements ReactiveJwtDecoderFactory<ClientRegistration> {
