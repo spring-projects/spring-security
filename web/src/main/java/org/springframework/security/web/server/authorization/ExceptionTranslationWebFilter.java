@@ -20,6 +20,11 @@ import reactor.core.publisher.Mono;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.util.Assert;
@@ -36,15 +41,23 @@ public class ExceptionTranslationWebFilter implements WebFilter {
 	private ServerAuthenticationEntryPoint authenticationEntryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
 	private ServerAccessDeniedHandler accessDeniedHandler = new HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN);
+	
+	private AuthenticationTrustResolver authTrustResolver = new AuthenticationTrustResolverImpl();
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return chain.filter(exchange)
-			.onErrorResume(AccessDeniedException.class, denied -> exchange.getPrincipal()
-				.switchIfEmpty( commenceAuthentication(exchange, denied))
-				.flatMap( principal -> this.accessDeniedHandler
-					.handle(exchange, denied))
-			);
+		return ReactiveSecurityContextHolder.getContext()
+				.map(SecurityContext::getAuthentication)
+				.flatMap(authentication -> {
+					return chain.filter(exchange).onErrorResume(AccessDeniedException.class,
+							denied -> exchange.getPrincipal().switchIfEmpty(commenceAuthentication(exchange, denied))
+									.flatMap(principal -> {
+										if (isAnonymous(authentication))
+											return commenceAuthentication(exchange, denied);
+										else
+											return this.accessDeniedHandler.handle(exchange, denied);
+									}));
+				});
 	}
 
 	/**
@@ -71,6 +84,15 @@ public class ExceptionTranslationWebFilter implements WebFilter {
 	private <T> Mono<T> commenceAuthentication(ServerWebExchange exchange, AccessDeniedException denied) {
 		return this.authenticationEntryPoint.commence(exchange, new AuthenticationCredentialsNotFoundException("Not Authenticated", denied))
 			.then(Mono.empty());
+	}
+	
+	/**
+	 * Verify (via {@link AuthenticationTrustResolver}) that the given authentication is anonymous.
+	 * @param authentication to be checked
+	 * @return <code>true</code> if anonymous, otherwise <code>false</code>.
+	 */
+	private boolean isAnonymous(Authentication authentication) {
+		return authTrustResolver.isAnonymous(authentication);
 	}
 }
 
