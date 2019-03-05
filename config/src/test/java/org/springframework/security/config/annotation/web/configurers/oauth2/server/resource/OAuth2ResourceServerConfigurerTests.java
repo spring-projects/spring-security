@@ -33,8 +33,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 
-import com.nimbusds.jose.proc.SecurityContext;
-import com.nimbusds.jwt.proc.JWTProcessor;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.hamcrest.core.AllOf;
@@ -85,7 +83,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.JwtProcessors;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -122,7 +119,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.oauth2.jwt.JwtProcessors.withPublicKey;
+import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
+import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withPublicKey;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -1626,7 +1624,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		JwtDecoder decoder() throws Exception {
 			RSAPublicKey publicKey = (RSAPublicKey)
 					KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(this.spec));
-			return new NimbusJwtDecoder(withPublicKey(publicKey).build());
+			return withPublicKey(publicKey).build();
 		}
 	}
 
@@ -1739,10 +1737,8 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		@Bean
 		NimbusJwtDecoder jwtDecoder() {
-			JWTProcessor<SecurityContext> jwtProcessor =
-					JwtProcessors.withJwkSetUri("https://example.org/.well-known/jwks.json")
-							.restOperations(this.rest).build();
-			return new NimbusJwtDecoder(jwtProcessor);
+			return withJwkSetUri("https://example.org/.well-known/jwks.json")
+					.restOperations(this.rest).build();
 		}
 	}
 

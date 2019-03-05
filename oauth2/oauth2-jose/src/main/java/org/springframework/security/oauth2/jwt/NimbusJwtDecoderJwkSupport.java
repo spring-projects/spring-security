@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 
-import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
+import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 
 /**
  * An implementation of a {@link JwtDecoder} that "decodes" a
@@ -49,7 +49,7 @@ import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUr
  */
 @Deprecated
 public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
-	private JwtProcessors.JwkSetUriJwtProcessorBuilder jwtProcessorBuilder;
+	private NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder jwtDecoderBuilder;
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter =
 			MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
@@ -75,12 +75,12 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 		Assert.hasText(jwkSetUrl, "jwkSetUrl cannot be empty");
 		Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
 
-		this.jwtProcessorBuilder = withJwkSetUri(jwkSetUrl).jwsAlgorithm(jwsAlgorithm);
+		this.jwtDecoderBuilder = withJwkSetUri(jwkSetUrl).jwsAlgorithm(jwsAlgorithm);
 		this.delegate = makeDelegate();
 	}
 
 	private NimbusJwtDecoder makeDelegate() {
-		NimbusJwtDecoder delegate = new NimbusJwtDecoder(this.jwtProcessorBuilder.build());
+		NimbusJwtDecoder delegate = this.jwtDecoderBuilder.build();
 		delegate.setClaimSetConverter(this.claimSetConverter);
 		delegate.setJwtValidator(this.jwtValidator);
 		return delegate;
@@ -121,7 +121,7 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	 */
 	public final void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");
-		this.jwtProcessorBuilder = this.jwtProcessorBuilder.restOperations(restOperations);
+		this.jwtDecoderBuilder = this.jwtDecoderBuilder.restOperations(restOperations);
 		this.delegate = makeDelegate();
 	}
 }

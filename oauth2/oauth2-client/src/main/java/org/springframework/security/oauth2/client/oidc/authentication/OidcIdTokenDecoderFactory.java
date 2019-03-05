@@ -15,6 +15,10 @@
  */
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -27,11 +31,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-
-import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
+import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 
 /**
  * A {@link JwtDecoderFactory factory} that provides a {@link JwtDecoder}
@@ -65,7 +65,7 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 			String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
-			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withJwkSetUri(jwkSetUri).build());
+			NimbusJwtDecoder jwtDecoder = withJwkSetUri(jwkSetUri).build();
 			OAuth2TokenValidator<Jwt> jwtValidator = this.jwtValidatorFactory.apply(clientRegistration);
 			jwtDecoder.setJwtValidator(jwtValidator);
 			return jwtDecoder;
