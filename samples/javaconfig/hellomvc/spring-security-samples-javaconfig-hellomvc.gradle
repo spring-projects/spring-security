@@ -3,7 +3,6 @@ apply plugin: 'io.spring.convention.spring-sample-war'
 dependencies {
 	compile project(':spring-security-config')
 	compile project(':spring-security-core')
-	compile project(':spring-security-samples-javaconfig-messages')
 	compile project(':spring-security-web')
 	compile 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api'
 	compile 'javax.validation:validation-api'
@@ -11,6 +10,8 @@ dependencies {
 	compile 'org.hibernate:hibernate-validator'
 	compile 'org.springframework:spring-jdbc'
 	compile 'org.springframework:spring-webmvc'
+	compile 'org.thymeleaf:thymeleaf'
+	compile 'org.thymeleaf:thymeleaf-spring5'
 	compile slf4jDependencies
 
 	providedCompile 'javax.servlet.jsp:javax.servlet.jsp-api'

@@ -1,9 +1,4 @@
-[[overall-architecture]]
-= Architecture and Implementation
-Once you are familiar with setting up and running some namespace-configuration based applications, you may wish to develop more of an understanding of how the framework actually works behind the namespace facade.
-Like most software, Spring Security has certain central interfaces, classes and conceptual abstractions that are commonly used throughout the framework.
-In this part of the reference guide we will look at some of these and see how they work together to support authentication and access-control within Spring Security.
+[[servlet-architecture]]
+= Servlet Architecture Overview
 
-include::technical-overview.adoc[]
-
-include::core-services.adoc[]
+include::overview.adoc[leveloffset=+1]

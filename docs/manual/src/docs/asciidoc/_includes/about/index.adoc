@@ -1,0 +1,17 @@
+= About
+
+// FIXME: guidance on getting started
+Spring Security provides first class authentication, authorization, and protection against common attacks for web applications deployed in <<servlet,servlet container>> and <<reactive,reactive>> applications.
+Continue reading to learn more about the <<prerequisites,prerequisites>>, <<new,what's new>>, <<getting, getting Spring Security>>, and our extensive collection of <<samples,samples>>.
+
+include::prerequisites.adoc[leveloffset=+1]
+
+include::community.adoc[leveloffset=+1]
+
+include::whats-new.adoc[]
+
+include::getting-spring-security.adoc[leveloffset=+1]
+
+include::modules.adoc[leveloffset=+1]
+
+include::samples.adoc[leveloffset=+1]

@@ -5,12 +5,9 @@ Ben Alex; Luke Taylor; Rob Winch; Gunnar Hillert; Joe Grandja; Jay Bryant
 :source-indent: 0
 :tabsize: 4
 
-// FIXME: Add links for authentication, authorization, common attacks
-Spring Security is a framework that provides authentication, authorization, and protection against common attacks.
-// FIXME: Add links for imperative and reactive applications
-With first class support for both imperative and reactive applications, it is the de-facto standard for securing Spring-based applications.
+Spring Security provides first class authentication, authorization, and protection against common attacks for web applications deployed in a <<servlet,servlet container>> and <<reactive,reactive applications>>.
 
-include::{include-dir}/preface/index.adoc[]
+include::{include-dir}/about/index.adoc[]
 
 include::{include-dir}/servlet/index.adoc[]
 

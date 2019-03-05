@@ -1,12 +1,12 @@
 
 [[core-services]]
-== Core Services
+= Core Services
 Now that we have a high-level overview of the Spring Security architecture and its core classes, let's take a closer look at one or two of the core interfaces and their implementations, in particular the `AuthenticationManager`, `UserDetailsService` and the `AccessDecisionManager`.
 These crop up regularly throughout the remainder of this document so it's important you know how they are configured and how they operate.
 
 
 [[core-services-authentication-manager]]
-=== The AuthenticationManager, ProviderManager and AuthenticationProvider
+== The AuthenticationManager, ProviderManager and AuthenticationProvider
 The `AuthenticationManager` is just an interface, so the implementation can be anything we choose, but how does it work in practice? What if we need to check multiple authentication databases or a combination of different authentication services such as a database and an LDAP server?
 
 The default implementation in Spring Security is called `ProviderManager` and rather than handling the authentication request itself, it delegates to a list of configured `AuthenticationProvider` s, each of which is queried in turn to see if it can perform the authentication.
@@ -18,7 +18,7 @@ The loaded `UserDetails` object - and particularly the `GrantedAuthority` s it c
 
 If you are using the namespace, an instance of `ProviderManager` is created and maintained internally, and you add providers to it by using the namespace authentication provider elements (see <<ns-auth-manager,the namespace chapter>>).
 In this case, you should not declare a `ProviderManager` bean in your application context.
-However, if you are not using the namespace then you would declare it like so:
+However, if you are not using the namesace then you would declare it like so:
 
 [source,xml]
 ----
@@ -49,7 +49,7 @@ You needn't be too concerned about this, because if you forget to register a sui
 
 
 [[core-services-erasing-credentials]]
-==== Erasing Credentials on Successful Authentication
+=== Erasing Credentials on Successful Authentication
 By default (from Spring Security 3.1 onwards) the `ProviderManager` will attempt to clear any sensitive credentials information from the `Authentication` object which is returned by a successful authentication request.
 This prevents information like passwords being retained longer than necessary.
 
@@ -62,7 +62,7 @@ See the Javadoc for more information.
 
 
 [[core-services-dao-provider]]
-==== DaoAuthenticationProvider
+=== DaoAuthenticationProvider
 The simplest `AuthenticationProvider` implemented by Spring Security is `DaoAuthenticationProvider`, which is also one of the earliest supported by the framework.
 It leverages a `UserDetailsService` (as a DAO) in order to lookup the username, password and `GrantedAuthority` s.
 It authenticates the user simply by comparing the password submitted in a `UsernamePasswordAuthenticationToken` against the one loaded by the `UserDetailsService`.
@@ -83,7 +83,7 @@ A `PasswordEncoder` provides encoding and decoding of passwords presented in the
 This will be discussed in more detail <<core-services-password-encoding,below>>.
 
 
-=== UserDetailsService Implementations
+== UserDetailsService Implementations
 As mentioned in the earlier in this reference guide, most authentication providers take advantage of the `UserDetails` and `UserDetailsService` interfaces.
 Recall that the contract for `UserDetailsService` is a single method:
 
@@ -101,7 +101,7 @@ Having said that, Spring Security does include a couple of useful base implement
 
 
 [[core-services-in-memory-service]]
-==== In-Memory Authentication
+=== In-Memory Authentication
 Is easy to use create a custom `UserDetailsService` implementation that extracts information from a persistence engine of choice, but many applications do not require such complexity.
 This is particularly true if you're building a prototype application or just starting integrating Spring Security, when you don't really want to spend time configuring databases or writing `UserDetailsService` implementations.
 For this sort of situation, a simple option is to use the `user-service` element from the security <<ns-minimal,namespace>>:
@@ -141,7 +141,7 @@ bob=bobspassword,ROLE_USER,enabled
 ----
 
 [[core-services-jdbc-user-service]]
-==== JdbcDaoImpl
+=== JdbcDaoImpl
 Spring Security also includes a `UserDetailsService` that can obtain authentication information from a JDBC data source.
 Internally Spring JDBC is used, so it avoids the complexity of a fully-featured object relational mapper (ORM) just to store user details.
 If your application does use an ORM tool, you might prefer to write a custom `UserDetailsService` to reuse the mapping files you've probably already created.
@@ -165,14 +165,12 @@ Returning to `JdbcDaoImpl`, an example configuration is shown below:
 You can use different relational database management systems by modifying the `DriverManagerDataSource` shown above.
 You can also use a global data source obtained from JNDI, as with any other Spring configuration.
 
-===== Authority Groups
+==== Authority Groups
 By default, `JdbcDaoImpl` loads the authorities for a single user with the assumption that the authorities are mapped directly to users (see the <<appendix-schema,database schema appendix>>).
 An alternative approach is to partition the authorities into groups and assign groups to the user.
 Some people prefer this approach as a means of administering user rights.
 See the `JdbcDaoImpl` Javadoc for more information on how to enable the use of group authorities.
 The group schema is also included in the appendix.
 
-include::password-encoder.adoc[leveloffset=+2]
 
-include::jackson.adoc[]
 

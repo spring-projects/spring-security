@@ -1,0 +1,18 @@
+[[jc-authentication-inmemory]]
+= In-Memory Authentication
+
+We have already seen an example of configuring in-memory authentication for a single user.
+Below is an example to configure multiple users:
+
+[source,java]
+----
+@Bean
+public UserDetailsService userDetailsService() throws Exception {
+	// ensure the passwords are encoded properly
+	UserBuilder users = User.withDefaultPasswordEncoder();
+	InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+	manager.createUser(users.username("user").password("password").roles("USER").build());
+	manager.createUser(users.username("admin").password("password").roles("USER","ADMIN").build());
+	return manager;
+}
+----

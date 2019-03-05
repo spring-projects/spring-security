@@ -1,0 +1,148 @@
+[[servlet-hello-xml]]
+= Hello Spring Security (XML)
+
+This section covers how to use Spring Security with XML Configuration.
+For how to use Spring Security with Java configuration, see <<servlet-hello-jc>>.
+For how to use Spring Security with Spring Boot configuration, see <<servlet-hello-boot>>.
+
+== Updating Dependencies
+
+The first step is to update the dependencies by using <<maven-without-spring-boot,Maven>> or <<gradle-without-spring-boot,Gradle>>.
+
+
+[[servlet-hello-xml-http]]
+== Minimal `<http>` Configuration
+
+In this section, we discuss how to use Spring Security with XML Configuration.
+
+NOTE: The completed application can be found at {gh-samples-url}/xml/helloworld[samples/xml/helloworld]
+// FIXME: Link to Java Configuration and Boot
+
+The first step is to create our Spring Security XML Configuration.
+The configuration creates a Servlet `Filter` (known as the `springSecurityFilterChain`), which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, and so on) within your application.
+The following example shows the most basic example of a Spring Security XML Configuration:
+
+.src/main/webapp/WEB-INF/spring/security.xml
+====
+[source,xml]
+----
+<b:beans xmlns="http://www.springframework.org/schema/security"
+		 xmlns:b="http://www.springframework.org/schema/beans"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	<http />
+
+	<user-service>
+		<user name="user" password="{noop}password" authorities="ROLE_USER" />
+	</user-service>
+</b:beans>
+
+----
+====
+
+
+There really is not much to this configuration, but it does a lot.
+A summary of the features follows:
+
+* Require an authenticated user for any interaction with the application
+* Generate a default login form for you
+* Lets the user with a username of `user` and a password of `password` authenticate with form-based authentication
+* Protects the password storage with BCrypt
+* Lets the user to log out
+* http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
+* http://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
+* Security Header integration
+** http://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HTTP Strict Transport Security] for secure requests
+** http://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx[X-Content-Type-Options] integration
+** Cache Control (can be overridden later by your application to allow caching of your static resources)
+** http://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-Protection] integration
+** X-Frame-Options integration to help prevent http://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
+* Integrate with the following Servlet API methods:
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[`HttpServletRequest#getRemoteUser()`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[`HttpServletRequest.html#getUserPrincipal()`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[`HttpServletRequest.html#isUserInRole(java.lang.String)`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[`HttpServletRequest.html#login(java.lang.String, java.lang.String)`]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[`HttpServletRequest.html#logout()`]
+
+// FIXME: After completed rewriting, link to all the sections of doc that this relates to
+
+
+[[servlet-hello-xml-webxml]]
+== `web.xml` Configuration
+
+The next step is to ensure that our Security configuration is being read in.
+To do so, we need to ensure a `ContextLoaderListener` is registered and the `contextConfigLocation` is including the configuration.
+The following example shows how to do so:
+
+.src/main/webapp/WEB-INF/web.xml
+====
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+  http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+	<!--
+		Loads the Spring configurations from contextConfigLocation
+	-->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!--
+		The locations of the Spring Configuration. In this case, all configuration is
+		in /WEB-INF/spring/
+	-->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			/WEB-INF/spring/*.xml
+		</param-value>
+	</context-param>
+
+	<!--
+		DelegatingFilterProxy looks for a Spring bean by the name of filter (springSecurityFilterChain) and delegates
+		all work to that Bean. This is how the Servlet Container can a Spring Bean to act as a Servlet Filter.
+	-->
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+</web-app>
+----
+====
+
+[NOTE]
+====
+If you integrate with an existing Spring MVC application, be sure to configure the `DispatcherServlet` to load the configuration from the root `ApplicationContext`.
+The following example shows how to do so:
+
+=====
+.src/main/webapp/WEB-INF/web.xml
+[source,xml]
+----
+<servlet>
+	<servlet-name>spring</servlet-name>
+	<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+	<!-- Load Spring MVC configuration from root ApplicationContext (context-param from above) -->
+	<init-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value></param-value>
+	</init-param>
+</servlet>
+
+<servlet-mapping>
+  <servlet-name>spring</servlet-name>
+  <url-pattern>/</url-pattern>
+</servlet-mapping>
+----
+=====
+====

@@ -1,0 +1,13 @@
+= Integrations
+
+Integrations with other frameworks, libraries, and APIs.
+
+include::servlet-api.adoc[leveloffset=+1]
+include::spring-data.adoc[leveloffset=+1]
+include::concurrency.adoc[leveloffset=+1]
+include::jackson.adoc[leveloffset=+1]
+include::localization.adoc[leveloffset=+1]
+include::mvc.adoc[leveloffset=+1]
+include::websocket.adoc[leveloffset=+1]
+include::cors.adoc[leveloffset=+1]
+include::jsp-taglibs.adoc[leveloffset=+1]

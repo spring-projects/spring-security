@@ -1,0 +1,33 @@
+[[ns-access-manager]]
+= The Default AccessDecisionManager
+This section assumes you have some knowledge of the underlying architecture for access-control within Spring Security.
+If you don't you can skip it and come back to it later, as this section is only really relevant for people who need to do some customization in order to use more than simple role-based security.
+
+When you use a namespace configuration, a default instance of `AccessDecisionManager` is automatically registered for you and will be used for making access decisions for method invocations and web URL access, based on the access attributes you specify in your `intercept-url` and `protect-pointcut` declarations (and in annotations if you are using annotation secured methods).
+
+The default strategy is to use an `AffirmativeBased` `AccessDecisionManager` with a `RoleVoter` and an `AuthenticatedVoter`.
+You can find out more about these in the chapter on <<authz-arch,authorization>>.
+
+
+[[ns-custom-access-mgr]]
+== Customizing the AccessDecisionManager
+If you need to use a more complicated access control strategy then it is easy to set an alternative for both method and web security.
+
+For method security, you do this by setting the `access-decision-manager-ref` attribute on `global-method-security` to the `id` of the appropriate `AccessDecisionManager` bean in the application context:
+
+[source,xml]
+----
+<global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
+...
+</global-method-security>
+----
+
+The syntax for web security is the same, but on the `http` element:
+
+[source,xml]
+----
+<http access-decision-manager-ref="myAccessDecisionManagerBean">
+...
+</http>
+----
+
