@@ -45,7 +45,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
-import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
+import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 
 /**
  *
@@ -246,7 +246,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 
 		public JwtConfigurer jwkSetUri(String uri) {
-			this.decoder = new NimbusJwtDecoder(withJwkSetUri(uri).build());
+			this.decoder = withJwkSetUri(uri).build();
 			return this;
 		}
 

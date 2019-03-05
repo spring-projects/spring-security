@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,15 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Map;
 
@@ -31,6 +38,7 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import okhttp3.mockwebserver.MockWebServer;
 import org.assertj.core.api.Assertions;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import org.springframework.core.convert.converter.Converter;
@@ -40,6 +48,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +58,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
+import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
+import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withPublicKey;
 
 /**
  * Tests for {@link NimbusJwtDecoder}
@@ -65,7 +75,19 @@ public class NimbusJwtDecoderTests {
 	private static final String UNSIGNED_JWT = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOi0yMDMzMjI0OTcsImp0aSI6IjEyMyIsInR5cCI6IkpXVCJ9.";
 	private static final String EMPTY_EXP_CLAIM_JWT = "eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJhdWRpZW5jZSJ9.D1eT0jpBEpuh74p-YT-uF81Z7rkVqIpUtJ5hWWFiVShZ9s8NIntK4Q1GlvlziiySSaVYaXtpTmDB3c8r-Z5Mj4ibihiueCSq7jaPD3sA8IMQKL-L6Uol8MSD_lSFE2n3fVBTxFeaejBKfZsDxnhzgpy8g7PncR47w8NHs-7tKO4qw7G_SV3hkNpDNoqZTfMImxyWEebgKM2pJAhN4das2CO1KAjYMfEByLcgYncE8fzdYPJhMFo2XRRSQABoeUBuKSAwIntBaOGvcb-qII_Hefc5U0cmpNItG75F2XfX803plKI4FFpAxJsbPKWSQmhs6bZOrhx0x74pY5LS3ghmJw";
 
+	private static final String JWK_SET_URI = "http://issuer/.well-known/jwks.json";
+	private static final String RS512_SIGNED_JWT = "eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJ0ZXN0LXN1YmplY3QiLCJleHAiOjE5NzQzMjYxMTl9.LKAx-60EBfD7jC1jb1eKcjO4uLvf3ssISV-8tN-qp7gAjSvKvj4YA9-V2mIb6jcS1X_xGmNy6EIimZXpWaBR3nJmeu-jpe85u4WaW2Ztr8ecAi-dTO7ZozwdtljKuBKKvj4u1nF70zyCNl15AozSG0W1ASrjUuWrJtfyDG6WoZ8VfNMuhtU-xUYUFvscmeZKUYQcJ1KS-oV5tHeF8aNiwQoiPC_9KXCOZtNEJFdq6-uzFdHxvOP2yex5Gbmg5hXonauIFXG2ZPPGdXzm-5xkhBpgM8U7A_6wb3So8wBvLYYm2245QUump63AJRAy8tQpwt4n9MvQxQgS3z9R-NK92A";
+	private static final String RS256_SIGNED_JWT = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0LXN1YmplY3QiLCJleHAiOjE5NzQzMjYzMzl9.CT-H2OWEqmSs1NWmnta5ealLFvM8OlbQTjGhfRcKLNxrTrzsOkqBJl-AN3k16BQU7mS32o744TiiZ29NcDlxPsr1MqTlN86-dobPiuNIDLp3A1bOVdXMcVFuMYkrNv0yW0tGS9OjEqsCCuZDkZ1by6AhsHLbGwRY-6AQdcRouZygGpOQu1hNun5j8q5DpSTY4AXKARIFlF-O3OpVbPJ0ebr3Ki-i3U9p_55H0e4-wx2bqcApWlqgofl1I8NKWacbhZgn81iibup2W7E0CzCzh71u1Mcy3xk1sYePx-dwcxJnHmxJReBBWjJZEAeCrkbnn_OCuo2fA-EQyNJtlN5F2w";
+	private static final String VERIFY_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq4yKxb6SNePdDmQi9xFCrP6QvHosErQzryknQTTTffs0t3cy3Er3lIceuhZ7yQNSCDfPFqG8GoyoKhuChRiA5D+J2ab7bqTa1QJKfnCyERoscftgN2fXPHjHoiKbpGV2tMVw8mXl//tePOAiKbMJaBUnlAvJgkk1rVm08dSwpLC1sr2M19euf9jwnRGkMRZuhp9iCPgECRke5T8Ixpv0uQjSmGHnWUKTFlbj8sM83suROR1Ue64JSGScANc5vk3huJ/J97qTC+K2oKj6L8d9O8dpc4obijEOJwpydNvTYDgbiivYeSB00KS9jlBkQ5B2QqLvLVEygDl3dp59nGx6YQIDAQAB";
+
+	private static KeyFactory kf;
+
 	NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withoutSigning());
+
+	@BeforeClass
+	public static void keyFactory() throws NoSuchAlgorithmException {
+		kf = KeyFactory.getInstance("RSA");
+	}
 
 	@Test
 	public void constructorWhenJwtProcessorIsNullThenThrowIllegalArgumentException() {
@@ -180,8 +202,7 @@ public class NimbusJwtDecoderTests {
 	public void decodeWhenJwkEndpointIsUnresponsiveThenReturnsJwtException() throws Exception {
 		try ( MockWebServer server = new MockWebServer() ) {
 			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
-			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(
-					withJwkSetUri(jwkSetUri).build());
+			NimbusJwtDecoder jwtDecoder = withJwkSetUri(jwkSetUri).build();
 
 			server.shutdown();
 			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT))
@@ -190,13 +211,75 @@ public class NimbusJwtDecoderTests {
 		}
 	}
 
+	@Test
+	public void withJwkSetUriWhenNullOrEmptyThenThrowsException() {
+		Assertions.assertThatCode(() -> withJwkSetUri(null)).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void jwsAlgorithmWhenNullOrEmptyThenThrowsException() {
+		NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = withJwkSetUri(JWK_SET_URI);
+		Assertions.assertThatCode(() -> builder.jwsAlgorithm(null)).isInstanceOf(IllegalArgumentException.class);
+		Assertions.assertThatCode(() -> builder.jwsAlgorithm("")).isInstanceOf(IllegalArgumentException.class);
+		Assertions.assertThatCode(() -> builder.jwsAlgorithm("RS4096")).doesNotThrowAnyException();
+	}
+
+	@Test
+	public void restOperationsWhenNullThenThrowsException() {
+		NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = withJwkSetUri(JWK_SET_URI);
+		Assertions.assertThatCode(() -> builder.restOperations(null)).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void withPublicKeyWhenNullThenThrowsException() {
+		assertThatThrownBy(() -> withPublicKey(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void buildWhenSignatureAlgorithmMismatchesKeyTypeThenThrowsException() {
+		Assertions.assertThatCode(() -> withPublicKey(key())
+				.jwsAlgorithm(JwsAlgorithms.ES256)
+				.build())
+				.isInstanceOf(IllegalStateException.class);
+	}
+
+	@Test
+	public void decodeWhenUsingPublicKeyThenSuccessfullyDecodes() throws Exception {
+		NimbusJwtDecoder decoder = withPublicKey(key()).build();
+		assertThat(decoder.decode(RS256_SIGNED_JWT))
+				.extracting(Jwt::getSubject)
+				.isEqualTo("test-subject");
+	}
+
+	@Test
+	public void decodeWhenUsingPublicKeyWithRs512ThenSuccessfullyDecodes() throws Exception {
+		NimbusJwtDecoder decoder = withPublicKey(key()).jwsAlgorithm(JwsAlgorithms.RS512).build();
+		assertThat(decoder.decode(RS512_SIGNED_JWT))
+				.extracting(Jwt::getSubject)
+				.isEqualTo("test-subject");
+	}
+
+	@Test
+	public void decodeWhenSignatureMismatchesAlgorithmThenThrowsException() throws Exception {
+		NimbusJwtDecoder decoder = withPublicKey(key()).jwsAlgorithm(JwsAlgorithms.RS512).build();
+		Assertions.assertThatCode(() -> decoder.decode(RS256_SIGNED_JWT))
+				.isInstanceOf(JwtException.class);
+	}
+
+	private RSAPublicKey key() throws InvalidKeySpecException {
+		byte[] decoded = Base64.getDecoder().decode(VERIFY_KEY.getBytes());
+		EncodedKeySpec spec = new X509EncodedKeySpec(decoded);
+		return (RSAPublicKey) kf.generatePublic(spec);
+	}
+
 	private static JWTProcessor<SecurityContext> withSigning(String jwkResponse) {
 		RestOperations restOperations = mock(RestOperations.class);
 		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.thenReturn(new ResponseEntity<>(jwkResponse, HttpStatus.OK));
 		return withJwkSetUri("http://issuer/.well-known/jwks.json")
 				.restOperations(restOperations)
-				.build();
+				.processor();
 	}
 
 	private static JWTProcessor<SecurityContext> withoutSigning() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import static org.springframework.security.oauth2.jwt.JwtProcessors.withJwkSetUri;
+import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 
 /**
  * Allows creating a {@link JwtDecoder} from an
@@ -60,8 +60,7 @@ public final class JwtDecoders {
 		OAuth2TokenValidator<Jwt> jwtValidator =
 				JwtValidators.createDefaultWithIssuer(oidcIssuerLocation);
 
-		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(
-				withJwkSetUri(openidConfiguration.get("jwks_uri").toString()).build());
+		NimbusJwtDecoder jwtDecoder = withJwkSetUri(openidConfiguration.get("jwks_uri").toString()).build();
 		jwtDecoder.setJwtValidator(jwtValidator);
 
 		return jwtDecoder;
