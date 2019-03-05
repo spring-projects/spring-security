@@ -16,10 +16,18 @@
 
 package org.springframework.security.config.web.server;
 
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -27,15 +35,22 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeReactiveAuthenticationManager;
+import org.springframework.security.oauth2.client.web.server.oidc.logout.OidcClientInitiatedServerLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -60,21 +75,21 @@ import org.springframework.security.test.web.reactive.server.WebTestClientBuilde
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.web.server.WebHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -84,6 +99,8 @@ public class OAuth2LoginTests {
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
+
+	private WebTestClient client;
 
 	@Autowired
 	private WebFilterChainProxy springSecurity;
@@ -99,6 +116,14 @@ public class OAuth2LoginTests {
 			.clientId("client")
 			.clientSecret("secret")
 			.build();
+
+	@Autowired
+	public void setApplicationContext(ApplicationContext context) {
+		if (context.getBeanNamesForType(WebHandler.class).length > 0) {
+			this.client = WebTestClient.bindToApplicationContext(context)
+					.build();
+		}
+	}
 
 	@Test
 	public void defaultLoginPageWithMultipleClientRegistrationsThenLinks() {
@@ -326,6 +351,60 @@ public class OAuth2LoginTests {
 		}
 	}
 
+
+	@Test
+	public void logoutWhenUsingOidcLogoutHandlerThenRedirects() throws Exception {
+		this.spring.register(OAuth2LoginConfigWithOidcLogoutSuccessHandler.class).autowire();
+
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
+				TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES,
+				getBean(ClientRegistration.class).getRegistrationId());
+
+		ServerSecurityContextRepository repository = getBean(ServerSecurityContextRepository.class);
+		when(repository.load(any())).thenReturn(authentication(token));
+
+		this.client.post().uri("/logout")
+				.exchange()
+				.expectHeader().valueEquals("Location", "http://logout?id_token_hint=id-token");
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class OAuth2LoginConfigWithOidcLogoutSuccessHandler {
+		private final ServerSecurityContextRepository repository =
+				mock(ServerSecurityContextRepository.class);
+		private final ClientRegistration withLogout =
+				TestClientRegistrations.clientRegistration()
+						.providerConfigurationMetadata(Collections.singletonMap(
+								"end_session_endpoint", "http://logout")).build();
+
+		@Bean
+		public SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+
+			http
+				.csrf().disable()
+				.logout()
+					.logoutSuccessHandler(
+							new OidcClientInitiatedServerLogoutSuccessHandler(
+									new InMemoryReactiveClientRegistrationRepository(this.withLogout)))
+					.and()
+				.securityContextRepository(this.repository);
+
+			return http.build();
+		}
+
+		@Bean
+		ServerSecurityContextRepository securityContextRepository() {
+			return this.repository;
+		}
+
+		@Bean
+		ClientRegistration clientRegistration() {
+			return this.withLogout;
+		}
+	}
+
 	static class GitHubWebFilter implements WebFilter {
 
 		@Override
@@ -335,5 +414,15 @@ public class OAuth2LoginTests {
 			}
 			return chain.filter(exchange);
 		}
+	}
+
+	Mono<SecurityContext> authentication(Authentication authentication) {
+		SecurityContext context = new SecurityContextImpl();
+		context.setAuthentication(authentication);
+		return Mono.just(context);
+	}
+
+	<T> T getBean(Class<T> beanClass) {
+		return this.spring.getContext().getBean(beanClass);
 	}
 }
