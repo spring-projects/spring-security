@@ -16,15 +16,12 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import java.time.Duration;
+import java.time.Instant;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
@@ -33,13 +30,16 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import reactor.test.StepVerifier;
 
-import java.time.Duration;
-import java.time.Instant;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Rob Winch
@@ -208,7 +208,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() throws Exception {
 		this.clientRegistration.userInfoUri("http://invalid-provider.com/user");
 		assertThatThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
-				.isInstanceOf(AuthenticationServiceException.class);
+				.isInstanceOf(OAuth2AuthenticationException.class);
 	}
 
 	private OAuth2UserRequest oauth2UserRequest() {
