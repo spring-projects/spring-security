@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,8 @@ public class ClientRegistrationsTest {
 			+ "    \"token_endpoint\": \"https://example.com/oauth2/v4/token\", \n"
 			+ "    \"token_endpoint_auth_methods_supported\": [\n"
 			+ "        \"client_secret_post\", \n"
-			+ "        \"client_secret_basic\"\n"
+			+ "        \"client_secret_basic\", \n"
+			+ "        \"none\"\n"
 			+ "    ], \n"
 			+ "    \"userinfo_endpoint\": \"https://example.com/oauth2/v3/userinfo\"\n"
 			+ "}";
@@ -119,7 +120,7 @@ public class ClientRegistrationsTest {
 
 	@Test
 	public void issuerWhenAllInformationThenSuccess() throws Exception {
-		ClientRegistration registration = registration("");
+		ClientRegistration registration = registration("").build();
 		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
 
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
@@ -154,7 +155,7 @@ public class ClientRegistrationsTest {
 	public void issuerWhenScopesNullThenScopesDefaulted() throws Exception {
 		this.response.remove("scopes_supported");
 
-		ClientRegistration registration = registration("");
+		ClientRegistration registration = registration("").build();
 
 		assertThat(registration.getScopes()).containsOnly("openid");
 	}
@@ -163,7 +164,7 @@ public class ClientRegistrationsTest {
 	public void issuerWhenGrantTypesSupportedNullThenDefaulted() throws Exception {
 		this.response.remove("grant_types_supported");
 
-		ClientRegistration registration = registration("");
+		ClientRegistration registration = registration("").build();
 
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
@@ -184,7 +185,7 @@ public class ClientRegistrationsTest {
 	public void issuerWhenTokenEndpointAuthMethodsNullThenDefaulted() throws Exception {
 		this.response.remove("token_endpoint_auth_methods_supported");
 
-		ClientRegistration registration = registration("");
+		ClientRegistration registration = registration("").build();
 
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 	}
@@ -193,9 +194,18 @@ public class ClientRegistrationsTest {
 	public void issuerWhenTokenEndpointAuthMethodsPostThenMethodIsPost() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_post"));
 
-		ClientRegistration registration = registration("");
+		ClientRegistration registration = registration("").build();
 
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.POST);
+	}
+
+	@Test
+	public void issuerWhenTokenEndpointAuthMethodsNoneThenMethodIsNone() throws Exception {
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("none"));
+
+		ClientRegistration registration = registration("").build();
+
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.NONE);
 	}
 
 	/**
@@ -208,7 +218,7 @@ public class ClientRegistrationsTest {
 
 		assertThatThrownBy(() -> registration(""))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("Only ClientAuthenticationMethod.BASIC and ClientAuthenticationMethod.POST are supported. The issuer \"" + this.issuer + "\" returned a configuration of [tls_client_auth]");
+				.hasMessageContaining("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and ClientAuthenticationMethod.NONE are supported. The issuer \"" + this.issuer + "\" returned a configuration of [tls_client_auth]");
 	}
 
 	@Test
@@ -229,7 +239,7 @@ public class ClientRegistrationsTest {
 				.hasMessageContaining("The Issuer \"https://example.com\" provided in the OpenID Configuration did not match the requested issuer \"" + this.issuer + "\"");
 	}
 
-	private ClientRegistration registration(String path) throws Exception {
+	private ClientRegistration.Builder registration(String path) throws Exception {
 		this.issuer = createIssuerFromServer(path);
 		this.response.put("issuer", this.issuer);
 		String body = this.mapper.writeValueAsString(this.response);
@@ -240,8 +250,7 @@ public class ClientRegistrationsTest {
 
 		return ClientRegistrations.fromOidcIssuerLocation(this.issuer)
 			.clientId("client-id")
-			.clientSecret("client-secret")
-			.build();
+			.clientSecret("client-secret");
 	}
 
 	private String createIssuerFromServer(String path) {

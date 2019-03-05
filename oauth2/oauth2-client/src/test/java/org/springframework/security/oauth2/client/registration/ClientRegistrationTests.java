@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,6 +172,41 @@ public class ClientRegistrationTests {
 				.clientName(CLIENT_NAME)
 				.build();
 		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+	}
+
+	@Test
+	public void buildWhenAuthorizationCodeGrantClientAuthenticationMethodNotProvidedAndClientSecretNullThenDefaultToNone() {
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(null)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.NONE);
+	}
+
+	@Test
+	public void buildWhenAuthorizationCodeGrantClientAuthenticationMethodNotProvidedAndClientSecretBlankThenDefaultToNone() {
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(" ")
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.NONE);
+		assertThat(clientRegistration.getClientSecret()).isEqualTo("");
 	}
 
 	@Test(expected = IllegalArgumentException.class)

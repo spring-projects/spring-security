@@ -31,6 +31,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -621,7 +623,7 @@ public class ServerHttpSecurity {
 		}
 
 		private ReactiveAuthenticationManager createDefault() {
-			WebClientReactiveAuthorizationCodeTokenResponseClient client = new WebClientReactiveAuthorizationCodeTokenResponseClient();
+			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> client = getAccessTokenResponseClient();
 			ReactiveAuthenticationManager result = new OAuth2LoginReactiveAuthenticationManager(client, getOauth2UserService());
 
 			boolean oidcAuthenticationProviderEnabled = ClassUtils.isPresent(
@@ -786,6 +788,15 @@ public class ServerHttpSecurity {
 				result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName());
 			});
 			return result;
+		}
+
+		private ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getAccessTokenResponseClient() {
+			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2AccessTokenResponseClient.class, OAuth2AuthorizationCodeGrantRequest.class);
+			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(type);
+			if (bean == null) {
+				return new WebClientReactiveAuthorizationCodeTokenResponseClient();
+			}
+			return bean;
 		}
 
 		private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
