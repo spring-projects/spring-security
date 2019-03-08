@@ -26,6 +26,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.server.context.SecurityContextServerWebExchange;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.MockServerConfigurer;
@@ -285,11 +286,12 @@ public class SecurityMockServerConfigurers {
 
 		@Override
 		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain webFilterChain) {
-			Supplier<Mono<SecurityContext>> context = exchange.getAttribute(ATTRIBUTE_NAME);
-			if (context != null) {
+			Supplier<Mono<SecurityContext>> contextSupplier = exchange.getAttribute(ATTRIBUTE_NAME);
+			if (contextSupplier != null) {
+				Mono<SecurityContext> context = contextSupplier.get();
 				exchange.getAttributes().remove(ATTRIBUTE_NAME);
-				return webFilterChain.filter(exchange)
-					.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context.get()));
+				return webFilterChain.filter(new SecurityContextServerWebExchange(exchange, context))
+					.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context));
 			}
 			return webFilterChain.filter(exchange);
 		}
