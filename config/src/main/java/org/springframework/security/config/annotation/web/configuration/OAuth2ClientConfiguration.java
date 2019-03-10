@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,19 +15,21 @@
  */
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.List;
 
 /**
  * {@link Configuration} for OAuth 2.0 Client support.
@@ -60,6 +62,7 @@ final class OAuth2ClientConfiguration {
 	static class OAuth2ClientWebMvcSecurityConfiguration implements WebMvcConfigurer {
 		private ClientRegistrationRepository clientRegistrationRepository;
 		private OAuth2AuthorizedClientRepository authorizedClientRepository;
+		private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
 
 		@Override
 		public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
@@ -67,6 +70,9 @@ final class OAuth2ClientConfiguration {
 				OAuth2AuthorizedClientArgumentResolver authorizedClientArgumentResolver =
 						new OAuth2AuthorizedClientArgumentResolver(
 								this.clientRegistrationRepository, this.authorizedClientRepository);
+				if (this.accessTokenResponseClient != null) {
+					authorizedClientArgumentResolver.setClientCredentialsTokenResponseClient(accessTokenResponseClient);
+				}
 				argumentResolvers.add(authorizedClientArgumentResolver);
 			}
 		}
@@ -83,6 +89,12 @@ final class OAuth2ClientConfiguration {
 			if (authorizedClientRepositories.size() == 1) {
 				this.authorizedClientRepository = authorizedClientRepositories.get(0);
 			}
+		}
+
+		@Autowired
+		public void setAccessTokenResponseClient(
+				Optional<OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest>> accessTokenResponseClient) {
+			accessTokenResponseClient.ifPresent(client -> this.accessTokenResponseClient = client);
 		}
 	}
 }
