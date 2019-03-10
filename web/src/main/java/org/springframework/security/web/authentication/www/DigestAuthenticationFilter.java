@@ -431,7 +431,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean
 					.md5Hex(this.nonceExpiryTime + ":" + entryPointKey);
 
 			if (!expectedNonceSignature.equals(nonceTokens[1])) {
-				new BadCredentialsException(DigestAuthenticationFilter.this.messages
+				throw new BadCredentialsException(DigestAuthenticationFilter.this.messages
 						.getMessage("DigestAuthenticationFilter.nonceCompromised",
 								new Object[] { nonceAsPlainText },
 								"Nonce token compromised {0}"));
