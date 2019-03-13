@@ -120,6 +120,22 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 				.switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
 	}
 
+	private String expandAuthorizationUri(ServerHttpRequest request, String authorizationUri) {
+		// Supported URI variables -> baseUrl
+		Map<String, String> uriVariables = new HashMap<>();
+
+		String baseUrl = UriComponentsBuilder.fromHttpRequest(new ServerHttpRequestDecorator(request))
+				.replacePath(request.getPath().contextPath().value())
+				.replaceQuery(null)
+				.build()
+				.toUriString();
+		uriVariables.put("baseUrl", baseUrl);
+
+		return UriComponentsBuilder.fromUriString(authorizationUri)
+				.buildAndExpand(uriVariables)
+				.toUriString();
+	}
+
 	private OAuth2AuthorizationRequest authorizationRequest(ServerWebExchange exchange,
 			ClientRegistration clientRegistration) {
 		String redirectUriStr = this
@@ -147,7 +163,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 		}
 		return builder
 				.clientId(clientRegistration.getClientId())
-				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+				.authorizationUri(expandAuthorizationUri(exchange.getRequest(),
+						clientRegistration.getProviderDetails().getAuthorizationUri()))
 				.redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
 				.state(this.stateGenerator.generateKey())
 				.attributes(attributes)

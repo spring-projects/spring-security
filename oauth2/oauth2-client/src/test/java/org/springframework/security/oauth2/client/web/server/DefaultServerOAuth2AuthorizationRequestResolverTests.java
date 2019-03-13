@@ -85,6 +85,21 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 				"redirect_uri=/login/oauth2/code/registration-id");
 	}
 
+	@Test
+	public void resolveWhenAuthorizationRequestAuthorizationUriTemplatedThenAuthorizationUriExpanded() {
+		ClientRegistration registration = TestClientRegistrations.clientRegistration3().build();
+
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(
+				Mono.just(registration));
+
+		OAuth2AuthorizationRequest request = resolve("https://example.com/oauth2/authorization/id");
+
+		assertThat(request.getAuthorizationRequestUri()).matches("https://example.com/login/oauth/authorize\\?" +
+				"response_type=code&client_id=client-id-3&" +
+				"scope=read:user&state=.*?&" +
+				"redirect_uri=https://example.com/login/oauth2/code/registration-id-3");
+	}
+
 	private OAuth2AuthorizationRequest resolve(String path) {
 		ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(path));
 		return this.resolver.resolve(exchange).block();

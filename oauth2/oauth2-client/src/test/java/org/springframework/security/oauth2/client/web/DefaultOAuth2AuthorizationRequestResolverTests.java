@@ -41,6 +41,7 @@ import static org.assertj.core.api.Assertions.entry;
 public class DefaultOAuth2AuthorizationRequestResolverTests {
 	private ClientRegistration registration1;
 	private ClientRegistration registration2;
+	private ClientRegistration registration3;
 	private ClientRegistration pkceRegistration;
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private String authorizationRequestBaseUri = "/oauth2/authorization";
@@ -50,6 +51,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	public void setUp() {
 		this.registration1 = TestClientRegistrations.clientRegistration().build();
 		this.registration2 = TestClientRegistrations.clientRegistration2().build();
+		this.registration3 = TestClientRegistrations.clientRegistration3().build();
 		this.pkceRegistration = TestClientRegistrations.clientRegistration()
 				.registrationId("pkce-client-registration-id")
 				.clientId("pkce-client-id")
@@ -58,7 +60,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				.build();
 
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(
-				this.registration1, this.registration2, this.pkceRegistration);
+				this.registration1, this.registration2, this.registration3, this.pkceRegistration);
 		this.resolver = new DefaultOAuth2AuthorizationRequestResolver(
 				this.clientRegistrationRepository, this.authorizationRequestBaseUri);
 	}
@@ -150,6 +152,21 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				clientRegistration.getRedirectUriTemplate());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
 				"http://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestAuthorizationUriTemplatedThenAuthorizationUriExpanded() {
+		ClientRegistration clientRegistration = this.registration3;
+
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getAuthorizationUri()).isNotEqualTo(
+				clientRegistration.getProviderDetails().getAuthorizationUri());
+		assertThat(authorizationRequest.getAuthorizationUri()).isEqualTo(
+				"http://localhost/login/oauth/authorize");
 	}
 
 	// gh-5520

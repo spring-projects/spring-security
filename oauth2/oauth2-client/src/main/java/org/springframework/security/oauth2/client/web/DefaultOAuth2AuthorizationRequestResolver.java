@@ -98,6 +98,22 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		return action;
 	}
 
+	private String expandAuthorizationUri(HttpServletRequest request, String authorizationUri) {
+		// Supported URI variables -> baseUrl
+		Map<String, String> uriVariables = new HashMap<>();
+
+		String baseUrl = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+				.replaceQuery(null)
+				.replacePath(request.getContextPath())
+				.build()
+				.toUriString();
+		uriVariables.put("baseUrl", baseUrl);
+
+		return UriComponentsBuilder.fromUriString(authorizationUri)
+				.buildAndExpand(uriVariables)
+				.toUriString();
+	}
+
 	private OAuth2AuthorizationRequest resolve(HttpServletRequest request, String registrationId, String redirectUriAction) {
 		if (registrationId == null) {
 			return null;
@@ -131,7 +147,8 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 		OAuth2AuthorizationRequest authorizationRequest = builder
 				.clientId(clientRegistration.getClientId())
-				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+				.authorizationUri(expandAuthorizationUri(request,
+						clientRegistration.getProviderDetails().getAuthorizationUri()))
 				.redirectUri(redirectUriStr)
 				.scopes(clientRegistration.getScopes())
 				.state(this.stateGenerator.generateKey())

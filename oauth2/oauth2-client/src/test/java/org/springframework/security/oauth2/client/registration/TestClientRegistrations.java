@@ -55,6 +55,21 @@ public class TestClientRegistrations {
 				.clientSecret("client-secret");
 	}
 
+	public static ClientRegistration.Builder clientRegistration3() {
+		return ClientRegistration.withRegistrationId("registration-id-3")
+				.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.scope("read:user")
+				.authorizationUri("{baseUrl}/login/oauth/authorize")
+				.tokenUri("https://example.com/login/oauth/access_token")
+				.userInfoUri("https://api.example.com/user")
+				.userNameAttributeName("id")
+				.clientName("Client Name")
+				.clientId("client-id-3")
+				.clientSecret("client-secret");
+	}
+
 	public static ClientRegistration.Builder clientCredentials() {
 		return clientRegistration()
 				.registrationId("client-credentials")
