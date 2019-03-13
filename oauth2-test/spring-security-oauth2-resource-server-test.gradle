@@ -1,0 +1,7 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+dependencies {
+	compile project(':spring-security-test')
+	compile project(':spring-security-oauth2-resource-server')
+	compile project(':spring-security-oauth2-jose')
+}
