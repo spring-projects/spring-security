@@ -63,4 +63,4 @@ https://help.github.com/articles/creating-a-pull-request[Pull requests] are welc
 
 == License
 Spring Security is Open Source software released under the
-http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
+https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
