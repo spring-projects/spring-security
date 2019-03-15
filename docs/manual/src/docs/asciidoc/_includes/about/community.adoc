@@ -29,7 +29,7 @@ You can find Spring Security's source code on GitHub at https://github.com/sprin
 [[community-license]]
 == Apache 2 License
 
-Spring Security is Open Source software released under the http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
+Spring Security is Open Source software released under the https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
 
 == Social Media
 
