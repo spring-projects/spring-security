@@ -2261,13 +2261,13 @@
       </xs:complexType>
    </xs:element>
   <xs:attributeGroup name="headers-options.attlist">
-      <xs:attribute name="defaults-disabled" type="xs:boolean">
+      <xs:attribute name="defaults-disabled" type="xs:token">
          <xs:annotation>
             <xs:documentation>Specifies if the default headers should be disabled. Default false.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="disabled" type="xs:boolean">
+      <xs:attribute name="disabled" type="xs:token">
          <xs:annotation>
             <xs:documentation>Specifies if headers should be disabled. Default false.
                 </xs:documentation>

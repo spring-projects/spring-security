@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @author Tim Ysewyn
  * @author Josh Cummings
+ * @author Rafiullah Hamedy
  */
 public class HttpHeadersConfigTests {
 
@@ -77,6 +78,45 @@ public class HttpHeadersConfigTests {
 		this.mvc.perform(get("/"))
 				.andExpect(status().isOk())
 				.andExpect(excludesDefaults());
+	}
+
+	@Test
+	public void requestWhenHeadersDisabledViaPlaceholderThenResponseExcludesAllSecureHeaders()
+			throws Exception {
+
+		System.setProperty("security.headers.disabled", "true");
+
+		this.spring.configLocations(this.xml("DisabledWithPlaceholder")).autowire();
+
+		this.mvc.perform(get("/").secure(true))
+			.andExpect(status().isOk())
+			.andExpect(excludesDefaults());
+	}
+
+	@Test
+	public void requestWhenHeadersEnabledViaPlaceholderThenResponseIncludesAllSecureHeaders()
+			throws Exception {
+
+		System.setProperty("security.headers.disabled", "false");
+
+		this.spring.configLocations(this.xml("DisabledWithPlaceholder")).autowire();
+
+		this.mvc.perform(get("/").secure(true))
+			.andExpect(status().isOk())
+			.andExpect(includesDefaults());
+	}
+
+	@Test
+	public void requestWhenHeadersDisabledRefMissingPlaceholderThenResponseIncludesAllSecureHeaders()
+			throws Exception {
+
+		System.clearProperty("security.headers.disabled");
+
+		this.spring.configLocations(this.xml("DisabledWithPlaceholder")).autowire();
+
+		this.mvc.perform(get("/").secure(true))
+			.andExpect(status().isOk())
+			.andExpect(includesDefaults());
 	}
 
 	@Test
@@ -137,6 +177,45 @@ public class HttpHeadersConfigTests {
 		this.mvc.perform(get("/").secure(true))
 				.andExpect(status().isOk())
 				.andExpect(excludesDefaults());
+	}
+
+	@Test
+	public void requestWhenDefaultsDisabledWithPlaceholderTrueThenExcludesAllSecureHeaders()
+			throws Exception {
+
+		System.setProperty("security.headers.defaults.disabled", "true");
+
+		this.spring.configLocations(this.xml("DefaultsDisabledWithPlaceholder")).autowire();
+
+		this.mvc.perform(get("/").secure(true))
+				.andExpect(status().isOk())
+				.andExpect(excludesDefaults());
+	}
+
+	@Test
+	public void requestWhenDefaultsDisabledWithPlaceholderFalseThenIncludeAllSecureHeaders()
+			throws Exception {
+
+		System.setProperty("security.headers.defaults.disabled", "false");
+
+		this.spring.configLocations(this.xml("DefaultsDisabledWithPlaceholder")).autowire();
+
+		this.mvc.perform(get("/").secure(true))
+				.andExpect(status().isOk())
+				.andExpect(includesDefaults());
+	}
+
+	@Test
+	public void requestWhenDefaultsDisabledWithPlaceholderMissingThenIncludeAllSecureHeaders()
+			throws Exception {
+
+		System.clearProperty("security.headers.defaults.disabled");
+
+		this.spring.configLocations(this.xml("DefaultsDisabledWithPlaceholder")).autowire();
+
+		this.mvc.perform(get("/").secure(true))
+				.andExpect(status().isOk())
+				.andExpect(includesDefaults());
 	}
 
 	@Test

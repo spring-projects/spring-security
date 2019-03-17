@@ -746,10 +746,10 @@ headers =
 element headers { headers-options.attlist, (cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & hpkp? & content-security-policy? & referrer-policy? & feature-policy? & header*)}
 headers-options.attlist &=
 	## Specifies if the default headers should be disabled. Default false.
-	attribute defaults-disabled {xsd:boolean}?
+	attribute defaults-disabled {xsd:token}?
 headers-options.attlist &=
 	## Specifies if headers should be disabled. Default false.
-	attribute disabled {xsd:boolean}?
+	attribute disabled {xsd:token}?
 hsts =
 	## Adds support for HTTP Strict Transport Security (HSTS)
 	element hsts {hsts-options.attlist}
