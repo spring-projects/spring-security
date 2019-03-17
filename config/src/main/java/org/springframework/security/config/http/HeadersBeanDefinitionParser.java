@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import org.w3c.dom.Node;
  * @author Tim Ysewyn
  * @author Eddú Meléndez
  * @author Vedran Pavic
+ * @author Rafiullah Hamedy
  * @since 3.2
  */
 public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
@@ -95,14 +96,15 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private ManagedList<BeanMetadataElement> headerWriters;
 
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+
 		headerWriters = new ManagedList<>();
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder
 				.rootBeanDefinition(HeaderWriterFilter.class);
 
 		boolean disabled = element != null
-				&& "true".equals(element.getAttribute("disabled"));
+				&& "true".equals(resolveAttribute(parserContext, element, "disabled"));
 		boolean defaultsDisabled = element != null
-				&& "true".equals(element.getAttribute("defaults-disabled"));
+				&& "true".equals(resolveAttribute(parserContext, element, "defaults-disabled"));
 
 		boolean addIfNotPresent = element == null || !disabled && !defaultsDisabled;
 
@@ -134,6 +136,19 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 		builder.addConstructorArgValue(headerWriters);
 		return builder.getBeanDefinition();
+	}
+
+	/**
+	 *
+	 * Resolve the placeholder for a given attribute on a element.
+	 *
+	 * @param pc
+	 * @param element
+	 * @param attributeName
+	 * @return Resolved value of the placeholder
+	 */
+	private String resolveAttribute(ParserContext pc, Element element, String attributeName) {
+		return pc.getReaderContext().getEnvironment().resolvePlaceholders(element.getAttribute(attributeName));
 	}
 
 	private void parseCacheControlElement(boolean addIfNotPresent, Element element) {
