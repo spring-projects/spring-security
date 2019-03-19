@@ -24,6 +24,12 @@ import org.junit.Test;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelper.TargetType;
 
+/**
+ *
+ * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
+ * @since 5.2.0
+ *
+ */
 public class AttributeParsersHelperTest {
 
 	@Attribute(name = "a", value = "bidule", parserOverride = "SomeTypeParser")

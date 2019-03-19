@@ -30,6 +30,12 @@ import org.springframework.security.test.context.support.oauth2.attributes.Attri
 import org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelper.TargetType;
 import org.springframework.security.test.context.support.oauth2.attributes.AttributeValueParser;
 
+/**
+ *
+ * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
+ * @since 5.2.0
+ *
+ */
 public class WithMockJwtSecurityContextFactoryTests {
 
 	private WithMockJwtSecurityContextFactory factory;

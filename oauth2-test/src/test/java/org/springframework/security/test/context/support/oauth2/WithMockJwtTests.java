@@ -21,6 +21,12 @@ import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithSecurityContext;
 import org.springframework.security.test.context.support.oauth2.attributes.Attribute;
 
+/**
+ *
+ * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
+ * @since 5.2.0
+ *
+ */
 public class WithMockJwtTests {
 
 	@Test
