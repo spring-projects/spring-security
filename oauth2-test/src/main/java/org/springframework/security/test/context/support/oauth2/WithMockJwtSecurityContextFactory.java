@@ -24,7 +24,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
-import org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelper;
 
 /**
  * Create a {@link org.springframework.security.core.context.SecurityContext SecurityContext} populated with a

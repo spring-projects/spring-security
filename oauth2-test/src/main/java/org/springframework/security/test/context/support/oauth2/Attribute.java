@@ -10,14 +10,14 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.springframework.security.test.context.support.oauth2.attributes;
+package org.springframework.security.test.context.support.oauth2;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelper.TargetType;
+import org.springframework.security.test.context.support.oauth2.AttributeParsersHelper.TargetType;
 
 /**
  * <p>
@@ -28,8 +28,8 @@ import org.springframework.security.test.context.support.oauth2.attributes.Attri
  * {@link #parserOverride()} can be referenced either by fully qualified name or simple name.
  * </p>
  * <p>
- * See {@link AttributeValueParser} and its already provided implementations:
- * {@link AttributeParsersHelper#DEFAULT_PARSERS}
+ * See {@link AttributeValueParser}. Implementations for any {@link TargetType} but {@link TargetType#OTHER} are
+ * provided out of the box (can be overriden, just provide a parser with same name)
  * </p>
  * Sample usage:<br>
  *
@@ -47,8 +47,7 @@ import org.springframework.security.test.context.support.oauth2.attributes.Attri
  * <ul>
  * <li>an {@code audience} claim with a value being a {@code List<String>} with two entries</li>
  * <li>an {@code issuer} claim with a value being a {@code java.net.URL} instance</li>
- * <li>a {@code machin} claim with {@code chose} String as value (default parser is
- * {@link org.springframework.security.test.context.support.oauth2.attributes.NoOpParser NoOpParser})</li>
+ * <li>a {@code machin} claim with {@code chose} String as value (default parser is {@code NoOpParser})</li>
  * <li>a {@code truc} claim whith an instance of what {@code your.fancy.ParserImpl} is designed to build from
  * {@code bidule} string as value</li>
  * </ul>

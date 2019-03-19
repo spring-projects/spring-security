@@ -19,7 +19,6 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithSecurityContext;
-import org.springframework.security.test.context.support.oauth2.attributes.Attribute;
 
 /**
  *

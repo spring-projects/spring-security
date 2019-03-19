@@ -28,9 +28,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithSecurityContext;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
-import org.springframework.security.test.context.support.oauth2.attributes.Attribute;
-import org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelper;
-import org.springframework.security.test.context.support.oauth2.attributes.AttributeValueParser;
+import org.springframework.security.test.context.support.oauth2.AttributeParsersHelper.TargetType;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -59,11 +57,11 @@ import org.springframework.test.web.servlet.MockMvc;
  * {@code name} value ({@code "user"} by default)</li>
  * <li>{@link Authentication#getAuthorities() authorities} will be a collection of {@link SimpleGrantedAuthority} as
  * defined by this annotation {@link #authorities()} (
- * 
+ *
  * <pre>
  * { "ROLE_USER" }
  * </pre>
- * 
+ *
  * by default</li>
  * </ul>
  *
@@ -95,7 +93,7 @@ import org.springframework.test.web.servlet.MockMvc;
  *
  * @see Attribute
  * @see AttributeValueParser
- * @see AttributeParsersHelper#DEFAULT_PARSERS
+ * @see TargetType
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
@@ -143,12 +141,12 @@ public @interface WithMockJwt {
 	Attribute[] headers() default { @Attribute(name = DEFAULT_HEADER_NAME, value = DEFAULT_HEADER_VALUE) };
 
 	/**
-	 * {@link AttributeParsersHelper#DEFAULT_PARSERS Defaulted parsers} are provided for most common value types. Those
-	 * will be added to defaults (and override defaults when retrieved by simple name)
+	 * Parsers are provided for for all {@link TargetType} but {@link TargetType#OTHER}. Those will be added to parse
+	 * more types or override defaults with same {@code SimpleName}.
 	 *
 	 * @return parsers to add to default ones (or override)
 	 *
-	 * @see AttributeParsersHelper#DEFAULT_PARSERS
+	 * @see TargetType
 	 */
 	String[] additionalParsers() default {};
 
