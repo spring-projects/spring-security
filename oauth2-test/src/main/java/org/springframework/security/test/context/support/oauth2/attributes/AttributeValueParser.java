@@ -12,33 +12,20 @@
  */
 package org.springframework.security.test.context.support.oauth2.attributes;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import org.springframework.util.StringUtils;
-
 /**
- * Turns an annotation String value into an {@link java.net.URL URL}
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
  *
+ * @param <TO_TYPE> type after parsing (target)
+ *
  */
-public class UrlStringParser implements Parser<String, URL> {
+public interface AttributeValueParser<TO_TYPE> {
 
 	/**
-	 * {@inheritDoc}
+	 * @param value to de-serialize
+	 * @return an Object
 	 */
-	@Override
-	public URL parse(final String value) {
-		if (StringUtils.isEmpty(value)) {
-			return null;
-		}
-		try {
-			return new URL(value);
-		} catch (final MalformedURLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+	TO_TYPE parse(String value);
 
 }

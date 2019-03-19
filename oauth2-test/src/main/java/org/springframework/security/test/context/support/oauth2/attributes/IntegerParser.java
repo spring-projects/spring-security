@@ -21,7 +21,7 @@ import org.springframework.util.StringUtils;
  * @since 5.2.0
  *
  */
-public class IntegerStringParser implements Parser<String, Integer> {
+public class IntegerParser implements AttributeValueParser<Integer> {
 
 	/**
 	 * {@inheritDoc}

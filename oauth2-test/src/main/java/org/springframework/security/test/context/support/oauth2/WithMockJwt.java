@@ -30,7 +30,7 @@ import org.springframework.security.test.context.support.WithSecurityContext;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
 import org.springframework.security.test.context.support.oauth2.attributes.Attribute;
 import org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelper;
-import org.springframework.security.test.context.support.oauth2.attributes.Parser;
+import org.springframework.security.test.context.support.oauth2.attributes.AttributeValueParser;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -94,7 +94,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * </pre>
  *
  * @see Attribute
- * @see Parser
+ * @see AttributeValueParser
  * @see AttributeParsersHelper#DEFAULT_PARSERS
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;

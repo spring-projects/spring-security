@@ -27,7 +27,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.test.context.support.oauth2.attributes.Attribute;
-import org.springframework.security.test.context.support.oauth2.attributes.Parser;
+import org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelper.TargetType;
+import org.springframework.security.test.context.support.oauth2.attributes.AttributeValueParser;
 
 public class WithMockJwtSecurityContextFactoryTests {
 
@@ -62,13 +63,13 @@ public class WithMockJwtSecurityContextFactoryTests {
 			authorities = { "machin", "chose" },
 			headers = { @Attribute(name = "a", value = "1") },
 			claims = {
-					@Attribute(name = JwtClaimNames.AUD, value = "test audience", parser = "StringListStringParser"),
-					@Attribute(name = JwtClaimNames.AUD, value = "other audience", parser = "StringListStringParser"),
-					@Attribute(name = JwtClaimNames.ISS, value = "https://test-issuer.org", parser = "UrlStringParser"),
+					@Attribute(name = JwtClaimNames.AUD, value = "test audience", parseTo = TargetType.STRING_LIST),
+					@Attribute(name = JwtClaimNames.AUD, value = "other audience", parseTo = TargetType.STRING_LIST),
+					@Attribute(name = JwtClaimNames.ISS, value = "https://test-issuer.org", parseTo = TargetType.URL),
 					@Attribute(
 							name = JwtClaimNames.IAT,
 							value = "2019-03-03T22:35:00.0Z",
-							parser = "InstantStringParser"),
+							parseTo = TargetType.INSTANT),
 					@Attribute(name = JwtClaimNames.JTI, value = "test ID"),
 					@Attribute(name = "custom-claim", value = "foo") },
 			additionalParsers = {
@@ -242,7 +243,7 @@ public class WithMockJwtSecurityContextFactoryTests {
 
 	}
 
-	public static final class FooParser implements Parser<String, String> {
+	public static final class FooParser implements AttributeValueParser<String> {
 
 		@Override
 		public String parse(final String value) {

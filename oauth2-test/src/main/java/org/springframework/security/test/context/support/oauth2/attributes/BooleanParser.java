@@ -12,21 +12,26 @@
  */
 package org.springframework.security.test.context.support.oauth2.attributes;
 
+import org.springframework.util.StringUtils;
+
 /**
+ * Turns an annotation String value into a Boolean
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
  *
- * @param <FROM_TYPE> type before parsing (source)
- * @param <TO_TYPE> type after parsing (target)
- *
  */
-public interface Parser<FROM_TYPE, TO_TYPE> {
+public class BooleanParser implements AttributeValueParser<Boolean> {
 
 	/**
-	 * @param value to de-serialize
-	 * @return an Object
+	 * {@inheritDoc}
 	 */
-	TO_TYPE parse(FROM_TYPE value);
+	@Override
+	public Boolean parse(final String value) {
+		if (StringUtils.isEmpty(value)) {
+			return null;
+		}
+		return Boolean.valueOf(value);
+	}
 
 }

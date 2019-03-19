@@ -21,7 +21,7 @@ import org.springframework.util.StringUtils;
  * @since 5.2.0
  *
  */
-public class DoubleStringParser implements Parser<String, Double> {
+public class DoubleParser implements AttributeValueParser<Double> {
 
 	/**
 	 * {@inheritDoc}

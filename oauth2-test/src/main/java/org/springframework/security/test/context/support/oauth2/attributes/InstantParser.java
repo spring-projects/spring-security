@@ -12,21 +12,28 @@
  */
 package org.springframework.security.test.context.support.oauth2.attributes;
 
+import java.time.Instant;
+
+import org.springframework.util.StringUtils;
+
 /**
- * Leaves an annotation String value untouched
+ * Turns an annotation String value into an {@link java.time.Instant Instant}
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
  *
  */
-public class NoOpStringParser implements Parser<String, String> {
+public class InstantParser implements AttributeValueParser<Instant> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String parse(final String value) {
-		return value;
+	public Instant parse(final String value) {
+		if (StringUtils.isEmpty(value)) {
+			return null;
+		}
+		return Instant.parse(value);
 	}
 
 }

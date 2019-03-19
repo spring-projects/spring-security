@@ -20,10 +20,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.springframework.util.StringUtils;
 
 /**
  * Helps turn a {@link org.springframework.security.test.context.support.oauth2.attributes.Attribute @Attribute} array
@@ -34,39 +37,44 @@ import java.util.stream.Stream;
  *
  */
 public class AttributeParsersHelper {
-	/**
-	 * <ul>
-	 * <li>{@link NoOpStringParser} =&gt; keeps value as is.</li>
-	 * <li>{@link BooleanStringParser} =&gt; Boolean</li>
-	 * <li>{@link DoubleStringParser} =&gt; Double</li>
-	 * <li>{@link InstantStringParser} =&gt; {@link java.time.Instant Instant}</li>
-	 * <li>{@link IntegerStringParser} =&gt; Integer</li>
-	 * <li>{@link LongStringParser} =&gt; Long</li>
-	 * <li>{@link StringListStringParser} =&gt; List&lt;String&gt;</li>
-	 * <li>{@link StringSetStringParser} =&gt; Set&lt;String&gt;</li>
-	 * <li>{@link UrlStringParser} =&gt; URL</li>
-	 * </ul>
-	 */
-	public static final Set<Parser<String, ?>> DEFAULT_PARSERS = new HashSet<>();
-
-	static {
-		DEFAULT_PARSERS.add(new NoOpStringParser());
-		DEFAULT_PARSERS.add(new BooleanStringParser());
-		DEFAULT_PARSERS.add(new DoubleStringParser());
-		DEFAULT_PARSERS.add(new InstantStringParser());
-		DEFAULT_PARSERS.add(new IntegerStringParser());
-		DEFAULT_PARSERS.add(new LongStringParser());
-		DEFAULT_PARSERS.add(new StringListStringParser());
-		DEFAULT_PARSERS.add(new StringSetStringParser());
-		DEFAULT_PARSERS.add(new UrlStringParser());
+	public enum TargetType {
+		STRING, BOOLEAN, DOUBLE, INSTANT, INTEGER, LONG, STRING_LIST, STRING_SET, URL, OTHER;
 	}
 
-	private final Map<String, Parser<String, ?>> parsers;
+	/**
+	 * <ul>
+	 * <li>{@link NoOpParser} =&gt; keeps value as is.</li>
+	 * <li>{@link BooleanParser} =&gt; Boolean</li>
+	 * <li>{@link DoubleParser} =&gt; Double</li>
+	 * <li>{@link InstantParser} =&gt; {@link java.time.Instant Instant}</li>
+	 * <li>{@link IntegerParser} =&gt; Integer</li>
+	 * <li>{@link LongParser} =&gt; Long</li>
+	 * <li>{@link StringListParser} =&gt; List&lt;String&gt;</li>
+	 * <li>{@link StringSetParser} =&gt; Set&lt;String&gt;</li>
+	 * <li>{@link UrlParser} =&gt; URL</li>
+	 * </ul>
+	 */
+	public static final Set<AttributeValueParser<?>> DEFAULT_PARSERS = new HashSet<>();
 
-	@SuppressWarnings("unchecked")
-	private AttributeParsersHelper(final Set<Parser<String, ?>> baseParsers, final String... additionalParserNames) {
-		this.parsers = new HashMap<>(2 * DEFAULT_PARSERS.size() + 2 * additionalParserNames.length);
-		final Stream<Parser<String, ?>> additionalParsers = Stream.of(additionalParserNames).distinct().map(t -> {
+	static {
+		DEFAULT_PARSERS.add(new NoOpParser());
+		DEFAULT_PARSERS.add(new BooleanParser());
+		DEFAULT_PARSERS.add(new DoubleParser());
+		DEFAULT_PARSERS.add(new InstantParser());
+		DEFAULT_PARSERS.add(new IntegerParser());
+		DEFAULT_PARSERS.add(new LongParser());
+		DEFAULT_PARSERS.add(new StringListParser());
+		DEFAULT_PARSERS.add(new StringSetParser());
+		DEFAULT_PARSERS.add(new UrlParser());
+	}
+
+	private final Map<String, AttributeValueParser<?>> attributeValueParsers;
+
+	private AttributeParsersHelper(
+			final Set<AttributeValueParser<?>> baseParsers,
+			final String... additionalParserNames) {
+		this.attributeValueParsers = new HashMap<>(2 * DEFAULT_PARSERS.size() + 2 * additionalParserNames.length);
+		final Stream<AttributeValueParser<?>> additionalParsers = Stream.of(additionalParserNames).distinct().map(t -> {
 			try {
 				return Class.forName(t);
 			} catch (final ClassNotFoundException e) {
@@ -74,7 +82,7 @@ public class AttributeParsersHelper {
 			}
 		}).map(c -> {
 			try {
-				return (Parser<String, ?>) c.getDeclaredConstructor().newInstance();
+				return (AttributeValueParser<?>) c.getDeclaredConstructor().newInstance();
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
 				throw new RuntimeException("Missing public no-arg constructor on " + c.getName());
@@ -82,23 +90,46 @@ public class AttributeParsersHelper {
 		});
 
 		Stream.concat(baseParsers.stream(), additionalParsers).forEachOrdered(p -> {
-			this.parsers.put(p.getClass().getName(), p);
-			this.parsers.put(p.getClass().getSimpleName(), p);
+			this.attributeValueParsers.put(p.getClass().getName(), p);
+			this.attributeValueParsers.put(p.getClass().getSimpleName(), p);
 		});
 	}
 
-	/**
-	 * @param parserClassName {@code Parser.class.getName()}
-	 * @return Parser instance
-	 */
-	public Parser<String, ?> getParser(final String parserClassName) {
-		return this.parsers.get(parserClassName);
+	private AttributeValueParser<?> getParser(final TargetType targetType, final String parserOverrideClassName) {
+		final Optional<AttributeValueParser<?>> parserOverride =
+				Optional.ofNullable(StringUtils.isEmpty(parserOverrideClassName) ? null : parserOverrideClassName)
+						.map(this.attributeValueParsers::get);
+
+		switch (targetType) {
+		case STRING:
+			return parserOverride.orElse(new NoOpParser());
+		case BOOLEAN:
+			return parserOverride.orElse(new BooleanParser());
+		case DOUBLE:
+			return parserOverride.orElse(new DoubleParser());
+		case INSTANT:
+			return parserOverride.orElse(new InstantParser());
+		case INTEGER:
+			return parserOverride.orElse(new IntegerParser());
+		case LONG:
+			return parserOverride.orElse(new LongParser());
+		case STRING_LIST:
+			return parserOverride.orElse(new StringListParser());
+		case STRING_SET:
+			return parserOverride.orElse(new StringSetParser());
+		case URL:
+			return parserOverride.orElse(new UrlParser());
+		default:
+			assert (!StringUtils.isEmpty(parserOverrideClassName));
+			return parserOverride.get();
+		}
+
 	}
 
 	private ParsedProperty<Object> parse(final Attribute p) {
-		final Parser<String, ?> parser = getParser(p.parser());
+		final AttributeValueParser<?> parser = getParser(p.parseTo(), p.parserOverride());
 		if (parser == null) {
-			throw new RuntimeException("No registered Parser implementation for " + p.parser());
+			throw new RuntimeException("No registered AttributeValueParser implementation for " + p.parserOverride());
 		}
 
 		return new ParsedProperty<>(p.name(), parser.parse(p.value()));
@@ -115,7 +146,8 @@ public class AttributeParsersHelper {
 	 * </p>
 	 * <ul>
 	 * <li>each {@link org.springframework.security.test.context.support.oauth2.attributes.Attribute#value() value()} is
-	 * parsed according to {@link org.springframework.security.test.context.support.oauth2.attributes.Attribute#parser()
+	 * parsed according to
+	 * {@link org.springframework.security.test.context.support.oauth2.attributes.Attribute#parserOverride()
 	 * parser()}</li>
 	 * <li>obtained values are associated with
 	 * {@link org.springframework.security.test.context.support.oauth2.attributes.Attribute#name() name()}</li>
@@ -153,26 +185,30 @@ public class AttributeParsersHelper {
 	}
 
 	/**
-	 * Instantiates default {@link org.springframework.security.test.context.support.oauth2.attributes.Parser Parser}s
-	 * plus all provided ones (using default constructor)
+	 * Instantiates default
+	 * {@link org.springframework.security.test.context.support.oauth2.attributes.AttributeValueParser
+	 * AttributeValueParser}s plus all provided ones (using default constructor)
 	 *
-	 * @param additionalParserNames {@link org.springframework.security.test.context.support.oauth2.attributes.Parser
-	 * Parser} implementations class names to add to
+	 * @param additionalParserNames
+	 * {@link org.springframework.security.test.context.support.oauth2.attributes.AttributeValueParser
+	 * AttributeValueParser} implementations class names to add to
 	 * {@link org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelper#DEFAULT_PARSERS
 	 * default ones}
-	 * @return helper instance with provided parsers plus default ones
+	 * @return helper instance with provided attributeValueParsers plus default ones
 	 */
 	public static AttributeParsersHelper withDefaultParsers(final String... additionalParserNames) {
 		return new AttributeParsersHelper(DEFAULT_PARSERS, additionalParserNames);
 	}
 
 	/**
-	 * Instantiates all provided {@link org.springframework.security.test.context.support.oauth2.attributes.Parser
-	 * Parser}s using default constructor
+	 * Instantiates all provided
+	 * {@link org.springframework.security.test.context.support.oauth2.attributes.AttributeValueParser
+	 * AttributeValueParser}s using default constructor
 	 *
-	 * @param allParserNames {@link org.springframework.security.test.context.support.oauth2.attributes.Parser Parser}
-	 * implementations class names
-	 * @return helper instance with provided parsers only
+	 * @param allParserNames
+	 * {@link org.springframework.security.test.context.support.oauth2.attributes.AttributeValueParser
+	 * AttributeValueParser} implementations class names
+	 * @return helper instance with provided attributeValueParsers only
 	 */
 	public static AttributeParsersHelper withoutDefaultParsers(final String... allParserNames) {
 		return new AttributeParsersHelper(Collections.emptySet(), allParserNames);

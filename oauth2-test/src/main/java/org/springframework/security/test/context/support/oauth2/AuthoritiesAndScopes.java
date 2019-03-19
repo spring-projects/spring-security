@@ -34,12 +34,12 @@ final class AuthoritiesAndScopes {
 	 * Scopes are searched for in attributes with keys "scope", "scp" and "scopes", first entry found being used and
 	 * others ignored.
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * &#64;Foo(
 	 * 		authorities = { "ROLE_R", "SCOPE_s1" },
 	 * 		scopes = { "s2" },
-	 * 		attributes = &#64;Attribute(name = "scope", value = "s3", parser = "StringSetStringParser"))
+	 * 		attributes = &#64;Attribute(name = "scope", value = "s3", parseTo = TargetType.STRING_SET))
 	 * static final class Decorated {
 	 * }
 	 *

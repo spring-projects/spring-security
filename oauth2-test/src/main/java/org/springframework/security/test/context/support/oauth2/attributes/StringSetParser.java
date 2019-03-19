@@ -12,26 +12,23 @@
  */
 package org.springframework.security.test.context.support.oauth2.attributes;
 
-import org.springframework.util.StringUtils;
+import java.util.Collections;
+import java.util.Set;
 
 /**
- * Turns an annotation String value into a Long
+ * Turns an annotation String value into a {@link java.util.Set Set&lt;String&gt;}
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
  *
  */
-public class LongStringParser implements Parser<String, Long> {
+public class StringSetParser implements AttributeValueParser<Set<String>> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Long parse(final String value) {
-		if (StringUtils.isEmpty(value)) {
-			return null;
-		}
-		return Long.valueOf(value);
+	public Set<String> parse(final String value) {
+		return Collections.singleton(value);
 	}
-
 }

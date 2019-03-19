@@ -12,26 +12,21 @@
  */
 package org.springframework.security.test.context.support.oauth2.attributes;
 
-import org.springframework.util.StringUtils;
-
 /**
- * Turns an annotation String value into a Boolean
+ * Leaves an annotation String value untouched
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
  *
  */
-public class BooleanStringParser implements Parser<String, Boolean> {
+public class NoOpParser implements AttributeValueParser<String> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Boolean parse(final String value) {
-		if (StringUtils.isEmpty(value)) {
-			return null;
-		}
-		return Boolean.valueOf(value);
+	public String parse(final String value) {
+		return value;
 	}
 
 }

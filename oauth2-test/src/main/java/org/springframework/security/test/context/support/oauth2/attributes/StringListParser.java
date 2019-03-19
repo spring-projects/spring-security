@@ -12,28 +12,24 @@
  */
 package org.springframework.security.test.context.support.oauth2.attributes;
 
-import java.time.Instant;
-
-import org.springframework.util.StringUtils;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Turns an annotation String value into an {@link java.time.Instant Instant}
+ * Turns an annotation String value into a {@link java.util.List List&lt;String&gt;}
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
  *
  */
-public class InstantStringParser implements Parser<String, Instant> {
+public class StringListParser implements AttributeValueParser<List<String>> {
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Instant parse(final String value) {
-		if (StringUtils.isEmpty(value)) {
-			return null;
-		}
-		return Instant.parse(value);
+	public List<String> parse(final String value) {
+		return Collections.singletonList(value);
 	}
 
 }

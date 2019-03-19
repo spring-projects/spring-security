@@ -22,92 +22,18 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.security.test.context.support.oauth2.attributes.Attribute;
-import org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelper;
-import org.springframework.security.test.context.support.oauth2.attributes.BooleanStringParser;
-import org.springframework.security.test.context.support.oauth2.attributes.DoubleStringParser;
-import org.springframework.security.test.context.support.oauth2.attributes.IntegerStringParser;
-import org.springframework.security.test.context.support.oauth2.attributes.LongStringParser;
-import org.springframework.security.test.context.support.oauth2.attributes.NoOpStringParser;
-import org.springframework.security.test.context.support.oauth2.attributes.Parser;
-import org.springframework.security.test.context.support.oauth2.attributes.StringListStringParser;
-import org.springframework.security.test.context.support.oauth2.attributes.StringSetStringParser;
-import org.springframework.security.test.context.support.oauth2.attributes.UrlStringParser;
+import org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelper.TargetType;
 
 public class AttributeParsersHelperTest {
 
-	@Test
-	public void helperWithDefaultParsers() {
-		final AttributeParsersHelper actual = AttributeParsersHelper.withDefaultParsers(
-				"org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelperTest$SomeTypeParser",
-				"org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelperTest$OtherTypeParser");
-
-		assertThat(actual.getParser(NoOpStringParser.class.getName())).isInstanceOf(NoOpStringParser.class);
-		assertThat(actual.getParser("NoOpStringParser")).isInstanceOf(NoOpStringParser.class);
-		assertThat(actual.getParser(BooleanStringParser.class.getName())).isInstanceOf(BooleanStringParser.class);
-		assertThat(actual.getParser("BooleanStringParser")).isInstanceOf(BooleanStringParser.class);
-		assertThat(actual.getParser(DoubleStringParser.class.getName())).isInstanceOf(DoubleStringParser.class);
-		assertThat(actual.getParser("DoubleStringParser")).isInstanceOf(DoubleStringParser.class);
-		assertThat(
-				actual.getParser(
-						org.springframework.security.test.context.support.oauth2.attributes.InstantStringParser.class
-								.getName())).isInstanceOf(
-										org.springframework.security.test.context.support.oauth2.attributes.InstantStringParser.class);
-		assertThat(actual.getParser("InstantStringParser")).isInstanceOf(
-				org.springframework.security.test.context.support.oauth2.attributes.InstantStringParser.class);
-		assertThat(actual.getParser(IntegerStringParser.class.getName())).isInstanceOf(IntegerStringParser.class);
-		assertThat(actual.getParser("IntegerStringParser")).isInstanceOf(IntegerStringParser.class);
-		assertThat(actual.getParser(LongStringParser.class.getName())).isInstanceOf(LongStringParser.class);
-		assertThat(actual.getParser("LongStringParser")).isInstanceOf(LongStringParser.class);
-		assertThat(actual.getParser(StringListStringParser.class.getName())).isInstanceOf(StringListStringParser.class);
-		assertThat(actual.getParser("StringListStringParser")).isInstanceOf(StringListStringParser.class);
-		assertThat(actual.getParser(StringSetStringParser.class.getName())).isInstanceOf(StringSetStringParser.class);
-		assertThat(actual.getParser("StringSetStringParser")).isInstanceOf(StringSetStringParser.class);
-		assertThat(actual.getParser(UrlStringParser.class.getName())).isInstanceOf(UrlStringParser.class);
-		assertThat(actual.getParser("UrlStringParser")).isInstanceOf(UrlStringParser.class);
-		assertThat(actual.getParser(SomeTypeParser.class.getName())).isInstanceOf(SomeTypeParser.class);
-		assertThat(actual.getParser("SomeTypeParser")).isInstanceOf(SomeTypeParser.class);
-		assertThat(actual.getParser(OtherTypeParser.class.getName())).isInstanceOf(OtherTypeParser.class);
-		assertThat(actual.getParser("OtherTypeParser")).isInstanceOf(OtherTypeParser.class);
-	}
-
-	@Test
-	public void helperWithoutDefaultParsers() {
-		final AttributeParsersHelper actual = AttributeParsersHelper.withoutDefaultParsers(
-				"org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelperTest$SomeTypeParser",
-				"org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelperTest$OtherTypeParser");
-		assertThat(actual.getParser(NoOpStringParser.class.getName())).isNull();
-		assertThat(actual.getParser("NoOpStringParser")).isNull();
-		assertThat(actual.getParser(BooleanStringParser.class.getName())).isNull();
-		assertThat(actual.getParser("BooleanStringParser")).isNull();
-		assertThat(actual.getParser(DoubleStringParser.class.getName())).isNull();
-		assertThat(actual.getParser("DoubleStringParser")).isNull();
-		assertThat(actual.getParser(InstantStringParser.class.getName())).isNull();
-		assertThat(actual.getParser("InstantStringParser")).isNull();
-		assertThat(actual.getParser(IntegerStringParser.class.getName())).isNull();
-		assertThat(actual.getParser("IntegerStringParser")).isNull();
-		assertThat(actual.getParser(LongStringParser.class.getName())).isNull();
-		assertThat(actual.getParser("LongStringParser")).isNull();
-		assertThat(actual.getParser(StringListStringParser.class.getName())).isNull();
-		assertThat(actual.getParser("StringListStringParser")).isNull();
-		assertThat(actual.getParser(StringSetStringParser.class.getName())).isNull();
-		assertThat(actual.getParser("StringSetStringParser")).isNull();
-		assertThat(actual.getParser(UrlStringParser.class.getName())).isNull();
-		assertThat(actual.getParser("UrlStringParser")).isNull();
-		assertThat(actual.getParser(SomeTypeParser.class.getName())).isInstanceOf(SomeTypeParser.class);
-		assertThat(actual.getParser("SomeTypeParser")).isInstanceOf(SomeTypeParser.class);
-		assertThat(actual.getParser(OtherTypeParser.class.getName())).isInstanceOf(OtherTypeParser.class);
-		assertThat(actual.getParser("OtherTypeParser")).isInstanceOf(OtherTypeParser.class);
-	}
-
-	@Attribute(name = "a", value = "bidule", parser = "SomeTypeParser")
+	@Attribute(name = "a", value = "bidule", parserOverride = "SomeTypeParser")
 	private static final class AProperty {
 	}
 
 	@Attribute(
 			name = "b",
 			value = "chose",
-			parser = "org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelperTest$SomeTypeParser")
+			parserOverride = "org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelperTest$SomeTypeParser")
 	private static final class BProperty {
 	}
 
@@ -125,11 +51,11 @@ public class AttributeParsersHelperTest {
 
 	}
 
-	@Attribute(name = "a", value = "bidule", parser = "StringListStringParser")
+	@Attribute(name = "a", value = "bidule", parseTo = TargetType.STRING_LIST)
 	private static final class CProperty {
 	}
 
-	@Attribute(name = "a", value = "chose", parser = "StringListStringParser")
+	@Attribute(name = "a", value = "chose", parseTo = TargetType.STRING_LIST)
 	private static final class DProperty {
 	}
 
@@ -148,14 +74,14 @@ public class AttributeParsersHelperTest {
 
 	}
 
-	@Attribute(name = "instant-millis", value = "12345678", parser = "InstantStringParser")
+	@Attribute(name = "instant-millis", value = "12345678", parserOverride = "InstantParser")
 	private static final class EProperty {
 	}
 
 	@Test
 	public void parsePropertiesUsesParseroverrides() {
 		final AttributeParsersHelper helper = AttributeParsersHelper.withDefaultParsers(
-				"org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelperTest$InstantStringParser");
+				"org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelperTest$InstantParser");
 
 		final Attribute propertyAnnotation = AnnotationUtils.findAnnotation(EProperty.class, Attribute.class);
 
@@ -166,14 +92,14 @@ public class AttributeParsersHelperTest {
 
 	}
 
-	public static final class SomeTypeParser implements Parser<String, String> {
+	public static final class SomeTypeParser implements AttributeValueParser<String> {
 		@Override
 		public String parse(final String value) {
 			return value;
 		}
 	}
 
-	public static final class OtherTypeParser implements Parser<String, Collection<String>> {
+	public static final class OtherTypeParser implements AttributeValueParser<Collection<String>> {
 		@Override
 		public Collection<String> parse(final String value) {
 			return Collections.singletonList(value);
@@ -183,7 +109,7 @@ public class AttributeParsersHelperTest {
 	/**
 	 * custom Instant mapper designed to override default one
 	 */
-	public static final class InstantStringParser implements Parser<String, Instant> {
+	public static final class InstantParser implements AttributeValueParser<Instant> {
 		@Override
 		public Instant parse(final String value) {
 			return Instant.ofEpochMilli(Long.valueOf(value));
