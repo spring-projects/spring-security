@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.web.server.oidc.logout;
+package org.springframework.security.oauth2.client.oidc.web.server.logout;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
