@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.web.server.oidc.logout;
+package org.springframework.security.oauth2.client.oidc.web.server.logout;
 
 import java.net.URI;
 import java.util.Collections;
@@ -43,6 +43,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * Tests for {@link OidcClientInitiatedServerLogoutSuccessHandler}
+ */
 public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	ClientRegistration registration = TestClientRegistrations
 			.clientRegistration()
