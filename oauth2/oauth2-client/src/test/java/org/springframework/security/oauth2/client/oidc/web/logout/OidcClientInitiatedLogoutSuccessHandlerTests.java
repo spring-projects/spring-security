@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.web.oidc.logout;
+package org.springframework.security.oauth2.client.oidc.web.logout;
 
 import java.io.IOException;
 import java.net.URI;
