@@ -68,12 +68,12 @@ public class AttributeParsersHelper {
 		DEFAULT_PARSERS.add(new UrlParser());
 	}
 
-	private final Map<String, AttributeValueParser<?>> attributeValueParsers;
+	private final Map<String, AttributeValueParser<?>> parsers;
 
 	private AttributeParsersHelper(
 			final Set<AttributeValueParser<?>> baseParsers,
 			final String... additionalParserNames) {
-		this.attributeValueParsers = new HashMap<>(2 * DEFAULT_PARSERS.size() + 2 * additionalParserNames.length);
+		this.parsers = new HashMap<>(2 * DEFAULT_PARSERS.size() + 2 * additionalParserNames.length);
 		final Stream<AttributeValueParser<?>> additionalParsers = Stream.of(additionalParserNames).distinct().map(t -> {
 			try {
 				return Class.forName(t);
@@ -90,35 +90,35 @@ public class AttributeParsersHelper {
 		});
 
 		Stream.concat(baseParsers.stream(), additionalParsers).forEachOrdered(p -> {
-			this.attributeValueParsers.put(p.getClass().getName(), p);
-			this.attributeValueParsers.put(p.getClass().getSimpleName(), p);
+			this.parsers.put(p.getClass().getName(), p);
+			this.parsers.put(p.getClass().getSimpleName(), p);
 		});
 	}
 
 	private AttributeValueParser<?> getParser(final TargetType targetType, final String parserOverrideClassName) {
 		final Optional<AttributeValueParser<?>> parserOverride =
 				Optional.ofNullable(StringUtils.isEmpty(parserOverrideClassName) ? null : parserOverrideClassName)
-						.map(this.attributeValueParsers::get);
+						.map(parsers::get);
 
 		switch (targetType) {
 		case STRING:
-			return parserOverride.orElse(new NoOpParser());
+			return parserOverride.orElse(parsers.get("NoOpParser"));
 		case BOOLEAN:
-			return parserOverride.orElse(new BooleanParser());
+			return parserOverride.orElse(parsers.get("BooleanParser"));
 		case DOUBLE:
-			return parserOverride.orElse(new DoubleParser());
+			return parserOverride.orElse(parsers.get("DoubleParser"));
 		case INSTANT:
-			return parserOverride.orElse(new InstantParser());
+			return parserOverride.orElse(parsers.get("InstantParser"));
 		case INTEGER:
-			return parserOverride.orElse(new IntegerParser());
+			return parserOverride.orElse(parsers.get("IntegerParser"));
 		case LONG:
-			return parserOverride.orElse(new LongParser());
+			return parserOverride.orElse(parsers.get("LongParser"));
 		case STRING_LIST:
-			return parserOverride.orElse(new StringListParser());
+			return parserOverride.orElse(parsers.get("StringListParser"));
 		case STRING_SET:
-			return parserOverride.orElse(new StringSetParser());
+			return parserOverride.orElse(parsers.get("StringSetParser"));
 		case URL:
-			return parserOverride.orElse(new UrlParser());
+			return parserOverride.orElse(parsers.get("UrlParser"));
 		default:
 			assert (!StringUtils.isEmpty(parserOverrideClassName));
 			return parserOverride.get();
@@ -194,7 +194,7 @@ public class AttributeParsersHelper {
 	 * AttributeValueParser} implementations class names to add to
 	 * {@link org.springframework.security.test.context.support.oauth2.attributes.AttributeParsersHelper#DEFAULT_PARSERS
 	 * default ones}
-	 * @return helper instance with provided attributeValueParsers plus default ones
+	 * @return helper instance with provided parsers plus default ones
 	 */
 	public static AttributeParsersHelper withDefaultParsers(final String... additionalParserNames) {
 		return new AttributeParsersHelper(DEFAULT_PARSERS, additionalParserNames);
@@ -208,7 +208,7 @@ public class AttributeParsersHelper {
 	 * @param allParserNames
 	 * {@link org.springframework.security.test.context.support.oauth2.attributes.AttributeValueParser
 	 * AttributeValueParser} implementations class names
-	 * @return helper instance with provided attributeValueParsers only
+	 * @return helper instance with provided parsers only
 	 */
 	public static AttributeParsersHelper withoutDefaultParsers(final String... allParserNames) {
 		return new AttributeParsersHelper(Collections.emptySet(), allParserNames);
