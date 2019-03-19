@@ -15,6 +15,8 @@
  */
 package org.springframework.security.test.context.support.oauth2.request;
 
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+
 /**
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
@@ -23,6 +25,14 @@ public final class OAuth2MockMvcRequestPostProcessors {
 
 	public static JwtRequestPostProcessor jwt() {
 		return new JwtRequestPostProcessor();
+	}
+
+	public static OidcIdTokenRequestPostProcessor oidcIdToken(final AuthorizationGrantType authorizationGrantType) {
+		return new OidcIdTokenRequestPostProcessor(authorizationGrantType);
+	}
+
+	public static OidcIdTokenRequestPostProcessor oidcIdToken() {
+		return new OidcIdTokenRequestPostProcessor(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 
 }

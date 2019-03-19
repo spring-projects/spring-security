@@ -14,6 +14,7 @@ package sample;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.security.test.context.support.oauth2.request.OAuth2MockMvcRequestPostProcessors.jwt;
+import static org.springframework.security.test.context.support.oauth2.request.OAuth2MockMvcRequestPostProcessors.oidcIdToken;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -30,6 +31,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.test.context.support.oauth2.annotations.Attribute;
 import org.springframework.security.test.context.support.oauth2.annotations.TargetType;
 import org.springframework.security.test.context.support.oauth2.annotations.WithMockJwt;
+import org.springframework.security.test.context.support.oauth2.annotations.WithMockOidcIdToken;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -50,17 +52,26 @@ public class OAuth2ResourceServerControllerTest {
 	JwtDecoder jwtDecoder;
 
 	@Test
-	@WithMockJwt(name = "ch4mpy")
-	public void testIndex() throws Exception {
+	@WithMockJwt(name = "subject")
+	public void testIndexJwt() throws Exception {
 		mockMvc.perform(get("/"))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(content().string(is("Hello, ch4mpy!")));
+				.andExpect(content().string(is("Hello, subject!")));
+	}
+
+	@Test
+	@WithMockOidcIdToken(name = "subject")
+	public void testIndexOidcId() throws Exception {
+		mockMvc.perform(get("/"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(content().string(is("Hello, subject!")));
 	}
 
 	@Test
 	@WithMockJwt("SCOPE_message:read")
-	public void testMessageIsAcciessibleWithCorrectScopeAuthority() throws Exception {
+	public void testMessageIsAcciessibleWithCorrectJwtScopeAuthority() throws Exception {
 		mockMvc.perform(get("/message"))
 				.andDo(print())
 				.andExpect(status().isOk())
@@ -68,8 +79,35 @@ public class OAuth2ResourceServerControllerTest {
 	}
 
 	@Test
-	@WithMockJwt(claims = @Attribute(name = "scope", value = "message:read", parseTo = TargetType.STRING_SET))
-	public void testMessageIsAcciessibleWithCorrectScopeClaim() throws Exception {
+	@WithMockOidcIdToken("SCOPE_message:read")
+	public void testMessageIsAcciessibleWithCorrectOidcIdScopeAuthority()
+			throws Exception {
+		mockMvc.perform(get("/message"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(content().string(is("secret message")));
+	}
+
+	@Test
+	@WithMockJwt(
+			claims = @Attribute(
+					name = "scope",
+					value = "message:read",
+					parseTo = TargetType.STRING_SET))
+	public void testMessageIsAcciessibleWithCorrectJwtScopeClaim() throws Exception {
+		mockMvc.perform(get("/message"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(content().string(is("secret message")));
+	}
+
+	@Test
+	@WithMockOidcIdToken(
+			claims = @Attribute(
+					name = "scope",
+					value = "message:read",
+					parseTo = TargetType.STRING_SET))
+	public void testMessageIsAcciessibleWithCorrectOidcIdScopeClaim() throws Exception {
 		mockMvc.perform(get("/message"))
 				.andDo(print())
 				.andExpect(status().isOk())
@@ -78,14 +116,22 @@ public class OAuth2ResourceServerControllerTest {
 
 	@Test
 	@WithMockJwt
-	public void testMessageIsNotAcciessibleWithDefaultAuthority() throws Exception {
+	public void testMessageIsNotAcciessibleWithDefaultJwtAuthority() throws Exception {
 		mockMvc.perform(get("/message")).andDo(print()).andExpect(status().isForbidden());
 	}
 
 	@Test
-	public void testRequestPostProcessor() throws Exception {
+	@WithMockOidcIdToken
+	public void testMessageIsNotAcciessibleWithDefaultOidcIdAuthority() throws Exception {
+		mockMvc.perform(get("/message")).andDo(print()).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void testJwtRequestPostProcessor() throws Exception {
 		// No post-processor => no authorization => unauthorized
-		mockMvc.perform(get("/message")).andDo(print()).andExpect(status().isUnauthorized());
+		mockMvc.perform(get("/message"))
+				.andDo(print())
+				.andExpect(status().isUnauthorized());
 
 		mockMvc.perform(get("/").with(jwt().name("ch4mpy")))
 				.andDo(print())
@@ -102,12 +148,53 @@ public class OAuth2ResourceServerControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(content().string(is("secret message")));
 
-		mockMvc.perform(get("/message").with(jwt().claim("scope", Collections.singletonList("message:read"))))
+		mockMvc.perform(
+				get("/message").with(
+						jwt().claim("scope", Collections.singletonList("message:read"))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(content().string(is("secret message")));
 
-		mockMvc.perform(get("/message").with(jwt().name("ch4mpy"))).andDo(print()).andExpect(status().isForbidden());
+		mockMvc.perform(get("/message").with(jwt().name("ch4mpy")))
+				.andDo(print())
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void testOidcIdTokenRequestPostProcessor() throws Exception {
+		// No post-processor => no authorization => unauthorized
+		mockMvc.perform(get("/message"))
+				.andDo(print())
+				.andExpect(status().isUnauthorized());
+
+		mockMvc.perform(get("/").with(oidcIdToken().name("ch4mpy")))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(content().string(is("Hello, ch4mpy!")));
+
+		mockMvc.perform(get("/message").with(oidcIdToken().scope("message:read")))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(content().string(is("secret message")));
+
+		mockMvc.perform(
+				get("/message").with(oidcIdToken().authority("SCOPE_message:read")))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(content().string(is("secret message")));
+
+		mockMvc.perform(
+				get("/message").with(
+						oidcIdToken().claim(
+								"scope",
+								Collections.singletonList("message:read"))))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(content().string(is("secret message")));
+
+		mockMvc.perform(get("/message").with(oidcIdToken().name("ch4mpy")))
+				.andDo(print())
+				.andExpect(status().isForbidden());
 	}
 
 }

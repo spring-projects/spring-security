@@ -15,7 +15,10 @@
  */
 package sample;
 
+import java.security.Principal;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,12 +30,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class OAuth2ResourceServerController {
 
 	@GetMapping("/")
-	public String index(@AuthenticationPrincipal Jwt jwt) {
-		return String.format("Hello, %s!", jwt.getSubject());
+	public String index(final Principal principal) {
+		return String.format("Hello, %s!", principal.getName());
 	}
 
 	@GetMapping("/message")
 	public String message() {
 		return "secret message";
+	}
+
+	@GetMapping("/jwt")
+	public String getJwt(@AuthenticationPrincipal final Jwt authenticationPrincipal) {
+		return String.format("Hello, %s!", authenticationPrincipal.getSubject());
+	}
+
+	@GetMapping("/openid")
+	public String getOpenId(@AuthenticationPrincipal final OidcUser authenticationPrincipal) {
+		return String.format("Hello, %s!", authenticationPrincipal.getSubject());
 	}
 }
