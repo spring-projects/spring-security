@@ -14,11 +14,11 @@ package org.springframework.security.test.context.support.oauth2;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.springframework.util.StringUtils;
 
 /**
+ * Useful functions to manipulate annotation values
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
@@ -44,13 +44,6 @@ class AnnotationHelper {
 			map.put(key, value);
 		}
 		return map;
-	}
-
-	public static Stream<String> stringStream(final String... values) {
-		if (values == null || values.length == 0) {
-			return Stream.empty();
-		}
-		return Stream.of(values).map(AnnotationHelper::nullIfEmpty).filter(a -> a != null);
 	}
 
 }
