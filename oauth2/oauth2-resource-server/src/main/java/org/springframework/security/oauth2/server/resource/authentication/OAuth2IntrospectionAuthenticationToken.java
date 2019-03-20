@@ -25,7 +25,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.Assert;
 
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.SUBJECT;
+import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SUBJECT;
 
 /**
  * An {@link org.springframework.security.core.Authentication} token that represents a successful authentication as

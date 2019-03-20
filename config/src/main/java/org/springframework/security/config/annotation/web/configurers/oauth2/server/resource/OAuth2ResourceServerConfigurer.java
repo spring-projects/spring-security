@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.server.resource;
 
+import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
@@ -23,7 +24,6 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -36,6 +36,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.introspection.NimbusOAuth2TokenIntrospectionClient;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2TokenIntrospectionClient;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -179,7 +181,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	public OpaqueTokenConfigurer opaqueToken() {
 		if (this.opaqueTokenConfigurer == null) {
-			this.opaqueTokenConfigurer = new OpaqueTokenConfigurer();
+			this.opaqueTokenConfigurer = new OpaqueTokenConfigurer(this.context);
 		}
 
 		return this.opaqueTokenConfigurer;
@@ -237,7 +239,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 
 		if (this.opaqueTokenConfigurer != null) {
-			http.authenticationProvider(this.opaqueTokenConfigurer.getProvider());
+			OAuth2TokenIntrospectionClient introspectionClient = this.opaqueTokenConfigurer.getIntrospectionClient();
+			OAuth2IntrospectionAuthenticationProvider provider =
+					new OAuth2IntrospectionAuthenticationProvider(introspectionClient);
+			http.authenticationProvider(provider);
 		}
 	}
 
@@ -288,27 +293,46 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	}
 
 	public class OpaqueTokenConfigurer {
+		private final ApplicationContext context;
+
 		private String introspectionUri;
-		private String introspectionClientId;
-		private String introspectionClientSecret;
+		private String clientId;
+		private String clientSecret;
+		private Supplier<OAuth2TokenIntrospectionClient> introspectionClient;
+
+		OpaqueTokenConfigurer(ApplicationContext context) {
+			this.context = context;
+		}
 
 		public OpaqueTokenConfigurer introspectionUri(String introspectionUri) {
 			Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 			this.introspectionUri = introspectionUri;
+			this.introspectionClient = () ->
+					new NimbusOAuth2TokenIntrospectionClient(this.introspectionUri, this.clientId, this.clientSecret);
 			return this;
 		}
 
 		public OpaqueTokenConfigurer introspectionClientCredentials(String clientId, String clientSecret) {
 			Assert.notNull(clientId, "clientId cannot be null");
 			Assert.notNull(clientSecret, "clientSecret cannot be null");
-			this.introspectionClientId = clientId;
-			this.introspectionClientSecret = clientSecret;
+			this.clientId = clientId;
+			this.clientSecret = clientSecret;
+			this.introspectionClient = () ->
+					new NimbusOAuth2TokenIntrospectionClient(this.introspectionUri, this.clientId, this.clientSecret);
 			return this;
 		}
 
-		AuthenticationProvider getProvider() {
-			return new OAuth2IntrospectionAuthenticationProvider(this.introspectionUri,
-					this.introspectionClientId, this.introspectionClientSecret);
+		public OpaqueTokenConfigurer introspectionClient(OAuth2TokenIntrospectionClient introspectionClient) {
+			Assert.notNull(introspectionClient, "introspectionClient cannot be null");
+			this.introspectionClient = () -> introspectionClient;
+			return this;
+		}
+
+		OAuth2TokenIntrospectionClient getIntrospectionClient() {
+			if (this.introspectionClient != null) {
+				return this.introspectionClient.get();
+			}
+			return this.context.getBean(OAuth2TokenIntrospectionClient.class);
 		}
 	}
 
