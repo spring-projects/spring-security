@@ -25,7 +25,6 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.test.context.support.oauth2.Attribute;
 import org.springframework.security.test.context.support.oauth2.AttributeParsersHelper;
 import org.springframework.security.test.context.support.oauth2.AttributeValueParser;
-import org.springframework.security.test.context.support.oauth2.AttributeParsersHelper.TargetType;
 
 /**
  *

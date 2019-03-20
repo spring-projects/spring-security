@@ -28,7 +28,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithSecurityContext;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
-import org.springframework.security.test.context.support.oauth2.AttributeParsersHelper.TargetType;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.web.servlet.MockMvc;
 

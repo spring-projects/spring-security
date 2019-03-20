@@ -39,10 +39,6 @@ import org.springframework.util.StringUtils;
  *
  */
 class AttributeParsersHelper {
-	public enum TargetType {
-		STRING, BOOLEAN, DOUBLE, INSTANT, INTEGER, LONG, STRING_LIST, STRING_SET, URL, OTHER;
-	}
-
 	private final Map<String, AttributeValueParser<?>> parsers;
 
 	private AttributeParsersHelper(

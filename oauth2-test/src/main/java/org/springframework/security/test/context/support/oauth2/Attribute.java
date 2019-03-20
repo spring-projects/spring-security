@@ -17,8 +17,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.security.test.context.support.oauth2.AttributeParsersHelper.TargetType;
-
 /**
  * <p>
  * Annotation to create an entry in a {@link java.util.Map Map&lt;String, Object&gt;} such as
