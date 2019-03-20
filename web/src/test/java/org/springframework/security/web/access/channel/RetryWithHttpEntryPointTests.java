@@ -96,7 +96,7 @@ public class RetryWithHttpEntryPointTests {
 
 		ep.commence(request, response);
 		assertThat(response.getRedirectedUrl()).isEqualTo(
-				"https://www.example.com/bigWebApp/hello/pathInfo.html?open=true");
+				"http://www.example.com/bigWebApp/hello/pathInfo.html?open=true");
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class RetryWithHttpEntryPointTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET",
 				"/bigWebApp/hello");
 		request.setScheme("https");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setServerPort(443);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -115,7 +115,7 @@ public class RetryWithHttpEntryPointTests {
 
 		ep.commence(request, response);
 		assertThat(response.getRedirectedUrl())
-				.isEqualTo("https://www.example.com/bigWebApp/hello");
+				.isEqualTo("http://localhost/bigWebApp/hello");
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class RetryWithHttpEntryPointTests {
 				"/bigWebApp/hello/pathInfo.html");
 		request.setQueryString("open=true");
 		request.setScheme("https");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setServerPort(9999);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -158,6 +158,6 @@ public class RetryWithHttpEntryPointTests {
 
 		ep.commence(request, response);
 		assertThat(response.getRedirectedUrl()).isEqualTo(
-				"https://www.example.com:8888/bigWebApp/hello/pathInfo.html?open=true");
+				"http://localhost:8888/bigWebApp/hello/pathInfo.html?open=true");
 	}
 }

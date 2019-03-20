@@ -166,14 +166,14 @@ public class LoginUrlAuthenticationEntryPointTests {
 		request.setRequestURI("/some_path");
 		request.setContextPath("/bigWebApp");
 		request.setScheme("http");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setContextPath("/bigWebApp");
 		request.setServerPort(80);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/bigWebApp/hello");
 	}
 
 	@Test
@@ -188,7 +188,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		request.setRequestURI("/some_path");
 		request.setContextPath("/bigWebApp");
 		request.setScheme("http");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setContextPath("/bigWebApp");
 		request.setServerPort(8888); // NB: Port we can't resolve
 
@@ -198,7 +198,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 		// Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to HTTP port
 		// mapping
-		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:8888/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost:8888/bigWebApp/hello");
 	}
 
 	@Test
