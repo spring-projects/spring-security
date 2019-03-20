@@ -184,7 +184,7 @@ public class CustomUserTypesOAuth2UserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
-		String userInfoUri = "http://invalid-provider.com/user";
+		String userInfoUri = "https://invalid-provider.com/user";
 
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
 				.userInfoUri(userInfoUri).build();

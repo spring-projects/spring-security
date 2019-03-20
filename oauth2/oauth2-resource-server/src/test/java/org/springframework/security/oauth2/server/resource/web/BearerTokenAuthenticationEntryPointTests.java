@@ -115,14 +115,14 @@ public class BearerTokenAuthenticationEntryPointTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST, HttpStatus.BAD_REQUEST,
-				null, "http://example.com", null);
+				null, "https://example.com", null);
 
 		this.authenticationEntryPoint.commence(request, response,
 				new OAuth2AuthenticationException(error));
 
 		assertThat(response.getStatus()).isEqualTo(400);
 		assertThat(response.getHeader("WWW-Authenticate"))
-				.isEqualTo("Bearer error=\"invalid_request\", error_uri=\"http://example.com\"");
+				.isEqualTo("Bearer error=\"invalid_request\", error_uri=\"https://example.com\"");
 	}
 
 	@Test
@@ -181,7 +181,7 @@ public class BearerTokenAuthenticationEntryPointTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INSUFFICIENT_SCOPE, HttpStatus.FORBIDDEN,
-				"Insufficient scope", "http://example.com", "test.read test.write");
+				"Insufficient scope", "https://example.com", "test.read test.write");
 
 		this.authenticationEntryPoint.setRealmName("test");
 		this.authenticationEntryPoint.commence(request, response,
@@ -190,7 +190,7 @@ public class BearerTokenAuthenticationEntryPointTests {
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo(
 				"Bearer realm=\"test\", error=\"insufficient_scope\", error_description=\"Insufficient scope\", "
-						+ "error_uri=\"http://example.com\", scope=\"test.read test.write\"");
+						+ "error_uri=\"https://example.com\", scope=\"test.read test.write\"");
 	}
 
 	@Test

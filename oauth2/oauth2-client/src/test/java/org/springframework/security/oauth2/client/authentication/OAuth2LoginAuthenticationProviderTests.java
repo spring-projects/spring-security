@@ -157,7 +157,7 @@ public class OAuth2LoginAuthenticationProviderTests {
 		this.exception.expectMessage(containsString("invalid_redirect_uri_parameter"));
 
 		OAuth2AuthorizationResponse authorizationResponse =
-				success().redirectUri("http://example2.com").build();
+				success().redirectUri("http://www6.example2.com/?s_token=1553054902.0647311428&kw=watch+TV&term=Dedicated%20Servers&term=Help%20Desk%20Ticket%20System&backfill=0&tdfs=1").build();
 		OAuth2AuthorizationExchange authorizationExchange =
 				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 

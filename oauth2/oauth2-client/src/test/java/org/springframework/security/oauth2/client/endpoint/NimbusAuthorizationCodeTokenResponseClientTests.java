@@ -169,7 +169,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	public void getTokenResponseWhenTokenUriInvalidThenThrowOAuth2AuthorizationException() throws Exception {
 		this.exception.expect(OAuth2AuthorizationException.class);
 
-		String tokenUri = "http://invalid-provider.com/oauth2/token";
+		String tokenUri = "https://invalid-provider.com/oauth2/token";
 		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
 		this.tokenResponseClient.getTokenResponse(

@@ -230,7 +230,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 * Use the given {@link RestOperations} to coordinate with the authorization servers indicated in the
 		 * <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri
 		 * as well as the
-		 * <a href="http://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>.
+		 * <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>.
 		 *
 		 * @param restOperations
 		 * @return

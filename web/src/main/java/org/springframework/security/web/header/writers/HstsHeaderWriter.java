@@ -26,7 +26,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
- * Provides support for <a href="http://tools.ietf.org/html/rfc6797">HTTP Strict Transport
+ * Provides support for <a href="https://tools.ietf.org/html/rfc6797">HTTP Strict Transport
  * Security (HSTS)</a>.
  *
  * <p>
@@ -37,7 +37,7 @@ import org.springframework.util.Assert;
  * </p>
  *
  * <p>
- * Since <a href="http://tools.ietf.org/html/rfc6797#section-7.2">section 7.2</a> states
+ * Since <a href="https://tools.ietf.org/html/rfc6797#section-7.2">section 7.2</a> states
  * that HSTS Host MUST NOT include the STS header in HTTP responses, the default behavior
  * is that the "Strict-Transport-Security" will only be added when
  * {@link HttpServletRequest#isSecure()} returns {@code true} . At times this may need to
@@ -193,7 +193,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	 *
 	 * <p>
 	 * This instructs browsers how long to remember to keep this domain as a known HSTS
-	 * Host. See <a href="http://tools.ietf.org/html/rfc6797#section-6.1.1">Section
+	 * Host. See <a href="https://tools.ietf.org/html/rfc6797#section-6.1.1">Section
 	 * 6.1.1</a> for additional details.
 	 * </p>
 	 *
@@ -216,7 +216,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	 * </p>
 	 *
 	 * <p>
-	 * See <a href="http://tools.ietf.org/html/rfc6797#section-6.1.2">Section 6.1.2</a>
+	 * See <a href="https://tools.ietf.org/html/rfc6797#section-6.1.2">Section 6.1.2</a>
 	 * for additional details.
 	 * </p>
 	 *
@@ -232,7 +232,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	 * </p>
 	 *
 	 * <p>
-	 * See <a href="http://tools.ietf.org/html/rfc6797#section-6.1.2">Section 6.1.2</a>
+	 * See <a href="https://tools.ietf.org/html/rfc6797#section-6.1.2">Section 6.1.2</a>
 	 * for additional details.
 	 * </p>
 	 *

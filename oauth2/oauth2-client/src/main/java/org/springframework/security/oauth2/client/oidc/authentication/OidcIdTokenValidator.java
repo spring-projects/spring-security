@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * @since 5.1
  * @see OAuth2TokenValidator
  * @see Jwt
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">ID Token Validation</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">ID Token Validation</a>
  */
 public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	private static final Duration DEFAULT_CLOCK_SKEW = Duration.ofSeconds(60);
@@ -58,7 +58,7 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt idToken) {
 		// 3.1.3.7  ID Token Validation
-		// http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
+		// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
 
 		Map<String, Object> invalidClaims = validateRequiredClaims(idToken);
 		if (!invalidClaims.isEmpty()) {

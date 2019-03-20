@@ -114,7 +114,7 @@ public class OidcUserServiceTests {
 	@Test
 	public void loadUserWhenAuthorizedScopesDoesNotContainUserInfoScopesThenUserInfoEndpointNotRequested() {
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri("http://provider.com/user").build();
+				.userInfoUri("https://provider.com/user").build();
 
 		Set<String> authorizedScopes = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(
@@ -248,7 +248,7 @@ public class OidcUserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
-		String userInfoUri = "http://invalid-provider.com/user";
+		String userInfoUri = "https://invalid-provider.com/user";
 
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
 				.userInfoUri(userInfoUri).build();

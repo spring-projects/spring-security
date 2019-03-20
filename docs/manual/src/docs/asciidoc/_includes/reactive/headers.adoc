@@ -115,7 +115,7 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 
 [[webflux-headers-content-type-options]]
 == Content Type Options
-Historically browsers, including Internet Explorer, would try to guess the content type of a request using http://en.wikipedia.org/wiki/Content_sniffing[content sniffing].
+Historically browsers, including Internet Explorer, would try to guess the content type of a request using https://en.wikipedia.org/wiki/Content_sniffing[content sniffing].
 This allowed browsers to improve the user experience by guessing the content type on resources that had not specified the content type.
 For example, if a browser encountered a JavaScript file that did not have the content type specified, it would be able to guess the content type and then execute it.
 
@@ -155,16 +155,16 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 [[webflux-headers-hsts]]
 == HTTP Strict Transport Security (HSTS)
 When you type in your bank's website, do you enter mybank.example.com or do you enter https://mybank.example.com[]?
-If you omit the https protocol, you are potentially vulnerable to http://en.wikipedia.org/wiki/Man-in-the-middle_attack[Man in the Middle attacks].
+If you omit the https protocol, you are potentially vulnerable to https://en.wikipedia.org/wiki/Man-in-the-middle_attack[Man in the Middle attacks].
 Even if the website performs a redirect to https://mybank.example.com a malicious user could intercept the initial HTTP request and manipulate the response (i.e. redirect to https://mibank.example.com and steal their credentials).
 
-Many users omit the https protocol and this is why http://tools.ietf.org/html/rfc6797[HTTP Strict Transport Security (HSTS)] was created.
-Once mybank.example.com is added as a http://tools.ietf.org/html/rfc6797#section-5.1[HSTS host], a browser can know ahead of time that any request to mybank.example.com should be interpreted as https://mybank.example.com.
+Many users omit the https protocol and this is why https://tools.ietf.org/html/rfc6797[HTTP Strict Transport Security (HSTS)] was created.
+Once mybank.example.com is added as a https://tools.ietf.org/html/rfc6797#section-5.1[HSTS host], a browser can know ahead of time that any request to mybank.example.com should be interpreted as https://mybank.example.com.
 This greatly reduces the possibility of a Man in the Middle attack occurring.
 
 [NOTE]
 ==
-In accordance with http://tools.ietf.org/html/rfc6797#section-7.2[RFC6797], the HSTS header is only injected into HTTPS responses.
+In accordance with https://tools.ietf.org/html/rfc6797#section-7.2[RFC6797], the HSTS header is only injected into HTTPS responses.
 In order for the browser to acknowledge the header, the browser must first trust the CA that signed the SSL certificate used to make the connection (not just the SSL certificate).
 ==
 
@@ -204,9 +204,9 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 [[webflux-headers-frame-options]]
 == X-Frame-Options
 Allowing your website to be added to a frame can be a security issue.
-For example, using clever CSS styling users could be tricked into clicking on something that they were not intending (http://www.youtube.com/watch?v=3mk0RySeNsU[video demo]).
+For example, using clever CSS styling users could be tricked into clicking on something that they were not intending (https://www.youtube.com/watch?v=3mk0RySeNsU[video demo]).
 For example, a user that is logged into their bank might click a button that grants access to other users.
-This sort of attack is known as http://en.wikipedia.org/wiki/Clickjacking[Clickjacking].
+This sort of attack is known as https://en.wikipedia.org/wiki/Clickjacking[Clickjacking].
 
 [NOTE]
 ==
@@ -249,7 +249,7 @@ This is by no means foolproof, but does assist in XSS protection.
 
 The filtering is typically enabled by default, so adding the header typically just ensures it is enabled and instructs the browser what to do when a XSS attack is detected.
 For example, the filter might try to change the content in the least invasive way to still render everything.
-At times, this type of replacement can become a http://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/[XSS vulnerability in itself].
+At times, this type of replacement can become a https://hackademix.net/2009/11/21/ies-xss-filter-creates-xss-vulnerabilities/[XSS vulnerability in itself].
 Instead, it is best to block the content rather than attempt to fix it.
 To do this we can add the following header:
 
@@ -375,7 +375,7 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 Applying Content Security Policy to a web application is often a non-trivial undertaking.
 The following resources may provide further assistance in developing effective security policies for your site.
 
-http://www.html5rocks.com/en/tutorials/security/content-security-policy/[An Introduction to Content Security Policy]
+https://www.html5rocks.com/en/tutorials/security/content-security-policy/[An Introduction to Content Security Policy]
 
 https://developer.mozilla.org/en-US/docs/Web/Security/CSP[CSP Guide - Mozilla Developer Network]
 

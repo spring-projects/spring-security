@@ -41,14 +41,14 @@ function getBaseOpenIDProviderURL(provider, claimed, immediate) {
 	var providerEndpoint = providers_endpoint[provider];
     var providerURL = providerEndpoint; //From previous discovery
     providerURL += "?";
-    providerURL += "openid.ns=" + encodeURIComponent("http://specs.openid.net/auth/2.0");
+    providerURL += "openid.ns=" + encodeURIComponent("https://specs.openid.net/auth/2.0");
     if(providers[provider].label) {
         providerURL += "&openid.claimed_id=" + encodeURIComponent(claimed);
         providerURL += "&openid.identity=" + encodeURIComponent(claimed);    	
     }
     else {
-        providerURL += "&openid.claimed_id=" + encodeURIComponent("http://specs.openid.net/auth/2.0/identifier_select");
-        providerURL += "&openid.identity=" + encodeURIComponent("http://specs.openid.net/auth/2.0/identifier_select");
+        providerURL += "&openid.claimed_id=" + encodeURIComponent("https://specs.openid.net/auth/2.0/identifier_select");
+        providerURL += "&openid.identity=" + encodeURIComponent("https://specs.openid.net/auth/2.0/identifier_select");
     }
     if(immediate) {
         providerURL += "&openid.return_to=" + encodeURIComponent(server_root + "openid-client/checkid_immediate_response.html");

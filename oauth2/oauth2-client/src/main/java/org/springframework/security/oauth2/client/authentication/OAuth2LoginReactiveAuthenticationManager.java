@@ -79,7 +79,7 @@ public class OAuth2LoginReactiveAuthenticationManager implements
 		return Mono.defer(() -> {
 			OAuth2AuthorizationCodeAuthenticationToken token = (OAuth2AuthorizationCodeAuthenticationToken) authentication;
 
-			// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+			// Section 3.1.2.1 Authentication Request - https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 			// scope REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
 			if (token.getAuthorizationExchange()
 					.getAuthorizationRequest().getScopes().contains("openid")) {

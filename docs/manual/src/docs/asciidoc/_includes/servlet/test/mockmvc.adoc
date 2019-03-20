@@ -2,7 +2,7 @@
 [[test-mockmvc]]
 == Spring MVC Test Integration
 
-Spring Security provides comprehensive integration with http://docs.spring.io/spring/docs/current/spring-framework-reference/html/testing.html#spring-mvc-test-framework[Spring MVC Test]
+Spring Security provides comprehensive integration with https://docs.spring.io/spring/docs/current/spring-framework-reference/html/testing.html#spring-mvc-test-framework[Spring MVC Test]
 
 [[test-mockmvc-setup]]
 === Setting Up MockMvc and Spring Security

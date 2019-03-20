@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    xmlns:decorator="http://www.opensymphony.com/sitemesh/decorator"
-    xmlns:page="http://www.opensymphony.com/sitemesh/page"
-    xmlns:form="http://www.springframework.org/tags/form"
-    xmlns:spring="http://www.springframework.org/tags"
+<jsp:root xmlns:jsp="https://java.sun.com/JSP/Page"
+    xmlns:c="https://java.sun.com/jsp/jstl/core"
+    xmlns:fn="https://java.sun.com/jsp/jstl/functions"
+    xmlns:decorator="https://www.opensymphony.com/sitemesh/decorator"
+    xmlns:page="https://www.opensymphony.com/sitemesh/page"
+    xmlns:form="https://www.springframework.org/tags/form"
+    xmlns:spring="https://www.springframework.org/tags"
     xmlns:sec="http://www.springframework.org/security/tags"
     xmlns:tags="urn:jsptagdir:/WEB-INF/tags" version="2.0">
 
@@ -84,7 +84,7 @@
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
 

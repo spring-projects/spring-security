@@ -5,7 +5,7 @@
 There are several sample web applications that are available with the project.
 To avoid an overly large download, only the "tutorial" and "contacts" samples are included in the distribution zip file.
 The others can be built directly from the source which you can obtain as described in <<get-source,the introduction>>.
-It's easy to build the project yourself and there's more information on the project web site at http://spring.io/spring-security/[http://spring.io/spring-security/].
+It's easy to build the project yourself and there's more information on the project web site at https://spring.io/spring-security/[https://spring.io/spring-security/].
 All paths referred to in this chapter are relative to the project source directory.
 
 
@@ -82,8 +82,8 @@ This means there are actually two identical authentication providers configured 
 
 [[openid-sample]]
 === OpenID Sample
-The OpenID sample demonstrates how to use the namespace to configure OpenID and how to set up http://openid.net/specs/openid-attribute-exchange-1_0.html[attribute exchange] configurations for Google, Yahoo and MyOpenID identity providers (you can experiment with adding others if you wish).
-It uses the JQuery-based http://code.google.com/p/openid-selector/[openid-selector] project to provide a user-friendly login page which allows the user to easily select a provider, rather than typing in the full OpenID identifier.
+The OpenID sample demonstrates how to use the namespace to configure OpenID and how to set up https://openid.net/specs/openid-attribute-exchange-1_0.html[attribute exchange] configurations for Google, Yahoo and MyOpenID identity providers (you can experiment with adding others if you wish).
+It uses the JQuery-based https://code.google.com/p/openid-selector/[openid-selector] project to provide a user-friendly login page which allows the user to easily select a provider, rather than typing in the full OpenID identifier.
 
 The application differs from normal authentication scenarios in that it allows any user to access the site (provided their OpenID authentication is successful).
 The first time you login, you will get a "Welcome [your name]"" message.

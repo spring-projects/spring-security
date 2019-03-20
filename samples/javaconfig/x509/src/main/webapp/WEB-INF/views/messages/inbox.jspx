@@ -1,8 +1,8 @@
 <jsp:root
-   xmlns:jsp="http://java.sun.com/JSP/Page"
-   xmlns:spring="http://www.springframework.org/tags"
-   xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:form="http://www.springframework.org/tags/form"
-   xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+   xmlns:jsp="https://java.sun.com/JSP/Page"
+   xmlns:spring="https://www.springframework.org/tags"
+   xmlns:c="https://java.sun.com/jsp/jstl/core" xmlns:form="https://www.springframework.org/tags/form"
+   xmlns:fmt="https://java.sun.com/jsp/jstl/fmt"
    version="2.0">
    <jsp:directive.page language="java" contentType="text/html"/>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">

@@ -46,7 +46,7 @@ import org.springframework.dao.DataRetrievalFailureException;
  * @author Luke Taylor
  *
  * @see org.springframework.security.ldap.ppolicy.PasswordPolicyControl
- * @see <a href="http://www.ibm.com/developerworks/tivoli/library/t-ldap-controls/">Stefan
+ * @see <a href="https://www.ibm.com/developerworks/tivoli/library/t-ldap-controls/">Stefan
  * Zoerner's IBM developerworks article on LDAP controls.</a>
  */
 public class PasswordPolicyResponseControl extends PasswordPolicyControl {

@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.*;
 public class OAuth2AuthorizationRequestTests {
 	private static final String AUTHORIZATION_URI = "https://provider.com/oauth2/authorize";
 	private static final String CLIENT_ID = "client-id";
-	private static final String REDIRECT_URI = "http://example.com";
+	private static final String REDIRECT_URI = "https://example.com";
 	private static final Set<String> SCOPES = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
 	private static final String STATE = "state";
 
@@ -204,7 +204,7 @@ public class OAuth2AuthorizationRequestTests {
 				.isEqualTo("https://provider.com/oauth2/authorize?" +
 						"response_type=token&client_id=client-id&" +
 						"scope=scope1%20scope2&state=state&" +
-						"redirect_uri=http://example.com");
+						"redirect_uri=https://example.com");
 	}
 
 	@Test
@@ -240,7 +240,7 @@ public class OAuth2AuthorizationRequestTests {
 				.isEqualTo("https://provider.com/oauth2/authorize?" +
 						"response_type=code&client_id=client-id&" +
 						"scope=scope1%20scope2&state=state&" +
-						"redirect_uri=http://example.com&param1=value1&param2=value2");
+						"redirect_uri=https://example.com&param1=value1&param2=value2");
 	}
 
 	@Test
