@@ -252,7 +252,7 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 *
 	 * <p>
 	 * Note that {@link SessionTrackingMode#URL} is intentionally omitted to help
-	 * protected against <a href="http://en.wikipedia.org/wiki/Session_fixation">session
+	 * protected against <a href="https://en.wikipedia.org/wiki/Session_fixation">session
 	 * fixation attacks</a>. {@link SessionTrackingMode#SSL} is omitted because SSL
 	 * configuration is required for this to work.
 	 * </p>

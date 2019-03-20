@@ -50,7 +50,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	ClientRegistration registration = TestClientRegistrations
 			.clientRegistration()
 			.providerConfigurationMetadata(
-					Collections.singletonMap("end_session_endpoint", "http://endpoint"))
+					Collections.singletonMap("end_session_endpoint", "https://endpoint"))
 			.build();
 	ReactiveClientRegistrationRepository repository = new InMemoryReactiveClientRegistrationRepository(registration);
 
@@ -79,7 +79,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
 		this.handler.onLogoutSuccess(f, token).block();
 
-		assertThat(redirectedUrl(this.exchange)).isEqualTo("http://endpoint?id_token_hint=id-token");
+		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://endpoint?id_token_hint=id-token");
 	}
 
 	@Test
@@ -89,10 +89,10 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
 
-		this.handler.setLogoutSuccessUrl(URI.create("http://default"));
+		this.handler.setLogoutSuccessUrl(URI.create("https://default"));
 		this.handler.onLogoutSuccess(f, token).block();
 
-		assertThat(redirectedUrl(this.exchange)).isEqualTo("http://default");
+		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://default");
 	}
 
 	@Test
@@ -105,10 +105,10 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
 
-		this.handler.setLogoutSuccessUrl(URI.create("http://default"));
+		this.handler.setLogoutSuccessUrl(URI.create("https://default"));
 		this.handler.onLogoutSuccess(f, token).block();
 
-		assertThat(redirectedUrl(this.exchange)).isEqualTo("http://default");
+		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://default");
 	}
 
 	@Test
@@ -128,10 +128,10 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
 
-		handler.setLogoutSuccessUrl(URI.create("http://default"));
+		handler.setLogoutSuccessUrl(URI.create("https://default"));
 		handler.onLogoutSuccess(f, token).block();
 
-		assertThat(redirectedUrl(this.exchange)).isEqualTo("http://default");
+		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://default");
 	}
 
 	@Test
@@ -145,13 +145,13 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
 		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
 
-		this.handler.setPostLogoutRedirectUri(URI.create("http://postlogout?encodedparam=value"));
+		this.handler.setPostLogoutRedirectUri(URI.create("https://postlogout?encodedparam=value"));
 		this.handler.onLogoutSuccess(f, token).block();
 
 		assertThat(redirectedUrl(this.exchange))
-				.isEqualTo("http://endpoint?" +
+				.isEqualTo("https://endpoint?" +
 						"id_token_hint=id-token&" +
-						"post_logout_redirect_uri=http://postlogout?encodedparam%3Dvalue");
+						"post_logout_redirect_uri=https://postlogout?encodedparam%3Dvalue");
 	}
 
 	@Test

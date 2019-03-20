@@ -61,7 +61,7 @@ public class FilterInvocationTests {
 		assertThat(fi.getChain()).isEqualTo(chain);
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld/some/more/segments.html");
 		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld/some/more/segments.html");
-		assertThat(fi.getFullRequestUrl()).isEqualTo("http://www.example.com/mycontext/HelloWorld/some/more/segments.html");
+		assertThat(fi.getFullRequestUrl()).isEqualTo("https://www.example.com/mycontext/HelloWorld/some/more/segments.html");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -102,7 +102,7 @@ public class FilterInvocationTests {
 				mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld?foo=bar");
 		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld?foo=bar");
-		assertThat(fi.getFullRequestUrl()).isEqualTo("http://www.example.com/mycontext/HelloWorld?foo=bar");
+		assertThat(fi.getFullRequestUrl()).isEqualTo("https://www.example.com/mycontext/HelloWorld?foo=bar");
 	}
 
 	@Test
@@ -120,7 +120,7 @@ public class FilterInvocationTests {
 				mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld");
 		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld");
-		assertThat(fi.getFullRequestUrl()).isEqualTo("http://www.example.com/mycontext/HelloWorld");
+		assertThat(fi.getFullRequestUrl()).isEqualTo("https://www.example.com/mycontext/HelloWorld");
 	}
 
 	@Test(expected = UnsupportedOperationException.class)

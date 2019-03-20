@@ -6,7 +6,7 @@
 == Introduction
 Namespace configuration has been available since version 2.0 of the Spring Framework.
 It allows you to supplement the traditional Spring beans application context syntax with elements from additional XML schema.
-You can find more information in the Spring http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[Reference Documentation].
+You can find more information in the Spring https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[Reference Documentation].
 A namespace element can be used simply to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax which more closely matches the problem domain and hides the underlying complexity from the user.
 A simple element may conceal the fact that multiple beans and processing steps are being added to the application context.
 For example, adding the following element from the security namespace to an application context will start up an embedded LDAP server for testing use within the application:
@@ -20,7 +20,7 @@ This is much simpler than wiring up the equivalent Apache Directory Server beans
 The most common alternative configuration requirements are supported by attributes on the `ldap-server` element and the user is isolated from worrying about which beans they need to create and what the bean property names are.
 footnote:[You can find out more about the use of the `ldap-server` element in the chapter on pass:specialcharacters,macros[<<ldap>>].].
 Use of a good XML editor while editing the application context file should provide information on the attributes and elements that are available.
-We would recommend that you try out the http://spring.io/tools/sts[Spring Tool Suite] as it has special features for working with standard Spring namespaces.
+We would recommend that you try out the https://spring.io/tools/sts[Spring Tool Suite] as it has special features for working with standard Spring namespaces.
 
 
 To start using the security namespace in your application context, you need to have the `spring-security-config` jar on your classpath.
@@ -32,9 +32,9 @@ Then all you need to do is add the schema declaration to your application contex
 xmlns:security="http://www.springframework.org/schema/security"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/security
-		http://www.springframework.org/schema/security/spring-security.xsd">
+		https://www.springframework.org/schema/security/spring-security.xsd">
 	...
 </beans>
 ----
@@ -49,9 +49,9 @@ Your security application context file would then start like this
 xmlns:beans="http://www.springframework.org/schema/beans"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/security
-		http://www.springframework.org/schema/security/spring-security.xsd">
+		https://www.springframework.org/schema/security/spring-security.xsd">
 	...
 </beans:beans>
 ----
@@ -506,7 +506,7 @@ More details can be found in the <<session-mgmt,Session Management chapter>>.
 
 [[ns-session-fixation]]
 ==== Session Fixation Attack Protection
-http://en.wikipedia.org/wiki/Session_fixation[Session fixation] attacks are a potential risk where it is possible for a malicious attacker to create a session by accessing a site, then persuade another user to log in with the same session (by sending them a link containing the session identifier as a parameter, for example).
+https://en.wikipedia.org/wiki/Session_fixation[Session fixation] attacks are a potential risk where it is possible for a malicious attacker to create a session by accessing a site, then persuade another user to log in with the same session (by sending them a link containing the session identifier as a parameter, for example).
 Spring Security protects against this automatically by creating a new session or otherwise changing the session ID when a user logs in.
 If you don't require this protection, or it conflicts with some other requirement, you can control the behavior using the `session-fixation-protection` attribute on `<session-management>`, which has four options
 
@@ -532,7 +532,7 @@ See the <<session-mgmt,Session Management>> chapter for additional information.
 
 [[ns-openid]]
 === OpenID Support
-The namespace supports http://openid.net/[OpenID] login either instead of, or in addition to normal form-based login, with a simple change:
+The namespace supports https://openid.net/[OpenID] login either instead of, or in addition to normal form-based login, with a simple change:
 
 [source,xml]
 ----
@@ -546,7 +546,7 @@ You should then register yourself with an OpenID provider (such as myopenid.com)
 
 [source,xml]
 ----
-<user name="http://jimi.hendrix.myopenid.com/" authorities="ROLE_USER" />
+<user name="https://jimi.hendrix.myopenid.com/" authorities="ROLE_USER" />
 ----
 
 You should be able to login using the `myopenid.com` site to authenticate.
@@ -557,20 +557,20 @@ A random password will be generated internally, preventing you from accidentally
 
 
 ==== Attribute Exchange
-Support for OpenID http://openid.net/specs/openid-attribute-exchange-1_0.html[attribute exchange].
+Support for OpenID https://openid.net/specs/openid-attribute-exchange-1_0.html[attribute exchange].
 As an example, the following configuration would attempt to retrieve the email and full name from the OpenID provider, for use by the application:
 
 [source,xml]
 ----
 <openid-login>
 <attribute-exchange>
-	<openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
-	<openid-attribute name="name" type="http://axschema.org/namePerson"/>
+	<openid-attribute name="email" type="https://axschema.org/contact/email" required="true"/>
+	<openid-attribute name="name" type="https://axschema.org/namePerson"/>
 </attribute-exchange>
 </openid-login>
 ----
 
-The "type" of each OpenID attribute is a URI, determined by a particular schema, in this case http://axschema.org/[http://axschema.org/].
+The "type" of each OpenID attribute is a URI, determined by a particular schema, in this case https://axschema.org/[https://axschema.org/].
 If an attribute must be retrieved for successful authentication, the `required` attribute can be set.
 The exact schema and attributes supported will depend on your OpenID provider.
 The attribute values are returned as part of the authentication process and can be accessed afterwards using the following code:

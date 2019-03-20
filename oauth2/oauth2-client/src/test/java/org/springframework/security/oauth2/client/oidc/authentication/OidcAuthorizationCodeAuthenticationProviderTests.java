@@ -170,7 +170,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_redirect_uri_parameter"));
 
-		OAuth2AuthorizationResponse authorizationResponse = success().redirectUri("http://example2.com").build();
+		OAuth2AuthorizationResponse authorizationResponse = success().redirectUri("https://example2.com").build();
 		OAuth2AuthorizationExchange authorizationExchange =
 				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 

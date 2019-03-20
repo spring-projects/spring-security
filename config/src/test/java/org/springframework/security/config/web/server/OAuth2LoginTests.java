@@ -366,7 +366,7 @@ public class OAuth2LoginTests {
 
 		this.client.post().uri("/logout")
 				.exchange()
-				.expectHeader().valueEquals("Location", "http://logout?id_token_hint=id-token");
+				.expectHeader().valueEquals("Location", "https://logout?id_token_hint=id-token");
 	}
 
 	@EnableWebFlux
@@ -377,7 +377,7 @@ public class OAuth2LoginTests {
 		private final ClientRegistration withLogout =
 				TestClientRegistrations.clientRegistration()
 						.providerConfigurationMetadata(Collections.singletonMap(
-								"end_session_endpoint", "http://logout")).build();
+								"end_session_endpoint", "https://logout")).build();
 
 		@Bean
 		public SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {

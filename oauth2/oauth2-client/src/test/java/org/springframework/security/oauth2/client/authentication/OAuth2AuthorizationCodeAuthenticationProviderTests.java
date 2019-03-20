@@ -100,7 +100,7 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationResponseRedirectUriNotEqualAuthorizationRequestRedirectUriThenThrowOAuth2AuthorizationException() {
-		OAuth2AuthorizationResponse authorizationResponse = success().redirectUri("http://example2.com").build();
+		OAuth2AuthorizationResponse authorizationResponse = success().redirectUri("https://example2.com").build();
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
 				this.authorizationRequest, authorizationResponse);
 

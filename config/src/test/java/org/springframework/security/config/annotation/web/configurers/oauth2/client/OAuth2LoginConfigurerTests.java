@@ -486,7 +486,7 @@ public class OAuth2LoginConfigurerTests {
 		this.mvc.perform(post("/logout")
 				.with(authentication(token))
 				.with(csrf()))
-				.andExpect(redirectedUrl("http://logout?id_token_hint=id-token"));
+				.andExpect(redirectedUrl("https://logout?id_token_hint=id-token"));
 	}
 
 	private void loadConfig(Class<?>... configs) {
@@ -643,7 +643,7 @@ public class OAuth2LoginConfigurerTests {
 		@Bean
 		ClientRegistrationRepository clientRegistrationRepository() {
 			Map<String, Object> providerMetadata =
-					Collections.singletonMap("end_session_endpoint", "http://logout");
+					Collections.singletonMap("end_session_endpoint", "https://logout");
 			return new InMemoryClientRegistrationRepository(
 					TestClientRegistrations.clientRegistration()
 							.providerConfigurationMetadata(providerMetadata).build());

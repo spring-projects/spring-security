@@ -103,7 +103,7 @@ public class DefaultOAuth2UserServiceTests {
 		this.exception.expectMessage(containsString("missing_user_name_attribute"));
 
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
-				.userInfoUri("http://provider.com/user").build();
+				.userInfoUri("https://provider.com/user").build();
 		this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 	}
 
@@ -235,7 +235,7 @@ public class DefaultOAuth2UserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
-		String userInfoUri = "http://invalid-provider.com/user";
+		String userInfoUri = "https://invalid-provider.com/user";
 
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
 				.userInfoUri(userInfoUri)

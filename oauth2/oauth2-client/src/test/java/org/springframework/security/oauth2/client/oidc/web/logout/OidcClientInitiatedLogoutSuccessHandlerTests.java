@@ -50,7 +50,7 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 	ClientRegistration registration = TestClientRegistrations
 			.clientRegistration()
 			.providerConfigurationMetadata(
-					Collections.singletonMap("end_session_endpoint", "http://endpoint"))
+					Collections.singletonMap("end_session_endpoint", "https://endpoint"))
 			.build();
 	ClientRegistrationRepository repository = new InMemoryClientRegistrationRepository(registration);
 
@@ -77,7 +77,7 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 		this.request.setUserPrincipal(token);
 		this.handler.onLogoutSuccess(this.request, this.response, token);
 
-		assertThat(this.response.getRedirectedUrl()).isEqualTo("http://endpoint?id_token_hint=id-token");
+		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?id_token_hint=id-token");
 	}
 
 	@Test
@@ -86,10 +86,10 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 		Authentication token = mock(Authentication.class);
 
 		this.request.setUserPrincipal(token);
-		this.handler.setDefaultTargetUrl("http://default");
+		this.handler.setDefaultTargetUrl("https://default");
 		this.handler.onLogoutSuccess(this.request, this.response, token);
 
-		assertThat(this.response.getRedirectedUrl()).isEqualTo("http://default");
+		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://default");
 	}
 
 	@Test
@@ -101,10 +101,10 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 				this.registration.getRegistrationId());
 
 		this.request.setUserPrincipal(token);
-		this.handler.setDefaultTargetUrl("http://default");
+		this.handler.setDefaultTargetUrl("https://default");
 		this.handler.onLogoutSuccess(this.request, this.response, token);
 
-		assertThat(this.response.getRedirectedUrl()).isEqualTo("http://default");
+		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://default");
 	}
 
 	@Test
@@ -121,10 +121,10 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 				registration.getRegistrationId());
 
 		this.request.setUserPrincipal(token);
-		handler.setDefaultTargetUrl("http://default");
+		handler.setDefaultTargetUrl("https://default");
 		handler.onLogoutSuccess(this.request, this.response, token);
 
-		assertThat(this.response.getRedirectedUrl()).isEqualTo("http://default");
+		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://default");
 	}
 
 	@Test
@@ -136,13 +136,13 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 				AuthorityUtils.NO_AUTHORITIES,
 				this.registration.getRegistrationId());
 
-		this.handler.setPostLogoutRedirectUri(URI.create("http://postlogout?encodedparam=value"));
+		this.handler.setPostLogoutRedirectUri(URI.create("https://postlogout?encodedparam=value"));
 		this.request.setUserPrincipal(token);
 		this.handler.onLogoutSuccess(this.request, this.response, token);
 
-		assertThat(this.response.getRedirectedUrl()).isEqualTo("http://endpoint?" +
+		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?" +
 				"id_token_hint=id-token&" +
-				"post_logout_redirect_uri=http://postlogout?encodedparam%3Dvalue");
+				"post_logout_redirect_uri=https://postlogout?encodedparam%3Dvalue");
 	}
 
 	@Test

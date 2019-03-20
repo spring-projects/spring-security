@@ -100,13 +100,13 @@ public class AbstractRememberMeServicesTests {
 
 	@Test
 	public void cookieWithOpenIDidentifierAsNameIsEncodedAndDecoded() throws Exception {
-		String[] cookie = new String[] { "http://id.openid.zz", "cookie", "tokens",
+		String[] cookie = new String[] { "https://id.openid.zz", "cookie", "tokens",
 			"blah" };
 		MockRememberMeServices services = new MockRememberMeServices(uds);
 
 		String[] decoded = services.decodeCookie(services.encodeCookie(cookie));
 		assertThat(decoded).hasSize(4);
-		assertThat(decoded[0]).isEqualTo("http://id.openid.zz");
+		assertThat(decoded[0]).isEqualTo("https://id.openid.zz");
 
 		// Check https (SEC-1410)
 		cookie[0] = "https://id.openid.zz";

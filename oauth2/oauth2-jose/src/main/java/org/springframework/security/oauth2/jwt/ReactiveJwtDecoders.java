@@ -35,13 +35,13 @@ public final class ReactiveJwtDecoders {
 
 	/**
 	 * Creates a {@link ReactiveJwtDecoder} using the provided
-	 * <a href="http://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> by making an
+	 * <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> by making an
 	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID Provider
 	 * Configuration Request</a> and using the values in the
 	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
 	 * Provider Configuration Response</a> to initialize the {@link ReactiveJwtDecoder}.
 	 *
-	 * @param oidcIssuerLocation the <a href="http://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @param oidcIssuerLocation the <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
 	 * @return a {@link ReactiveJwtDecoder} that was initialized by the OpenID Provider Configuration.
 	 */
 	public static ReactiveJwtDecoder fromOidcIssuerLocation(String oidcIssuerLocation) {

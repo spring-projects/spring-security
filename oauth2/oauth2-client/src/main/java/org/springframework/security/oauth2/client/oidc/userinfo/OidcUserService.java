@@ -62,7 +62,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			OAuth2User oauth2User = this.oauth2UserService.loadUser(userRequest);
 			userInfo = new OidcUserInfo(oauth2User.getAttributes());
 
-			// http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
+			// https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 
 			// 1) The sub (subject) Claim MUST always be returned in the UserInfo Response
 			if (userInfo.getSubject() == null) {

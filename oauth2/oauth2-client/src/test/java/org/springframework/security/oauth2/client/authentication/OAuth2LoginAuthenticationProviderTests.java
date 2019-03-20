@@ -157,7 +157,7 @@ public class OAuth2LoginAuthenticationProviderTests {
 		this.exception.expectMessage(containsString("invalid_redirect_uri_parameter"));
 
 		OAuth2AuthorizationResponse authorizationResponse =
-				success().redirectUri("http://example2.com").build();
+				success().redirectUri("https://example2.com").build();
 		OAuth2AuthorizationExchange authorizationExchange =
 				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 
