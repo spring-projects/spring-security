@@ -31,9 +31,9 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.CLIENT_ID;
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.SUBJECT;
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.USERNAME;
+import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.CLIENT_ID;
+import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SUBJECT;
+import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.USERNAME;
 
 /**
  * Tests for {@link OAuth2IntrospectionAuthenticationToken}

@@ -30,9 +30,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
-import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -61,6 +60,8 @@ import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2Authoriz
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeReactiveAuthenticationManager;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginReactiveAuthenticationManager;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeReactiveAuthenticationManager;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
@@ -88,6 +89,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
+import org.springframework.security.oauth2.server.resource.introspection.NimbusReactiveOAuth2TokenIntrospectionClient;
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOAuth2TokenIntrospectionClient;
 import org.springframework.security.oauth2.server.resource.web.access.server.BearerTokenServerAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
@@ -1364,8 +1367,9 @@ public class ServerHttpSecurity {
 		 */
 		public class OpaqueTokenSpec {
 			private String introspectionUri;
-			private String introspectionClientId;
-			private String introspectionClientSecret;
+			private String clientId;
+			private String clientSecret;
+			private Supplier<ReactiveOAuth2TokenIntrospectionClient> introspectionClient;
 
 			/**
 			 * Configures the URI of the Introspection endpoint
@@ -1375,6 +1379,9 @@ public class ServerHttpSecurity {
 			public OpaqueTokenSpec introspectionUri(String introspectionUri) {
 				Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
 				this.introspectionUri = introspectionUri;
+				this.introspectionClient = () ->
+						new NimbusReactiveOAuth2TokenIntrospectionClient(
+								this.introspectionUri, this.clientId, this.clientSecret);
 				return this;
 			}
 
@@ -1387,8 +1394,17 @@ public class ServerHttpSecurity {
 			public OpaqueTokenSpec introspectionClientCredentials(String clientId, String clientSecret) {
 				Assert.hasText(clientId, "clientId cannot be empty");
 				Assert.notNull(clientSecret, "clientSecret cannot be null");
-				this.introspectionClientId = clientId;
-				this.introspectionClientSecret = clientSecret;
+				this.clientId = clientId;
+				this.clientSecret = clientSecret;
+				this.introspectionClient = () ->
+						new NimbusReactiveOAuth2TokenIntrospectionClient(
+								this.introspectionUri, this.clientId, this.clientSecret);
+				return this;
+			}
+
+			public OpaqueTokenSpec introspectionClient(ReactiveOAuth2TokenIntrospectionClient introspectionClient) {
+				Assert.notNull(introspectionClient, "introspectionClient cannot be null");
+				this.introspectionClient = () -> introspectionClient;
 				return this;
 			}
 
@@ -1401,8 +1417,14 @@ public class ServerHttpSecurity {
 			}
 
 			protected ReactiveAuthenticationManager getAuthenticationManager() {
-				return new OAuth2IntrospectionReactiveAuthenticationManager(
-						this.introspectionUri, this.introspectionClientId, this.introspectionClientSecret);
+				return new OAuth2IntrospectionReactiveAuthenticationManager(getIntrospectionClient());
+			}
+
+			protected ReactiveOAuth2TokenIntrospectionClient getIntrospectionClient() {
+				if (this.introspectionClient != null) {
+					return this.introspectionClient.get();
+				}
+				return getBean(ReactiveOAuth2TokenIntrospectionClient.class);
 			}
 
 			protected void configure(ServerHttpSecurity http) {
@@ -1412,6 +1434,8 @@ public class ServerHttpSecurity {
 				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
+
+			private OpaqueTokenSpec() {}
 		}
 
 		public ServerHttpSecurity and() {

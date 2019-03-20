@@ -16,27 +16,16 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
-import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
-import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import com.nimbusds.oauth2.sdk.id.Audience;
 import reactor.core.publisher.Mono;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -44,21 +33,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOAuth2TokenIntrospectionClient;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.AUDIENCE;
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.CLIENT_ID;
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.EXPIRES_AT;
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.ISSUED_AT;
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.ISSUER;
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.NOT_BEFORE;
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.SCOPE;
+import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.EXPIRES_AT;
+import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ISSUED_AT;
+import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SCOPE;
 
 /**
  * An {@link ReactiveAuthenticationManager} implementation for opaque
@@ -83,51 +66,19 @@ import static org.springframework.security.oauth2.server.resource.authentication
  * @see ReactiveAuthenticationManager
  */
 public class OAuth2IntrospectionReactiveAuthenticationManager implements ReactiveAuthenticationManager {
-	private URI introspectionUri;
-	private WebClient webClient;
+	private static final BearerTokenError DEFAULT_INVALID_TOKEN =
+			invalidToken("An error occurred while attempting to introspect the token: Invalid token");
+
+	private ReactiveOAuth2TokenIntrospectionClient introspectionClient;
 
 	/**
 	 * Creates a {@code OAuth2IntrospectionReactiveAuthenticationManager} with the provided parameters
 	 *
-	 * @param introspectionUri The introspection endpoint uri
-	 * @param clientId The client id authorized to introspect
-	 * @param clientSecret The client secret for the authorized client
+	 * @param introspectionClient The {@link ReactiveOAuth2TokenIntrospectionClient} to use
 	 */
-	public OAuth2IntrospectionReactiveAuthenticationManager(String introspectionUri,
-			String clientId, String clientSecret) {
-
-		Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
-		Assert.hasText(clientId, "clientId cannot be empty");
-		Assert.notNull(clientSecret, "clientSecret cannot be null");
-
-		this.introspectionUri = URI.create(introspectionUri);
-		this.webClient = WebClient.builder()
-				.defaultHeader(HttpHeaders.AUTHORIZATION, basicHeaderValue(clientId, clientSecret))
-				.build();
-	}
-
-	/**
-	 * Creates a {@code OAuth2IntrospectionReactiveAuthenticationManager} with the provided parameters
-	 *
-	 * @param introspectionUri The introspection endpoint uri
-	 * @param webClient The client for performing the introspection request
-	 */
-	public OAuth2IntrospectionReactiveAuthenticationManager(String introspectionUri,
-			WebClient webClient) {
-
-		Assert.hasText(introspectionUri, "introspectionUri cannot be null");
-		Assert.notNull(webClient, "webClient cannot be null");
-
-		this.introspectionUri = URI.create(introspectionUri);
-		this.webClient = webClient;
-	}
-
-	private static String basicHeaderValue(String clientId, String clientSecret) {
-		String headerValue = clientId + ":";
-		if (StringUtils.hasText(clientSecret)) {
-			headerValue += clientSecret;
-		}
-		return "Basic " + Base64.getEncoder().encodeToString(headerValue.getBytes(StandardCharsets.UTF_8));
+	public OAuth2IntrospectionReactiveAuthenticationManager(ReactiveOAuth2TokenIntrospectionClient introspectionClient) {
+		Assert.notNull(introspectionClient, "introspectionClient cannot be null");
+		this.introspectionClient = introspectionClient;
 	}
 
 	@Override
@@ -141,9 +92,8 @@ public class OAuth2IntrospectionReactiveAuthenticationManager implements Reactiv
 	}
 
 	private Mono<OAuth2IntrospectionAuthenticationToken> authenticate(String token) {
-		return introspect(token)
-				.map(response -> {
-					Map<String, Object> claims = convertClaimsSet(response);
+		return this.introspectionClient.introspect(token)
+				.map(claims -> {
 					Instant iat = (Instant) claims.get(ISSUED_AT);
 					Instant exp = (Instant) claims.get(EXPIRES_AT);
 
@@ -152,91 +102,8 @@ public class OAuth2IntrospectionReactiveAuthenticationManager implements Reactiv
 							new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
 					Collection<GrantedAuthority> authorities = extractAuthorities(claims);
 					return new OAuth2IntrospectionAuthenticationToken(accessToken, claims, authorities);
-				});
-	}
-
-	private Mono<TokenIntrospectionSuccessResponse> introspect(String token) {
-		return Mono.just(token)
-				.flatMap(this::makeRequest)
-				.flatMap(this::adaptToNimbusResponse)
-				.map(this::parseNimbusResponse)
-				.map(this::castToNimbusSuccess)
-				.doOnNext(response -> validate(token, response))
-				.onErrorMap(e -> !(e instanceof OAuth2AuthenticationException), this::onError);
-	}
-
-	private Mono<ClientResponse> makeRequest(String token) {
-		return this.webClient.post()
-				.uri(this.introspectionUri)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_UTF8_VALUE)
-				.body(BodyInserters.fromFormData("token", token))
-				.exchange();
-	}
-
-	private Mono<HTTPResponse> adaptToNimbusResponse(ClientResponse responseEntity) {
-		HTTPResponse response = new HTTPResponse(responseEntity.rawStatusCode());
-		response.setHeader(HttpHeaders.CONTENT_TYPE, responseEntity.headers().contentType().get().toString());
-		if (response.getStatusCode() != HTTPResponse.SC_OK) {
-			throw new OAuth2AuthenticationException(
-					invalidToken("Introspection endpoint responded with " + response.getStatusCode()));
-		}
-		return responseEntity.bodyToMono(String.class)
-				.doOnNext(response::setContent)
-				.map(body -> response);
-	}
-
-	private TokenIntrospectionResponse parseNimbusResponse(HTTPResponse response) {
-		try {
-			return TokenIntrospectionResponse.parse(response);
-		} catch (Exception ex) {
-			throw new OAuth2AuthenticationException(
-					invalidToken(ex.getMessage()), ex);
-		}
-	}
-
-	private TokenIntrospectionSuccessResponse castToNimbusSuccess(TokenIntrospectionResponse introspectionResponse) {
-		if (!introspectionResponse.indicatesSuccess()) {
-			throw new OAuth2AuthenticationException(invalidToken("Token introspection failed"));
-		}
-		return (TokenIntrospectionSuccessResponse) introspectionResponse;
-	}
-
-	private void validate(String token, TokenIntrospectionSuccessResponse response) {
-		// relying solely on the authorization server to validate this token (not checking 'exp', for example)
-		if (!response.isActive()) {
-			throw new OAuth2AuthenticationException(invalidToken("Provided token [" + token + "] isn't active"));
-		}
-	}
-
-	private Map<String, Object> convertClaimsSet(TokenIntrospectionSuccessResponse response) {
-		Map<String, Object> claims = response.toJSONObject();
-		if (response.getAudience() != null) {
-			List<String> audience = response.getAudience().stream()
-					.map(Audience::getValue).collect(Collectors.toList());
-			claims.put(AUDIENCE, Collections.unmodifiableList(audience));
-		}
-		if (response.getClientID() != null) {
-			claims.put(CLIENT_ID, response.getClientID().getValue());
-		}
-		if (response.getExpirationTime() != null) {
-			Instant exp = response.getExpirationTime().toInstant();
-			claims.put(EXPIRES_AT, exp);
-		}
-		if (response.getIssueTime() != null) {
-			Instant iat = response.getIssueTime().toInstant();
-			claims.put(ISSUED_AT, iat);
-		}
-		if (response.getIssuer() != null) {
-			claims.put(ISSUER, issuer(response.getIssuer().getValue()));
-		}
-		if (response.getNotBeforeTime() != null) {
-			claims.put(NOT_BEFORE, response.getNotBeforeTime().toInstant());
-		}
-		if (response.getScope() != null) {
-			claims.put(SCOPE, Collections.unmodifiableList(response.getScope().toStringList()));
-		}
-
-		return claims;
+				})
+				.onErrorMap(OAuth2IntrospectionException.class, this::onError);
 	}
 
 	private Collection<GrantedAuthority> extractAuthorities(Map<String, Object> claims) {
@@ -247,24 +114,19 @@ public class OAuth2IntrospectionReactiveAuthenticationManager implements Reactiv
 				.collect(Collectors.toList());
 	}
 
-	private URL issuer(String uri) {
+	private static BearerTokenError invalidToken(String message) {
 		try {
-			return new URL(uri);
-		} catch (Exception ex) {
-			throw new OAuth2AuthenticationException(
-					invalidToken("Invalid " + ISSUER + " value: " + uri), ex);
+			return new BearerTokenError("invalid_token",
+					HttpStatus.UNAUTHORIZED, message,
+					"https://tools.ietf.org/html/rfc7662#section-2.2");
+		} catch (IllegalArgumentException e) {
+			// some third-party library error messages are not suitable for RFC 6750's error message charset
+			return DEFAULT_INVALID_TOKEN;
 		}
 	}
 
-	private static BearerTokenError invalidToken(String message) {
-		return new BearerTokenError("invalid_token",
-				HttpStatus.UNAUTHORIZED, message,
-				"https://tools.ietf.org/html/rfc7662#section-2.2");
-	}
-
-
-	private OAuth2AuthenticationException onError(Throwable e) {
-		OAuth2Error invalidToken = invalidToken(e.getMessage());
-		return new OAuth2AuthenticationException(invalidToken, e.getMessage());
+	private OAuth2AuthenticationException onError(OAuth2IntrospectionException e) {
+		OAuth2Error invalidRequest = invalidToken(e.getMessage());
+		return new OAuth2AuthenticationException(invalidRequest, e.getMessage());
 	}
 }

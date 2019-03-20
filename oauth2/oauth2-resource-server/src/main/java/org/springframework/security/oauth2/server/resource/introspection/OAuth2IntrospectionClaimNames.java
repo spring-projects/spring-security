@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.server.resource.authentication;
+package org.springframework.security.oauth2.server.resource.introspection;
 
 /**
  * The names of the &quot;Introspection Claims&quot; defined by an
@@ -22,7 +22,7 @@ package org.springframework.security.oauth2.server.resource.authentication;
  * @author Josh Cummings
  * @since 5.2
  */
-interface OAuth2IntrospectionClaimNames {
+public interface OAuth2IntrospectionClaimNames {
 
 	/**
 	 * {@code active} - Indicator whether or not the token is currently active
