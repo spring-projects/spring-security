@@ -25,4 +25,8 @@ public final class OAuth2MockMvcRequestPostProcessors {
 		return new JwtRequestPostProcessor();
 	}
 
+	public static AccessTokenRequestPostProcessor accessToken() {
+		return new AccessTokenRequestPostProcessor();
+	}
+
 }

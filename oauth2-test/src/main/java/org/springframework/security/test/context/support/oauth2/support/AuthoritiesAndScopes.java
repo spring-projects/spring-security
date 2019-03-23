@@ -69,7 +69,6 @@ final class AuthoritiesAndScopes {
 			final Collection<String> authorities,
 			final Collection<String> scopes,
 			final Map<String, Object> attributes) {
-
 		final Optional<String> scopeAttributeName = attributes.keySet()
 				.stream()
 				.filter(k -> "scope".equals(k) || "scp".equals(k) || "scopes".equals(k))
