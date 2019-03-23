@@ -1,16 +1,19 @@
 /*
  * Copyright 2002-2019 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package org.springframework.security.test.context.support.oauth2;
+package org.springframework.security.test.context.support.oauth2.annotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,6 +29,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.test.context.support.oauth2.annotations.WithMockJwt.WithMockJwtSecurityContextFactory;
+import org.springframework.security.test.context.support.oauth2.support.JwtSupport;
 
 /**
  *
@@ -76,7 +81,7 @@ public class WithMockJwtSecurityContextFactoryTests {
 					@Attribute(name = JwtClaimNames.JTI, value = "test ID"),
 					@Attribute(name = "custom-claim", value = "foo") },
 			additionalParsers = {
-					"org.springframework.security.test.context.support.oauth2.WithMockJwtSecurityContextFactoryTests$FooParser" })
+					"org.springframework.security.test.context.support.oauth2.annotations.WithMockJwtSecurityContextFactoryTests$FooParser" })
 	private static class CustomFull {
 	}
 
@@ -86,7 +91,7 @@ public class WithMockJwtSecurityContextFactoryTests {
 
 		final Authentication auth = factory.createSecurityContext(annotation).getAuthentication();
 
-		assertThat(auth.getName()).isEqualTo(WithMockJwt.DEFAULT_AUTH_NAME);
+		assertThat(auth.getName()).isEqualTo(JwtSupport.DEFAULT_AUTH_NAME);
 		assertThat(auth.getAuthorities()).hasSize(1);
 		assertThat(auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_USER"))).isTrue();
 		assertThat(auth.getPrincipal()).isInstanceOf(Jwt.class);
@@ -96,8 +101,8 @@ public class WithMockJwtSecurityContextFactoryTests {
 		assertThat(auth.getCredentials()).isEqualTo(jwt);
 		assertThat(auth.getDetails()).isNull();
 
-		assertThat(jwt.getTokenValue()).isEqualTo(WithMockJwtSecurityContextFactory.DEFAULT_TOKEN_VALUE);
-		assertThat(jwt.getSubject()).isEqualTo(WithMockJwt.DEFAULT_AUTH_NAME);
+		assertThat(jwt.getTokenValue()).isEqualTo(JwtSupport.DEFAULT_TOKEN_VALUE);
+		assertThat(jwt.getSubject()).isEqualTo(JwtSupport.DEFAULT_AUTH_NAME);
 		assertThat(jwt.getAudience()).isNull();
 		assertThat(jwt.getIssuer()).isNull();
 		assertThat(jwt.getIssuedAt()).isNull();
@@ -107,7 +112,7 @@ public class WithMockJwtSecurityContextFactoryTests {
 
 		final Map<String, Object> headers = jwt.getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(WithMockJwt.DEFAULT_HEADER_NAME)).isEqualTo(WithMockJwt.DEFAULT_HEADER_VALUE);
+		assertThat(headers.get(JwtSupport.DEFAULT_HEADER_NAME)).isEqualTo(JwtSupport.DEFAULT_HEADER_VALUE);
 	}
 
 	@Test
@@ -116,7 +121,7 @@ public class WithMockJwtSecurityContextFactoryTests {
 
 		final Authentication auth = factory.createSecurityContext(annotation).getAuthentication();
 
-		assertThat(auth.getName()).isEqualTo(WithMockJwt.DEFAULT_AUTH_NAME);
+		assertThat(auth.getName()).isEqualTo(JwtSupport.DEFAULT_AUTH_NAME);
 		assertThat(auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))).isTrue();
 		assertThat(auth.getPrincipal()).isInstanceOf(Jwt.class);
 
@@ -125,8 +130,8 @@ public class WithMockJwtSecurityContextFactoryTests {
 		assertThat(auth.getCredentials()).isEqualTo(jwt);
 		assertThat(auth.getDetails()).isNull();
 
-		assertThat(jwt.getTokenValue()).isEqualTo(WithMockJwtSecurityContextFactory.DEFAULT_TOKEN_VALUE);
-		assertThat(jwt.getSubject()).isEqualTo(WithMockJwt.DEFAULT_AUTH_NAME);
+		assertThat(jwt.getTokenValue()).isEqualTo(JwtSupport.DEFAULT_TOKEN_VALUE);
+		assertThat(jwt.getSubject()).isEqualTo(JwtSupport.DEFAULT_AUTH_NAME);
 		assertThat(jwt.getAudience()).isNull();
 		assertThat(jwt.getIssuer()).isNull();
 		assertThat(jwt.getIssuedAt()).isNull();
@@ -136,7 +141,7 @@ public class WithMockJwtSecurityContextFactoryTests {
 
 		final Map<String, Object> headers = jwt.getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(WithMockJwt.DEFAULT_HEADER_NAME)).isEqualTo(WithMockJwt.DEFAULT_HEADER_VALUE);
+		assertThat(headers.get(JwtSupport.DEFAULT_HEADER_NAME)).isEqualTo(JwtSupport.DEFAULT_HEADER_VALUE);
 	}
 
 	@Test
@@ -160,7 +165,7 @@ public class WithMockJwtSecurityContextFactoryTests {
 		assertThat(auth.getCredentials()).isEqualTo(jwt);
 		assertThat(auth.getDetails()).isNull();
 
-		assertThat(jwt.getTokenValue()).isEqualTo(WithMockJwtSecurityContextFactory.DEFAULT_TOKEN_VALUE);
+		assertThat(jwt.getTokenValue()).isEqualTo(JwtSupport.DEFAULT_TOKEN_VALUE);
 		assertThat(jwt.getSubject()).isEqualTo("Test User");
 		assertThat(jwt.getAudience()).isNull();
 		assertThat(jwt.getIssuer()).isNull();
@@ -171,7 +176,7 @@ public class WithMockJwtSecurityContextFactoryTests {
 
 		final Map<String, Object> headers = jwt.getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(WithMockJwt.DEFAULT_HEADER_NAME)).isEqualTo(WithMockJwt.DEFAULT_HEADER_VALUE);
+		assertThat(headers.get(JwtSupport.DEFAULT_HEADER_NAME)).isEqualTo(JwtSupport.DEFAULT_HEADER_VALUE);
 	}
 
 	@Test
@@ -195,7 +200,7 @@ public class WithMockJwtSecurityContextFactoryTests {
 		assertThat(auth.getCredentials()).isEqualTo(jwt);
 		assertThat(auth.getDetails()).isNull();
 
-		assertThat(jwt.getTokenValue()).isEqualTo(WithMockJwtSecurityContextFactory.DEFAULT_TOKEN_VALUE);
+		assertThat(jwt.getTokenValue()).isEqualTo(JwtSupport.DEFAULT_TOKEN_VALUE);
 		assertThat(jwt.getSubject()).isEqualTo("Test User");
 		assertThat(jwt.getAudience()).isNull();
 		assertThat(jwt.getIssuer()).isNull();
@@ -207,7 +212,7 @@ public class WithMockJwtSecurityContextFactoryTests {
 
 		final Map<String, Object> headers = jwt.getHeaders();
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(WithMockJwt.DEFAULT_HEADER_NAME)).isEqualTo(WithMockJwt.DEFAULT_HEADER_VALUE);
+		assertThat(headers.get(JwtSupport.DEFAULT_HEADER_NAME)).isEqualTo(JwtSupport.DEFAULT_HEADER_VALUE);
 	}
 
 	@Test
@@ -241,7 +246,7 @@ public class WithMockJwtSecurityContextFactoryTests {
 		assertThat(principal.getIssuer()).isEqualTo(new URL("https://test-issuer.org"));
 		assertThat(principal.getSubject()).isEqualTo("truc");
 		assertThat(principal.getNotBefore()).isNull();
-		assertThat(principal.getTokenValue()).isEqualTo(WithMockJwtSecurityContextFactory.DEFAULT_TOKEN_VALUE);
+		assertThat(principal.getTokenValue()).isEqualTo(JwtSupport.DEFAULT_TOKEN_VALUE);
 		assertThat(principal.getClaims().get("custom-claim")).isEqualTo("foo");
 
 	}

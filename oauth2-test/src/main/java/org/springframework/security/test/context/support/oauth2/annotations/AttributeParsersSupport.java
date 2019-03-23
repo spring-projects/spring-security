@@ -1,18 +1,23 @@
 /*
  * Copyright 2002-2019 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package org.springframework.security.test.context.support.oauth2;
+package org.springframework.security.test.context.support.oauth2.annotations;
 
-import java.lang.reflect.InvocationTargetException;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
@@ -31,33 +36,27 @@ import java.util.stream.Stream;
 import org.springframework.util.StringUtils;
 
 /**
- * Helps turn a {@link org.springframework.security.test.context.support.oauth2.Attribute @Attribute} array into a
+ * Helps turn a {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute @Attribute} array into a
  * {@link java.util.Map Map&lt;String, Object&gt;}
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
  *
  */
-class AttributeParsersHelper {
+class AttributeParsersSupport {
 	private final Map<String, AttributeValueParser<?>> parsers;
 
-	private AttributeParsersHelper(
+	private AttributeParsersSupport(
 			final Map<String, AttributeValueParser<?>> baseParsers,
 			final String... additionalParserNames) {
 		this.parsers = new HashMap<>(baseParsers);
 
-		Stream.of(additionalParserNames).distinct().map(t -> {
+		Stream.of(additionalParserNames).distinct().map(parserName -> {
 			try {
-				return Class.forName(t);
-			} catch (final ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
-		}).map(c -> {
-			try {
-				return (AttributeValueParser<?>) c.getDeclaredConstructor().newInstance();
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				throw new RuntimeException("Missing public no-arg constructor on " + c.getName());
+				final Class<?> clazz = Class.forName(parserName);
+				return (AttributeValueParser<?>) clazz.getDeclaredConstructor().newInstance();
+			} catch (final Exception e) {
+				throw new RuntimeException("Missing public no-arg constructor on " + parserName);
 			}
 		}).forEachOrdered(p -> {
 			this.parsers.put(p.getClass().getName(), p);
@@ -65,10 +64,9 @@ class AttributeParsersHelper {
 		});
 	}
 
-	private AttributeValueParser<?> getParser(final TargetType targetType, final String parserOverrideClassName) {
+	private AttributeValueParser<?> getParser(final TargetType targetType, final String parserName) {
 		final Optional<AttributeValueParser<?>> parserOverride =
-				Optional.ofNullable(StringUtils.isEmpty(parserOverrideClassName) ? null : parserOverrideClassName)
-						.map(parsers::get);
+				Optional.ofNullable(StringUtils.isEmpty(parserName) ? null : parserName).map(parsers::get);
 
 		switch (targetType) {
 		case STRING:
@@ -90,7 +88,12 @@ class AttributeParsersHelper {
 		case URL:
 			return parserOverride.orElse(parsers.get("UrlParser"));
 		default:
-			assert (!StringUtils.isEmpty(parserOverrideClassName));
+			assertFalse(
+					"parserOverride must benon empty when parseTo = \"" + targetType + "\"",
+					StringUtils.isEmpty(parserName));
+			assertTrue(
+					"No registered AttributeValueParser implementation for " + parserName,
+					parserOverride.isPresent());
 			return parserOverride.get();
 		}
 
@@ -98,16 +101,13 @@ class AttributeParsersHelper {
 
 	private ParsedProperty<Object> parse(final Attribute p) {
 		final AttributeValueParser<?> parser = getParser(p.parseTo(), p.parserOverride());
-		if (parser == null) {
-			throw new RuntimeException("No registered AttributeValueParser implementation for " + p.parserOverride());
-		}
 
 		return new ParsedProperty<>(p.name(), parser.parse(p.value()));
 	}
 
 	/**
 	 * <p>
-	 * Turns a {@link org.springframework.security.test.context.support.oauth2.Attribute @Attribute} array into a
+	 * Turns a {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute @Attribute} array into a
 	 * {@link java.util.Map Map&lt;String, Object&gt;} as required for
 	 * {@link org.springframework.security.oauth2.jwt.Jwt JWT} headers and claims.
 	 * </p>
@@ -115,11 +115,11 @@ class AttributeParsersHelper {
 	 * Process highlights:
 	 * </p>
 	 * <ul>
-	 * <li>each {@link org.springframework.security.test.context.support.oauth2.Attribute#value() value()} is parsed
-	 * according to {@link org.springframework.security.test.context.support.oauth2.Attribute#parserOverride()
+	 * <li>each {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute#value() value()} is parsed
+	 * according to {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute#parserOverride()
 	 * parser()}</li>
 	 * <li>obtained values are associated with
-	 * {@link org.springframework.security.test.context.support.oauth2.Attribute#name() name()}</li>
+	 * {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute#name() name()}</li>
 	 * <li>values with same name are accumulated in the same collection</li>
 	 * </ul>
 	 *
@@ -154,16 +154,16 @@ class AttributeParsersHelper {
 	}
 
 	/**
-	 * Instantiates default {@link org.springframework.security.test.context.support.oauth2.AttributeValueParser
+	 * Instantiates default {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
 	 * AttributeValueParser}s plus all provided ones (using default constructor)
 	 *
-	 * @param additionalParserNames {@link org.springframework.security.test.context.support.oauth2.AttributeValueParser
+	 * @param additionalParserNames {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
 	 * AttributeValueParser} implementations class names to add to
-	 * {@link org.springframework.security.test.context.support.oauth2.AttributeParsersHelper#DEFAULT_PARSERS default
+	 * {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeParsersSupport#DEFAULT_PARSERS default
 	 * ones}
 	 * @return helper instance with provided parsers plus default ones
 	 */
-	public static AttributeParsersHelper withDefaultParsers(final String... additionalParserNames) {
+	public static AttributeParsersSupport withDefaultParsers(final String... additionalParserNames) {
 		final Map<String, AttributeValueParser<?>> baseParsers = new HashMap<>(9);
 
 		baseParsers.put("NoOpParser", (final String value) -> value);
@@ -194,19 +194,19 @@ class AttributeParsersHelper {
 			}
 		});
 
-		return new AttributeParsersHelper(baseParsers, additionalParserNames);
+		return new AttributeParsersSupport(baseParsers, additionalParserNames);
 	}
 
 	/**
-	 * Instantiates all provided {@link org.springframework.security.test.context.support.oauth2.AttributeValueParser
+	 * Instantiates all provided {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
 	 * AttributeValueParser}s using default constructor
 	 *
-	 * @param allParserNames {@link org.springframework.security.test.context.support.oauth2.AttributeValueParser
+	 * @param allParserNames {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
 	 * AttributeValueParser} implementations class names
 	 * @return helper instance with provided parsers only
 	 */
-	public static AttributeParsersHelper withoutDefaultParsers(final String... allParserNames) {
-		return new AttributeParsersHelper(Collections.emptyMap(), allParserNames);
+	public static AttributeParsersSupport withoutDefaultParsers(final String... allParserNames) {
+		return new AttributeParsersSupport(Collections.emptyMap(), allParserNames);
 	}
 
 	private static final class ParsedProperty<T> {

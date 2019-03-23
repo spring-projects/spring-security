@@ -1,16 +1,21 @@
 /*
  * Copyright 2002-2019 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package org.springframework.security.test.context.support.oauth2;
+package org.springframework.security.test.context.support.oauth2.annotations;
+
+import static org.springframework.security.test.context.support.oauth2.support.CollectionsSupport.asSet;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -23,11 +28,15 @@ import org.springframework.core.annotation.AliasFor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithSecurityContext;
+import org.springframework.security.test.context.support.WithSecurityContextFactory;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
+import org.springframework.security.test.context.support.oauth2.annotations.WithMockJwt.WithMockJwtSecurityContextFactory;
+import org.springframework.security.test.context.support.oauth2.support.JwtSupport;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -55,13 +64,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * <li>{@link Authentication#getName() getName()} returns the JWT {@code subject} claim, set from this annotation
  * {@code name} value ({@code "user"} by default)</li>
  * <li>{@link Authentication#getAuthorities() authorities} will be a collection of {@link SimpleGrantedAuthority} as
- * defined by this annotation {@link #authorities()} (
- *
- * <pre>
- * { "ROLE_USER" }
- * </pre>
- *
- * by default</li>
+ * defined by this annotation {@link #authorities()} ({@code "ROLE_USER" } by default)</li>
  * </ul>
  *
  * Sample Usage:
@@ -104,16 +107,13 @@ import org.springframework.test.web.servlet.MockMvc;
 @Documented
 @WithSecurityContext(factory = WithMockJwtSecurityContextFactory.class)
 public @interface WithMockJwt {
-	public static final String DEFAULT_AUTH_NAME = "user";
-	public static final String DEFAULT_HEADER_NAME = "alg";
-	public static final String DEFAULT_HEADER_VALUE = "test-algorythm";
 
 	/**
 	 * Alias for authorities
 	 * @return Authorities the client is to be granted
 	 */
 	@AliasFor("authorities")
-	String[] value() default { "ROLE_USER" };
+	String[] value() default { "ROLE_USER" };// TODO: use default value in JwtSupport
 
 	/**
 	 * Alias for value
@@ -123,10 +123,15 @@ public @interface WithMockJwt {
 	String[] authorities() default { "ROLE_USER" };
 
 	/**
+	 * @return Scopes the client is to be granted (added to "scope" claim, and authorities with "SCOPE_" prefix)
+	 */
+	String[] scopes() default {};
+
+	/**
 	 * To be used both as authentication {@code Principal} name and token {@code username} attribute.
 	 * @return Resource owner name
 	 */
-	String name() default DEFAULT_AUTH_NAME;
+	String name() default JwtSupport.DEFAULT_AUTH_NAME;
 
 	/**
 	 * @return JWT claims
@@ -137,7 +142,8 @@ public @interface WithMockJwt {
 	 * Of little use at unit test time...
 	 * @return JWT headers
 	 */
-	Attribute[] headers() default { @Attribute(name = DEFAULT_HEADER_NAME, value = DEFAULT_HEADER_VALUE) };
+	Attribute[] headers() default {
+			@Attribute(name = JwtSupport.DEFAULT_HEADER_NAME, value = JwtSupport.DEFAULT_HEADER_VALUE) };
 
 	/**
 	 * Parsers are provided for for all {@link TargetType} but {@link TargetType#OTHER}. Those will be added to parse
@@ -157,4 +163,23 @@ public @interface WithMockJwt {
 	 */
 	@AliasFor(annotation = WithSecurityContext.class)
 	TestExecutionEvent setupBefore() default TestExecutionEvent.TEST_METHOD;
+
+	public final class WithMockJwtSecurityContextFactory implements WithSecurityContextFactory<WithMockJwt> {
+		@Override
+		public SecurityContext createSecurityContext(final WithMockJwt annotation) {
+			final AttributeParsersSupport parsersHelper =
+					AttributeParsersSupport.withDefaultParsers(annotation.additionalParsers());
+
+			final SecurityContext context = SecurityContextHolder.createEmptyContext();
+			context.setAuthentication(
+					JwtSupport.authentication(
+							annotation.name(),
+							asSet(annotation.authorities()),
+							asSet(annotation.scopes()),
+							parsersHelper.parse(annotation.claims()),
+							parsersHelper.parse(annotation.headers())));
+
+			return context;
+		}
+	}
 }

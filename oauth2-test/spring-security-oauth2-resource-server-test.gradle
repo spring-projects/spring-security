@@ -4,4 +4,8 @@ dependencies {
 	compile project(':spring-security-test')
 	compile project(':spring-security-oauth2-resource-server')
 	compile project(':spring-security-oauth2-jose')
+	
+	compile 'org.springframework:spring-test'
+	
+	provided 'javax.servlet:javax.servlet-api'
 }

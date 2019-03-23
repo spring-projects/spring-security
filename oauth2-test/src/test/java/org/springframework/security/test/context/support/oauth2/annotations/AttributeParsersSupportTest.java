@@ -1,16 +1,19 @@
 /*
  * Copyright 2002-2019 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package org.springframework.security.test.context.support.oauth2;
+package org.springframework.security.test.context.support.oauth2.annotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,9 +25,6 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.security.test.context.support.oauth2.Attribute;
-import org.springframework.security.test.context.support.oauth2.AttributeParsersHelper;
-import org.springframework.security.test.context.support.oauth2.AttributeValueParser;
 
 /**
  *
@@ -32,7 +32,7 @@ import org.springframework.security.test.context.support.oauth2.AttributeValuePa
  * @since 5.2.0
  *
  */
-public class AttributeParsersHelperTest {
+public class AttributeParsersSupportTest {
 
 	@Attribute(name = "a", value = "bidule", parserOverride = "SomeTypeParser")
 	private static final class AProperty {
@@ -41,14 +41,14 @@ public class AttributeParsersHelperTest {
 	@Attribute(
 			name = "b",
 			value = "chose",
-			parserOverride = "org.springframework.security.test.context.support.oauth2.AttributeParsersHelperTest$SomeTypeParser")
+			parserOverride = "org.springframework.security.test.context.support.oauth2.annotations.AttributeParsersSupportTest$SomeTypeParser")
 	private static final class BProperty {
 	}
 
 	@Test
 	public void parsePropertiesWithDistinctNames() {
-		final AttributeParsersHelper helper = AttributeParsersHelper.withoutDefaultParsers(
-				"org.springframework.security.test.context.support.oauth2.AttributeParsersHelperTest$SomeTypeParser");
+		final AttributeParsersSupport helper = AttributeParsersSupport.withoutDefaultParsers(
+				"org.springframework.security.test.context.support.oauth2.annotations.AttributeParsersSupportTest$SomeTypeParser");
 		final Attribute propertyAnnotationA = AnnotationUtils.findAnnotation(AProperty.class, Attribute.class);
 		final Attribute propertyAnnotationB = AnnotationUtils.findAnnotation(BProperty.class, Attribute.class);
 
@@ -70,7 +70,7 @@ public class AttributeParsersHelperTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void parsePropertiesWithSameNameAccumulatesValues() {
-		final AttributeParsersHelper helper = AttributeParsersHelper.withDefaultParsers();
+		final AttributeParsersSupport helper = AttributeParsersSupport.withDefaultParsers();
 		final Attribute propertyAnnotationC = AnnotationUtils.findAnnotation(CProperty.class, Attribute.class);
 		final Attribute propertyAnnotationD = AnnotationUtils.findAnnotation(DProperty.class, Attribute.class);
 
@@ -88,8 +88,8 @@ public class AttributeParsersHelperTest {
 
 	@Test
 	public void parsePropertiesUsesParseroverrides() {
-		final AttributeParsersHelper helper = AttributeParsersHelper.withDefaultParsers(
-				"org.springframework.security.test.context.support.oauth2.AttributeParsersHelperTest$InstantParser");
+		final AttributeParsersSupport helper = AttributeParsersSupport.withDefaultParsers(
+				"org.springframework.security.test.context.support.oauth2.annotations.AttributeParsersSupportTest$InstantParser");
 
 		final Attribute propertyAnnotation = AnnotationUtils.findAnnotation(EProperty.class, Attribute.class);
 
