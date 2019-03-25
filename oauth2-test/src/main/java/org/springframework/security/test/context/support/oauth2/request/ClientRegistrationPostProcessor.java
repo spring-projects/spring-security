@@ -36,18 +36,14 @@ public final class ClientRegistrationPostProcessor
 	private final ClientRegistration.Builder delegate;
 	private final OidcIdTokenRequestPostProcessor root;
 
-	public ClientRegistrationPostProcessor(
-			final OidcIdTokenRequestPostProcessor root,
-			final String registrationID) {
+	public ClientRegistrationPostProcessor(final OidcIdTokenRequestPostProcessor root, final String registrationID) {
 		this.delegate = ClientRegistration.withRegistrationId(registrationID);
 		this.root = root;
 	}
 
-	public static ClientRegistrationPostProcessor
-			withDefaults(final OidcIdTokenRequestPostProcessor root) {
+	public static ClientRegistrationPostProcessor withDefaults(final OidcIdTokenRequestPostProcessor root) {
 		return new ClientRegistrationPostProcessor(root, OidcIdSupport.CLIENT_REGISTRATION_ID)
-				.authorizationGrantType(
-						new AuthorizationGrantType(OidcIdSupport.CLIENT_GRANT_TYPE))
+				.authorizationGrantType(new AuthorizationGrantType(OidcIdSupport.CLIENT_GRANT_TYPE))
 				.clientId(OidcIdSupport.CLIENT_ID)
 				.tokenUri(OidcIdSupport.CLIENT_TOKEN_URI);
 	}
@@ -58,13 +54,11 @@ public final class ClientRegistrationPostProcessor
 	}
 
 	@Override
-	public MockHttpServletRequest
-			postProcessRequest(final MockHttpServletRequest request) {
+	public MockHttpServletRequest postProcessRequest(final MockHttpServletRequest request) {
 		return root.postProcessRequest(request);
 	}
 
-	public ClientRegistrationPostProcessor
-			authorizationGrantType(final AuthorizationGrantType authorizationGrantType) {
+	public ClientRegistrationPostProcessor authorizationGrantType(final AuthorizationGrantType authorizationGrantType) {
 		delegate.authorizationGrantType(authorizationGrantType);
 		return this;
 	}
@@ -78,8 +72,8 @@ public final class ClientRegistrationPostProcessor
 		return delegate;
 	}
 
-	public ClientRegistrationPostProcessor clientAuthenticationMethod(
-			final ClientAuthenticationMethod clientAuthenticationMethod) {
+	public ClientRegistrationPostProcessor
+			clientAuthenticationMethod(final ClientAuthenticationMethod clientAuthenticationMethod) {
 		delegate.clientAuthenticationMethod(clientAuthenticationMethod);
 		return this;
 	}
@@ -104,14 +98,13 @@ public final class ClientRegistrationPostProcessor
 		return this;
 	}
 
-	public ClientRegistrationPostProcessor providerConfigurationMetadata(
-			final Map<String, Object> configurationMetadata) {
+	public ClientRegistrationPostProcessor
+			providerConfigurationMetadata(final Map<String, Object> configurationMetadata) {
 		delegate.providerConfigurationMetadata(configurationMetadata);
 		return this;
 	}
 
-	public ClientRegistrationPostProcessor
-			redirectUriTemplate(final String redirectUriTemplate) {
+	public ClientRegistrationPostProcessor redirectUriTemplate(final String redirectUriTemplate) {
 		delegate.redirectUriTemplate(redirectUriTemplate);
 		return this;
 	}
@@ -126,8 +119,8 @@ public final class ClientRegistrationPostProcessor
 		return this;
 	}
 
-	public ClientRegistrationPostProcessor userInfoAuthenticationMethod(
-			final AuthenticationMethod userInfoAuthenticationMethod) {
+	public ClientRegistrationPostProcessor
+			userInfoAuthenticationMethod(final AuthenticationMethod userInfoAuthenticationMethod) {
 		delegate.userInfoAuthenticationMethod(userInfoAuthenticationMethod);
 		return this;
 	}

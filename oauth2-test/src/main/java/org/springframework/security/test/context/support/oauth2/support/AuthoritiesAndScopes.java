@@ -53,16 +53,18 @@ final class AuthoritiesAndScopes {
 	 * <ul>
 	 * <li>scopes of course</li>
 	 * <li>authorities ("SCOPE_" prefix)</li>
-	 * <li>claims with keys "scope", "scp" and "scopes", first entry found being used and others ignored</li>
+	 * <li>claims with keys "scope", "scp" and "scopes", first entry found being used and
+	 * others ignored</li>
 	 * </ul>
 	 * <p>
 	 * All scopes are merged and set in claims, authorities and allScopes
 	 * </p>
 	 *
-	 * @param authorities authorities array (probably from an annotation {@code authorities()})
+	 * @param authorities authorities array (probably from an annotation
+	 * {@code authorities()})
 	 * @param scopes scopes array (probably from an annotation {@code scopes()})
-	 * @param attributes attributes <b>/!\ mutable /!\</b> map (probably from an annotation {@code attributes()} or
-	 * {@code claims()})
+	 * @param attributes attributes <b>/!\ mutable /!\</b> map (probably from an
+	 * annotation {@code attributes()} or {@code claims()})
 	 * @return a structure containing merged granted authorities and scopes
 	 */
 	public static AuthoritiesAndScopes get(

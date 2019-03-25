@@ -22,15 +22,17 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Annotation to create an entry in a {@link java.util.Map Map&lt;String, Object&gt;} such as
- * {@link org.springframework.security.oauth2.jwt.Jwt JWT} headers or claims.
+ * Annotation to create an entry in a {@link java.util.Map Map&lt;String, Object&gt;} such
+ * as {@link org.springframework.security.oauth2.jwt.Jwt JWT} headers or claims.
  * </p>
  * <p>
- * {@link #parserOverride()} can be referenced either by fully qualified name or simple name.
+ * {@link #parserOverride()} can be referenced either by fully qualified name or simple
+ * name.
  * </p>
  * <p>
- * See {@link AttributeValueParser}. Implementations for any {@link TargetType} but {@link TargetType#OTHER} are
- * provided out of the box (can be overriden, just provide a parser with same name)
+ * See {@link AttributeValueParser}. Implementations for any {@link TargetType} but
+ * {@link TargetType#OTHER} are provided out of the box (can be overriden, just provide a
+ * parser with same name)
  * </p>
  * Sample usage:<br>
  *
@@ -46,11 +48,13 @@ import java.lang.annotation.Target;
  *
  * This would create
  * <ul>
- * <li>an {@code audience} claim with a value being a {@code List<String>} with two entries</li>
+ * <li>an {@code audience} claim with a value being a {@code List<String>} with two
+ * entries</li>
  * <li>an {@code issuer} claim with a value being a {@code java.net.URL} instance</li>
- * <li>a {@code machin} claim with {@code chose} String as value (default parser is {@code NoOpParser})</li>
- * <li>a {@code truc} claim whith an instance of what {@code your.fancy.ParserImpl} is designed to build from
- * {@code bidule} string as value</li>
+ * <li>a {@code machin} claim with {@code chose} String as value (default parser is
+ * {@code NoOpParser})</li>
+ * <li>a {@code truc} claim whith an instance of what {@code your.fancy.ParserImpl} is
+ * designed to build from {@code bidule} string as value</li>
  * </ul>
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
@@ -67,14 +71,15 @@ public @interface Attribute {
 	String name();
 
 	/**
-	 * @return a value to be transformed using "parser" before being put as value in {@link java.util.Map Map&lt;String,
-	 * Object&gt;}
+	 * @return a value to be transformed using "parser" before being put as value in
+	 * {@link java.util.Map Map&lt;String, Object&gt;}
 	 */
 	String value();
 
 	/**
 	 * Determines the {@link AttributeValueParser} to use.<br>
-	 * If empty or {@link TargetType#OTHER}, {@link #parserOverride()} must be provided too.
+	 * If empty or {@link TargetType#OTHER}, {@link #parserOverride()} must be provided
+	 * too.
 	 * @return the type attribute value should be turned into
 	 */
 	TargetType parseTo() default TargetType.STRING;

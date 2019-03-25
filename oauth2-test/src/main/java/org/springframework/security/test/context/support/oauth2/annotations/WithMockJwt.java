@@ -42,29 +42,34 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * <p>
- * A lot like {@link org.springframework.security.test.context.support.WithMockUser @WithMockUser}: when used with
- * {@link WithSecurityContextTestExecutionListener} this annotation can be added to a test method to emulate running
- * with a mocked authentication created out of a {@link Jwt JWT}.
+ * A lot like
+ * {@link org.springframework.security.test.context.support.WithMockUser @WithMockUser}:
+ * when used with {@link WithSecurityContextTestExecutionListener} this annotation can be
+ * added to a test method to emulate running with a mocked authentication created out of a
+ * {@link Jwt JWT}.
  * </p>
  * <p>
  * Main steps are:
  * </p>
  * <ul>
- * <li>A {@link Jwt JWT} is created as per this annotation {@code name} (forces {@code subject} claim), {@code headers}
- * and {@code claims}</li>
- * <li>A {@link JwtAuthenticationToken JwtAuthenticationToken} is then created and fed with this new JWT token</li>
- * <li>An empty {@link SecurityContext} is instantiated and populated with this {@code JwtAuthenticationToken}</li>
+ * <li>A {@link Jwt JWT} is created as per this annotation {@code name} (forces
+ * {@code subject} claim), {@code headers} and {@code claims}</li>
+ * <li>A {@link JwtAuthenticationToken JwtAuthenticationToken} is then created and fed
+ * with this new JWT token</li>
+ * <li>An empty {@link SecurityContext} is instantiated and populated with this
+ * {@code JwtAuthenticationToken}</li>
  * </ul>
  * <p>
- * As a result, the {@link Authentication} {@link MockMvc} gets from security context will have the following
- * properties:
+ * As a result, the {@link Authentication} {@link MockMvc} gets from security context will
+ * have the following properties:
  * </p>
  * <ul>
  * <li>{@link Authentication#getPrincipal() getPrincipal()} returns a {@link Jwt}</li>
- * <li>{@link Authentication#getName() getName()} returns the JWT {@code subject} claim, set from this annotation
- * {@code name} value ({@code "user"} by default)</li>
- * <li>{@link Authentication#getAuthorities() authorities} will be a collection of {@link SimpleGrantedAuthority} as
- * defined by this annotation {@link #authorities()} ({@code "ROLE_USER" } by default)</li>
+ * <li>{@link Authentication#getName() getName()} returns the JWT {@code subject} claim,
+ * set from this annotation {@code name} value ({@code "user"} by default)</li>
+ * <li>{@link Authentication#getAuthorities() authorities} will be a collection of
+ * {@link SimpleGrantedAuthority} as defined by this annotation {@link #authorities()}
+ * ({@code "ROLE_USER" } by default)</li>
  * </ul>
  *
  * Sample Usage:
@@ -123,12 +128,14 @@ public @interface WithMockJwt {
 	String[] authorities() default { "ROLE_USER" };
 
 	/**
-	 * @return Scopes the client is to be granted (added to "scope" claim, and authorities with "SCOPE_" prefix)
+	 * @return Scopes the client is to be granted (added to "scope" claim, and authorities
+	 * with "SCOPE_" prefix)
 	 */
 	String[] scopes() default {};
 
 	/**
-	 * To be used both as authentication {@code Principal} name and token {@code username} attribute.
+	 * To be used both as authentication {@code Principal} name and token {@code username}
+	 * attribute.
 	 * @return Resource owner name
 	 */
 	String name() default JwtSupport.DEFAULT_AUTH_NAME;
@@ -146,8 +153,9 @@ public @interface WithMockJwt {
 			@Attribute(name = JwtSupport.DEFAULT_HEADER_NAME, value = JwtSupport.DEFAULT_HEADER_VALUE) };
 
 	/**
-	 * Parsers are provided for for all {@link TargetType} but {@link TargetType#OTHER}. Those will be added to parse
-	 * more types or override defaults with same {@code SimpleName}.
+	 * Parsers are provided for for all {@link TargetType} but {@link TargetType#OTHER}.
+	 * Those will be added to parse more types or override defaults with same
+	 * {@code SimpleName}.
 	 *
 	 * @return parsers to add to default ones (or override)
 	 *

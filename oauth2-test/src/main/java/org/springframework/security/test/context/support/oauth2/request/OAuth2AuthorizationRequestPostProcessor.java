@@ -35,11 +35,8 @@ public class OAuth2AuthorizationRequestPostProcessor
 				.redirectUri(OidcIdSupport.REQUEST_REDIRECT_URI);
 	}
 
-	public static OAuth2AuthorizationRequestPostProcessor
-			withDefaults(final OidcIdTokenRequestPostProcessor root) {
-		return withDefaults(
-				root,
-				new AuthorizationGrantType(OidcIdSupport.REQUEST_GRANT_TYPE));
+	public static OAuth2AuthorizationRequestPostProcessor withDefaults(final OidcIdTokenRequestPostProcessor root) {
+		return withDefaults(root, new AuthorizationGrantType(OidcIdSupport.REQUEST_GRANT_TYPE));
 	}
 
 	@Override
@@ -48,8 +45,7 @@ public class OAuth2AuthorizationRequestPostProcessor
 	}
 
 	@Override
-	public MockHttpServletRequest
-			postProcessRequest(final MockHttpServletRequest request) {
+	public MockHttpServletRequest postProcessRequest(final MockHttpServletRequest request) {
 		return root.postProcessRequest(request);
 	}
 
@@ -57,20 +53,17 @@ public class OAuth2AuthorizationRequestPostProcessor
 		return delegate;
 	}
 
-	public OAuth2AuthorizationRequestPostProcessor
-			additionalParameter(final String name, final Object value) {
+	public OAuth2AuthorizationRequestPostProcessor additionalParameter(final String name, final Object value) {
 		additionalParameters.put(name, value);
 		return this;
 	}
 
-	public OAuth2AuthorizationRequestPostProcessor
-			authorizationRequestUri(final String authorizationRequestUri) {
+	public OAuth2AuthorizationRequestPostProcessor authorizationRequestUri(final String authorizationRequestUri) {
 		delegate.authorizationRequestUri(authorizationRequestUri);
 		return this;
 	}
 
-	public OAuth2AuthorizationRequestPostProcessor
-			authorizationUri(final String authorizationUri) {
+	public OAuth2AuthorizationRequestPostProcessor authorizationUri(final String authorizationUri) {
 		delegate.authorizationUri(authorizationUri);
 		return this;
 	}

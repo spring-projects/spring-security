@@ -47,31 +47,40 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * <p>
- * A lot like {@link org.springframework.security.test.context.support.WithMockUser @WithMockUser} and
- * {@link WithMockJwt @WithMockJwt}: when used with {@link WithSecurityContextTestExecutionListener} this annotation can
- * be added to a test method to emulate running with a mocked OpenID authentication.
+ * A lot like
+ * {@link org.springframework.security.test.context.support.WithMockUser @WithMockUser}
+ * and {@link WithMockJwt @WithMockJwt}: when used with
+ * {@link WithSecurityContextTestExecutionListener} this annotation can be added to a test
+ * method to emulate running with a mocked OpenID authentication.
  * </p>
  * <p>
  * Main steps are:
  * </p>
  * <ul>
- * <li>{@link ClientRegistration}, {@link OAuth2AuthorizationExchange}, {@link DefaultOidcUser},
- * {@link OAuth2AccessToken} and {@link OidcIdToken} are created as per this annotation details</li>
- * <li>an {@link OAuth2LoginAuthenticationToken} is then created and fed with above objects</li>
+ * <li>{@link ClientRegistration}, {@link OAuth2AuthorizationExchange},
+ * {@link DefaultOidcUser}, {@link OAuth2AccessToken} and {@link OidcIdToken} are created
+ * as per this annotation details</li>
+ * <li>an {@link OAuth2LoginAuthenticationToken} is then created and fed with above
+ * objects</li>
  * <li>an empty {@link SecurityContext} is instantiated and populated with this
  * {@code OAuth2LoginAuthenticationToken}</li>
  * </ul>
  * <p>
- * As a result, the {@link Authentication} {@link MockMvc} gets from security context will has following properties:
+ * As a result, the {@link Authentication} {@link MockMvc} gets from security context will
+ * has following properties:
  * </p>
  * <ul>
- * <li>{@link Authentication#getPrincipal() getPrincipal()} returns an {@link DefaultOidcUser}</li>
- * <li>{@link Authentication#getName() getName()} returns what was as defined by this annotation {@link #name()} in
- * {@link #nameAttributeKey()} claim ({@code subject} by default)</li>
- * <li>{@link Authentication#getAuthorities() getAuthorities()} will be a collection of {@link SimpleGrantedAuthority}
- * as defined by this annotation {@link #authorities()}</li>
- * <li>{@link OAuth2AccessToken}, {@link ClientRegistration} and {@link OAuth2AuthorizationRequest} scopes are all the
- * same and as defined by {@link #scopes()}
+ * <li>{@link Authentication#getPrincipal() getPrincipal()} returns an
+ * {@link DefaultOidcUser}</li>
+ * <li>{@link Authentication#getName() getName()} returns what was as defined by this
+ * annotation {@link #name()} in {@link #nameAttributeKey()} claim ({@code subject} by
+ * default)</li>
+ * <li>{@link Authentication#getAuthorities() getAuthorities()} will be a collection of
+ * {@link SimpleGrantedAuthority} as defined by this annotation
+ * {@link #authorities()}</li>
+ * <li>{@link OAuth2AccessToken}, {@link ClientRegistration} and
+ * {@link OAuth2AuthorizationRequest} scopes are all the same and as defined by
+ * {@link #scopes()}
  * </ul>
  * Sample usage:
  *
@@ -124,14 +133,15 @@ public @interface WithMockOidcIdToken {
 	String[] authorities() default { "ROLE_USER" };
 
 	/**
-	 * To be used both as authentication {@code Principal} name and token {@code subscriber} (or what
-	 * {@link #nameAttributeKey()} was set to) claim.
+	 * To be used both as authentication {@code Principal} name and token
+	 * {@code subscriber} (or what {@link #nameAttributeKey()} was set to) claim.
 	 * @return Resource owner name
 	 */
 	String name() default OidcIdSupport.DEFAULT_AUTH_NAME;
 
 	/**
-	 * @return claim name for subscriber (user name). Default value is very likely to match your need.
+	 * @return claim name for subscriber (user name). Default value is very likely to
+	 * match your need.
 	 */
 	String nameAttributeKey() default OidcIdSupport.DEFAULT_NAME_KEY;
 
@@ -148,23 +158,26 @@ public @interface WithMockOidcIdToken {
 
 	/**
 	 * Are you sure you need to configure that ? We are building an already granted
-	 * {@link OAuth2LoginAuthenticationToken}. So, unless the controller method under test (or annotation SpEL)
-	 * explicitly accesses client registration, you are safe to keep defaults.
+	 * {@link OAuth2LoginAuthenticationToken}. So, unless the controller method under test
+	 * (or annotation SpEL) explicitly accesses client registration, you are safe to keep
+	 * defaults.
 	 * @return {@link ClientRegistration} details
 	 */
 	MockClientRegistration clientRegistration() default @MockClientRegistration;
 
 	/**
 	 * Are you sure you need to configure that ? We are building an already granted
-	 * {@link OAuth2LoginAuthenticationToken}. So, unless the controller method under test (or annotation SpEL)
-	 * explicitly accesses authorization request, you are safe to keep defaults.
+	 * {@link OAuth2LoginAuthenticationToken}. So, unless the controller method under test
+	 * (or annotation SpEL) explicitly accesses authorization request, you are safe to
+	 * keep defaults.
 	 * @return {@link OAuth2AuthorizationRequest} details
 	 */
 	MockOAuth2AuthorizationRequest authorizationRequest() default @MockOAuth2AuthorizationRequest;
 
 	/**
-	 * Default {@link AttributeValueParser}s are provided for all {@link TargetType} but {@link TargetType#OTHER}.
-	 * Providing an {@link AttributeValueParser} with same {@code SimpleName} would override it.
+	 * Default {@link AttributeValueParser}s are provided for all {@link TargetType} but
+	 * {@link TargetType#OTHER}. Providing an {@link AttributeValueParser} with same
+	 * {@code SimpleName} would override it.
 	 *
 	 * @return parsers to add to default ones (or override)
 	 *

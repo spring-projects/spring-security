@@ -36,8 +36,9 @@ import java.util.stream.Stream;
 import org.springframework.util.StringUtils;
 
 /**
- * Helps turn a {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute @Attribute} array into a
- * {@link java.util.Map Map&lt;String, Object&gt;}
+ * Helps turn a
+ * {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute @Attribute}
+ * array into a {@link java.util.Map Map&lt;String, Object&gt;}
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
@@ -107,19 +108,23 @@ class AttributeParsersSupport {
 
 	/**
 	 * <p>
-	 * Turns a {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute @Attribute} array into a
-	 * {@link java.util.Map Map&lt;String, Object&gt;} as required for
+	 * Turns a
+	 * {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute @Attribute}
+	 * array into a {@link java.util.Map Map&lt;String, Object&gt;} as required for
 	 * {@link org.springframework.security.oauth2.jwt.Jwt JWT} headers and claims.
 	 * </p>
 	 * <p>
 	 * Process highlights:
 	 * </p>
 	 * <ul>
-	 * <li>each {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute#value() value()} is parsed
-	 * according to {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute#parserOverride()
+	 * <li>each
+	 * {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute#value()
+	 * value()} is parsed according to
+	 * {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute#parserOverride()
 	 * parser()}</li>
 	 * <li>obtained values are associated with
-	 * {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute#name() name()}</li>
+	 * {@link org.springframework.security.test.context.support.oauth2.annotations.Attribute#name()
+	 * name()}</li>
 	 * <li>values with same name are accumulated in the same collection</li>
 	 * </ul>
 	 *
@@ -154,13 +159,15 @@ class AttributeParsersSupport {
 	}
 
 	/**
-	 * Instantiates default {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
+	 * Instantiates default
+	 * {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
 	 * AttributeValueParser}s plus all provided ones (using default constructor)
 	 *
-	 * @param additionalParserNames {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
+	 * @param additionalParserNames
+	 * {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
 	 * AttributeValueParser} implementations class names to add to
-	 * {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeParsersSupport#DEFAULT_PARSERS default
-	 * ones}
+	 * {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeParsersSupport#DEFAULT_PARSERS
+	 * default ones}
 	 * @return helper instance with provided parsers plus default ones
 	 */
 	public static AttributeParsersSupport withDefaultParsers(final String... additionalParserNames) {
@@ -198,10 +205,12 @@ class AttributeParsersSupport {
 	}
 
 	/**
-	 * Instantiates all provided {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
+	 * Instantiates all provided
+	 * {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
 	 * AttributeValueParser}s using default constructor
 	 *
-	 * @param allParserNames {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
+	 * @param allParserNames
+	 * {@link org.springframework.security.test.context.support.oauth2.annotations.AttributeValueParser
 	 * AttributeValueParser} implementations class names
 	 * @return helper instance with provided parsers only
 	 */
