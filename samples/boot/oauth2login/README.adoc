@@ -9,6 +9,7 @@ The following sections provide detailed steps for setting up OAuth 2.0 Login for
 * <<github-login, GitHub>>
 * <<facebook-login, Facebook>>
 * <<okta-login, Okta>>
+* <<adfs-login, Microsoft AD FS>>
 
 [[google-login]]
 == Login with Google
@@ -307,3 +308,84 @@ Click on the Okta link, and you are then redirected to Okta for authentication.
 
 After authenticating with your Okta account credentials, the OAuth Client retrieves your email address and basic profile information
 from the https://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
+
+[[adfs-login]]
+== Login with Microsoft AD FS
+
+This section shows how to configure the sample application using Microsoft AD FS 4.0 (and above) as the Authentication Provider and covers the following topics:
+
+* <<adfs-add-application,Add Application Group>>
+* <<adfs-application-config,Configure application.yml>>
+* <<adfs-boot-application,Boot up the application>>
+
+[[adfs-add-application]]
+=== Add Application Group
+
+To use Microsoft AD FS authentication system for login, you must add an Application Group in AD FS Management console.
+
+The following steps describe how to configure the application group in AD FS:
+. In AD FS Management, right-click on Application Groups and select Add Application Group. 
+. On the Application Group Wizard, for the name enter ADFSSSO and under Client-Server applications select Web browser accessing a web application template. Click Next.
+. Copy the Client Identifier value. It will be used later as the value for `client-id` property in the application properties file. 
+. Enter the following for Redirect URI: - `http://localhost:8080/login/oauth2/code/adfs`. Click Add. Click Next. 
+. On the Apply Access Control Policy screen, click Next.
+. On the Summary screen, click Next.
+. On the Complete screen, click Close.
+
+The Redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Microsoft AD FS and have granted access to the OAuth application on the _Authorize application_ page.
+
+TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
+ The *_registrationId_* is a unique identifier for the `ClientRegistration`.
+
+[[adfs-application-config]]
+=== Configure application.yml
+
+Now that you have created a new application group with Microsof AD FS, you need to configure the sample application to use the application for the _authentication flow_. To do so:
+
+. Go to `application.yml` and set the following configuration:
++
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:	<1>
+          adfs:		<2>
+            client-id: your-app-client-id
+            scope: openid
+            redirect-uri: your-base-url/login/oauth2/code/adfs
+            client-authentication-method: basic
+            authorization-grant-type: authorization_code
+        provider:	<3>
+          adfs:
+            authorization-uri: https://your-adfs-domain/adfs/oauth2/authorize
+            token-uri: https://your-adfs-domain/adfs/oauth2/token
+            user-info-authentication-method: query
+            jwk-set-uri: https://your-adfs-domain/adfs/discovery/keys
+            user-name-attribute: upn
+----
++
+.OAuth Client properties
+====
+<1> `spring.security.oauth2.client.registration` is the base property prefix for OAuth Client properties.
+<2> Following the base property prefix is the ID for the `ClientRegistration`, such as adfs.
+<3> `spring.security.oauth2.client.provider` is the base property prefix for OAuth Provider properties.
+====
+
+. Replace the values in the `client-id` property with the OAuth 2.0 credentials you created earlier.
+Replace `redirect-uri` with your sample application base url, for example `http://localhost:8080/login/oauth2/code/adfs`.
+As well, replace `your-adfs-domain` in `authorization-uri`, `token-uri` and `jwk-set-uri` with the domain assigned to your Microsoft AD FS deployment.
+
+TIP: `client-secret` is not required if setting up an Application Group with a Web application template as shown in <<adfs-add-application,Add Application Group>>. `client-secret` is only required when setting up an Application Group with a Server application template for which you can generate a shared secret during the Application Group Wizard.
+
+[[adfs-boot-application]]
+=== Boot up the application
+
+Launch the Spring Boot 2.0 sample and go to `http://localhost:8080`.
+You are then redirected to the default _auto-generated_ login page, which displays a link for ADFS.
+
+Click on the ADFS link, and you are then redirected to Microsoft AD FS for authentication.
+
+After authenticating with your Active Directory account credentials, the OAuth Client retrieves your profile information (such as the UPN from Active Directory) and establishes an authenticated session.
+

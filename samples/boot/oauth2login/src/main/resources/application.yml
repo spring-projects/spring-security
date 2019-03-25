@@ -27,9 +27,21 @@ spring:
           okta:
             client-id: your-app-client-id
             client-secret: your-app-client-secret
+          adfs:
+            client-id: your-app-client-id
+            scope: openid
+            redirect-uri: your-base-url/login/oauth2/code/adfs
+            client-authentication-method: basic
+            authorization-grant-type: authorization_code
         provider:
           okta:
             authorization-uri: https://your-subdomain.oktapreview.com/oauth2/v1/authorize
             token-uri: https://your-subdomain.oktapreview.com/oauth2/v1/token
             user-info-uri: https://your-subdomain.oktapreview.com/oauth2/v1/userinfo
             jwk-set-uri: https://your-subdomain.oktapreview.com/oauth2/v1/keys
+          adfs:
+            authorization-uri: https://your-adfs-domain/adfs/oauth2/authorize
+            token-uri: https://your-adfs-domain/adfs/oauth2/token
+            user-info-authentication-method: query
+            jwk-set-uri: https://your-adfs-domain/adfs/discovery/keys
+            user-name-attribute: upn
