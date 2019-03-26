@@ -112,6 +112,12 @@ public class HttpsRedirectWebFilterTests {
 		verify(portMapper).lookupHttpsPort(314);
 	}
 
+	@Test
+	public void filterWhenRequestIsInsecureAndNoPortMappingThenThrowsIllegalState() {
+		ServerWebExchange exchange = get("http://localhost:1234");
+		assertThatCode(() -> this.filter.filter(exchange, this.chain).block())
+				.isInstanceOf(IllegalStateException.class);
+	}
 
 	@Test
 	public void filterWhenInsecureRequestHasAPathThenRedirects() {
