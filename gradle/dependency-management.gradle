@@ -1,5 +1,5 @@
 if (!project.hasProperty('reactorVersion')) {
-	ext.reactorVersion = 'Californium-SR5'
+	ext.reactorVersion = 'Californium-SR6'
 }
 
 if (!project.hasProperty('springVersion')) {
