@@ -13,5 +13,5 @@ As a major release version, the Spring Security team took the opportunity to mak
 
 For complete details on migrating from Spring Security 3 to Spring Security 4 refer to one of the guides below:
 
-* http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-xml.html[Migrating from Spring Security 3.x to 4.x (XML Configuration)]
-* http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html[Migrating from Spring Security 3.x to 4.x (Java Configuration)]
+* https://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-xml.html[Migrating from Spring Security 3.x to 4.x (XML Configuration)]
+* https://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html[Migrating from Spring Security 3.x to 4.x (Java Configuration)]

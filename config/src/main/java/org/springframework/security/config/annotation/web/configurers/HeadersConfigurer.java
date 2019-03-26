@@ -104,7 +104,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Configures the {@link XContentTypeOptionsHeaderWriter} which inserts the <a href=
-	 * "http://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx"
+	 * "https://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx"
 	 * >X-Content-Type-Options</a>:
 	 *
 	 * <pre>
@@ -160,7 +160,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 *
 	 * <p>
 	 * Allows customizing the {@link XXssProtectionHeaderWriter} which adds the <a href=
-	 * "http://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
+	 * "https://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
 	 * >X-XSS-Protection header</a>
 	 * </p>
 	 *
@@ -306,7 +306,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Allows customizing the {@link HstsHeaderWriter} which provides support for <a
-	 * href="http://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security
+	 * href="https://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security
 	 * (HSTS)</a>.
 	 *
 	 * @return the {@link HeadersConfigurer} for additional customizations
@@ -331,7 +331,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		 * <p>
 		 * This instructs browsers how long to remember to keep this domain as a known
 		 * HSTS Host. See <a
-		 * href="http://tools.ietf.org/html/rfc6797#section-6.1.1">Section 6.1.1</a> for
+		 * href="https://tools.ietf.org/html/rfc6797#section-6.1.1">Section 6.1.1</a> for
 		 * additional details.
 		 * </p>
 		 *
@@ -364,7 +364,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		 * </p>
 		 *
 		 * <p>
-		 * See <a href="http://tools.ietf.org/html/rfc6797#section-6.1.2">Section
+		 * See <a href="https://tools.ietf.org/html/rfc6797#section-6.1.2">Section
 		 * 6.1.2</a> for additional details.
 		 * </p>
 		 *
@@ -483,7 +483,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Allows customizing the {@link HpkpHeaderWriter} which provides support for <a
-	 * href="http://tools.ietf.org/html/rfc7469">HTTP Public Key Pinning (HPKP)</a>.
+	 * href="https://tools.ietf.org/html/rfc7469">HTTP Public Key Pinning (HPKP)</a>.
 	 *
 	 * @return the {@link HeadersConfigurer} for additional customizations
 	 *
@@ -506,7 +506,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		 * <p>
 		 * The pin directive specifies a way for web host operators to indicate
 		 * a cryptographic identity that should be bound to a given web host.
-		 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for additional details.
+		 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for additional details.
 		 * </p>
 		 *
 		 * @param pins the map of base64-encoded SPKI fingerprint &amp; cryptographic hash algorithm pairs.
@@ -525,7 +525,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		 * <p>
 		 * The pin directive specifies a way for web host operators to indicate
 		 * a cryptographic identity that should be bound to a given web host.
-		 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for additional details.
+		 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for additional details.
 		 * </p>
 		 *
 		 * @param pins a list of base64-encoded SPKI fingerprints.
@@ -544,7 +544,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		 *
 		 * <p>
 		 * This instructs browsers how long they should regard the host (from whom the message was received)
-		 * as a known pinned host. See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.2">Section
+		 * as a known pinned host. See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.2">Section
 		 * 2.1.2</a> for additional details.
 		 * </p>
 		 *
@@ -564,7 +564,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		 * </p>
 		 *
 		 * <p>
-		 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.3">Section 2.1.3</a>
+		 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.3">Section 2.1.3</a>
 		 * for additional details.
 		 * </p>
 		 *
@@ -581,7 +581,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		 * </p>
 		 *
 		 * <p>
-		 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1">Section 2.1</a>
+		 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1">Section 2.1</a>
 		 * for additional details.
 		 * </p>
 		 *
@@ -598,7 +598,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		 * </p>
 		 *
 		 * <p>
-		 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.4">Section 2.1.4</a>
+		 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.4">Section 2.1.4</a>
 		 * for additional details.
 		 * </p>
 		 *
@@ -615,7 +615,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 		 * </p>
 		 *
 		 * <p>
-		 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.4">Section 2.1.4</a>
+		 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.4">Section 2.1.4</a>
 		 * for additional details.
 		 * </p>
 		 *

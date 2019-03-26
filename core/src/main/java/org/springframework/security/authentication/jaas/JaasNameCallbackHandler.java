@@ -33,9 +33,9 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  * @author Ray Krueger
  *
  * @see <a
- * href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
+ * href="https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
  * @see <a
- * href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/NameCallback.html">NameCallback</a>
+ * href="https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/NameCallback.html">NameCallback</a>
  */
 public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandler {
 	// ~ Methods

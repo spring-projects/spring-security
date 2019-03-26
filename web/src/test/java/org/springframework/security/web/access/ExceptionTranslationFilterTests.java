@@ -104,7 +104,7 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com/mycontext/secure/page.html");
+		assertThat(getSavedRequestUrl(request)).isEqualTo("https://www.example.com/mycontext/secure/page.html");
 	}
 
 	@Test
@@ -134,7 +134,7 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com/mycontext/secure/page.html");
+		assertThat(getSavedRequestUrl(request)).isEqualTo("https://www.example.com/mycontext/secure/page.html");
 	}
 
 
@@ -190,7 +190,7 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com/mycontext/secure/page.html");
+		assertThat(getSavedRequestUrl(request)).isEqualTo("https://www.example.com/mycontext/secure/page.html");
 	}
 
 	@Test
@@ -219,7 +219,7 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com:8080/mycontext/secure/page.html");
+		assertThat(getSavedRequestUrl(request)).isEqualTo("https://www.example.com:8080/mycontext/secure/page.html");
 	}
 
 	@Test(expected = IllegalArgumentException.class)

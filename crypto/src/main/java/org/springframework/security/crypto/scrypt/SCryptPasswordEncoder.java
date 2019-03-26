@@ -44,7 +44,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * <li>Scrypt is based on Salsa20 which performs poorly in Java (on par with
  * AES) but performs awesome (~4-5x faster) on SIMD capable platforms</li>
  * <li>While there are some that would disagree, consider reading -
- * <a href="http://blog.ircmaxell.com/2014/03/why-i-dont-recommend-scrypt.html">
+ * <a href="https://blog.ircmaxell.com/2014/03/why-i-dont-recommend-scrypt.html">
  * Why I Don't Recommend Scrypt</a> (for password storage)</li>
  * </ul>
  *

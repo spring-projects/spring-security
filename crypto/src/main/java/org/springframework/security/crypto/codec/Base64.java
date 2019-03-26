@@ -18,7 +18,7 @@ package org.springframework.security.crypto.codec;
 /**
  * Base64 encoder which is a reduced version of Robert Harder's public domain
  * implementation (version 2.3.7). See <a
- * href="http://iharder.net/base64">http://iharder.net/base64</a> for more information.
+ * href="http://iharder.sourceforge.net/current/java/base64/">http://iharder.sourceforge.net/current/java/base64/</a> for more information.
  * <p>
  * For internal use only.
  *
@@ -42,7 +42,7 @@ public final class Base64 {
 	/**
 	 * Encode using Base64-like encoding that is URL- and Filename-safe as described in
 	 * Section 4 of RFC3548: <a
-	 * href="http://www.faqs.org/rfcs/rfc3548.html">http://www.faqs
+	 * href="http://www.faqs.org/rfcs/rfc3548.html">https://www.faqs
 	 * .org/rfcs/rfc3548.html</a>. It is important to note that data encoded this way is
 	 * <em>not</em> officially valid Base64, or at the very least should not be called
 	 * Base64 without also specifying that is was encoded using the URL- and Filename-safe
@@ -192,7 +192,7 @@ public final class Base64 {
 	/**
 	 * I don't get the point of this technique, but someone requested it, and it is
 	 * described here: <a
-	 * href="http://www.faqs.org/qa/rfcc-1940.html">http://www.faqs.org/
+	 * href="http://www.faqs.org/qa/rfcc-1940.html">http://www.faqs.org/faqs/
 	 * qa/rfcc-1940.html</a>.
 	 */
 	private final static byte[] _ORDERED_ALPHABET = { (byte) '-', (byte) '0', (byte) '1',
