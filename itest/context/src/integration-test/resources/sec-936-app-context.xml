@@ -1,11 +1,11 @@
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:util="http://www.springframework.org/schema/util"
-	xmlns:security="http://www.springframework.org/schema/security"
+<beans xmlns="https://www.springframework.org/schema/beans"
+	xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="https://www.springframework.org/schema/util"
+	xmlns:security="https://www.springframework.org/schema/security"
 	xsi:schemaLocation="
-	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
-	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	https://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	https://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util-3.0.xsd
+	https://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
 	<security:authentication-manager alias="authenticationManager">
 		<security:authentication-provider>
@@ -48,7 +48,7 @@
 	</bean>
 
 	<bean id="httpInvokerClientInterceptor" class="org.springframework.remoting.httpinvoker.HttpInvokerClientInterceptor">
-		<property name="serviceUrl" value="http://somehost/someUrl"/>
+		<property name="serviceUrl" value="https://somehost/someUrl"/>
 	</bean>
 
 </beans>
