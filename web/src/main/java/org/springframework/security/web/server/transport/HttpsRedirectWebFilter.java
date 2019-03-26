@@ -102,9 +102,10 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 				UriComponentsBuilder.fromUri(exchange.getRequest().getURI());
 
 		if (port > 0) {
-			builder.port(Optional.ofNullable(this.portMapper.lookupHttpsPort(port))
-									.orElseThrow(() -> new IllegalStateException(
-										"HTTP Port '" + port + "' does not have a corresponding HTTPS Port")));
+			Optional.ofNullable(this.portMapper.lookupHttpsPort(port))
+					.map(builder::port)
+					.orElseThrow(() -> new IllegalStateException(
+							"HTTP Port '" + port + "' does not have a corresponding HTTPS Port"));
 		}
 
 		return builder.scheme("https").build().toUri();
