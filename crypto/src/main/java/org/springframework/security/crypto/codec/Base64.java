@@ -3,7 +3,7 @@ package org.springframework.security.crypto.codec;
 
 /**
  * Base64 encoder which is a reduced version of Robert Harder's public domain implementation (version 2.3.7).
- * See <a href="http://iharder.net/base64">http://iharder.net/base64</a> for more information.
+ * See <a href="http://iharder.sourceforge.net/current/java/base64/">http://iharder.sourceforge.net/current/java/base64/</a> for more information.
  * <p>
  * For internal use only.
  *

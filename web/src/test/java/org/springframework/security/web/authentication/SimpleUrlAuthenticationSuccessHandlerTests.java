@@ -63,10 +63,10 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         ash.setUseReferer(true);
-        request.addHeader("Referer", "http://www.springsource.com/");
+        request.addHeader("Referer", "https://www.springsource.com/");
 
         ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
-        assertEquals("http://www.springsource.com/", response.getRedirectedUrl());
+        assertEquals("https://www.springsource.com/", response.getRedirectedUrl());
     }
 
     /**

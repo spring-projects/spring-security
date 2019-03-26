@@ -59,7 +59,7 @@ public class FilterInvocationTests {
         assertEquals(chain, fi.getChain());
         assertEquals("/HelloWorld/some/more/segments.html", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld/some/more/segments.html", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld/some/more/segments.html", fi.getFullRequestUrl());
+        assertEquals("https://www.example.com/mycontext/HelloWorld/some/more/segments.html", fi.getFullRequestUrl());
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -99,7 +99,7 @@ public class FilterInvocationTests {
         FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
         assertEquals("/HelloWorld?foo=bar", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld?foo=bar", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld?foo=bar", fi.getFullRequestUrl());
+        assertEquals("https://www.example.com/mycontext/HelloWorld?foo=bar", fi.getFullRequestUrl());
     }
 
     @Test
@@ -116,7 +116,7 @@ public class FilterInvocationTests {
         FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
         assertEquals("/HelloWorld", fi.getRequestUrl());
         assertEquals("FilterInvocation: URL: /HelloWorld", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld", fi.getFullRequestUrl());
+        assertEquals("https://www.example.com/mycontext/HelloWorld", fi.getFullRequestUrl());
     }
 
     @Test(expected=UnsupportedOperationException.class)

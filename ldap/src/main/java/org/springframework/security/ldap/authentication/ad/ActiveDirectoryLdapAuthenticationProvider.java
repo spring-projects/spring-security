@@ -47,8 +47,8 @@ import java.util.regex.Pattern;
  * Specialized LDAP authentication provider which uses Active Directory configuration conventions.
  * <p>
  * It will authenticate using the Active Directory
- * <a href="http://msdn.microsoft.com/en-us/library/ms680857%28VS.85%29.aspx">{@code userPrincipalName}</a> or
- * <a href="http://msdn.microsoft.com/en-us/library/ms679635%28v=vs.85%29.aspx">{@code sAMAccountName}</a> (or a custom
+ * <a href="https://msdn.microsoft.com/en-us/library/ms680857%28VS.85%29.aspx">{@code userPrincipalName}</a> or
+ * <a href="https://msdn.microsoft.com/en-us/library/ms679635%28v=vs.85%29.aspx">{@code sAMAccountName}</a> (or a custom
  * {@link #setSearchFilter(String) searchFilter}) in the form {@code username@domain}. If the username does not
  * already end with the domain name, the {@code userPrincipalName} will be built by appending the configured domain
  * name to the username supplied in the authentication request. If no domain name is configured, it is assumed that

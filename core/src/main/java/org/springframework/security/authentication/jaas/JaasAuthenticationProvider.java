@@ -42,7 +42,7 @@ import java.security.Security;
  * org.springframework.security.authentication.UsernamePasswordAuthenticationToken} requests contain the correct username and
  * password.</p>
  * <p>This implementation is backed by a <a
- * href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html">JAAS</a> configuration. The
+ * href="https://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html">JAAS</a> configuration. The
  * loginConfig property must be set to a given JAAS configuration file. This setter accepts a Spring {@link
  * org.springframework.core.io.Resource} instance. It should point to a JAAS configuration file containing an index
  * matching the {@link #setLoginContextName(java.lang.String) loginContextName} property.
@@ -69,9 +69,9 @@ import java.security.Security;
  * </pre>
  * </p>
  *  <p>When using JAAS login modules as the authentication source, sometimes the
- * <a href="http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html">LoginContext</a> will
+ * <a href="https://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html">LoginContext</a> will
  * require <i>CallbackHandler</i>s. The JaasAuthenticationProvider uses an internal
- * <a href="http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/callback/CallbackHandler.html">CallbackHandler
+ * <a href="https://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/callback/CallbackHandler.html">CallbackHandler
  * </a> to wrap the {@link JaasAuthenticationCallbackHandler}s configured in the ApplicationContext.
  * When the LoginContext calls the internal CallbackHandler, control is passed to each
  * {@link JaasAuthenticationCallbackHandler} for each Callback passed.
@@ -133,7 +133,7 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 
         Assert.notNull(
                 Configuration.getConfiguration(),
-                "As per http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/Configuration.html "
+                "As per https://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/Configuration.html "
                         + "\"If a Configuration object was set via the Configuration.setConfiguration method, then that object is "
                         + "returned. Otherwise, a default Configuration object is returned\". Your JRE returned null to "
                         + "Configuration.getConfiguration().");
@@ -228,7 +228,7 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
      *
      * @param loginConfig
      *
-     * @see <a href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html">JAAS Reference</a>
+     * @see <a href="https://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html">JAAS Reference</a>
      */
     public void setLoginConfig(Resource loginConfig) {
         this.loginConfig = loginConfig;

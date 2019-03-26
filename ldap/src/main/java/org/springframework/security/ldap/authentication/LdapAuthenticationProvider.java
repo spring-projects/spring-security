@@ -106,7 +106,7 @@ import java.util.*;
  * the LDAP directory is configured to allow unauthenticated access, it might be possible to
  * authenticate as <i>any</i> user just by supplying an empty password.
  * More information on the misuse of unauthenticated access can be found in
- * <a href="http://www.ietf.org/internet-drafts/draft-ietf-ldapbis-authmeth-19.txt">
+ * <a href="https://www.ietf.org/internet-drafts/draft-ietf-ldapbis-authmeth-19.txt">
  * draft-ietf-ldapbis-authmeth-19.txt</a>.
  *
  *

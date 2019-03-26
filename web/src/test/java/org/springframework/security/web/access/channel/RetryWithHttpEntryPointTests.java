@@ -89,7 +89,7 @@ public class RetryWithHttpEntryPointTests extends TestCase {
         ep.setPortResolver(new MockPortResolver(80, 443));
 
         ep.commence(request, response);
-        assertEquals("http://www.example.com/bigWebApp/hello/pathInfo.html?open=true", response.getRedirectedUrl());
+        assertEquals("https://www.example.com/bigWebApp/hello/pathInfo.html?open=true", response.getRedirectedUrl());
     }
 
     public void testNormalOperationWithNullQueryString() throws Exception {
@@ -105,7 +105,7 @@ public class RetryWithHttpEntryPointTests extends TestCase {
         ep.setPortResolver(new MockPortResolver(80, 443));
 
         ep.commence(request, response);
-        assertEquals("http://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
+        assertEquals("https://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
     }
 
     public void testOperationWhenTargetPortIsUnknown() throws Exception {
@@ -144,6 +144,6 @@ public class RetryWithHttpEntryPointTests extends TestCase {
         ep.setPortMapper(portMapper);
 
         ep.commence(request, response);
-        assertEquals("http://www.example.com:8888/bigWebApp/hello/pathInfo.html?open=true", response.getRedirectedUrl());
+        assertEquals("https://www.example.com:8888/bigWebApp/hello/pathInfo.html?open=true", response.getRedirectedUrl());
     }
 }

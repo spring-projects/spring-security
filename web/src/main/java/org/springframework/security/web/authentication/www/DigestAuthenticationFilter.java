@@ -55,7 +55,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * <code>SecurityContextHolder</code>.
  * <p>
  * For a detailed background on what this filter is designed to process, refer to <a
- * href="http://www.ietf.org/rfc/rfc2617.txt">RFC 2617</a> (which superseded RFC 2069,
+ * href="https://www.ietf.org/rfc/rfc2617.txt">RFC 2617</a> (which superseded RFC 2069,
  * although this filter support clients that implement either RFC 2617 or RFC 2069).
  * <p>
  * This filter can be used to provide Digest authentication services to both remoting

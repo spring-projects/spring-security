@@ -1,27 +1,27 @@
 = Spring Security
 
-Spring Security provides security services for the http://docs.spring.io[Spring IO Platform]. Spring Security 3.1 requires Spring 3.0.3 as
+Spring Security provides security services for the https://docs.spring.io[Spring IO Platform]. Spring Security 3.1 requires Spring 3.0.3 as
 a minimum and also requires Java 5.
 
-For a detailed list of features and access to the latest release, please visit http://spring.io/projects[Spring projects].
+For a detailed list of features and access to the latest release, please visit https://spring.io/projects[Spring projects].
 
 == Downloading Artifacts
 See https://github.com/spring-projects/spring-framework/wiki/Downloading-Spring-artifacts[downloading Spring artifacts] for Maven repository information.
 
 == Documentation
-Be sure to read the http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/[Spring Security Reference].
-Extensive JavaDoc for the Spring Security code is also available in the http://docs.spring.io/spring-security/site/docs/current/apidocs/[Spring Security API Documentation].
+Be sure to read the https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/[Spring Security Reference].
+Extensive JavaDoc for the Spring Security code is also available in the https://docs.spring.io/spring-security/site/docs/current/apidocs/[Spring Security API Documentation].
 
 == Quick Start
-We recommend you visit http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/[Spring Security Reference] and read the "Getting Started" page.
+We recommend you visit https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/[Spring Security Reference] and read the "Getting Started" page.
 
 == Building from Source
-Spring Security uses a http://gradle.org[Gradle]-based build system.
-In the instructions below, http://vimeo.com/34436402[`./gradlew`] is invoked from the root of the source tree and serves as
+Spring Security uses a https://gradle.org[Gradle]-based build system.
+In the instructions below, https://vimeo.com/34436402[`./gradlew`] is invoked from the root of the source tree and serves as
 a cross-platform, self-contained bootstrap mechanism for the build.
 
 === Prerequisites
-http://help.github.com/set-up-git-redirect[Git] and the http://www.oracle.com/technetwork/java/javase/downloads[JDK7 build].
+https://help.github.com/set-up-git-redirect[Git] and the https://www.oracle.com/technetwork/java/javase/downloads[JDK7 build].
 
 Be sure that your `JAVA_HOME` environment variable points to the `jdk1.7.0` folder extracted from the JDK download.
 
@@ -47,11 +47,11 @@ Discover more commands with `./gradlew tasks`.
 See also the https://github.com/spring-projects/spring-framework/wiki/Gradle-build-and-release-FAQ[Gradle build and release FAQ].
 
 == Getting Support
-Check out the http://stackoverflow.com/questions/tagged/spring-security[Spring Security tags on Stack Overflow].
-http://spring.io/services[Commercial support] is available too.
+Check out the https://stackoverflow.com/questions/tagged/spring-security[Spring Security tags on Stack Overflow].
+https://spring.io/services[Commercial support] is available too.
 
 == Contributing
-http://help.github.com/send-pull-requests[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.md[contributor guidelines] for details.
+https://help.github.com/send-pull-requests[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.md[contributor guidelines] for details.
 
 == License
 Spring Security is Open Source software released under the

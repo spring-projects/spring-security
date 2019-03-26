@@ -117,7 +117,7 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
         response.getContentAsString().contains(AbstractRememberMeServices.DEFAULT_PARAMETER)
         when: "Login is submitted with remember-me selected"
         request.setRequestURI("/j_spring_openid_security_check")
-        request.setParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "http://hey.openid.com/")
+        request.setParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "http://ww1.openid.com")
         request.setParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "on")
         response = new MockHttpServletResponse();
         fc.doFilter(request, response, new MockFilterChain());
@@ -132,8 +132,8 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
         xml.http() {
             'openid-login'() {
                 'attribute-exchange'() {
-                    'openid-attribute'(name: 'nickname', type: 'http://schema.openid.net/namePerson/friendly')
-                    'openid-attribute'(name: 'email', type: 'http://schema.openid.net/contact/email', required: 'true',
+                    'openid-attribute'(name: 'nickname', type: 'https://schema.openid.net/namePerson/friendly')
+                    'openid-attribute'(name: 'email', type: 'https://schema.openid.net/contact/email', required: 'true',
                             'count': '2')
                 }
             }
@@ -145,7 +145,7 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
         expect:
         attributes.size() == 2
         attributes[0].name == 'nickname'
-        attributes[0].type == 'http://schema.openid.net/namePerson/friendly'
+        attributes[0].type == 'https://schema.openid.net/namePerson/friendly'
         !attributes[0].required
         attributes[1].required
         attributes[1].getCount() == 2

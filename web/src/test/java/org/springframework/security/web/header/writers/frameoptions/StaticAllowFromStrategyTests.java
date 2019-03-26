@@ -18,7 +18,7 @@ public class StaticAllowFromStrategyTests {
 
     @Test
     public void shouldReturnUri() {
-        String uri = "http://www.test.com";
+        String uri = "https://www.test.com";
         StaticAllowFromStrategy strategy = new StaticAllowFromStrategy(URI.create(uri));
         assertEquals(uri, strategy.getAllowFromValue(new MockHttpServletRequest()));
     }

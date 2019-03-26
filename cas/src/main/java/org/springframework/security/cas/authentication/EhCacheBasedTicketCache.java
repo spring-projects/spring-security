@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
 
 
 /**
- * Caches tickets using a Spring IoC defined <a href="http://ehcache.sourceforge.net">EHCACHE</a>.
+ * Caches tickets using a Spring IoC defined <a href="https://www.ehcache.org/">EHCACHE</a>.
  *
  * @author Ben Alex
  */

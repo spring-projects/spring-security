@@ -125,7 +125,7 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 
     /**
      * Adds {@link XContentTypeOptionsHeaderWriter} which inserts the <a href=
-     * "http://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx"
+     * "https://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx"
      * >X-Content-Type-Options</a>:
      *
      * <pre>
@@ -142,7 +142,7 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
      * <strong>Note this is not comprehensive XSS protection!</strong>
      *
      * <para>Adds {@link XXssProtectionHeaderWriter} which adds the <a href=
-     * "http://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
+     * "https://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
      * >X-XSS-Protection header</a>
      *
      * @return the {@link HeadersConfigurer} for additional customizations
@@ -168,7 +168,7 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 
     /**
      * Adds {@link HstsHeaderWriter} which provides support for <a
-     * href="http://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security
+     * href="https://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security
      * (HSTS)</a>.
      *
      * <p>

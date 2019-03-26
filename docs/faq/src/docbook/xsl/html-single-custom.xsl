@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:xslthl="http://xslthl.sf.net"
+                xmlns:xslthl="http://xslthl.sourceforge.net/"
                 exclude-result-prefixes="xslthl"
                 version='1.0'>
 

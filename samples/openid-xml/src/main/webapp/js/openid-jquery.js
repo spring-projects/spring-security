@@ -1,6 +1,6 @@
 /*
 Simple OpenID Plugin
-http://code.google.com/p/openid-selector/
+https://code.google.com/p/openid-selector/
 
 This code is licenced under the New BSD License.
 */
@@ -12,12 +12,12 @@ var providers_large = {
     },
     yahoo: {
         name: 'Yahoo',      
-        url: 'http://me.yahoo.com/'
+        url: 'https://me.yahoo.com/'
     },    
     aol: {
         name: 'AOL',     
         label: 'Enter your AOL screenname.',
-        url: 'http://openid.aol.com/{username}'
+        url: 'https://openid.aol.com/{username}'
     },
     verisign: {
         name: 'Verisign',
@@ -44,12 +44,12 @@ var providers_small = {
     flickr: {
         name: 'Flickr',        
         label: 'Enter your Flickr username.',
-        url: 'http://flickr.com/{username}/'
+        url: 'https://flickr.com/{username}/'
     },
     technorati: {
         name: 'Technorati',
         label: 'Enter your Technorati username.',
-        url: 'http://technorati.com/people/technorati/{username}/'
+        url: 'https://technorati.com/people/technorati/{username}/'
     },
     wordpress: {
         name: 'Wordpress',
@@ -69,7 +69,7 @@ var providers_small = {
     claimid: {
         name: 'ClaimID',
         label: 'Your ClaimID username',
-        url: 'http://claimid.com/{username}'
+        url: 'https://claimid.com/{username}'
     }
 };
 var providers = $.extend({}, providers_large, providers_small);

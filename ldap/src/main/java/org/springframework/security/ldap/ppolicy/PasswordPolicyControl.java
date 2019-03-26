@@ -23,7 +23,7 @@ import javax.naming.ldap.Control;
  * A Password Policy request control.
  * <p>
  * Based on the information in the corresponding
- * <a href="http://tools.ietf.org/draft/draft-behera-ldap-password-policy/draft-behera-ldap-password-policy-09.txt">
+ * <a href="https://tools.ietf.org/draft/draft-behera-ldap-password-policy/draft-behera-ldap-password-policy-09.txt">
  * internet draft on LDAP password policy</a>
  *
  * @author Stefan Zoerner

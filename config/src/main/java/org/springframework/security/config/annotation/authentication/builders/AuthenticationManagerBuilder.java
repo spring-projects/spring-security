@@ -144,8 +144,8 @@ public class AuthenticationManagerBuilder extends AbstractConfiguredSecurityBuil
      * <p>
      * When using with a persistent data store, it is best to add users external
      * of configuration using something like <a
-     * href="http://flywaydb.org/">Flyway</a> or <a
-     * href="http://www.liquibase.org/">Liquibase</a> to create the schema and
+     * href="https://flywaydb.org/">Flyway</a> or <a
+     * href="https://www.liquibase.org/">Liquibase</a> to create the schema and
      * adding users to ensure these steps are only done once and that the
      * optimal SQL is used.
      * </p>
@@ -155,7 +155,7 @@ public class AuthenticationManagerBuilder extends AbstractConfiguredSecurityBuil
      * for the {@link #getDefaultUserDetailsService()} method. Note that
      * additional {@link UserDetailsService}'s may override this
      * {@link UserDetailsService} as the default. See the <a href=
-     * "http://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#user-schema"
+     * "https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#user-schema"
      * >User Schema</a> section of the reference for the default schema.
      * </p>
      *

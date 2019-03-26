@@ -232,11 +232,11 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
     /**
      * Maps the <tt>return_to url</tt> to a realm, for example:
      * <pre>
-     * http://www.example.com/j_spring_openid_security_check -> http://www.example.com/realm</tt>
+     * https://www.example.com/j_spring_openid_security_check -> https://www.example.com/realm</tt>
      * </pre>
      * If no mapping is provided then the returnToUrl will be parsed to extract the protocol, hostname and port followed
      * by a trailing slash.
-     * This means that <tt>http://www.example.com/j_spring_openid_security_check</tt> will automatically become
+     * This means that <tt>https://www.example.com/j_spring_openid_security_check</tt> will automatically become
      * <tt>http://www.example.com:80/</tt>
      *
      * @param realmMapping containing returnToUrl -> realm mappings

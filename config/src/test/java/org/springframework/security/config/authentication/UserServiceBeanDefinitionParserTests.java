@@ -76,11 +76,11 @@ public class UserServiceBeanDefinitionParserTests {
     public void worksWithOpenIDUrlsAsNames() {
         setContext(
                 "<user-service id='service'>" +
-                "    <user name='http://joe.myopenid.com/' authorities='ROLE_A'/>" +
+                "    <user name='https://joe.myopenid.com/' authorities='ROLE_A'/>" +
                 "    <user name='https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9' authorities='ROLE_A'/>" +
                 "</user-service>");
         UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
-        assertEquals("http://joe.myopenid.com/", userService.loadUserByUsername("http://joe.myopenid.com/").getUsername());
+        assertEquals("https://joe.myopenid.com/", userService.loadUserByUsername("https://joe.myopenid.com/").getUsername());
         assertEquals("https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9",
                 userService.loadUserByUsername("https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9").getUsername());
     }

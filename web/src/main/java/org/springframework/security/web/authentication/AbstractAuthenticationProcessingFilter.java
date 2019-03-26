@@ -240,7 +240,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * <p>
      * It strips any parameters from the "path" section of the request URL (such
      * as the jsessionid parameter in
-     * <em>http://host/myapp/index.html;jsessionid=blah</em>) before matching
+     * <em>https://host/myapp/index.html;jsessionid=blah</em>) before matching
      * against the <code>filterProcessesUrl</code> property.
      * <p>
      * Subclasses may override for special requirements, such as Tapestry integration.

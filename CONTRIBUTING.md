@@ -13,7 +13,7 @@ Not sure what a pull request is, or how to submit one? Take a look at GitHub's e
 Is there already an issue that addresses your concern? Do a bit of searching in our [JIRA issue tracker](https://jira.springsource.org/browse/SEC) to see if you can find something similar. If not, please create a new issue before submitting a pull request unless the change is not a user facing issue.
 
 # Discuss non-trivial contribution ideas with committers
-If you're considering anything more than correcting a typo or fixing a minor bug , please discuss it on the [Spring Security forums](http://forum.springsource.org/forumdisplay.php?33-Security) before submitting a pull request. We're happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
+If you're considering anything more than correcting a typo or fixing a minor bug , please discuss it on the [Spring Security forums](https://forum.spring.io/forumdisplay.php?33-Security) before submitting a pull request. We're happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
 
 # Sign the Contributor License Agreement
 If you have not previously done so, please fill out and submit the [SpringSource CLA form](https://support.springsource.com/spring_committer_signup). You'll receive a token when this process is complete. Keep track of this, you may be asked for it later!
@@ -51,8 +51,8 @@ Please carefully follow the whitespace and formatting conventions already presen
 
 Whitespace management tips
 
-1. You can use the [AnyEdit Eclipse plugin](http://marketplace.eclipse.org/content/anyedit-tools) to ensure spaces are used and to clean up trailing whitespaces.
-1. Use git's pre-commit.sample hook to prevent invalid whitespace from being pushed out. You can enable it by moving ~/spring-security/.git/hooks/pre-commit.sample to ~/spring-security/.git/hooks/pre-commit and ensuring it is executable. For more information on hooks refer to [Pro Git's Pre-Commit Hook's section](http://git-scm.com/book/cs/ch7-3.html)
+1. You can use the [AnyEdit Eclipse plugin](https://marketplace.eclipse.org/content/anyedit-tools) to ensure spaces are used and to clean up trailing whitespaces.
+1. Use git's pre-commit.sample hook to prevent invalid whitespace from being pushed out. You can enable it by moving ~/spring-security/.git/hooks/pre-commit.sample to ~/spring-security/.git/hooks/pre-commit and ensuring it is executable. For more information on hooks refer to [Pro Git's Pre-Commit Hook's section](https://git-scm.com/book/cs/ch7-3.html)
 
 # Add Apache license header to all new classes
 
@@ -103,7 +103,7 @@ Search the codebase to find related unit tests and add additional `@Test` method
 2. New test methods should not start with test. This is an old JUnit3 convention and is not necessary since the method is annotated with @Test.
 
 # Squash commits
-Use git rebase --interactive, git add --patch and other tools to "squash" multiple commits into atomic changes. In addition to the man pages for git, there are many resources online to help you understand how these tools work. Here is one: http://book.git-scm.com/4_interactive_rebasing.html.
+Use git rebase --interactive, git add --patch and other tools to "squash" multiple commits into atomic changes. In addition to the man pages for git, there are many resources online to help you understand how these tools work. Here is one: https://book.git-scm.com/4_interactive_rebasing.html.
 
 # Use real name in git commits
 Please configure git to use your real first and last name for any commits you intend to submit as pull requests. For example, this is not acceptable:

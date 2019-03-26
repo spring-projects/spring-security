@@ -118,7 +118,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
      * <p>
      * It is considered best practice to use an HTTP POST on any action that
      * changes state (i.e. log out) to protect against <a
-     * href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
+     * href="https://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
      * attacks</a>. If you really want to use an HTTP GET, you can use
      * <code>logoutRequestMatcher(new AntPathRequestMatcher(logoutUrl, "GET"));</code>
      * </p>

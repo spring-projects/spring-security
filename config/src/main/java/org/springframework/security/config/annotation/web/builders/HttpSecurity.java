@@ -190,35 +190,35 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *                 .authenticationUserDetailsService(new AutoProvisioningUserDetailsService())
      *                     .attributeExchange(&quot;https://www.google.com/.*&quot;)
      *                         .attribute(&quot;email&quot;)
-     *                             .type(&quot;http://axschema.org/contact/email&quot;)
+     *                             .type(&quot;https://axschema.org/contact/email&quot;)
      *                             .required(true)
      *                             .and()
      *                         .attribute(&quot;firstname&quot;)
-     *                             .type(&quot;http://axschema.org/namePerson/first&quot;)
+     *                             .type(&quot;https://axschema.org/namePerson/first&quot;)
      *                             .required(true)
      *                             .and()
      *                         .attribute(&quot;lastname&quot;)
-     *                             .type(&quot;http://axschema.org/namePerson/last&quot;)
+     *                             .type(&quot;https://axschema.org/namePerson/last&quot;)
      *                             .required(true)
      *                             .and()
      *                         .and()
      *                     .attributeExchange(&quot;.*yahoo.com.*&quot;)
      *                         .attribute(&quot;email&quot;)
-     *                             .type(&quot;http://schema.openid.net/contact/email&quot;)
+     *                             .type(&quot;https://schema.openid.net/contact/email&quot;)
      *                             .required(true)
      *                             .and()
      *                         .attribute(&quot;fullname&quot;)
-     *                             .type(&quot;http://axschema.org/namePerson&quot;)
+     *                             .type(&quot;https://axschema.org/namePerson&quot;)
      *                             .required(true)
      *                             .and()
      *                         .and()
      *                     .attributeExchange(&quot;.*myopenid.com.*&quot;)
      *                         .attribute(&quot;email&quot;)
-     *                             .type(&quot;http://schema.openid.net/contact/email&quot;)
+     *                             .type(&quot;https://schema.openid.net/contact/email&quot;)
      *                             .required(true)
      *                             .and()
      *                         .attribute(&quot;fullname&quot;)
-     *                             .type(&quot;http://schema.openid.net/namePerson&quot;)
+     *                             .type(&quot;https://schema.openid.net/namePerson&quot;)
      *                             .required(true);
      *     }
      * }
@@ -985,7 +985,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * The example below demonstrates how to require HTTPs for every request. Only requiring HTTPS
      * for some requests is supported, but not recommended since an application that allows for HTTP
      * introduces many security vulnerabilities. For one such example, read about
-     * <a href="http://en.wikipedia.org/wiki/Firesheep">Firesheep</a>.
+     * <a href="https://en.wikipedia.org/wiki/Firesheep">Firesheep</a>.
      *
      * <pre>
      * &#064;Configuration

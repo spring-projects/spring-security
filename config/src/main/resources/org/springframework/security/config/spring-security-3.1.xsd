@@ -1440,7 +1440,7 @@
       </xs:attribute>
       <xs:attribute name="type" use="required" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Specifies the attribute type. For example, http://axschema.org/contact/email. See your
+            <xs:documentation>Specifies the attribute type. For example, https://axschema.org/contact/email. See your
                 OP's documentation for valid attribute types.
                 </xs:documentation>
          </xs:annotation>

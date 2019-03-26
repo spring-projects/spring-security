@@ -83,21 +83,21 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
 
             def googleAttrs = consumer.attributesToFetchFactory.createAttributeList("https://www.google.com/1")
             googleAttrs[0].name == "email"
-            googleAttrs[0].type == "http://axschema.org/contact/email"
+            googleAttrs[0].type == "https://axschema.org/contact/email"
             googleAttrs[0].required
             googleAttrs[1].name == "firstname"
-            googleAttrs[1].type == "http://axschema.org/namePerson/first"
+            googleAttrs[1].type == "https://axschema.org/namePerson/first"
             googleAttrs[1].required
             googleAttrs[2].name == "lastname"
-            googleAttrs[2].type == "http://axschema.org/namePerson/last"
+            googleAttrs[2].type == "https://axschema.org/namePerson/last"
             googleAttrs[2].required
 
             def yahooAttrs = consumer.attributesToFetchFactory.createAttributeList("https://rwinch.yahoo.com/rwinch/id")
             yahooAttrs[0].name == "email"
-            yahooAttrs[0].type == "http://schema.openid.net/contact/email"
+            yahooAttrs[0].type == "https://schema.openid.net/contact/email"
             yahooAttrs[0].required
             yahooAttrs[1].name == "fullname"
-            yahooAttrs[1].type == "http://axschema.org/namePerson"
+            yahooAttrs[1].type == "https://axschema.org/namePerson"
             yahooAttrs[1].required
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
@@ -122,26 +122,26 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
                 .openidLogin()
                     .attributeExchange("https://www.google.com/.*") // attribute-exchange@identifier-match
                         .attribute("email") // openid-attribute@name
-                            .type("http://axschema.org/contact/email") // openid-attribute@type
+                            .type("https://axschema.org/contact/email") // openid-attribute@type
                             .required(true) // openid-attribute@required
                             .count(1) // openid-attribute@count
                             .and()
                         .attribute("firstname")
-                            .type("http://axschema.org/namePerson/first")
+                            .type("https://axschema.org/namePerson/first")
                             .required(true)
                             .and()
                         .attribute("lastname")
-                            .type("http://axschema.org/namePerson/last")
+                            .type("https://axschema.org/namePerson/last")
                             .required(true)
                             .and()
                         .and()
                     .attributeExchange(".*yahoo.com.*")
                         .attribute("email")
-                            .type("http://schema.openid.net/contact/email")
+                            .type("https://schema.openid.net/contact/email")
                             .required(true)
                             .and()
                         .attribute("fullname")
-                            .type("http://axschema.org/namePerson")
+                            .type("https://axschema.org/namePerson")
                             .required(true)
                             .and()
                         .and()
