@@ -113,7 +113,7 @@ public class JndiDnsResolverTests {
 		BasicAttribute record = new BasicAttribute("SRV");
 		// the structure of the service records is:
 		// priority weight port hostname
-		// for more information: http://en.wikipedia.org/wiki/SRV_record
+		// for more information: https://en.wikipedia.org/wiki/SRV_record
 		record.add("20 80 389 kdc3.springsource.com.");
 		record.add("10 70 389 kdc.springsource.com.");
 		record.add("20 20 389 kdc4.springsource.com.");

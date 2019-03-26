@@ -57,7 +57,7 @@ public interface DnsResolver {
 	 * number in the DNS record) and if there are more than one records with the same
 	 * priority, it will return the one with the highest weight. You will find more
 	 * informatione about DNS service records at <a
-	 * href="http://en.wikipedia.org/wiki/SRV_record">Wikipedia</a>.
+	 * href="https://en.wikipedia.org/wiki/SRV_record">Wikipedia</a>.
 	 *
 	 * @param serviceType The service type you are searching for, e.g. ldap, kerberos, ...
 	 * @param domain The domain, in which you are searching for the service

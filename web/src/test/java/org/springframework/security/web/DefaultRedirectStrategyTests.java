@@ -36,7 +36,7 @@ public class DefaultRedirectStrategyTests {
 		request.setContextPath("/context");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		rds.sendRedirect(request, response, "http://context.blah.com/context/remainder");
+		rds.sendRedirect(request, response, "https://context.blah.com/context/remainder");
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("remainder");
 	}
@@ -52,7 +52,7 @@ public class DefaultRedirectStrategyTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		rds.sendRedirect(request, response,
-				"http://http://context.blah.com/context/remainder");
+				"https://http://context.blah.com/context/remainder");
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("remainder");
 	}
