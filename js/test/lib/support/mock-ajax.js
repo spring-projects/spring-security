@@ -4,9 +4,9 @@
 
  Supports both Prototype.js and jQuery.
 
- http://github.com/pivotal/jasmine-ajax
+ https://github.com/pivotal/jasmine-ajax
 
- Jasmine Home page: http://pivotal.github.com/jasmine
+ Jasmine Home page: https://pivotal.github.com/jasmine
 
  Copyright (c) 2008-2010 Pivotal Labs
 

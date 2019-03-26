@@ -26,10 +26,10 @@ name: Spring Security
 project: spring-security
 
 # Project github URL
-github_repo_url: http://github.com/spring-projects/spring-security
+github_repo_url: https://github.com/spring-projects/spring-security
 
 ## Custom properties
-guides_base_url: http://docs.spring.io/spring-security/site/docs/current/guides/html5/
+guides_base_url: https://docs.spring.io/spring-security/site/docs/current/guides/html5/
 
 # If you want to include a custom pom.xml or gradle template set these value to true and add _include files
 custom_pom_template: false

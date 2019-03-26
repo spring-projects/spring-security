@@ -1,6 +1,6 @@
 /*!
  * bootstrap-select v1.1.1
- * http://silviomoreto.github.io/bootstrap-select/
+ * https://silviomoreto.github.io/bootstrap-select/
  *
  * Copyright 2013 bootstrap-select
  * Licensed under the MIT license

@@ -6,18 +6,18 @@ describe("QuickStartWidget", function () {
       var project = new Spring.Project({
         "id": "spring-data-jpa",
         "name": "Spring Data JPA",
-        "repoUrl": "http://github.com/SpringSource/spring-data-jpa",
-        "siteUrl": "http://projects.spring.io/spring-data-jpa",
+        "repoUrl": "https://github.com/SpringSource/spring-data-jpa",
+        "siteUrl": "https://projects.spring.io/spring-data-jpa",
         "projectReleases": [
           {
-            "refDocUrl": "http://docs.spring.io/spring-data/jpa/docs/1.4.0.RC1/reference/html/",
-            "apiDocUrl": "http://docs.spring.io/spring-data/jpa/docs/1.4.0.RC1/api/",
+            "refDocUrl": "https://docs.spring.io/spring-data/jpa/docs/1.4.0.RC1/reference/html/",
+            "apiDocUrl": "https://docs.spring.io/spring-data/jpa/docs/1.4.0.RC1/api/",
             "groupId": "org.springframework.data",
             "artifactId": "spring-data-jpa",
             "repository": {
               "id": "spring-milestones",
               "name": "Spring Milestones",
-              "url": "http://repo.spring.io/milestone",
+              "url": "https://repo.spring.io/milestone",
               "snapshotsEnabled": false
             },
             "version": "1.4.0.RC1",
@@ -28,8 +28,8 @@ describe("QuickStartWidget", function () {
             "versionDisplayName": "1.4.0.RC1"
           },
           {
-            "refDocUrl": "http://docs.spring.io/spring-data/jpa/docs/1.3.4.RELEASE/reference/html/",
-            "apiDocUrl": "http://docs.spring.io/spring-data/jpa/docs/1.3.4.RELEASE/api/",
+            "refDocUrl": "https://docs.spring.io/spring-data/jpa/docs/1.3.4.RELEASE/reference/html/",
+            "apiDocUrl": "https://docs.spring.io/spring-data/jpa/docs/1.3.4.RELEASE/api/",
             "groupId": "org.springframework.data",
             "artifactId": "spring-data-jpa",
             "repository": null,
@@ -73,7 +73,7 @@ describe("QuickStartWidget", function () {
 
           expect($('#maven_widget')).toContainText("spring-milestones");
           expect($('#maven_widget')).toContainText("Spring Milestones");
-          expect($('#maven_widget')).toContainText("http://repo.spring.io/milestone");
+          expect($('#maven_widget')).toContainText("https://repo.spring.io/milestone");
           expect($('#maven_widget')).toContainText("false");
       });
 
@@ -83,7 +83,7 @@ describe("QuickStartWidget", function () {
           expect($('#maven_widget')).not.toContainText("repository");
           expect($('#maven_widget')).not.toContainText("spring-milestones");
           expect($('#maven_widget')).not.toContainText("Spring Milestones");
-          expect($('#maven_widget')).not.toContainText("http://repo.spring.io/milestone");
+          expect($('#maven_widget')).not.toContainText("https://repo.spring.io/milestone");
           expect($('#maven_widget')).not.toContainText("false");
       });
     });
@@ -102,7 +102,7 @@ describe("QuickStartWidget", function () {
         $('#jasmine_content select').val(0).change();
 
         expect($('#maven_widget')).toContainText("repositories");
-        expect($('#maven_widget')).toContainText("http://repo.spring.io/milestone");
+        expect($('#maven_widget')).toContainText("https://repo.spring.io/milestone");
       });
     });
   });

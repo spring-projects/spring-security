@@ -3,7 +3,7 @@
 //     (c) 2010-2013 Jeremy Ashkenas, DocumentCloud Inc.
 //     Backbone may be freely distributed under the MIT license.
 //     For all details and documentation:
-//     http://backbonejs.org
+//     https://backbonejs.org
 
 (function(){
 
@@ -1298,7 +1298,7 @@
   // ----------------
 
   // Handles cross-browser history management, based on either
-  // [pushState](http://diveintohtml5.info/history.html) and real URLs, or
+  // [pushState](https://diveintohtml5.info/history.html) and real URLs, or
   // [onhashchange](https://developer.mozilla.org/en-US/docs/DOM/window.onhashchange)
   // and URL fragments. If the browser supports neither (old IE, natch),
   // falls back to polling.

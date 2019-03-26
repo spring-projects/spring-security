@@ -1,6 +1,6 @@
 # Introduction
 
-Spring's project pages are based on [Jekyll](http://jekyllrb.com) and [GitHub Pages](http://pages.github.com/). This means that each project's website is stored within the project repo, in a special branch called "gh-pages". In order to keep everything looking similar across the many individual Spring projects, common elements of the Jekyll site layout, css, etc are stored in [a shared gh-pages repository](http://github.com/spring-projects/gh-pages). If you're seeing this README in the gh-pages branch of an actual Spring project, that's because this file, along with all the other common files get merged periodically into each project.
+Spring's project pages are based on [Jekyll](https://jekyllrb.com) and [GitHub Pages](https://pages.github.com/). This means that each project's website is stored within the project repo, in a special branch called "gh-pages". In order to keep everything looking similar across the many individual Spring projects, common elements of the Jekyll site layout, css, etc are stored in [a shared gh-pages repository](https://github.com/spring-projects/gh-pages). If you're seeing this README in the gh-pages branch of an actual Spring project, that's because this file, along with all the other common files get merged periodically into each project.
 
 This approach may sound a little funky (and it is), but it's way better than the misery of Git submodules. In fact, it's actually pretty easy. If you're just getting started, then follow the directions immediately below. If you're needing a refresher on how to keep things up to date, then head to the section at the bottom on "keeping up to date".
 
@@ -123,7 +123,7 @@ Once you're satisified with your edits, commit your changes and push the `gh-pag
 
 ## View your site live on the web
 
-That's it! After not more than a few minutes, you should be able to see your site at http://spring-projects.github.io/{your-spring-project}
+That's it! After not more than a few minutes, you should be able to see your site at https://spring-projects.github.io/{your-spring-project}
 
 
 # How to keep common gh-pages content up to date
