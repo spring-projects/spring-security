@@ -106,8 +106,8 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		when(this.authorizationRequest.getScopes()).thenReturn(new LinkedHashSet<>(Arrays.asList("openid", "profile", "email")));
 		when(this.authorizationRequest.getState()).thenReturn("12345");
 		when(this.authorizationResponse.getState()).thenReturn("12345");
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example.com");
+		when(this.authorizationRequest.getRedirectUri()).thenReturn("https://example.com");
+		when(this.authorizationResponse.getRedirectUri()).thenReturn("https://example.com");
 		when(this.accessTokenResponse.getAccessToken()).thenReturn(this.accessToken);
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
@@ -178,8 +178,8 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_redirect_uri_parameter"));
 
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example1.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example2.com");
+		when(this.authorizationRequest.getRedirectUri()).thenReturn("https://example1.com");
+		when(this.authorizationResponse.getRedirectUri()).thenReturn("https://example2.com");
 
 		this.authenticationProvider.authenticate(
 			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));

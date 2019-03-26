@@ -106,18 +106,18 @@ public class CommonOAuth2ProviderTests {
 	@Test
 	public void getBuilderWhenOktaShouldHaveOktaSettings() throws Exception {
 		ClientRegistration registration = builder(CommonOAuth2Provider.OKTA)
-			.authorizationUri("http://example.com/auth")
-			.tokenUri("http://example.com/token")
-			.userInfoUri("http://example.com/info")
-			.jwkSetUri("http://example.com/jwkset").build();
+			.authorizationUri("https://example.com/auth")
+			.tokenUri("https://example.com/token")
+			.userInfoUri("https://example.com/info")
+			.jwkSetUri("https://example.com/jwkset").build();
 		ProviderDetails providerDetails = registration.getProviderDetails();
 		assertThat(providerDetails.getAuthorizationUri())
-			.isEqualTo("http://example.com/auth");
-		assertThat(providerDetails.getTokenUri()).isEqualTo("http://example.com/token");
-		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("http://example.com/info");
+			.isEqualTo("https://example.com/auth");
+		assertThat(providerDetails.getTokenUri()).isEqualTo("https://example.com/token");
+		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/info");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
 			.isEqualTo(IdTokenClaimNames.SUB);
-		assertThat(providerDetails.getJwkSetUri()).isEqualTo("http://example.com/jwkset");
+		assertThat(providerDetails.getJwkSetUri()).isEqualTo("https://example.com/jwkset");
 		assertThat(registration.getClientAuthenticationMethod())
 			.isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(registration.getAuthorizationGrantType())

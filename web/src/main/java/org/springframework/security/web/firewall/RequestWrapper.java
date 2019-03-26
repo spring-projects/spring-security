@@ -30,7 +30,7 @@ import java.util.*;
  * and extra consecutive '/' characters.
  *
  * <h3>Path Parameters</h3> Parameters (as defined in <a
- * href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>) are stripped from the path
+ * href="https://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>) are stripped from the path
  * segments of the {@code servletPath} and {@code pathInfo} values of the request.
  * <p>
  * The parameter sequence is demarcated by a semi-colon, so each segment is checked for

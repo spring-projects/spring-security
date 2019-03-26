@@ -78,7 +78,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		when(this.clientRegistration.getClientId()).thenReturn("client-id");
 		when(this.clientRegistration.getClientSecret()).thenReturn("secret");
 		when(this.clientRegistration.getClientAuthenticationMethod()).thenReturn(ClientAuthenticationMethod.BASIC);
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
+		when(this.authorizationRequest.getRedirectUri()).thenReturn("https://example.com");
 		when(this.authorizationResponse.getCode()).thenReturn("code");
 	}
 
@@ -178,7 +178,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	public void getTokenResponseWhenTokenUriInvalidThenThrowAuthenticationServiceException() throws Exception {
 		this.exception.expect(AuthenticationServiceException.class);
 
-		String tokenUri = "http://invalid-provider.com/oauth2/token";
+		String tokenUri = "https://invalid-provider.com/oauth2/token";
 		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
 
 		this.tokenResponseClient.getTokenResponse(

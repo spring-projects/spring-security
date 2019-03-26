@@ -202,17 +202,17 @@ public final class HttpSecurity extends
 	 * 				.authenticationUserDetailsService(
 	 * 						new AutoProvisioningUserDetailsService())
 	 * 				.attributeExchange(&quot;https://www.google.com/.*&quot;).attribute(&quot;email&quot;)
-	 * 				.type(&quot;http://axschema.org/contact/email&quot;).required(true).and()
-	 * 				.attribute(&quot;firstname&quot;).type(&quot;http://axschema.org/namePerson/first&quot;)
+	 * 				.type(&quot;https://axschema.org/contact/email&quot;).required(true).and()
+	 * 				.attribute(&quot;firstname&quot;).type(&quot;https://axschema.org/namePerson/first&quot;)
 	 * 				.required(true).and().attribute(&quot;lastname&quot;)
-	 * 				.type(&quot;http://axschema.org/namePerson/last&quot;).required(true).and().and()
+	 * 				.type(&quot;https://axschema.org/namePerson/last&quot;).required(true).and().and()
 	 * 				.attributeExchange(&quot;.*yahoo.com.*&quot;).attribute(&quot;email&quot;)
-	 * 				.type(&quot;http://schema.openid.net/contact/email&quot;).required(true).and()
-	 * 				.attribute(&quot;fullname&quot;).type(&quot;http://axschema.org/namePerson&quot;)
+	 * 				.type(&quot;https://schema.openid.net/contact/email&quot;).required(true).and()
+	 * 				.attribute(&quot;fullname&quot;).type(&quot;https://axschema.org/namePerson&quot;)
 	 * 				.required(true).and().and().attributeExchange(&quot;.*myopenid.com.*&quot;)
-	 * 				.attribute(&quot;email&quot;).type(&quot;http://schema.openid.net/contact/email&quot;)
+	 * 				.attribute(&quot;email&quot;).type(&quot;https://schema.openid.net/contact/email&quot;)
 	 * 				.required(true).and().attribute(&quot;fullname&quot;)
-	 * 				.type(&quot;http://schema.openid.net/namePerson&quot;).required(true);
+	 * 				.type(&quot;https://schema.openid.net/namePerson&quot;).required(true);
 	 * 	}
 	 * }
 	 *
@@ -904,7 +904,7 @@ public final class HttpSecurity extends
 	 *
 	 * The &quot;authentication flow&quot; is implemented using the <b>Authorization Code Grant</b>, as specified in the
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">OAuth 2.0 Authorization Framework</a>
-	 * and <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">OpenID Connect Core 1.0</a>
+	 * and <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">OpenID Connect Core 1.0</a>
 	 * specification.
 	 * <br>
 	 * <br>
@@ -981,7 +981,7 @@ public final class HttpSecurity extends
 	 * @author Joe Grandja
 	 * @since 5.0
 	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
-	 * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Flow</a>
+	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Flow</a>
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 	 * @return the {@link OAuth2LoginConfigurer} for further customizations
@@ -1001,7 +1001,7 @@ public final class HttpSecurity extends
 	 * requiring HTTPS for some requests is supported, but not recommended since an
 	 * application that allows for HTTP introduces many security vulnerabilities. For one
 	 * such example, read about <a
-	 * href="http://en.wikipedia.org/wiki/Firesheep">Firesheep</a>.
+	 * href="https://en.wikipedia.org/wiki/Firesheep">Firesheep</a>.
 	 *
 	 * <pre>
 	 * &#064;Configuration

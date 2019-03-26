@@ -35,8 +35,8 @@ import java.util.Map;
  * @see AbstractOAuth2Token
  * @see IdTokenClaimAccessor
  * @see StandardClaimAccessor
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  */
 public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAccessor {
 	private final Map<String, Object> claims;

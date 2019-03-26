@@ -92,7 +92,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Sets the algorithm to use. See
-	 * <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SecretKeyFactory">SecretKeyFactory Algorithms</a>
+	 * <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SecretKeyFactory">SecretKeyFactory Algorithms</a>
 	 * @param secretKeyFactoryAlgorithm the algorithm to use (i.e.
 	 * {@code SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1},
 	 * {@code SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256},
