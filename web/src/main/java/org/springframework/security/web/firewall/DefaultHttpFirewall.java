@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
  * Default implementation which wraps requests in order to provide consistent
  * values of the {@code servletPath} and {@code pathInfo}, which do not contain
  * path parameters (as defined in
- * <a href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>). Different
+ * <a href="https://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>). Different
  * servlet containers interpret the servlet spec differently as to how path
  * parameters are treated and it is possible they might be added in order to
  * bypass particular security constraints. When using this implementation, they

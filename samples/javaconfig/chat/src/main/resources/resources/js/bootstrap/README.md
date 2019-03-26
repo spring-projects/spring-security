@@ -1,11 +1,11 @@
-[Twitter Bootstrap](http://twitter.github.com/bootstrap) [![Build Status](https://secure.travis-ci.org/twitter/bootstrap.png)](http://travis-ci.org/twitter/bootstrap)
+[Twitter Bootstrap](https://twitter.github.com/bootstrap) [![Build Status](https://secure.travis-ci.org/twitter/bootstrap.png)](https://travis-ci.org/twitter/bootstrap)
 =================
 
 This version of Bootstrap is maintained to be only the built version of bootstrap to be used with bower.  If you are looking for the full source of bootstrap go to [bootstrap](https://github.com/twitter/bootstrap)
 
-Bootstrap is a sleek, intuitive, and powerful front-end framework for faster and easier web development, created and maintained by [Mark Otto](http://twitter.com/mdo) and [Jacob Thornton](http://twitter.com/fat) at Twitter.
+Bootstrap is a sleek, intuitive, and powerful front-end framework for faster and easier web development, created and maintained by [Mark Otto](https://twitter.com/mdo) and [Jacob Thornton](https://twitter.com/fat) at Twitter.
 
-To get started, checkout http://getbootstrap.com!
+To get started, checkout https://getbootstrap.com!
 
 
 
@@ -31,7 +31,7 @@ And constructed with the following guidelines:
 * New additions without breaking backward compatibility bumps the minor (and resets the patch)
 * Bug fixes and misc changes bumps the patch
 
-For more information on SemVer, please visit http://semver.org/.
+For more information on SemVer, please visit https://semver.org/.
 
 
 
@@ -47,14 +47,14 @@ https://github.com/twitter/bootstrap/issues
 Twitter account
 ---------------
 
-Keep up to date on announcements and more by following Bootstrap on Twitter, [@TwBootstrap](http://twitter.com/TwBootstrap).
+Keep up to date on announcements and more by following Bootstrap on Twitter, [@TwBootstrap](https://twitter.com/TwBootstrap).
 
 
 
 Blog
 ----
 
-Read more detailed announcements, discussions, and more on [The Official Twitter Bootstrap Blog](http://blog.getbootstrap.com).
+Read more detailed announcements, discussions, and more on [The Official Twitter Bootstrap Blog](https://blog.getbootstrap.com).
 
 
 
@@ -65,7 +65,7 @@ Have a question? Ask on our mailing list!
 
 twitter-bootstrap@googlegroups.com
 
-http://groups.google.com/group/twitter-bootstrap
+https://groups.google.com/group/twitter-bootstrap
 
 
 
@@ -91,10 +91,10 @@ $ npm install recess connect uglify-js jshint -g
 ```
 
 + **build** - `make`
-Runs the recess compiler to rebuild the `/less` files and compiles the docs pages. Requires recess and uglify-js. <a href="http://twitter.github.com/bootstrap/less.html#compiling">Read more in our docs &raquo;</a>
+Runs the recess compiler to rebuild the `/less` files and compiles the docs pages. Requires recess and uglify-js. <a href="https://twitter.github.com/bootstrap/less.html#compiling">Read more in our docs &raquo;</a>
 
 + **test** - `make test`
-Runs jshint and qunit tests headlessly in [phantomjs](http://code.google.com/p/phantomjs/) (used for ci). Depends on having phantomjs installed.
+Runs jshint and qunit tests headlessly in [phantomjs](https://code.google.com/p/phantomjs/) (used for ci). Depends on having phantomjs installed.
 
 + **watch** - `make watch`
 This is a convenience method for watching just Less files and automatically building them whenever you save. Requires the Watchr gem.
@@ -113,13 +113,13 @@ Authors
 
 **Mark Otto**
 
-+ http://twitter.com/mdo
-+ http://github.com/markdotto
++ https://twitter.com/mdo
++ https://github.com/markdotto
 
 **Jacob Thornton**
 
-+ http://twitter.com/fat
-+ http://github.com/fat
++ https://twitter.com/fat
++ https://github.com/fat
 
 
 

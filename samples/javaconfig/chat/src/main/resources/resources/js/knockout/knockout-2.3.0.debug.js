@@ -1,12 +1,12 @@
 // Knockout JavaScript library v2.3.0
-// (c) Steven Sanderson - http://knockoutjs.com/
-// License: MIT (http://www.opensource.org/licenses/mit-license.php)
+// (c) Steven Sanderson - https://knockoutjs.com/
+// License: MIT (https://www.opensource.org/licenses/mit-license.php)
 
 (function(){
 var DEBUG=true;
 (function(undefined){
     // (0, eval)('this') is a robust way of getting a reference to the global object
-    // For details, see http://stackoverflow.com/questions/14119988/return-this-0-evalthis/14120023#14120023
+    // For details, see https://stackoverflow.com/questions/14119988/return-this-0-evalthis/14120023#14120023
     var window = this || (0, eval)('this'),
         document = window['document'],
         navigator = window['navigator'],
@@ -396,7 +396,7 @@ ko.utils = (function () {
 
             // Workaround IE 6/7 issue
             // - https://github.com/SteveSanderson/knockout/issues/197
-            // - http://www.matts411.com/post/setting_the_name_attribute_in_ie_dom/
+            // - https://www.matts411.com/post/setting_the_name_attribute_in_ie_dom/
             if (ieVersion <= 7) {
                 try {
                     element.mergeAttributes(document.createElement("<input name='" + element.name + "'/>"), false);
@@ -417,7 +417,7 @@ ko.utils = (function () {
 
         ensureSelectElementIsRenderedCorrectly: function(selectElement) {
             // Workaround for IE9 rendering bug - it doesn't reliably display all the text in dynamically-added select boxes unless you force it to re-render by updating the width.
-            // (See https://github.com/SteveSanderson/knockout/issues/312, http://stackoverflow.com/questions/5908494/select-only-shows-first-char-of-selected-option)
+            // (See https://github.com/SteveSanderson/knockout/issues/312, https://stackoverflow.com/questions/5908494/select-only-shows-first-char-of-selected-option)
             // Also fixes IE7 and IE8 bug that causes selects to be zero width if enclosed by 'if' or 'with'. (See issue #839)
             if (ieVersion) {
                 var originalWidth = selectElement.style.width;
@@ -474,7 +474,7 @@ ko.utils = (function () {
 
         stringifyJson: function (data, replacer, space) {   // replacer and space are optional
             if (!JSON || !JSON.stringify)
-                throw new Error("Cannot find JSON.stringify(). Some browsers (e.g., IE < 8) don't support it natively, but you can overcome this by adding a script reference to json2.js, downloadable from http://www.json.org/json2.js");
+                throw new Error("Cannot find JSON.stringify(). Some browsers (e.g., IE < 8) don't support it natively, but you can overcome this by adding a script reference to json2.js, downloadable from https://www.json.org/json2.js");
             return JSON.stringify(ko.utils.unwrapObservable(data), replacer, space);
         },
 
@@ -546,7 +546,7 @@ ko.exportSymbol('utils.addOrRemoveItem', ko.utils.addOrRemoveItem);
 ko.exportSymbol('unwrap', ko.utils.unwrapObservable); // Convenient shorthand, because this is used so commonly
 
 if (!Function.prototype['bind']) {
-    // Function.prototype.bind is a standard part of ECMAScript 5th Edition (December 2009, http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-262.pdf)
+    // Function.prototype.bind is a standard part of ECMAScript 5th Edition (December 2009, https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-262.pdf)
     // In case the browser doesn't implement it natively, provide a JavaScript implementation. This implementation is based on the one in prototype.js
     Function.prototype['bind'] = function (object) {
         var originalFunction = this, args = Array.prototype.slice.call(arguments), object = args.shift();

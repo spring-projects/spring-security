@@ -612,7 +612,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 				setup:
 						httpAutoConfig {
 								'headers'('defaults-disabled':true) {
-										'hpkp'('report-uri':'http://example.net/pkp-report') {
+										'hpkp'('report-uri':'https://example.net/pkp-report') {
 												'pins'() {
 														'pin'('algorithm':'sha256', 'E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=')
 												}
@@ -625,7 +625,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 				when:
 						springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure: true), response, new MockFilterChain())
 				then:
-						assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=" ; report-uri="http://example.net/pkp-report"'])
+						assertHeaders(response, ['Public-Key-Pins-Report-Only': 'max-age=5184000 ; pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=" ; report-uri="https://example.net/pkp-report"'])
 		}
 
 	// --- disable single default header ---

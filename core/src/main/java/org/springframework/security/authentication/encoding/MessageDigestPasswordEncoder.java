@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * <p>
  * This class can be used stand-alone, or one of the subclasses can be used for
  * compatiblity and convenience. When using this class directly you must specify a
- * <a href="http://java.sun.com/j2se/1.5.0/docs/guide/security/CryptoSpec.html#AppA">
+ * <a href="https://java.sun.com/j2se/1.5.0/docs/guide/security/CryptoSpec.html#AppA">
  * Message Digest Algorithm</a> to use as a constructor arg.
  * <p>
  * The encoded password hash is normally returned as Hex (32 char) version of the hash
@@ -45,7 +45,7 @@ import org.springframework.util.Assert;
  * </pre>
  * <p>
  * If desired, the {@link #setIterations iterations} property can be set to enable
- * "<a href="http://en.wikipedia.org/wiki/Key_strengthening">password stretching</a>" for
+ * "<a href="https://en.wikipedia.org/wiki/Key_strengthening">password stretching</a>" for
  * the digest calculation.
  *
  * @author Ray Krueger
@@ -59,7 +59,7 @@ public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
 
 	/**
 	 * The digest algorithm to use Supports the named
-	 * <a href="http://java.sun.com/j2se/1.4.2/docs/guide/security/CryptoSpec.html#AppA">
+	 * <a href="https://java.sun.com/j2se/1.4.2/docs/guide/security/CryptoSpec.html#AppA">
 	 * Message Digest Algorithms</a> in the Java environment.
 	 *
 	 * @param algorithm
