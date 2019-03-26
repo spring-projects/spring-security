@@ -1,13 +1,13 @@
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:context="http://www.springframework.org/schema/context"
-	   xmlns:tx="http://www.springframework.org/schema/tx" xmlns:util="http://www.springframework.org/schema/util"
-	   xmlns:security="http://www.springframework.org/schema/security"
+<beans xmlns="https://www.springframework.org/schema/beans" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="https://www.springframework.org/schema/context"
+	   xmlns:tx="https://www.springframework.org/schema/tx" xmlns:util="https://www.springframework.org/schema/util"
+	   xmlns:security="https://www.springframework.org/schema/security"
 	   xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
-http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
-http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+https://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+https://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
+https://www.springframework.org/schema/tx https://www.springframework.org/schema/tx/spring-tx.xsd
+https://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util-3.1.xsd
+https://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
 ">
 
 	<security:http pattern="/foo/**">

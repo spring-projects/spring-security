@@ -14,13 +14,13 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<b:beans xmlns:b="http://www.springframework.org/schema/beans"
-		 xmlns:mvc="http://www.springframework.org/schema/mvc"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xmlns="http://www.springframework.org/schema/security"
-		 xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+<b:beans xmlns:b="https://www.springframework.org/schema/beans"
+		 xmlns:mvc="https://www.springframework.org/schema/mvc"
+		 xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+		 xmlns="https://www.springframework.org/schema/security"
+		 xsi:schemaLocation="https://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
+		https://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		https://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
 	<mvc:annotation-driven>
 		<mvc:argument-resolvers>

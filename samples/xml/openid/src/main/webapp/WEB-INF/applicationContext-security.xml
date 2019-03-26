@@ -4,11 +4,11 @@
   -	 Namespace-based OpenID configuration
   -->
 
-<b:beans xmlns="http://www.springframework.org/schema/security"
-	xmlns:b="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+<b:beans xmlns="https://www.springframework.org/schema/security"
+	xmlns:b="https://www.springframework.org/schema/beans"
+	xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+						https://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
 	<http>
 		<intercept-url pattern="/openidlogin.jsp*" access="permitAll"/>
@@ -20,17 +20,17 @@
 		<openid-login login-page="/openidlogin.jsp" user-service-ref="registeringUserService"
 				authentication-failure-url="/openidlogin.jsp?login_error=true">
 			<attribute-exchange identifier-match="https://www.google.com/.*">
-				<openid-attribute name="email" type="http://axschema.org/contact/email" required="true" count="1"/>
-				<openid-attribute name="firstname" type="http://axschema.org/namePerson/first" required="true" />
-				<openid-attribute name="lastname" type="http://axschema.org/namePerson/last" required="true" />
+				<openid-attribute name="email" type="https://axschema.org/contact/email" required="true" count="1"/>
+				<openid-attribute name="firstname" type="https://axschema.org/namePerson/first" required="true" />
+				<openid-attribute name="lastname" type="https://axschema.org/namePerson/last" required="true" />
 			</attribute-exchange>
 			<attribute-exchange identifier-match=".*yahoo.com.*">
-				<openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
-				<openid-attribute name="fullname" type="http://axschema.org/namePerson" required="true" />
+				<openid-attribute name="email" type="https://axschema.org/contact/email" required="true"/>
+				<openid-attribute name="fullname" type="https://axschema.org/namePerson" required="true" />
 			</attribute-exchange>
 			<attribute-exchange identifier-match=".*myopenid.com.*">
-				<openid-attribute name="email" type="http://schema.openid.net/contact/email" required="true"/>
-				<openid-attribute name="fullname" type="http://schema.openid.net/namePerson" required="true" />
+				<openid-attribute name="email" type="https://schema.openid.net/contact/email" required="true"/>
+				<openid-attribute name="fullname" type="https://schema.openid.net/namePerson" required="true" />
 			</attribute-exchange>
 		</openid-login>
 		<remember-me token-repository-ref="tokenRepo"/>
@@ -53,10 +53,10 @@
  -->
 <!--
 	<user-service id="userService">
-		<user name="http://luke.taylor.myopenid.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
+		<user name="https://luke.taylor.myopenid.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
 		<user name="http://luke.taylor.openid.cn/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
-		<user name="http://raykrueger.blogspot.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
-		<user name="http://spring.security.test.myopenid.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
+		<user name="https://raykrueger.blogspot.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
+		<user name="https://spring.security.test.myopenid.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
 	</user-service>
  -->
 </b:beans>

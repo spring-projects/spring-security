@@ -14,9 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xmlns="http://www.springframework.org/schema/beans"
-		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<beans xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+		xmlns="https://www.springframework.org/schema/beans"
+		xsi:schemaLocation="https://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean class="org.springframework.security.config.websocket.WebSocketMessageBrokerConfigTests.MessageController"/>
 	<bean class="org.springframework.security.config.websocket.WebSocketMessageBrokerConfigTests.MessageWithArgumentController"/>

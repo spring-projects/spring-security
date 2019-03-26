@@ -15,18 +15,18 @@
   ~ limitations under the License.
   -->
 
-<b:beans xmlns:b="http://www.springframework.org/schema/beans"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xmlns="http://www.springframework.org/schema/security"
+<b:beans xmlns:b="https://www.springframework.org/schema/beans"
+		xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+		xmlns="https://www.springframework.org/schema/security"
 		xsi:schemaLocation="
-			http://www.springframework.org/schema/security
-			http://www.springframework.org/schema/security/spring-security.xsd
-			http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans.xsd">
+			https://www.springframework.org/schema/security
+			https://www.springframework.org/schema/security/spring-security.xsd
+			https://www.springframework.org/schema/beans
+			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<http auto-config="true">
 		<headers defaults-disabled="true">
-			<hpkp report-uri="http://example.net/pkp-report">
+			<hpkp report-uri="https://example.net/pkp-report">
 				<pins>
 					<pin>d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=</pin>
 				</pins>
