@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
-<article class="faq" xml:id="spring-security-faq" xmlns="http://docbook.org/ns/docbook"
-    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+<?oxygen RNGSchema="https://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<article class="faq" xml:id="spring-security-faq" xmlns="https://docbook.org/ns/docbook"
+    xmlns:xlink="https://www.w3.org/1999/xlink" version="5.0">
     <info>
         <title>Frequently Answered Questions (FAQ)</title>
     </info>
@@ -21,7 +21,7 @@
                             scope. Web applications are vulnerable to all kinds of attacks which you
                             should be familiar with, preferably before you start development so you
                             can design and code with them in mind from the beginning. Check out the
-                            <link xlink:href="http://www.owasp.org/">OWASP web site</link> for
+                            <link xlink:href="https://www.owasp.org/">OWASP web site</link> for
                             information on the major issues facing web application developers and
                             the countermeasures you can use against them.</para>
                     </answer>
@@ -289,7 +289,7 @@
                             for a user. Hence it is often not possible to use the <link linkend="faq-what-is-userdetailservice"><interfacename>UserDetailsService</interfacename>
                             approach</link> where Spring Security compares the stored password with the one submitted by the user.
                             The most common approach is to use LDAP <quote>bind</quote>, which is one of the operations
-                            supported by <link xlink:href="http://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol">the LDAP protocol</link>.
+                            supported by <link xlink:href="https://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol">the LDAP protocol</link>.
                             With this approach, Spring Security validates the password by attempting to authenticate to the directory
                             as the user.
                         </para>
@@ -383,7 +383,7 @@
                             context information). Starting a session in HTTP first should work as
                             the session cookie won't be marked as secure. However, Spring
                             Security's <link
-                            xlink:href="http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ns-session-fixation"
+                            xlink:href="https://docs.spring.io/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ns-session-fixation"
                             >Session Fixation Protection</link> can interfere with this because
                             it results in a new session ID cookie being sent back to the user's
                             browser, usually with the secure flag. To get around this, you can
@@ -395,7 +395,7 @@
                             should begin accessing your site in HTTPS and continue using it until
                             they log out. Even clicking on an HTTPS link from a page accessed over
                             HTTP is potentially risky. If you need more convincing, check out a tool
-                            like <link xlink:href="http://www.thoughtcrime.org/software/sslstrip/"
+                            like <link xlink:href="https://www.thoughtcrime.org/software/sslstrip/"
                             >sslstrip</link>. </para>
                     </answer>
                 </qandaentry>
@@ -552,7 +552,7 @@
                             in the namespace appendix of the reference guide. There is also a
                             detailed blog article called <quote>Behind the Spring Security
                             Namespace</quote> on <link
-                            xlink:href="http://blog.springsource.com/2010/03/06/behind-the-spring-security-namespace/"
+                            xlink:href="https://spring.io/blog/2010/03/06/behind-the-spring-security-namespace/"
                             >blog.springsource.com</link>. If want to know the full details then the
                             code is in the <filename>spring-security-config</filename> module within
                             the Spring Security 3.0 distribution. You should probably read the
@@ -612,7 +612,7 @@
                             start with the tutorial sample. If you want to use LDAP, with an
                             embedded test server, then use the LDAP sample as a starting point. The
                             reference manual also includes
-                            <link xlink:href="http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#appendix-dependencies">an appendix</link> listing the first-level
+                            <link xlink:href="https://docs.spring.io/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#appendix-dependencies">an appendix</link> listing the first-level
                             dependencies for each Spring Security module with some information on
                             whether they are optional and what they are required for. </para>
                         <para> If you are building your project with maven, then adding the
@@ -660,7 +660,7 @@
                         <para> If you want to customize the authentication process then you should
                             implement <interfacename>AuthenticationProvider</interfacename>
                             yourself. See this <link
-                            xlink:href="http://blog.springsource.com/2010/08/02/spring-security-in-google-app-engine/"
+                            xlink:href="https://spring.io/blog/2010/08/02/spring-security-in-google-app-engine/"
                             > blog article</link> for an example integrating Spring Security
                             authentication with Google App Engine. </para>
                     </answer>
@@ -905,7 +905,7 @@
                             you can do this by adding a
                             <interfacename>BeanPostProcessor</interfacename> to your configuration.
                             More information can be found in the <link
-                            xlink:href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html#beans-factory-extension-bpp"
+                            xlink:href="https://docs.spring.io/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html#beans-factory-extension-bpp"
                             >Spring Reference Manual</link>. In order to do this, you need to know a
                             bit about which beans are created, so you should also read the blog
                             article in the above question on <link

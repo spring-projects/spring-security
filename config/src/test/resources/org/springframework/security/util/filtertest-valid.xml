@@ -17,14 +17,14 @@
  *
  *
 -->
-<beans default-lazy-init="true" xmlns="http://www.springframework.org/schema/beans"
-    xmlns:sec="http://www.springframework.org/schema/security"
-    xmlns:util="http://www.springframework.org/schema/util"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans default-lazy-init="true" xmlns="https://www.springframework.org/schema/beans"
+    xmlns:sec="https://www.springframework.org/schema/security"
+    xmlns:util="https://www.springframework.org/schema/util"
+    xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
-        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+        https://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        https://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util-3.0.xsd
+        https://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
     <bean id="mockFilter" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter"/>
 
