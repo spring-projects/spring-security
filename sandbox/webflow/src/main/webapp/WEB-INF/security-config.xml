@@ -4,9 +4,9 @@
 	   xmlns:security="http://www.springframework.org/schema/security"
 	   xsi:schemaLocation="
 		   http://www.springframework.org/schema/beans
-		   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		   https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		   http://www.springframework.org/schema/security
-		   http://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
+		   https://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
 
 	<!-- Configure Spring Security -->
 	<security:http auto-config="true">
