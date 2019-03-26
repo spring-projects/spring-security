@@ -198,7 +198,7 @@ public class CustomUserTypesOAuth2UserServiceTests {
 	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() throws Exception {
 		this.exception.expect(AuthenticationServiceException.class);
 
-		String userInfoUri = "http://invalid-provider.com/user";
+		String userInfoUri = "https://invalid-provider.com/user";
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");

@@ -71,9 +71,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see OAuth2AccessTokenResponseClient
  * @see OidcUserService
  * @see OidcUser
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Grant Flow</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest">Section 3.1.3.1 Token Request</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">Section 3.1.3.3 Token Response</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Grant Flow</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#TokenRequest">Section 3.1.3.1 Token Request</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#TokenResponse">Section 3.1.3.3 Token Response</a>
  */
 public class OidcAuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
@@ -106,7 +106,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		OAuth2LoginAuthenticationToken authorizationCodeAuthentication =
 			(OAuth2LoginAuthenticationToken) authentication;
 
-		// Section 3.1.2.1 Authentication Request - http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+		// Section 3.1.2.1 Authentication Request - https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
 		// scope
 		// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
 		if (!authorizationCodeAuthentication.getAuthorizationExchange()
@@ -213,7 +213,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 
 	private void validateIdToken(OidcIdToken idToken, ClientRegistration clientRegistration) {
 		// 3.1.3.7  ID Token Validation
-		// http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
+		// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
 
 		// Validate REQUIRED Claims
 		URL issuer = idToken.getIssuer();

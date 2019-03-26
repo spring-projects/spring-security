@@ -84,7 +84,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 			+ "    <meta name=\"author\" content=\"\">\n"
 			+ "    <title>Please sign in</title>\n"
 			+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
-			+ "    <link href=\"http://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
+			+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
 			+ "  </head>\n"
 			+ "  <body>\n"
 			+ "     <div class=\"container\">\n"

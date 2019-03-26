@@ -61,7 +61,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			Map<String, Object> userAttributes = this.userInfoResponseClient.getUserInfoResponse(userRequest, typeReference);
 			userInfo = new OidcUserInfo(userAttributes);
 
-			// http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
+			// https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 			// Due to the possibility of token substitution attacks (see Section 16.11),
 			// the UserInfo Response is not guaranteed to be about the End-User
 			// identified by the sub (subject) element of the ID Token.

@@ -33,7 +33,7 @@ public class SavedRequestAwareAuthenticationSuccessHandlerTests {
 		SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
 
 		handler.setDefaultTargetUrl("/acceptableRelativeUrl");
-		handler.setDefaultTargetUrl("http://some.site.org/index.html");
+		handler.setDefaultTargetUrl("https://some.site.org/index.html");
 		handler.setDefaultTargetUrl("https://some.site.org/index.html");
 
 		try {

@@ -46,8 +46,8 @@ import java.util.Map;
  * @see OidcUserInfo
  * @see IdTokenClaimAccessor
  * @see StandardClaimAccessor
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  */
 public interface OidcUser extends OAuth2User, IdTokenClaimAccessor {
 
