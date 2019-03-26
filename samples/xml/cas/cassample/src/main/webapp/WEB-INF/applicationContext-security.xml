@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<b:beans xmlns:b="http://www.springframework.org/schema/beans"
-	xmlns="http://www.springframework.org/schema/security"
-	xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:util="http://www.springframework.org/schema/util"
-	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+<b:beans xmlns:b="https://www.springframework.org/schema/beans"
+	xmlns="https://www.springframework.org/schema/security"
+	xmlns:p="https://www.springframework.org/schema/p"
+	xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="https://www.springframework.org/schema/context"
+	xmlns:util="https://www.springframework.org/schema/util"
+	xsi:schemaLocation="https://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
+		https://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		https://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util-3.0.xsd
+		https://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
 	<http entry-point-ref="casEntryPoint">
 		<intercept-url pattern="/" access="permitAll"/>
