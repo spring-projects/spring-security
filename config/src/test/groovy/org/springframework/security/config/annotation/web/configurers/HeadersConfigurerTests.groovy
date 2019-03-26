@@ -355,7 +355,7 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 		when:
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
-			responseHeaders == ['Public-Key-Pins-Report-Only' : 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=" ; report-uri="http://example.net/pkp-report"']
+			responseHeaders == ['Public-Key-Pins-Report-Only' : 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=" ; report-uri="https://example.net/pkp-report"']
 	}
 
 	@EnableWebSecurity
@@ -368,7 +368,7 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 					.defaultsDisabled()
 					.httpPublicKeyPinning()
 					.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
-					.reportUri(new URI("http://example.net/pkp-report"))
+					.reportUri(new URI("https://example.net/pkp-report"))
 		}
 	}
 
@@ -379,7 +379,7 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 		when:
 			springSecurityFilterChain.doFilter(request,response,chain)
 		then:
-			responseHeaders == ['Public-Key-Pins-Report-Only' : 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=" ; report-uri="http://example.net/pkp-report"']
+			responseHeaders == ['Public-Key-Pins-Report-Only' : 'max-age=5184000 ; pin-sha256="d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=" ; report-uri="https://example.net/pkp-report"']
 	}
 
 	@EnableWebSecurity
@@ -392,7 +392,7 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 					.defaultsDisabled()
 					.httpPublicKeyPinning()
 					.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
-					.reportUri("http://example.net/pkp-report")
+					.reportUri("https://example.net/pkp-report")
 		}
 	}
 

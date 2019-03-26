@@ -2,8 +2,8 @@
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-    xmlns:decorator="http://www.opensymphony.com/sitemesh/decorator"
-    xmlns:page="http://www.opensymphony.com/sitemesh/page"
+    xmlns:decorator="https://www.opensymphony.com/sitemesh/decorator"
+    xmlns:page="https://www.opensymphony.com/sitemesh/page"
     xmlns:form="http://www.springframework.org/tags/form"
     xmlns:spring="http://www.springframework.org/tags"
     xmlns:sec="http://www.springframework.org/security/tags"
@@ -84,7 +84,7 @@
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
 

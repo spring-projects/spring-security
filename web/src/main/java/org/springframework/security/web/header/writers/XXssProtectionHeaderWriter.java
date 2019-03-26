@@ -22,7 +22,7 @@ import org.springframework.security.web.header.HeaderWriter;
 
 /**
  * Renders the <a href=
- * "http://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
+ * "https://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
  * >X-XSS-Protection header</a>.
  *
  * @author Rob Winch

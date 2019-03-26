@@ -234,7 +234,7 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenTokenUriInvalidThenThrowOAuth2AuthorizationException() {
-		String invalidTokenUri = "http://invalid-provider.com/oauth2/token";
+		String invalidTokenUri = "https://invalid-provider.com/oauth2/token";
 		ClientRegistration clientRegistration = this.from(this.clientRegistration)
 				.tokenUri(invalidTokenUri)
 				.build();

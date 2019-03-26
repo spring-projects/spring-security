@@ -127,7 +127,7 @@ See the Javadoc for this class for more information.
 ===== Custom Voters
 Obviously, you can also implement a custom `AccessDecisionVoter` and you can put just about any access-control logic you want in it.
 It might be specific to your application (business-logic related) or it might implement some security administration logic.
-For example, you'll find a http://spring.io/blog/2009/01/03/spring-security-customization-part-2-adjusting-secured-session-in-real-time[blog article] on the Spring web site which describes how to use a voter to deny access in real-time to users whose accounts have been suspended.
+For example, you'll find a https://spring.io/blog/2009/01/03/spring-security-customization-part-2-adjusting-secured-session-in-real-time[blog article] on the Spring web site which describes how to use a voter to deny access in real-time to users whose accounts have been suspended.
 
 
 [[authz-after-invocation-handling]]

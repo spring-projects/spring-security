@@ -206,7 +206,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 
 	@Test
 	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() throws Exception {
-		this.clientRegistration.userInfoUri("http://invalid-provider.com/user");
+		this.clientRegistration.userInfoUri("https://invalid-provider.com/user");
 		assertThatThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
 				.isInstanceOf(AuthenticationServiceException.class);
 	}

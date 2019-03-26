@@ -159,13 +159,13 @@ JQuery is used in this example to make the task easier.
 
 			// using XMLHttpRequest directly to send an x-www-form-urlencoded request
 			var ajax = new XMLHttpRequest();
-			ajax.open("POST", "http://www.example.org/do/something", true);
+			ajax.open("POST", "https://www.example.org/do/something", true);
 			ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded data");
 			ajax.send(csrfParameter + "=" + csrfToken + "&name=John&...");
 
 			// using XMLHttpRequest directly to send a non-x-www-form-urlencoded request
 			var ajax = new XMLHttpRequest();
-			ajax.open("POST", "http://www.example.org/do/something", true);
+			ajax.open("POST", "https://www.example.org/do/something", true);
 			ajax.setRequestHeader(csrfHeader, csrfToken);
 			ajax.send("...");
 
@@ -175,7 +175,7 @@ JQuery is used in this example to make the task easier.
 			data["name"] = "John";
 			...
 			$.ajax({
-				url: "http://www.example.org/do/something",
+				url: "https://www.example.org/do/something",
 				type: "POST",
 				data: data,
 				...
@@ -185,7 +185,7 @@ JQuery is used in this example to make the task easier.
 			var headers = {};
 			headers[csrfHeader] = csrfToken;
 			$.ajax({
-				url: "http://www.example.org/do/something",
+				url: "https://www.example.org/do/something",
 				type: "POST",
 				headers: headers,
 				...

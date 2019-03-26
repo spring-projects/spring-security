@@ -154,7 +154,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 //	public void getTokenResponseWhenTokenUriInvalidThenThrowAuthenticationServiceException() throws Exception {
 //		this.exception.expect(AuthenticationServiceException.class);
 //
-//		String tokenUri = "http://invalid-provider.com/oauth2/token";
+//		String tokenUri = "https://invalid-provider.com/oauth2/token";
 //		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
 //
 //		this.tokenResponseClient.getTokenResponse(
