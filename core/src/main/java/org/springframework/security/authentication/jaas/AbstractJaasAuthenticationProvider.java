@@ -58,16 +58,16 @@ import org.springframework.util.ObjectUtils;
  *
  * <p>
  * This implementation is backed by a
- * <a href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html" >
+ * <a href="https://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html" >
  * JAAS</a> configuration that is provided by a subclass's implementation of
  * {@link #createLoginContext(CallbackHandler)}.
  *
  * <p>
  * When using JAAS login modules as the authentication source, sometimes the <a href=
- * "http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html" >
+ * "https://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html" >
  * LoginContext</a> will require <i>CallbackHandler</i>s. The
  * AbstractJaasAuthenticationProvider uses an internal <a href=
- * "http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/callback/CallbackHandler.html"
+ * "https://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/callback/CallbackHandler.html"
  * >CallbackHandler </a> to wrap the {@link JaasAuthenticationCallbackHandler}s configured
  * in the ApplicationContext. When the LoginContext calls the internal CallbackHandler,
  * control is passed to each {@link JaasAuthenticationCallbackHandler} for each Callback

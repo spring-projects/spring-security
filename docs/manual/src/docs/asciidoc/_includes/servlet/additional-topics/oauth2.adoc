@@ -42,7 +42,7 @@ As well as one client endpoint:
 
 * Redirection Endpoint: Used by the authorization server to return responses containing authorization credentials to the client via the resource owner user-agent.
 
-The OpenID Connect Core 1.0 specification defines the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] as follows:
+The OpenID Connect Core 1.0 specification defines the https://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] as follows:
 
 The UserInfo Endpoint is an OAuth 2.0 Protected Resource that returns claims about the authenticated end-user.
 To obtain the requested claims about the end-user, the client makes a request to the UserInfo Endpoint by using an access token obtained through OpenID Connect Authentication.

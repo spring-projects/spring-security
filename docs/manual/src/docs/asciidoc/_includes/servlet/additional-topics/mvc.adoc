@@ -276,7 +276,7 @@ public ModelAndView findMessagesForUser(@CurrentUser CustomUser customUser) {
 [[mvc-async]]
 === Spring MVC Async Integration
 
-Spring Web MVC 3.2+ has excellent support for http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-ann-async[Asynchronous Request Processing].
+Spring Web MVC 3.2+ has excellent support for https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-ann-async[Asynchronous Request Processing].
 With no additional configuration, Spring Security will automatically setup the `SecurityContext` to the `Thread` that executes a `Callable` returned by your controllers.
 For example, the following method will automatically have its `Callable` executed with the `SecurityContext` that was available when the `Callable` was created:
 
@@ -310,7 +310,7 @@ However, you can still use <<concurrency,Concurrency Support>> to provide transp
 
 ==== Automatic Token Inclusion
 
-Spring Security will automatically <<csrf-include-csrf-token,include the CSRF Token>> within forms that use the http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag].
+Spring Security will automatically <<csrf-include-csrf-token,include the CSRF Token>> within forms that use the https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag].
 For example, the following JSP:
 
 [source,xml]

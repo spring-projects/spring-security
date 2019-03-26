@@ -29,7 +29,7 @@ This section shows how to configure the sample application using Google as the A
 To use Google's OAuth 2.0 authentication system for login, you must set up a project in the Google API Console to obtain OAuth 2.0 credentials.
 
 NOTE: https://developers.google.com/identity/protocols/OpenIDConnect[Google's OAuth 2.0 implementation] for authentication conforms to the
- http://openid.net/connect/[OpenID Connect 1.0] specification and is http://openid.net/certification/[OpenID Certified].
+ https://openid.net/connect/[OpenID Connect 1.0] specification and is https://openid.net/certification/[OpenID Certified].
 
 Follow the instructions on the https://developers.google.com/identity/protocols/OpenIDConnect[OpenID Connect] page, starting in the section, "Setting up OAuth 2.0".
 
@@ -86,7 +86,7 @@ The Consent screen asks you to either allow or deny access to the OAuth Client y
 Click *Allow* to authorize the OAuth Client to access your email address and basic profile information.
 
 At this point, the OAuth Client retrieves your email address and basic profile information
-from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
+from the https://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
 
 [[github-login]]
 == Login with GitHub
@@ -309,4 +309,4 @@ You are then redirected to the default _auto-generated_ login page, which displa
 Click on the Okta link, and you are then redirected to Okta for authentication.
 
 After authenticating with your Okta account credentials, the OAuth Client retrieves your email address and basic profile information
-from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
+from the https://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.

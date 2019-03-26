@@ -5,7 +5,7 @@ The OAuth 2.0 Login feature provides an application with the capability to have 
 GitHub) or OpenID Connect 1.0 Provider (such as Google).
 OAuth 2.0 Login implements the use cases: "Login with Google" or "Login with GitHub".
 
-NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework] and http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0].
+NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework] and https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0].
 
 [[webflux-oauth2-login-sample]]
 == Spring Boot 2.0 Sample
@@ -25,7 +25,7 @@ This section shows how to configure the {gh-samples-url}/boot/oauth2login-webflu
 
 To use Google's OAuth 2.0 authentication system for login, you must set up a project in the Google API Console to obtain OAuth 2.0 credentials.
 
-NOTE: https://developers.google.com/identity/protocols/OpenIDConnect[Google's OAuth 2.0 implementation] for authentication conforms to the  http://openid.net/connect/[OpenID Connect 1.0] specification and is http://openid.net/certification/[OpenID Certified].
+NOTE: https://developers.google.com/identity/protocols/OpenIDConnect[Google's OAuth 2.0 implementation] for authentication conforms to the  https://openid.net/connect/[OpenID Connect 1.0] specification and is https://openid.net/certification/[OpenID Certified].
 
 Follow the instructions on the https://developers.google.com/identity/protocols/OpenIDConnect[OpenID Connect] page, starting in the section, "Setting up OAuth 2.0".
 
@@ -83,7 +83,7 @@ After authenticating with your Google account credentials, the next page present
 The Consent screen asks you to either allow or deny access to the OAuth Client you created earlier.
 Click *Allow* to authorize the OAuth Client to access your email address and basic profile information.
 
-At this point, the OAuth Client retrieves your email address and basic profile information from the http://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
+At this point, the OAuth Client retrieves your email address and basic profile information from the https://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
 
 [[webflux-oauth2-login-openid-provider-configuration]]
 == Using OpenID Provider Configuration

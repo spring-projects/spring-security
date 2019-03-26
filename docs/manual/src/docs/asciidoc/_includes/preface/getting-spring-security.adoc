@@ -23,7 +23,7 @@ The following sections provide details on how to consume Spring Security when us
 === Spring Boot with Maven
 
 Spring Boot provides a spring-boot-starter-security starter which aggregates Spring Security related dependencies together.
-The simplest and preferred method to leverage the starter is to use https://docs.spring.io/initializr/docs/current/reference/htmlsingle/[Spring Initializr] using an IDE integration (http://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
+The simplest and preferred method to leverage the starter is to use https://docs.spring.io/initializr/docs/current/reference/htmlsingle/[Spring Initializr] using an IDE integration (https://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
 
 Alternatively, the starter can be added manually:
 
@@ -138,7 +138,7 @@ The easiest way to resolve this is to use the `spring-framework-bom` within your
 This will ensure that all the transitive dependencies of Spring Security use the Spring {spring-version} modules.
 
 NOTE: This approach uses Maven's "bill of materials" (BOM) concept and is only available in Maven 2.0.9+.
-For additional details about how dependencies are resolved refer to http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html[Maven's Introduction to the Dependency Mechanism documentation].
+For additional details about how dependencies are resolved refer to https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html[Maven's Introduction to the Dependency Mechanism documentation].
 
 [[maven-repositories]]
 === Maven Repositories
@@ -184,7 +184,7 @@ The following sections provide details on how to consume Spring Security when us
 === Spring Boot with Gradle
 
 Spring Boot provides a spring-boot-starter-security starter which aggregates Spring Security related dependencies together.
-The simplest and preferred method to leverage the starter is to use https://docs.spring.io/initializr/docs/current/reference/htmlsingle/[Spring Initializr] using an IDE integration (http://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
+The simplest and preferred method to leverage the starter is to use https://docs.spring.io/initializr/docs/current/reference/htmlsingle/[Spring Initializr] using an IDE integration (https://joshlong.com/jl/blogPost/tech_tip_geting_started_with_spring_boot.html[Eclipse], https://www.jetbrains.com/help/idea/spring-boot.html#d1489567e2[IntelliJ], https://github.com/AlexFalappa/nb-springboot/wiki/Quick-Tour[NetBeans]) or through https://start.spring.io.
 
 Alternatively, the starter can be added manually:
 

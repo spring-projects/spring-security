@@ -22,7 +22,7 @@ package org.springframework.security.oauth2.core.oidc;
  * @author Joe Grandja
  * @since 5.0
  * @see OidcIdToken
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  */
 
 public interface IdTokenClaimNames {

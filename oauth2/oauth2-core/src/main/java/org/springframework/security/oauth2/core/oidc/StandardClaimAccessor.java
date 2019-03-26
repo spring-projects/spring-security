@@ -28,8 +28,8 @@ import java.util.Map;
  * @see ClaimAccessor
  * @see StandardClaimNames
  * @see OidcUserInfo
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo Response</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo Response</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  * @author Joe Grandja
  * @since 5.0
  */

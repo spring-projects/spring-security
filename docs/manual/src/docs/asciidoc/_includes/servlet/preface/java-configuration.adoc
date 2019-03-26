@@ -2,7 +2,7 @@
 [[jc]]
 = Java Configuration
 
-General support for http://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java Configuration] was added to Spring Framework in Spring 3.1.
+General support for https://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java Configuration] was added to Spring Framework in Spring 3.1.
 Since Spring Security 3.2 there has been Spring Security Java Configuration support which enables users to easily configure Spring Security without the use of any XML.
 
 If you are familiar with the <<ns-config>> then you should find quite a few similarities between it and the Security Java Configuration support.
@@ -43,25 +43,25 @@ You can find a summary of the features below:
 * Generate a login form for you
 * Allow the user with the *Username* _user_ and the *Password* _password_ to authenticate with form based authentication
 * Allow the user to logout
-* http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
-* http://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
+* https://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
+* https://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
 * Security Header integration
-** http://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HTTP Strict Transport Security] for secure requests
-** http://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx[X-Content-Type-Options] integration
+** https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HTTP Strict Transport Security] for secure requests
+** https://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx[X-Content-Type-Options] integration
 ** Cache Control (can be overridden later by your application to allow caching of your static resources)
-** http://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-Protection] integration
-** X-Frame-Options integration to help prevent http://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
+** https://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-Protection] integration
+** X-Frame-Options integration to help prevent https://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
 * Integrate with the following Servlet API methods
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[HttpServletRequest#getRemoteUser()]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest.html#getUserPrincipal()]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.html#isUserInRole(java.lang.String)]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html#login(java.lang.String, java.lang.String)]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html#logout()]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[HttpServletRequest#getRemoteUser()]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest.html#getUserPrincipal()]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.html#isUserInRole(java.lang.String)]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html#login(java.lang.String, java.lang.String)]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html#logout()]
 
 === AbstractSecurityWebApplicationInitializer
 
 The next step is to register the `springSecurityFilterChain` with the war.
-This can be done in Java Configuration with http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-container-config[Spring's WebApplicationInitializer support] in a Servlet 3.0+ environment.
+This can be done in Java Configuration with https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-container-config[Spring's WebApplicationInitializer support] in a Servlet 3.0+ environment.
 Not suprisingly, Spring Security provides a base class `AbstractSecurityWebApplicationInitializer` that will ensure the `springSecurityFilterChain` gets registered for you.
 The way in which we use `AbstractSecurityWebApplicationInitializer` differs depending on if we are already using Spring or if Spring Security is the only Spring component in our application.
 

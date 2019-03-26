@@ -35,7 +35,7 @@ final class OidcTokenValidator {
 
 	static void validateIdToken(OidcIdToken idToken, ClientRegistration clientRegistration) {
 		// 3.1.3.7  ID Token Validation
-		// http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
+		// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
 
 		// Validate REQUIRED Claims
 		URL issuer = idToken.getIssuer();

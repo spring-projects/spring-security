@@ -135,7 +135,7 @@ public class OidcUserServiceTests {
 		Set<String> authorizedScopes = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
 		when(this.accessToken.getScopes()).thenReturn(authorizedScopes);
 
-		when(this.userInfoEndpoint.getUri()).thenReturn("http://provider.com/user");
+		when(this.userInfoEndpoint.getUri()).thenReturn("https://provider.com/user");
 
 		OidcUser user = this.userService.loadUser(
 			new OidcUserRequest(this.clientRegistration, this.accessToken, this.idToken));
@@ -264,7 +264,7 @@ public class OidcUserServiceTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource"));
 
-		String userInfoUri = "http://invalid-provider.com/user";
+		String userInfoUri = "https://invalid-provider.com/user";
 
 		when(this.userInfoEndpoint.getUri()).thenReturn(userInfoUri);
 		when(this.accessToken.getTokenValue()).thenReturn("access-token");

@@ -41,17 +41,17 @@ public class RegExpAllowFromStrategyTests {
 	@Test
 	public void subdomainMatchingRegularExpression() {
 		RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy(
-				"^http://([a-z0-9]*?\\.)test\\.com");
+				"^https://([a-z0-9]*?\\.)test\\.com");
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
-		request.setParameter("from", "http://abc.test.com");
+		request.setParameter("from", "https://www.test.com");
 		String result1 = strategy.getAllowFromValue(request);
-		assertThat(result1).isEqualTo("http://abc.test.com");
+		assertThat(result1).isEqualTo("https://www.test.com");
 
-		request.setParameter("from", "http://foo.test.com");
+		request.setParameter("from", "https://www.test.com");
 		String result2 = strategy.getAllowFromValue(request);
-		assertThat(result2).isEqualTo("http://foo.test.com");
+		assertThat(result2).isEqualTo("https://www.test.com");
 
 		request.setParameter("from", "http://test.foobar.com");
 		String result3 = strategy.getAllowFromValue(request);

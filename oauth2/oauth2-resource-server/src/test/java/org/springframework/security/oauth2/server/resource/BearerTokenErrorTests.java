@@ -37,7 +37,7 @@ public class BearerTokenErrorTests {
 
 	private static final String TEST_DESCRIPTION = "test-description";
 
-	private static final String TEST_URI = "http://example.com";
+	private static final String TEST_URI = "https://example.com";
 
 	private static final String TEST_SCOPE = "test-scope";
 

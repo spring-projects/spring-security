@@ -1,7 +1,7 @@
 
 [[csrf]]
 == Cross Site Request Forgery (CSRF)
-This section discusses Spring Security's http://en.wikipedia.org/wiki/Cross-site_request_forgery[ Cross Site Request Forgery (CSRF)] support.
+This section discusses Spring Security's https://en.wikipedia.org/wiki/Cross-site_request_forgery[ Cross Site Request Forgery (CSRF)] support.
 
 
 === CSRF Attacks
@@ -153,7 +153,7 @@ Specifically, before Spring Security's CSRF support can be of use, you need to b
 
 This is not a limitation of Spring Security's support, but instead a general requirement for proper CSRF prevention.
 The reason is that including private information in an HTTP GET can cause the information to be leaked.
-See http://www.w3.org/Protocols/rfc2616/rfc2616-sec15.html#sec15.1.3[RFC 2616 Section 15.1.3 Encoding Sensitive Information in URI's] for general guidance on using POST instead of GET for sensitive information.
+See https://www.w3.org/Protocols/rfc2616/rfc2616-sec15.html#sec15.1.3[RFC 2616 Section 15.1.3 Encoding Sensitive Information in URI's] for general guidance on using POST instead of GET for sensitive information.
 
 
 [[csrf-configure]]
@@ -218,7 +218,7 @@ An easier approach is to use <<the-csrfinput-tag,the csrfInput tag>> from the Sp
 
 [NOTE]
 ====
-If you are using Spring MVC `<form:form>` tag or http://www.thymeleaf.org/whatsnew21.html#reqdata[Thymeleaf 2.1+] and are using `@EnableWebSecurity`, the `CsrfToken` is automatically included for you (using the `CsrfRequestDataValueProcessor`).
+If you are using Spring MVC `<form:form>` tag or https://www.thymeleaf.org/whatsnew21.html#reqdata[Thymeleaf 2.1+] and are using `@EnableWebSecurity`, the `CsrfToken` is automatically included for you (using the `CsrfRequestDataValueProcessor`).
 ====
 
 [[csrf-include-csrf-token-ajax]]
@@ -342,7 +342,7 @@ If you are using the default `AccessDeniedHandler`, the browser will get an HTTP
 ====
 One might ask why the expected `CsrfToken` isn't stored in a cookie by default.
 This is because there are known exploits in which headers (i.e. specify the cookies) can be set by another domain.
-This is the same reason Ruby on Rails http://weblog.rubyonrails.org/2011/2/8/csrf-protection-bypass-in-ruby-on-rails/[no longer skips CSRF checks when the header X-Requested-With is present].
+This is the same reason Ruby on Rails https://weblog.rubyonrails.org/2011/2/8/csrf-protection-bypass-in-ruby-on-rails/[no longer skips CSRF checks when the header X-Requested-With is present].
 See http://lists.webappsec.org/pipermail/websecurity_lists.webappsec.org/2011-February/007533.html[this webappsec.org thread] for details on how to perform the exploit.
 Another disadvantage is that by removing the state (i.e. the timeout) you lose the ability to forcibly terminate the token if it is compromised.
 ====
@@ -359,7 +359,7 @@ As previously mentioned, this is not as secure as using a session, but in many c
 
 [[csrf-login]]
 ==== Logging In
-In order to protect against http://en.wikipedia.org/wiki/Cross-site_request_forgery#Forging_login_requests[forging log in requests] the log in form should be protected against CSRF attacks too.
+In order to protect against https://en.wikipedia.org/wiki/Cross-site_request_forgery#Forging_login_requests[forging log in requests] the log in form should be protected against CSRF attacks too.
 Since the `CsrfToken` is stored in HttpSession, this means an HttpSession will be created as soon as `CsrfToken` token attribute is accessed.
 While this sounds bad in a RESTful / stateless architecture the reality is that state is necessary to implement practical security.
 Without state, we have nothing we can do if a token is compromised.
@@ -408,7 +408,7 @@ Each option has its tradeoffs.
 [NOTE]
 ====
 Before you integrate Spring Security's CSRF protection with multipart file upload, ensure that you can upload without the CSRF protection first.
-More information about using multipart forms with Spring can be found within the http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-multipart[17.10 Spring's multipart (file upload) support] section of the Spring reference and the http://docs.spring.io/spring/docs/3.2.x/javadoc-api/org/springframework/web/multipart/support/MultipartFilter.html[MultipartFilter javadoc].
+More information about using multipart forms with Spring can be found within the https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-multipart[17.10 Spring's multipart (file upload) support] section of the Spring reference and the https://docs.spring.io/spring/docs/3.2.x/javadoc-api/org/springframework/web/multipart/support/MultipartFilter.html[MultipartFilter javadoc].
 ====
 
 [[csrf-multipartfilter]]
@@ -465,7 +465,7 @@ An example with a jsp is shown below
 
 The disadvantage to this approach is that query parameters can be leaked.
 More genearlly, it is considered best practice to place sensitive data within the body or headers to ensure it is not leaked.
-Additional information can be found in http://www.w3.org/Protocols/rfc2616/rfc2616-sec15.html#sec15.1.3[RFC 2616 Section 15.1.3 Encoding Sensitive Information in URI's].
+Additional information can be found in https://www.w3.org/Protocols/rfc2616/rfc2616-sec15.html#sec15.1.3[RFC 2616 Section 15.1.3 Encoding Sensitive Information in URI's].
 
 ==== HiddenHttpMethodFilter
 The HiddenHttpMethodFilter should be placed before the Spring Security filter.

@@ -195,7 +195,7 @@ If you don't want a session to be created, then you can set this property to `fa
 </bean>
 ----
 
-Alternatively you could provide an instance of `NullSecurityContextRepository`, a http://en.wikipedia.org/wiki/Null_Object_pattern[null object] implementation, which will prevent the security context from being stored, even if a session has already been created during the request.
+Alternatively you could provide an instance of `NullSecurityContextRepository`, a https://en.wikipedia.org/wiki/Null_Object_pattern[null object] implementation, which will prevent the security context from being stored, even if a session has already been created during the request.
 
 
 [[form-login-filter]]

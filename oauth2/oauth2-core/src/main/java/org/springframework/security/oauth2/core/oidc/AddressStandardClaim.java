@@ -21,9 +21,9 @@ package org.springframework.security.oauth2.core.oidc;
  *
  * @author Joe Grandja
  * @since 5.0
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#AddressClaim">Address Claim</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo Response</a>
- * @see <a target="_blank" href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#AddressClaim">Address Claim</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo Response</a>
+ * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  */
 public interface AddressStandardClaim {
 

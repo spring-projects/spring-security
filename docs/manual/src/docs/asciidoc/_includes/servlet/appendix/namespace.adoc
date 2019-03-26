@@ -3,7 +3,7 @@
 This appendix provides a reference to the elements available in the security namespace and information on the underlying beans they create (a knowledge of the individual classes and how they work together is assumed - you can find more information in the project Javadoc and elsewhere in this document).
 If you haven't used the namespace before, please read the <<ns-config,introductory chapter>> on namespace configuration, as this is intended as a supplement to the information there.
 Using a good quality XML editor while editing a configuration based on the schema is recommended as this will provide contextual information on which elements and attributes are available as well as comments explaining their purpose.
-The namespace is written in http://www.relaxng.org/[RELAX NG] Compact format and later converted into an XSD schema.
+The namespace is written in https://relaxng.org/[RELAX NG] Compact format and later converted into an XSD schema.
 If you are familiar with this format, you may wish to examine the https://raw.githubusercontent.com/spring-projects/spring-security/master/config/src/main/resources/org/springframework/security/config/spring-security-4.1.rnc[schema file] directly.
 
 [[nsa-web]]
@@ -230,11 +230,11 @@ This ensures that the browser does not cache your secured pages.
 ** `Strict-Transport-Security` - Can be set using the <<nsa-hsts,hsts>> element.
 This ensures that the browser automatically requests HTTPS for future requests.
 ** `X-Frame-Options` - Can be set using the <<nsa-frame-options,frame-options>> element.
-The http://en.wikipedia.org/wiki/Clickjacking#X-Frame-Options[X-Frame-Options] header can be used to prevent clickjacking attacks.
+The https://en.wikipedia.org/wiki/Clickjacking#X-Frame-Options[X-Frame-Options] header can be used to prevent clickjacking attacks.
 ** `X-XSS-Protection` - Can be set using the <<nsa-xss-protection,xss-protection>> element.
-The http://en.wikipedia.org/wiki/Cross-site_scripting[X-XSS-Protection ] header can be used by browser to do basic control.
+The https://en.wikipedia.org/wiki/Cross-site_scripting[X-XSS-Protection ] header can be used by browser to do basic control.
 ** `X-Content-Type-Options` - Can be set using the <<nsa-content-type-options,content-type-options>> element.
-The http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[X-Content-Type-Options] header prevents Internet Explorer from MIME-sniffing a response away from the declared content-type.
+The https://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[X-Content-Type-Options] header prevents Internet Explorer from MIME-sniffing a response away from the declared content-type.
 This also applies to Google Chrome, when downloading extensions.
 ** `Public-Key-Pinning` or `Public-Key-Pinning-Report-Only` - Can be set using the <<nsa-hpkp,hpkp>> element.
 This allows HTTPS websites to resist impersonation by attackers using mis-issued or otherwise fraudulent certificates.
@@ -307,7 +307,7 @@ Default false.
 
 [[nsa-hsts]]
 ==== <hsts>
-When enabled adds the http://tools.ietf.org/html/rfc6797[Strict-Transport-Security] header to the response for any secure request.
+When enabled adds the https://tools.ietf.org/html/rfc6797[Strict-Transport-Security] header to the response for any secure request.
 This allows the server to instruct browsers to automatically use HTTPS for future requests.
 
 
@@ -481,7 +481,7 @@ The security policy directive(s) for the Feature-Policy header.
 
 [[nsa-frame-options]]
 ==== <frame-options>
-When enabled adds the http://tools.ietf.org/html/draft-ietf-websec-x-frame-options[X-Frame-Options header] to the response, this allows newer browsers to do some security checks and prevent http://en.wikipedia.org/wiki/Clickjacking[clickjacking] attacks.
+When enabled adds the https://tools.ietf.org/html/draft-ietf-websec-x-frame-options[X-Frame-Options header] to the response, this allows newer browsers to do some security checks and prevent https://en.wikipedia.org/wiki/Clickjacking[clickjacking] attacks.
 
 
 [[nsa-frame-options-attributes]]
@@ -545,7 +545,7 @@ Specify the name of the request parameter to use when using regexp or whitelist 
 
 [[nsa-xss-protection]]
 ==== <xss-protection>
-Adds the http://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-xss-filter.aspx[X-XSS-Protection header] to the response to assist in protecting against http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] attacks.
+Adds the https://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-xss-filter.aspx[X-XSS-Protection header] to the response to assist in protecting against https://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] attacks.
 This is in no-way a full protection to XSS attacks!
 
 
@@ -555,12 +555,12 @@ This is in no-way a full protection to XSS attacks!
 
 [[nsa-xss-protection-disabled]]
 * **xss-protection-disabled**
-Do not include the header for http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
+Do not include the header for https://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
 
 
 [[nsa-xss-protection-enabled]]
 * **xss-protection-enabled**
-Explicitly enable or disable http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
+Explicitly enable or disable https://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
 
 
 [[nsa-xss-protection-block]]
@@ -581,7 +581,7 @@ Note that there are sometimes ways of bypassing this mode which can often times 
 [[nsa-content-type-options]]
 ==== <content-type-options>
 Add the X-Content-Type-Options header with the value of nosniff to the response.
-This http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[disables MIME-sniffing] for IE8+ and Chrome extensions.
+This https://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[disables MIME-sniffing] for IE8+ and Chrome extensions.
 
 
 [[nsa-content-type-options-attributes]]
@@ -680,7 +680,7 @@ if unset, defaults to `anonymousUser`.
 
 [[nsa-csrf]]
 ==== <csrf>
-This element will add http://en.wikipedia.org/wiki/Cross-site_request_forgery[Cross Site Request Forger (CSRF)] protection to the application.
+This element will add https://en.wikipedia.org/wiki/Cross-site_request_forgery[Cross Site Request Forger (CSRF)] protection to the application.
 It also updates the default RequestCache to only replay "GET" requests upon successful authentication.
 Additional information can be found in the <<csrf,Cross Site Request Forgery (CSRF)>> section of the reference.
 
@@ -1206,7 +1206,7 @@ A regular expression which will be compared against the claimed identity, when d
 
 [[nsa-openid-attribute]]
 ==== <openid-attribute>
-Attributes used when making an OpenID AX http://openid.net/specs/openid-attribute-exchange-1_0.html#fetch_request[ Fetch Request]
+Attributes used when making an OpenID AX https://openid.net/specs/openid-attribute-exchange-1_0.html#fetch_request[ Fetch Request]
 
 
 [[nsa-openid-attribute-parents]]
@@ -1243,7 +1243,7 @@ Default is false.
 [[nsa-openid-attribute-type]]
 * **type**
 Specifies the attribute type.
-For example, http://axschema.org/contact/email.
+For example, https://axschema.org/contact/email.
 See your OP's documentation for valid attribute types.
 
 
