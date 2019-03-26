@@ -121,7 +121,7 @@ The Servlet Specification defines several properties for the `HttpServletRequest
 These are the `contextPath`, `servletPath`, `pathInfo` and `queryString`.
 Spring Security is only interested in securing paths within the application, so the `contextPath` is ignored.
 Unfortunately, the servlet spec does not define exactly what the values of `servletPath` and `pathInfo` will contain for a particular request URI.
-For example, each path segment of a URL may contain parameters, as defined in http://www.ietf.org/rfc/rfc2396.txt[RFC 2396]
+For example, each path segment of a URL may contain parameters, as defined in https://www.ietf.org/rfc/rfc2396.txt[RFC 2396]
 footnote:[You have probably seen this when a browser doesn't support cookies and the `jsessionid` parameter is appended to the URL after a semi-colon.
 However the RFC allows the presence of these parameters in any path segment of the URL].
 The Specification does not clearly state whether these should be included in the `servletPath` and `pathInfo` values and the behaviour varies between different servlet containers.

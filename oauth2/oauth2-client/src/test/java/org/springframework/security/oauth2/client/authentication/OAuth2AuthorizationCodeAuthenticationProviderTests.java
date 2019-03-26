@@ -69,8 +69,8 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 
 		when(this.authorizationRequest.getState()).thenReturn("12345");
 		when(this.authorizationResponse.getState()).thenReturn("12345");
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example.com");
+		when(this.authorizationRequest.getRedirectUri()).thenReturn("https://example.com");
+		when(this.authorizationResponse.getRedirectUri()).thenReturn("https://example.com");
 	}
 
 	@Test
@@ -110,8 +110,8 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationResponseRedirectUriNotEqualAuthorizationRequestRedirectUriThenThrowOAuth2AuthorizationException() {
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example2.com");
+		when(this.authorizationRequest.getRedirectUri()).thenReturn("https://example.com");
+		when(this.authorizationResponse.getRedirectUri()).thenReturn("https://example2.com");
 
 		assertThatThrownBy(() -> {
 			this.authenticationProvider.authenticate(

@@ -15,7 +15,7 @@ It maps the certificate to an application user and loads that user's set of gran
 
 You should be familiar with using certificates and setting up client authentication for your servlet container before attempting to use it with Spring Security.
 Most of the work is in creating and installing suitable certificates and keys.
-For example, if you're using Tomcat then read the instructions here http://tomcat.apache.org/tomcat-6.0-doc/ssl-howto.html[http://tomcat.apache.org/tomcat-6.0-doc/ssl-howto.html].
+For example, if you're using Tomcat then read the instructions here https://tomcat.apache.org/tomcat-6.0-doc/ssl-howto.html[https://tomcat.apache.org/tomcat-6.0-doc/ssl-howto.html].
 It's important that you get this working before trying it out with Spring Security
 
 

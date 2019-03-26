@@ -189,7 +189,7 @@ What's wrong with my configuration?
 
 Note that the permissions for an LDAP directory often do not allow you to read the password for a user.
 Hence it is often not possible to use the <<appendix-faq-what-is-userdetailservice>> where Spring Security compares the stored password with the one submitted by the user.
-The most common approach is to use LDAP "bind", which is one of the operations supported by http://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol[the LDAP protocol]. With this approach, Spring Security validates the password by attempting to authenticate to the directory as the user.
+The most common approach is to use LDAP "bind", which is one of the operations supported by https://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol[the LDAP protocol]. With this approach, Spring Security validates the password by attempting to authenticate to the directory as the user.
 
 The most common problem with LDAP authentication is a lack of knowledge of the directory server tree structure and configuration.
 This will be different in different companies, so you have to find it out yourself.
@@ -252,12 +252,12 @@ You can find more about this online and in the reference manual.
 It doesn't work - I just end up back at the login page after authenticating.
 
 This happens because sessions created under HTTPS, for which the session cookie is marked as "secure", cannot subsequently be used under HTTP. The browser will not send the cookie back to the server and any session state will be lost (including the security context information). Starting a session in HTTP first should work as the session cookie won't be marked as secure.
-However, Spring Security's http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ns-session-fixation[Session Fixation Protection] can interfere with this because it results in a new session ID cookie being sent back to the user's browser, usually with the secure flag.
+However, Spring Security's https://docs.spring.io/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ns-session-fixation[Session Fixation Protection] can interfere with this because it results in a new session ID cookie being sent back to the user's browser, usually with the secure flag.
 To get around this, you can disable session fixation protection, but in newer Servlet containers you can also configure session cookies to never use the secure flag.
 Note that switching between HTTP and HTTPS is not a good idea in general, as any application which uses HTTP at all is vulnerable to man-in-the-middle attacks.
 To be truly secure, the user should begin accessing your site in HTTPS and continue using it until they log out.
 Even clicking on an HTTPS link from a page accessed over HTTP is potentially risky.
-If you need more convincing, check out a tool like http://www.thoughtcrime.org/software/sslstrip/[sslstrip].
+If you need more convincing, check out a tool like https://www.thoughtcrime.org/software/sslstrip/[sslstrip].
 
 
 ==== I'm not switching between HTTP and HTTPS but my session is still getting lost
@@ -292,7 +292,7 @@ If you are having trouble working out where a session is being created, you can 
 [[appendix-faq-forbidden-csrf]]
 ==== I get a 403 Forbidden when performing a POST
 
-If an HTTP 403 Forbidden is returned for HTTP POST, but works for HTTP GET then the issue is most likely related to http://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf[CSRF]. Either provide the CSRF Token or disable CSRF protection (not recommended).
+If an HTTP 403 Forbidden is returned for HTTP POST, but works for HTTP GET then the issue is most likely related to https://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf[CSRF]. Either provide the CSRF Token or disable CSRF protection (not recommended).
 
 [[appendix-faq-no-security-on-forward]]
 ==== I'm forwarding a request to another URL using the RequestDispatcher, but my security constraints aren't being applied.
@@ -349,7 +349,7 @@ Add these to your project source path and you can navigate directly to Spring Se
 ==== How do the namespace elements map to conventional bean configurations?
 
 There is a general overview of what beans are created by the namespace in the namespace appendix of the reference guide.
-There is also a detailed blog article called "Behind the Spring Security Namespace" on http://blog.springsource.com/2010/03/06/behind-the-spring-security-namespace/[blog.springsource.com]. If want to know the full details then the code is in the `spring-security-config` module within the Spring Security 3.0 distribution.
+There is also a detailed blog article called "Behind the Spring Security Namespace" on https://spring.io/blog/2010/03/06/behind-the-spring-security-namespace/[blog.springsource.com]. If want to know the full details then the code is in the `spring-security-config` module within the Spring Security 3.0 distribution.
 You should probably read the chapters on namespace parsing in the standard Spring Framework reference documentation first.
 
 
@@ -419,7 +419,7 @@ Authenticating a user with a username/password combination is most commonly perf
 Note that if you are using LDAP, <<appendix-faq-ldap-authentication,this approach may not work>>.
 
 If you want to customize the authentication process then you should implement `AuthenticationProvider` yourself.
-See this http://blog.springsource.com/2010/08/02/spring-security-in-google-app-engine/[ blog article] for an example integrating Spring Security authentication with Google App Engine.
+See this https://spring.io/blog/2010/08/02/spring-security-in-google-app-engine/[ blog article] for an example integrating Spring Security authentication with Google App Engine.
 
 [[appendix-faq-howto]]
 === Common "Howto" Requests
@@ -572,7 +572,7 @@ What can I do short of abandoning namespace use?
 
 The namespace functionality is intentionally limited, so it doesn't cover everything that you can do with plain beans.
 If you want to do something simple, like modify a bean, or inject a different dependency, you can do this by adding a `BeanPostProcessor` to your configuration.
-More information can be found in the http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html#beans-factory-extension-bpp[Spring Reference Manual]. In order to do this, you need to know a bit about which beans are created, so you should also read the blog article in the above question on <<appendix-faq-namespace-to-bean-mapping,how the namespace maps to Spring beans>>.
+More information can be found in the https://docs.spring.io/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html#beans-factory-extension-bpp[Spring Reference Manual]. In order to do this, you need to know a bit about which beans are created, so you should also read the blog article in the above question on <<appendix-faq-namespace-to-bean-mapping,how the namespace maps to Spring beans>>.
 
 Normally, you would add the functionality you require to the `postProcessBeforeInitialization` method of `BeanPostProcessor`. Let's say that you want to customize the `AuthenticationDetailsSource` used by the `UsernamePasswordAuthenticationFilter`, (created by the `form-login` element). You want to extract a particular header called `CUSTOM_HEADER` from the request and make use of it while authenticating the user.
 The processor class would look like this:

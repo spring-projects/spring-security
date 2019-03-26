@@ -501,7 +501,7 @@ public class HttpHeadersConfigTests {
 				.andExpect(status().isOk())
 				.andExpect(header().string(
 						"Public-Key-Pins-Report-Only",
-						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"http://example.net/pkp-report\""))
+						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.net/pkp-report\""))
 				.andExpect(excludesDefaults());
 	}
 

@@ -3,7 +3,7 @@
 // FIXME this is likely heavy for hello-security, but just restructuring for now
 Namespace configuration has been available since version 2.0 of the Spring Framework.
 It lets you supplement the traditional Spring beans application context syntax with elements from additional XML schema.
-You can find more information in the Spring Framework http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[Reference Documentation].
+You can find more information in the Spring Framework https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[Reference Documentation].
 You can use a namespace element to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax that more closely matches the problem domain and hides the underlying complexity from the user.
 A simple element may conceal the fact that multiple beans and processing steps are being added to the application context.
 For example, adding the following element from the security namespace to an application context starts up an embedded LDAP server for testing use within the application:
@@ -18,7 +18,7 @@ The most common alternative configuration requirements are supported by attribut
 You are isolated from worrying about which beans you need to create and what the bean property names are.
 (You can find out more about the use of the `ldap-server` element in the chapter on pass:specialcharacters,macros[<<ldap>>].)
 Use of a good XML editor while editing the application context file should provide information on the attributes and elements that are available.
-We recommend trying out the http://spring.io/tools/sts[Spring Tool Suite], as it has special features for working with standard Spring namespaces.
+We recommend trying out the https://spring.io/tools/sts[Spring Tool Suite], as it has special features for working with standard Spring namespaces.
 
 To start using the security namespace in your application context, you need to have the `spring-security-config` jar on your classpath.
 Then all you need to do is add the schema declaration to your application context file.
@@ -31,9 +31,9 @@ The following example shows how to do so:
 xmlns:security="http://www.springframework.org/schema/security"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans.xsd
+		https://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/security
-		http://www.springframework.org/schema/security/spring-security.xsd">
+		https://www.springframework.org/schema/security/spring-security.xsd">
 	...
 </beans>
 ----
@@ -50,9 +50,9 @@ Your security application context file would then start as follows:
 xmlns:b="http://www.springframework.org/schema/beans"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/security
-		http://www.springframework.org/schema/security/spring-security.xsd">
+		https://www.springframework.org/schema/security/spring-security.xsd">
 	...
 </b:beans>
 ----

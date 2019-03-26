@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.*;
 public class OAuth2AuthorizationRequestTests {
 	private static final String AUTHORIZATION_URI = "https://provider.com/oauth2/authorize";
 	private static final String CLIENT_ID = "client-id";
-	private static final String REDIRECT_URI = "http://example.com";
+	private static final String REDIRECT_URI = "https://example.com";
 	private static final Set<String> SCOPES = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
 	private static final String STATE = "state";
 

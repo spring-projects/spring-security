@@ -7,7 +7,7 @@ JA-SIG produces an enterprise-wide single sign on system known as CAS.
 Unlike other initiatives, JA-SIG's Central Authentication Service is open source, widely used, simple to understand, platform independent, and supports proxy capabilities.
 Spring Security fully supports CAS, and provides an easy migration path from single-application deployments of Spring Security through to multiple-application deployments secured by an enterprise-wide CAS server.
 
-You can learn more about CAS at http://www.ja-sig.org/cas.
+You can learn more about CAS at https://www.apereo.org.
 You will also need to visit this site to download the CAS Server files.
 
 [[cas-how-it-works]]

@@ -92,7 +92,7 @@ More details can be found in the <<session-mgmt,Session Management chapter>>.
 
 [[ns-session-fixation]]
 == Session Fixation Attack Protection
-http://en.wikipedia.org/wiki/Session_fixation[Session fixation] attacks are a potential risk where it is possible for a malicious attacker to create a session by accessing a site, then persuade another user to log in with the same session (by sending them a link containing the session identifier as a parameter, for example).
+https://en.wikipedia.org/wiki/Session_fixation[Session fixation] attacks are a potential risk where it is possible for a malicious attacker to create a session by accessing a site, then persuade another user to log in with the same session (by sending them a link containing the session identifier as a parameter, for example).
 Spring Security protects against this automatically by creating a new session or otherwise changing the session ID when a user logs in.
 If you don't require this protection, or it conflicts with some other requirement, you can control the behavior using the `session-fixation-protection` attribute on `<session-management>`, which has four options
 

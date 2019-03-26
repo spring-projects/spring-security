@@ -44,7 +44,7 @@ public final class ClientRegistrations {
 
 	/**
 	 * Creates a {@link ClientRegistration.Builder}  using the provided
-	 * <a href="http://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> by making an
+	 * <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> by making an
 	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID Provider
 	 * Configuration Request</a> and using the values in the
 	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
@@ -65,7 +65,7 @@ public final class ClientRegistrations {
 	 *     .clientSecret("client-secret")
 	 *     .build();
 	 * </pre>
-	 * @param issuer the <a href="http://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @param issuer the <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
 	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID Provider Configuration.
 	 */
 	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {

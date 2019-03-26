@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  */
 public class OAuth2AuthorizationResponseTests {
 	private static final String AUTH_CODE = "auth-code";
-	private static final String REDIRECT_URI = "http://example.com";
+	private static final String REDIRECT_URI = "https://example.com";
 	private static final String STATE = "state";
 	private static final String ERROR_CODE = "error-code";
 	private static final String ERROR_DESCRIPTION = "error-description";

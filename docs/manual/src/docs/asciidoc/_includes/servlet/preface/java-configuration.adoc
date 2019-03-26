@@ -2,7 +2,7 @@
 [[jc]]
 = Java Configuration
 
-General support for http://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java Configuration] was added to Spring Framework in Spring 3.1.
+General support for https://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java Configuration] was added to Spring Framework in Spring 3.1.
 Since Spring Security 3.2 there has been Spring Security Java Configuration support which enables users to easily configure Spring Security without the use of any XML.
 
 If you are familiar with the <<ns-config>> then you should find quite a few similarities between it and the Security Java Configuration support.

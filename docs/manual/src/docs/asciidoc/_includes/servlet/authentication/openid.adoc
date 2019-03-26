@@ -1,6 +1,6 @@
 [[ns-openid]]
 = OpenID Support
-The namespace supports http://openid.net/[OpenID] login either instead of, or in addition to normal form-based login, with a simple change:
+The namespace supports https://openid.net/[OpenID] login either instead of, or in addition to normal form-based login, with a simple change:
 
 [source,xml]
 ----
@@ -14,7 +14,7 @@ You should then register yourself with an OpenID provider (such as myopenid.com)
 
 [source,xml]
 ----
-<user name="http://jimi.hendrix.myopenid.com/" authorities="ROLE_USER" />
+<user name="https://jimi.hendrix.myopenid.com/" authorities="ROLE_USER" />
 ----
 
 You should be able to login using the `myopenid.com` site to authenticate.
@@ -25,20 +25,20 @@ A random password will be generated internally, preventing you from accidentally
 
 
 == Attribute Exchange
-Support for OpenID http://openid.net/specs/openid-attribute-exchange-1_0.html[attribute exchange].
+Support for OpenID https://openid.net/specs/openid-attribute-exchange-1_0.html[attribute exchange].
 As an example, the following configuration would attempt to retrieve the email and full name from the OpenID provider, for use by the application:
 
 [source,xml]
 ----
 <openid-login>
 <attribute-exchange>
-	<openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
-	<openid-attribute name="name" type="http://axschema.org/namePerson"/>
+	<openid-attribute name="email" type="https://axschema.org/contact/email" required="true"/>
+	<openid-attribute name="name" type="https://axschema.org/namePerson"/>
 </attribute-exchange>
 </openid-login>
 ----
 
-The "type" of each OpenID attribute is a URI, determined by a particular schema, in this case http://axschema.org/[http://axschema.org/].
+The "type" of each OpenID attribute is a URI, determined by a particular schema, in this case https://axschema.org/[https://axschema.org/].
 If an attribute must be retrieved for successful authentication, the `required` attribute can be set.
 The exact schema and attributes supported will depend on your OpenID provider.
 The attribute values are returned as part of the authentication process and can be accessed afterwards using the following code:

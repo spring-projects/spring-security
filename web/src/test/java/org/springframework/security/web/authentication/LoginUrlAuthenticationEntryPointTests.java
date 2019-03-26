@@ -173,7 +173,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://www.example.com/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com/bigWebApp/hello");
 	}
 
 	@Test
@@ -198,7 +198,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 		// Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to HTTP port
 		// mapping
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://www.example.com:8888/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:8888/bigWebApp/hello");
 	}
 
 	@Test

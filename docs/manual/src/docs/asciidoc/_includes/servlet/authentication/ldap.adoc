@@ -15,7 +15,7 @@ Some familiarity with the JNDI APIs used to access LDAP from Java may also be us
 We don't use any third-party LDAP libraries (Mozilla, JLDAP etc.) in the LDAP provider, but extensive use is made of Spring LDAP, so some familiarity with that project may be useful if you plan on adding your own customizations.
 
 When using LDAP authentication, it is important to ensure that you configure LDAP connection pooling properly.
-If you are unfamiliar with how to do this, you can refer to the http://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html[Java LDAP documentation].
+If you are unfamiliar with how to do this, you can refer to the https://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html[Java LDAP documentation].
 
 == Using LDAP with Spring Security
 LDAP authentication in Spring Security can be roughly divided into the following stages.
@@ -183,7 +183,7 @@ The supplied implementation is `FilterBasedLdapUserSearch`.
 [[ldap-searchobjects-filter]]
 === FilterBasedLdapUserSearch
 This bean uses an LDAP filter to match the user object in the directory.
-The process is explained in the Javadoc for the corresponding search method on the http://java.sun.com/j2se/1.4.2/docs/api/javax/naming/directory/DirContext.html#search(javax.naming.Name%2C%2520java.lang.String%2C%2520java.lang.Object%5B%5D%2C%2520javax.naming.directory.SearchControls)[JDK DirContext class].
+The process is explained in the Javadoc for the corresponding search method on the https://java.sun.com/j2se/1.4.2/docs/api/javax/naming/directory/DirContext.html#search(javax.naming.Name%2C%2520java.lang.String%2C%2520java.lang.Object%5B%5D%2C%2520javax.naming.directory.SearchControls)[JDK DirContext class].
 As explained there, the search filter can be supplied with parameters.
 For this class, the only valid parameter is `{0}` which will be replaced with the user's login name.
 
