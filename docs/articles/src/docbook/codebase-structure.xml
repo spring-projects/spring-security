@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
+<?oxygen RNGSchema="https://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
 <article xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
 	version="5.0">
 	<info>
@@ -44,7 +44,7 @@
 			Structure101 tool<footnote>
 				<para>Structure101 is an excellent tool for analyzing your own code or for
 					understanding someone else's. It is developed by <link
-						xlink:href="http://www.headwaysoftware.com">Headway Software</link>. </para>
+						xlink:href="https://www.headwaysoftware.com">Headway Software</link>. </para>
 			</footnote>. You don't have to be an expert in code structure to realise that there is a
 			bit of a problem here. There are a lot of circular references and no clear overall
 			dependency structure within the packages. There are also some issues with packages being
@@ -54,9 +54,9 @@
 					the topic where he shares some of the insights gained from maintaining the
 					Spring Framework through multiple versions. You can find him discussing the
 					topic in an online interview <link
-						xlink:href="http://www.se-radio.net/transcript-82-organization-large-code-bases-juergen-hoeller"
+						xlink:href="https://www.se-radio.net/transcript-82-organization-large-code-bases-juergen-hoeller"
 						>transcript</link> and an <link
-						xlink:href="http://www.infoq.com/presentations/code-organization-large-projects"
+						xlink:href="https://www.infoq.com/presentations/code-organization-large-projects"
 						>InfoQ video</link>. </para>
 			</footnote>. This fragility in the code structure would likely have caused a maintenance
 			overhead as Spring Security evolved, so the decision was made to restructure the code

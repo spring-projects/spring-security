@@ -5,9 +5,9 @@
 	xmlns:webflow="http://www.springframework.org/schema/webflow-config"
 	xsi:schemaLocation="
 		http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/webflow-config
-		http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.0.xsd">
+		https://www.springframework.org/schema/webflow-config/spring-webflow-config-2.0.xsd">
 
 	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
 		<property name="mappings">
