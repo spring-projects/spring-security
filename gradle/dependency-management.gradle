@@ -186,7 +186,7 @@ dependencyManagement {
 		dependency 'org.reactivestreams:reactive-streams:1.0.1'
 		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.33.3'
 		dependency 'org.seleniumhq.selenium:selenium-java:3.141.59'
-		dependency 'org.seleniumhq.selenium:selenium-support:3.14.0'
+		dependency 'org.seleniumhq.selenium:selenium-support:3.141.59'
 		dependency 'org.skyscreamer:jsonassert:1.5.0'
 		dependency 'org.slf4j:jcl-over-slf4j:1.7.25'
 		dependency 'org.slf4j:jul-to-slf4j:1.7.25'
