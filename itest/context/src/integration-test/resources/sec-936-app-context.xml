@@ -3,9 +3,9 @@
 	xmlns:util="http://www.springframework.org/schema/util"
 	xmlns:security="http://www.springframework.org/schema/security"
 	xsi:schemaLocation="
-	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
-	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util-3.0.xsd
+	http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
 	<security:authentication-manager alias="authenticationManager">
 		<security:authentication-provider>
