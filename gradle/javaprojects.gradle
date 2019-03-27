@@ -9,7 +9,7 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 ext.apacheDsVersion = '1.5.5'
-ext.aspectjVersion = '1.8.13'
+ext.aspectjVersion = '1.8.14'
 ext.casClientVersion = '3.4.1'
 ext.cglibVersion = '3.2.10'
 ext.commonsCodecVersion = '1.12'
