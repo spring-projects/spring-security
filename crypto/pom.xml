@@ -52,7 +52,7 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcpkix-jdk15on</artifactId>
-      <version>1.60</version>
+      <version>1.61</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
