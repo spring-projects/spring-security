@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 /**
@@ -38,7 +38,7 @@ import java.util.Map;
 public class UnAuthenticatedServerOAuth2AuthorizedClientRepository implements ServerOAuth2AuthorizedClientRepository {
 	private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
-	private Map<String, OAuth2AuthorizedClient> clientRegistrationIdToAuthorizedClient = new HashMap<>();
+	private final Map<String, OAuth2AuthorizedClient> clientRegistrationIdToAuthorizedClient = new ConcurrentHashMap<>();
 
 	@Override
 	public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId,
