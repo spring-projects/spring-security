@@ -51,7 +51,7 @@ dependencyManagement {
 		dependency 'com.unboundid:unboundid-ldapsdk:4.0.10'
 		dependency 'com.vaadin.external.google:android-json:0.0.20131108.vaadin1'
 		dependency 'commons-cli:commons-cli:1.4'
-		dependency 'commons-codec:commons-codec:1.11'
+		dependency 'commons-codec:commons-codec:1.12'
 		dependency 'commons-collections:commons-collections:3.2.2'
 		dependency 'commons-httpclient:commons-httpclient:3.1'
 		dependency 'commons-io:commons-io:2.6'
