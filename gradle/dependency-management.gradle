@@ -173,6 +173,7 @@ dependencyManagement {
 		dependency 'org.ow2.asm:asm:6.0'
 		dependency 'org.reactivestreams:reactive-streams:1.0.1'
 		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.33.3'
+		dependency 'org.seleniumhq.selenium:selenium-api:3.141.59'
 		dependency 'org.seleniumhq.selenium:selenium-java:3.14.0'
 		dependency 'org.seleniumhq.selenium:selenium-support:3.14.0'
 		dependency 'org.skyscreamer:jsonassert:1.5.0'
