@@ -223,7 +223,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		return authorizedClient(request, next)
 				.map(authorizedClient -> bearer(request, authorizedClient))
 				.flatMap(next::exchange)
-				.switchIfEmpty(next.exchange(request));
+				.switchIfEmpty(Mono.defer(() -> next.exchange(request)));
 	}
 
 	private Mono<OAuth2AuthorizedClient> authorizedClient(ClientRequest request, ExchangeFunction next) {
