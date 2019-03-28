@@ -66,7 +66,7 @@ public class CasAuthenticationProviderTests {
 	private ServiceProperties makeServiceProperties() {
 		final ServiceProperties serviceProperties = new ServiceProperties();
 		serviceProperties.setSendRenew(false);
-		serviceProperties.setService("http://test.com");
+		serviceProperties.setService("https://localhost");
 
 		return serviceProperties;
 	}

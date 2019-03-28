@@ -41,19 +41,19 @@ public class RegExpAllowFromStrategyTests {
 	@Test
 	public void subdomainMatchingRegularExpression() {
 		RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy(
-				"^http://([a-z0-9]*?\\.)test\\.com");
+				"^http://([a-z0-9]*?\\.)example\\.com");
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
-		request.setParameter("from", "http://www.test.com");
+		request.setParameter("from", "http://www.example.com");
 		String result1 = strategy.getAllowFromValue(request);
-		assertThat(result1).isEqualTo("http://www.test.com");
+		assertThat(result1).isEqualTo("http://www.example.com");
 
-		request.setParameter("from", "http://abc.test.com");
+		request.setParameter("from", "http://foo.example.com");
 		String result2 = strategy.getAllowFromValue(request);
-		assertThat(result2).isEqualTo("http://abc.test.com");
+		assertThat(result2).isEqualTo("http://foo.example.com");
 
-		request.setParameter("from", "http://test.foobar.com");
+		request.setParameter("from", "http://www.example2.com");
 		String result3 = strategy.getAllowFromValue(request);
 		assertThat(result3).isEqualTo("DENY");
 	}
@@ -61,7 +61,7 @@ public class RegExpAllowFromStrategyTests {
 	@Test
 	public void noParameterShouldDeny() {
 		RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy(
-				"^http://([a-z0-9]*?\\.)test\\.com");
+				"^https://([a-z0-9]*?\\.)test\\.com");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		String result1 = strategy.getAllowFromValue(request);
 		assertThat(result1).isEqualTo("DENY");

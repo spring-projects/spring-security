@@ -52,7 +52,7 @@ public class DefaultRedirectStrategyTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		rds.sendRedirect(request, response,
-				"https://http://context.blah.com/context/remainder");
+				"https://context.blah.com/context/remainder");
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("remainder");
 	}

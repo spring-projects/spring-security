@@ -54,7 +54,7 @@
 <!--
 	<user-service id="userService">
 		<user name="https://luke.taylor.myopenid.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
-		<user name="http://luke.taylor.openid.cn/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
+		<user name="https://luke.taylor.openid.cn/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
 		<user name="https://raykrueger.blogspot.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
 		<user name="https://spring.security.test.myopenid.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
 	</user-service>

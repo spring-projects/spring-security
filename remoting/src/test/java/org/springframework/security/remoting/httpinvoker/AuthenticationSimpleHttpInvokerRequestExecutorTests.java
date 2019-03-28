@@ -61,7 +61,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 		executor.prepareConnection(conn, 10);
 
 		// Check connection properties
-		// See http://www.faqs.org/rfcs/rfc1945.html section 11.1 for example
+		// See https://tools.ietf.org/html/rfc1945 section 11.1 for example
 		// we are comparing against
 		assertThat(conn.getRequestProperty("Authorization")).isEqualTo(
 				"Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
