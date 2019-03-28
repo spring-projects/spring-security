@@ -1,0 +1,7 @@
+^http://[^/]*nabble.com.*
+^http://blog.opensecurityresearch.com/.*
+^http://iharder.sourceforge.net/current/java/base64/
+^http://jaspan.com.*
+^http://lists.webappsec.org/.*
+^http://webblaze.cs.berkeley.edu/.*
+^http://www.zytrax.com/books/ldap/
