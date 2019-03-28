@@ -119,7 +119,7 @@ public class OpenIDConfigTests {
 
 		OpenIDAuthenticationFilter openIDFilter = getFilter(OpenIDAuthenticationFilter.class);
 
-		String openIdEndpointUrl = "http://testopenid.com?openid.return_to=";
+		String openIdEndpointUrl = "https://testopenid.com?openid.return_to=";
 		Set<String> returnToUrlParameters = new HashSet<>();
 		returnToUrlParameters.add(AbstractRememberMeServices.DEFAULT_PARAMETER);
 		openIDFilter.setReturnToUrlParameters(returnToUrlParameters);
@@ -142,7 +142,7 @@ public class OpenIDConfigTests {
 				.andExpect(content().string(containsString(AbstractRememberMeServices.DEFAULT_PARAMETER)));
 
 		this.mvc.perform(get("/login/openid")
-				.param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "http://ww1.openid.com")
+				.param(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "https://ww1.openid.com")
 				.param(AbstractRememberMeServices.DEFAULT_PARAMETER, "on"))
 				.andExpect(status().isFound())
 				.andExpect(redirectedUrl(openIdEndpointUrl + expectedReturnTo));

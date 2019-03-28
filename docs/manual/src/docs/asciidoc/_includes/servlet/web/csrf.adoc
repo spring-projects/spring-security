@@ -257,7 +257,7 @@ $(document).ajaxSend(function(e, xhr, options) {
 });
 ----
 
-As an alternative to jQuery, we recommend using http://cujojs.com/[cujoJS's] rest.js.
+As an alternative to jQuery, we recommend using https://github.com/cujojs[cujoJS's] rest.js.
 The https://github.com/cujojs/rest[rest.js] module provides advanced support for working with HTTP requests and responses in RESTful ways.
 A core capability is the ability to contextualize the HTTP client adding behavior as needed by chaining interceptors on to the client.
 

@@ -85,7 +85,7 @@ public class RetryWithHttpEntryPointTests {
 				"/bigWebApp/hello/pathInfo.html");
 		request.setQueryString("open=true");
 		request.setScheme("https");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setServerPort(443);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -96,7 +96,7 @@ public class RetryWithHttpEntryPointTests {
 
 		ep.commence(request, response);
 		assertThat(response.getRedirectedUrl()).isEqualTo(
-				"http://www.example.com/bigWebApp/hello/pathInfo.html?open=true");
+				"http://localhost/bigWebApp/hello/pathInfo.html?open=true");
 	}
 
 	@Test

@@ -249,7 +249,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 	// SEC-1498
 	@Test
 	public void absoluteLoginFormUrlIsSupported() throws Exception {
-		final String loginFormUrl = "http://somesite.com/login";
+		final String loginFormUrl = "https://somesite.com/login";
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
 				loginFormUrl);
 		ep.afterPropertiesSet();
@@ -260,9 +260,9 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void absoluteLoginFormUrlCantBeUsedWithForwarding() throws Exception {
-		final String loginFormUrl = "http://somesite.com/login";
+		final String loginFormUrl = "https://somesite.com/login";
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"http://somesite.com/login");
+				"https://somesite.com/login");
 		ep.setUseForward(true);
 		ep.afterPropertiesSet();
 	}

@@ -46,7 +46,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  * <p>
  * For a detailed background on what this filter is designed to process, refer to
- * <a href="http://www.faqs.org/rfcs/rfc1945.html">RFC 1945, Section 11.1</a>. Any realm
+ * <a href="https://tools.ietf.org/html/rfc1945">RFC 1945, Section 11.1</a>. Any realm
  * name presented in the HTTP request is ignored.
  *
  * <p>
