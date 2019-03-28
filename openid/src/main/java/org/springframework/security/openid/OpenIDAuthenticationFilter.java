@@ -254,8 +254,8 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 	 *
 	 * If no mapping is provided then the returnToUrl will be parsed to extract the
 	 * protocol, hostname and port followed by a trailing slash. This means that
-	 * <tt>https://www.example.com/login/openid</tt> will automatically become
-	 * <tt>http://www.example.com:80/</tt>
+	 * <tt>https://foo.example.com/login/openid</tt> will automatically become
+	 * <tt>http://foo.example.com:80/</tt>
 	 *
 	 * @param realmMapping containing returnToUrl -&gt; realm mappings
 	 */

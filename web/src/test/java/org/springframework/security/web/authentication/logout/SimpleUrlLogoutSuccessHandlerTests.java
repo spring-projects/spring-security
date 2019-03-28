@@ -45,11 +45,11 @@ public class SimpleUrlLogoutSuccessHandlerTests {
 	@Test
 	public void absoluteUrlIsSupported() throws Exception {
 		SimpleUrlLogoutSuccessHandler lsh = new SimpleUrlLogoutSuccessHandler();
-		lsh.setDefaultTargetUrl("http://someurl.com/");
+		lsh.setDefaultTargetUrl("https://someurl.com/");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		lsh.onLogoutSuccess(request, response, mock(Authentication.class));
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://someurl.com/");
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://someurl.com/");
 	}
 
 }

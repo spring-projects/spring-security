@@ -88,7 +88,7 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
 		openIDFilter.setConsumer(new OpenIDConsumer() {
 			public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl, String realm)
 					throws OpenIDConsumerException {
-				return "http://testopenid.com?openid.return_to=" + returnToUrl;
+				return "https://testopenid.com?openid.return_to=" + returnToUrl;
 			}
 
 			public OpenIDAuthenticationToken endConsumption(HttpServletRequest req) throws OpenIDConsumerException {
@@ -118,7 +118,7 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
 		response.getContentAsString().contains(AbstractRememberMeServices.DEFAULT_PARAMETER)
 		when: "Login is submitted with remember-me selected"
 		request.servletPath = "/login/openid"
-		request.setParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "http://ww1.openid.com")
+		request.setParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "https://ww1.openid.com")
 		request.setParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "on")
 		response = new MockHttpServletResponse();
 		fc.doFilter(request, response, new MockFilterChain());
@@ -126,7 +126,7 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
 										.append(AbstractRememberMeServices.DEFAULT_PARAMETER)
 										.append("=").append("on").toString();
 		then: "return_to URL contains remember-me choice"
-		response.getRedirectedUrl() == "http://testopenid.com?openid.return_to=" + expectedReturnTo
+		response.getRedirectedUrl() == "https://testopenid.com?openid.return_to=" + expectedReturnTo
 	}
 
 	def openIDWithAttributeExchangeConfigurationIsParsedCorrectly() {
@@ -141,7 +141,7 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
 		}
 		createAppContext()
 
-		List attributes = getFilter(OpenIDAuthenticationFilter).consumer.attributesToFetchFactory.createAttributeList('http://someid')
+		List attributes = getFilter(OpenIDAuthenticationFilter).consumer.attributesToFetchFactory.createAttributeList('https://someid')
 
 		expect:
 		attributes.size() == 2

@@ -276,7 +276,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 			"/" + this.registration1.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setScheme("http");
-		request.setServerName("example.com");
+		request.setServerName("localhost");
 		request.setServerPort(80);
 		request.setServletPath(requestUri);
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -286,7 +286,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 		verifyZeroInteractions(filterChain);
 
-		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://example.com/login/oauth2/code/registration-1");
+		assertThat(response.getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?response_type=code&client_id=client-1&scope=user&state=.{15,}&redirect_uri=http://localhost/login/oauth2/code/registration-1");
 	}
 
 	@Test

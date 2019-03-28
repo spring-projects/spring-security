@@ -331,7 +331,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		String requestUri = "/login/oauth2/code/" + this.registration2.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setScheme("http");
-		request.setServerName("example.com");
+		request.setServerName("localhost");
 		request.setServerPort(80);
 		request.setServletPath(requestUri);
 		request.addParameter(OAuth2ParameterNames.CODE, "code");
@@ -352,7 +352,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		OAuth2AuthorizationRequest authorizationRequest = authentication.getAuthorizationExchange().getAuthorizationRequest();
 		OAuth2AuthorizationResponse authorizationResponse = authentication.getAuthorizationExchange().getAuthorizationResponse();
 
-		String expectedRedirectUri = "http://example.com/login/oauth2/code/registration-2";
+		String expectedRedirectUri = "http://localhost/login/oauth2/code/registration-2";
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(expectedRedirectUri);
 		assertThat(authorizationResponse.getRedirectUri()).isEqualTo(expectedRedirectUri);
 	}
