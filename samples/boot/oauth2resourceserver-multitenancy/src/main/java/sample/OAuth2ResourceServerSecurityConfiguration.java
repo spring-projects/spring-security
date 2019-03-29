@@ -28,7 +28,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtProcessors;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
@@ -71,7 +70,7 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 	}
 
 	AuthenticationManager jwt() {
-		JwtDecoder jwtDecoder = new NimbusJwtDecoder(JwtProcessors.withJwkSetUri(this.jwkSetUri).build());
+		JwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
 		return new JwtAuthenticationProvider(jwtDecoder)::authenticate;
 	}
 
