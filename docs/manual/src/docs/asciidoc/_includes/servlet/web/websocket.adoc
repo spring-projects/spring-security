@@ -153,7 +153,7 @@ Consider a chat application.
 While we want clients to be able to SUBSCRIBE to "/topic/system/notifications", we do not want to enable them to send a MESSAGE to that destination.
 If we allowed sending a MESSAGE to "/topic/system/notifications", then clients could send a message directly to that endpoint and impersonate the system.
 
-In general, it is common for applications to deny any MESSAGE sent to a message that starts with the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html#websocket-stomp[broker prefix] (i.e. "/topic/" or "/queue/").
+In general, it is common for applications to deny any MESSAGE sent to a destination that starts with the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html#websocket-stomp[broker prefix] (i.e. "/topic/" or "/queue/").
 
 [[websocket-authorization-notes-destinations]]
 ===== WebSocket Authorization on Destinations
