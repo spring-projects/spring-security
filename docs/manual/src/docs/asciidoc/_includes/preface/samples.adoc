@@ -2,10 +2,9 @@
 
 [[sample-apps]]
 == Sample Applications
-There are several sample web applications that are available with the project.
-To avoid an overly large download, only the "tutorial" and "contacts" samples are included in the distribution zip file.
-The others can be built directly from the source which you can obtain as described in <<get-source,the introduction>>.
-It's easy to build the project yourself and there's more information on the project web site at https://spring.io/spring-security/[https://spring.io/spring-security/].
+There are several {gh-samples-url}[sample web applications] that ship with the project's <<community-source,source code>>.
+You can find the ones described below in the ({gh-samples-url}/xml[samples/xml/] subdirectory of the root project)
+
 All paths referred to in this chapter are relative to the project source directory.
 
 
