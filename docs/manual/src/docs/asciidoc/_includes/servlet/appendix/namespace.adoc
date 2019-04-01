@@ -950,15 +950,6 @@ Lists the access attributes which will be stored in the `FilterInvocationSecurit
 This should be a comma-separated list of the security configuration attributes (such as role names).
 
 
-[[nsa-intercept-url-filters]]
-* **filters**
-Can only take the value "none".
-This will cause any matching request to bypass the Spring Security filter chain entirely.
-None of the rest of the `<http>` configuration will have any effect on the request and there will be no security context available for its duration.
-Access to secured methods during the request will fail.
-
-NOTE: This property is invalid for <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
-
 [[nsa-intercept-url-method]]
 * **method**
 The HTTP Method which will be used in combination with the pattern and servlet path (optional) to match an incoming request.

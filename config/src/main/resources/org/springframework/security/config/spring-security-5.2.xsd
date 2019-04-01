@@ -1284,20 +1284,6 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-      <xs:attribute name="filters">
-         <xs:annotation>
-            <xs:documentation>The filter list for the path. Currently can be set to "none" to remove a path from having
-                any filters applied. The full filter stack (consisting of all filters created by the
-                namespace configuration, and any added using 'custom-filter'), will be applied to any
-                other paths.
-                </xs:documentation>
-         </xs:annotation>
-         <xs:simpleType>
-            <xs:restriction base="xs:token">
-               <xs:enumeration value="none"/>
-            </xs:restriction>
-         </xs:simpleType>
-      </xs:attribute>
       <xs:attribute name="requires-channel" type="xs:token">
          <xs:annotation>
             <xs:documentation>Used to specify that a URL must be accessed over http or https, or that there is no
