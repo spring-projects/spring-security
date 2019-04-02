@@ -16,7 +16,6 @@
 package org.springframework.security.web.firewall;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -26,9 +25,9 @@ import javax.servlet.http.HttpServletResponseWrapper;
  * @author Luke Taylor
  * @author Eddú Meléndez
  * @author Gabriel Lavoie
+ * @author Luke Butters
  */
 class FirewalledResponse extends HttpServletResponseWrapper {
-	private static final Pattern CR_OR_LF = Pattern.compile("\\r|\\n");
 	private static final String LOCATION_HEADER = "Location";
 	private static final String SET_COOKIE_HEADER = "Set-Cookie";
 
@@ -76,6 +75,6 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 	}
 
 	private boolean hasCrlf(String value) {
-		return value != null && CR_OR_LF.matcher(value).find();
+		return value != null && (value.indexOf('\n') != -1 || value.indexOf('\r') != -1);
 	}
 }
