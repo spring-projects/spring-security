@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,11 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * Tests for {@link JwtDecoders}
  *
  * @author Josh Cummings
+ * @author Rafiullah Hamedy
  */
 public class JwtDecodersTests {
 	/**
@@ -65,14 +69,12 @@ public class JwtDecodersTests {
 
 	private MockWebServer server;
 	private String issuer;
-	private String jwkSetUri;
 
 	@Before
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
 		this.issuer = createIssuerFromServer();
-		this.jwkSetUri = this.issuer + "/.well-known/jwks.json";
 	}
 
 	@After
@@ -82,7 +84,7 @@ public class JwtDecodersTests {
 
 	@Test
 	public void issuerWhenResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
-		prepareOpenIdConfigurationResponse();
+		prepareConfigurationResponse();
 		this.server.enqueue(new MockResponse().setBody(JWK_SET));
 
 		JwtDecoder decoder = JwtDecoders.fromOidcIssuerLocation(this.issuer);
@@ -93,34 +95,78 @@ public class JwtDecodersTests {
 	}
 
 	@Test
+	public void issuerWhenOauth2ResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
+		prepareConfigurationResponse();
+		this.server.enqueue(new MockResponse().setBody(JWK_SET));
+
+		JwtDecoder decoder = JwtDecoders.fromOAuth2IssuerLocation(this.issuer);
+
+		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH))
+				.isInstanceOf(JwtValidationException.class)
+				.hasMessageContaining("This iss claim is not equal to the configured issuer");
+	}
+
+	@Test
 	public void issuerWhenContainsTrailingSlashThenSuccess() {
-		prepareOpenIdConfigurationResponse();
+		prepareConfigurationResponse();
 		this.server.enqueue(new MockResponse().setBody(JWK_SET));
 		assertThat(JwtDecoders.fromOidcIssuerLocation(this.issuer)).isNotNull();
 		assertThat(this.issuer).endsWith("/");
 	}
 
 	@Test
+	public void issuerWhenOauth2ContainsTrailingSlashThenSuccess() {
+		prepareConfigurationResponse();
+		this.server.enqueue(new MockResponse().setBody(JWK_SET));
+		assertThat(JwtDecoders.fromOAuth2IssuerLocation(this.issuer)).isNotNull();
+		assertThat(this.issuer).endsWith("/");
+	}
+
+	@Test
 	public void issuerWhenResponseIsNonCompliantThenThrowsRuntimeException() {
-		prepareOpenIdConfigurationResponse("{ \"missing_required_keys\" : \"and_values\" }");
+		prepareConfigurationResponse("{ \"missing_required_keys\" : \"and_values\" }");
 
 		assertThatCode(() -> JwtDecoders.fromOidcIssuerLocation(this.issuer))
+				.isInstanceOf(RuntimeException.class);
+	}
+
+	@Test
+	public void issuerWhenOauth2ResponseIsNonCompliantThenThrowsRuntimeException() {
+		prepareConfigurationResponse("{ \"missing_required_keys\" : \"and_values\" }");
+
+		assertThatCode(() -> JwtDecoders.fromOAuth2IssuerLocation(this.issuer))
 				.isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
 	public void issuerWhenResponseIsMalformedThenThrowsRuntimeException() {
-		prepareOpenIdConfigurationResponse("malformed");
+		prepareConfigurationResponse("malformed");
 
 		assertThatCode(() -> JwtDecoders.fromOidcIssuerLocation(this.issuer))
 				.isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
+	public void issuerWhenOauth2ResponseIsMalformedThenThrowsRuntimeException() {
+		prepareConfigurationResponse("malformed");
+
+		assertThatCode(() -> JwtDecoders.fromOAuth2IssuerLocation(this.issuer))
+				.isInstanceOf(RuntimeException.class);
+	}
+
+	@Test
 	public void issuerWhenRespondingIssuerMismatchesRequestedIssuerThenThrowsIllegalStateException() {
-		prepareOpenIdConfigurationResponse();
+		prepareConfigurationResponse();
 
 		assertThatCode(() -> JwtDecoders.fromOidcIssuerLocation(this.issuer + "/wrong"))
+				.isInstanceOf(IllegalStateException.class);
+	}
+
+	@Test
+	public void issuerWhenOauth2RespondingIssuerMismatchesRequestedIssuerThenThrowsIllegalStateException() {
+		prepareConfigurationResponse();
+
+		assertThatCode(() -> JwtDecoders.fromOAuth2IssuerLocation(this.issuer + "/wrong"))
 				.isInstanceOf(IllegalStateException.class);
 	}
 
@@ -134,16 +180,68 @@ public class JwtDecodersTests {
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
-	private void prepareOpenIdConfigurationResponse() {
-		String body = String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, this.issuer);
-		prepareOpenIdConfigurationResponse(body);
+	@Test
+	public void issuerWhenOauth2RequestedIssuerIsUnresponsiveThenThrowsIllegalArgumentException()
+			throws Exception {
+
+		this.server.shutdown();
+
+		assertThatCode(() -> JwtDecoders.fromOAuth2IssuerLocation("https://issuer"))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
-	private void prepareOpenIdConfigurationResponse(String body) {
+	/**
+	 *
+	 * Test compatibility with Legacy Oidc Discovery Endpoint. The first request is made to issuer with
+	 * path "/.well-known/openid-configuration/issuer1" and if the response status 404 then a subsequent
+	 * request is made to "/issuer1/.well-known/openid-configruation" as shown below.
+	 *
+	 * GET /.well-known/openid-configuration/issuer1 HTTP/1.1 and responded: HTTP/1.1 404 Client Error
+	 *
+	 * and subsequent attempt
+	 *
+	 * GET /issuer1/.well-known/openid-configuration HTTP/1.1 and responded: HTTP/1.1 200 OK
+	 *
+	 * See <a href="https://tools.ietf.org/html/rfc8414#section-5">Section 5</a> for more information.
+	 *
+	 * @throws Exception
+	 */
+	@Test
+	public void issuerWhenLegacyOidcDiscoveryEndpointAllInformationThenSuccess() throws Exception {
+		prepareConfigurationResponseForCompatibility("issuer1");
+		assertThat(JwtDecoders.fromOidcIssuerLocation(this.issuer)).isNotNull();
+		assertThat(this.issuer).endsWith("/issuer1");
+	}
+
+	private void prepareConfigurationResponse() {
+		String body = String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, this.issuer);
+		prepareConfigurationResponse(body);
+	}
+
+	private void prepareConfigurationResponse(String body) {
 		MockResponse mockResponse = new MockResponse()
 				.setBody(body)
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
+	}
+
+	private void prepareConfigurationResponseForCompatibility(String path) {
+		this.issuer = this.server.url(path).toString();
+		String body = String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, this.issuer);
+
+		final Dispatcher dispatcher = new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) throws
+					InterruptedException {
+				if (request.getPath().indexOf(path + "/.well-known/openid-configuration") != -1) {
+					return new MockResponse().setResponseCode(200)
+							.setBody(body)
+							.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+				}
+				return new MockResponse().setResponseCode(404);
+			}
+		};
+		this.server.setDispatcher(dispatcher);
 	}
 
 	private String createIssuerFromServer() {
