@@ -18,8 +18,12 @@ package org.springframework.security.oauth2.client.registration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Rob Winch
+ * @author Rafiullah Hamedy
  * @since 5.1
  */
 public class ClientRegistrationsTest {
@@ -122,7 +127,34 @@ public class ClientRegistrationsTest {
 	public void issuerWhenAllInformationThenSuccess() throws Exception {
 		ClientRegistration registration = registration("").build();
 		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertIssuerMetadata(registration, provider);
+		assertThat(provider.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/oauth2/v3/userinfo");
+	}
 
+	/**
+	 *
+	 * Test compatibility with OpenID v1 discovery endpoint by making a
+	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID Provider
+	 * Configuration Request</a> as highlighted <a href="https://tools.ietf.org/html/rfc8414#section-5">
+	 * Compatibility Notes</a> of <a href="https://tools.ietf.org/html/rfc8414">RFC 8414</a> specification.
+	 */
+	@Test
+	public void issuerWhenOidcFallbackAllInformationThenSuccess() throws Exception {
+		ClientRegistration registration = registrationOidcFallback("issuer1", null).build();
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertIssuerMetadata(registration, provider);
+		assertThat(provider.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/oauth2/v3/userinfo");
+	}
+
+	@Test
+	public void issuerWhenOauth2AllInformationThenSuccess() throws Exception {
+		ClientRegistration registration = registrationOauth2("", null).build();
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertIssuerMetadata(registration, provider);
+	}
+
+	private void assertIssuerMetadata(ClientRegistration registration,
+			ClientRegistration.ProviderDetails provider) {
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRegistrationId()).isEqualTo(this.server.getHostName());
@@ -135,12 +167,23 @@ public class ClientRegistrationsTest {
 				"code_challenge_methods_supported", "id_token_signing_alg_values_supported", "issuer", "jwks_uri",
 				"response_types_supported", "revocation_endpoint", "scopes_supported", "subject_types_supported",
 				"grant_types_supported", "token_endpoint", "token_endpoint_auth_methods_supported", "userinfo_endpoint");
-		assertThat(provider.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/oauth2/v3/userinfo");
 	}
 
 	@Test
 	public void issuerWhenContainsTrailingSlashThenSuccess() throws Exception {
 		assertThat(registration("")).isNotNull();
+		assertThat(this.issuer).endsWith("/");
+	}
+
+	@Test
+	public void issuerWhenOidcFallbackContainsTrailingSlashThenSuccess() throws Exception {
+		assertThat(registrationOidcFallback("", null)).isNotNull();
+		assertThat(this.issuer).endsWith("/");
+	}
+
+	@Test
+	public void issuerWhenOauth2ContainsTrailingSlashThenSuccess() throws Exception {
+		assertThat(registrationOauth2("", null)).isNotNull();
 		assertThat(this.issuer).endsWith("/");
 	}
 
@@ -161,6 +204,25 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
+	public void issuerWhenOidcFallbackScopesNullThenScopesDefaulted() throws Exception {
+		this.response.remove("scopes_supported");
+
+		ClientRegistration registration = registrationOidcFallback("", null).build();
+
+		assertThat(registration.getScopes()).containsOnly("openid");
+	}
+
+	@Test
+	public void issuerWhenOauth2ScopesNullThenScopesDefaulted() throws Exception {
+		this.response.remove("scopes_supported");
+
+		ClientRegistration registration = registrationOauth2("", null).build();
+
+		assertThat(registration.getScopes()).containsOnly("openid");
+	}
+
+
+	@Test
 	public void issuerWhenGrantTypesSupportedNullThenDefaulted() throws Exception {
 		this.response.remove("grant_types_supported");
 
@@ -169,14 +231,33 @@ public class ClientRegistrationsTest {
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
 
+	@Test
+	public void issuerWhenOauth2GrantTypesSupportedNullThenDefaulted() throws Exception {
+		this.response.remove("grant_types_supported");
+
+		ClientRegistration registration = registrationOauth2("", null).build();
+
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+	}
+
 	/**
 	 * We currently only support authorization_code, so verify we have a meaningful error until we add support.
 	 * @throws Exception
 	 */
+	@Test
 	public void issuerWhenGrantTypesSupportedInvalidThenException() throws Exception {
 		this.response.put("grant_types_supported", Arrays.asList("implicit"));
 
 		assertThatThrownBy(() -> registration(""))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \"" + this.issuer + "\" returned a configuration of [implicit]");
+	}
+
+	@Test
+	public void issuerWhenOauth2GrantTypesSupportedInvalidThenException() throws Exception {
+		this.response.put("grant_types_supported", Arrays.asList("implicit"));
+
+		assertThatThrownBy(() -> registrationOauth2("", null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \"" + this.issuer + "\" returned a configuration of [implicit]");
 	}
@@ -191,6 +272,15 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
+	public void issuerWhenOauth2TokenEndpointAuthMethodsNullThenDefaulted() throws Exception {
+		this.response.remove("token_endpoint_auth_methods_supported");
+
+		ClientRegistration registration = registrationOauth2("", null).build();
+
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+	}
+
+	@Test
 	public void issuerWhenTokenEndpointAuthMethodsPostThenMethodIsPost() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_post"));
 
@@ -200,10 +290,28 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
+	public void issuerWhenOauth2TokenEndpointAuthMethodsPostThenMethodIsPost() throws Exception {
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_post"));
+
+		ClientRegistration registration = registrationOauth2("", null).build();
+
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.POST);
+	}
+
+	@Test
 	public void issuerWhenTokenEndpointAuthMethodsNoneThenMethodIsNone() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("none"));
 
 		ClientRegistration registration = registration("").build();
+
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.NONE);
+	}
+
+	@Test
+	public void issuerWhenOauth2TokenEndpointAuthMethodsNoneThenMethodIsNone() throws Exception {
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("none"));
+
+		ClientRegistration registration = registrationOauth2("", null).build();
 
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.NONE);
 	}
@@ -222,9 +330,24 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
+	public void issuerWhenOauth2TokenEndpointAuthMethodsInvalidThenException() throws Exception {
+		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
+
+		assertThatThrownBy(() -> registrationOauth2("", null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and ClientAuthenticationMethod.NONE are supported. The issuer \"" + this.issuer + "\" returned a configuration of [tls_client_auth]");
+	}
+
+	@Test
+	public void issuerWhenOauth2EmptyStringThenMeaningfulErrorMessage() {
+		assertThatThrownBy(() -> ClientRegistrations.fromIssuerLocation(""))
+				.hasMessageContaining("Unable to resolve Configuration with the provided Issuer of \"\"");
+	}
+
+	@Test
 	public void issuerWhenEmptyStringThenMeaningfulErrorMessage() {
 		assertThatThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(""))
-				.hasMessageContaining("Unable to resolve the OpenID Configuration with the provided Issuer of \"\"");
+				.hasMessageContaining("Unable to resolve Configuration with the provided Issuer of \"\"");
 	}
 
 	@Test
@@ -236,7 +359,19 @@ public class ClientRegistrationsTest {
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
 		assertThatThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(this.issuer))
-				.hasMessageContaining("The Issuer \"https://example.com\" provided in the OpenID Configuration did not match the requested issuer \"" + this.issuer + "\"");
+				.hasMessageContaining("The Issuer \"https://example.com\" provided in the configuration metadata did not match the requested issuer \"" + this.issuer + "\"");
+	}
+
+	@Test
+	public void issuerWhenOauth2ConfigurationDoesNotMatchThenMeaningfulErrorMessage()  throws Exception {
+		this.issuer = createIssuerFromServer("");
+		String body = this.mapper.writeValueAsString(this.response);
+		MockResponse mockResponse = new MockResponse()
+				.setBody(body)
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+		this.server.enqueue(mockResponse);
+		assertThatThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer))
+				.hasMessageContaining("The Issuer \"https://example.com\" provided in the configuration metadata did not match the requested issuer \"" + this.issuer + "\"");
 	}
 
 	private ClientRegistration.Builder registration(String path) throws Exception {
@@ -253,7 +388,72 @@ public class ClientRegistrationsTest {
 			.clientSecret("client-secret");
 	}
 
+	private ClientRegistration.Builder registrationOauth2(String path, String body) throws Exception {
+		this.issuer = createIssuerFromServer(path);
+		this.response.put("issuer", this.issuer);
+		this.issuer = this.server.url(path).toString();
+		final String responseBody = body != null ? body : this.mapper.writeValueAsString(this.response);
+
+		final Dispatcher dispatcher = new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+				switch(request.getPath()) {
+					case "/.well-known/oauth-authorization-server/issuer1":
+					case "/.well-known/oauth-authorization-server/":
+						return buildSuccessMockResponse(responseBody);
+				}
+				return new MockResponse().setResponseCode(404);
+			}
+		};
+
+		this.server.setDispatcher(dispatcher);
+
+		return ClientRegistrations.fromIssuerLocation(this.issuer)
+				.clientId("client-id")
+				.clientSecret("client-secret");
+	}
+
+
 	private String createIssuerFromServer(String path) {
 		return this.server.url(path).toString();
+	}
+
+	/**
+	 * Simulates a situation when the ClientRegistration is used with a legacy application where the OIDC
+	 * Discovery Endpoint is "/issuer1/.well-known/openid-configuration" instead of
+	 * "/.well-known/openid-configuration/issuer1" in which case the first attempt results in HTTP 404 and
+	 * the subsequent call results in 200 OK.
+	 *
+	 * @see <a href="https://tools.ietf.org/html/rfc8414#section-5">Section 5</a> for more details.
+	 */
+	private ClientRegistration.Builder registrationOidcFallback(String path, String body) throws Exception {
+		this.issuer = createIssuerFromServer(path);
+		this.response.put("issuer", this.issuer);
+
+		String responseBody = body != null ? body : this.mapper.writeValueAsString(this.response);
+
+		final Dispatcher dispatcher = new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+				System.out.println("request.getPath:" + request.getPath());
+				switch(request.getPath()) {
+					case "/issuer1/.well-known/openid-configuration":
+					case "/.well-known/openid-configuration/":
+						return buildSuccessMockResponse(responseBody);
+				}
+				return new MockResponse().setResponseCode(404);
+			}
+		};
+		this.server.setDispatcher(dispatcher);
+
+		return ClientRegistrations.fromIssuerLocation(this.issuer)
+				.clientId("client-id")
+				.clientSecret("client-secret");
+	}
+
+	private MockResponse buildSuccessMockResponse(String body) {
+		return new MockResponse().setResponseCode(200)
+				.setBody(body)
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 	}
 }
