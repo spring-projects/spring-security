@@ -19,6 +19,7 @@ import static org.springframework.security.test.oauth2.support.CollectionsSuppor
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -71,6 +72,33 @@ public class OidcIdTokenAuthenticationBuilder<T extends OidcIdTokenAuthenticatio
 
 	public OidcIdTokenAuthenticationBuilder(final AuthorizationGrantType requestAuthorizationGrantType) {
 		this(defaultClientRegistration(), defaultAuthorizationRequest(requestAuthorizationGrantType));
+	}
+
+	public T token(final OidcIdToken token) {
+		final Map<String, Object> claims = new HashMap<>(token.getClaims());
+		if (token.getIssuedAt() != null) {
+			if (token.getClaims().containsKey(IdTokenClaimNames.IAT)
+					&& !token.getIssuedAt().equals(token.getClaimAsInstant(IdTokenClaimNames.IAT))) {
+				throw new RuntimeException(
+						"Inconsistent issue instants: token.getIssuedAt() = " + token.getIssuedAt()
+								+ " but token.getClaimAsInstant(IdTokenClaimNames.IAT) = "
+								+ token.getClaimAsInstant(IdTokenClaimNames.IAT));
+			}
+			claims.put(IdTokenClaimNames.IAT, token.getIssuedAt());
+		}
+		if (token.getExpiresAt() != null) {
+			if (token.getClaims().containsKey(IdTokenClaimNames.EXP)
+					&& !token.getExpiresAt().equals(token.getClaimAsInstant(IdTokenClaimNames.EXP))) {
+				throw new RuntimeException(
+						"Inconsistent expiry instants: token.getExpiresAt() = " + token.getExpiresAt()
+								+ " but token.getClaimAsInstant(IdTokenClaimNames.EXP) = "
+								+ token.getClaimAsInstant(IdTokenClaimNames.EXP));
+			}
+			claims.put(IdTokenClaimNames.EXP, token.getExpiresAt());
+		}
+		tokenValue(token.getTokenValue());
+		claims(claims);
+		return downCast();
 	}
 
 	public T tokenValue(final String tokenValue) {

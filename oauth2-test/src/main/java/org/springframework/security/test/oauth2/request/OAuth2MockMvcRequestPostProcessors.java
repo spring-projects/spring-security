@@ -15,7 +15,9 @@
  */
 package org.springframework.security.test.oauth2.request;
 
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
@@ -23,6 +25,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * @since 5.2.0
  */
 public final class OAuth2MockMvcRequestPostProcessors {
+	public static final AuthorizationGrantType DEFAULT_REQUEST_AUTHORIZATION_GRANT_TYPE =
+			AuthorizationGrantType.AUTHORIZATION_CODE;
 
 	public static JwtRequestPostProcessor mockJwt() {
 		return new JwtRequestPostProcessor();
@@ -38,6 +42,23 @@ public final class OAuth2MockMvcRequestPostProcessors {
 
 	public static AccessTokenRequestPostProcessor mockAccessToken(final OAuth2AccessToken token) {
 		return new AccessTokenRequestPostProcessor().accessToken(token);
+	}
+
+	public static OidcIdTokenRequestPostProcessor mockOidcId(final AuthorizationGrantType authorizationGrantType) {
+		return new OidcIdTokenRequestPostProcessor(authorizationGrantType);
+	}
+
+	public static OidcIdTokenRequestPostProcessor mockOidcId() {
+		return mockOidcId(DEFAULT_REQUEST_AUTHORIZATION_GRANT_TYPE);
+	}
+
+	public static OidcIdTokenRequestPostProcessor
+			mockOidcId(final OidcIdToken token, final AuthorizationGrantType requestAuthorizationGrantType) {
+		return mockOidcId(requestAuthorizationGrantType).token(token);
+	}
+
+	public static OidcIdTokenRequestPostProcessor mockOidcId(final OidcIdToken token) {
+		return mockOidcId().token(token);
 	}
 
 }
