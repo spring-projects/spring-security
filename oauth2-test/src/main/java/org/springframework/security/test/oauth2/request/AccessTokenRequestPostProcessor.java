@@ -15,29 +15,23 @@
  */
 package org.springframework.security.test.oauth2.request;
 
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.test.oauth2.support.AccessTokenAuthenticationBuilder;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.SecurityContextRequestPostProcessorSupport;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2.0
  */
-public final class OAuth2MockMvcRequestPostProcessors {
+public class AccessTokenRequestPostProcessor extends AccessTokenAuthenticationBuilder<AccessTokenRequestPostProcessor>
+		implements
+		RequestPostProcessor {
 
-	public static JwtRequestPostProcessor mockJwt() {
-		return new JwtRequestPostProcessor();
-	}
-
-	public static JwtRequestPostProcessor mockJwt(final Jwt jwt) {
-		return mockJwt().jwt(jwt);
-	}
-
-	public static AccessTokenRequestPostProcessor mockAccessToken() {
-		return new AccessTokenRequestPostProcessor();
-	}
-
-	public static AccessTokenRequestPostProcessor mockAccessToken(final OAuth2AccessToken token) {
-		return new AccessTokenRequestPostProcessor().accessToken(token);
+	@Override
+	public MockHttpServletRequest postProcessRequest(final MockHttpServletRequest request) {
+		SecurityContextRequestPostProcessorSupport.save(build(), request);
+		return request;
 	}
 
 }
