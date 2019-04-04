@@ -125,13 +125,15 @@ class OAuth2AuthorizedClientResolver {
 	private Mono<OAuth2AuthorizedClient> authorizedClientNotLoaded(String clientRegistrationId, Authentication authentication, ServerWebExchange exchange) {
 		return this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
 			.switchIfEmpty(Mono.error(() -> new IllegalArgumentException("Client Registration with id " + clientRegistrationId + " was not found")))
-			.flatMap(clientRegistration -> {
-				if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType())) {
-					return clientCredentials(clientRegistration, authentication, exchange);
-				}
-				return Mono.error(() -> new ClientAuthorizationRequiredException(clientRegistrationId));
-			});
-}
+			.flatMap(clientRegistration -> authorize(clientRegistration, authentication, exchange));
+	}
+
+	Mono<OAuth2AuthorizedClient> authorize(ClientRegistration clientRegistration, Authentication authentication, ServerWebExchange exchange) {
+		if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType())) {
+			return clientCredentials(clientRegistration, authentication, exchange);
+		}
+		return Mono.error(() -> new ClientAuthorizationRequiredException(clientRegistration.getRegistrationId()));
+	}
 
 	Mono<OAuth2AuthorizedClient> clientCredentials(
 			ClientRegistration clientRegistration, Authentication authentication, ServerWebExchange exchange) {
