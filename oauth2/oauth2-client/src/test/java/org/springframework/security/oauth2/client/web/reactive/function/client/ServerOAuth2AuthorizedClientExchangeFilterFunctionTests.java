@@ -172,8 +172,6 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		when(this.authorizedClientResolver.clientCredentials(any(), any(), any())).thenReturn(Mono.just(newAuthorizedClient));
 		when(this.authorizedClientResolver.createDefaultedRequest(any(), any(), any())).thenReturn(Mono.just(r));
 
-		when(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
-
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
 
@@ -194,7 +192,6 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
 
-		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(authentication), any());
 		verify(this.authorizedClientResolver).clientCredentials(any(), any(), any());
 		verify(this.authorizedClientResolver).createDefaultedRequest(any(), any(), any());
 

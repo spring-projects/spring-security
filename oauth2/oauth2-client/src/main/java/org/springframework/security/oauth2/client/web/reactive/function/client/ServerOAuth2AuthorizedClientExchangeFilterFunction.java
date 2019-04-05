@@ -251,27 +251,20 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 
 	private Mono<OAuth2AuthorizedClient> refreshIfNecessary(ClientRequest request, ExchangeFunction next, OAuth2AuthorizedClient authorizedClient) {
 		ClientRegistration clientRegistration = authorizedClient.getClientRegistration();
-		if (isClientCredentialsGrantType(clientRegistration) && hasTokenExpired(authorizedClient)) {
+		if (hasTokenExpired(authorizedClient)) {
 			return createRequest(request)
-					.flatMap(r -> authorizeWithClientCredentials(clientRegistration, r));
-		} else if (shouldRefreshToken(authorizedClient)) {
-			return createRequest(request)
-				.flatMap(r -> authorizeWithRefreshToken(next, authorizedClient, r));
+					.flatMap(r -> {
+						if (shouldRefreshToken(authorizedClient)) {
+							return authorizeWithRefreshToken(next, authorizedClient, r);
+						}
+						return authorizeWithClientCredentials(clientRegistration, r);
+					});
 		}
 		return Mono.just(authorizedClient);
 	}
 
-	private boolean isClientCredentialsGrantType(ClientRegistration clientRegistration) {
-		return AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType());
-	}
-
 	private Mono<OAuth2AuthorizedClient> authorizeWithClientCredentials(ClientRegistration clientRegistration, OAuth2AuthorizedClientResolver.Request request) {
-		Authentication authentication = request.getAuthentication();
-		ServerWebExchange exchange = request.getExchange();
-
-		return this.authorizedClientResolver.clientCredentials(clientRegistration, authentication, exchange).
-				flatMap(result -> this.authorizedClientRepository.saveAuthorizedClient(result, authentication, exchange)
-						.thenReturn(result));
+		return this.authorizedClientResolver.clientCredentials(clientRegistration, request.getAuthentication(), request.getExchange());
 	}
 
 	private Mono<OAuth2AuthorizedClient> authorizeWithRefreshToken(ExchangeFunction next,
@@ -303,11 +296,14 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		if (this.authorizedClientRepository == null) {
 			return false;
 		}
+		if (authorizedClient.getClientRegistration().getAuthorizationGrantType().equals(AuthorizationGrantType.CLIENT_CREDENTIALS)) {
+			return false;
+		}
 		OAuth2RefreshToken refreshToken = authorizedClient.getRefreshToken();
 		if (refreshToken == null) {
 			return false;
 		}
-		return hasTokenExpired(authorizedClient);
+		return true;
 	}
 
 	private boolean hasTokenExpired(OAuth2AuthorizedClient authorizedClient) {
