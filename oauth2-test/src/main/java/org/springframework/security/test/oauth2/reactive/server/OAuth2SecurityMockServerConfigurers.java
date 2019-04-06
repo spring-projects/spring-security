@@ -15,6 +15,7 @@
  */
 package org.springframework.security.test.oauth2.reactive.server;
 
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
@@ -29,6 +30,14 @@ public class OAuth2SecurityMockServerConfigurers {
 
 	public static JwtMutator mockJwt(final Jwt jwt) {
 		return new JwtMutator().jwt(jwt);
+	}
+
+	public static AccessTokenMutator mockAccessToken() {
+		return new AccessTokenMutator();
+	}
+
+	public static AccessTokenMutator mockAccessToken(final OAuth2AccessToken token) {
+		return new AccessTokenMutator().accessToken(token);
 	}
 
 }
