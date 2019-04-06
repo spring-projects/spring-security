@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.security.test.oauth2.annotation.StringAttribute;
+import org.springframework.security.test.oauth2.annotation.WithMockAccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -61,7 +63,8 @@ public class OAuth2ResourceServerControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(content().string(is("secret message")));
 
-		mockMvc.perform(get("/message").with(mockAccessToken().attribute("scope", Collections.singleton("message:read"))))
+		mockMvc.perform(
+				get("/message").with(mockAccessToken().attribute("scope", Collections.singleton("message:read"))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(content().string(is("secret message")));
@@ -69,6 +72,21 @@ public class OAuth2ResourceServerControllerTest {
 		mockMvc.perform(get("/message").with(mockAccessToken().name(null).attribute("sub", "ch4mpy")))
 				.andDo(print())
 				.andExpect(status().isForbidden());
+
+	}
+
+	@Test
+	@WithMockAccessToken(scopes = "message:read", claims = @StringAttribute(name = "sub", value = "ch4mpy"))
+	public void testAnnotation() throws Exception {
+		mockMvc.perform(get("/"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(content().string(is("Hello, ch4mpy!")));
+
+		mockMvc.perform(get("/message"))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andExpect(content().string(is("secret message")));
 
 	}
 
