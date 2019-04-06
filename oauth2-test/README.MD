@@ -20,7 +20,7 @@ MockMvc `.with(...)` method is an extension point for further request processing
 This feature is used here to setup SecurityContext with highly configurable authentications.
 
 === `JwtRequestPostProcessor`
-`org.springframework.security.test.oauth2.request.OAuth2MockMvcRequestPostProcessors.jwt()`
+`org.springframework.security.test.oauth2.request.OAuth2MockMvcRequestPostProcessors.mockJwt()`
 returns a post-processor which populates SecurityContext with a `JwtAuthenticationToken` you can tune
 setting roles, scopes, authorities, authentication name, etc.
 
@@ -42,23 +42,23 @@ public class OAuth2ResourceServerControllerTest {
         mockMvc.perform(get("/message")).andDo(print()).andExpect(status().isUnauthorized());
 
         //Run with default Authentication: subject is "user" and sole authority is "USER" role
-        mockMvc.perform(get("/").with(jwt()))
+        mockMvc.perform(get("/").with(mockJwt()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(is("Hello, user!")));
 
         //Customize Authentication name
-        mockMvc.perform(get("/").with(jwt().name("ch4mpy")))
+        mockMvc.perform(get("/").with(mockJwt().name("ch4mpy")))
                 .andExpect(status().isOk())
                 .andExpect(content().string(is("Hello, ch4mpy!")));
 
         //Customize roles, scopes and authorities
-        mockMvc.perform(get("/message").with(jwt().scope("message:read")))
+        mockMvc.perform(get("/message").with(mockJwt().scope("message:read")))
                 .andExpect(status().isOk())
                 .andExpect(content().string(is("secret message")));
 
         //Add custom claims
         mockMvc.perform(get("/message")
-                .with(jwt()
+                .with(mockJwt()
                         .name("ch4mpy")
                         .authority("SCOPE_message:read")
                         .claim("iat", Instant.parse("2019-03-28T16:36:00Z"))))

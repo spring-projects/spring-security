@@ -48,7 +48,7 @@ public class OAuth2ResourceServerControllerTest {
 		// No authentication request post-processor => no authentication => unauthorized
 		mockMvc.perform(get("/message")).andDo(print()).andExpect(status().isUnauthorized());
 
-		mockMvc.perform(get("/").with(mockAccessToken().name(null).attribute("sub", "ch4mpy")))
+		mockMvc.perform(get("/").with(mockAccessToken().name(null).claim("sub", "ch4mpy")))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(content().string(is("Hello, ch4mpy!")));
@@ -63,13 +63,12 @@ public class OAuth2ResourceServerControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(content().string(is("secret message")));
 
-		mockMvc.perform(
-				get("/message").with(mockAccessToken().attribute("scope", Collections.singleton("message:read"))))
+		mockMvc.perform(get("/message").with(mockAccessToken().claim("scope", Collections.singleton("message:read"))))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(content().string(is("secret message")));
 
-		mockMvc.perform(get("/message").with(mockAccessToken().name(null).attribute("sub", "ch4mpy")))
+		mockMvc.perform(get("/message").with(mockAccessToken().name(null).claim("sub", "ch4mpy")))
 				.andDo(print())
 				.andExpect(status().isForbidden());
 
