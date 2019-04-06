@@ -15,7 +15,9 @@
  */
 package org.springframework.security.test.oauth2.reactive.server;
 
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
@@ -29,7 +31,7 @@ public class OAuth2SecurityMockServerConfigurers {
 	}
 
 	public static JwtMutator mockJwt(final Jwt jwt) {
-		return new JwtMutator().jwt(jwt);
+		return mockJwt().jwt(jwt);
 	}
 
 	public static AccessTokenMutator mockAccessToken() {
@@ -37,7 +39,24 @@ public class OAuth2SecurityMockServerConfigurers {
 	}
 
 	public static AccessTokenMutator mockAccessToken(final OAuth2AccessToken token) {
-		return new AccessTokenMutator().accessToken(token);
+		return mockAccessToken().accessToken(token);
+	}
+
+	public static OidcIdTokenMutator mockOidcId(final AuthorizationGrantType authorizationRequestGrantType) {
+		return new OidcIdTokenMutator(authorizationRequestGrantType);
+	}
+
+	public static OidcIdTokenMutator mockOidcId() {
+		return mockOidcId(AuthorizationGrantType.AUTHORIZATION_CODE);
+	}
+
+	public static OidcIdTokenMutator
+			mockOidcId(final AuthorizationGrantType requestAuthorizationRequestGrantType, final OidcIdToken token) {
+		return mockOidcId(requestAuthorizationRequestGrantType).token(token);
+	}
+
+	public static OidcIdTokenMutator mockOidcId(final OidcIdToken token) {
+		return mockOidcId().token(token);
 	}
 
 }
