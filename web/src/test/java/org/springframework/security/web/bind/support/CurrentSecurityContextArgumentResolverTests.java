@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,10 @@
  */
 package org.springframework.security.web.bind.support;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 
 import org.junit.After;
@@ -162,6 +166,32 @@ public class CurrentSecurityContextArgumentResolverTests {
 				null, null));
 	}
 
+	@Test
+	public void metaAnnotationWhenCurrentCustomSecurityContextThenInjectSecurityContext() throws Exception {
+		assertThat(resolver.resolveArgument(showCurrentCustomSecurityContext(), null, null, null))
+				.isNotNull();
+	}
+
+	@Test
+	public void metaAnnotationWhenCurrentAuthenticationThenInjectAuthentication() throws Exception {
+		String principal = "current_authentcation";
+		setAuthenticationPrincipal(principal);
+		Authentication auth1 = (Authentication) resolver.resolveArgument(showCurrentAuthentication(), null, null, null);
+		assertThat(auth1.getPrincipal()).isEqualTo(principal);
+	}
+
+	@Test
+	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenInjectSecurityContext() throws Exception {
+		assertThat(resolver.resolveArgument(showCurrentSecurityWithErrorOnInvalidType(), null, null, null))
+				.isNotNull();
+	}
+
+	@Test
+	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenMisMatch() throws Exception {
+		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> resolver.resolveArgument(showCurrentSecurityWithErrorOnInvalidTypeMisMatch(), null,
+				null, null));
+	}
+
 	private MethodParameter showSecurityContextNoAnnotation() {
 		return getMethodParameter("showSecurityContextNoAnnotation", String.class);
 	}
@@ -206,6 +236,22 @@ public class CurrentSecurityContextArgumentResolverTests {
 		return getMethodParameter("showSecurityContextErrorOnInvalidTypeTrue", String.class);
 	}
 
+	public MethodParameter showCurrentCustomSecurityContext() {
+		return getMethodParameter("showCurrentCustomSecurityContext", SecurityContext.class);
+	}
+
+	public MethodParameter showCurrentAuthentication() {
+		return getMethodParameter("showCurrentAuthentication", Authentication.class);
+	}
+
+	public MethodParameter showCurrentSecurityWithErrorOnInvalidType() {
+		return getMethodParameter("showCurrentSecurityWithErrorOnInvalidType", SecurityContext.class);
+	}
+
+	public MethodParameter showCurrentSecurityWithErrorOnInvalidTypeMisMatch() {
+		return getMethodParameter("showCurrentSecurityWithErrorOnInvalidTypeMisMatch", String.class);
+	}
+
 	private MethodParameter getMethodParameter(String methodName, Class<?>... paramTypes) {
 		Method method = ReflectionUtils.findMethod(TestController.class, methodName,
 				paramTypes);
@@ -248,6 +294,22 @@ public class CurrentSecurityContextArgumentResolverTests {
 		public void showSecurityContextErrorOnInvalidTypeTrue(
 				@CurrentSecurityContext(errorOnInvalidType = true) String implicit) {
 		}
+
+		public void showCurrentCustomSecurityContext(
+				@CurrentCustomSecurityContext SecurityContext context) {
+		}
+
+		public void showCurrentAuthentication(
+				@CurrentAuthentication Authentication authentication) {
+		}
+
+		public void showCurrentSecurityWithErrorOnInvalidType(
+				@CurrentSecurityWithErrorOnInvalidType SecurityContext context) {
+		}
+
+		public void showCurrentSecurityWithErrorOnInvalidTypeMisMatch(
+				@CurrentSecurityWithErrorOnInvalidType String typeMisMatch) {
+		}
 	}
 
 	private void setAuthenticationPrincipal(Object principal) {
@@ -275,6 +337,24 @@ public class CurrentSecurityContextArgumentResolverTests {
 		public void setAuthentication(Authentication authentication) {
 			this.authentication = authentication;
 		}
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext
+	static @interface CurrentCustomSecurityContext {
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext(expression = "authentication")
+	static @interface CurrentAuthentication {
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext(errorOnInvalidType = true)
+	static @interface CurrentSecurityWithErrorOnInvalidType {
 	}
 
 	private void setAuthenticationDetail(Object detail) {

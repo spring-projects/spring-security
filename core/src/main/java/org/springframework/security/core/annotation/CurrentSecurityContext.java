@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,11 +28,19 @@ import java.lang.annotation.Target;
  * @author Dan Zheng
  * @since 5.2
  *
+ * <p>
  * See: <a href=
  * "{@docRoot}/org/springframework/security/web/bind/support/CurrentSecurityContextArgumentResolver.html"
- * > CurrentSecurityContextArgumentResolver </a>
+ * > CurrentSecurityContextArgumentResolver</a> For Servlet
+ * </p>
+ *
+ * <p>
+ * See: <a href=
+ * "{@docRoot}/org/springframework/security/web/reactive/result/method/annotation/CurrentSecurityContextArgumentResolver.html"
+ * > CurrentSecurityContextArgumentResolver</a> For WebFlux
+ * </p>
  */
-@Target({ ElementType.PARAMETER })
+@Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface CurrentSecurityContext {

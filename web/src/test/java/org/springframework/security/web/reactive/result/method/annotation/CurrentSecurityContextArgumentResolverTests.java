@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,19 @@
 
 package org.springframework.security.web.reactive.result.method.annotation;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
@@ -37,8 +43,8 @@ import org.springframework.security.web.method.ResolvableMethod;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.server.ServerWebExchange;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
 
 
 /**
@@ -172,11 +178,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 		Authentication auth = null;
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
 		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange);
-		try {
-			Mono<Object> obj = (Mono<Object>) argument.subscriberContext(context).block();
-			fail("should not reach here");
-		} catch(SpelEvaluationException e) {
-		}
+		assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() -> argument.subscriberContext(context).block());
 		ReactiveSecurityContextHolder.clearContext();
 	}
 
@@ -219,11 +221,50 @@ public class CurrentSecurityContextArgumentResolverTests {
 		Authentication auth = buildAuthenticationWithPrincipal("error_on_invalid_type_explicit_true");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
 		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange);
-		try {
-			Mono<String> obj = (Mono<String>) argument.subscriberContext(context).block();
-			fail("should not reach here");
-		} catch(ClassCastException ex) {
-		}
+		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> argument.subscriberContext(context).block());
+		ReactiveSecurityContextHolder.clearContext();
+	}
+
+	@Test
+	public void metaAnnotationWhenDefaultSecurityContextThenInjectSecurityContext() throws Exception {
+		MethodParameter parameter = ResolvableMethod.on(getClass()).named("currentCustomSecurityContext").build().arg(Mono.class, SecurityContext.class);
+		Authentication auth = buildAuthenticationWithPrincipal("current_custom_security_context");
+		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
+		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange);
+		SecurityContext securityContext = (SecurityContext) argument.subscriberContext(context).cast(Mono.class).block().block();
+		assertThat(securityContext.getAuthentication()).isSameAs(auth);
+		ReactiveSecurityContextHolder.clearContext();
+	}
+
+	@Test
+	public void metaAnnotationWhenCurrentAuthenticationThenInjectAuthentication() throws Exception {
+		MethodParameter parameter = ResolvableMethod.on(getClass()).named("currentAuthentication").build().arg(Mono.class, Authentication.class);
+		Authentication auth = buildAuthenticationWithPrincipal("current_authentication");
+		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
+		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange);
+		Authentication authentication = (Authentication) argument.subscriberContext(context).cast(Mono.class).block().block();
+		assertThat(authentication).isSameAs(auth);
+		ReactiveSecurityContextHolder.clearContext();
+	}
+
+	@Test
+	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenInjectSecurityContext() throws Exception {
+		MethodParameter parameter = ResolvableMethod.on(getClass()).named("currentSecurityWithErrorOnInvalidType").build().arg(Mono.class, SecurityContext.class);
+		Authentication auth = buildAuthenticationWithPrincipal("current_security_with_error_on_invalid_type");
+		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
+		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange);
+		SecurityContext securityContext = (SecurityContext) argument.subscriberContext(context).cast(Mono.class).block().block();
+		assertThat(securityContext.getAuthentication()).isSameAs(auth);
+		ReactiveSecurityContextHolder.clearContext();
+	}
+
+	@Test
+	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenMisMatch() throws Exception {
+		MethodParameter parameter = ResolvableMethod.on(getClass()).named("currentSecurityWithErrorOnInvalidTypeMisMatch").build().arg(Mono.class, String.class);
+		Authentication auth = buildAuthenticationWithPrincipal("current_security_with_error_on_invalid_type_mismatch");
+		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
+		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange);
+		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> argument.subscriberContext(context).cast(Mono.class).block().block());
 		ReactiveSecurityContextHolder.clearContext();
 	}
 
@@ -244,6 +285,32 @@ public class CurrentSecurityContextArgumentResolverTests {
 	void errorOnInvalidTypeWhenExplicitFalse(@CurrentSecurityContext(errorOnInvalidType = false) Mono<String> implicit) {}
 
 	void errorOnInvalidTypeWhenExplicitTrue(@CurrentSecurityContext(errorOnInvalidType = true) Mono<String> implicit) {}
+
+	void currentCustomSecurityContext(@CurrentCustomSecurityContext Mono<SecurityContext> monoSecurityContext) {}
+
+	void currentAuthentication(@CurrentAuthentication Mono<Authentication> authentication) {}
+
+	void currentSecurityWithErrorOnInvalidType(@CurrentSecurityWithErrorOnInvalidType Mono<SecurityContext> monoSecurityContext) {}
+
+	void currentSecurityWithErrorOnInvalidTypeMisMatch(@CurrentSecurityWithErrorOnInvalidType Mono<String> typeMisMatch) {}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext
+	static @interface CurrentCustomSecurityContext {
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext(expression = "authentication")
+	static @interface CurrentAuthentication {
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@CurrentSecurityContext(errorOnInvalidType = true)
+	static @interface CurrentSecurityWithErrorOnInvalidType {
+	}
 
 	static class CustomSecurityContext implements SecurityContext {
 		private Authentication authentication;
