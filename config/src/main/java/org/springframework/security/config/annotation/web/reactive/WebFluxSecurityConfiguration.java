@@ -51,11 +51,15 @@ class WebFluxSecurityConfiguration {
 	private static final boolean isOAuth2Present = ClassUtils.isPresent(
 			REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, WebFluxSecurityConfiguration.class.getClassLoader());
 
-	@Autowired(required = false)
 	private List<SecurityWebFilterChain> securityWebFilterChains;
 
 	@Autowired
 	ApplicationContext context;
+
+	@Autowired(required = false)
+	void setSecurityWebFilterChains(List<SecurityWebFilterChain> securityWebFilterChains) {
+		this.securityWebFilterChains = securityWebFilterChains;
+	}
 
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
 	@Order(value = WEB_FILTER_CHAIN_FILTER_ORDER)

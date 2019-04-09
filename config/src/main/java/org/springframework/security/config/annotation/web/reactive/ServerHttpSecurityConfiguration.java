@@ -47,23 +47,43 @@ class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.HttpSecurityConfiguration.";
 	private static final String HTTPSECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "httpSecurity";
 
-	@Autowired(required = false)
 	private ReactiveAdapterRegistry adapterRegistry = new ReactiveAdapterRegistry();
 
-	@Autowired(required = false)
 	private ReactiveAuthenticationManager authenticationManager;
 
-	@Autowired(required = false)
 	private ReactiveUserDetailsService reactiveUserDetailsService;
 
-	@Autowired(required = false)
 	private PasswordEncoder passwordEncoder;
 
-	@Autowired(required = false)
 	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
 
 	@Autowired(required = false)
 	private BeanFactory beanFactory;
+
+	@Autowired(required = false)
+	void setAdapterRegistry(ReactiveAdapterRegistry adapterRegistry) {
+		this.adapterRegistry = adapterRegistry;
+	}
+
+	@Autowired(required = false)
+	void setAuthenticationManager(ReactiveAuthenticationManager authenticationManager) {
+		this.authenticationManager = authenticationManager;
+	}
+
+	@Autowired(required = false)
+	void setReactiveUserDetailsService(ReactiveUserDetailsService reactiveUserDetailsService) {
+		this.reactiveUserDetailsService = reactiveUserDetailsService;
+	}
+
+	@Autowired(required = false)
+	void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+		this.passwordEncoder = passwordEncoder;
+	}
+
+	@Autowired(required = false)
+	void setUserDetailsPasswordService(ReactiveUserDetailsPasswordService userDetailsPasswordService) {
+		this.userDetailsPasswordService = userDetailsPasswordService;
+	}
 
 	@Override
 	public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
