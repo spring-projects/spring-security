@@ -100,6 +100,21 @@ try {
 				}
 			}
 		}
+	},
+	jdk12: {
+		stage('JDK 12') {
+			node {
+				checkout scm
+				try {
+					withEnv(["JAVA_HOME=${ tool 'openjdk12' }"]) {
+						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
+					}
+				} catch(Exception e) {
+					currentBuild.result = 'FAILED: jdk12'
+					throw e
+				}
+			}
+		}
 	}
 
 	if(currentBuild.result == 'SUCCESS') {
