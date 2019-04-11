@@ -16,6 +16,31 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import javax.crypto.SecretKey;
 import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -27,39 +52,19 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
-
-import com.nimbusds.jose.jwk.JWKSet;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withJwkSetUri;
-import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withJwkSource;
-import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withPublicKey;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.*;
 
 /**
  * @author Rob Winch
+ * @author Joe Grandja
  * @since 5.1
  */
 public class NimbusReactiveJwtDecoderTests {
@@ -236,11 +241,9 @@ public class NimbusReactiveJwtDecoderTests {
 	}
 
 	@Test
-	public void jwsAlgorithmWhenNullOrEmptyThenThrowsException() {
+	public void jwsAlgorithmWhenNullThenThrowsException() {
 		NimbusReactiveJwtDecoder.JwkSetUriReactiveJwtDecoderBuilder builder = withJwkSetUri(this.jwkSetUri);
 		assertThatCode(() -> builder.jwsAlgorithm(null)).isInstanceOf(IllegalArgumentException.class);
-		assertThatCode(() -> builder.jwsAlgorithm("")).isInstanceOf(IllegalArgumentException.class);
-		assertThatCode(() -> builder.jwsAlgorithm("RS4096")).doesNotThrowAnyException();
 	}
 
 	@Test
@@ -269,7 +272,7 @@ public class NimbusReactiveJwtDecoderTests {
 	@Test
 	public void buildWhenSignatureAlgorithmMismatchesKeyTypeThenThrowsException() {
 		assertThatCode(() -> withPublicKey(key())
-				.jwsAlgorithm(JwsAlgorithms.ES256)
+				.signatureAlgorithm(SignatureAlgorithm.ES256)
 				.build())
 				.isInstanceOf(IllegalStateException.class);
 	}
@@ -285,7 +288,7 @@ public class NimbusReactiveJwtDecoderTests {
 	@Test
 	public void decodeWhenUsingPublicKeyWithRs512ThenSuccessfullyDecodes() throws Exception {
 		NimbusReactiveJwtDecoder decoder =
-				withPublicKey(key()).jwsAlgorithm(JwsAlgorithms.RS512).build();
+				withPublicKey(key()).signatureAlgorithm(SignatureAlgorithm.RS512).build();
 		assertThat(decoder.decode(this.rsa512).block())
 				.extracting(Jwt::getSubject)
 				.isEqualTo("test-subject");
@@ -294,7 +297,7 @@ public class NimbusReactiveJwtDecoderTests {
 	@Test
 	public void decodeWhenSignatureMismatchesAlgorithmThenThrowsException() throws Exception {
 		NimbusReactiveJwtDecoder decoder =
-				withPublicKey(key()).jwsAlgorithm(JwsAlgorithms.RS512).build();
+				withPublicKey(key()).signatureAlgorithm(SignatureAlgorithm.RS512).build();
 		assertThatCode(() -> decoder.decode(this.rsa256).block())
 				.isInstanceOf(JwtException.class);
 	}
@@ -314,6 +317,58 @@ public class NimbusReactiveJwtDecoderTests {
 		assertThat(decoder.decode(this.messageReadToken).block())
 				.extracting(Jwt::getExpiresAt)
 				.isNotNull();
+	}
+
+	@Test
+	public void withSecretKeyWhenSecretKeyNullThenThrowsIllegalArgumentException() {
+		assertThatThrownBy(() -> withSecretKey(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("secretKey cannot be null");
+	}
+
+	@Test
+	public void withSecretKeyWhenMacAlgorithmNullThenThrowsIllegalArgumentException() {
+		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
+		assertThatThrownBy(() -> withSecretKey(secretKey).macAlgorithm(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("macAlgorithm cannot be null");
+	}
+
+	@Test
+	public void decodeWhenSecretKeyThenSuccess() throws Exception {
+		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
+		MacAlgorithm macAlgorithm = MacAlgorithm.HS256;
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+				.subject("test-subject")
+				.expirationTime(Date.from(Instant.now().plusSeconds(60)))
+				.build();
+		SignedJWT signedJWT = signedJwt(secretKey, macAlgorithm, claimsSet);
+
+		this.decoder = withSecretKey(secretKey).macAlgorithm(macAlgorithm).build();
+		Jwt jwt = this.decoder.decode(signedJWT.serialize()).block();
+		assertThat(jwt.getSubject()).isEqualTo("test-subject");
+	}
+
+	@Test
+	public void decodeWhenSecretKeyAndAlgorithmMismatchThenThrowsJwtException() throws Exception {
+		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
+		MacAlgorithm macAlgorithm = MacAlgorithm.HS256;
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+				.subject("test-subject")
+				.expirationTime(Date.from(Instant.now().plusSeconds(60)))
+				.build();
+		SignedJWT signedJWT = signedJwt(secretKey, macAlgorithm, claimsSet);
+
+		this.decoder = withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS512).build();
+		assertThatThrownBy(() -> this.decoder.decode(signedJWT.serialize()).block())
+				.isInstanceOf(JwtException.class);
+	}
+
+	private SignedJWT signedJwt(SecretKey secretKey, MacAlgorithm jwsAlgorithm, JWTClaimsSet claimsSet) throws Exception {
+		SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.parse(jwsAlgorithm.getName())), claimsSet);
+		JWSSigner signer = new MACSigner(secretKey);
+		signedJWT.sign(signer);
+		return signedJWT;
 	}
 
 	private JWKSet parseJWKSet(String jwkSet) {

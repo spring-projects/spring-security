@@ -16,21 +16,12 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.interfaces.RSAPublicKey;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -45,7 +36,6 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -54,15 +44,29 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+
+import javax.crypto.SecretKey;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * A low-level Nimbus implementation of {@link JwtDecoder} which takes a raw Nimbus configuration.
  *
  * @author Josh Cummings
+ * @author Joe Grandja
  * @since 5.2
  */
 public final class NimbusJwtDecoder implements JwtDecoder {
@@ -178,8 +182,6 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 *
 	 * @param jwkSetUri the JWK Set uri to use
 	 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
-	 *
-	 * @since 5.2
 	 */
 	public static JwkSetUriJwtDecoderBuilder withJwkSetUri(String jwkSetUri) {
 		return new JwkSetUriJwtDecoderBuilder(jwkSetUri);
@@ -190,18 +192,24 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 *
 	 * @param key the public key to use
 	 * @return a {@link PublicKeyJwtDecoderBuilder} for further configurations
-	 *
-	 * @since 5.2
 	 */
 	public static PublicKeyJwtDecoderBuilder withPublicKey(RSAPublicKey key) {
 		return new PublicKeyJwtDecoderBuilder(key);
 	}
 
 	/**
+	 * Use the given {@code SecretKey} to validate the MAC on a JSON Web Signature (JWS).
+	 *
+	 * @param secretKey the {@code SecretKey} used to validate the MAC
+	 * @return a {@link SecretKeyJwtDecoderBuilder} for further configurations
+	 */
+	public static SecretKeyJwtDecoderBuilder withSecretKey(SecretKey secretKey) {
+		return new SecretKeyJwtDecoderBuilder(secretKey);
+	}
+
+	/**
 	 * A builder for creating {@link NimbusJwtDecoder} instances based on a
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri.
-	 *
-	 * @since 5.2
 	 */
 	public static final class JwkSetUriJwtDecoderBuilder {
 		private String jwkSetUri;
@@ -220,9 +228,9 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 * @param jwsAlgorithm the algorithm to use
 		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
 		 */
-		public JwkSetUriJwtDecoderBuilder jwsAlgorithm(String jwsAlgorithm) {
-			Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
-			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm);
+		public JwkSetUriJwtDecoderBuilder jwsAlgorithm(JwsAlgorithm jwsAlgorithm) {
+			Assert.notNull(jwsAlgorithm, "jwsAlgorithm cannot be null");
+			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm.getName());
 			return this;
 		}
 
@@ -303,10 +311,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
-	 * A builder for creating {@link NimbusJwtDecoder} instances based on a
-	 * public key.
-	 *
-	 * @since 5.2
+	 * A builder for creating {@link NimbusJwtDecoder} instances based on a public key.
 	 */
 	public static final class PublicKeyJwtDecoderBuilder {
 		private JWSAlgorithm jwsAlgorithm;
@@ -314,7 +319,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private PublicKeyJwtDecoderBuilder(RSAPublicKey key) {
 			Assert.notNull(key, "key cannot be null");
-			this.jwsAlgorithm = JWSAlgorithm.parse(JwsAlgorithms.RS256);
+			this.jwsAlgorithm = JWSAlgorithm.RS256;
 			this.key = rsaKey(key);
 		}
 
@@ -330,12 +335,12 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 * The value should be one of
 		 * <a href="https://tools.ietf.org/html/rfc7518#section-3.3" target="_blank">RS256, RS384, or RS512</a>.
 		 *
-		 * @param jwsAlgorithm the algorithm to use
+		 * @param signatureAlgorithm the algorithm to use
 		 * @return a {@link PublicKeyJwtDecoderBuilder} for further configurations
 		 */
-		public PublicKeyJwtDecoderBuilder jwsAlgorithm(String jwsAlgorithm) {
-			Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
-			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm);
+		public PublicKeyJwtDecoderBuilder signatureAlgorithm(SignatureAlgorithm signatureAlgorithm) {
+			Assert.notNull(signatureAlgorithm, "signatureAlgorithm cannot be null");
+			this.jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
 			return this;
 		}
 
@@ -366,6 +371,58 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 */
 		public NimbusJwtDecoder build() {
 			return new NimbusJwtDecoder(processor());
+		}
+	}
+
+	/**
+	 * A builder for creating {@link NimbusJwtDecoder} instances based on a {@code SecretKey}.
+	 */
+	public static final class SecretKeyJwtDecoderBuilder {
+		private final SecretKey secretKey;
+		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
+
+		private SecretKeyJwtDecoderBuilder(SecretKey secretKey) {
+			Assert.notNull(secretKey, "secretKey cannot be null");
+			this.secretKey = secretKey;
+		}
+
+		/**
+		 * Use the given
+		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithm</a>
+		 * when generating the MAC.
+		 *
+		 * The value should be one of
+		 * <a href="https://tools.ietf.org/html/rfc7518#section-3.2" target="_blank">HS256, HS384 or HS512</a>.
+		 *
+		 * @param macAlgorithm the MAC algorithm to use
+		 * @return a {@link SecretKeyJwtDecoderBuilder} for further configurations
+		 */
+		public SecretKeyJwtDecoderBuilder macAlgorithm(MacAlgorithm macAlgorithm) {
+			Assert.notNull(macAlgorithm, "macAlgorithm cannot be null");
+			this.jwsAlgorithm = JWSAlgorithm.parse(macAlgorithm.getName());
+			return this;
+		}
+
+		/**
+		 * Build the configured {@link NimbusJwtDecoder}.
+		 *
+		 * @return the configured {@link NimbusJwtDecoder}
+		 */
+		public NimbusJwtDecoder build() {
+			return new NimbusJwtDecoder(processor());
+		}
+
+		JWTProcessor<SecurityContext> processor() {
+			JWKSource<SecurityContext> jwkSource = new ImmutableSecret<>(this.secretKey);
+			JWSKeySelector<SecurityContext> jwsKeySelector =
+					new JWSVerificationKeySelector<>(this.jwsAlgorithm, jwkSource);
+			DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
+			jwtProcessor.setJWSKeySelector(jwsKeySelector);
+
+			// Spring Security validates the claim set independent from Nimbus
+			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> { });
+
+			return jwtProcessor;
 		}
 	}
 }

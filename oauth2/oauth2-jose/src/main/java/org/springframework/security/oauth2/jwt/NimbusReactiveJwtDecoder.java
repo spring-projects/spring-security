@@ -15,13 +15,6 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.security.interfaces.RSAPublicKey;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.function.Function;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -31,6 +24,7 @@ import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.jwk.source.JWKSecurityContextJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.BadJOSEException;
@@ -44,26 +38,35 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import javax.crypto.SecretKey;
+import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * An implementation of a {@link ReactiveJwtDecoder} that &quot;decodes&quot; a
  * JSON Web Token (JWT) and additionally verifies it's digital signature if the JWT is a
- * JSON Web Signature (JWS). The public key used for verification is obtained from the
- * JSON Web Key (JWK) Set {@code URL} supplied via the constructor.
+ * JSON Web Signature (JWS).
  *
  * <p>
  * <b>NOTE:</b> This implementation uses the Nimbus JOSE + JWT SDK internally.
  *
  * @author Rob Winch
+ * @author Joe Grandja
  * @since 5.1
  * @see ReactiveJwtDecoder
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token (JWT)</a>
@@ -75,22 +78,34 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	private final Converter<SignedJWT, Mono<JWTClaimsSet>> jwtProcessor;
 
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
-	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
-			.withDefaults(Collections.emptyMap());
-
-	public NimbusReactiveJwtDecoder(RSAPublicKey publicKey) {
-		this.jwtProcessor = withPublicKey(publicKey).processor();
-	}
+	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter =
+			MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
 
 	/**
-	 * Constructs a {@code NimbusJwtDecoderJwkSupport} using the provided parameters.
+	 * Constructs a {@code NimbusReactiveJwtDecoder} using the provided parameters.
 	 *
 	 * @param jwkSetUrl the JSON Web Key (JWK) Set {@code URL}
 	 */
 	public NimbusReactiveJwtDecoder(String jwkSetUrl) {
-		this.jwtProcessor = withJwkSetUri(jwkSetUrl).processor();
+		this(withJwkSetUri(jwkSetUrl).processor());
 	}
 
+	/**
+	 * Constructs a {@code NimbusReactiveJwtDecoder} using the provided parameters.
+	 *
+	 * @param publicKey the {@code RSAPublicKey} used to verify the signature
+	 * @since 5.2
+	 */
+	public NimbusReactiveJwtDecoder(RSAPublicKey publicKey) {
+		this(withPublicKey(publicKey).processor());
+	}
+
+	/**
+	 * Constructs a {@code NimbusReactiveJwtDecoder} using the provided parameters.
+	 *
+	 * @param jwtProcessor the {@link Converter} used to process and verify the signed Jwt and return the Jwt Claim Set
+	 * @since 5.2
+	 */
 	public NimbusReactiveJwtDecoder(Converter<SignedJWT, Mono<JWTClaimsSet>> jwtProcessor) {
 		this.jwtProcessor = jwtProcessor;
 	}
@@ -189,6 +204,18 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	/**
+	 * Use the given {@code SecretKey} to validate the MAC on a JSON Web Signature (JWS).
+	 *
+	 * @param secretKey the {@code SecretKey} used to validate the MAC
+	 * @return a {@link SecretKeyReactiveJwtDecoderBuilder} for further configurations
+	 *
+	 * @since 5.2
+	 */
+	public static SecretKeyReactiveJwtDecoderBuilder withSecretKey(SecretKey secretKey) {
+		return new SecretKeyReactiveJwtDecoderBuilder(secretKey);
+	}
+
+	/**
 	 * Use the given {@link Function} to validate JWTs
 	 *
 	 * @param source the {@link Function}
@@ -207,8 +234,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 * @since 5.2
 	 */
 	public static final class JwkSetUriReactiveJwtDecoderBuilder {
-
-		private String jwkSetUri;
+		private final String jwkSetUri;
 		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
 		private WebClient webClient = WebClient.create();
 
@@ -224,9 +250,9 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		 * @param jwsAlgorithm the algorithm to use
 		 * @return a {@link JwkSetUriReactiveJwtDecoderBuilder} for further configurations
 		 */
-		public JwkSetUriReactiveJwtDecoderBuilder jwsAlgorithm(String jwsAlgorithm) {
-			Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
-			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm);
+		public JwkSetUriReactiveJwtDecoderBuilder jwsAlgorithm(JwsAlgorithm jwsAlgorithm) {
+			Assert.notNull(jwsAlgorithm, "jwsAlgorithm cannot be null");
+			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm.getName());
 			return this;
 		}
 
@@ -284,19 +310,18 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	/**
-	 * A builder for creating Nimbus {@link JWTProcessor} instances based on a
-	 * public key.
+	 * A builder for creating {@link NimbusReactiveJwtDecoder} instances based on a public key.
 	 *
 	 * @since 5.2
 	 */
 	public static final class PublicKeyReactiveJwtDecoderBuilder {
+		private final RSAKey key;
 		private JWSAlgorithm jwsAlgorithm;
-		private RSAKey key;
 
 		private PublicKeyReactiveJwtDecoderBuilder(RSAPublicKey key) {
 			Assert.notNull(key, "key cannot be null");
-			this.jwsAlgorithm = JWSAlgorithm.parse(JwsAlgorithms.RS256);
 			this.key = rsaKey(key);
+			this.jwsAlgorithm = JWSAlgorithm.RS256;
 		}
 
 		private static RSAKey rsaKey(RSAPublicKey publicKey) {
@@ -310,12 +335,12 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		 * The value should be one of
 		 * <a href="https://tools.ietf.org/html/rfc7518#section-3.3" target="_blank">RS256, RS384, or RS512</a>.
 		 *
-		 * @param jwsAlgorithm the algorithm to use
+		 * @param signatureAlgorithm the algorithm to use
 		 * @return a {@link PublicKeyReactiveJwtDecoderBuilder} for further configurations
 		 */
-		public PublicKeyReactiveJwtDecoderBuilder jwsAlgorithm(String jwsAlgorithm) {
-			Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
-			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm);
+		public PublicKeyReactiveJwtDecoderBuilder signatureAlgorithm(SignatureAlgorithm signatureAlgorithm) {
+			Assert.notNull(signatureAlgorithm, "signatureAlgorithm cannot be null");
+			this.jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
 			return this;
 		}
 
@@ -350,16 +375,70 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	/**
+	 * A builder for creating {@link NimbusReactiveJwtDecoder} instances based on a {@code SecretKey}.
+	 *
+	 * @since 5.2
+	 */
+	public static final class SecretKeyReactiveJwtDecoderBuilder {
+		private final SecretKey secretKey;
+		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
+
+		private SecretKeyReactiveJwtDecoderBuilder(SecretKey secretKey) {
+			Assert.notNull(secretKey, "secretKey cannot be null");
+			this.secretKey = secretKey;
+		}
+
+		/**
+		 * Use the given
+		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithm</a>
+		 * when generating the MAC.
+		 *
+		 * The value should be one of
+		 * <a href="https://tools.ietf.org/html/rfc7518#section-3.2" target="_blank">HS256, HS384 or HS512</a>.
+		 *
+		 * @param macAlgorithm the MAC algorithm to use
+		 * @return a {@link SecretKeyReactiveJwtDecoderBuilder} for further configurations
+		 */
+		public SecretKeyReactiveJwtDecoderBuilder macAlgorithm(MacAlgorithm macAlgorithm) {
+			Assert.notNull(macAlgorithm, "macAlgorithm cannot be null");
+			this.jwsAlgorithm = JWSAlgorithm.parse(macAlgorithm.getName());
+			return this;
+		}
+
+		/**
+		 * Build the configured {@link NimbusReactiveJwtDecoder}.
+		 *
+		 * @return the configured {@link NimbusReactiveJwtDecoder}
+		 */
+		public NimbusReactiveJwtDecoder build() {
+			return new NimbusReactiveJwtDecoder(processor());
+		}
+
+		Converter<SignedJWT, Mono<JWTClaimsSet>> processor() {
+			JWKSource<SecurityContext> jwkSource = new ImmutableSecret<>(this.secretKey);
+			JWSKeySelector<SecurityContext> jwsKeySelector =
+					new JWSVerificationKeySelector<>(this.jwsAlgorithm, jwkSource);
+			DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
+			jwtProcessor.setJWSKeySelector(jwsKeySelector);
+
+			// Spring Security validates the claim set independent from Nimbus
+			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> { });
+
+			return signedJWT -> Mono.just(signedJWT).map(jwt -> createClaimsSet(jwtProcessor, jwt, null));
+		}
+	}
+
+	/**
 	 * A builder for creating {@link NimbusReactiveJwtDecoder} instances.
 	 *
 	 * @since 5.2
 	 */
 	public static final class JwkSourceReactiveJwtDecoderBuilder {
-		private Function<JWT, Flux<JWK>> jwkSource;
+		private final Function<JWT, Flux<JWK>> jwkSource;
 		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
 
 		private JwkSourceReactiveJwtDecoderBuilder(Function<JWT, Flux<JWK>> jwkSource) {
-			Assert.notNull(jwkSource, "jwkSource cannot be empty");
+			Assert.notNull(jwkSource, "jwkSource cannot be null");
 			this.jwkSource = jwkSource;
 		}
 
@@ -370,9 +449,9 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		 * @param jwsAlgorithm the algorithm to use
 		 * @return a {@link JwkSourceReactiveJwtDecoderBuilder} for further configurations
 		 */
-		public JwkSourceReactiveJwtDecoderBuilder jwsAlgorithm(String jwsAlgorithm) {
-			Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
-			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm);
+		public JwkSourceReactiveJwtDecoderBuilder jwsAlgorithm(JwsAlgorithm jwsAlgorithm) {
+			Assert.notNull(jwsAlgorithm, "jwsAlgorithm cannot be null");
+			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm.getName());
 			return this;
 		}
 

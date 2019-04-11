@@ -15,14 +15,15 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
+
+import java.util.Collections;
+import java.util.Map;
 
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 
@@ -75,7 +76,7 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 		Assert.hasText(jwkSetUrl, "jwkSetUrl cannot be empty");
 		Assert.hasText(jwsAlgorithm, "jwsAlgorithm cannot be empty");
 
-		this.jwtDecoderBuilder = withJwkSetUri(jwkSetUrl).jwsAlgorithm(jwsAlgorithm);
+		this.jwtDecoderBuilder = withJwkSetUri(jwkSetUrl).jwsAlgorithm(SignatureAlgorithm.from(jwsAlgorithm));
 		this.delegate = makeDelegate();
 	}
 
