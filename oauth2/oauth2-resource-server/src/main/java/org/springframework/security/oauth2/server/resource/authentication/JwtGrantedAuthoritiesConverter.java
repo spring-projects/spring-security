@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
@@ -40,6 +41,8 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	private static final Collection<String> WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES =
 			Arrays.asList("scope", "scp");
 
+	private static final String WELL_KNOWN_AUTHORITIES_ATTRIBUTE_NAME = "authorities";
+
 	/**
 	 * Extracts the authorities
 	 * @param jwt The {@link Jwt} token
@@ -47,9 +50,10 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	 */
 	@Override
 	public Collection<GrantedAuthority> convert(Jwt jwt) {
-		return getScopes(jwt)
-				.stream()
-				.map(authority -> SCOPE_AUTHORITY_PREFIX + authority)
+		return Stream.concat(
+				getScopes(jwt).stream().map(authority -> SCOPE_AUTHORITY_PREFIX + authority),
+				getAuthorities(jwt).stream())
+				.distinct()
 				.map(SimpleGrantedAuthority::new)
 				.collect(Collectors.toList());
 	}
@@ -71,6 +75,20 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 			} else if (scopes instanceof Collection) {
 				return (Collection<String>) scopes;
 			}
+		}
+
+		return Collections.emptyList();
+	}
+
+	/**
+	 * Gets the authorities from a {@link Jwt} token
+	 * @param jwt The {@link Jwt} token
+	 * @return the authorities from token
+	 */
+	private Collection<String> getAuthorities(Jwt jwt) {
+		Object authorities = jwt.getClaims().get(WELL_KNOWN_AUTHORITIES_ATTRIBUTE_NAME);
+		if (authorities instanceof Collection) {
+			return (Collection<String>) authorities;
 		}
 
 		return Collections.emptyList();
