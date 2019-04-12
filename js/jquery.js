@@ -956,7 +956,7 @@ jQuery.ready.promise = function( obj ) {
 
 						try {
 							// Use the trick by Diego Perini
-							// http://javascript.nwbox.com/IEContentLoaded/
+							// https://javascript.nwbox.com/IEContentLoaded/
 							top.doScroll("left");
 						} catch(e) {
 							return setTimeout( doScrollCheck, 50 );
@@ -4024,7 +4024,7 @@ jQuery.fn.extend({
 		});
 	},
 	// Based off of the plugin by Clint Helfers, with permission.
-	// http://blindsignals.com
+	// https://blindsignals.com
 	delay: function( time, type ) {
 		time = jQuery.fx ? jQuery.fx.speeds[ time ] || time : time;
 		type = type || "fx";
@@ -7159,7 +7159,7 @@ if ( window.getComputedStyle ) {
 		}
 
 		// From the awesome hack by Dean Edwards
-		// http://erik.eae.net/archives/2007/07/27/18.54.15/#comment-102291
+		// https://erik.eae.net/archives/2007/07/27/18.54.15/#comment-102291
 
 		// If we're not dealing with a regular pixel number
 		// but a number that has a weird ending, we need to convert it to pixels
