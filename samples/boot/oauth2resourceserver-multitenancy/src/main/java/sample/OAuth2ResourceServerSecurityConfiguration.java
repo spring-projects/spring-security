@@ -18,16 +18,18 @@ package sample;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.MultiTenantDelegatingJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
@@ -35,14 +37,12 @@ import org.springframework.security.oauth2.server.resource.authentication.OAuth2
 /**
  * @author Josh Cummings
  */
+@Configuration
 @EnableWebSecurity
 public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
-	String jwkSetUri;
-
-	@Value("${spring.security.oauth2.resourceserver.opaque.introspection-uri}")
-	String introspectionUri;
+	@Autowired
+	OAuth2ResourceServerConfig config;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -70,11 +70,22 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 	}
 
 	AuthenticationManager jwt() {
-		JwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
+		JwtDecoder jwtDecoder = null;
+		if (this.config.getJwt() != null) {
+			jwtDecoder = NimbusJwtDecoder.withJwkSetUri(this.config.getJwt().getJwkSetUri()).build();
+		}
+		if (!this.config.getMultiTenantJwt().isEmpty()) {
+			Map<String, JwtDecoder> jwtDecoderByIssuer = this.config.getMultiTenantJwt().stream()
+					.collect(Collectors.toMap(e -> e.getIssuerUri(),
+							e -> NimbusJwtDecoder.withJwkSetUri(e.getJwkSetUri()).build()));
+			jwtDecoder = new MultiTenantDelegatingJwtDecoder(jwtDecoder, jwtDecoderByIssuer);
+		}
 		return new JwtAuthenticationProvider(jwtDecoder)::authenticate;
 	}
 
 	AuthenticationManager opaque() {
-		return new OAuth2IntrospectionAuthenticationProvider(this.introspectionUri, "client", "secret")::authenticate;
+		return new OAuth2IntrospectionAuthenticationProvider(
+				this.config.getOpaque().getIntrospectionUri(), "client", "secret")::authenticate;
 	}
+
 }

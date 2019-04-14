@@ -3,6 +3,14 @@ spring:
     oauth2:
       resourceserver:
         jwt:
+          issuer-uri: ${mockwebserver.url}
           jwk-set-uri: ${mockwebserver.url}/.well-known/jwks.json
+        multi-tenant-jwt:
+          -
+            issuer-uri: "https://accounts.google.com"
+            jwk-set-uri: "https://www.googleapis.com/oauth2/v3/certs"
+          -
+            issuer-uri: "https://contoso.auth0.com/"
+            jwk-set-uri: "https://contoso.auth0.com/.well-known/jwks.json"
         opaque:
           introspection-uri: ${mockwebserver.url}/introspect
