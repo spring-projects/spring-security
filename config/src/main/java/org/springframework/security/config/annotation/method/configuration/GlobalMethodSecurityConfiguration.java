@@ -357,6 +357,17 @@ public class GlobalMethodSecurityConfiguration
 	 */
 	@Bean
 	public MethodSecurityMetadataSource methodSecurityMetadataSource() {
+		List<MethodSecurityMetadataSource> sources = defaultMethodSecurityMetadataSources();
+		return new DelegatingMethodSecurityMetadataSource(sources);
+	}
+
+	/**
+	 * Creates a list of {@link MethodSecurityMetadataSource} for supported Spring Security annotations. This method
+	 * can be overridden to add one or more additional metadata sources.
+	 *
+	 * @return list of {@link MethodSecurityMetadataSource}
+	 */
+	protected List<MethodSecurityMetadataSource> defaultMethodSecurityMetadataSources() {
 		List<MethodSecurityMetadataSource> sources = new ArrayList<>();
 		ExpressionBasedAnnotationAttributeFactory attributeFactory = new ExpressionBasedAnnotationAttributeFactory(
 				getExpressionHandler());
@@ -391,7 +402,7 @@ public class GlobalMethodSecurityConfiguration
 			}
 			sources.add(jsr250MethodSecurityMetadataSource);
 		}
-		return new DelegatingMethodSecurityMetadataSource(sources);
+		return sources;
 	}
 
 	/**
