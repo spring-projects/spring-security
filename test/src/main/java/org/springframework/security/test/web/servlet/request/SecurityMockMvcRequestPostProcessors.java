@@ -45,6 +45,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
@@ -193,6 +195,61 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 */
 	public static RequestPostProcessor user(UserDetails user) {
 		return new UserDetailsRequestPostProcessor(user);
+	}
+
+	/**
+	 * Establish a {@link SecurityContext} that has a
+	 * {@link JwtAuthenticationToken} for the
+	 * {@link Authentication} and a {@link Jwt} for the
+	 * {@link Authentication#getPrincipal()}. All details are
+	 * declarative and do not require the JWT to be valid.
+	 *
+	 * <p>
+	 * The support works by associating the authentication to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
+	 * @return the {@link JwtRequestPostProcessor} for additional customization
+	 */
+	public static JwtRequestPostProcessor jwt() {
+		return new JwtRequestPostProcessor();
+	}
+
+	/**
+	 * Establish a {@link SecurityContext} that has a
+	 * {@link JwtAuthenticationToken} for the
+	 * {@link Authentication} and a {@link Jwt} for the
+	 * {@link Authentication#getPrincipal()}. All details are
+	 * declarative and do not require the JWT to be valid.
+	 *
+	 * <p>
+	 * The support works by associating the authentication to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
+	 * @param jwt a complete JWT to extract and apply token value subject, authorities and claims configuration
+	 * @return the {@link JwtRequestPostProcessor} for additional customization
+	 */
+	public static JwtRequestPostProcessor jwt(final Jwt jwt) {
+		return jwt().jwt(jwt);
 	}
 
 	/**
@@ -555,7 +612,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * Support class for {@link RequestPostProcessor}'s that establish a Spring Security
 	 * context
 	 */
-	public static class SecurityContextRequestPostProcessorSupport {
+	static class SecurityContextRequestPostProcessorSupport {
 
 		/**
 		 * Saves the specified {@link Authentication} into an empty
@@ -564,7 +621,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @param authentication the {@link Authentication} to save
 		 * @param request the {@link HttpServletRequest} to use
 		 */
-		public static final void save(Authentication authentication, HttpServletRequest request) {
+		static final void save(Authentication authentication, HttpServletRequest request) {
 			SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 			securityContext.setAuthentication(authentication);
 			save(securityContext, request);
@@ -576,7 +633,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @param securityContext the {@link SecurityContext} to save
 		 * @param request the {@link HttpServletRequest} to use
 		 */
-		public static final void save(SecurityContext securityContext, HttpServletRequest request) {
+		static final void save(SecurityContext securityContext, HttpServletRequest request) {
 			SecurityContextRepository securityContextRepository = WebTestUtils
 					.getSecurityContextRepository(request);
 			boolean isTestRepository = securityContextRepository instanceof TestSecurityContextRepository;
@@ -604,7 +661,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * stateless mode
 		 */
 		static class TestSecurityContextRepository implements SecurityContextRepository {
-			private final static String ATTR_NAME = TestSecurityContextRepository.class
+			final static String ATTR_NAME = TestSecurityContextRepository.class
 					.getName().concat(".REPO");
 
 			private final SecurityContextRepository delegate;
@@ -653,13 +710,14 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	private final static class TestSecurityContextHolderPostProcessor implements RequestPostProcessor {
+	private final static class TestSecurityContextHolderPostProcessor extends
+			SecurityContextRequestPostProcessorSupport implements RequestPostProcessor {
 		private SecurityContext EMPTY = SecurityContextHolder.createEmptyContext();
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			// TestSecurityContextHolder is only a default value
-			SecurityContext existingContext = SecurityContextRequestPostProcessorSupport.TestSecurityContextRepository
+			SecurityContext existingContext = TestSecurityContextRepository
 					.getContext(request);
 			if (existingContext != null) {
 				return request;
@@ -667,7 +725,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 			SecurityContext context = TestSecurityContextHolder.getContext();
 			if (!this.EMPTY.equals(context)) {
-				SecurityContextRequestPostProcessorSupport.save(context, request);
+				save(context, request);
 			}
 
 			return request;
@@ -681,7 +739,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	private final static class SecurityContextRequestPostProcessor implements RequestPostProcessor {
+	private final static class SecurityContextRequestPostProcessor extends
+			SecurityContextRequestPostProcessorSupport implements RequestPostProcessor {
 
 		private final SecurityContext securityContext;
 
@@ -691,7 +750,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			SecurityContextRequestPostProcessorSupport.save(this.securityContext, request);
+			save(this.securityContext, request);
 			return request;
 		}
 	}
@@ -704,7 +763,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @since 4.0
 	 *
 	 */
-	private final static class AuthenticationRequestPostProcessor implements RequestPostProcessor {
+	private final static class AuthenticationRequestPostProcessor extends
+			SecurityContextRequestPostProcessorSupport implements RequestPostProcessor {
 		private final Authentication authentication;
 
 		private AuthenticationRequestPostProcessor(Authentication authentication) {
@@ -713,7 +773,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			SecurityContextRequestPostProcessorSupport.save(this.authentication, request);
+			save(this.authentication, request);
 			return request;
 		}
 	}
@@ -861,7 +921,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 	}
 
-	private static class AnonymousRequestPostProcessor implements RequestPostProcessor {
+	private static class AnonymousRequestPostProcessor extends
+			SecurityContextRequestPostProcessorSupport implements RequestPostProcessor {
 		private AuthenticationRequestPostProcessor delegate = new AuthenticationRequestPostProcessor(
 				new AnonymousAuthenticationToken("key", "anonymous",
 						AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));

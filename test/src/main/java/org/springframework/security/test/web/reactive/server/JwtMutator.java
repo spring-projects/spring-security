@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.test.oauth2.reactive.server;
+package org.springframework.security.test.web.reactive.server;
 
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockAuthentication;
 
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.lang.Nullable;
-import org.springframework.security.test.oauth2.support.JwtAuthenticationBuilder;
+import org.springframework.security.test.support.JwtAuthenticationBuilder;
 import org.springframework.test.web.reactive.server.MockServerConfigurer;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 
 /**
- * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
- * @since 5.2.0
+ * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+ * @since 5.2
  */
 public class JwtMutator extends JwtAuthenticationBuilder<JwtMutator>
 		implements

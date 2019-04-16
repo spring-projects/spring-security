@@ -10,6 +10,5 @@ dependencies {
 	compile 'com.squareup.okhttp3:mockwebserver'
 
 	testCompile project(':spring-security-test')
-	testCompile project(':spring-security-oauth2-resource-server-test')
 	testCompile 'org.springframework.boot:spring-boot-starter-test'
 }

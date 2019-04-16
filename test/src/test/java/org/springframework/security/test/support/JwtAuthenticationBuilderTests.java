@@ -1,4 +1,5 @@
-/* Copyright 2002-2019 the original author or authors.
+/*
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.test.oauth2.support;
+package org.springframework.security.test.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,10 +29,10 @@ import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 /**
- * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
- * @since 5.2.0
+ * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+ * @since 5.2
  */
-public class JwtAuthenticationBuilderTest {
+public class JwtAuthenticationBuilderTests {
 	static class TestJwtAuthenticationBuilder extends JwtAuthenticationBuilder<TestJwtAuthenticationBuilder> {
 	}
 
@@ -51,8 +51,6 @@ public class JwtAuthenticationBuilderTest {
 				.containsExactly(new SimpleGrantedAuthority("TEST"));
 		assertThat(new TestJwtAuthenticationBuilder().role("TEST").build().getAuthorities())
 				.containsExactly(new SimpleGrantedAuthority("ROLE_TEST"));
-		assertThat(new TestJwtAuthenticationBuilder().scope("TEST").build().getAuthorities())
-				.containsExactly(new SimpleGrantedAuthority("SCOPE_TEST"));
 	}
 
 	@Test
@@ -90,30 +88,15 @@ public class JwtAuthenticationBuilderTest {
 	}
 
 	@Test
-	public void scopesCollectionAndScopeClaimAreAddedToAuthorities() {
+	public void scopeClaimAreAddedToAuthorities() {
 		final JwtAuthenticationToken actual = new TestJwtAuthenticationBuilder().name("ch4mpy")
 				.authority("TEST_AUTHORITY")
-				.scope("scope:collection")
 				.claim("scope", Collections.singleton("scope:claim"))
 				.build();
 
 		assertThat(actual.getAuthorities()).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("TEST_AUTHORITY"),
-				new SimpleGrantedAuthority("SCOPE_scope:collection"),
 				new SimpleGrantedAuthority("SCOPE_scope:claim"));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	public void scopesCollectionAndScopeAuthoritiesAreAddedToScopeClaim() {
-		final JwtAuthenticationToken actual = new TestJwtAuthenticationBuilder().name("ch4mpy")
-				.authorities("SCOPE_scope:authority")
-				.scope("scope:collection")
-				.claim("scope", Collections.singleton("scope:claim"))
-				.build();
-
-		assertThat((Collection<String>) actual.getToken().getClaims().get("scope"))
-				.containsExactlyInAnyOrder("scope:authority", "scope:collection", "scope:claim");
 	}
 
 	/**
@@ -121,17 +104,14 @@ public class JwtAuthenticationBuilderTest {
 	 */
 
 	@Test
-	public void scopesCollectionAndScpClaimAreAddedToAuthorities() {
+	public void scpClaimAreAddedToAuthorities() {
 		final JwtAuthenticationToken actual = new TestJwtAuthenticationBuilder().name("ch4mpy")
 				.authorities("TEST_AUTHORITY")
-				.scopes("scope:collection")
 				.claim("scp", Collections.singleton("scope:claim"))
-				.scopesClaimName("scp")
 				.build();
 
 		assertThat(actual.getAuthorities()).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("TEST_AUTHORITY"),
-				new SimpleGrantedAuthority("SCOPE_scope:collection"),
 				new SimpleGrantedAuthority("SCOPE_scope:claim"));
 	}
 
@@ -148,22 +128,6 @@ public class JwtAuthenticationBuilderTest {
 		assertThat(actual.getName()).isEqualTo("ch4mpy");
 		assertThat(actual.getTokenAttributes()).hasSize(1);
 		assertThat(actual.getTokenAttributes().get(JwtClaimNames.SUB)).isEqualTo("ch4mpy");
-	}
-
-	@Test(expected = RuntimeException.class)
-	public void fromInconsistentJwtInstants() {
-		final Map<String, Object> claims = new HashMap<>();
-		claims.put(JwtClaimNames.SUB, "ch4mpy");
-		claims.put(JwtClaimNames.IAT, Instant.parse("2018-01-01T01:01:01Z"));
-		claims.put(JwtClaimNames.EXP, Instant.parse("2018-02-02T02:02:02Z"));
-		final Jwt jwt = new Jwt(
-				"test-token",
-				Instant.parse("2019-01-01T01:01:01Z"),
-				Instant.parse("2019-02-02T02:02:02Z"),
-				Collections.singletonMap("test-header", "test"),
-				claims);
-
-		final JwtAuthenticationToken actual = new TestJwtAuthenticationBuilder().jwt(jwt).build();
 	}
 
 }

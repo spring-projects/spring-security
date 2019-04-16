@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.test.oauth2.request;
+package org.springframework.security.test.web.servlet.request;
 
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.test.oauth2.support.JwtAuthenticationBuilder;
+import org.springframework.security.test.support.JwtAuthenticationBuilder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.SecurityContextRequestPostProcessorSupport;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 /**
- * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
- * @since 5.2.0
+ * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+ * @since 5.2
  */
 public class JwtRequestPostProcessor extends JwtAuthenticationBuilder<JwtRequestPostProcessor>
 		implements
