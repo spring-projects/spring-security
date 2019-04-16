@@ -92,7 +92,7 @@ There are two simple ways of populating the user:
 * <<Running as a User in Spring MVC Test with Annotations,Running as a User in Spring MVC Test with Annotations>>
 
 [[test-mockmvc-securitycontextholder-rpp]]
-==== Running as a User in Spring MVC Test with RequestPostProcessor
+===== Running as a User in Spring MVC Test with RequestPostProcessor
 
 There are a number of options available to associate a user to the current `HttpServletRequest`.
 For example, the following will run as a user (which does not need to exist) with the username "user", the password "password", and the role "ROLE_USER":
@@ -299,6 +299,31 @@ For example, the snippet below will submit a POST to "/signout" with a valid CSR
 ----
 mvc
 	.perform(logout("/signout"))
+----
+
+==== Testing OAUth2 resource servers
+
+In addition to mock user authentication, it is possible to easily mock three different kind of OAuth2 authentication:
+  * `jwt()` populates SecurityContext with a `JwtAuthenticationToken`, principal being a `Jwt`
+  * `accessToken()` populates SecurityContext with an `OAuth2IntrospectionAuthenticationToken`, principal being an `OAuth2AccessToken`
+  * `oidcId()` populates SecurityContext with an `OAuth2LoginAuthenticationToken`, principal being a `DefaultOidcUser`
+
+Each of above are highly configurable through flow APIs and are used just as other `MockMvc` `RequestPostProcessor`s:
+
+[source,java]
+----
+mvc
+	.perform(get("/").with(jwt()))
+----
+[source,java]
+----
+mvc
+	.perform(get("/").with(accessToken().name("ch4mpy"))
+----
+[source,java]
+----
+mvc
+	.perform(get("/").with(oidcId().authority("SCOPE_message:read"))
 ----
 
 === SecurityMockMvcResultMatchers

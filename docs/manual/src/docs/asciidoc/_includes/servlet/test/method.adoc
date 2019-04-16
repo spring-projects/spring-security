@@ -355,3 +355,82 @@ Now we can use `@WithMockAdmin` in the same way as the more verbose `@WithMockUs
 
 Meta annotations work with any of the testing annotations described above.
 For example, this means we could create a meta annotation for `@WithUserDetails("admin")` as well.
+
+[[test-method-oauth2]]
+=== Test OAuth2 secured resource-servers
+
+Various annotations are also provided to setup your tests `SecurityContext` with OAuth2 authentications. Depending on your application needs, you can pick one of:
+  * `@WithMockJwt`: Authentication is a `JwtAuthenticationToken`, principal a `Jwt`
+  * `@WithMockAccessToken`: Authentication is an `OAuth2IntrospectionAuthenticationToken`, principal an `OAuth2AccessToken`
+  * `@WithMockOidcIdToken`: Authentication is an `OAuth2LoginAuthenticationToken`, principal a `DefaultOidcUser`
+
+Usage are quite similar to `@WithMockUser`, each just offers additional properties to configure specific principal and authentication.
+
+Short complete demo with `@WithMockJwt`:
+[source,java]
+----
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = MessageServiceTests.SecurityConfiguration.class)
+public class MessageServiceTests {
+
+	@Autowired
+	private MessageService messageService;
+
+	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	public void greetWitoutMockJwt() {
+		messageService.getGreeting();
+	}
+
+	@Test
+	@WithMockJwt(name = "ch4mpy")
+	public void greetWithMockJwt() {
+		assertThat(messageService.getGreeting()).isEqualTo("Hello, ch4mpy!");
+	}
+
+	@Test(expected = AccessDeniedException.class)
+	@WithMockJwt
+	public void secretWithoutMessageReadScope() {
+		assertThat(messageService.getSecret()).isEqualTo("Secret message");
+	}
+
+	@Test
+	@WithMockJwt("SCOPE_message:read")
+	public void secretWithScopeMessageReadAuthority() {
+		assertThat(messageService.getSecret()).isEqualTo("Secret message");
+	}
+
+	interface MessageService {
+
+		@PreAuthorize("authenticated")
+		String getGreeting();
+
+		@PreAuthorize("hasAuthority('SCOPE_message:read')")
+		String getSecret();
+	}
+
+	@Component
+	static final class MessageServiceImpl implements MessageService {
+
+		@Override
+		public String getGreeting() {
+			return String.format("Hello, %s!", SecurityContextHolder.getContext().getAuthentication().getName());
+		}
+
+		@Override
+		public String getSecret() {
+			return "Secret message";
+		}
+
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	@ComponentScan(basePackageClasses = MessageService.class)
+	static class SecurityConfiguration {
+
+		@Bean
+		JwtDecoder jwtDecoder() {
+			return null;
+		}
+	}
+}
+----

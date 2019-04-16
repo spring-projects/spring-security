@@ -148,3 +148,69 @@ this.rest
 	.uri("/login")
 	...
 ----
+
+=== OAuth2 support
+
+OAuth2 resource-servers can be tested using either
+  * annotations: `@WithMockJwt`, `@WithMockAccessToken` or `@WithMockOidcId`
+  * mutators: `mockJwt()`, `mockAccessToken()` or `mockOidcId()`
+
+Both ways expose similar authentication configuration options.
+Usage are quite similar to `@withMockUser` and `mockUser()`. Few samples:
+
+[source,java]
+----
+@WithMockJwt
+public void testJwt {
+    this.rest
+        .mutateWith(mocjJwt())
+        .post()
+        .uri("/login")
+        ...
+}
+----
+[source,java]
+----
+@WithMockAccessToken(name = "ch4mpy")
+public void testAccessToken {
+    this.rest
+	    .post()
+	    .uri("/login")
+	    ...
+}
+----
+[source,java]
+----
+@WithMockOidcId("message:read")
+public void testOidcId {
+    this.rest
+	    .post()
+	    .uri("/login")
+	    ...
+}
+----
+
+[source,java]
+----
+this.rest
+    .mutateWith(mocjJwt())
+    .post()
+    .uri("/login")
+	...
+----
+[source,java]
+----
+this.rest
+	.mutateWith(mockAccessToken().name("ch4mpy"))
+	.post()
+	.uri("/login")
+	...
+----
+[source,java]
+----
+this.rest
+	.mutateWith(mockOidcId().authority("message:read"))
+	.post()
+	.uri("/login")
+	...
+----
