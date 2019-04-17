@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
 /**
  * Utility method for manipulating <tt>GrantedAuthority</tt> collections etc.
@@ -55,6 +56,7 @@ public abstract class AuthorityUtils {
 	 */
 	public static Set<String> authorityListToSet(
 			Collection<? extends GrantedAuthority> userAuthorities) {
+		Assert.notNull(userAuthorities, "userAuthorities cannot be null");
 		Set<String> set = new HashSet<>(userAuthorities.size());
 
 		for (GrantedAuthority authority : userAuthorities) {
