@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,26 +26,26 @@ import java.util.Map;
 
 import org.assertj.core.util.Maps;
 import org.junit.Test;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
- * Tests for {@link JwtGrantedAuthoritiesConverter}
+ * Tests for {@link JwtScopesGrantedAuthoritiesConverter}
  *
  * @author Eric Deandrea
  * @since 5.2
  */
-public class JwtGrantedAuthoritiesConverterTests {
-	private JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+public class JwtScopesGrantedAuthoritiesConverterTests {
+	private final JwtScopesGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter =
+			new JwtScopesGrantedAuthoritiesConverter(new TokenAttributesScopesConverter());
 
 	@Test
 	public void convertWhenTokenHasScopeAttributeThenTranslatedToAuthorities() {
-		Jwt jwt = this.jwt(Collections.singletonMap("scope", "message:read message:write"));
+		final Jwt jwt = this.jwt(Collections.singletonMap("scope", "message:read message:write"));
 
-		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
+		final Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
 		assertThat(authorities).containsExactly(
 				new SimpleGrantedAuthority("SCOPE_message:read"),
@@ -55,18 +54,18 @@ public class JwtGrantedAuthoritiesConverterTests {
 
 	@Test
 	public void convertWhenTokenHasEmptyScopeAttributeThenTranslatedToNoAuthorities() {
-		Jwt jwt = this.jwt(Collections.singletonMap("scope", ""));
+		final Jwt jwt = this.jwt(Collections.singletonMap("scope", ""));
 
-		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
+		final Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
 		assertThat(authorities).containsExactly();
 	}
 
 	@Test
 	public void convertWhenTokenHasScpAttributeThenTranslatedToAuthorities() {
-		Jwt jwt = this.jwt(Collections.singletonMap("scp", Arrays.asList("message:read", "message:write")));
+		final Jwt jwt = this.jwt(Collections.singletonMap("scp", Arrays.asList("message:read", "message:write")));
 
-		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
+		final Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
 		assertThat(authorities).containsExactly(
 				new SimpleGrantedAuthority("SCOPE_message:read"),
@@ -75,41 +74,31 @@ public class JwtGrantedAuthoritiesConverterTests {
 
 	@Test
 	public void convertWhenTokenHasEmptyScpAttributeThenTranslatedToNoAuthorities() {
-		Jwt jwt = this.jwt(Maps.newHashMap("scp", Arrays.asList()));
+		final Jwt jwt = this.jwt(Maps.newHashMap("scp", Arrays.asList()));
 
-		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
+		final Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
 		assertThat(authorities).containsExactly();
 	}
 
 	@Test
-	public void convertWhenTokenHasBothScopeAndScpThenScopeAttributeIsTranslatedToAuthorities() {
-		Map<String, Object> claims = new HashMap<>();
+	public void convertWhenTokenHasBothScopeAndScpThenBothAttributeAreTranslatedToAuthorities() {
+		final Map<String, Object> claims = new HashMap<>();
 		claims.put("scp", Arrays.asList("message:read", "message:write"));
 		claims.put("scope", "missive:read missive:write");
-		Jwt jwt = this.jwt(claims);
+		final Jwt jwt = this.jwt(claims);
 
-		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
+		final Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("SCOPE_missive:read"),
-				new SimpleGrantedAuthority("SCOPE_missive:write"));
+				new SimpleGrantedAuthority("SCOPE_missive:write"),
+				new SimpleGrantedAuthority("SCOPE_message:read"),
+				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
 
-	@Test
-	public void convertWhenTokenHasEmptyScopeAndNonEmptyScpThenScopeAttributeIsTranslatedToNoAuthorities() {
-		Map<String, Object> claims = new HashMap<>();
-		claims.put("scp", Arrays.asList("message:read", "message:write"));
-		claims.put("scope", "");
-		Jwt jwt = this.jwt(claims);
-
-		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
-
-		assertThat(authorities).containsExactly();
-	}
-
-	private Jwt jwt(Map<String, Object> claims) {
-		Map<String, Object> headers = new HashMap<>();
+	private Jwt jwt(final Map<String, Object> claims) {
+		final Map<String, Object> headers = new HashMap<>();
 		headers.put("alg", JwsAlgorithms.RS256);
 
 		return new Jwt("token", Instant.now(), Instant.now().plusSeconds(3600), headers, claims);

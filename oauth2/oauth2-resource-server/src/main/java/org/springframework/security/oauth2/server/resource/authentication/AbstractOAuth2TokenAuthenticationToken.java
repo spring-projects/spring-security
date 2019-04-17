@@ -100,7 +100,7 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends AbstractO
 	}
 
 	/**
-	 * Get the token bound to this {@link Authentication}.
+	 * @return the token bound to this {@link Authentication}.
 	 */
 	public final T getToken() {
 		return this.token;

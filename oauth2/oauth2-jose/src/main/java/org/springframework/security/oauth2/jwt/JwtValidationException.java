@@ -43,7 +43,7 @@ public class JwtValidationException extends JwtException {
 	 *
 	 * <pre>
 	 * 	if ( result.hasErrors() ) {
-	 *  	Collection<OAuth2Error> errors = result.getErrors();
+	 *  	Collection&lt;OAuth2Error&gt; errors = result.getErrors();
 	 *  	throw new JwtValidationException(errors.iterator().next().getDescription(), errors);
 	 * 	}
 	 * </pre>

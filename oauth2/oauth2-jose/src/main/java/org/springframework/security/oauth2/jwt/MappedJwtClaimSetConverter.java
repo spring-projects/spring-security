@@ -78,7 +78,7 @@ public final class MappedJwtClaimSetConverter
 	 * 		Collections.singletonMap(JwtClaimNames.SUB, new UserDetailsServiceJwtSubjectConverter()));
 	 * </pre>
 	 *
-	 * To completely replace the underlying {@link Map} of converters, {@see MappedJwtClaimSetConverter(Map)}.
+	 * To completely replace the underlying {@link Map} of converters, {@link  MappedJwtClaimSetConverter(Map)}.
 	 *
 	 * @param claimConverters
 	 * @return An instance of {@link MappedJwtClaimSetConverter} that contains the converters provided,

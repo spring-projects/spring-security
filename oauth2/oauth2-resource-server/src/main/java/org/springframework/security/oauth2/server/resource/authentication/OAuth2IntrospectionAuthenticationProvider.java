@@ -69,7 +69,7 @@ import static org.springframework.security.oauth2.server.resource.authentication
  * to check the token's validity and reveal its attributes.
  * <p>
  * This {@link AuthenticationProvider} is responsible for introspecting and verifying an opaque access token,
- * returning its attributes set as part of the {@see Authentication} statement.
+ * returning its attributes set as part of the {@link Authentication} statement.
  * <p>
  * Scopes are translated into {@link GrantedAuthority}s according to the following algorithm:
  * <ol>

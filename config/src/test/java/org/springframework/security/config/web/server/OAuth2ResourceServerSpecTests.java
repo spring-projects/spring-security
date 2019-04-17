@@ -556,13 +556,8 @@ public class OAuth2ResourceServerSpecTests {
 
 		@Bean
 		Converter<Jwt, Mono<AbstractAuthenticationToken>> jwtAuthenticationConverter() {
-			JwtAuthenticationConverter converter = new JwtAuthenticationConverter() {
-				@Override
-				protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-					String[] claims = ((String) jwt.getClaims().get("scope")).split(" ");
-					return Stream.of(claims).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-				}
-			};
+			JwtAuthenticationConverter converter = new JwtAuthenticationConverter(
+					jwt -> Collections.singleton(new SimpleGrantedAuthority("message:read")));
 
 			return new ReactiveJwtAuthenticationConverterAdapter(converter);
 		}

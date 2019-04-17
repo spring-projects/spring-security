@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 
 /**
- * An implementation of {@see OAuth2TokenValidator} for verifying claims in a Jwt-based access token
+ * An implementation of {@link  OAuth2TokenValidator} for verifying claims in a Jwt-based access token
  *
  * <p>
  * Because clocks can differ between the Jwt source, say the Authorization Server, and its destination, say the

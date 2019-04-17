@@ -52,7 +52,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 
 	/**
 	 * Collect error details from the provided parameters and format according to
-	 * RFC 6750, specifically {@code error}, {@code error_description}, {@code error_uri}, and {@scope scope}.
+	 * RFC 6750, specifically {@code error}, {@code error_description}, {@code error_uri}, and {@code scope}.
 	 *
 	 * @param request that resulted in an <code>AuthenticationException</code>
 	 * @param response so that the user agent can begin authentication
@@ -105,7 +105,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	/**
 	 * Set the default realm name to use in the bearer token error response
 	 *
-	 * @param realmName
+	 * @param realmName The realm name
 	 */
 	public final void setRealmName(String realmName) {
 		this.realmName = realmName;

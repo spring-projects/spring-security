@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
  *
  * @author Eric Deandrea
  * @since 5.2
- * @see JwtGrantedAuthoritiesConverter
+ * @see JwtScopesGrantedAuthoritiesConverter
  */
 public final class ReactiveJwtGrantedAuthoritiesConverterAdapter implements Converter<Jwt, Flux<GrantedAuthority>> {
 	private final Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter;

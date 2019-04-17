@@ -41,6 +41,8 @@ public final class BearerTokenError extends OAuth2Error {
 	 *
 	 * @param errorCode the error code
 	 * @param httpStatus the HTTP status
+	 * @param description the error description
+	 * @param errorUri the error URI
 	 */
 	public BearerTokenError(String errorCode, HttpStatus httpStatus, String description, String errorUri) {
 		this(errorCode, httpStatus, description, errorUri, null);

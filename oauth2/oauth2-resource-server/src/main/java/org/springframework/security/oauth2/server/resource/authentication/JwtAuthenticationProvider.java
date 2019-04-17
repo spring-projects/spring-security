@@ -35,14 +35,14 @@ import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthenticationProvider} implementation of the {@link Jwt}-encoded
+ * <p>An {@link AuthenticationProvider} implementation of the {@link Jwt}-encoded
  * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s
  * for protecting OAuth 2.0 Resource Servers.
- * <p>
+ * </p>
  * <p>
  * This {@link AuthenticationProvider} is responsible for decoding and verifying a {@link Jwt}-encoded access token,
- * returning its claims set as part of the {@see Authentication} statement.
- * <p>
+ * returning its claims set as part of the {@link Authentication} statement.
+ * </p>
  * <p>
  * Scopes are translated into {@link GrantedAuthority}s according to the following algorithm:
  *
@@ -51,7 +51,7 @@ import org.springframework.util.Assert;
  * 		if a {@link Collection}, then simply return
  * 2. Take the resulting {@link Collection} of {@link String}s and prepend the "SCOPE_" keyword, adding
  * 		as {@link GrantedAuthority}s.
- *
+ * </p>
  * @author Josh Cummings
  * @author Joe Grandja
  * @since 5.1

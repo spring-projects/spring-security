@@ -48,6 +48,7 @@ public class OAuth2IntrospectionAuthenticationToken
 	 * Constructs a {@link OAuth2IntrospectionAuthenticationToken} with the provided arguments
 	 *
 	 * @param token The verified token
+	 * @param attributes The token attributes (AKA claims)
 	 * @param authorities The authorities associated with the given token
 	 */
 	public OAuth2IntrospectionAuthenticationToken(OAuth2AccessToken token,
@@ -60,6 +61,7 @@ public class OAuth2IntrospectionAuthenticationToken
 	 * Constructs a {@link OAuth2IntrospectionAuthenticationToken} with the provided arguments
 	 *
 	 * @param token The verified token
+	 * @param attributes The token attributes (AKA claims)
 	 * @param authorities The authorities associated with the given token
 	 * @param name The name associated with this token
 	 */
