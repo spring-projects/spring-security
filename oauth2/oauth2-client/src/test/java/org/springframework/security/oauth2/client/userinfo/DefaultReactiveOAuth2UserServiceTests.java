@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
@@ -38,6 +39,8 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -49,9 +52,16 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	private ClientRegistration.Builder clientRegistration;
 
 	private DefaultReactiveOAuth2UserService userService = new DefaultReactiveOAuth2UserService();
+	
+	private Map<String, Object> attributes(final Instant iat, final Instant exp) {
+		final Map<String, Object> attributes = new HashMap<String, Object>();
+		if(iat != null) attributes.put(IdTokenClaimNames.IAT, iat);
+		if(exp != null) attributes.put(IdTokenClaimNames.EXP, exp);
+		return attributes;
+	}
 
 	private OAuth2AccessToken accessToken = new OAuth2AccessToken(
-			OAuth2AccessToken.TokenType.BEARER, "access-token", Instant.now(), Instant.now().plus(Duration.ofDays(1)));
+			OAuth2AccessToken.TokenType.BEARER, "access-token", attributes(Instant.now(), Instant.now().plus(Duration.ofDays(1))));
 
 	private MockWebServer server;
 

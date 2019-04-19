@@ -307,8 +307,12 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	private void setUpIdToken(Map<String, Object> claims, Instant issuedAt, Instant expiresAt) {
 		Map<String, Object> headers = new HashMap<>();
 		headers.put("alg", "RS256");
+		
+		Map<String, Object> attributes = new HashMap<>(claims);
+		headers.put(IdTokenClaimNames.IAT, issuedAt);
+		headers.put(IdTokenClaimNames.EXP, expiresAt);
 
-		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, headers, claims);
+		Jwt idToken = new Jwt("id-token", headers, Collections.unmodifiableMap(attributes));
 
 		JwtDecoder jwtDecoder = mock(JwtDecoder.class);
 		when(jwtDecoder.decode(anyString())).thenReturn(idToken);

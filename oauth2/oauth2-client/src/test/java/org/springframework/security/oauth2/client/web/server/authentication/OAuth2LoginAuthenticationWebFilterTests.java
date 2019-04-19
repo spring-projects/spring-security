@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
@@ -41,6 +42,8 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -84,10 +87,12 @@ public class OAuth2LoginAuthenticationWebFilterTests {
 	}
 
 	private OAuth2LoginAuthenticationToken loginToken() {
+		final Map<String, Object> attributes = new HashMap<String, Object>();
+		attributes.put(IdTokenClaimNames.IAT, Instant.now());
+		attributes.put(IdTokenClaimNames.EXP, Instant.now().plus(Duration.ofDays(1)));
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				"token",
-				Instant.now(),
-				Instant.now().plus(Duration.ofDays(1)),
+				attributes,
 				Collections.singleton("user"));
 		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), Collections
 				.singletonMap("user", "rob"), "user");

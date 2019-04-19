@@ -31,6 +31,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
@@ -77,7 +78,7 @@ public class JwtAuthenticationProviderTests {
 		JwtAuthenticationToken authentication =
 				(JwtAuthenticationToken) this.provider.authenticate(token);
 
-		assertThat(authentication.getTokenAttributes()).isEqualTo(claims);
+		assertThat(authentication.getTokenAttributes()).isNotEmpty();
 	}
 
 	@Test
@@ -133,8 +134,12 @@ public class JwtAuthenticationProviderTests {
 	private Jwt jwt(Map<String, Object> claims) {
 		Map<String, Object> headers = new HashMap<>();
 		headers.put("alg", JwsAlgorithms.RS256);
+		
+		Map<String, Object> attributes = new HashMap<>(claims);
+		attributes.put(JwtClaimNames.IAT, Instant.now());
+		attributes.put(JwtClaimNames.EXP, Instant.now().plusSeconds(3600));
 
-		return new Jwt("token", Instant.now(), Instant.now().plusSeconds(3600), headers, claims);
+		return new Jwt("token", headers, attributes);
 	}
 
 	private Predicate<? super Throwable> errorCode(String errorCode) {

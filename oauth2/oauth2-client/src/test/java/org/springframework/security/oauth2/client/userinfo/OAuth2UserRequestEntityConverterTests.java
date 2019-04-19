@@ -15,6 +15,15 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,14 +34,8 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.util.MultiValueMap;
-
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 /**
  * Tests for {@link OAuth2UserRequestEntityConverter}.
@@ -42,7 +45,6 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 public class OAuth2UserRequestEntityConverterTests {
 	private OAuth2UserRequestEntityConverter converter = new OAuth2UserRequestEntityConverter();
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void convertWhenAuthenticationMethodHeaderThenGetRequest() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
@@ -87,9 +89,14 @@ public class OAuth2UserRequestEntityConverterTests {
 	}
 
 	private OAuth2AccessToken createAccessToken() {
+		final Map<String, Object> attributes = new HashMap<String, Object>();
+		attributes.put(IdTokenClaimNames.IAT, Instant.now());
+		attributes.put(IdTokenClaimNames.EXP, Instant.now().plusSeconds(3600));
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(
-				OAuth2AccessToken.TokenType.BEARER, "access-token-1234", Instant.now(),
-				Instant.now().plusSeconds(3600), new LinkedHashSet<>(Arrays.asList("read", "write")));
+				OAuth2AccessToken.TokenType.BEARER, 
+				"access-token-1234",
+				attributes, 
+				new LinkedHashSet<>(Arrays.asList("read", "write")));
 		return accessToken;
 	}
 }

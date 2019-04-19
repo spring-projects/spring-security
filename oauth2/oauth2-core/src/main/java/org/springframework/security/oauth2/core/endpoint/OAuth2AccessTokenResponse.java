@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -181,15 +182,15 @@ public final class OAuth2AccessTokenResponse {
 		 * @return a {@link OAuth2AccessTokenResponse}
 		 */
 		public OAuth2AccessTokenResponse build() {
-			Instant issuedAt = getIssuedAt();
-
-			Instant expiresAt = getExpiresAt();
+			final Map<String, Object> attributes = new HashMap<>();
+			attributes.put("iat", getIssuedAt());
+			attributes.put("exp", getExpiresAt());
 
 			OAuth2AccessTokenResponse accessTokenResponse = new OAuth2AccessTokenResponse();
 			accessTokenResponse.accessToken = new OAuth2AccessToken(
-				this.tokenType, this.tokenValue, issuedAt, expiresAt, this.scopes);
+				this.tokenType, this.tokenValue, attributes, this.scopes);
 			if (StringUtils.hasText(this.refreshToken)) {
-				accessTokenResponse.refreshToken = new OAuth2RefreshToken(this.refreshToken, issuedAt);
+				accessTokenResponse.refreshToken = new OAuth2RefreshToken(this.refreshToken, attributes);
 			}
 			accessTokenResponse.additionalParameters = Collections.unmodifiableMap(
 				CollectionUtils.isEmpty(this.additionalParameters) ? Collections.emptyMap() : this.additionalParameters);

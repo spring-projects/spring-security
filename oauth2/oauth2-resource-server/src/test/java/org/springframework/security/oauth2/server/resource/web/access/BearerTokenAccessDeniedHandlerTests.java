@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.resource.web.access;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -87,7 +88,7 @@ public class BearerTokenAccessDeniedHandlerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		Authentication token = new TestingOAuth2TokenAuthenticationToken(Collections.emptyMap());
+		Authentication token = new TestingOAuth2TokenAuthenticationToken(Collections.singletonMap("foo", "bar"));
 		request.setUserPrincipal(token);
 
 		this.accessDeniedHandler.handle(request, response, null);
@@ -229,21 +230,28 @@ public class BearerTokenAccessDeniedHandlerTests {
 	static class TestingOAuth2TokenAuthenticationToken
 			extends AbstractOAuth2TokenAuthenticationToken<TestingOAuth2TokenAuthenticationToken.TestingOAuth2Token> {
 
-		private Map<String, Object> attributes;
-
-		protected TestingOAuth2TokenAuthenticationToken(Map<String, Object> attributes) {
-			super(new TestingOAuth2Token("token"));
-			this.attributes = attributes;
+		protected TestingOAuth2TokenAuthenticationToken(final Map<String, Object> attributes) {
+			super(new TestingOAuth2Token("token", attributes));
 		}
 
 		@Override
 		public Map<String, Object> getTokenAttributes() {
-			return this.attributes;
+			return this.getToken().getAttributes();
 		}
 
 		static class TestingOAuth2Token extends AbstractOAuth2Token {
-			public TestingOAuth2Token(String tokenValue) {
-				super(tokenValue);
+			public TestingOAuth2Token(final String tokenValue, final Map<String, Object> attributes) {
+				super(tokenValue, attributes);
+			}
+
+			@Override
+			public Instant getIssuedAt() {
+				return null;
+			}
+
+			@Override
+			public Instant getExpiresAt() {
+				return null;
 			}
 		}
 	}

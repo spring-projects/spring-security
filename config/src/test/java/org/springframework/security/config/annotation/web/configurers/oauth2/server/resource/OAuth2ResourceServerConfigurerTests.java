@@ -29,6 +29,7 @@ import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
@@ -141,8 +142,14 @@ public class OAuth2ResourceServerConfigurerTests {
 	private static final String JWT_TOKEN = "token";
 	private static final String JWT_SUBJECT = "mock-test-subject";
 	private static final Map<String, Object> JWT_HEADERS = Collections.singletonMap("alg", JwsAlgorithms.RS256);
-	private static final Map<String, Object> JWT_CLAIMS = Collections.singletonMap(JwtClaimNames.SUB, JWT_SUBJECT);
-	private static final Jwt JWT = new Jwt(JWT_TOKEN, Instant.MIN, Instant.MAX, JWT_HEADERS, JWT_CLAIMS);
+	private static final Map<String, Object> JWT_CLAIMS() {
+		final Map<String, Object> claims = new HashMap<>();
+		claims.put(JwtClaimNames.SUB, JWT_SUBJECT);
+		claims.put(JwtClaimNames.IAT, Instant.MIN);
+		claims.put(JwtClaimNames.EXP,Instant.MAX);
+		return claims;
+	}
+	private static final Jwt JWT = new Jwt(JWT_TOKEN, JWT_HEADERS, JWT_CLAIMS());
 	private static final String JWK_SET_URI = "https://mock.org";
 	private static final JwtAuthenticationToken JWT_AUTHENTICATION_TOKEN =
 			new JwtAuthenticationToken(JWT, Collections.emptyList());

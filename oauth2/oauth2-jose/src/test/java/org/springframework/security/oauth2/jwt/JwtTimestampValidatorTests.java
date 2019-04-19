@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -54,10 +55,8 @@ public class JwtTimestampValidatorTests {
 
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN_VALUE,
-				MOCK_ISSUED_AT,
-				oneHourAgo,
 				MOCK_HEADER,
-				MOCK_CLAIM_SET);
+				addIssueInstants(MOCK_CLAIM_SET, oneHourAgo));
 
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator();
 
@@ -73,10 +72,8 @@ public class JwtTimestampValidatorTests {
 
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN_VALUE,
-				MOCK_ISSUED_AT,
-				null,
 				MOCK_HEADER,
-				Collections.singletonMap(JwtClaimNames.NBF, oneHourFromNow));
+				addIssueInstants(Collections.singletonMap(JwtClaimNames.NBF, oneHourFromNow), null));
 
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator();
 
@@ -99,19 +96,15 @@ public class JwtTimestampValidatorTests {
 
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN_VALUE,
-				MOCK_ISSUED_AT,
-				almostOneDayAgo,
 				MOCK_HEADER,
-				Collections.singletonMap(JwtClaimNames.NBF, almostOneDayFromNow));
+				addIssueInstants(Collections.singletonMap(JwtClaimNames.NBF, almostOneDayFromNow), almostOneDayAgo));
 
 		assertThat(jwtValidator.validate(jwt).hasErrors()).isFalse();
 
 		jwt = new Jwt(
 				MOCK_TOKEN_VALUE,
-				MOCK_ISSUED_AT,
-				justOverOneDayAgo,
 				MOCK_HEADER,
-				MOCK_CLAIM_SET);
+				addIssueInstants(MOCK_CLAIM_SET, justOverOneDayAgo));
 
 		OAuth2TokenValidatorResult result = jwtValidator.validate(jwt);
 		Collection<String> messages =
@@ -122,10 +115,8 @@ public class JwtTimestampValidatorTests {
 
 		jwt = new Jwt(
 				MOCK_TOKEN_VALUE,
-				MOCK_ISSUED_AT,
-				null,
 				MOCK_HEADER,
-				Collections.singletonMap(JwtClaimNames.NBF, justOverOneDayFromNow));
+				addIssueInstants(Collections.singletonMap(JwtClaimNames.NBF, justOverOneDayFromNow), null));
 
 		result = jwtValidator.validate(jwt);
 		messages =
@@ -140,10 +131,8 @@ public class JwtTimestampValidatorTests {
 	public void validateWhenConfiguredWithFixedClockThenValidatesUsingFixedTime() {
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN_VALUE,
-				MOCK_ISSUED_AT,
-				Instant.now(MOCK_NOW),
 				MOCK_HEADER,
-				Collections.singletonMap("some", "claim"));
+				addIssueInstants(Collections.singletonMap("some", "claim"), Instant.now(MOCK_NOW)));
 
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator(Duration.ofNanos(0));
 		jwtValidator.setClock(MOCK_NOW);
@@ -152,10 +141,8 @@ public class JwtTimestampValidatorTests {
 
 		jwt = new Jwt(
 				MOCK_TOKEN_VALUE,
-				MOCK_ISSUED_AT,
-				null,
 				MOCK_HEADER,
-				Collections.singletonMap(JwtClaimNames.NBF, Instant.now(MOCK_NOW)));
+				addIssueInstants(Collections.singletonMap(JwtClaimNames.NBF, Instant.now(MOCK_NOW)), null));
 
 		assertThat(jwtValidator.validate(jwt).hasErrors()).isFalse();
 	}
@@ -164,10 +151,8 @@ public class JwtTimestampValidatorTests {
 	public void validateWhenNeitherExpiryNorNotBeforeIsSpecifiedThenReturnsSuccessfulResult() {
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN_VALUE,
-				MOCK_ISSUED_AT,
-				null,
 				MOCK_HEADER,
-				MOCK_CLAIM_SET);
+				addIssueInstants(MOCK_CLAIM_SET, null));
 
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator();
 		assertThat(jwtValidator.validate(jwt).hasErrors()).isFalse();
@@ -177,10 +162,8 @@ public class JwtTimestampValidatorTests {
 	public void validateWhenNotBeforeIsValidAndExpiryIsNotSpecifiedThenReturnsSuccessfulResult() {
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN_VALUE,
-				MOCK_ISSUED_AT,
-				null,
 				MOCK_HEADER,
-				Collections.singletonMap(JwtClaimNames.NBF, Instant.MIN));
+				addIssueInstants(Collections.singletonMap(JwtClaimNames.NBF, Instant.MIN), null));
 
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator();
 		assertThat(jwtValidator.validate(jwt).hasErrors()).isFalse();
@@ -190,10 +173,8 @@ public class JwtTimestampValidatorTests {
 	public void validateWhenExpiryIsValidAndNotBeforeIsNotSpecifiedThenReturnsSuccessfulResult() {
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN_VALUE,
-				MOCK_ISSUED_AT,
-				Instant.MAX,
 				MOCK_HEADER,
-				MOCK_CLAIM_SET);
+				addIssueInstants(MOCK_CLAIM_SET, Instant.MAX));
 
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator();
 		assertThat(jwtValidator.validate(jwt).hasErrors()).isFalse();
@@ -203,10 +184,8 @@ public class JwtTimestampValidatorTests {
 	public void validateWhenBothExpiryAndNotBeforeAreValidThenReturnsSuccessfulResult() {
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN_VALUE,
-				MOCK_ISSUED_AT,
-				Instant.now(MOCK_NOW),
 				MOCK_HEADER,
-				Collections.singletonMap(JwtClaimNames.NBF, Instant.now(MOCK_NOW)));
+				addIssueInstants(Collections.singletonMap(JwtClaimNames.NBF, Instant.now(MOCK_NOW)), Instant.now(MOCK_NOW)));
 
 		JwtTimestampValidator jwtValidator = new JwtTimestampValidator(Duration.ofNanos(0));
 		jwtValidator.setClock(MOCK_NOW);
@@ -226,5 +205,20 @@ public class JwtTimestampValidatorTests {
 	public void constructorWhenInvokedWithNullDurationThenThrowsIllegalArgumentException() {
 		assertThatCode(() -> new JwtTimestampValidator(null))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+	
+	private Map<String, Object> addIssueInstants(final Map<String, Object> claims, final Instant iat, final Instant exp) {
+		Map<String, Object> attributes = new HashMap<>(claims);
+		if(iat != null) {
+			attributes.put(JwtClaimNames.IAT, iat);
+		}
+		if(exp != null) {
+			attributes.put(JwtClaimNames.EXP, exp);
+		}
+		return attributes;
+	}
+	
+	private Map<String, Object> addIssueInstants(final Map<String, Object> claims, final Instant exp) {
+		return addIssueInstants(claims, MOCK_ISSUED_AT, exp);
 	}
 }

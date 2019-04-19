@@ -15,13 +15,11 @@
  */
 package org.springframework.security.oauth2.core.oidc;
 
-import org.springframework.security.oauth2.core.AbstractOAuth2Token;
-import org.springframework.util.Assert;
-
 import java.time.Instant;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 
 /**
  * An implementation of an {@link AbstractOAuth2Token} representing an OpenID Connect Core 1.0 ID Token.
@@ -39,8 +37,17 @@ import java.util.Map;
  * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
  */
 public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAccessor {
-	private final Map<String, Object> claims;
 
+	/**
+	 * Constructs a {@code OidcIdToken} using the provided parameters.
+	 *
+	 * @param tokenValue the ID Token value
+	 * @param claims the claims about the authentication of the End-User
+	 */
+	public OidcIdToken(final String tokenValue, final Map<String, Object> claims) {
+		super(tokenValue, claims);
+	}
+	
 	/**
 	 * Constructs a {@code OidcIdToken} using the provided parameters.
 	 *
@@ -48,15 +55,32 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 	 * @param issuedAt the time at which the ID Token was issued {@code (iat)}
 	 * @param expiresAt the expiration time {@code (exp)} on or after which the ID Token MUST NOT be accepted
 	 * @param claims the claims about the authentication of the End-User
+	 * @deprecated provide issue and expiration instants as claims. If non null "issuedAt" is provided and "iat" claim is there too, then first wins (claim is overridden). Same for expiration.
 	 */
+	@Deprecated
 	public OidcIdToken(String tokenValue, Instant issuedAt, Instant expiresAt, Map<String, Object> claims) {
-		super(tokenValue, issuedAt, expiresAt);
-		Assert.notEmpty(claims, "claims cannot be empty");
-		this.claims = Collections.unmodifiableMap(new LinkedHashMap<>(claims));
+		this(tokenValue, withInstants(claims, issuedAt, expiresAt));
+	}
+
+	private static Map<String, Object> withInstants(final Map<String, Object> claims, final Instant issuedAt, final Instant expiresAt) {
+		final Map<String, Object> attributes = new HashMap<>(claims);
+		if(issuedAt != null) attributes.put(IdTokenClaimNames.IAT, issuedAt);
+		if(expiresAt != null) attributes.put(IdTokenClaimNames.EXP, expiresAt);
+		return attributes;
 	}
 
 	@Override
 	public Map<String, Object> getClaims() {
-		return this.claims;
+		return getAttributes();
+	}
+
+	@Override
+	public Instant getIssuedAt() {
+		return getClaimAsInstant(IdTokenClaimNames.IAT);
+	}
+
+	@Override
+	public Instant getExpiresAt() {
+		return getClaimAsInstant(IdTokenClaimNames.EXP);
 	}
 }

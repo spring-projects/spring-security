@@ -15,13 +15,15 @@
  */
 package org.springframework.security.oauth2.core;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.util.Assert;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+
+import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.util.Assert;
 
 /**
  * An implementation of an {@link AbstractOAuth2Token} representing an OAuth 2.0 Access Token.
@@ -36,7 +38,7 @@ import java.util.Set;
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.4">Section 1.4 Access Token</a>
  */
-public class OAuth2AccessToken extends AbstractOAuth2Token {
+public class OAuth2AccessToken extends AbstractOAuth2Token implements ClaimAccessor {
 	private final TokenType tokenType;
 	private final Set<String> scopes;
 
@@ -45,11 +47,31 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 	 *
 	 * @param tokenType the token type
 	 * @param tokenValue the token value
+	 * @param attributes the token attributes
+	 */
+	public OAuth2AccessToken(final TokenType tokenType, final String tokenValue, final Map<String, Object> attributes) {
+		this(tokenType, tokenValue, attributes, Collections.emptySet());
+	}
+	
+	/**
+	 * Constructs an {@code OAuth2AccessToken} using the provided parameters.
+	 *
+	 * @param tokenType the token type
+	 * @param tokenValue the token value
 	 * @param issuedAt the time at which the token was issued
 	 * @param expiresAt the expiration time on or after which the token MUST NOT be accepted
+	 * @deprecated since 5.2 provide issue and expiration instants as claims. If non null "issuedAt" is provided and "iat" claim is there too, then first wins (claim is overridden). Same for expiration.
 	 */
+	@Deprecated
 	public OAuth2AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt) {
-		this(tokenType, tokenValue, issuedAt, expiresAt, Collections.emptySet());
+		this(tokenType, tokenValue, attributes(issuedAt, expiresAt), Collections.emptySet());
+	}
+
+	private static Map<String, Object> attributes(final Instant issuedAt, final Instant expiresAt) {
+		final Map<String, Object> attributes = new HashMap<>();
+		if(issuedAt != null) attributes.put("iat", issuedAt);
+		if(expiresAt != null) attributes.put("exp", expiresAt);
+		return attributes;
 	}
 
 	/**
@@ -61,8 +83,8 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 	 * @param expiresAt the expiration time on or after which the token MUST NOT be accepted
 	 * @param scopes the scope(s) associated to the token
 	 */
-	public OAuth2AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt, Set<String> scopes) {
-		super(tokenValue, issuedAt, expiresAt);
+	public OAuth2AccessToken(TokenType tokenType, String tokenValue, final Map<String, Object> attributes, Set<String> scopes) {
+		super(tokenValue, attributes);
 		Assert.notNull(tokenType, "tokenType cannot be null");
 		this.tokenType = tokenType;
 		this.scopes = Collections.unmodifiableSet(
@@ -127,5 +149,20 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 		public int hashCode() {
 			return this.getValue().hashCode();
 		}
+	}
+
+	@Override
+	public Instant getIssuedAt() {
+		return getClaimAsInstant("iat");
+	}
+
+	@Override
+	public Instant getExpiresAt() {
+		return getClaimAsInstant("exp");
+	}
+
+	@Override
+	public Map<String, Object> getClaims() {
+		return getAttributes();
 	}
 }

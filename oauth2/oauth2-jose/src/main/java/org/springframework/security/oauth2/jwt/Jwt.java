@@ -15,13 +15,14 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import org.springframework.security.oauth2.core.AbstractOAuth2Token;
-import org.springframework.util.Assert;
-
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.springframework.security.oauth2.core.AbstractOAuth2Token;
+import org.springframework.util.Assert;
 
 /**
  * An implementation of an {@link AbstractOAuth2Token} representing a JSON Web Token (JWT).
@@ -42,8 +43,21 @@ import java.util.Map;
  */
 public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	private final Map<String, Object> headers;
-	private final Map<String, Object> claims;
 
+	/**
+	 * Constructs a {@code Jwt} using the provided parameters.
+	 *
+	 * @param tokenValue the token value
+	 * @param headers the JOSE header(s)
+	 * @param claims the JWT Claims Set
+	 */
+	public Jwt(String tokenValue, Map<String, Object> headers, Map<String, Object> claims) {
+		super(tokenValue, claims);
+		Assert.notEmpty(headers, "headers cannot be empty");
+		Assert.notEmpty(claims, "claims cannot be empty");
+		this.headers = Collections.unmodifiableMap(new LinkedHashMap<>(headers));
+	}
+	
 	/**
 	 * Constructs a {@code Jwt} using the provided parameters.
 	 *
@@ -52,14 +66,19 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	 * @param expiresAt the expiration time on or after which the JWT MUST NOT be accepted
 	 * @param headers the JOSE header(s)
 	 * @param claims the JWT Claims Set
+	 * @deprecated since 5.2 provide issue and expiration instants as claims. If non null "issuedAt" is provided and "iat" claim is there too, then first wins (claim is overridden). Same for expiration.
 	 */
-	public Jwt(String tokenValue, Instant issuedAt, Instant expiresAt,
-				Map<String, Object> headers, Map<String, Object> claims) {
-		super(tokenValue, issuedAt, expiresAt);
-		Assert.notEmpty(headers, "headers cannot be empty");
-		Assert.notEmpty(claims, "claims cannot be empty");
-		this.headers = Collections.unmodifiableMap(new LinkedHashMap<>(headers));
-		this.claims = Collections.unmodifiableMap(new LinkedHashMap<>(claims));
+	@Deprecated
+	public Jwt(final String tokenValue, final Instant issuedAt, final Instant expiresAt,
+				final Map<String, Object> headers, final Map<String, Object> claims) {
+		this(tokenValue, headers, withInstants(claims, issuedAt, expiresAt));
+	}
+
+	private static Map<String, Object> withInstants(final Map<String, Object> claims, final Instant issuedAt, final Instant expiresAt) {
+		final Map<String, Object> attributes = new HashMap<>(claims);
+		if(issuedAt != null) attributes.put(JwtClaimNames.IAT, issuedAt);
+		if(expiresAt != null) attributes.put(JwtClaimNames.EXP, expiresAt);
+		return attributes;
 	}
 
 	/**
@@ -78,6 +97,16 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	 */
 	@Override
 	public Map<String, Object> getClaims() {
-		return this.claims;
+		return getAttributes();
+	}
+
+	@Override
+	public Instant getIssuedAt() {
+		return this.getClaimAsInstant(JwtClaimNames.IAT);
+	}
+
+	@Override
+	public Instant getExpiresAt() {
+		return this.getClaimAsInstant(JwtClaimNames.EXP);
 	}
 }

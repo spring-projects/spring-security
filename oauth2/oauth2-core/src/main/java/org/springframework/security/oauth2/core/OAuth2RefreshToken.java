@@ -16,6 +16,8 @@
 package org.springframework.security.oauth2.core;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * An implementation of an {@link AbstractOAuth2Token} representing an OAuth 2.0 Refresh Token.
@@ -37,9 +39,31 @@ public class OAuth2RefreshToken extends AbstractOAuth2Token {
 	 * Constructs an {@code OAuth2RefreshToken} using the provided parameters.
 	 *
 	 * @param tokenValue the token value
+	 * @param attributes the troken attributes
+	 */
+	public OAuth2RefreshToken(final String tokenValue, final Map<String, Object> attributes) {
+		super(tokenValue, attributes);
+	}
+	
+	/**
+	 * Constructs an {@code OAuth2RefreshToken} using the provided parameters.
+	 *
+	 * @param tokenValue the token value
 	 * @param issuedAt the time at which the token was issued
 	 */
 	public OAuth2RefreshToken(String tokenValue, Instant issuedAt) {
-		super(tokenValue, issuedAt, null);
+		super(tokenValue, issuedAt != null ? Collections.singletonMap("iat", issuedAt) : Collections.emptyMap());
+	}
+
+	@Override
+	public Instant getIssuedAt() {
+		Object value = getAttributes().get("iat");
+		return value instanceof Instant ? (Instant)value : null;
+	}
+
+	@Override
+	public Instant getExpiresAt() {
+		Object value = getAttributes().get("exp");
+		return value instanceof Instant ? (Instant)value : null;
 	}
 }

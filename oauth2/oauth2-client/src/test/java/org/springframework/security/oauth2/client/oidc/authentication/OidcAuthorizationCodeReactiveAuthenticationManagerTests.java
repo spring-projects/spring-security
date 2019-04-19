@@ -79,9 +79,22 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	private OAuth2AuthorizationResponse.Builder authorizationResponseBldr = OAuth2AuthorizationResponse
 			.success("code")
 			.state("state");
+	
+	private Map<String, Object> withInstants(final Map<String, Object> claims, final Instant iat, final Instant exp) {
+		Map<String, Object> attributes = new HashMap<>(claims);
+		if(iat != null) {
+			attributes.put(IdTokenClaimNames.IAT, iat);
+		}
+		if(exp != null) {
+			attributes.put(IdTokenClaimNames.EXP, exp);
+		}
+		return attributes;
+	}
 
-	private OidcIdToken idToken = new OidcIdToken("token123", Instant.now(),
-			Instant.now().plusSeconds(3600), Collections.singletonMap(IdTokenClaimNames.SUB, "sub123"));
+	private OidcIdToken idToken = new OidcIdToken("token123", withInstants(
+					Collections.singletonMap(IdTokenClaimNames.SUB, "sub123"),
+					Instant.now(),
+					Instant.now().plusSeconds(3600)));
 
 	private OidcAuthorizationCodeReactiveAuthenticationManager manager;
 
@@ -167,13 +180,15 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ."))
 				.build();
 
+		Instant issuedAt = Instant.now();
+		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, claims, claims);
+		claims.put(IdTokenClaimNames.IAT, issuedAt);
+		claims.put(IdTokenClaimNames.EXP, expiresAt);
+		Jwt idToken = new Jwt("id-token", claims, claims);
 
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 		when(this.userService.loadUser(any())).thenReturn(Mono.empty());
@@ -189,13 +204,15 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
 				.build();
 
+		Instant issuedAt = Instant.now();
+		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, claims, claims);
+		claims.put(IdTokenClaimNames.IAT, issuedAt);
+		claims.put(IdTokenClaimNames.EXP, expiresAt);
+		Jwt idToken = new Jwt("id-token", claims, claims);
 
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
@@ -218,13 +235,15 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 				.refreshToken("refresh-token")
 				.build();
 
+		Instant issuedAt = Instant.now();
+		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, claims, claims);
+		claims.put(IdTokenClaimNames.IAT, issuedAt);
+		claims.put(IdTokenClaimNames.EXP, expiresAt);
+		Jwt idToken = new Jwt("id-token", claims, claims);
 
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
@@ -253,13 +272,15 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 				.additionalParameters(additionalParameters)
 				.build();
 
+		Instant issuedAt = Instant.now();
+		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList(clientRegistration.getClientId()));
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, claims, claims);
+		claims.put(IdTokenClaimNames.IAT, issuedAt);
+		claims.put(IdTokenClaimNames.EXP, expiresAt);
+		Jwt idToken = new Jwt("id-token", claims, claims);
 
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);

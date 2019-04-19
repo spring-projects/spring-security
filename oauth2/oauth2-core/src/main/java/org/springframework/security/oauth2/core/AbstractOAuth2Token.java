@@ -15,12 +15,14 @@
  */
 package org.springframework.security.oauth2.core;
 
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Map;
+
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
-
-import java.io.Serializable;
-import java.time.Instant;
 
 /**
  * Base class for OAuth 2.0 Token implementations.
@@ -32,33 +34,22 @@ import java.time.Instant;
 public abstract class AbstractOAuth2Token implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private final String tokenValue;
-	private final Instant issuedAt;
-	private final Instant expiresAt;
+	private final Map<String, Object> attributes;
 
 	/**
 	 * Sub-class constructor.
 	 *
 	 * @param tokenValue the token value
+	 * @param attributes the token attributes (AKA claims)
 	 */
-	protected AbstractOAuth2Token(String tokenValue) {
-		this(tokenValue, null, null);
-	}
-
-	/**
-	 * Sub-class constructor.
-	 *
-	 * @param tokenValue the token value
-	 * @param issuedAt the time at which the token was issued, may be null
-	 * @param expiresAt the expiration time on or after which the token MUST NOT be accepted, may be null
-	 */
-	protected AbstractOAuth2Token(String tokenValue, @Nullable Instant issuedAt, @Nullable Instant expiresAt) {
+	protected AbstractOAuth2Token(final String tokenValue, final Map<String, Object> attributes) {
 		Assert.hasText(tokenValue, "tokenValue cannot be empty");
-		if (issuedAt != null && expiresAt != null) {
-			Assert.isTrue(expiresAt.isAfter(issuedAt), "expiresAt must be after issuedAt");
-		}
 		this.tokenValue = tokenValue;
-		this.issuedAt = issuedAt;
-		this.expiresAt = expiresAt;
+		Assert.notEmpty(attributes, "claims cannot be empty");
+		this.attributes = Collections.unmodifiableMap(attributes);
+		if (getIssuedAt() != null && getExpiresAt() != null) {
+			Assert.isTrue(getExpiresAt().isAfter(getIssuedAt()), "expiresAt must be after issuedAt");
+		}
 	}
 
 	/**
@@ -70,49 +61,45 @@ public abstract class AbstractOAuth2Token implements Serializable {
 		return this.tokenValue;
 	}
 
+	public Map<String, Object> getAttributes() {
+		return attributes;
+	}
+
 	/**
 	 * Returns the time at which the token was issued.
 	 *
 	 * @return the time the token was issued or null
 	 */
-	public @Nullable Instant getIssuedAt() {
-		return this.issuedAt;
-	}
+	public abstract @Nullable Instant getIssuedAt();
 
 	/**
 	 * Returns the expiration time on or after which the token MUST NOT be accepted.
 	 *
 	 * @return the expiration time of the token or null
 	 */
-	public @Nullable Instant getExpiresAt() {
-		return this.expiresAt;
+	public abstract @Nullable Instant getExpiresAt();
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
+		result = prime * result + ((tokenValue == null) ? 0 : tokenValue.hashCode());
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null || this.getClass() != obj.getClass()) {
-			return false;
-		}
-
-		AbstractOAuth2Token that = (AbstractOAuth2Token) obj;
-
-		if (!this.getTokenValue().equals(that.getTokenValue())) {
-			return false;
-		}
-		if (this.getIssuedAt() != null ? !this.getIssuedAt().equals(that.getIssuedAt()) : that.getIssuedAt() != null) {
-			return false;
-		}
-		return this.getExpiresAt() != null ? this.getExpiresAt().equals(that.getExpiresAt()) : that.getExpiresAt() == null;
-	}
-
-	@Override
-	public int hashCode() {
-		int result = this.getTokenValue().hashCode();
-		result = 31 * result + (this.getIssuedAt() != null ? this.getIssuedAt().hashCode() : 0);
-		result = 31 * result + (this.getExpiresAt() != null ? this.getExpiresAt().hashCode() : 0);
-		return result;
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		AbstractOAuth2Token other = (AbstractOAuth2Token) obj;
+		if (attributes == null) {
+			if (other.attributes != null) return false;
+		} else if (!attributes.equals(other.attributes)) return false;
+		if (tokenValue == null) {
+			if (other.tokenValue != null) return false;
+		} else if (!tokenValue.equals(other.tokenValue)) return false;
+		return true;
 	}
 }

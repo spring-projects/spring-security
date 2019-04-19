@@ -48,9 +48,9 @@ public class OidcIdTokenTests {
 	private static final String ISS_VALUE = "https://provider.com";
 	private static final String SUB_VALUE = "subject1";
 	private static final List<String> AUD_VALUE = Arrays.asList("aud1", "aud2");
-	private static final long IAT_VALUE = Instant.now().toEpochMilli();
-	private static final long EXP_VALUE = Instant.now().plusSeconds(60).toEpochMilli();
-	private static final long AUTH_TIME_VALUE = Instant.now().minusSeconds(5).toEpochMilli();
+	private static final long IAT_VALUE = Instant.now().getEpochSecond();
+	private static final long EXP_VALUE = Instant.now().plusSeconds(60).getEpochSecond();
+	private static final long AUTH_TIME_VALUE = Instant.now().minusSeconds(5).getEpochSecond();
 	private static final String NONCE_VALUE = "nonce";
 	private static final String ACR_VALUE = "acr";
 	private static final List<String> AMR_VALUE = Arrays.asList("amr1", "amr2");
@@ -79,27 +79,25 @@ public class OidcIdTokenTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenTokenValueIsNullThenThrowIllegalArgumentException() {
-		new OidcIdToken(null, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE), CLAIMS);
+		new OidcIdToken(null, CLAIMS);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenClaimsIsEmptyThenThrowIllegalArgumentException() {
-		new OidcIdToken(ID_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
-			Instant.ofEpochMilli(EXP_VALUE), Collections.emptyMap());
+		new OidcIdToken(ID_TOKEN_VALUE, Collections.emptyMap());
 	}
 
 	@Test
 	public void constructorWhenParametersProvidedAndValidThenCreated() {
-		OidcIdToken idToken = new OidcIdToken(ID_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
-			Instant.ofEpochMilli(EXP_VALUE), CLAIMS);
+		OidcIdToken idToken = new OidcIdToken(ID_TOKEN_VALUE, CLAIMS);
 
 		assertThat(idToken.getClaims()).isEqualTo(CLAIMS);
 		assertThat(idToken.getTokenValue()).isEqualTo(ID_TOKEN_VALUE);
 		assertThat(idToken.getIssuer().toString()).isEqualTo(ISS_VALUE);
 		assertThat(idToken.getSubject()).isEqualTo(SUB_VALUE);
 		assertThat(idToken.getAudience()).isEqualTo(AUD_VALUE);
-		assertThat(idToken.getIssuedAt().toEpochMilli()).isEqualTo(IAT_VALUE);
-		assertThat(idToken.getExpiresAt().toEpochMilli()).isEqualTo(EXP_VALUE);
+		assertThat(idToken.getIssuedAt().getEpochSecond()).isEqualTo(IAT_VALUE);
+		assertThat(idToken.getExpiresAt().getEpochSecond()).isEqualTo(EXP_VALUE);
 		assertThat(idToken.getAuthenticatedAt().getEpochSecond()).isEqualTo(AUTH_TIME_VALUE);
 		assertThat(idToken.getNonce()).isEqualTo(NONCE_VALUE);
 		assertThat(idToken.getAuthenticationContextClass()).isEqualTo(ACR_VALUE);

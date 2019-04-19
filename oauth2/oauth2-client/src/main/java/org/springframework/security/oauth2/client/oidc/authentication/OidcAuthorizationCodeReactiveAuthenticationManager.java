@@ -190,6 +190,6 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 		ReactiveJwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(clientRegistration);
 		String rawIdToken = (String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN);
 		return jwtDecoder.decode(rawIdToken)
-				.map(jwt -> new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims()));
+				.map(jwt -> new OidcIdToken(jwt.getTokenValue(), jwt.getClaims()));
 	}
 }

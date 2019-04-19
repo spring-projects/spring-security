@@ -42,6 +42,8 @@ public class TestOidcUsers {
 		claims.put(IdTokenClaimNames.ISS, "http://localhost/issuer");
 		claims.put(IdTokenClaimNames.AUD, Collections.singletonList("client"));
 		claims.put(IdTokenClaimNames.AZP, "client");
-		return new OidcIdToken("id-token", Instant.now(), Instant.now().plusSeconds(3600), claims);
+		claims.put(IdTokenClaimNames.IAT, Instant.now());
+		claims.put(IdTokenClaimNames.EXP, Instant.now().plusSeconds(3600));
+		return new OidcIdToken("id-token", claims);
 	}
 }

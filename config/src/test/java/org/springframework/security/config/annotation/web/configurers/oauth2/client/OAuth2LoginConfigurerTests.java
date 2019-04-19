@@ -694,8 +694,9 @@ public class OAuth2LoginConfigurerTests {
 			claims.put(IdTokenClaimNames.ISS, "http://localhost/iss");
 			claims.put(IdTokenClaimNames.AUD, Arrays.asList("clientId", "a", "u", "d"));
 			claims.put(IdTokenClaimNames.AZP, "clientId");
-			Jwt jwt = new Jwt("token123", Instant.now(), Instant.now().plusSeconds(3600),
-					Collections.singletonMap("header1", "value1"), claims);
+			claims.put(IdTokenClaimNames.IAT, Instant.now());
+			claims.put(IdTokenClaimNames.EXP, Instant.now().plusSeconds(3600));
+			Jwt jwt = new Jwt("token123", Collections.singletonMap("header1", "value1"), claims);
 			JwtDecoder jwtDecoder = mock(JwtDecoder.class);
 			when(jwtDecoder.decode(any())).thenReturn(jwt);
 			return jwtDecoder;
@@ -738,8 +739,11 @@ public class OAuth2LoginConfigurerTests {
 	}
 
 	private static OAuth2UserService<OidcUserRequest, OidcUser> createOidcUserService() {
-		OidcIdToken idToken = new OidcIdToken("token123", Instant.now(),
-			Instant.now().plusSeconds(3600), Collections.singletonMap(IdTokenClaimNames.SUB, "sub123"));
+		final Map<String, Object> claims = new HashMap<>();
+		claims.put(IdTokenClaimNames.SUB, "sub123");
+		claims.put(IdTokenClaimNames.IAT, Instant.now());
+		claims.put(IdTokenClaimNames.EXP, Instant.now().plusSeconds(3600));
+		OidcIdToken idToken = new OidcIdToken("token123", claims);
 		return request -> new DefaultOidcUser(
 				Collections.singleton(new OidcUserAuthority(idToken)), idToken);
 	}

@@ -50,11 +50,13 @@ public class DefaultOidcUserTests {
 	static {
 		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.ISS, "https://example.com");
 		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.SUB, SUBJECT);
+		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.IAT, Instant.EPOCH);
+		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.EXP, Instant.MAX);
 		USER_INFO_CLAIMS.put(StandardClaimNames.NAME, NAME);
 		USER_INFO_CLAIMS.put(StandardClaimNames.EMAIL, EMAIL);
 	}
 
-	private static final OidcIdToken ID_TOKEN = new OidcIdToken("id-token-value", Instant.EPOCH, Instant.MAX, ID_TOKEN_CLAIMS);
+	private static final OidcIdToken ID_TOKEN = new OidcIdToken("id-token-value", ID_TOKEN_CLAIMS);
 	private static final OidcUserInfo USER_INFO = new OidcUserInfo(USER_INFO_CLAIMS);
 
 	@Test(expected = IllegalArgumentException.class)
@@ -76,24 +78,24 @@ public class DefaultOidcUserTests {
 	public void constructorWhenAuthoritiesIdTokenProvidedThenCreated() {
 		DefaultOidcUser user = new DefaultOidcUser(AUTHORITIES, ID_TOKEN);
 
-		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
+		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, IdTokenClaimNames.IAT, IdTokenClaimNames.EXP);
 		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
 		assertThat(user.getName()).isEqualTo(SUBJECT);
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(AUTHORITY);
-		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
+		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, IdTokenClaimNames.IAT, IdTokenClaimNames.EXP);
 	}
 
 	@Test
 	public void constructorWhenAuthoritiesIdTokenNameAttributeKeyProvidedThenCreated() {
 		DefaultOidcUser user = new DefaultOidcUser(AUTHORITIES, ID_TOKEN, IdTokenClaimNames.SUB);
 
-		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
+		assertThat(user.getClaims()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, IdTokenClaimNames.IAT, IdTokenClaimNames.EXP);
 		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
 		assertThat(user.getName()).isEqualTo(SUBJECT);
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(AUTHORITY);
-		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB);
+		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, IdTokenClaimNames.IAT, IdTokenClaimNames.EXP);
 	}
 
 	@Test
@@ -101,14 +103,14 @@ public class DefaultOidcUserTests {
 		DefaultOidcUser user = new DefaultOidcUser(AUTHORITIES, ID_TOKEN, USER_INFO);
 
 		assertThat(user.getClaims()).containsOnlyKeys(
-			IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.NAME, StandardClaimNames.EMAIL);
+			IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.NAME, StandardClaimNames.EMAIL, IdTokenClaimNames.IAT, IdTokenClaimNames.EXP);
 		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
 		assertThat(user.getUserInfo()).isEqualTo(USER_INFO);
 		assertThat(user.getName()).isEqualTo(SUBJECT);
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(AUTHORITY);
 		assertThat(user.getAttributes()).containsOnlyKeys(
-			IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.NAME, StandardClaimNames.EMAIL);
+			IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.NAME, StandardClaimNames.EMAIL, IdTokenClaimNames.IAT, IdTokenClaimNames.EXP);
 	}
 
 	@Test
@@ -116,13 +118,13 @@ public class DefaultOidcUserTests {
 		DefaultOidcUser user = new DefaultOidcUser(AUTHORITIES, ID_TOKEN, USER_INFO, StandardClaimNames.EMAIL);
 
 		assertThat(user.getClaims()).containsOnlyKeys(
-			IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.NAME, StandardClaimNames.EMAIL);
+			IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.NAME, StandardClaimNames.EMAIL, IdTokenClaimNames.IAT, IdTokenClaimNames.EXP);
 		assertThat(user.getIdToken()).isEqualTo(ID_TOKEN);
 		assertThat(user.getUserInfo()).isEqualTo(USER_INFO);
 		assertThat(user.getName()).isEqualTo(EMAIL);
 		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(AUTHORITY);
 		assertThat(user.getAttributes()).containsOnlyKeys(
-			IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.NAME, StandardClaimNames.EMAIL);
+			IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.NAME, StandardClaimNames.EMAIL, IdTokenClaimNames.IAT, IdTokenClaimNames.EXP);
 	}
 }

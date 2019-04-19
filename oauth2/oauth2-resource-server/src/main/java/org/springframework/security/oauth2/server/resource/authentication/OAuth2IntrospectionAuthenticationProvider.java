@@ -138,15 +138,13 @@ public final class OAuth2IntrospectionAuthenticationProvider implements Authenti
 		BearerTokenAuthenticationToken bearer = (BearerTokenAuthenticationToken) authentication;
 		TokenIntrospectionSuccessResponse response = introspect(bearer.getToken());
 		Map<String, Object> claims = convertClaimsSet(response);
-		Instant iat = (Instant) claims.get(ISSUED_AT);
-		Instant exp = (Instant) claims.get(EXPIRES_AT);
 
 		// construct token
 		OAuth2AccessToken token  = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-				bearer.getToken(), iat, exp);
+				bearer.getToken(), claims);
 		Collection<GrantedAuthority> authorities = extractAuthorities(claims);
 		AbstractAuthenticationToken result =
-				new OAuth2IntrospectionAuthenticationToken(token, claims, authorities);
+				new OAuth2IntrospectionAuthenticationToken(token, authorities);
 		result.setDetails(bearer.getDetails());
 		return result;
 	}

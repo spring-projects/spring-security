@@ -15,17 +15,15 @@
  */
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.SUBJECT;
+
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.Assert;
-
-import static org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionClaimNames.SUBJECT;
 
 /**
  * An {@link org.springframework.security.core.Authentication} token that represents a successful authentication as
@@ -41,7 +39,6 @@ public class OAuth2IntrospectionAuthenticationToken
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	private Map<String, Object> attributes;
 	private String name;
 
 	/**
@@ -51,9 +48,9 @@ public class OAuth2IntrospectionAuthenticationToken
 	 * @param authorities The authorities associated with the given token
 	 */
 	public OAuth2IntrospectionAuthenticationToken(OAuth2AccessToken token,
-			Map<String, Object> attributes, Collection<? extends GrantedAuthority> authorities) {
+			Collection<? extends GrantedAuthority> authorities) {
 
-		this(token, attributes, authorities, null);
+		this(token, authorities, null);
 	}
 
 	/**
@@ -64,12 +61,11 @@ public class OAuth2IntrospectionAuthenticationToken
 	 * @param name The name associated with this token
 	 */
 	public OAuth2IntrospectionAuthenticationToken(OAuth2AccessToken token,
-		Map<String, Object> attributes, Collection<? extends GrantedAuthority> authorities, String name) {
-
-		super(token, attributes, token, authorities);
-		Assert.notEmpty(attributes, "attributes cannot be empty");
-		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
-		this.name = name == null ? (String) attributes.get(SUBJECT) : name;
+		Collection<? extends GrantedAuthority> authorities, String name) {
+		
+		super(token, token.getAttributes(), token, authorities);
+		Assert.notEmpty(token.getAttributes(), "attributes cannot be empty");
+		this.name = name == null ? (String) token.getAttributes().get(SUBJECT) : name;
 		setAuthenticated(true);
 	}
 
@@ -78,7 +74,7 @@ public class OAuth2IntrospectionAuthenticationToken
 	 */
 	@Override
 	public Map<String, Object> getTokenAttributes() {
-		return this.attributes;
+		return this.getToken().getAttributes();
 	}
 
 	/**

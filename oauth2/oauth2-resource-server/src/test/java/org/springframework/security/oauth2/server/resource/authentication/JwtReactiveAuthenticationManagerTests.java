@@ -26,6 +26,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
@@ -59,9 +60,10 @@ public class JwtReactiveAuthenticationManagerTests {
 
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("scope", "message:read message:write");
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		this.jwt = new Jwt("jwt", issuedAt, expiresAt, claims, claims);
+		claims.put(JwtClaimNames.IAT, Instant.now());
+		claims.put(JwtClaimNames.EXP, Instant.now().plusSeconds(3600));
+
+		this.jwt = new Jwt("jwt", claims, claims);
 	}
 
 	@Test

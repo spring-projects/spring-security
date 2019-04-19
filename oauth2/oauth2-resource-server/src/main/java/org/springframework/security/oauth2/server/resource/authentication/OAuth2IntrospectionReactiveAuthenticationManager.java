@@ -144,14 +144,12 @@ public class OAuth2IntrospectionReactiveAuthenticationManager implements Reactiv
 		return introspect(token)
 				.map(response -> {
 					Map<String, Object> claims = convertClaimsSet(response);
-					Instant iat = (Instant) claims.get(ISSUED_AT);
-					Instant exp = (Instant) claims.get(EXPIRES_AT);
 
 					// construct token
 					OAuth2AccessToken accessToken =
-							new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
+							new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, claims);
 					Collection<GrantedAuthority> authorities = extractAuthorities(claims);
-					return new OAuth2IntrospectionAuthenticationToken(accessToken, claims, authorities);
+					return new OAuth2IntrospectionAuthenticationToken(accessToken, authorities);
 				});
 	}
 

@@ -69,29 +69,26 @@ public class JwtTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenTokenValueIsNullThenThrowIllegalArgumentException() {
-		new Jwt(null, Instant.ofEpochMilli(IAT_VALUE), Instant.ofEpochMilli(EXP_VALUE), HEADERS, CLAIMS);
+		new Jwt(null, HEADERS, addIssueInstants(CLAIMS));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenHeadersIsEmptyThenThrowIllegalArgumentException() {
-		new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
-			Instant.ofEpochMilli(EXP_VALUE), Collections.emptyMap(), CLAIMS);
+		new Jwt(JWT_TOKEN_VALUE, Collections.emptyMap(), addIssueInstants(CLAIMS));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenClaimsIsEmptyThenThrowIllegalArgumentException() {
-		new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
-			Instant.ofEpochMilli(EXP_VALUE), HEADERS, Collections.emptyMap());
+		new Jwt(JWT_TOKEN_VALUE, HEADERS, Collections.emptyMap());
 	}
 
 	@Test
 	public void constructorWhenParametersProvidedAndValidThenCreated() {
-		Jwt jwt = new Jwt(JWT_TOKEN_VALUE, Instant.ofEpochMilli(IAT_VALUE),
-			Instant.ofEpochMilli(EXP_VALUE), HEADERS, CLAIMS);
+		Jwt jwt = new Jwt(JWT_TOKEN_VALUE, HEADERS, addIssueInstants(CLAIMS));
 
 		assertThat(jwt.getTokenValue()).isEqualTo(JWT_TOKEN_VALUE);
 		assertThat(jwt.getHeaders()).isEqualTo(HEADERS);
-		assertThat(jwt.getClaims()).isEqualTo(CLAIMS);
+		assertThat(jwt.getClaims()).isEqualTo(addIssueInstants(CLAIMS));
 		assertThat(jwt.getIssuer().toString()).isEqualTo(ISS_VALUE);
 		assertThat(jwt.getSubject()).isEqualTo(SUB_VALUE);
 		assertThat(jwt.getAudience()).isEqualTo(AUD_VALUE);
@@ -99,5 +96,12 @@ public class JwtTests {
 		assertThat(jwt.getNotBefore().getEpochSecond()).isEqualTo(NBF_VALUE);
 		assertThat(jwt.getIssuedAt().toEpochMilli()).isEqualTo(IAT_VALUE);
 		assertThat(jwt.getId()).isEqualTo(JTI_VALUE);
+	}
+	
+	private Map<String, Object> addIssueInstants(final Map<String, Object> claims) {
+		Map<String, Object> attributes = new HashMap<>(claims);
+		attributes.put(JwtClaimNames.IAT, Instant.ofEpochMilli(IAT_VALUE));
+		attributes.put(JwtClaimNames.EXP, Instant.ofEpochMilli(EXP_VALUE));
+		return attributes;
 	}
 }

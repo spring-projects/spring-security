@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.client.oidc.userinfo;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -67,6 +68,13 @@ public class OidcUserServiceTests {
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
+	
+	private Map<String, Object> withInstants(final Map<String, Object> claims, final Instant iat, final Instant exp) {
+		final Map<String, Object> attributes = new HashMap<String, Object>(claims);
+		if(iat != null) attributes.put(IdTokenClaimNames.IAT, iat);
+		if(exp != null) attributes.put(IdTokenClaimNames.EXP, exp);
+		return attributes;
+	}
 
 	@Before
 	public void setup() throws Exception {
@@ -82,7 +90,7 @@ public class OidcUserServiceTests {
 		Map<String, Object> idTokenClaims = new HashMap<>();
 		idTokenClaims.put(IdTokenClaimNames.ISS, "https://provider.com");
 		idTokenClaims.put(IdTokenClaimNames.SUB, "subject1");
-		this.idToken = new OidcIdToken("access-token", Instant.MIN, Instant.MAX, idTokenClaims);
+		this.idToken = new OidcIdToken("access-token", withInstants(idTokenClaims, Instant.MIN, Instant.MAX));
 
 		this.userService.setOauth2UserService(new DefaultOAuth2UserService());
 	}
@@ -118,8 +126,10 @@ public class OidcUserServiceTests {
 
 		Set<String> authorizedScopes = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(
-				OAuth2AccessToken.TokenType.BEARER, "access-token",
-				Instant.MIN, Instant.MAX, authorizedScopes);
+				OAuth2AccessToken.TokenType.BEARER,
+				"access-token",
+				withInstants(Collections.emptyMap(), Instant.MIN, Instant.MAX),
+				authorizedScopes);
 
 		OidcUser user = this.userService.loadUser(
 			new OidcUserRequest(clientRegistration, accessToken, this.idToken));

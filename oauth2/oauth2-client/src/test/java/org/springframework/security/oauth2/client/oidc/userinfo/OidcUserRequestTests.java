@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -43,6 +44,13 @@ public class OidcUserRequestTests {
 	private OAuth2AccessToken accessToken;
 	private OidcIdToken idToken;
 	private Map<String, Object> additionalParameters;
+	
+	private Map<String, Object> withInstants(final Map<String, Object> claims, final Instant iat, final Instant exp) {
+		final Map<String, Object> attributes = new HashMap<String, Object>(claims);
+		if(iat != null) attributes.put(IdTokenClaimNames.IAT, iat);
+		if(exp != null) attributes.put(IdTokenClaimNames.EXP, exp);
+		return attributes;
+	}
 
 	@Before
 	public void setUp() {
@@ -59,14 +67,17 @@ public class OidcUserRequestTests {
 				.clientName("Client 1")
 				.build();
 		this.accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-				"access-token-1234", Instant.now(), Instant.now().plusSeconds(60),
+				"access-token-1234",
+				withInstants(Collections.emptyMap(), Instant.now(), Instant.now().plusSeconds(60)),
 				new LinkedHashSet<>(Arrays.asList("scope1", "scope2")));
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
 		claims.put(IdTokenClaimNames.SUB, "subject1");
 		claims.put(IdTokenClaimNames.AZP, "client-1");
-		this.idToken = new OidcIdToken("id-token-1234", Instant.now(),
-				Instant.now().plusSeconds(3600), claims);
+		this.idToken = new OidcIdToken("id-token-1234", withInstants(
+				claims,
+				Instant.now(),
+				Instant.now().plusSeconds(3600)));
 		this.additionalParameters = new HashMap<>();
 		this.additionalParameters.put("param1", "value1");
 		this.additionalParameters.put("param2", "value2");

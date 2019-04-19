@@ -34,6 +34,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 
 /**
  * Tests for {@link JwtAuthenticationConverter}
@@ -81,7 +82,11 @@ public class JwtAuthenticationConverterTests {
 	private Jwt jwt(Map<String, Object> claims) {
 		Map<String, Object> headers = new HashMap<>();
 		headers.put("alg", JwsAlgorithms.RS256);
+		
+		Map<String, Object> attributes = new HashMap<>(claims);
+		attributes.put(JwtClaimNames.IAT, Instant.now());
+		attributes.put(JwtClaimNames.EXP, Instant.now().plusSeconds(3600));
 
-		return new Jwt("token", Instant.now(), Instant.now().plusSeconds(3600), headers, claims);
+		return new Jwt("token", headers, attributes);
 	}
 }

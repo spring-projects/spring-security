@@ -343,8 +343,9 @@ public class OAuth2LoginTests {
 					claims.put(IdTokenClaimNames.ISS, "http://localhost/issuer");
 					claims.put(IdTokenClaimNames.AUD, Collections.singletonList("client"));
 					claims.put(IdTokenClaimNames.AZP, "client");
-					Jwt jwt = new Jwt("id-token", Instant.now(), Instant.now().plusSeconds(3600),
-							Collections.singletonMap("header1", "value1"), claims);
+					claims.put(IdTokenClaimNames.IAT, Instant.now());
+					claims.put(IdTokenClaimNames.EXP, Instant.now().plusSeconds(3600));
+					Jwt jwt = new Jwt("id-token", Collections.singletonMap("header1", "value1"), claims);
 					return Mono.just(jwt);
 				};
 			}

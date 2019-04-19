@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.jwt;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
@@ -46,10 +47,8 @@ public class JwtIssuerValidatorTests {
 	public void validateWhenIssuerMatchesThenReturnsSuccess() {
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN,
-				MOCK_ISSUED_AT,
-				MOCK_EXPIRES_AT,
 				MOCK_HEADERS,
-				Collections.singletonMap("iss", ISSUER));
+				addIssueInstants(Collections.singletonMap("iss", ISSUER)));
 
 		assertThat(this.validator.validate(jwt))
 				.isEqualTo(OAuth2TokenValidatorResult.success());
@@ -59,10 +58,8 @@ public class JwtIssuerValidatorTests {
 	public void validateWhenIssuerMismatchesThenReturnsError() {
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN,
-				MOCK_ISSUED_AT,
-				MOCK_EXPIRES_AT,
 				MOCK_HEADERS,
-				Collections.singletonMap(JwtClaimNames.ISS, "https://other"));
+				addIssueInstants(Collections.singletonMap(JwtClaimNames.ISS, "https://other")));
 
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
 
@@ -73,10 +70,8 @@ public class JwtIssuerValidatorTests {
 	public void validateWhenJwtHasNoIssuerThenReturnsError() {
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN,
-				MOCK_ISSUED_AT,
-				MOCK_EXPIRES_AT,
 				MOCK_HEADERS,
-				Collections.singletonMap(JwtClaimNames.AUD, "https://aud"));
+				addIssueInstants(Collections.singletonMap(JwtClaimNames.AUD, "https://aud")));
 
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
 		assertThat(result.getErrors()).isNotEmpty();
@@ -87,10 +82,8 @@ public class JwtIssuerValidatorTests {
 	public void validateWhenIssuerMatchesAndIsNotAUriThenReturnsSuccess() {
 		Jwt jwt = new Jwt(
 				MOCK_TOKEN,
-				MOCK_ISSUED_AT,
-				MOCK_EXPIRES_AT,
 				MOCK_HEADERS,
-				Collections.singletonMap(JwtClaimNames.ISS, "issuer"));
+				addIssueInstants(Collections.singletonMap(JwtClaimNames.ISS, "issuer")));
 		JwtIssuerValidator validator = new JwtIssuerValidator("issuer");
 
 		assertThat(validator.validate(jwt))
@@ -107,5 +100,12 @@ public class JwtIssuerValidatorTests {
 	public void constructorWhenNullIssuerIsGivenThenThrowsIllegalArgumentException() {
 		assertThatCode(() -> new JwtIssuerValidator(null))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+	
+	private Map<String, Object> addIssueInstants(final Map<String, Object> claims) {
+		Map<String, Object> attributes = new HashMap<>(claims);
+		attributes.put(JwtClaimNames.IAT, MOCK_ISSUED_AT);
+		attributes.put(JwtClaimNames.EXP, MOCK_EXPIRES_AT);
+		return attributes;
 	}
 }

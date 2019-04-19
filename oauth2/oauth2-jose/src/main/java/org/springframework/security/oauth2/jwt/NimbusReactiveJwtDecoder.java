@@ -15,6 +15,23 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import java.security.interfaces.RSAPublicKey;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.util.Assert;
+import org.springframework.web.reactive.function.client.WebClient;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -38,24 +55,9 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
-import org.springframework.util.Assert;
-import org.springframework.web.reactive.function.client.WebClient;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import javax.crypto.SecretKey;
-import java.security.interfaces.RSAPublicKey;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * An implementation of a {@link ReactiveJwtDecoder} that &quot;decodes&quot; a
@@ -162,9 +164,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
 		Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
 
-		Instant expiresAt = (Instant) claims.get(JwtClaimNames.EXP);
-		Instant issuedAt = (Instant) claims.get(JwtClaimNames.IAT);
-		return new Jwt(parsedJwt.getParsedString(), issuedAt, expiresAt, headers, claims);
+		return new Jwt(parsedJwt.getParsedString(), headers, claims);
 	}
 
 	private Jwt validateJwt(Jwt jwt) {

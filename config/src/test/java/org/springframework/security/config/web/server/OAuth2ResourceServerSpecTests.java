@@ -16,6 +16,15 @@
 
 package org.springframework.security.config.web.server;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.hamcrest.core.StringStartsWith.startsWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -27,21 +36,18 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import javax.annotation.PreDestroy;
 
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 import org.apache.http.HttpHeaders;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import reactor.core.publisher.Mono;
-
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +68,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -79,14 +86,11 @@ import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.reactive.DispatcherHandler;
 import org.springframework.web.reactive.config.EnableWebFlux;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.hamcrest.core.StringStartsWith.startsWith;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+import reactor.core.publisher.Mono;
 
 /**
  * Tests for {@link org.springframework.security.config.web.server.ServerHttpSecurity.OAuth2ResourceServerSpec}
@@ -112,10 +116,18 @@ public class OAuth2ResourceServerSpecTests {
 			"    }\n" +
 			"  ]\n" +
 			"}\n";
+	
+	private Map<String, Object> claims() {
+		final Map<String, Object> claims = new HashMap<>();
+		claims.put("sub", "user");
+		claims.put(JwtClaimNames.IAT, Instant.MIN);
+		claims.put(JwtClaimNames.EXP, Instant.MAX);
+		return claims;
+	}
 
-	private Jwt jwt = new Jwt("token", Instant.MIN, Instant.MAX,
+	private Jwt jwt = new Jwt("token",
 			Collections.singletonMap("alg", JwsAlgorithms.RS256),
-			Collections.singletonMap("sub", "user"));
+			claims());
 
 	private String clientId = "client";
 	private String clientSecret = "secret";

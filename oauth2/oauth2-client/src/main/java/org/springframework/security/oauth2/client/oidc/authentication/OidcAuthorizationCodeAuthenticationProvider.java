@@ -208,7 +208,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 			OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, ex.getMessage(), null);
 			throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString(), ex);
 		}
-		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
+		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getClaims());
 		return idToken;
 	}
 }

@@ -28,11 +28,15 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -54,10 +58,16 @@ public class InMemoryReactiveOAuth2AuthorizedClientServiceTests {
 
 	private Authentication principal = new TestingAuthenticationToken(this.principalName, "notused");
 
+	private Map<String, Object> attributes(final Instant iat, final Instant exp) {
+		final Map<String, Object> attributes = new HashMap<String, Object>();
+		if(iat != null) attributes.put(IdTokenClaimNames.IAT, iat);
+		if(exp != null) attributes.put(IdTokenClaimNames.EXP, exp);
+		return attributes;
+	}
+
 	OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 			"token",
-			Instant.now(),
-			Instant.now().plus(Duration.ofDays(1)));
+			attributes(Instant.now(), Instant.now().plus(Duration.ofDays(1))));
 
 	private ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(this.clientRegistrationId)
 			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")

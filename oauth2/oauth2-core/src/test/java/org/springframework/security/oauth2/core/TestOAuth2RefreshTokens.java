@@ -17,13 +17,15 @@
 package org.springframework.security.oauth2.core;
 
 import java.time.Instant;
+import java.util.Collections;
 
 /**
  * @author Rob Winch
  * @since 5.1
  */
 public class TestOAuth2RefreshTokens {
+	
 	public static OAuth2RefreshToken refreshToken() {
-		return new OAuth2RefreshToken("refresh-token", Instant.now());
+		return new OAuth2RefreshToken("refresh-token", Collections.singletonMap("iat", Instant.now()));
 	}
 }

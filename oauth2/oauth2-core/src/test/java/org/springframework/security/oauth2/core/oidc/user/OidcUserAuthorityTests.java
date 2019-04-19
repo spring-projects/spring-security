@@ -44,11 +44,13 @@ public class OidcUserAuthorityTests {
 	static {
 		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.ISS, "https://example.com");
 		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.SUB, SUBJECT);
+		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.IAT, Instant.EPOCH);
+		ID_TOKEN_CLAIMS.put(IdTokenClaimNames.EXP, Instant.MAX);
 		USER_INFO_CLAIMS.put(StandardClaimNames.NAME, NAME);
 		USER_INFO_CLAIMS.put(StandardClaimNames.EMAIL, EMAIL);
 	}
 
-	private static final OidcIdToken ID_TOKEN = new OidcIdToken("id-token-value", Instant.EPOCH, Instant.MAX, ID_TOKEN_CLAIMS);
+	private static final OidcIdToken ID_TOKEN = new OidcIdToken("id-token-value", ID_TOKEN_CLAIMS);
 	private static final OidcUserInfo USER_INFO = new OidcUserInfo(USER_INFO_CLAIMS);
 
 	@Test(expected = IllegalArgumentException.class)
@@ -74,6 +76,6 @@ public class OidcUserAuthorityTests {
 		assertThat(userAuthority.getUserInfo()).isEqualTo(USER_INFO);
 		assertThat(userAuthority.getAuthority()).isEqualTo(AUTHORITY);
 		assertThat(userAuthority.getAttributes()).containsOnlyKeys(
-			IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.NAME, StandardClaimNames.EMAIL);
+			IdTokenClaimNames.ISS, IdTokenClaimNames.SUB, StandardClaimNames.NAME, StandardClaimNames.EMAIL, IdTokenClaimNames.IAT, IdTokenClaimNames.EXP);
 	}
 }

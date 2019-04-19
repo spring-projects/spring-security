@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -54,8 +55,13 @@ public class OAuth2UserRequestTests {
 				.tokenUri("https://provider.com/oauth2/token")
 				.clientName("Client 1")
 				.build();
-		this.accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-				"access-token-1234", Instant.now(), Instant.now().plusSeconds(60),
+		final Map<String, Object> attributes = new HashMap<String, Object>();
+		attributes.put(IdTokenClaimNames.IAT, Instant.now());
+		attributes.put(IdTokenClaimNames.EXP, Instant.now().plusSeconds(60));
+		this.accessToken = new OAuth2AccessToken(
+				OAuth2AccessToken.TokenType.BEARER,
+				"access-token-1234",
+				attributes,
 				new LinkedHashSet<>(Arrays.asList("scope1", "scope2")));
 		this.additionalParameters = new HashMap<>();
 		this.additionalParameters.put("param1", "value1");
