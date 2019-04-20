@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,6 +81,9 @@ public class ExpressionBasedPreInvocationAdvice implements
 						"A PreFilter expression was set but the method argument type"
 								+ arg.getClass() + " is not filterable");
 			}
+		} else if (mi.getArguments().length > 1) {
+			throw new IllegalArgumentException(
+					"Unable to determine the method argument for filtering. Specify the filter target.");
 		}
 
 		if (filterTarget.getClass().isArray()) {
