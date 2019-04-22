@@ -1,5 +1,5 @@
 [[servlet-webclient]]
-= WebClient for Servlet Environments
+== WebClient for Servlet Environments
 
 [NOTE]
 ====
@@ -26,7 +26,7 @@ Spring Security builds on this support to provide additional benefits:
 * Support for the ability to transparently include the current OAuth token or explicitly select which token should be used.
 
 [[servlet-webclient-setup]]
-== WebClient OAuth2 Setup
+=== WebClient OAuth2 Setup
 
 The first step is ensuring to setup the `WebClient` correctly.
 An example of setting up `WebClient` in a servlet environment can be found below:
@@ -49,7 +49,7 @@ WebClient webClient(ClientRegistrationRepository clientRegistrations,
 ----
 
 [[servlet-webclient-implicit]]
-== Implicit OAuth2AuthorizedClient
+=== Implicit OAuth2AuthorizedClient
 
 If we set `defaultOAuth2AuthorizedClient` to `true` in our setup and the user authenticated with oauth2Login (i.e. OIDC), then the current authentication is used to automatically provide the access token.
 Alternatively,  if we set `defaultClientRegistrationId` to a valid `ClientRegistration` id, that registration is used to provide the access token.
@@ -65,7 +65,7 @@ Mono<String> body = this.webClient
 ----
 
 [[servlet-webclient-explicit]]
-== Explicit OAuth2AuthorizedClient
+=== Explicit OAuth2AuthorizedClient
 
 The `OAuth2AuthorizedClient` can be explicitly provided by setting it on the request attributes.
 In the example below we resolve the `OAuth2AuthorizedClient` using Spring WebFlux or Spring MVC argument resolver support.
@@ -86,7 +86,7 @@ Mono<String> explicit(@RegisteredOAuth2AuthorizedClient("client-id") OAuth2Autho
 
 
 [[servlet-webclient-clientregistrationid]]
-== clientRegistrationId
+=== clientRegistrationId
 
 Alternatively, it is possible to specify the `clientRegistrationId` on the request attributes and the `WebClient` will attempt to lookup the `OAuth2AuthorizedClient`.
 If it is not found, one will automatically be acquired.
