@@ -9,7 +9,6 @@ dependencies {
 	optional project(':spring-security-config')
 	optional project(':spring-security-oauth2-resource-server')
 	optional project(':spring-security-oauth2-jose')
-	optional project(':spring-security-oauth2-client')
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.springframework:spring-webflux'
 

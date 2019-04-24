@@ -19,8 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.Test;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,12 +30,12 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
  * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
  * @since 5.2
  */
-public class JwtAuthenticationBuilderTests {
-	static class TestJwtAuthenticationBuilder extends JwtAuthenticationBuilder<TestJwtAuthenticationBuilder> {
+public class JwtAuthenticationTokenBuilderTests {
+	static class TestJwtAuthenticationBuilder extends JwtAuthenticationTokenBuilder<TestJwtAuthenticationBuilder> {
 	}
 
 	@Test
-	public void defaultNameAndAuthority() {
+	public void defaultConstructorConfiguresDefaultNameAndAuthority() {
 		final JwtAuthenticationToken actual = new TestJwtAuthenticationBuilder().build();
 
 		assertThat(actual.getName()).isEqualTo("user");
@@ -45,16 +43,16 @@ public class JwtAuthenticationBuilderTests {
 	}
 
 	@Test
-	public void defaultNameAndRoleOverides() {
+	public void nameAndRoleOverideDefaultValues() {
 		assertThat(new TestJwtAuthenticationBuilder().name("ch4mpy").build().getName()).isEqualTo("ch4mpy");
-		assertThat(new TestJwtAuthenticationBuilder().authority("TEST").build().getAuthorities())
+		assertThat(new TestJwtAuthenticationBuilder().authorities(new SimpleGrantedAuthority("TEST")).build().getAuthorities())
 				.containsExactly(new SimpleGrantedAuthority("TEST"));
-		assertThat(new TestJwtAuthenticationBuilder().role("TEST").build().getAuthorities())
+		assertThat(new TestJwtAuthenticationBuilder().roles("TEST").build().getAuthorities())
 				.containsExactly(new SimpleGrantedAuthority("ROLE_TEST"));
 	}
 
 	@Test
-	public void authenticationNameAndTokenSubjectClaimAreSet() {
+	public void nameSetsAuthenticationNameAndTokenSubjectClaim() {
 		final JwtAuthenticationToken actual = new TestJwtAuthenticationBuilder().name("ch4mpy").build();
 
 		assertThat(actual.getName()).isEqualTo("ch4mpy");
@@ -62,7 +60,7 @@ public class JwtAuthenticationBuilderTests {
 	}
 
 	@Test
-	public void tokenIatIsSetFromClaims() {
+	public void claimWithIatSetIssuedAt() {
 		final Jwt actual = new TestJwtAuthenticationBuilder().name("ch4mpy")
 				.claim(JwtClaimNames.IAT, Instant.parse("2019-03-21T13:52:25Z"))
 				.build()
@@ -75,7 +73,7 @@ public class JwtAuthenticationBuilderTests {
 	}
 
 	@Test
-	public void tokenExpIsSetFromClaims() {
+	public void claimWithExpSetExpiresAt() {
 		final Jwt actual = new TestJwtAuthenticationBuilder().name("ch4mpy")
 				.claim(JwtClaimNames.EXP, Instant.parse("2019-03-21T13:52:25Z"))
 				.build()
@@ -88,9 +86,9 @@ public class JwtAuthenticationBuilderTests {
 	}
 
 	@Test
-	public void scopeClaimAreAddedToAuthorities() {
+	public void buildMergesConvertedClaimsAndAuthorities() {
 		final JwtAuthenticationToken actual = new TestJwtAuthenticationBuilder().name("ch4mpy")
-				.authority("TEST_AUTHORITY")
+				.authorities(new SimpleGrantedAuthority("TEST_AUTHORITY"))
 				.claim("scope", Collections.singleton("scope:claim"))
 				.build();
 
@@ -99,24 +97,8 @@ public class JwtAuthenticationBuilderTests {
 				new SimpleGrantedAuthority("SCOPE_scope:claim"));
 	}
 
-	/**
-	 * "scp" is the an usual name for "scope" claim
-	 */
-
 	@Test
-	public void scpClaimAreAddedToAuthorities() {
-		final JwtAuthenticationToken actual = new TestJwtAuthenticationBuilder().name("ch4mpy")
-				.authorities("TEST_AUTHORITY")
-				.claim("scp", Collections.singleton("scope:claim"))
-				.build();
-
-		assertThat(actual.getAuthorities()).containsExactlyInAnyOrder(
-				new SimpleGrantedAuthority("TEST_AUTHORITY"),
-				new SimpleGrantedAuthority("SCOPE_scope:claim"));
-	}
-
-	@Test
-	public void fromJwt() {
+	public void jwtInitializesNameAuthoritiesAndClaims() {
 		final Jwt jwt = new Jwt(
 				"test-token",
 				null,

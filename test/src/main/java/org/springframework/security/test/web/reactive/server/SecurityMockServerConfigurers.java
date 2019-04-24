@@ -33,6 +33,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.test.support.JwtAuthenticationTokenBuilder;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.MockServerConfigurer;
@@ -323,5 +324,38 @@ public class SecurityMockServerConfigurers {
 			}
 			return webFilterChain.filter(exchange);
 		}
+	}
+	
+	/**
+	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+	 * @since 5.2
+	 */
+	public static class JwtMutator extends JwtAuthenticationTokenBuilder<JwtMutator>
+			implements
+			WebTestClientConfigurer,
+			MockServerConfigurer {
+
+		@Override
+		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
+			configurer().beforeServerCreated(builder);
+		}
+
+		@Override
+		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
+			configurer().afterConfigureAdded(serverSpec);
+		}
+
+		@Override
+		public void afterConfigurerAdded(
+				WebTestClient.Builder builder,
+				@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
+				@Nullable ClientHttpConnector connector) {
+			configurer().afterConfigurerAdded(builder, httpHandlerBuilder, connector);
+		}
+
+		private <T extends WebTestClientConfigurer & MockServerConfigurer> T configurer() {
+			return mockAuthentication(build());
+		}
+
 	}
 }

@@ -23,7 +23,7 @@ package org.springframework.security.oauth2.server.resource.introspection;
  * @author Josh Cummings
  * @since 5.2
  */
-public interface OAuth2IntrospectionClaimNames {
+interface OAuth2IntrospectionClaimNames {
 
 	/**
 	 * {@code active} - Indicator whether or not the token is currently active

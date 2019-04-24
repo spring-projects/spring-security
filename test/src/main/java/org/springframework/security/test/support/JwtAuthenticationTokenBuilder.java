@@ -39,7 +39,7 @@ import org.springframework.util.Assert;
  * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
  * @since 5.2
  */
-public class JwtAuthenticationBuilder<T extends JwtAuthenticationBuilder<T>> {
+public class JwtAuthenticationTokenBuilder<T extends JwtAuthenticationTokenBuilder<T>> {
 
 	private static final String DEFAULT_NAME = "user";
 
@@ -56,31 +56,30 @@ public class JwtAuthenticationBuilder<T extends JwtAuthenticationBuilder<T>> {
 
 	private static final String ROLE_PREFIX = "ROLE_";
 
-	protected String name;
-
-	protected final Set<String> authorities;
+	private final Set<GrantedAuthority> authorities;
 
 	private boolean isAuthoritiesSet = false;
 
-	protected final Map<String, Object> claims = new HashMap<>();
+	private final Map<String, Object> claims = new HashMap<>();
 
-	protected Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter;
+	private Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter;
 
 	private String tokenValue = DEFAULT_TOKEN_VALUE;
 
 	private final Map<String, Object> headers = new HashMap<>();
 
-	public JwtAuthenticationBuilder() {
+	public JwtAuthenticationTokenBuilder() {
 		this.authoritiesConverter = new JwtGrantedAuthoritiesConverter();
 		name(DEFAULT_NAME);
-		this.authorities = new HashSet<>(Arrays.asList(DEFAULT_AUTHORITIES));
+		this.authorities = new HashSet<>(Arrays.asList(DEFAULT_AUTHORITIES).stream()
+				.map(SimpleGrantedAuthority::new).collect(Collectors.toSet()));
 	}
 
 	/**
 	 * @param jwt fully configured JWT
 	 * @return pre-configured builder
 	 */
-	public T jwt(final Jwt token) {
+	public T jwt(Jwt token) {
 		final Map<String, Object> claims = new HashMap<>(token.getClaims());
 		putIfNotEmpty(JwtClaimNames.IAT, token.getIssuedAt(), claims);
 		putIfNotEmpty(JwtClaimNames.EXP, token.getExpiresAt(), claims);
@@ -88,18 +87,18 @@ public class JwtAuthenticationBuilder<T extends JwtAuthenticationBuilder<T>> {
 		return claims(claims).tokenValue(token.getTokenValue()).name(token.getSubject()).headers(token.getHeaders());
 	}
 
-	public T tokenValue(final String tokenValue) {
+	public T tokenValue(String tokenValue) {
 		this.tokenValue = tokenValue;
 		return downCast();
 	}
 
-	public T name(final String name) {
-		this.name = name;
-		return downCast();
+	public T name(String name) {
+		Assert.hasLength(name, "name must be non empty");
+		return claim(JwtClaimNames.SUB, name);
 	}
 
-	public T authority(final String authority) {
-		Assert.hasText(authority, "authority must be non empty");
+	private T authority(GrantedAuthority authority) {
+		Assert.notNull(authority, "authority must be non null");
 		if (!this.isAuthoritiesSet) {
 			this.authorities.clear();
 			this.isAuthoritiesSet = true;
@@ -108,112 +107,93 @@ public class JwtAuthenticationBuilder<T extends JwtAuthenticationBuilder<T>> {
 		return downCast();
 	}
 
-	public T authorities(final Stream<String> authorities) {
+	public T authorities(Stream<GrantedAuthority> authorities) {
 		this.authorities.clear();
 		authorities.forEach(this::authority);
 		return downCast();
 	}
 
-	public T authorities(final String... authorities) {
+	public T authorities(GrantedAuthority... authorities) {
 		return authorities(Stream.of(authorities));
 	}
 
-	public T authorities(final Collection<String> authorities) {
+	public T authorities(Collection<GrantedAuthority> authorities) {
 		return authorities(authorities.stream());
 	}
 
-	public T role(final String role) {
-		Assert.hasText(role, "authority must be non empty");
+	private T role(String role) {
+		Assert.hasText(role, "role must be non empty");
 		Assert.isTrue(
 				!role.startsWith(ROLE_PREFIX),
 				"role must not be prefixed with " + ROLE_PREFIX + " (it is auto-added)");
-		return authority(ROLE_PREFIX + role);
+		return authority(new SimpleGrantedAuthority(ROLE_PREFIX + role));
 	}
 
-	public T roles(final Stream<String> roles) {
-		this.authorities.removeIf(a -> a.startsWith(ROLE_PREFIX));
+	public T roles(Stream<String> roles) {
 		roles.forEach(this::role);
 		return downCast();
 	}
 
-	public T roles(final String... roles) {
+	public T roles(String... roles) {
 		return roles(Stream.of(roles));
 	}
 
-	public T roles(final Collection<String> roles) {
+	public T roles(Collection<String> roles) {
 		return roles(roles.stream());
 	}
 
-	public T claim(final String name, final Object value) {
-		Assert.hasText(name, "Claim name must be non empty");
-		if (getNameClaimName().equals(name)) {
-			return name(value.toString());
-		}
+	public T claim(String name, Object value) {
+		Assert.hasText(name, "claim name must be non empty");
 		this.claims.put(name, value);
 		return downCast();
 	}
 
-	public T claims(final Map<String, Object> attributes) {
-		Assert.notNull(attributes, "attributes must be non null");
-		this.claims.clear();
-		attributes.entrySet().stream().forEach(e -> this.claim(e.getKey(), e.getValue()));
+	public T claims(Map<String, Object> claims) {
+		Assert.notNull(claims, "claims must be non null");
+		claims.entrySet().stream().forEach(e -> this.claim(e.getKey(), e.getValue()));
 		return downCast();
 	}
 
-	public T authoritiesConverter(final Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
+	public T authoritiesConverter(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
 		this.authoritiesConverter = authoritiesConverter;
 		return downCast();
 	}
 
-	Set<GrantedAuthority> getAllAuthorities(final Jwt token) {
+	Set<GrantedAuthority> getAllAuthorities(Jwt token) {
 		return Stream
 				.concat(
-						authorities.stream().map(SimpleGrantedAuthority::new),
-						authoritiesConverter.convert(token).stream())
+						this.authorities.stream(),
+						this.authoritiesConverter.convert(token).stream())
 				.collect(Collectors.toSet());
 	}
 
-	public T header(final String name, final Object value) {
-		Assert.hasText(name, "Header name can't be empty");
+	public T header(String name, Object value) {
+		Assert.hasText(name, "header name can't be empty");
 		this.headers.put(name, value);
 		return downCast();
 	}
 
-	public T headers(final Map<String, Object> headers) {
-		Assert.notEmpty(headers, "Headers can't be empty as Jwt constructor throws runtime exception on empty headers.");
+	public T headers(Map<String, Object> headers) {
+		Assert.notEmpty(headers, "headers can't be empty");
 		this.headers.clear();
 		headers.entrySet().stream().forEach(e -> this.header(e.getKey(), e.getValue()));
 		return downCast();
 	}
 
 	public JwtAuthenticationToken build() {
-		putIfNotEmpty(getNameClaimName(), name, claims);
-
 		final Jwt token = new Jwt(
-				tokenValue,
-				(Instant) claims.get(JwtClaimNames.IAT),
-				(Instant) claims.get(JwtClaimNames.EXP),
-				headers.isEmpty() ? DEFAULT_HEADERS : headers,
-				claims);
+				this.tokenValue,
+				(Instant) this.claims.get(JwtClaimNames.IAT),
+				(Instant) this.claims.get(JwtClaimNames.EXP),
+				this.headers.isEmpty() ? DEFAULT_HEADERS : this.headers,
+				this.claims);
 
 		return new JwtAuthenticationToken(token, getAllAuthorities(token));
-	}
-
-	protected String getNameClaimName() {
-		return JwtClaimNames.SUB;
 	}
 
 	@SuppressWarnings("unchecked")
 	protected T downCast() {
 		return (T) this;
-	}
-
-	private static final Map<String, Object>
-			putIfNotEmpty(final String key, final String value, final Map<String, Object> map) {
-		if (value != null && !value.isEmpty()) {
-			map.put(key, value);
-		}
-		return map;
 	}
 
 	private static final Map<String, Object>

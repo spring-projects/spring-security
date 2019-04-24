@@ -48,6 +48,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.test.context.TestSecurityContextHolder;
+import org.springframework.security.test.support.JwtAuthenticationTokenBuilder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
@@ -961,5 +962,21 @@ public final class SecurityMockMvcRequestPostProcessors {
 	}
 
 	private SecurityMockMvcRequestPostProcessors() {
+	}
+	
+	/**
+	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+	 * @since 5.2
+	 */
+	public static class JwtRequestPostProcessor extends JwtAuthenticationTokenBuilder<JwtRequestPostProcessor>
+			implements
+			RequestPostProcessor {
+
+		@Override
+		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			SecurityContextRequestPostProcessorSupport.save(build(), request);
+			return request;
+		}
+
 	}
 }

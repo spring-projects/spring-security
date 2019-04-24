@@ -28,7 +28,7 @@ import org.junit.Test;
 public class JwtMutatorTests {
 // @formatter:off
 	@Test
-	public void testDefaultJwtConfigurer() {
+	public void defaultJwtConfigurerConfiguresAuthenticationDefaultNameAndAuthorities() {
 		TestController.clientBuilder()
 				.apply(mockJwt()).build()
 				.get().uri("/greet").exchange()
@@ -43,7 +43,7 @@ public class JwtMutatorTests {
 	}
 
 	@Test
-	public void testCustomJwtConfigurer() {
+	public void nameAndClaimsConfigureAuthenticationNameAndAuthorities() {
 		TestController.clientBuilder()
 				.apply(mockJwt().name("ch4mpy").claim("scope", Collections.singleton("message:read"))).build()
 				.get().uri("/greet").exchange()
@@ -59,28 +59,6 @@ public class JwtMutatorTests {
 		TestController.clientBuilder()
 				.apply(mockJwt().name("ch4mpy").claim("scope", Collections.singleton("message:read")))
 				.build()
-				.get().uri("/jwt").exchange()
-				.expectStatus().isOk()
-				.expectBody().toString().equals(
-						"Hello,ch4mpy! You are sucessfully authenticated and granted with [message:read] scopes using a JavaWebToken.");
-	}
-
-	@Test
-	public void testCustomJwtMutator() {
-		TestController.client()
-				.mutateWith((mockJwt().name("ch4mpy").claim("scope", Collections.singleton("message:read"))))
-				.get().uri("/greet").exchange()
-				.expectStatus().isOk()
-				.expectBody().toString().equals("Hello ch4mpy!");
-
-		TestController.client()
-				.mutateWith((mockJwt().name("ch4mpy").claim("scope", Collections.singleton("message:read"))))
-				.get().uri("/authorities").exchange()
-				.expectStatus().isOk()
-				.expectBody().toString().equals("[\"SCOPE_message:read\"]");
-
-		TestController.client()
-				.mutateWith(mockJwt().name("ch4mpy").claim("scope", Collections.singleton("message:read")))
 				.get().uri("/jwt").exchange()
 				.expectStatus().isOk()
 				.expectBody().toString().equals(

@@ -63,36 +63,9 @@ public class TestController {
 		final Collection<String> scopes = (Collection<String>) token.getClaims().get("scope");
 
 		return String.format(
-				"Hello, %s! You are sucessfully authenticated and granted with %s scopes using a JavaWebToken.",
+				"Hello, %s! You are sucessfully authenticated and granted with %s scopes using a Jwt.",
 				token.getSubject(),
 				scopes.toString());
-	}
-
-	@GetMapping("/access-token")
-	// TODO: investigate why "@AuthenticationPrincipal Map<String, Object>
-	// tokenAttributes" does not work here
-	public String accessToken(final Authentication authentication) {
-		@SuppressWarnings("unchecked")
-		final Map<String, Object> tokenAttributes = (Map<String, Object>) authentication.getPrincipal();
-		return String.format(
-				"Hello, %s! You are sucessfully authenticated and granted with %s scopes using an OAuth2AccessToken.",
-				tokenAttributes.get("username"),
-				tokenAttributes.get("scope").toString());
-	}
-
-	@GetMapping("/open-id")
-	// TODO: investigate why "@AuthenticationPrincipal OidcUser token" does not work
-	// here
-	public String openId(final Authentication authentication) {
-		final OidcUser token = (OidcUser) authentication.getPrincipal();
-		return String.format(
-				"Hello, %s! You are sucessfully authenticated and granted with %s authorities using an OidcId token.",
-				token.getName(),
-				token.getAuthorities()
-						.stream()
-						.map(GrantedAuthority::getAuthority)
-						.collect(Collectors.toList())
-						.toString());
 	}
 
 	public static WebTestClient.Builder clientBuilder() {

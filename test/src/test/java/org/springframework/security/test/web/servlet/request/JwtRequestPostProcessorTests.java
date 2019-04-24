@@ -21,15 +21,18 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.SecurityContextRequestPostProcessorSupport.TestSecurityContextRepository;
 
 /**
@@ -41,7 +44,7 @@ public class JwtRequestPostProcessorTests {
 	MockHttpServletRequest request;
 
 	final static String TEST_NAME = "ch4mpy";
-	final static String[] TEST_AUTHORITIES = new String[] { "TEST_AUTHORITY" };
+	final static Set<GrantedAuthority> TEST_AUTHORITIES = Collections.singleton(new SimpleGrantedAuthority("TEST_AUTHORITY"));
 
 	@Before
 	public void setup() throws Exception {
@@ -50,7 +53,7 @@ public class JwtRequestPostProcessorTests {
 	
 	@Test
 	@SuppressWarnings("unchecked")
-	public void test() {
+	public void nameAndAuthoritiesAndClaimsConfigureSecurityContextAuthentication() {
 		final JwtRequestPostProcessor rpp =
 				jwt().name(TEST_NAME).authorities(TEST_AUTHORITIES).claim("scp", Collections.singleton("test:claim"));
 
