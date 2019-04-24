@@ -87,7 +87,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
 	private static String resolveFromAuthorizationHeader(HttpServletRequest request) {
 		String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-		if (StringUtils.hasText(authorization) && authorization.startsWith("Bearer")) {
+		if (StringUtils.hasText(authorization) && authorization.toLowerCase().startsWith("bearer")) {
 			Matcher matcher = authorizationPattern.matcher(authorization);
 
 			if (!matcher.matches()) {
