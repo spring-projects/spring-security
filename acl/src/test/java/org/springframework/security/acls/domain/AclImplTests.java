@@ -577,6 +577,25 @@ public class AclImplTests {
 		assertThat(acl.isGranted(permissions, sids, false)).isTrue();
 	}
 
+	@Test
+	public void hashCodeWithoutStackOverFlow() throws Exception {
+		//given
+		Sid sid = new PrincipalSid("pSid");
+		ObjectIdentity oid = new ObjectIdentityImpl("type", 1);
+		AclAuthorizationStrategy authStrategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("role"));
+		PermissionGrantingStrategy grantingStrategy = new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger());
+
+				AclImpl acl = new AclImpl(oid, 1L, authStrategy, grantingStrategy, null, null, false, sid);
+		AccessControlEntryImpl ace = new AccessControlEntryImpl(1L, acl, sid, BasePermission.READ, true, true, true);
+
+				Field fieldAces = FieldUtils.getField(AclImpl.class, "aces");
+		fieldAces.setAccessible(true);
+		List<AccessControlEntryImpl> aces = (List<AccessControlEntryImpl>) fieldAces.get(acl);
+		aces.add(ace);
+		//when - then none StackOverFlowError been raised
+		ace.hashCode();
+	}
+
 	// ~ Inner Classes
 	// ==================================================================================================
 
