@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,10 +131,9 @@ public class AccessControlEntryImpl implements AccessControlEntry,
 
 	@Override
 	public int hashCode() {
-		int result = this.acl.hashCode();
-		result = 31 * result + this.permission.hashCode();
+		int result = this.permission.hashCode();
 		result = 31 * result + (this.id != null ? this.id.hashCode() : 0);
-		result = 31 * result + this.sid.hashCode();
+		result = 31 * result + (this.sid.hashCode());
 		result = 31 * result + (this.auditFailure ? 1 : 0);
 		result = 31 * result + (this.auditSuccess ? 1 : 0);
 		result = 31 * result + (this.granting ? 1 : 0);
