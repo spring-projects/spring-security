@@ -40,7 +40,7 @@ public final class HttpStatusEntryPoint implements AuthenticationEntryPoint {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param httpStatus the HttpSatus to set
+	 * @param httpStatus the HttpStatus to set
 	 */
 	public HttpStatusEntryPoint(HttpStatus httpStatus) {
 		Assert.notNull(httpStatus, "httpStatus cannot be null");
