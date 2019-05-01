@@ -223,7 +223,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 *
 	 * @since 5.2
 	 */
-	public static JwkSourceReactiveJwtDecoderBuilder withJwkSource(Function<JWT, Flux<JWK>> source) {
+	public static JwkSourceReactiveJwtDecoderBuilder withJwkSource(Function<SignedJWT, Flux<JWK>> source) {
 		return new JwkSourceReactiveJwtDecoderBuilder(source);
 	}
 
@@ -434,10 +434,10 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 * @since 5.2
 	 */
 	public static final class JwkSourceReactiveJwtDecoderBuilder {
-		private final Function<JWT, Flux<JWK>> jwkSource;
+		private final Function<SignedJWT, Flux<JWK>> jwkSource;
 		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
 
-		private JwkSourceReactiveJwtDecoderBuilder(Function<JWT, Flux<JWK>> jwkSource) {
+		private JwkSourceReactiveJwtDecoderBuilder(Function<SignedJWT, Flux<JWK>> jwkSource) {
 			Assert.notNull(jwkSource, "jwkSource cannot be null");
 			this.jwkSource = jwkSource;
 		}
