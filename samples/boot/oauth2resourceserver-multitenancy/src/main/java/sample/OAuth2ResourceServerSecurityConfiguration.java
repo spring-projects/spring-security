@@ -65,8 +65,10 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 		authenticationManagers.put("tenantOne", jwt());
 		authenticationManagers.put("tenantTwo", opaque());
 		return request -> {
-			String tenantId = request.getPathInfo().split("/")[1];
-			return Optional.ofNullable(authenticationManagers.get(tenantId))
+			String[] pathParts = request.getRequestURI().split("/");
+			String tenantId = pathParts.length > 0 ? pathParts[1] : null;
+			return Optional.ofNullable(tenantId)
+					.map(authenticationManagers::get)
 					.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
 		};
 	}

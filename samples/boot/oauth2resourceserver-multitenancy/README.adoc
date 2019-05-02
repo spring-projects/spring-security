@@ -23,13 +23,21 @@ By default, the tests are pointing at a mock Authorization Server instance.
 The tests are configured with a set of hard-coded tokens originally obtained from the mock Authorization Server,
 and each makes a query to the Resource Server with their corresponding token.
 
-The Resource Server subsquently verifies with the Authorization Server and authorizes the request, returning the phrase
+The Resource Server subsequently verifies with the Authorization Server and authorizes the request, returning either the
+phrase
 
 ```bash
-Hello, subject!
+Hello, subject for tenantOne!
 ```
 
-where "subject" is the value of the `sub` field in the JWT returned by the Authorization Server.
+where "subject" is the value of the `sub` field in the JWT sent in the `Authorization` header,
+
+or the phrase
+```bash
+Hello, subject for tenantTwo!
+```
+where "subject" is the value of the `sub` field in the Introspection response from the Authorization Server.
+
 
 == 2. Running the app
 
@@ -41,6 +49,8 @@ To run as a stand-alone application, do:
 
 Or import the project into your IDE and run `OAuth2ResourceServerApplication` from there.
 
+=== Authorizing with tenantOne (JWT)
+
 Once it is up, you can use the following token:
 
 ```bash
@@ -50,36 +60,72 @@ export TOKEN=eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzdWJqZWN0IiwiZXhwIjo0NjgzODA1MTI4fQ
 And then make this request:
 
 ```bash
-curl -H "Authorization: Bearer $TOKEN" localhost:8080
+curl -H "Authorization: Bearer $TOKEN" localhost:8080/tenantOne
 ```
 
 Which will respond with the phrase:
 
 ```bash
-Hello, subject!
+Hello, subject for tenantOne!
 ```
 
-where `subject` is the value of the `sub` field in the JWT returned by the Authorization Server.
+where `subject` is the value of the `sub` field in the JWT sent in the `Authorization` header.
 
 Or this:
 
 ```bash
 export TOKEN=eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzdWJqZWN0Iiwic2NvcGUiOiJtZXNzYWdlOnJlYWQiLCJleHAiOjQ2ODM4MDUxNDF9.h-j6FKRFdnTdmAueTZCdep45e6DPwqM68ZQ8doIJ1exi9YxAlbWzOwId6Bd0L5YmCmp63gGQgsBUBLzwnZQ8kLUgUOBEC3UzSWGRqMskCY9_k9pX0iomX6IfF3N0PaYs0WPC4hO1s8wfZQ-6hKQ4KigFi13G9LMLdH58PRMK0pKEvs3gCbHJuEPw-K5ORlpdnleUTQIwINafU57cmK3KocTeknPAM_L716sCuSYGvDl6xUTXO7oPdrXhS_EhxLP6KxrpI1uD4Ea_5OWTh7S0Wx5LLDfU6wBG1DowN20d374zepOIEkR-Jnmr_QlR44vmRqS5ncrF-1R0EGcPX49U6A
 
-curl -H "Authorization: Bearer $TOKEN" localhost:8080/message
+curl -H "Authorization: Bearer $TOKEN" localhost:8080/tenantOne/message
 ```
 
 Will respond with:
 
 ```bash
-secret message
+secret message for tenantOne
+```
+
+=== Authorizing with tenantTwo (Opaque token)
+
+Once it is up, you can use the following token:
+
+```bash
+export TOKEN=00ed5855-1869-47a0-b0c9-0f3ce520aee7
+```
+
+And then make this request:
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" localhost:8080/tenantTwo
+```
+
+Which will respond with the phrase:
+
+```bash
+Hello, subject for tenantTwo!
+```
+
+where `subject` is the value of the `sub` field in the Introspection response from the Authorization Server.
+
+Or this:
+
+```bash
+export TOKEN=b43d1500-c405-4dc9-b9c9-6cfd966c34c9
+
+curl -H "Authorization: Bearer $TOKEN" localhost:8080/tenantTwo/message
+```
+
+Will respond with:
+
+```bash
+secret message for tenantTwo
 ```
 
 == 2. Testing against other Authorization Servers
 
 _In order to use this sample, your Authorization Server must support JWTs that either use the "scope" or "scp" attribute._
 
-To change the sample to point at your Authorization Server, simply find this property in the `application.yml`:
+To change the sample to point at your Authorization Server, simply find these properties in the `application.yml`:
 
 ```yaml
 spring:
@@ -88,9 +134,15 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${mockwebserver.url}/.well-known/jwks.json
+        opaque:
+          introspection-uri: ${mockwebserver.url}/introspect
+          introspection-client-id: client
+          introspection-client-secret: secret
+
 ```
 
-And change the property to your Authorization Server's JWK set endpoint:
+And change the properties to your Authorization Server's JWK set endpoint and
+introspection endpoint, including its client id and secret
 
 ```yaml
 spring:
@@ -99,6 +151,10 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: https://dev-123456.oktapreview.com/oauth2/default/v1/keys
+        opaque:
+          introspection-uri: https://dev-123456.oktapreview.com/oauth2/default/v1/introspect
+          introspection-client-id: client
+          introspection-client-secret: secret
 ```
 
 And then you can run the app the same as before:
