@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -604,8 +605,11 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
 				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
 
+		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
+				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+
 		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
-		entryPoints.put(new NegatedRequestMatcher(defaultLoginPageMatcher),
+		entryPoints.put(new AndRequestMatcher(notXRequestedWith, new NegatedRequestMatcher(defaultLoginPageMatcher)),
 				new LoginUrlAuthenticationEntryPoint(providerLoginPage));
 
 		DelegatingAuthenticationEntryPoint loginEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
