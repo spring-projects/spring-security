@@ -62,6 +62,15 @@ public class OAuth2ResourceServerApplicationITests {
 				.andExpect(content().string(containsString("Hello, subject for tenantOne!")));
 	}
 
+	@Test
+	public void tenantOnePerformWhenValidBearerTokenWithServletPathThenAllows()
+		throws Exception {
+
+		this.mvc.perform(get("/tenantOne").servletPath("/tenantOne").with(bearerToken(this.tenantOneNoScopesToken)))
+				.andExpect(status().isOk())
+				.andExpect(content().string(containsString("Hello, subject for tenantOne!")));
+	}
+
 	// -- tests with scopes
 
 	@Test
@@ -111,6 +120,13 @@ public class OAuth2ResourceServerApplicationITests {
 				.andExpect(status().isForbidden())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE,
 						containsString("Bearer error=\"insufficient_scope\"")));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void invalidTenantPerformWhenValidBearerTokenThenThrowsException()
+			throws Exception {
+
+		this.mvc.perform(get("/tenantThree").with(bearerToken(this.tenantOneNoScopesToken)));
 	}
 
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
