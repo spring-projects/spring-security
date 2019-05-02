@@ -374,6 +374,21 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
 	}
 
+	// gh-6812
+	@Test
+	public void oauth2LoginWithOneClientConfiguredAndRequestXHRNotAuthenticatedThenDoesNotRedirectForAuthorization() throws Exception {
+		loadConfig(OAuth2LoginConfig.class);
+
+		String requestUri = "/";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.request.addHeader("X-Requested-With", "XMLHttpRequest");
+
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+
+		assertThat(this.response.getRedirectedUrl()).doesNotMatch("http://localhost/oauth2/authorization/google");
+	}
+
 	@Test
 	public void oauth2LoginWithCustomLoginPageThenRedirectCustomLoginPage() throws Exception {
 		loadConfig(OAuth2LoginConfigCustomLoginPage.class);
