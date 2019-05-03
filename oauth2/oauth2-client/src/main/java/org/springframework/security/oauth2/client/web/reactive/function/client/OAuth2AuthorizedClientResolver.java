@@ -70,6 +70,7 @@ class OAuth2AuthorizedClientResolver {
 	 * If true, a default {@link OAuth2AuthorizedClient} can be discovered from the current Authentication. It is
 	 * recommended to be cautious with this feature since all HTTP requests will receive the access token if it can be
 	 * resolved from the current Authentication.
+	 *
 	 * @param defaultOAuth2AuthorizedClient true if a default {@link OAuth2AuthorizedClient} should be used, else false.
 	 *                                      Default is false.
 	 */
@@ -80,6 +81,7 @@ class OAuth2AuthorizedClientResolver {
 	/**
 	 * If set, will be used as the default {@link ClientRegistration#getRegistrationId()}. It is
 	 * recommended to be cautious with this feature since all HTTP requests will receive the access token.
+	 *
 	 * @param clientRegistrationId the id to use
 	 */
 	public void setDefaultClientRegistrationId(String clientRegistrationId) {
@@ -89,6 +91,7 @@ class OAuth2AuthorizedClientResolver {
 	/**
 	 * Sets the {@link ReactiveOAuth2AccessTokenResponseClient} to be used for getting an {@link OAuth2AuthorizedClient} for
 	 * client_credentials grant.
+	 *
 	 * @param clientCredentialsTokenResponseClient the client to use
 	 */
 	public void setClientCredentialsTokenResponseClient(
@@ -98,7 +101,7 @@ class OAuth2AuthorizedClientResolver {
 	}
 
 	Mono<Request> createDefaultedRequest(String clientRegistrationId,
-			Authentication authentication, ServerWebExchange exchange) {
+										 Authentication authentication, ServerWebExchange exchange) {
 		Mono<Authentication> defaultedAuthentication = Mono.justOrEmpty(authentication)
 				.switchIfEmpty(currentAuthentication());
 
@@ -124,14 +127,14 @@ class OAuth2AuthorizedClientResolver {
 
 	private Mono<OAuth2AuthorizedClient> authorizedClientNotLoaded(String clientRegistrationId, Authentication authentication, ServerWebExchange exchange) {
 		return this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
-			.switchIfEmpty(Mono.error(() -> new IllegalArgumentException("Client Registration with id " + clientRegistrationId + " was not found")))
-			.flatMap(clientRegistration -> {
-				if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType())) {
-					return clientCredentials(clientRegistration, authentication, exchange);
-				}
-				return Mono.error(() -> new ClientAuthorizationRequiredException(clientRegistrationId));
-			});
-}
+				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException("Client Registration with id " + clientRegistrationId + " was not found")))
+				.flatMap(clientRegistration -> {
+					if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType())) {
+						return clientCredentials(clientRegistration, authentication, exchange);
+					}
+					return Mono.error(() -> new ClientAuthorizationRequiredException(clientRegistrationId));
+				});
+	}
 
 	Mono<OAuth2AuthorizedClient> clientCredentials(
 			ClientRegistration clientRegistration, Authentication authentication, ServerWebExchange exchange) {
@@ -149,6 +152,7 @@ class OAuth2AuthorizedClientResolver {
 
 	/**
 	 * Attempts to load the client registration id from the current {@link Authentication}
+	 *
 	 * @return
 	 */
 	private Mono<String> clientRegistrationId(Mono<Authentication> authentication) {
@@ -176,7 +180,7 @@ class OAuth2AuthorizedClientResolver {
 		private final ServerWebExchange exchange;
 
 		public Request(String clientRegistrationId, Authentication authentication,
-				ServerWebExchange exchange) {
+					   ServerWebExchange exchange) {
 			this.clientRegistrationId = clientRegistrationId;
 			this.authentication = authentication;
 			this.exchange = exchange;

@@ -32,6 +32,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -42,6 +43,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 
 /**
  * An implementation of a {@link HandlerMethodArgumentResolver} that is capable
@@ -68,6 +72,10 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	private final OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient =
 			new DefaultClientCredentialsTokenResponseClient();
+
+	private Clock clock = Clock.systemUTC();
+	private Duration accessTokenExpiresSkew = Duration.ofMinutes(1);
+
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClientArgumentResolver} using the provided parameters.
@@ -105,18 +113,29 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 					"@RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
 		}
 
+		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
+		if (clientRegistration == null) {
+			return null;
+		}
+
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
 		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
 
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
 				clientRegistrationId, principal, servletRequest);
 		if (authorizedClient != null) {
-			return authorizedClient;
-		}
+			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
+				// MH TODO: Refresh token
+			}
 
-		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
-		if (clientRegistration == null) {
-			return null;
+			if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType())) {
+				if (hasTokenExpired(authorizedClient)) {
+					HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
+					authorizedClient = this.authorizeClientCredentialsClient(clientRegistration, servletRequest, servletResponse);
+				}
+			}
+
+			return authorizedClient;
 		}
 
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
@@ -170,6 +189,24 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 				response);
 
 		return authorizedClient;
+	}
+
+	private boolean shouldRefreshToken(OAuth2AuthorizedClient authorizedClient) {
+		if (this.authorizedClientRepository == null) {
+			return false;
+		}
+		OAuth2RefreshToken refreshToken = authorizedClient.getRefreshToken();
+		if (refreshToken == null) {
+			return false;
+		}
+		return hasTokenExpired(authorizedClient);
+	}
+
+	private boolean hasTokenExpired(OAuth2AuthorizedClient authorizedClient) {
+		Instant now = this.clock.instant();
+		Instant expiresAt = authorizedClient.getAccessToken().getExpiresAt();
+
+		return now.isAfter(expiresAt.minus(this.accessTokenExpiresSkew));
 	}
 
 	/**
