@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>Spring Security WebAuthn Sample</title>
+
+    <meta name="contextPath" th:content="@{/}" content="" />
+
+    <meta name="webAuthnChallenge" th:content="${webAuthnChallenge}" content="" />
+
+    <th:block th:each="webAuthnCredentialId : ${webAuthnCredentialIds}">
+        <meta name="webAuthnCredentialId" th:content="${webAuthnCredentialId}" content="" />
+    </th:block>
+
+    <!-- for responsive -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+
+    <link rel="stylesheet" th:href="@{/css/tiny.css}" />
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.1.1/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/5.8.2/css/all.css}" />
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/4.1.1/js/bootstrap.min.js}"></script>
+    <script th:src="@{/js/base64url.js}"></script>
+    <script th:src="@{/js/webauthn.js}"></script>
+</head>
+<body class="hold-transition login-page" id="login-login-view">
+<div class="content-wrapper">
+    <h1 href="/" class="h3 font-weight-normal text-center">Spring Security WebAuthn Sample</h1>
+
+    <h2 href="/" class="h4 font-weight-normal text-center">Dashboard</h2>
+
+    <h3 href="/" class="h4 font-weight-normal text-center">Login success</h3>
+
+    <form th:action="@{/logout}" method="post">
+        <div class="mt-3 mb-3">
+            <button type="submit"  class="btn btn-link" value="webAuthnLogin">Logout</button>
+        </div>
+    </form>
+
+</div>
+<!-- /.content-wrapper -->
+
+</body>
+</html>

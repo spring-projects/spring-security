@@ -1,0 +1,17 @@
+plugins {
+	id "io.spring.convention.spring-sample-boot"
+}
+
+dependencies {
+	compile project(':spring-security-webauthn')
+	compile('org.springframework.boot:spring-boot-starter-web')
+
+	compile("org.slf4j:jcl-over-slf4j")
+	compile('ch.qos.logback:logback-classic')
+	compile('org.thymeleaf:thymeleaf-spring5')
+
+	compile('org.webjars:bootstrap:4.1.1')
+	compile('org.webjars:jquery:3.3.1')
+	compile('org.webjars:font-awesome:5.8.2')
+
+}

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>Spring Security WebAuthn Sample</title>
+
+    <meta name="contextPath" th:content="@{/}" content="" />
+
+    <meta name="webAuthnChallenge" th:content="${webAuthnChallenge}" content="" />
+
+    <th:block th:each="webAuthnCredentialId : ${webAuthnCredentialIds}">
+        <meta name="webAuthnCredentialId" th:content="${webAuthnCredentialId}" content="" />
+    </th:block>
+
+    <!-- for responsive -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+
+    <link rel="stylesheet" th:href="@{/css/tiny.css}" />
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.1.1/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/5.8.2/css/all.css}" />
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/4.1.1/js/bootstrap.min.js}"></script>
+    <script th:src="@{/js/base64url.js}"></script>
+    <script th:src="@{/js/webauthn.js}"></script>
+</head>
+<body class="hold-transition login-page" id="login-login-view">
+<div class="content-wrapper">
+    <h1 href="/" class="h3 font-weight-normal text-center">Spring Security WebAuthn Sample</h1>
+
+    <h2 href="/" class="h4 font-weight-normal text-center">Login</h2>
+
+    <form th:action="@{/login}" method="post" id="login-form" class="login-form">
+        <label for="username" class="sr-only">Username</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus />
+        <label for="password" class="sr-only">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Password" required />
+
+        <div class="mt-3 mb-3">
+            <button id="login" class="btn btn-primary btn-block" type="submit">Login</button>
+            <p class="mt-1 mb-1 text-muted text-center">OR</p>
+            <button id="fast-login" class="btn btn-primary btn-block" type="button"
+                    data-toggle="tooltip" data-placement="bottom"
+                    title="Fast(id&password-less) Login is only supported on Windows 10 19H1 or Chrome Canary(77)">Fast Login</button>
+        </div>
+
+        <input id="credentialId" name="credentialId" type="hidden" />
+        <input id="clientDataJSON" name="clientDataJSON" type="hidden" />
+        <input id="authenticatorData" name="authenticatorData" type="hidden" />
+        <input id="signature" name="signature" type="hidden" />
+        <input id="clientExtensions" name="clientExtensions" type="hidden" />
+    </form>
+
+
+    <div class="alert alert-info" role="alert">
+        <p>
+            Fast Login means username & password-less login.
+        </p>
+        <p>
+            Only following combinations are supported for Fast Login as of 2019-06-09.
+            <ul>
+                <li>Windows 10 or later, MS Edge, FIDO2 Security Key</li>
+                <li>Windows 10 or later, MS Edge, Windows Hello</li>
+                <li>Windows 10 19H1, Firefox, FIDO2 Security Key</li>
+                <li>Windows 10 19H1, Firefox, Windows Hello</li>
+                <li>MacOS, Chrome Canary, FIDO2 Security Key</li>
+            </ul>
+        </p>
+        <p>
+            If you would like to test two-step authentication with password and security key combination, fill username and password, then press "Login".
+        </p>
+    </div>
+
+    <a href="./signup" class="text-center" >Sign up</a>
+
+</div>
+<!-- /.content-wrapper -->
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>Spring Security WebAuthn Sample</title>
+
+    <meta name="contextPath" th:content="@{/}" content="" />
+
+    <meta name="webAuthnChallenge" th:content="${webAuthnChallenge}" content="" />
+
+    <th:block th:each="webAuthnCredentialId : ${webAuthnCredentialIds}">
+        <meta name="webAuthnCredentialId" th:content="${webAuthnCredentialId}" content="" />
+    </th:block>
+
+    <!-- for responsive -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" />
+
+    <link rel="stylesheet" th:href="@{/css/tiny.css}" />
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.1.1/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/5.8.2/css/all.css}" />
+    <script th:src="@{/webjars/jquery/3.3.1/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/4.1.1/js/bootstrap.min.js}"></script>
+    <script th:src="@{/js/base64url.js}"></script>
+    <script th:src="@{/js/webauthn.js}"></script>
+</head>
+<body class="hold-transition login-page" id="signup-signup-view">
+<div class="content-wrapper">
+    <h1 href="/" class="h3 font-weight-normal text-center">Spring Security WebAuthn Sample</h1>
+
+    <h2 href="/" class="h4 font-weight-normal text-center">Sign up</h2>
+
+    <form th:action="@{/signup}" th:object="${userForm}" method="post" id="signup-form" class="signup-form">
+
+        <input id="userHandle" name="userHandle" th:field="*{userHandle}" type="hidden" />
+
+        <div class="form-group">
+            <label for="username" class="sr-only">Username</label>
+            <input type="text" id="username" name="username" th:field="*{username}" class="form-control" placeholder="Username" required autofocus />
+        </div>
+        <div class="form-group">
+            <label for="password" class="sr-only">Password</label>
+            <input type="password" id="password" name="password" th:field="*{password}" class="form-control" placeholder="Password" required />
+        </div>
+
+        <div class="form-group">
+            <button type="button" class="btn btn-secondary form-control" name="authenticator" id="authenticator">Register authenticator</button>
+        </div>
+
+        <div class="form-group">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="singleFactorAuthenticationAllowed" name="singleFactorAuthenticationAllowed"/>
+                <label class="form-check-label" for="singleFactorAuthenticationAllowed">Allow password authentication</label>
+            </div>
+        </div>
+
+        <div class="mt-3 mb-3">
+            <button class="btn btn-primary btn-block" id="submit" type="submit" disabled>Sign up</button>
+        </div>
+
+        <input id="clientDataJSON" name="authenticator.clientDataJSON" th:field="*{authenticator.clientDataJSON}" type="hidden" />
+        <input id="attestationObject" name="authenticator.attestationObject" th:field="*{authenticator.attestationObject}" type="hidden" />
+        <input id="clientExtensions" name="authenticator.clientExtensions" th:field="*{authenticator.clientExtensions}" type="hidden" />
+    </form>
+
+    <div class="alert alert-info" role="alert">
+        When you mark the "Allow password authentication" checkbox, authenticator is not requested on authentication.
+    </div>
+
+    <a href="./login" class="text-center" >Login</a>
+
+</div>
+<!-- /.content-wrapper -->
+
+<form name="resident-key-requirement-form" class="resident-key-requirement-form">
+    <div  id="resident-key-requirement-dialog" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Spring Security WebAuthn Sample</h5>
+                    <button type="button" id="resident-key-requirement-dialog-close" class="close" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Would you like to store your ID in your authenticator for Fast Login? <br/>If yes, only capable authenticators will blink.
+                    </p>
+                    <div class="alert alert-info" role="alert">
+                        Storing ID is only supported by following combinations.
+                        <ul>
+                            <li>Windows 10 or later, MS Edge, FIDO2 Security Key</li>
+                            <li>Windows 10 or later, MS Edge, Windows Hello</li>
+                            <li>Windows 10 19H1, Firefox, FIDO2 Security Key</li>
+                            <li>Windows 10 19H1, Firefox, Windows Hello</li>
+                            <li>MacOS, Chrome Canary, FIDO2 Security Key</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="resident-key-requirement-dialog-yes" class="btn btn-primary"  >Yes</button>
+                    <button type="button" id="resident-key-requirement-dialog-no" class="btn btn-secondary" >No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+</body>
+</html>
