@@ -122,7 +122,7 @@ public class ReactiveJwtDecodersTests {
 		this.server.shutdown();
 
 		assertThatCode(() -> ReactiveJwtDecoders.fromOidcIssuerLocation("https://issuer"))
-				.isInstanceOf(IllegalArgumentException.class);
+				.isInstanceOf(IllegalStateException.class);
 	}
 
 	private void prepareOpenIdConfigurationResponse() {

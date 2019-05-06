@@ -131,7 +131,7 @@ public class JwtDecodersTests {
 		this.server.shutdown();
 
 		assertThatCode(() -> JwtDecoders.fromOidcIssuerLocation("https://issuer"))
-				.isInstanceOf(IllegalArgumentException.class);
+				.isInstanceOf(IllegalStateException.class);
 	}
 
 	private void prepareOpenIdConfigurationResponse() {

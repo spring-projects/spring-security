@@ -16,6 +16,9 @@
 
 package org.springframework.security.oauth2.client.registration;
 
+import java.util.Arrays;
+import java.util.Map;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
@@ -23,13 +26,11 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-
-import java.util.Arrays;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -224,7 +225,7 @@ public class ClientRegistrationsTest {
 	@Test
 	public void issuerWhenEmptyStringThenMeaningfulErrorMessage() {
 		assertThatThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(""))
-				.hasMessageContaining("Unable to resolve the OpenID Configuration with the provided Issuer of \"\"");
+				.hasMessageContaining("Unable to resolve configuration with the provided issuer of \"\"");
 	}
 
 	@Test
@@ -236,7 +237,7 @@ public class ClientRegistrationsTest {
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
 		assertThatThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(this.issuer))
-				.hasMessageContaining("The Issuer \"https://example.com\" provided in the OpenID Configuration did not match the requested issuer \"" + this.issuer + "\"");
+				.hasStackTraceContaining("The issuer \"https://example.com\" provided in the configuration response did not match the requested issuer \"" + this.issuer + "\"");
 	}
 
 	private ClientRegistration.Builder registration(String path) throws Exception {

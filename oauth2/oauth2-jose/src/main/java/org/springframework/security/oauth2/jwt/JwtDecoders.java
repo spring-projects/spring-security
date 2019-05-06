@@ -17,12 +17,14 @@ package org.springframework.security.oauth2.jwt;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
+import org.springframework.security.oauth2.core.OAuth2MetadataClientBuilder;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 
@@ -47,38 +49,45 @@ public final class JwtDecoders {
 	 * @return a {@link JwtDecoder} that was initialized by the OpenID Provider Configuration.
 	 */
 	public static JwtDecoder fromOidcIssuerLocation(String oidcIssuerLocation) {
-		Map<String, Object> openidConfiguration = getOpenidConfiguration(oidcIssuerLocation);
-		String metadataIssuer = "(unavailable)";
-		if (openidConfiguration.containsKey("issuer")) {
-			metadataIssuer = openidConfiguration.get("issuer").toString();
-		}
-		if (!oidcIssuerLocation.equals(metadataIssuer)) {
-			throw new IllegalStateException("The Issuer \"" + metadataIssuer + "\" provided in the OpenID Configuration " +
-					"did not match the requested issuer \"" + oidcIssuerLocation + "\"");
-		}
+		Function<URI, Map<String, Object>> client =
+				new OAuth2MetadataClientBuilder(client(new RestTemplate()))
+						.useOidcDiscovery().build();
+		return fromIssuerLocation(client).apply(oidcIssuerLocation);
+	}
 
+	public static JwtDecoder fromIssuerLocation(String issuer,
+			Consumer<OAuth2MetadataClientBuilder> metadataClientBuilderConsumer) {
+
+		OAuth2MetadataClientBuilder metadataClientBuilder =
+				new OAuth2MetadataClientBuilder(client(new RestTemplate()));
+		metadataClientBuilderConsumer.accept(metadataClientBuilder);
+		return fromIssuerLocation(metadataClientBuilder.build()).apply(issuer);
+	}
+
+	private static Function<String, JwtDecoder> fromIssuerLocation(
+			Function<URI, Map<String, Object>> client) {
+
+		Function<String, URI> toUri = URI::create;
+		return toUri.andThen(client).andThen(JwtDecoders::fromProviderConfiguration);
+	}
+
+	private static JwtDecoder fromProviderConfiguration(Map<String, Object> metadata) {
 		OAuth2TokenValidator<Jwt> jwtValidator =
-				JwtValidators.createDefaultWithIssuer(oidcIssuerLocation);
+				JwtValidators.createDefaultWithIssuer(metadata.get("issuer").toString());
 
-		NimbusJwtDecoder jwtDecoder = withJwkSetUri(openidConfiguration.get("jwks_uri").toString()).build();
+		NimbusJwtDecoder jwtDecoder = withJwkSetUri(metadata.get("jwks_uri").toString()).build();
 		jwtDecoder.setJwtValidator(jwtValidator);
 
 		return jwtDecoder;
 	}
 
-	private static Map<String, Object> getOpenidConfiguration(String issuer) {
-		ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {};
-		RestTemplate rest = new RestTemplate();
-		try {
-			URI uri = UriComponentsBuilder.fromUriString(issuer + "/.well-known/openid-configuration")
-					.build()
-					.toUri();
+	private static Function<URI, Map<String, Object>> client(RestTemplate rest) {
+		ParameterizedTypeReference<Map<String, Object>> typeReference =
+				new ParameterizedTypeReference<Map<String, Object>>() {};
+		return uri -> {
 			RequestEntity<Void> request = RequestEntity.get(uri).build();
 			return rest.exchange(request, typeReference).getBody();
-		} catch(RuntimeException e) {
-			throw new IllegalArgumentException("Unable to resolve the OpenID Configuration with the provided Issuer of " +
-					"\"" + issuer + "\"", e);
-		}
+		};
 	}
 
 	private JwtDecoders() {}
