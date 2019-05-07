@@ -24,6 +24,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -199,18 +200,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		BearerTokenResolver bearerTokenResolver = getBearerTokenResolver();
 		this.requestMatcher.setBearerTokenResolver(bearerTokenResolver);
 
-		AuthenticationManagerResolver resolver = this.authenticationManagerResolver;
-		if (resolver == null) {
-			resolver = request -> http.getSharedObject(AuthenticationManager.class);
-		}
-
-		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(resolver);
-		filter.setBearerTokenResolver(bearerTokenResolver);
-		filter.setAuthenticationEntryPoint(this.authenticationEntryPoint);
-		filter = postProcess(filter);
-
-		http.addFilter(filter);
-
 		if (this.jwtConfigurer != null && this.opaqueTokenConfigurer != null) {
 			throw new IllegalStateException("Spring Security only supports JWTs or Opaque Tokens, not both at the " +
 					"same time");
@@ -225,30 +214,24 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 					"http.oauth2ResourceServer().opaque().");
 		}
 
-		if (this.jwtConfigurer != null) {
-			JwtDecoder decoder = this.jwtConfigurer.getJwtDecoder();
-			Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter =
-					this.jwtConfigurer.getJwtAuthenticationConverter();
-
-			JwtAuthenticationProvider provider =
-					new JwtAuthenticationProvider(decoder);
-			provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
-			provider = postProcess(provider);
-
-			http.authenticationProvider(provider);
+		AuthenticationManagerResolver resolver = this.authenticationManagerResolver;
+		if (resolver == null) {
+			AuthenticationManager authenticationManager = getAuthenticationManager(http);
+			resolver = request -> authenticationManager;
 		}
 
-		if (this.opaqueTokenConfigurer != null) {
-			OAuth2TokenIntrospectionClient introspectionClient = this.opaqueTokenConfigurer.getIntrospectionClient();
-			OAuth2IntrospectionAuthenticationProvider provider =
-					new OAuth2IntrospectionAuthenticationProvider(introspectionClient);
-			http.authenticationProvider(provider);
-		}
+		BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(resolver);
+		filter.setBearerTokenResolver(bearerTokenResolver);
+		filter.setAuthenticationEntryPoint(this.authenticationEntryPoint);
+		filter = postProcess(filter);
+
+		http.addFilter(filter);
 	}
 
 	public class JwtConfigurer {
 		private final ApplicationContext context;
 
+		private AuthenticationManager authenticationManager;
 		private JwtDecoder decoder;
 
 		private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter =
@@ -256,6 +239,12 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		JwtConfigurer(ApplicationContext context) {
 			this.context = context;
+		}
+
+		public JwtConfigurer authenticationManager(AuthenticationManager authenticationManager) {
+			Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+			this.authenticationManager = authenticationManager;
+			return this;
 		}
 
 		public JwtConfigurer decoder(JwtDecoder decoder) {
@@ -290,11 +279,31 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 			return this.decoder;
 		}
+
+		AuthenticationManager getAuthenticationManager(H http) {
+			if (this.authenticationManager != null) {
+				return this.authenticationManager;
+			}
+
+			JwtDecoder decoder = getJwtDecoder();
+			Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter =
+					getJwtAuthenticationConverter();
+
+			JwtAuthenticationProvider provider =
+					new JwtAuthenticationProvider(decoder);
+			provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
+			AuthenticationProvider authenticationProvider = postProcess(provider);
+
+			http.authenticationProvider(authenticationProvider);
+
+			return http.getSharedObject(AuthenticationManager.class);
+		}
 	}
 
 	public class OpaqueTokenConfigurer {
 		private final ApplicationContext context;
 
+		private AuthenticationManager authenticationManager;
 		private String introspectionUri;
 		private String clientId;
 		private String clientSecret;
@@ -302,6 +311,12 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		OpaqueTokenConfigurer(ApplicationContext context) {
 			this.context = context;
+		}
+
+		public OpaqueTokenConfigurer authenticationManager(AuthenticationManager authenticationManager) {
+			Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+			this.authenticationManager = authenticationManager;
+			return this;
 		}
 
 		public OpaqueTokenConfigurer introspectionUri(String introspectionUri) {
@@ -333,6 +348,19 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 				return this.introspectionClient.get();
 			}
 			return this.context.getBean(OAuth2TokenIntrospectionClient.class);
+		}
+
+		AuthenticationManager getAuthenticationManager(H http) {
+			if (this.authenticationManager != null) {
+				return this.authenticationManager;
+			}
+
+			OAuth2TokenIntrospectionClient introspectionClient = getIntrospectionClient();
+			OAuth2IntrospectionAuthenticationProvider provider =
+					new OAuth2IntrospectionAuthenticationProvider(introspectionClient);
+			http.authenticationProvider(provider);
+
+			return http.getSharedObject(AuthenticationManager.class);
 		}
 	}
 
@@ -368,6 +396,18 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 
 		csrf.ignoringRequestMatchers(this.requestMatcher);
+	}
+
+	AuthenticationManager getAuthenticationManager(H http) {
+		if (this.jwtConfigurer != null) {
+			return this.jwtConfigurer.getAuthenticationManager(http);
+		}
+
+		if (this.opaqueTokenConfigurer != null) {
+			return this.opaqueTokenConfigurer.getAuthenticationManager(http);
+		}
+
+		return http.getSharedObject(AuthenticationManager.class);
 	}
 
 	BearerTokenResolver getBearerTokenResolver() {
