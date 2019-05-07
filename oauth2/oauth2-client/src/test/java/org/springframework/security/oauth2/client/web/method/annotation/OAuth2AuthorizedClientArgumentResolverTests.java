@@ -18,7 +18,6 @@ package org.springframework.security.oauth2.client.web.method.annotation;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.stubbing.Answer;
 import org.springframework.core.MethodParameter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -44,7 +43,6 @@ import org.springframework.web.context.request.ServletWebRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.time.Instant;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -104,8 +102,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		when(this.authorizedClientRepository.loadAuthorizedClient(
 				eq(this.registration1.getRegistrationId()), any(Authentication.class), any(HttpServletRequest.class)))
 				.thenReturn(this.authorizedClient1);
-		this.authorizedClient2 = new OAuth2AuthorizedClient(this.registration2, this.principalName, mock(OAuth2AccessToken.class, withSettings()
-				.name("expiresAt").defaultAnswer((Answer<Instant>) invocation -> Instant.now())));
+		this.authorizedClient2 = new OAuth2AuthorizedClient(this.registration2, this.principalName, mock(OAuth2AccessToken.class));
 		when(this.authorizedClientRepository.loadAuthorizedClient(
 				eq(this.registration2.getRegistrationId()), any(Authentication.class), any(HttpServletRequest.class)))
 				.thenReturn(this.authorizedClient2);
@@ -217,32 +214,6 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 
 		when(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
 				.thenReturn(null);
-		MethodParameter methodParameter = this.getMethodParameter("clientCredentialsClient", OAuth2AuthorizedClient.class);
-
-		OAuth2AuthorizedClient authorizedClient = (OAuth2AuthorizedClient) this.argumentResolver.resolveArgument(
-				methodParameter, null, new ServletWebRequest(this.request), null);
-
-		assertThat(authorizedClient).isNotNull();
-		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.registration2);
-		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principalName);
-		assertThat(authorizedClient.getAccessToken()).isSameAs(accessTokenResponse.getAccessToken());
-
-		verify(this.authorizedClientRepository).saveAuthorizedClient(
-				eq(authorizedClient), eq(this.authentication), any(HttpServletRequest.class), eq(null));
-	}
-
-	@Test
-	public void resolveArgumentClientCredentialsExpireReacquireToken() throws Exception {
-		OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient =
-				mock(OAuth2AccessTokenResponseClient.class);
-		this.argumentResolver.setClientCredentialsTokenResponseClient(clientCredentialsTokenResponseClient);
-		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
-				.withToken("access-token-1234")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.expiresIn(3600)
-				.build();
-		when(clientCredentialsTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
-
 		MethodParameter methodParameter = this.getMethodParameter("clientCredentialsClient", OAuth2AuthorizedClient.class);
 
 		OAuth2AuthorizedClient authorizedClient = (OAuth2AuthorizedClient) this.argumentResolver.resolveArgument(

@@ -31,15 +31,11 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -61,10 +57,6 @@ class OAuth2AuthorizedClientResolver {
 
 	private String defaultClientRegistrationId;
 
-	private Clock clock = Clock.systemUTC();
-	private Duration accessTokenExpiresSkew = Duration.ofMinutes(1);
-
-
 	public OAuth2AuthorizedClientResolver(
 			ReactiveClientRegistrationRepository clientRegistrationRepository,
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
@@ -78,7 +70,6 @@ class OAuth2AuthorizedClientResolver {
 	 * If true, a default {@link OAuth2AuthorizedClient} can be discovered from the current Authentication. It is
 	 * recommended to be cautious with this feature since all HTTP requests will receive the access token if it can be
 	 * resolved from the current Authentication.
-	 *
 	 * @param defaultOAuth2AuthorizedClient true if a default {@link OAuth2AuthorizedClient} should be used, else false.
 	 *                                      Default is false.
 	 */
@@ -89,7 +80,6 @@ class OAuth2AuthorizedClientResolver {
 	/**
 	 * If set, will be used as the default {@link ClientRegistration#getRegistrationId()}. It is
 	 * recommended to be cautious with this feature since all HTTP requests will receive the access token.
-	 *
 	 * @param clientRegistrationId the id to use
 	 */
 	public void setDefaultClientRegistrationId(String clientRegistrationId) {
@@ -131,15 +121,7 @@ class OAuth2AuthorizedClientResolver {
 		Authentication authentication = request.getAuthentication();
 		ServerWebExchange exchange = request.getExchange();
 		return this.authorizedClientRepository.loadAuthorizedClient(clientRegistrationId, authentication, exchange)
-				.switchIfEmpty(authorizedClientNotLoaded(clientRegistrationId, authentication, exchange))
-				.flatMap(client -> {
-					if (hasTokenExpired(client)) {
-						return authorizedClientNotLoaded(clientRegistrationId, authentication, exchange);
-					} else {
-						return Mono.just(client);
-					}
-				});
-
+				.switchIfEmpty(authorizedClientNotLoaded(clientRegistrationId, authentication, exchange));
 	}
 
 	private Mono<OAuth2AuthorizedClient> authorizedClientNotLoaded(String clientRegistrationId, Authentication authentication, ServerWebExchange exchange) {
@@ -165,28 +147,6 @@ class OAuth2AuthorizedClientResolver {
 				clientRegistration, authentication.getName(), tokenResponse.getAccessToken());
 		return this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, authentication, exchange)
 				.thenReturn(authorizedClient);
-	}
-
-	private boolean shouldRefreshToken(OAuth2AuthorizedClient authorizedClient) {
-		if (this.authorizedClientRepository == null) {
-			return false;
-		}
-		OAuth2RefreshToken refreshToken = authorizedClient.getRefreshToken();
-		if (refreshToken == null) {
-			return false;
-		}
-		return hasTokenExpired(authorizedClient);
-	}
-
-	private boolean hasTokenExpired(OAuth2AuthorizedClient authorizedClient) {
-		Instant now = this.clock.instant();
-		if (authorizedClient.getAccessToken() == null) {
-			return false;	// Test scenario: authorizedClient has no accessToken
-		} else {
-			Instant expiresAt = authorizedClient.getAccessToken().getExpiresAt();
-
-			return now.isAfter(expiresAt.minus(this.accessTokenExpiresSkew));
-		}
 	}
 
 	/**
