@@ -24,6 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.Assert;
+import org.springframework.security.core.Transient;
 
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SUBJECT;
 
@@ -36,6 +37,7 @@ import static org.springframework.security.oauth2.server.resource.introspection.
  * @author Josh Cummings
  * @since 5.2
  */
+@Transient
 public class OAuth2IntrospectionAuthenticationToken
 		extends AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken> {
 
