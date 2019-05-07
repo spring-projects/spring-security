@@ -89,7 +89,6 @@ class OAuth2AuthorizedClientResolver {
 	/**
 	 * Sets the {@link ReactiveOAuth2AccessTokenResponseClient} to be used for getting an {@link OAuth2AuthorizedClient} for
 	 * client_credentials grant.
-	 *
 	 * @param clientCredentialsTokenResponseClient the client to use
 	 */
 	public void setClientCredentialsTokenResponseClient(
@@ -151,7 +150,6 @@ class OAuth2AuthorizedClientResolver {
 
 	/**
 	 * Attempts to load the client registration id from the current {@link Authentication}
-	 *
 	 * @return
 	 */
 	private Mono<String> clientRegistrationId(Mono<Authentication> authentication) {
