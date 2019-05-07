@@ -66,11 +66,15 @@ public class OAuth2IntrospectionAuthenticationToken
 	public OAuth2IntrospectionAuthenticationToken(OAuth2AccessToken token,
 		Map<String, Object> attributes, Collection<? extends GrantedAuthority> authorities, String name) {
 
-		super(token, attributes, token, authorities);
-		Assert.notEmpty(attributes, "attributes cannot be empty");
-		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
+		super(token, attributes(attributes), token, authorities);
+		this.attributes = attributes(attributes);
 		this.name = name == null ? (String) attributes.get(SUBJECT) : name;
 		setAuthenticated(true);
+	}
+
+	private static Map<String, Object> attributes(Map<String, Object> attributes) {
+		Assert.notEmpty(attributes, "attributes cannot be empty");
+		return Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
 	}
 
 	/**

@@ -16,12 +16,14 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import java.net.URL;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minidev.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -79,7 +81,7 @@ public class OAuth2IntrospectionAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenTokenIsNullThenThrowsException() {
-		assertThatCode(() -> new OAuth2IntrospectionAuthenticationToken(null, null, null))
+		assertThatCode(() -> new OAuth2IntrospectionAuthenticationToken(null, this.attributes, null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("token cannot be null");
 	}
@@ -88,7 +90,7 @@ public class OAuth2IntrospectionAuthenticationTokenTests {
 	public void constructorWhenAttributesAreNullOrEmptyThenThrowsException() {
 		assertThatCode(() -> new OAuth2IntrospectionAuthenticationToken(this.token, null, null))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("principal cannot be null");
+				.hasMessageContaining("attributes cannot be empty");
 
 		assertThatCode(() -> new OAuth2IntrospectionAuthenticationToken(this.token, Collections.emptyMap(), null))
 				.isInstanceOf(IllegalArgumentException.class)
@@ -116,5 +118,26 @@ public class OAuth2IntrospectionAuthenticationTokenTests {
 		OAuth2IntrospectionAuthenticationToken authenticated =
 				new OAuth2IntrospectionAuthenticationToken(this.token, this.attributes, authorities);
 		assertThat(authenticated.getAuthorities()).isEqualTo(authorities);
+	}
+
+	// gh-6843
+	@Test
+	public void constructorWhenDefaultParametersThenSetsPrincipalToAttributesCopy() {
+		JSONObject attributes = new JSONObject();
+		attributes.put("active", true);
+		OAuth2IntrospectionAuthenticationToken token =
+				new OAuth2IntrospectionAuthenticationToken(this.token, attributes, Collections.emptyList());
+		assertThat(token.getPrincipal()).isNotSameAs(attributes);
+		assertThat(token.getTokenAttributes()).isNotSameAs(attributes);
+	}
+
+	// gh-6843
+	@Test
+	public void toStringWhenAttributesContainsURLThenDoesNotFail() throws Exception {
+		JSONObject attributes = new JSONObject(Collections.singletonMap("iss", new URL("https://idp.example.com")));
+		OAuth2IntrospectionAuthenticationToken token =
+				new OAuth2IntrospectionAuthenticationToken(this.token, attributes, Collections.emptyList());
+		assertThatCode(token::toString)
+				.doesNotThrowAnyException();
 	}
 }
