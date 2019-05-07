@@ -70,7 +70,6 @@ class OAuth2AuthorizedClientResolver {
 	 * If true, a default {@link OAuth2AuthorizedClient} can be discovered from the current Authentication. It is
 	 * recommended to be cautious with this feature since all HTTP requests will receive the access token if it can be
 	 * resolved from the current Authentication.
-	 *
 	 * @param defaultOAuth2AuthorizedClient true if a default {@link OAuth2AuthorizedClient} should be used, else false.
 	 *                                      Default is false.
 	 */
@@ -81,7 +80,6 @@ class OAuth2AuthorizedClientResolver {
 	/**
 	 * If set, will be used as the default {@link ClientRegistration#getRegistrationId()}. It is
 	 * recommended to be cautious with this feature since all HTTP requests will receive the access token.
-	 *
 	 * @param clientRegistrationId the id to use
 	 */
 	public void setDefaultClientRegistrationId(String clientRegistrationId) {
@@ -91,7 +89,6 @@ class OAuth2AuthorizedClientResolver {
 	/**
 	 * Sets the {@link ReactiveOAuth2AccessTokenResponseClient} to be used for getting an {@link OAuth2AuthorizedClient} for
 	 * client_credentials grant.
-	 *
 	 * @param clientCredentialsTokenResponseClient the client to use
 	 */
 	public void setClientCredentialsTokenResponseClient(
@@ -152,7 +149,6 @@ class OAuth2AuthorizedClientResolver {
 
 	/**
 	 * Attempts to load the client registration id from the current {@link Authentication}
-	 *
 	 * @return
 	 */
 	private Mono<String> clientRegistrationId(Mono<Authentication> authentication) {
