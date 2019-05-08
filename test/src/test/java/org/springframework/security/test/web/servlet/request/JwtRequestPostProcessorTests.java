@@ -67,14 +67,23 @@ public class JwtRequestPostProcessorTests {
 	}
 
 	static Authentication authentication(final MockHttpServletRequest req) {
-		for (final Enumeration<String> names = req.getAttributeNames(); names.hasMoreElements();) {
-			final String name = names.nextElement();
-			if (name.equals(TestSecurityContextRepository.ATTR_NAME)) {
-				final SecurityContext securityContext = (SecurityContext) req.getAttribute(name);
-				return securityContext.getAuthentication();
-			}
-		}
-		return null;
+		final SecurityContext securityContext = (SecurityContext) req.getAttribute(TestSecurityContextRepository.ATTR_NAME);
+		return securityContext == null ? null : securityContext.getAuthentication();
+	}
+	
+	private JwtRequestPostProcessor defaultTestAuthenticationPostProcessor() {
+		return jwt().name("test_user").roles("a", "b");//more like claims here too
+	}
+	
+	@Test
+	public void jwtRolesAreAddedAndNotReplaced() {
+		final JwtRequestPostProcessor rpp = defaultTestAuthenticationPostProcessor().roles("c");
+		final JwtAuthenticationToken actual = (JwtAuthenticationToken) authentication(rpp.postProcessRequest(request));
+		
+		assertThat(actual.getAuthorities()).containsExactlyInAnyOrder(
+				new SimpleGrantedAuthority("ROLE_a"),
+				new SimpleGrantedAuthority("ROLE_b"),
+				new SimpleGrantedAuthority("ROLE_c"));
 	}
 
 }
