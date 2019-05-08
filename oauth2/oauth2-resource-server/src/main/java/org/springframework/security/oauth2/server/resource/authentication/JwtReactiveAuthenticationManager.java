@@ -76,7 +76,7 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 
 	private OAuth2AuthenticationException onError(JwtException e) {
 		OAuth2Error invalidRequest = invalidToken(e.getMessage());
-		return new OAuth2AuthenticationException(invalidRequest, e.getMessage());
+		return new OAuth2AuthenticationException(invalidRequest, invalidRequest.getDescription(), e);
 	}
 
 	private static OAuth2Error invalidToken(String message) {
