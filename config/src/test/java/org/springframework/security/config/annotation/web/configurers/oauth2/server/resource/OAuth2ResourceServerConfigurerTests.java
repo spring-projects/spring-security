@@ -563,7 +563,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class, BasicController.class).autowire();
 		mockRestOperations(json("Active"));
 
-		this.mvc.perform(get("/authenticated")
+		MvcResult result = this.mvc.perform(get("/authenticated")
 				.with(bearerToken("token")))
 				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
