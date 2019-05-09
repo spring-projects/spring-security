@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,8 +163,8 @@ public class NamespaceGlobalMethodSecurityTests {
 	public static class CustomAuthenticationConfig extends GlobalMethodSecurityConfiguration {
 
 		@Override
-		public MethodInterceptor methodSecurityInterceptor() throws Exception {
-			MethodInterceptor interceptor = super.methodSecurityInterceptor();
+		public MethodInterceptor methodSecurityInterceptor(MethodSecurityMetadataSource methodSecurityMetadataSource) {
+			MethodInterceptor interceptor = super.methodSecurityInterceptor(methodSecurityMetadataSource);
 			((MethodSecurityInterceptor) interceptor).setAlwaysReauthenticate(true);
 			return interceptor;
 		}

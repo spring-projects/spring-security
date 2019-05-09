@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AdviceMode;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportAware;
+import org.springframework.context.annotation.*;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
@@ -110,7 +107,6 @@ public class GlobalMethodSecurityConfiguration
 	 * <li>{@link #accessDecisionManager()}</li>
 	 * <li>{@link #afterInvocationManager()}</li>
 	 * <li>{@link #authenticationManager()}</li>
-	 * <li>{@link #methodSecurityMetadataSource()}</li>
 	 * <li>{@link #runAsManager()}</li>
 	 *
 	 * </ul>
@@ -119,19 +115,19 @@ public class GlobalMethodSecurityConfiguration
 	 * Subclasses can override this method to provide a different
 	 * {@link MethodInterceptor}.
 	 * </p>
+	 * @param methodSecurityMetadataSource the default {@link MethodSecurityMetadataSource}.
 	 *
 	 * @return the {@link MethodInterceptor}.
-	 * @throws Exception
 	 */
 	@Bean
-	public MethodInterceptor methodSecurityInterceptor() throws Exception {
+	public MethodInterceptor methodSecurityInterceptor(MethodSecurityMetadataSource methodSecurityMetadataSource) {
 		this.methodSecurityInterceptor = isAspectJ()
 				? new AspectJMethodSecurityInterceptor()
 				: new MethodSecurityInterceptor();
 		methodSecurityInterceptor.setAccessDecisionManager(accessDecisionManager());
 		methodSecurityInterceptor.setAfterInvocationManager(afterInvocationManager());
 		methodSecurityInterceptor
-				.setSecurityMetadataSource(methodSecurityMetadataSource());
+				.setSecurityMetadataSource(methodSecurityMetadataSource);
 		RunAsManager runAsManager = runAsManager();
 		if (runAsManager != null) {
 			methodSecurityInterceptor.setRunAsManager(runAsManager);
@@ -197,8 +193,8 @@ public class GlobalMethodSecurityConfiguration
 
 	/**
 	 * Provide a custom {@link AfterInvocationManager} for the default implementation of
-	 * {@link #methodSecurityInterceptor()}. The default is null if pre post is not
-	 * enabled. Otherwise, it returns a {@link AfterInvocationProviderManager}.
+	 * {@link #methodSecurityInterceptor(MethodSecurityMetadataSource)}. The default is null
+	 * if pre post is not enabled. Otherwise, it returns a {@link AfterInvocationProviderManager}.
 	 *
 	 * <p>
 	 * Subclasses should override this method to provide a custom
@@ -224,7 +220,7 @@ public class GlobalMethodSecurityConfiguration
 
 	/**
 	 * Provide a custom {@link RunAsManager} for the default implementation of
-	 * {@link #methodSecurityInterceptor()}. The default is null.
+	 * {@link #methodSecurityInterceptor(MethodSecurityMetadataSource)}. The default is null.
 	 *
 	 * @return the {@link RunAsManager} to use
 	 */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.security.access.expression.AbstractSecurityExpression
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.test.SpringTestRule;
@@ -402,5 +403,53 @@ public class WebSecurityConfigurationTests {
 	public void getMethodDelegatingApplicationListenerWhenWebSecurityConfigurationThenIsStatic() throws Exception {
 		Method method = ClassUtils.getMethod(WebSecurityConfiguration.class, "delegatingApplicationListener", null);
 		assertThat(Modifier.isStatic(method.getModifiers())).isTrue();
+	}
+
+	@Test
+	public void loadConfigWhenProxyingDisabledAndSubclassThenFilterChainsCreated() {
+		this.spring.register(GlobalAuthenticationWebSecurityConfigurerAdaptersConfig.class, SubclassConfig.class).autowire();
+
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+
+		assertThat(filterChains).hasSize(4);
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class SubclassConfig extends WebSecurityConfiguration {
+	}
+
+	@Import(AuthenticationTestConfiguration.class)
+	@EnableGlobalAuthentication
+	static class GlobalAuthenticationWebSecurityConfigurerAdaptersConfig {
+		@Configuration
+		@Order(1)
+		static class WebConfigurer1 extends WebSecurityConfigurerAdapter {
+			@Override
+			public void configure(WebSecurity web)	throws Exception {
+				web
+						.ignoring()
+						.antMatchers("/ignore1", "/ignore2");
+			}
+
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+						.antMatcher("/anonymous/**")
+						.authorizeRequests()
+						.anyRequest().anonymous();
+			}
+		}
+
+		@Configuration
+		static class WebConfigurer2 extends WebSecurityConfigurerAdapter {
+
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+						.authorizeRequests()
+						.anyRequest().authenticated();
+			}
+		}
 	}
 }

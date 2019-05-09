@@ -88,4 +88,24 @@ public class ReactiveMethodSecurityConfigurationTests {
 		}
 	}
 
+	@Test
+	public void rolePrefixWithGrantedAuthorityDefaultsAndSubclassWithProxyingDisabled() {
+		this.spring.register(SubclassConfig.class).autowire();
+
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
+				"principal", "credential", "ROLE_ABC");
+		MockMethodInvocation methodInvocation = mock(MockMethodInvocation.class);
+
+		EvaluationContext context = this.methodSecurityExpressionHandler
+				.createEvaluationContext(authentication, methodInvocation);
+		SecurityExpressionRoot root = (SecurityExpressionRoot) context.getRootObject()
+				.getValue();
+
+		assertThat(root.hasRole("ROLE_ABC")).isTrue();
+		assertThat(root.hasRole("ABC")).isTrue();
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class SubclassConfig extends ReactiveMethodSecurityConfiguration {
+	}
 }

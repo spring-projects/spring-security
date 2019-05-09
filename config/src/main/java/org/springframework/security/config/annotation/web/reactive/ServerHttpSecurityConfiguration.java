@@ -43,7 +43,7 @@ import org.springframework.web.reactive.result.method.annotation.ArgumentResolve
  * @since 5.0
  */
 @Configuration
-class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
+class ServerHttpSecurityConfiguration {
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.HttpSecurityConfiguration.";
 	private static final String HTTPSECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "httpSecurity";
 
@@ -85,9 +85,15 @@ class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 		this.userDetailsPasswordService = userDetailsPasswordService;
 	}
 
-	@Override
-	public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
-		configurer.addCustomResolver(authenticationPrincipalArgumentResolver());
+	@Bean
+	public WebFluxConfigurer authenticationPrincipalArgumentResolverConfigurer(
+			AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver) {
+		return new WebFluxConfigurer() {
+			@Override
+			public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
+				configurer.addCustomResolver(authenticationPrincipalArgumentResolver);
+			}
+		};
 	}
 
 	@Bean
@@ -109,7 +115,6 @@ class ServerHttpSecurityConfiguration implements WebFluxConfigurer {
 		}
 		return resolver;
 	}
-
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,10 +103,10 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 
 	@Override
 	public final void configureClientInboundChannel(ChannelRegistration registration) {
-		ChannelSecurityInterceptor inboundChannelSecurity = inboundChannelSecurity();
-		registration.setInterceptors(securityContextChannelInterceptor());
+		ChannelSecurityInterceptor inboundChannelSecurity = context.getBean(ChannelSecurityInterceptor.class);
+		registration.setInterceptors(context.getBean(SecurityContextChannelInterceptor.class));
 		if (!sameOriginDisabled()) {
-			registration.setInterceptors(csrfChannelInterceptor());
+			registration.setInterceptors(context.getBean(CsrfChannelInterceptor.class));
 		}
 		if (inboundRegistry.containsMapping()) {
 			registration.setInterceptors(inboundChannelSecurity);
@@ -153,9 +153,9 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 	}
 
 	@Bean
-	public ChannelSecurityInterceptor inboundChannelSecurity() {
+	public ChannelSecurityInterceptor inboundChannelSecurity(MessageSecurityMetadataSource messageSecurityMetadataSource) {
 		ChannelSecurityInterceptor channelSecurityInterceptor = new ChannelSecurityInterceptor(
-				inboundMessageSecurityMetadataSource());
+				messageSecurityMetadataSource);
 		MessageExpressionVoter<Object> voter = new MessageExpressionVoter<>();
 		voter.setExpressionHandler(getMessageExpressionHandler());
 
