@@ -52,8 +52,13 @@ public class ReactiveAuthenticationManagerAdapterTests {
 		new ReactiveAuthenticationManagerAdapter(null);
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void setSchedulerNull() {
+		this.manager.setScheduler(null);
+	}
+
 	@Test
-	public void authenticateWhenSuccessThenSucces() {
+	public void authenticateWhenSuccessThenSuccess() {
 		when(delegate.authenticate(any())).thenReturn(authentication);
 		when(authentication.isAuthenticated()).thenReturn(true);
 

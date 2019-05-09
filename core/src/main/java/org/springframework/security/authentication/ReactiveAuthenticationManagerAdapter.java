@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.authentication;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 /**
@@ -27,10 +28,13 @@ import reactor.core.scheduler.Schedulers;
  * from coming in unless it was put on another thread.
  *
  * @author Rob Winch
+ * @author Tadaya Tsuyukubo
  * @since 5.0
  */
 public class ReactiveAuthenticationManagerAdapter implements ReactiveAuthenticationManager {
 	private final AuthenticationManager authenticationManager;
+
+	private Scheduler scheduler = Schedulers.elastic();
 
 	public ReactiveAuthenticationManagerAdapter(AuthenticationManager authenticationManager) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
@@ -40,7 +44,7 @@ public class ReactiveAuthenticationManagerAdapter implements ReactiveAuthenticat
 	@Override
 	public Mono<Authentication> authenticate(Authentication token) {
 		return Mono.just(token)
-			.publishOn(Schedulers.elastic())
+			.publishOn(this.scheduler)
 			.flatMap( t -> {
 				try {
 					return Mono.just(authenticationManager.authenticate(t));
@@ -50,4 +54,15 @@ public class ReactiveAuthenticationManagerAdapter implements ReactiveAuthenticat
 			})
 			.filter( a -> a.isAuthenticated());
 	}
+
+	/**
+	 * Set a scheduler that will be published on to perform the authentication logic.
+	 * @param scheduler a scheduler to be published on
+	 * @throws IllegalArgumentException if the scheduler is {@code null}
+	 */
+	public void setScheduler(Scheduler scheduler) {
+		Assert.notNull(scheduler, "scheduler cannot be null");
+		this.scheduler = scheduler;
+	}
+
 }
