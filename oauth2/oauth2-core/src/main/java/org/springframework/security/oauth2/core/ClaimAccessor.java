@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,12 @@
  */
 package org.springframework.security.oauth2.core;
 
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.security.oauth2.core.converter.ClaimConversionService;
 import org.springframework.util.Assert;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +47,7 @@ public interface ClaimAccessor {
 	 */
 	default Boolean containsClaim(String claim) {
 		Assert.notNull(claim, "claim cannot be null");
-		return this.getClaims().containsKey(claim);
+		return getClaims().containsKey(claim);
 	}
 
 	/**
@@ -59,11 +57,8 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if it does not exist or is equal to {@code null}
 	 */
 	default String getClaimAsString(String claim) {
-		if (!this.containsClaim(claim)) {
-			return null;
-		}
-		Object claimValue = this.getClaims().get(claim);
-		return (claimValue != null ? claimValue.toString() : null);
+		return !containsClaim(claim) ? null :
+				ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), String.class);
 	}
 
 	/**
@@ -73,7 +68,8 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if it does not exist
 	 */
 	default Boolean getClaimAsBoolean(String claim) {
-		return (this.containsClaim(claim) ? Boolean.valueOf(this.getClaimAsString(claim)) : null);
+		return !containsClaim(claim) ? null :
+				ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), Boolean.class);
 	}
 
 	/**
@@ -83,23 +79,16 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if it does not exist
 	 */
 	default Instant getClaimAsInstant(String claim) {
-		if (!this.containsClaim(claim)) {
+		if (!containsClaim(claim)) {
 			return null;
 		}
-		Object claimValue = this.getClaims().get(claim);
-		if (Long.class.isAssignableFrom(claimValue.getClass()) ||
-				Integer.class.isAssignableFrom(claimValue.getClass()) ||
-				Double.class.isAssignableFrom(claimValue.getClass())) {
-			return Instant.ofEpochSecond(((Number) claimValue).longValue());
+		Object claimValue = getClaims().get(claim);
+		Instant convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, Instant.class);
+		if (convertedValue == null) {
+			throw new IllegalArgumentException("Unable to convert claim '" + claim +
+					"' of type '" + claimValue.getClass() + "' to Instant.");
 		}
-		if (Date.class.isAssignableFrom(claimValue.getClass())) {
-			return ((Date) claimValue).toInstant();
-		}
-		if (Instant.class.isAssignableFrom(claimValue.getClass())) {
-			return (Instant) claimValue;
-		}
-		throw new IllegalArgumentException("Unable to convert claim '" + claim +
-				"' of type '" + claimValue.getClass() + "' to Instant.");
+		return convertedValue;
 	}
 
 	/**
@@ -109,14 +98,16 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if it does not exist
 	 */
 	default URL getClaimAsURL(String claim) {
-		if (!this.containsClaim(claim)) {
+		if (!containsClaim(claim)) {
 			return null;
 		}
-		try {
-			return new URL(this.getClaimAsString(claim));
-		} catch (MalformedURLException ex) {
-			throw new IllegalArgumentException("Unable to convert claim '" + claim + "' to URL: " + ex.getMessage(), ex);
+		Object claimValue = getClaims().get(claim);
+		URL convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, URL.class);
+		if (convertedValue == null) {
+			throw new IllegalArgumentException("Unable to convert claim '" + claim +
+					"' of type '" + claimValue.getClass() + "' to URL.");
 		}
+		return convertedValue;
 	}
 
 	/**
@@ -126,13 +117,22 @@ public interface ClaimAccessor {
 	 * @param claim the name of the claim
 	 * @return the claim value or {@code null} if it does not exist or cannot be assigned to a {@code Map}
 	 */
+	@SuppressWarnings("unchecked")
 	default Map<String, Object> getClaimAsMap(String claim) {
-		if (!this.containsClaim(claim) || !Map.class.isAssignableFrom(this.getClaims().get(claim).getClass())) {
+		if (!containsClaim(claim)) {
 			return null;
 		}
-		Map<String, Object> claimValues = new HashMap<>();
-		((Map<?, ?>) this.getClaims().get(claim)).forEach((k, v) -> claimValues.put(k.toString(), v));
-		return claimValues;
+		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
+		final TypeDescriptor targetDescriptor = TypeDescriptor.map(
+				Map.class, TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Object.class));
+		Object claimValue = getClaims().get(claim);
+		Map<String, Object> convertedValue = (Map<String, Object>) ClaimConversionService.getSharedInstance().convert(
+				claimValue, sourceDescriptor, targetDescriptor);
+		if (convertedValue == null) {
+			throw new IllegalArgumentException("Unable to convert claim '" + claim +
+					"' of type '" + claimValue.getClass() + "' to Map.");
+		}
+		return convertedValue;
 	}
 
 	/**
@@ -142,12 +142,21 @@ public interface ClaimAccessor {
 	 * @param claim the name of the claim
 	 * @return the claim value or {@code null} if it does not exist or cannot be assigned to a {@code List}
 	 */
+	@SuppressWarnings("unchecked")
 	default List<String> getClaimAsStringList(String claim) {
-		if (!this.containsClaim(claim) || !List.class.isAssignableFrom(this.getClaims().get(claim).getClass())) {
+		if (!containsClaim(claim)) {
 			return null;
 		}
-		List<String> claimValues = new ArrayList<>();
-		((List<?>) this.getClaims().get(claim)).forEach(e -> claimValues.add(e.toString()));
-		return claimValues;
+		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
+		final TypeDescriptor targetDescriptor = TypeDescriptor.collection(
+				List.class, TypeDescriptor.valueOf(String.class));
+		Object claimValue = getClaims().get(claim);
+		List<String> convertedValue = (List<String>) ClaimConversionService.getSharedInstance().convert(
+				claimValue, sourceDescriptor, targetDescriptor);
+		if (convertedValue == null) {
+			throw new IllegalArgumentException("Unable to convert claim '" + claim +
+					"' of type '" + claimValue.getClass() + "' to List.");
+		}
+		return convertedValue;
 	}
 }

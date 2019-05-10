@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,6 @@
  */
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -31,7 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -40,6 +32,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
@@ -47,9 +40,20 @@ import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.scopes;
 
@@ -93,8 +97,22 @@ public class OidcUserServiceTests {
 	}
 
 	@Test
+	public void createDefaultClaimTypeConvertersWhenCalledThenDefaultsAreCorrect() {
+		Map<String, Converter<Object, ?>> claimTypeConverters = OidcUserService.createDefaultClaimTypeConverters();
+		assertThat(claimTypeConverters).containsKey(StandardClaimNames.EMAIL_VERIFIED);
+		assertThat(claimTypeConverters).containsKey(StandardClaimNames.PHONE_NUMBER_VERIFIED);
+		assertThat(claimTypeConverters).containsKey(StandardClaimNames.UPDATED_AT);
+	}
+
+	@Test
 	public void setOauth2UserServiceWhenNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> this.userService.setOauth2UserService(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setClaimTypeConverterFactoryWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.userService.setClaimTypeConverterFactory(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -353,6 +371,35 @@ public class OidcUserServiceTests {
 		assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
 		assertThat(request.getHeader(HttpHeaders.CONTENT_TYPE)).contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 		assertThat(request.getBody().readUtf8()).isEqualTo("access_token=" + this.accessToken.getTokenValue());
+	}
+
+	@Test
+	public void loadUserWhenCustomClaimTypeConverterFactorySetThenApplied() {
+		String userInfoResponse = "{\n" +
+				"	\"sub\": \"subject1\",\n" +
+				"   \"name\": \"first last\",\n" +
+				"   \"given_name\": \"first\",\n" +
+				"   \"family_name\": \"last\",\n" +
+				"   \"preferred_username\": \"user1\",\n" +
+				"   \"email\": \"user1@example.com\"\n" +
+				"}\n";
+		this.server.enqueue(jsonResponse(userInfoResponse));
+
+		String userInfoUri = this.server.url("/user").toString();
+
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.userInfoUri(userInfoUri)
+				.build();
+
+		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(Function.class);
+		this.userService.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
+
+		when(customClaimTypeConverterFactory.apply(same(clientRegistration)))
+				.thenReturn(new ClaimTypeConverter(OidcUserService.createDefaultClaimTypeConverters()));
+
+		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
+
+		verify(customClaimTypeConverterFactory).apply(same(clientRegistration));
 	}
 
 	private MockResponse jsonResponse(String json) {

@@ -15,11 +15,17 @@
  */
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.converter.ClaimConversionService;
+import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
@@ -31,7 +37,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,17 +70,55 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 			put(MacAlgorithm.HS512, "HmacSHA512");
 		}
 	};
+	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER =
+			new ClaimTypeConverter(createDefaultClaimTypeConverters());
 	private final Map<String, JwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
 	private Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = OidcIdTokenValidator::new;
 	private Function<ClientRegistration, JwsAlgorithm> jwsAlgorithmResolver = clientRegistration -> SignatureAlgorithm.RS256;
+	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory =
+			clientRegistration -> DEFAULT_CLAIM_TYPE_CONVERTER;
+
+	/**
+	 * Returns the default {@link Converter}'s used for type conversion of claim values for an {@link OidcIdToken}.
+	 *
+	 * @return a {@link Map} of {@link Converter}'s keyed by {@link IdTokenClaimNames claim name}
+	 */
+	public static Map<String, Converter<Object, ?>> createDefaultClaimTypeConverters() {
+		Converter<Object, ?> booleanConverter = getConverter(TypeDescriptor.valueOf(Boolean.class));
+		Converter<Object, ?> instantConverter = getConverter(TypeDescriptor.valueOf(Instant.class));
+		Converter<Object, ?> urlConverter = getConverter(TypeDescriptor.valueOf(URL.class));
+		Converter<Object, ?> collectionStringConverter = getConverter(
+				TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf(String.class)));
+
+		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
+		claimTypeConverters.put(IdTokenClaimNames.ISS, urlConverter);
+		claimTypeConverters.put(IdTokenClaimNames.AUD, collectionStringConverter);
+		claimTypeConverters.put(IdTokenClaimNames.EXP, instantConverter);
+		claimTypeConverters.put(IdTokenClaimNames.IAT, instantConverter);
+		claimTypeConverters.put(IdTokenClaimNames.AUTH_TIME, instantConverter);
+		claimTypeConverters.put(IdTokenClaimNames.AMR, collectionStringConverter);
+		claimTypeConverters.put(StandardClaimNames.EMAIL_VERIFIED, booleanConverter);
+		claimTypeConverters.put(StandardClaimNames.PHONE_NUMBER_VERIFIED, booleanConverter);
+		claimTypeConverters.put(StandardClaimNames.UPDATED_AT, instantConverter);
+		return claimTypeConverters;
+	}
+
+	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
+		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
+		return source -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor, targetDescriptor);
+	}
 
 	@Override
 	public JwtDecoder createDecoder(ClientRegistration clientRegistration) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), key -> {
 			NimbusJwtDecoder jwtDecoder = buildDecoder(clientRegistration);
-			OAuth2TokenValidator<Jwt> jwtValidator = this.jwtValidatorFactory.apply(clientRegistration);
-			jwtDecoder.setJwtValidator(jwtValidator);
+			jwtDecoder.setJwtValidator(this.jwtValidatorFactory.apply(clientRegistration));
+			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter =
+					this.claimTypeConverterFactory.apply(clientRegistration);
+			if (claimTypeConverter != null) {
+				jwtDecoder.setClaimSetConverter(claimTypeConverter);
+			}
 			return jwtDecoder;
 		});
 	}
@@ -162,5 +209,17 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 	public final void setJwsAlgorithmResolver(Function<ClientRegistration, JwsAlgorithm> jwsAlgorithmResolver) {
 		Assert.notNull(jwsAlgorithmResolver, "jwsAlgorithmResolver cannot be null");
 		this.jwsAlgorithmResolver = jwsAlgorithmResolver;
+	}
+
+	/**
+	 * Sets the factory that provides a {@link Converter} used for type conversion of claim values for an {@link OidcIdToken}.
+	 * The default is {@link ClaimTypeConverter} for all {@link ClientRegistration clients}.
+	 *
+	 * @param claimTypeConverterFactory the factory that provides a {@link Converter} used for type conversion
+	 *                                  of claim values for a specific {@link ClientRegistration client}
+	 */
+	public final void setClaimTypeConverterFactory(Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
+		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
+		this.claimTypeConverterFactory = claimTypeConverterFactory;
 	}
 }
