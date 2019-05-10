@@ -17,15 +17,20 @@ package org.springframework.security.oauth2.client.oidc.authentication;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+import java.util.Map;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +55,20 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 	}
 
 	@Test
+	public void createDefaultClaimTypeConvertersWhenCalledThenDefaultsAreCorrect() {
+		Map<String, Converter<Object, ?>> claimTypeConverters = ReactiveOidcIdTokenDecoderFactory.createDefaultClaimTypeConverters();
+		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.ISS);
+		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.AUD);
+		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.EXP);
+		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.IAT);
+		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.AUTH_TIME);
+		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.AMR);
+		assertThat(claimTypeConverters).containsKey(StandardClaimNames.EMAIL_VERIFIED);
+		assertThat(claimTypeConverters).containsKey(StandardClaimNames.PHONE_NUMBER_VERIFIED);
+		assertThat(claimTypeConverters).containsKey(StandardClaimNames.UPDATED_AT);
+	}
+
+	@Test
 	public void setJwtValidatorFactoryWhenNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> this.idTokenDecoderFactory.setJwtValidatorFactory(null))
 				.isInstanceOf(IllegalArgumentException.class);
@@ -58,6 +77,12 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 	@Test
 	public void setJwsAlgorithmResolverWhenNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> this.idTokenDecoderFactory.setJwsAlgorithmResolver(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setClaimTypeConverterFactoryWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.idTokenDecoderFactory.setClaimTypeConverterFactory(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -140,5 +165,20 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 
 		verify(customJwsAlgorithmResolver).apply(same(clientRegistration));
+	}
+
+	@Test
+	public void createDecoderWhenCustomClaimTypeConverterFactorySetThenApplied() {
+		Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> customClaimTypeConverterFactory = mock(Function.class);
+		this.idTokenDecoderFactory.setClaimTypeConverterFactory(customClaimTypeConverterFactory);
+
+		ClientRegistration clientRegistration = this.registration.build();
+
+		when(customClaimTypeConverterFactory.apply(same(clientRegistration)))
+				.thenReturn(new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
+
+		this.idTokenDecoderFactory.createDecoder(clientRegistration);
+
+		verify(customClaimTypeConverterFactory).apply(same(clientRegistration));
 	}
 }

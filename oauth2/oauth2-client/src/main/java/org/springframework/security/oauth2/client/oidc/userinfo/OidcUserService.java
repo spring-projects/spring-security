@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,21 @@
  */
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.converter.ClaimConversionService;
+import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
@@ -32,10 +38,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * An implementation of an {@link OAuth2UserService} that supports OpenID Connect 1.0 Provider's.
@@ -50,9 +60,35 @@ import java.util.Set;
  */
 public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
+	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER =
+			new ClaimTypeConverter(createDefaultClaimTypeConverters());
 	private final Set<String> userInfoScopes = new HashSet<>(
 		Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
 	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = new DefaultOAuth2UserService();
+	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory =
+			clientRegistration -> DEFAULT_CLAIM_TYPE_CONVERTER;
+
+	/**
+	 * Returns the default {@link Converter}'s used for type conversion of claim values for an {@link OidcUserInfo}.
+
+	 * @since 5.2
+	 * @return a {@link Map} of {@link Converter}'s keyed by {@link StandardClaimNames claim name}
+	 */
+	public static Map<String, Converter<Object, ?>> createDefaultClaimTypeConverters() {
+		Converter<Object, ?> booleanConverter = getConverter(TypeDescriptor.valueOf(Boolean.class));
+		Converter<Object, ?> instantConverter = getConverter(TypeDescriptor.valueOf(Instant.class));
+
+		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
+		claimTypeConverters.put(StandardClaimNames.EMAIL_VERIFIED, booleanConverter);
+		claimTypeConverters.put(StandardClaimNames.PHONE_NUMBER_VERIFIED, booleanConverter);
+		claimTypeConverters.put(StandardClaimNames.UPDATED_AT, instantConverter);
+		return claimTypeConverters;
+	}
+
+	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
+		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
+		return source -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor, targetDescriptor);
+	}
 
 	@Override
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
@@ -60,7 +96,16 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		OidcUserInfo userInfo = null;
 		if (this.shouldRetrieveUserInfo(userRequest)) {
 			OAuth2User oauth2User = this.oauth2UserService.loadUser(userRequest);
-			userInfo = new OidcUserInfo(oauth2User.getAttributes());
+
+			Map<String, Object> claims;
+			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter =
+					this.claimTypeConverterFactory.apply(userRequest.getClientRegistration());
+			if (claimTypeConverter != null) {
+				claims = claimTypeConverter.convert(oauth2User.getAttributes());
+			} else {
+				claims = DEFAULT_CLAIM_TYPE_CONVERTER.convert(oauth2User.getAttributes());
+			}
+			userInfo = new OidcUserInfo(claims);
 
 			// https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 
@@ -131,5 +176,18 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	public final void setOauth2UserService(OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService) {
 		Assert.notNull(oauth2UserService, "oauth2UserService cannot be null");
 		this.oauth2UserService = oauth2UserService;
+	}
+
+	/**
+	 * Sets the factory that provides a {@link Converter} used for type conversion of claim values for an {@link OidcUserInfo}.
+	 * The default is {@link ClaimTypeConverter} for all {@link ClientRegistration clients}.
+	 *
+	 * @since 5.2
+	 * @param claimTypeConverterFactory the factory that provides a {@link Converter} used for type conversion
+	 *                                  of claim values for a specific {@link ClientRegistration client}
+	 */
+	public final void setClaimTypeConverterFactory(Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
+		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
+		this.claimTypeConverterFactory = claimTypeConverterFactory;
 	}
 }
