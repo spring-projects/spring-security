@@ -94,6 +94,11 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 			this.jwt = new Jwt.Builder();
 		}
 
+		public T authoritiesConverter(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
+			this.authoritiesConverter = authoritiesConverter;
+			return downcast();
+		}
+
 		public T token(Consumer<Jwt.Builder> jwtBuilderConsumer) {
 			jwtBuilderConsumer.accept(jwt);
 			return downcast();

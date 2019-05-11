@@ -55,7 +55,7 @@ public class OAuth2ResourceServerControllerTests {
 	
 	@Test
 	public void messageCanBeReadWithScopeMessageReadAuthority() throws Exception {
-		mockMvc.perform(get("/message").with(jwt().claim("scope", "message:read")))
+		mockMvc.perform(get("/message").with(jwt().scopes("message:read")))
 				.andExpect(content().string(is("secret message")));
 		
 		mockMvc.perform(get("/message").with(jwt().authorities(new SimpleGrantedAuthority(("SCOPE_message:read")))))
