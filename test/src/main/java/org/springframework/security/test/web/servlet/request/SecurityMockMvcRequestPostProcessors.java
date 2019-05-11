@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,7 +49,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.test.context.TestSecurityContextHolder;
-import org.springframework.security.test.support.JwtAuthenticationTokenBuilder;
+import org.springframework.security.test.support.JwtAuthenticationTokenTestingBuilder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
@@ -224,33 +225,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 	public static JwtRequestPostProcessor jwt() {
 		return new JwtRequestPostProcessor();
 	}
-
-	/**
-	 * Establish a {@link SecurityContext} that has a
-	 * {@link JwtAuthenticationToken} for the
-	 * {@link Authentication} and a {@link Jwt} for the
-	 * {@link Authentication#getPrincipal()}. All details are
-	 * declarative and do not require the JWT to be valid.
-	 *
-	 * <p>
-	 * The support works by associating the authentication to the HttpServletRequest. To associate
-	 * the request to the SecurityContextHolder you need to ensure that the
-	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
-	 * ways to do this are:
-	 * </p>
-	 *
-	 * <ul>
-	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
-	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
-	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
-	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
-	 * </ul>
-	 *
-	 * @param jwt a complete JWT to extract and apply token value subject, authorities and claims configuration
-	 * @return the {@link JwtRequestPostProcessor} for additional customization
-	 */
-	public static JwtRequestPostProcessor jwt(final Jwt jwt) {
-		return jwt().jwt(jwt);
+	
+	public static JwtRequestPostProcessor jwt(Consumer<Jwt.Builder> jwt) {
+		return jwt().token(jwt);
 	}
 
 	/**
@@ -968,7 +945,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
 	 * @since 5.2
 	 */
-	public static class JwtRequestPostProcessor extends JwtAuthenticationTokenBuilder<JwtRequestPostProcessor>
+	public static class JwtRequestPostProcessor extends JwtAuthenticationTokenTestingBuilder<JwtRequestPostProcessor>
 			implements
 			RequestPostProcessor {
 

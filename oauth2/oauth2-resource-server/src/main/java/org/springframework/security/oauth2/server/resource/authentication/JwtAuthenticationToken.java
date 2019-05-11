@@ -17,7 +17,12 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.Transient;
@@ -70,5 +75,53 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 	@Override
 	public String getName() {
 		return this.getToken().getSubject();
+	}
+	
+	/**
+	 * Helps configure a {@link JwtAuthenticationToken}
+	 *
+	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+	 */
+	public static class Builder<T extends Builder<T>> {
+
+		protected Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter;
+
+		protected final Jwt.Builder jwt;
+
+		@Autowired
+		public Builder(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
+			this.authoritiesConverter = authoritiesConverter;
+			this.jwt = new Jwt.Builder();
+		}
+
+		public T token(Consumer<Jwt.Builder> jwtBuilderConsumer) {
+			jwtBuilderConsumer.accept(jwt);
+			return downcast();
+		}
+
+		public T name(String name) {
+			jwt.subject(name);
+			return downcast();
+		}
+
+		/**
+		 * Shortcut to set "scope" claim with a space separated string containing provided scope collection
+		 * @param scopes strings to join with spaces and set as "scope" claim
+		 * @return this builder to further configure
+		 */
+		public T scopes(String... scopes) {
+			jwt.claim("scope", Stream.of(scopes).collect(Collectors.joining(" ")));
+			return downcast();
+		}
+
+		public JwtAuthenticationToken build() {
+			final Jwt token = jwt.build();
+			return new JwtAuthenticationToken(token, authoritiesConverter.convert(token));
+		}
+
+		@SuppressWarnings("unchecked")
+		protected T downcast() {
+			return (T) this;
+		}
 	}
 }

@@ -18,15 +18,12 @@ package org.springframework.security.test.web.reactive.server;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
 import java.security.Principal;
-import java.util.Collection;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
@@ -59,13 +56,12 @@ public class TestController {
 	// TODO: investigate why "@AuthenticationPrincipal Jwt token" does not work here
 	public String jwt(final Authentication authentication) {
 		final Jwt token = (Jwt) authentication.getPrincipal();
-		@SuppressWarnings("unchecked")
-		final Collection<String> scopes = (Collection<String>) token.getClaims().get("scope");
+		final String scopes = token.getClaimAsString("scope");
 
 		return String.format(
 				"Hello, %s! You are sucessfully authenticated and granted with %s scopes using a Jwt.",
 				token.getSubject(),
-				scopes.toString());
+				scopes);
 	}
 
 	public static WebTestClient.Builder clientBuilder() {

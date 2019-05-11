@@ -18,17 +18,11 @@ package org.springframework.security.test.web.servlet.request;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -44,7 +38,7 @@ public class JwtRequestPostProcessorTests {
 	MockHttpServletRequest request;
 
 	final static String TEST_NAME = "ch4mpy";
-	final static Set<GrantedAuthority> TEST_AUTHORITIES = Collections.singleton(new SimpleGrantedAuthority("TEST_AUTHORITY"));
+	final static String[] TEST_AUTHORITIES = { "TEST_AUTHORITY" };
 
 	@Before
 	public void setup() throws Exception {
@@ -52,10 +46,9 @@ public class JwtRequestPostProcessorTests {
 	}
 	
 	@Test
-	@SuppressWarnings("unchecked")
 	public void nameAndAuthoritiesAndClaimsConfigureSecurityContextAuthentication() {
 		final JwtRequestPostProcessor rpp =
-				jwt().name(TEST_NAME).authorities(TEST_AUTHORITIES).claim("scp", Collections.singleton("test:claim"));
+				jwt().name(TEST_NAME).authorities(TEST_AUTHORITIES).scopes("test:claim");
 
 		final JwtAuthenticationToken actual = (JwtAuthenticationToken) authentication(rpp.postProcessRequest(request));
 
@@ -63,27 +56,12 @@ public class JwtRequestPostProcessorTests {
 		assertThat(actual.getAuthorities()).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("TEST_AUTHORITY"),
 				new SimpleGrantedAuthority("SCOPE_test:claim"));
-		assertThat((Collection<String>) actual.getTokenAttributes().get("scp")).containsExactlyInAnyOrder("test:claim");
+		assertThat(actual.getTokenAttributes().get("scope")).isEqualTo("test:claim");
 	}
 
 	static Authentication authentication(final MockHttpServletRequest req) {
 		final SecurityContext securityContext = (SecurityContext) req.getAttribute(TestSecurityContextRepository.ATTR_NAME);
 		return securityContext == null ? null : securityContext.getAuthentication();
-	}
-	
-	private JwtRequestPostProcessor defaultTestAuthenticationPostProcessor() {
-		return jwt().name("test_user").roles("a", "b");//more like claims here too
-	}
-	
-	@Test
-	public void jwtRolesAreAddedAndNotReplaced() {
-		final JwtRequestPostProcessor rpp = defaultTestAuthenticationPostProcessor().roles("c");
-		final JwtAuthenticationToken actual = (JwtAuthenticationToken) authentication(rpp.postProcessRequest(request));
-		
-		assertThat(actual.getAuthorities()).containsExactlyInAnyOrder(
-				new SimpleGrantedAuthority("ROLE_a"),
-				new SimpleGrantedAuthority("ROLE_b"),
-				new SimpleGrantedAuthority("ROLE_c"));
 	}
 
 }

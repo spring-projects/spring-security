@@ -30,7 +30,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -38,9 +37,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
-import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider.IntrospectionOAuth2Token;
-import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider.ScopeClaimAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOAuth2TokenIntrospectionClient;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2TokenIntrospectionClient;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
@@ -312,18 +308,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		private String clientId;
 		private String clientSecret;
 		private Supplier<OAuth2TokenIntrospectionClient> introspectionClient;
-		private Converter<IntrospectionOAuth2Token, ? extends AbstractAuthenticationToken> authenticationConverter = token -> {
-			OAuth2AccessToken accessToken = new OAuth2AccessToken(
-					OAuth2AccessToken.TokenType.BEARER,
-					token.getTokenValue(),
-					token.getIssuedAt(),
-					token.getExpiresAt());
-			
-			return new OAuth2IntrospectionAuthenticationToken(
-					accessToken,
-					token.getClaims(),
-					new ScopeClaimAuthoritiesConverter().convert(token.getClaims()));
-		};
 
 		OpaqueTokenConfigurer(ApplicationContext context) {
 			this.context = context;
@@ -358,12 +342,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			this.introspectionClient = () -> introspectionClient;
 			return this;
 		}
-		
-		public OpaqueTokenConfigurer authenticationConverter(
-				Converter<IntrospectionOAuth2Token, ? extends AbstractAuthenticationToken> authenticationConverter) {
-			this.authenticationConverter = authenticationConverter;
-			return this;
-		}
 
 		OAuth2TokenIntrospectionClient getIntrospectionClient() {
 			if (this.introspectionClient != null) {
@@ -379,7 +357,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 			OAuth2TokenIntrospectionClient introspectionClient = getIntrospectionClient();
 			OAuth2IntrospectionAuthenticationProvider provider =
-					new OAuth2IntrospectionAuthenticationProvider(introspectionClient).setAuthenticationConverter(authenticationConverter);
+					new OAuth2IntrospectionAuthenticationProvider(introspectionClient);
 			http.authenticationProvider(provider);
 
 			return http.getSharedObject(AuthenticationManager.class);

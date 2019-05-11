@@ -33,7 +33,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.test.support.JwtAuthenticationTokenBuilder;
+import org.springframework.security.test.support.JwtAuthenticationTokenTestingBuilder;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.MockServerConfigurer;
@@ -125,19 +125,8 @@ public class SecurityMockServerConfigurers {
 	public static JwtMutator mockJwt() {
 		return new JwtMutator();
 	}
-
-	/**
-	 * Updates the ServerWebExchange to establish a {@link SecurityContext} that has a
-	 * {@link JwtAuthenticationToken} for the
-	 * {@link Authentication} and a {@link Jwt} for the
-	 * {@link Authentication#getPrincipal()}. All details are
-	 * declarative and do not require the JWT to be valid.
-	 *
-	 * @param jwt a complete JWT to extract and apply token value, subject, authorities and claims configuration
-	 * @return the {@link JwtMutator} to further configure or use
-	 */
-	public static JwtMutator mockJwt(final Jwt jwt) {
-		return mockJwt().jwt(jwt);
+	public static JwtMutator mockJwt(Consumer<Jwt.Builder> jwt) {
+		return new JwtMutator().token(jwt);
 	}
 
 	public static CsrfMutator csrf() {
@@ -330,7 +319,7 @@ public class SecurityMockServerConfigurers {
 	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
 	 * @since 5.2
 	 */
-	public static class JwtMutator extends JwtAuthenticationTokenBuilder<JwtMutator>
+	public static class JwtMutator extends JwtAuthenticationTokenTestingBuilder<JwtMutator>
 			implements
 			WebTestClientConfigurer,
 			MockServerConfigurer {

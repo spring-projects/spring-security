@@ -17,8 +17,6 @@ package org.springframework.security.test.web.reactive.server;
 
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockJwt;
 
-import java.util.Collections;
-
 import org.junit.Test;
 
 /**
@@ -43,22 +41,21 @@ public class JwtMutatorTests {
 	}
 
 	@Test
-	public void nameAndClaimsConfigureAuthenticationNameAndAuthorities() {
+	public void nameAndScopesConfigureAuthenticationNameAndAuthorities() {
 		TestController.clientBuilder()
-				.apply(mockJwt().name("ch4mpy").claim("scope", Collections.singleton("message:read"))).build()
+				.apply(mockJwt().name("ch4mpy").scopes("message:read")).build()
 				.get().uri("/greet").exchange()
 				.expectStatus().isOk()
 				.expectBody().toString().equals("Hello ch4mpy!");
 
 		TestController.clientBuilder()
-				.apply(mockJwt().name("ch4mpy").claim("scope", Collections.singleton("message:read"))).build()
+				.apply(mockJwt().name("ch4mpy").scopes("message:read")).build()
 				.get().uri("/authorities").exchange()
 				.expectStatus().isOk()
 				.expectBody().toString().equals("[\"SCOPE_message:read\"]");
 
 		TestController.clientBuilder()
-				.apply(mockJwt().name("ch4mpy").claim("scope", Collections.singleton("message:read")))
-				.build()
+				.apply(mockJwt().name("ch4mpy").scopes("message:read")).build()
 				.get().uri("/jwt").exchange()
 				.expectStatus().isOk()
 				.expectBody().toString().equals(
