@@ -48,9 +48,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
-import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -552,100 +550,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 	}
 
 	/**
-	 * Support class for {@link RequestPostProcessor}'s that establish a Spring Security
-	 * context
-	 */
-	private static class SecurityContextRequestPostProcessorSupport {
-
-		/**
-		 * Saves the specified {@link Authentication} into an empty
-		 * {@link SecurityContext} using the {@link SecurityContextRepository}.
-		 *
-		 * @param authentication the {@link Authentication} to save
-		 * @param request the {@link HttpServletRequest} to use
-		 */
-		static final void save(Authentication authentication, HttpServletRequest request) {
-			SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-			securityContext.setAuthentication(authentication);
-			save(securityContext, request);
-		}
-
-		/**
-		 * Saves the {@link SecurityContext} using the {@link SecurityContextRepository}
-		 *
-		 * @param securityContext the {@link SecurityContext} to save
-		 * @param request the {@link HttpServletRequest} to use
-		 */
-		static final void save(SecurityContext securityContext, HttpServletRequest request) {
-			SecurityContextRepository securityContextRepository = WebTestUtils
-					.getSecurityContextRepository(request);
-			boolean isTestRepository = securityContextRepository instanceof TestSecurityContextRepository;
-			if (!isTestRepository) {
-				securityContextRepository = new TestSecurityContextRepository(
-						securityContextRepository);
-				WebTestUtils.setSecurityContextRepository(request,
-						securityContextRepository);
-			}
-
-			HttpServletResponse response = new MockHttpServletResponse();
-
-			HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(
-					request, response);
-			securityContextRepository.loadContext(requestResponseHolder);
-
-			request = requestResponseHolder.getRequest();
-			response = requestResponseHolder.getResponse();
-
-			securityContextRepository.saveContext(securityContext, request, response);
-		}
-
-		/**
-		 * Used to wrap the SecurityContextRepository to provide support for testing in
-		 * stateless mode
-		 */
-		static class TestSecurityContextRepository implements SecurityContextRepository {
-			private final static String ATTR_NAME = TestSecurityContextRepository.class
-					.getName().concat(".REPO");
-
-			private final SecurityContextRepository delegate;
-
-			private TestSecurityContextRepository(SecurityContextRepository delegate) {
-				this.delegate = delegate;
-			}
-
-			@Override
-			public SecurityContext loadContext(
-					HttpRequestResponseHolder requestResponseHolder) {
-				SecurityContext result = getContext(requestResponseHolder.getRequest());
-				// always load from the delegate to ensure the request/response in the
-				// holder are updated
-				// remember the SecurityContextRepository is used in many different
-				// locations
-				SecurityContext delegateResult = this.delegate
-						.loadContext(requestResponseHolder);
-				return result == null ? delegateResult : result;
-			}
-
-			@Override
-			public void saveContext(SecurityContext context, HttpServletRequest request,
-					HttpServletResponse response) {
-				request.setAttribute(ATTR_NAME, context);
-				this.delegate.saveContext(context, request, response);
-			}
-
-			@Override
-			public boolean containsContext(HttpServletRequest request) {
-				return getContext(request) != null
-						|| this.delegate.containsContext(request);
-			}
-
-			private static SecurityContext getContext(HttpServletRequest request) {
-				return (SecurityContext) request.getAttribute(ATTR_NAME);
-			}
-		}
-	}
-
-	/**
 	 * Associates the {@link SecurityContext} found in
 	 * {@link TestSecurityContextHolder#getContext()} with the
 	 * {@link MockHttpServletRequest}.
@@ -659,8 +563,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			// TestSecurityContextHolder is only a default value
-			SecurityContext existingContext = SecurityContextRequestPostProcessorSupport
-					.TestSecurityContextRepository.getContext(request);
+			SecurityContext existingContext = TestSecurityContextRepository.getContext(request);
 			if (existingContext != null) {
 				return request;
 			}
