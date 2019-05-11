@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@ package org.springframework.security.web.server.authentication;
 
 import java.util.function.Function;
 
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -51,6 +53,11 @@ import reactor.core.publisher.Mono;
  *     The {@link ReactiveAuthenticationManager} specified in
  *     {@link #AuthenticationWebFilter(ReactiveAuthenticationManager)} is used to perform authentication.
  * </li>
+ *<li>
+ *     The {@link ReactiveAuthenticationManagerResolver} specified in
+ *     {@link #AuthenticationWebFilter(ReactiveAuthenticationManagerResolver)} is used to resolve the appropriate
+ *     authentication manager from context to perform authentication.
+ * </li>
  * <li>
  *     If authentication is successful, {@link ServerAuthenticationSuccessHandler} is invoked and the authentication
  *     is set on {@link ReactiveSecurityContextHolder}, else {@link ServerAuthenticationFailureHandler} is invoked
@@ -58,11 +65,11 @@ import reactor.core.publisher.Mono;
  * </ul>
  *
  * @author Rob Winch
+ * @author Rafiullah Hamedy
  * @since 5.0
  */
 public class AuthenticationWebFilter implements WebFilter {
-
-	private final ReactiveAuthenticationManager authenticationManager;
+	private final ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver;
 
 	private ServerAuthenticationSuccessHandler authenticationSuccessHandler = new WebFilterChainServerAuthenticationSuccessHandler();
 
@@ -80,7 +87,17 @@ public class AuthenticationWebFilter implements WebFilter {
 	 */
 	public AuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
-		this.authenticationManager = authenticationManager;
+		this.authenticationManagerResolver = request -> Mono.just(authenticationManager);
+	}
+
+	/**
+	 * Creates an instance
+	 * @param authenticationManagerResolver the authentication manager resolver to use
+	 * @since 5.2
+	 */
+	public AuthenticationWebFilter(ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver) {
+		Assert.notNull(authenticationManagerResolver, "authenticationResolverManager cannot be null");
+		this.authenticationManagerResolver = authenticationManagerResolver;
 	}
 
 	@Override
@@ -95,7 +112,9 @@ public class AuthenticationWebFilter implements WebFilter {
 	private Mono<Void> authenticate(ServerWebExchange exchange,
 		WebFilterChain chain, Authentication token) {
 		WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
-		return this.authenticationManager.authenticate(token)
+
+		return this.authenticationManagerResolver.resolve(exchange.getRequest())
+			.flatMap(authenticationManager -> authenticationManager.authenticate(token))
 			.switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
 			.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
 			.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
