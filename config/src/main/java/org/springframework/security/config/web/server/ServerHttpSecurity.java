@@ -43,9 +43,11 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.DelegatingReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -230,6 +232,7 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Rafiullah Hamedy
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -1124,6 +1127,7 @@ public class ServerHttpSecurity {
 
 		private JwtSpec jwt;
 		private OpaqueTokenSpec opaqueToken;
+		private ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver;
 
 		/**
 		 * Configures the {@link ServerAccessDeniedHandler} to use for requests authenticating with
@@ -1168,6 +1172,20 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
+		/**
+		 * Configures the {@link ReactiveAuthenticationManagerResolver}
+		 *
+		 * @param authenticationManagerResolver the {@link ReactiveAuthenticationManagerResolver}
+		 * @return the {@link OAuth2ResourceServerSpec} for additional configuration
+		 * @since 5.2
+		 */
+		public OAuth2ResourceServerSpec authenticationManagerResolver(
+				ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver) {
+			Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
+			this.authenticationManagerResolver = authenticationManagerResolver;
+			return this;
+		}
+
 		public JwtSpec jwt() {
 			if (this.jwt == null) {
 				this.jwt = new JwtSpec();
@@ -1195,18 +1213,21 @@ public class ServerHttpSecurity {
 						"same time");
 			}
 
-			if (this.jwt == null && this.opaqueToken == null) {
+			if (this.jwt == null && this.opaqueToken == null && this.authenticationManagerResolver == null) {
 				throw new IllegalStateException("Jwt and Opaque Token are the only supported formats for bearer tokens " +
 						"in Spring Security and neither was found. Make sure to configure JWT " +
 						"via http.oauth2ResourceServer().jwt() or Opaque Tokens via " +
 						"http.oauth2ResourceServer().opaqueToken().");
 			}
 
-			if (this.jwt != null) {
+			if (this.authenticationManagerResolver != null) {
+				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(this.authenticationManagerResolver);
+				oauth2.setServerAuthenticationConverter(bearerTokenConverter);
+				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
+				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
+			} else if (this.jwt != null) {
 				this.jwt.configure(http);
-			}
-
-			if (this.opaqueToken != null) {
+			} else if (this.opaqueToken != null) {
 				this.opaqueToken.configure(http);
 			}
 		}

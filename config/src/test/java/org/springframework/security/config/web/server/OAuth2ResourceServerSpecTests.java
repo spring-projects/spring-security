@@ -50,8 +50,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
@@ -220,6 +222,28 @@ public class OAuth2ResourceServerSpecTests {
 				ReactiveAuthenticationManager.class);
 		when(authenticationManager.authenticate(any(Authentication.class)))
 				.thenReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
+
+		this.client.get()
+				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"mock-failure\""));
+	}
+
+	@Test
+	public void getWhenUsingCustomAuthenticationManagerResolverThenUsesItAccordingly() {
+		this.spring.register(CustomAuthenticationManagerResolverConfig.class).autowire();
+
+		ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver =
+				this.spring.getContext().getBean(ReactiveAuthenticationManagerResolver.class);
+
+		ReactiveAuthenticationManager authenticationManager =
+				this.spring.getContext().getBean(ReactiveAuthenticationManager.class);
+
+		when(authenticationManagerResolver.resolve(any(ServerHttpRequest.class)))
+			.thenReturn(Mono.just(authenticationManager));
+		when(authenticationManager.authenticate(any(Authentication.class)))
+			.thenReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
 
 		this.client.get()
 				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
@@ -499,6 +523,34 @@ public class OAuth2ResourceServerSpecTests {
 			// @formatter:on
 
 			return http.build();
+		}
+
+		@Bean
+		ReactiveAuthenticationManager authenticationManager() {
+			return mock(ReactiveAuthenticationManager.class);
+		}
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class CustomAuthenticationManagerResolverConfig {
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeExchange()
+					.pathMatchers("/**/message/**").hasAnyAuthority("SCOPE_message:read")
+					.and()
+				.oauth2ResourceServer()
+					.authenticationManagerResolver(authenticationManagerResolver());
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver() {
+			return mock(ReactiveAuthenticationManagerResolver.class);
 		}
 
 		@Bean
