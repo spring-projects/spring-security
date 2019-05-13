@@ -178,9 +178,10 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 				.toUriString();
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(params, redirectUri);
 
+		Object authenticationDetails = this.authenticationDetailsSource.buildDetails(request);
 		OAuth2LoginAuthenticationToken authenticationRequest = new OAuth2LoginAuthenticationToken(
 				clientRegistration, new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse));
-		authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+		authenticationRequest.setDetails(authenticationDetails);
 
 		OAuth2LoginAuthenticationToken authenticationResult =
 			(OAuth2LoginAuthenticationToken) this.getAuthenticationManager().authenticate(authenticationRequest);
@@ -189,6 +190,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			authenticationResult.getPrincipal(),
 			authenticationResult.getAuthorities(),
 			authenticationResult.getClientRegistration().getRegistrationId());
+		oauth2Authentication.setDetails(authenticationDetails);
 
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 			authenticationResult.getClientRegistration(),
