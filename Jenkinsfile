@@ -48,7 +48,7 @@ try {
 			node {
 				checkout scm
 				try {
-					sh "./gradlew clean test -PforceMavenRepositories=snapshot -PspringVersion='5.+' -PreactorVersion=Californium-BUILD-SNAPSHOT -PspringDataVersion=Lovelace-BUILD-SNAPSHOT --refresh-dependencies --no-daemon --stacktrace"
+					sh "./gradlew clean test -PforceMavenRepositories=snapshot -PspringVersion='5.+' -PreactorVersion=Dysprosium-BUILD-SNAPSHOT -PspringDataVersion=Lovelace-BUILD-SNAPSHOT --refresh-dependencies --no-daemon --stacktrace"
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: snapshots'
 					throw e
