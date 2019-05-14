@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,9 +105,9 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Specifies where users will go after authenticating successfully if they have not
-	 * visited a secured page prior to authenticating. This is a shortcut for calling
-	 * {@link #defaultSuccessUrl(String)}.
+	 * Specifies where users will be redirected after authenticating successfully if
+	 * they have not visited a secured page prior to authenticating. This is a shortcut
+	 * for calling {@link #defaultSuccessUrl(String, boolean)}.
 	 *
 	 * @param defaultSuccessUrl the default success url
 	 * @return the {@link FormLoginConfigurer} for additional customization
@@ -117,9 +117,10 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Specifies where users will go after authenticating successfully if they have not
-	 * visited a secured page prior to authenticating or {@code alwaysUse} is true. This
-	 * is a shortcut for calling {@link #successHandler(AuthenticationSuccessHandler)}.
+	 * Specifies where users will be redirected after authenticating successfully if
+	 * they have not visited a secured page prior to authenticating or {@code alwaysUse}
+	 * is true. This is a shortcut for calling
+	 * {@link #successHandler(AuthenticationSuccessHandler)}.
 	 *
 	 * @param defaultSuccessUrl the default success url
 	 * @param alwaysUse true if the {@code defaultSuccesUrl} should be used after
