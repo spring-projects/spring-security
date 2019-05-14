@@ -74,7 +74,7 @@ public class NimbusOAuth2TokenIntrospectionClient implements OAuth2TokenIntrospe
 		Assert.notNull(clientId, "clientId cannot be null");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
 
-		this.requestEntityConverter = this.defaultRequestEntityConverter(introspectionUri);
+		this.requestEntityConverter = this.defaultRequestEntityConverter(URI.create(introspectionUri));
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(clientId, clientSecret));
 		this.restOperations = restTemplate;
@@ -93,8 +93,28 @@ public class NimbusOAuth2TokenIntrospectionClient implements OAuth2TokenIntrospe
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(restOperations, "restOperations cannot be null");
 
-		this.requestEntityConverter = this.defaultRequestEntityConverter(introspectionUri);
+		this.requestEntityConverter = this.defaultRequestEntityConverter(URI.create(introspectionUri));
 		this.restOperations = restOperations;
+	}
+
+	private Converter<String, RequestEntity<?>> defaultRequestEntityConverter(URI introspectionUri) {
+		return token -> {
+			HttpHeaders headers = requestHeaders();
+			MultiValueMap<String, String> body = requestBody(token);
+			return new RequestEntity<>(body, headers, HttpMethod.POST, introspectionUri);
+		};
+	}
+
+	private HttpHeaders requestHeaders() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
+		return headers;
+	}
+
+	private MultiValueMap<String, String> requestBody(String token) {
+		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+		body.add("token", token);
+		return body;
 	}
 
 	/**
@@ -125,26 +145,6 @@ public class NimbusOAuth2TokenIntrospectionClient implements OAuth2TokenIntrospe
 		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
 
 		this.requestEntityConverter = requestEntityConverter;
-	}
-
-	private Converter<String, RequestEntity<?>> defaultRequestEntityConverter(String introspectionUri) {
-		return token -> {
-			HttpHeaders headers = requestHeaders();
-			MultiValueMap<String, String> body = requestBody(token);
-			return new RequestEntity<>(body, headers, HttpMethod.POST, URI.create(introspectionUri));
-		};
-	}
-
-	private HttpHeaders requestHeaders() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
-		return headers;
-	}
-
-	private MultiValueMap<String, String> requestBody(String token) {
-		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-		body.add("token", token);
-		return body;
 	}
 
 	private ResponseEntity<String> makeRequest(RequestEntity<?> requestEntity) {
