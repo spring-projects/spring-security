@@ -226,7 +226,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		return new JwtRequestPostProcessor();
 	}
 	
-	public static JwtRequestPostProcessor jwt(Consumer<Jwt.Builder> jwt) {
+	public static JwtRequestPostProcessor jwt(Consumer<Jwt.Builder<?>> jwt) {
 		return jwt().token(jwt);
 	}
 

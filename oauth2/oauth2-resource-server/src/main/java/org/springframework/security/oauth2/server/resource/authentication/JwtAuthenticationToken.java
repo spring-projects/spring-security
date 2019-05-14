@@ -21,7 +21,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
@@ -77,21 +76,29 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 		return this.getToken().getSubject();
 	}
 	
+	public static Builder<?> builder(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
+		return new Builder<>(Jwt.builder(), authoritiesConverter);
+	}
+	
+	public static Builder<?> builder() {
+		return builder(new JwtGrantedAuthoritiesConverter());
+	}
+	
 	/**
 	 * Helps configure a {@link JwtAuthenticationToken}
 	 *
 	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+	 * @since 5.2
 	 */
 	public static class Builder<T extends Builder<T>> {
 
-		protected Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter;
+		private Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter;
 
-		protected final Jwt.Builder jwt;
+		private final Jwt.Builder<?> jwt;
 
-		@Autowired
-		public Builder(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
+		protected Builder(Jwt.Builder<?> principalBuilder, Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
 			this.authoritiesConverter = authoritiesConverter;
-			this.jwt = new Jwt.Builder();
+			this.jwt = principalBuilder;
 		}
 
 		public T authoritiesConverter(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
@@ -99,7 +106,7 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 			return downcast();
 		}
 
-		public T token(Consumer<Jwt.Builder> jwtBuilderConsumer) {
+		public T token(Consumer<Jwt.Builder<?>> jwtBuilderConsumer) {
 			jwtBuilderConsumer.accept(jwt);
 			return downcast();
 		}
@@ -121,7 +128,15 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 
 		public JwtAuthenticationToken build() {
 			final Jwt token = jwt.build();
-			return new JwtAuthenticationToken(token, authoritiesConverter.convert(token));
+			return new JwtAuthenticationToken(token, getAuthorities(token));
+		}
+		
+		protected Jwt getToken() {
+			return jwt.build();
+		}
+		
+		protected Collection<GrantedAuthority> getAuthorities(Jwt token) {
+			return authoritiesConverter.convert(token);
 		}
 
 		@SuppressWarnings("unchecked")

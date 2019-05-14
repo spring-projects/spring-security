@@ -17,8 +17,6 @@ package org.springframework.security.test.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.Instant;
-
 import org.junit.Test;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -32,26 +30,32 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 public class JwtAuthenticationTokenTestingBuilderTests {
 
 	@Test
-	public void defaultConstructorConfiguresDefaultNameAndAuthority() {
+	public void untouchedBuilderSetsDefaultValues() {
 		final JwtAuthenticationToken actual = new JwtAuthenticationTokenTestingBuilder<>().build();
 
 		assertThat(actual.getName()).isEqualTo("user");
 		assertThat(actual.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_USER"));
+		assertThat(actual.getPrincipal()).isInstanceOf(Jwt.class);
+		assertThat(actual.getCredentials()).isInstanceOf(Jwt.class);
+		assertThat(actual.getDetails()).isNull();
+		
+		// Token default values are tested in JwtTestingBuilderTests
+		assertThat(actual.getToken()).isEqualTo(new JwtAuthenticationTokenTestingBuilder.JwtTestingBuilder().build());
 	}
 
 	@Test
-	public void nameDefaultValues() {
+	public void nameOverridesDefaultValue() {
 		assertThat(new JwtAuthenticationTokenTestingBuilder<>().name("ch4mpy").build().getName()).isEqualTo("ch4mpy");
 	}
 
 	@Test
-	public void authoritiesOverideDefaultValues() {
+	public void authoritiesAddsToDefaultValue() {
 		assertThat(new JwtAuthenticationTokenTestingBuilder<>().authorities("TEST").build().getAuthorities())
 				.containsExactlyInAnyOrder(new SimpleGrantedAuthority("SCOPE_USER"), new SimpleGrantedAuthority("TEST"));
 	}
 
 	@Test
-	public void scopesOverideDefaultValues() {
+	public void scopesOveridesDefaultValue() {
 		assertThat(new JwtAuthenticationTokenTestingBuilder<>().scopes("TEST").build().getAuthorities())
 				.containsExactly(new SimpleGrantedAuthority("SCOPE_TEST"));
 	}
@@ -62,20 +66,6 @@ public class JwtAuthenticationTokenTestingBuilderTests {
 
 		assertThat(actual.getName()).isEqualTo("ch4mpy");
 		assertThat(actual.getTokenAttributes().get(JwtClaimNames.SUB)).isEqualTo("ch4mpy");
-	}
-
-	@Test
-	public void claimWithIatAndExpSetIssuedAtAndExpiresAt() {
-		final Jwt actual = new JwtAuthenticationTokenTestingBuilder<>().token(jwt -> jwt
-					.claim(JwtClaimNames.IAT, Instant.parse("2019-03-21T13:52:25Z"))
-					.claim(JwtClaimNames.EXP, Instant.parse("2019-03-22T13:52:25Z")))
-				.build()
-				.getToken();
-
-		assertThat(actual.getIssuedAt()).isEqualTo(Instant.parse("2019-03-21T13:52:25Z"));
-		assertThat(actual.getExpiresAt()).isEqualTo(Instant.parse("2019-03-22T13:52:25Z"));
-		assertThat(actual.getClaimAsInstant(JwtClaimNames.IAT)).isEqualTo(Instant.parse("2019-03-21T13:52:25Z"));
-		assertThat(actual.getClaimAsInstant(JwtClaimNames.EXP)).isEqualTo(Instant.parse("2019-03-22T13:52:25Z"));
 	}
 
 	@Test

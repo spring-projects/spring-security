@@ -22,8 +22,10 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
@@ -35,24 +37,18 @@ public class JwtAuthenticationTokenTestingBuilder<T extends JwtAuthenticationTok
 		implements
 		AuthenticationBuilder<JwtAuthenticationToken> {
 
-	private static final String DEFAULT_NAME = "user";
-
 	private static final String[] DEFAULT_SCOPES = { "USER" };
-
-	private static final String DEFAULT_TOKEN_VALUE = "test.jwt.value";
-
-	private static final String DEFAULT_HEADER_NAME = "test-header";
-
-	private static final String DEFAULT_HEADER_VALUE = "test-header-value";
 
 	private final Set<GrantedAuthority> addedAuthorities;
 
-	public JwtAuthenticationTokenTestingBuilder() {
-		super(new JwtGrantedAuthoritiesConverter());
+	public JwtAuthenticationTokenTestingBuilder(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
+		super(new JwtTestingBuilder(), authoritiesConverter);
 		this.addedAuthorities = new HashSet<>();
-		name(DEFAULT_NAME);
-		jwt.tokenValue(DEFAULT_TOKEN_VALUE);
 		scopes(DEFAULT_SCOPES);
+	}
+
+	public JwtAuthenticationTokenTestingBuilder() {
+		this(new JwtGrantedAuthoritiesConverter());
 	}
 
 	/**
@@ -97,15 +93,50 @@ public class JwtAuthenticationTokenTestingBuilder<T extends JwtAuthenticationTok
 
 	@Override
 	public JwtAuthenticationToken build() {
-		if (!jwt.hasHeader()) {
-			jwt.header(DEFAULT_HEADER_NAME, DEFAULT_HEADER_VALUE);
-		}
-		final Jwt token = jwt.build();
-		final Collection<GrantedAuthority> tokenAuthorities = authoritiesConverter.convert(token);
-		final Collection<GrantedAuthority> authorities = addedAuthorities.isEmpty() ? tokenAuthorities
-				: Stream.concat(tokenAuthorities.stream(), addedAuthorities.stream()).collect(Collectors.toSet());
+		final Jwt token = getToken();
 
-		return new JwtAuthenticationToken(token, authorities);
+		return new JwtAuthenticationToken(token, getAuthorities(token));
 	}
 
+	@Override
+	protected Collection<GrantedAuthority> getAuthorities(Jwt token) {
+		final Collection<GrantedAuthority> principalAuthorities = super.getAuthorities(token);
+
+		return addedAuthorities.isEmpty() ? principalAuthorities
+				: Stream.concat(principalAuthorities.stream(), addedAuthorities.stream()).collect(Collectors.toSet());
+	}
+
+	/**
+	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+	 * @since 5.2
+	 */
+	static class JwtTestingBuilder extends Jwt.Builder<JwtTestingBuilder> {
+
+		private static final String DEFAULT_SUBJECT = "user";
+
+		private static final String DEFAULT_TOKEN_VALUE = "test.jwt.value";
+
+		private static final String DEFAULT_HEADER_NAME = "test-header";
+
+		private static final String DEFAULT_HEADER_VALUE = "test-header-value";
+
+		public JwtTestingBuilder() {
+			super();
+		}
+
+		@Override
+		public Jwt build() {
+			final Object subjectClaim = claims.get(JwtClaimNames.SUB);
+			if (!StringUtils.hasLength(tokenValue)) {
+				tokenValue(DEFAULT_TOKEN_VALUE);
+			}
+			if (!StringUtils.hasLength((String) subjectClaim)) {
+				claim(JwtClaimNames.SUB, DEFAULT_SUBJECT);
+			}
+			if (headers.size() == 0) {
+				header(DEFAULT_HEADER_NAME, DEFAULT_HEADER_VALUE);
+			}
+			return super.build();
+		}
+	}
 }
