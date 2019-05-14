@@ -32,6 +32,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Test;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,9 +46,11 @@ import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.AUDIENCE;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.EXPIRES_AT;
@@ -252,6 +255,37 @@ public class NimbusOAuth2TokenIntrospectionClientTests {
 	public void constructorWhenRestOperationsIsNullThenIllegalArgumentException() {
 		assertThatCode(() -> new NimbusOAuth2TokenIntrospectionClient(INTROSPECTION_URL, null))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setRequestEntityConverterWhenConverterIsNullThenExceptionIsThrown() {
+		RestOperations restOperations = mock(RestOperations.class);
+
+		NimbusOAuth2TokenIntrospectionClient introspectionClient = new NimbusOAuth2TokenIntrospectionClient(
+				INTROSPECTION_URL, restOperations
+		);
+
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> introspectionClient.setRequestEntityConverter(null));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void setRequestEntityConverterWhenNonNullConverterGivenThenConverterUsed() {
+		RestOperations restOperations = mock(RestOperations.class);
+		Converter<String, RequestEntity<?>> requestEntityConverter = mock(Converter.class);
+		RequestEntity requestEntity = mock(RequestEntity.class);
+		String tokenToIntrospect = "some token";
+		when(requestEntityConverter.convert(tokenToIntrospect)).thenReturn(requestEntity);
+		when(restOperations.exchange(requestEntity, String.class)).thenReturn(ACTIVE);
+		NimbusOAuth2TokenIntrospectionClient introspectionClient = new NimbusOAuth2TokenIntrospectionClient(
+				INTROSPECTION_URL, restOperations
+		);
+		introspectionClient.setRequestEntityConverter(requestEntityConverter);
+
+		introspectionClient.introspect(tokenToIntrospect);
+
+		verify(requestEntityConverter).convert(tokenToIntrospect);
 	}
 
 	private static ResponseEntity<String> response(String content) {

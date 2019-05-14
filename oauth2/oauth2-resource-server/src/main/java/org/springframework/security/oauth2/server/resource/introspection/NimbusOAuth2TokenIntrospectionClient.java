@@ -30,6 +30,7 @@ import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Audience;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -54,10 +55,11 @@ import static org.springframework.security.oauth2.server.resource.introspection.
  * A Nimbus implementation of {@link OAuth2TokenIntrospectionClient}.
  *
  * @author Josh Cummings
+ * @author MD Sayem Ahmed
  * @since 5.2
  */
 public class NimbusOAuth2TokenIntrospectionClient implements OAuth2TokenIntrospectionClient {
-	private URI introspectionUri;
+	private Converter<String, RequestEntity<?>> requestEntityConverter;
 	private RestOperations restOperations;
 
 	/**
@@ -72,7 +74,7 @@ public class NimbusOAuth2TokenIntrospectionClient implements OAuth2TokenIntrospe
 		Assert.notNull(clientId, "clientId cannot be null");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
 
-		this.introspectionUri = URI.create(introspectionUri);
+		this.requestEntityConverter = this.defaultRequestEntityConverter(introspectionUri);
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(clientId, clientSecret));
 		this.restOperations = restTemplate;
@@ -91,7 +93,7 @@ public class NimbusOAuth2TokenIntrospectionClient implements OAuth2TokenIntrospe
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(restOperations, "restOperations cannot be null");
 
-		this.introspectionUri = URI.create(introspectionUri);
+		this.requestEntityConverter = this.defaultRequestEntityConverter(introspectionUri);
 		this.restOperations = restOperations;
 	}
 
@@ -101,7 +103,7 @@ public class NimbusOAuth2TokenIntrospectionClient implements OAuth2TokenIntrospe
 	@Override
 	public Map<String, Object> introspect(String token) {
 		TokenIntrospectionSuccessResponse response = Optional.of(token)
-				.map(this::buildRequest)
+				.map(this.requestEntityConverter::convert)
 				.map(this::makeRequest)
 				.map(this::adaptToNimbusResponse)
 				.map(this::parseNimbusResponse)
@@ -112,10 +114,25 @@ public class NimbusOAuth2TokenIntrospectionClient implements OAuth2TokenIntrospe
 		return convertClaimsSet(response);
 	}
 
-	private RequestEntity<MultiValueMap<String, String>> buildRequest(String token) {
-		HttpHeaders headers = requestHeaders();
-		MultiValueMap<String, String> body = requestBody(token);
-		return new RequestEntity<>(body, headers, HttpMethod.POST, this.introspectionUri);
+	/**
+	 * Sets the {@link Converter} used for converting the OAuth 2.0 access token to a {@link RequestEntity}
+	 * representation of the OAuth 2.0 token introspection request.
+	 *
+	 * @param requestEntityConverter the {@link Converter} used for converting to a {@link RequestEntity} representation
+	 *                               of the token introspection request
+	 */
+	public void setRequestEntityConverter(Converter<String, RequestEntity<?>> requestEntityConverter) {
+		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
+
+		this.requestEntityConverter = requestEntityConverter;
+	}
+
+	private Converter<String, RequestEntity<?>> defaultRequestEntityConverter(String introspectionUri) {
+		return token -> {
+			HttpHeaders headers = requestHeaders();
+			MultiValueMap<String, String> body = requestBody(token);
+			return new RequestEntity<>(body, headers, HttpMethod.POST, URI.create(introspectionUri));
+		};
 	}
 
 	private HttpHeaders requestHeaders() {
