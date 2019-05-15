@@ -33,9 +33,7 @@ import org.springframework.util.StringUtils;
  */
 public class JwtAuthenticationTokenTestingBuilder<T extends JwtAuthenticationTokenTestingBuilder<T>>
 		extends
-		JwtAuthenticationToken.Builder<T>
-		implements
-		AuthenticationBuilder<JwtAuthenticationToken> {
+		JwtAuthenticationToken.Builder<T> {
 
 	private static final String[] DEFAULT_SCOPES = { "USER" };
 

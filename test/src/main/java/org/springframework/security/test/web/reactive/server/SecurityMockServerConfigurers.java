@@ -322,6 +322,24 @@ public class SecurityMockServerConfigurers {
 	 */
 	public static class JwtMutator extends JwtAuthenticationTokenTestingBuilder<JwtMutator>
 			implements
-			AuthenticationMutator<JwtAuthenticationToken> {
+			WebTestClientConfigurer, MockServerConfigurer {
+
+		@Override
+		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
+			mockAuthentication(build()).beforeServerCreated(builder);
+		}
+
+		@Override
+		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
+			mockAuthentication(build()).afterConfigureAdded(serverSpec);
+		}
+
+		@Override
+		public void afterConfigurerAdded(
+				WebTestClient.Builder builder,
+				@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
+				@Nullable ClientHttpConnector connector) {
+			mockAuthentication(build()).afterConfigurerAdded(builder, httpHandlerBuilder, connector);
+		}
 	}
 }
