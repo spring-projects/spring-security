@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.jwt;
 
 import java.net.URL;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -165,6 +166,10 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 			return downcast();
 		}
 
+		public T audience(Collection<String> audience) {
+			return audience(audience.stream());
+		}
+
 		public T audience(String... audience) {
 			return audience(Stream.of(audience));
 		}
@@ -185,7 +190,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		public T issuer(URL issuer) {
-			this.claim(JwtClaimNames.ISS, issuer.toString());
+			this.claim(JwtClaimNames.ISS, issuer.toExternalForm());
 			return downcast();
 		}
 

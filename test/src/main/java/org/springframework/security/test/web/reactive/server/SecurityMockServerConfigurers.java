@@ -125,6 +125,7 @@ public class SecurityMockServerConfigurers {
 	public static JwtMutator mockJwt() {
 		return new JwtMutator();
 	}
+	
 	public static JwtMutator mockJwt(Consumer<Jwt.Builder<?>> jwt) {
 		return new JwtMutator().token(jwt);
 	}
