@@ -492,33 +492,15 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link InvalidSessionStrategy} to use
 	 */
 	InvalidSessionStrategy getInvalidSessionStrategy() {
-		if (this.invalidSessionStrategy != null) {
-			return this.invalidSessionStrategy;
-		}
-		if (this.invalidSessionUrl != null) {
-			this.invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(
-					this.invalidSessionUrl);
-		}
-		if (this.invalidSessionUrl == null) {
-			return null;
-		}
-		if (this.invalidSessionStrategy == null) {
-			this.invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(
+		if (this.invalidSessionStrategy == null && this.invalidSessionUrl != null) {
+	   		this.invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(
 					this.invalidSessionUrl);
 		}
 		return this.invalidSessionStrategy;
 	}
 
 	SessionInformationExpiredStrategy getExpiredSessionStrategy() {
-		if (this.expiredSessionStrategy != null) {
-			return this.expiredSessionStrategy;
-		}
-
-		if (this.expiredUrl == null) {
-			return null;
-		}
-
-		if (this.expiredSessionStrategy == null) {
+		if (this.expiredSessionStrategy == null && this.expiredUrl != null) {
 			this.expiredSessionStrategy = new SimpleRedirectSessionInformationExpiredStrategy(
 					this.expiredUrl);
 		}
@@ -526,15 +508,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	AuthenticationFailureHandler getSessionAuthenticationFailureHandler() {
-		if (this.sessionAuthenticationFailureHandler != null) {
-			return this.sessionAuthenticationFailureHandler;
-		}
-
-		if (this.sessionAuthenticationErrorUrl == null) {
-			return null;
-		}
-
-		if (this.sessionAuthenticationFailureHandler == null) {
+		if (this.sessionAuthenticationFailureHandler == null && this.sessionAuthenticationErrorUrl != null) {
 			this.sessionAuthenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler(
 					this.sessionAuthenticationErrorUrl);
 		}
