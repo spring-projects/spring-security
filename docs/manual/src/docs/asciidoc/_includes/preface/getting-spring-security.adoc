@@ -178,7 +178,7 @@ If you are using a milestone or release candidate version, you will need to ensu
 [[gradle]]
 == Gradle
 
-Like most open source projects, Spring Security deploys its dependencies as Maven artifacts which allows for for first class Gradle support.
+Like most open source projects, Spring Security deploys its dependencies as Maven artifacts which allows for first class Gradle support.
 The following sections provide details on how to consume Spring Security when using Gradle.
 
 === Spring Boot with Gradle
