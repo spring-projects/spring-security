@@ -53,10 +53,10 @@ You can find a summary of the features below:
 ** X-Frame-Options integration to help prevent https://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
 * Integrate with the following Servlet API methods
 ** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[HttpServletRequest#getRemoteUser()]
-** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest.html#getUserPrincipal()]
-** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.html#isUserInRole(java.lang.String)]
-** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html#login(java.lang.String, java.lang.String)]
-** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html#logout()]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest#getUserPrincipal()]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest#isUserInRole(java.lang.String)]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest#login(java.lang.String, java.lang.String)]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest#logout()]
 
 === AbstractSecurityWebApplicationInitializer
 
