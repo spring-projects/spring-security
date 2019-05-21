@@ -98,6 +98,28 @@ public class JwtAuthenticationTokenTests {
 		assertThat(token.isAuthenticated()).isFalse();
 	}
 
+	@Test
+	public void constructorWhenProvidingJwtAndAuthoritiesThenSetsNameCorrectly() {
+		Map claims = Maps.newHashMap("sub", "Hayden");
+		Jwt jwt = this.jwt(claims);
+
+		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
+
+		assertThat(token.getName()).isEqualTo("Hayden");
+	}
+
+	@Test
+	public void constructorWhenUsingAllParametersThenReturnsCorrectName() {
+
+		Collection authorities = Arrays.asList(new SimpleGrantedAuthority("test"));
+		Map claims = Maps.newHashMap("claim", "value");
+		Jwt jwt = this.jwt(claims);
+
+		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities, "Hayden");
+
+		assertThat(token.getName()).isEqualTo("Hayden");
+	}
+
 	private Jwt jwt(Map<String, Object> claims) {
 		Map<String, Object> headers = new HashMap<>();
 		headers.put("alg", JwsAlgorithms.RS256);
