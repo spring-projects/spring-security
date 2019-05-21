@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -48,8 +48,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.test.context.TestSecurityContextHolder;
-import org.springframework.security.test.support.JwtAuthenticationTokenTestingBuilder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
@@ -62,6 +62,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
+
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
 
 /**
  * Contains {@link MockMvc} {@link RequestPostProcessor} implementations for Spring
@@ -223,11 +225,41 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @return the {@link JwtRequestPostProcessor} for additional customization
 	 */
 	public static JwtRequestPostProcessor jwt() {
-		return new JwtRequestPostProcessor();
+		return jwt(jwt -> {});
 	}
-	
-	public static JwtRequestPostProcessor jwt(Consumer<Jwt.Builder<?>> jwt) {
-		return jwt().token(jwt);
+
+	/**
+	 * Establish a {@link SecurityContext} that has a
+	 * {@link JwtAuthenticationToken} for the
+	 * {@link Authentication} and a {@link Jwt} for the
+	 * {@link Authentication#getPrincipal()}. All details are
+	 * declarative and do not require the JWT to be valid.
+	 *
+	 * <p>
+	 * The support works by associating the authentication to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
+	 * @param jwtBuilderConsumer For configuring the underlying {@link Jwt}
+	 * @return the {@link JwtRequestPostProcessor} for additional customization
+	 * @since 5.2
+	 */
+	public static JwtRequestPostProcessor jwt(Consumer<Jwt.Builder> jwtBuilderConsumer) {
+		Jwt.Builder jwtBuilder = Jwt.withTokenValue("token")
+				.header("alg", "none")
+				.claim(SUB, "user")
+				.claim("scope", "read");
+		jwtBuilderConsumer.accept(jwtBuilder);
+		return new JwtRequestPostProcessor(jwtBuilder.build());
 	}
 
 	/**
@@ -590,7 +622,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * Support class for {@link RequestPostProcessor}'s that establish a Spring Security
 	 * context
 	 */
-	static class SecurityContextRequestPostProcessorSupport {
+	private static abstract class SecurityContextRequestPostProcessorSupport {
 
 		/**
 		 * Saves the specified {@link Authentication} into an empty
@@ -599,7 +631,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @param authentication the {@link Authentication} to save
 		 * @param request the {@link HttpServletRequest} to use
 		 */
-		static final void save(Authentication authentication, HttpServletRequest request) {
+		final void save(Authentication authentication, HttpServletRequest request) {
 			SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 			securityContext.setAuthentication(authentication);
 			save(securityContext, request);
@@ -611,7 +643,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @param securityContext the {@link SecurityContext} to save
 		 * @param request the {@link HttpServletRequest} to use
 		 */
-		static final void save(SecurityContext securityContext, HttpServletRequest request) {
+		final void save(SecurityContext securityContext, HttpServletRequest request) {
 			SecurityContextRepository securityContextRepository = WebTestUtils
 					.getSecurityContextRepository(request);
 			boolean isTestRepository = securityContextRepository instanceof TestSecurityContextRepository;
@@ -639,7 +671,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * stateless mode
 		 */
 		static class TestSecurityContextRepository implements SecurityContextRepository {
-			final static String ATTR_NAME = TestSecurityContextRepository.class
+			private final static String ATTR_NAME = TestSecurityContextRepository.class
 					.getName().concat(".REPO");
 
 			private final SecurityContextRepository delegate;
@@ -751,6 +783,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			SecurityContext context = SecurityContextHolder.createEmptyContext();
+			context.setAuthentication(this.authentication);
 			save(this.authentication, request);
 			return request;
 		}
@@ -938,22 +972,64 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 	}
 
-	private SecurityMockMvcRequestPostProcessors() {
-	}
-	
 	/**
 	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+	 * @author Josh Cummings
 	 * @since 5.2
 	 */
-	public static class JwtRequestPostProcessor extends JwtAuthenticationTokenTestingBuilder<JwtRequestPostProcessor>
-			implements
-			RequestPostProcessor {
+	public final static class JwtRequestPostProcessor implements RequestPostProcessor {
+		private Jwt jwt;
+		private Collection<? extends GrantedAuthority> authorities;
+
+		private JwtRequestPostProcessor(Jwt jwt) {
+			this.jwt = jwt;
+			this.authorities = new JwtGrantedAuthoritiesConverter().convert(jwt);
+		}
+
+		/**
+		 * Use the provided authorities in the token
+		 * @param authorities the authorities to use
+		 * @return the {@link JwtRequestPostProcessor} for further configuration
+		 */
+		public JwtRequestPostProcessor authorities(Collection<GrantedAuthority> authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = authorities;
+			return this;
+		}
+
+		/**
+		 * Use the provided authorities in the token
+		 * @param authorities the authorities to use
+		 * @return the {@link JwtRequestPostProcessor} for further configuration
+		 */
+		public JwtRequestPostProcessor authorities(GrantedAuthority... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = Arrays.asList(authorities);
+			return this;
+		}
+
+		/**
+		 * Provides the configured {@link Jwt} so that custom authorities can be derived
+		 * from it
+		 *
+		 * @param authoritiesConverter the conversion strategy from {@link Jwt} to a {@link Collection}
+		 * of {@link GrantedAuthority}s
+		 * @return the {@link JwtRequestPostProcessor} for further configuration
+		 */
+		public JwtRequestPostProcessor authorities(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
+			Assert.notNull(authoritiesConverter, "authoritiesConverter cannot be null");
+			this.authorities = authoritiesConverter.convert(this.jwt);
+			return this;
+		}
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			SecurityContextRequestPostProcessorSupport.save(build(), request);
-			return request;
+			JwtAuthenticationToken token = new JwtAuthenticationToken(this.jwt, this.authorities);
+			return new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
 		}
 
+	}
+
+	private SecurityMockMvcRequestPostProcessors() {
 	}
 }

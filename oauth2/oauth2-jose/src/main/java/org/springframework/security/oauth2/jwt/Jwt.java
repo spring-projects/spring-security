@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,23 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.net.URL;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.util.Assert;
+
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.AUD;
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.EXP;
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.IAT;
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.JTI;
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.NBF;
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
 
 /**
  * An implementation of an {@link AbstractOAuth2Token} representing a JSON Web Token (JWT).
@@ -47,8 +51,6 @@ import org.springframework.util.Assert;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7516">JSON Web Encryption (JWE)</a>
  */
 public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
-	
 	private final Map<String, Object> headers;
 	private final Map<String, Object> claims;
 
@@ -88,139 +90,181 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	public Map<String, Object> getClaims() {
 		return this.claims;
 	}
-	
-	public static Builder<?> builder() {
-		return new Builder<>();
+
+	/**
+	 * Return a {@link Jwt.Builder}
+	 *
+	 * @return A {@link Jwt.Builder}
+	 */
+	public static Builder withTokenValue(String tokenValue) {
+		return new Builder(tokenValue);
 	}
-	
+
 	/**
 	 * Helps configure a {@link Jwt}
 	 *
 	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+	 * @author Josh Cummings
+	 * @since 5.2
 	 */
-	public static class Builder<T extends Builder<T>> {
-		protected String tokenValue;
-		protected final Map<String, Object> claims = new HashMap<>();
-		protected final Map<String, Object> headers = new HashMap<>();
-		
-		protected Builder() {
-		}
+	public final static class Builder {
+		private String tokenValue;
+		private final Map<String, Object> claims = new LinkedHashMap<>();
+		private final Map<String, Object> headers = new LinkedHashMap<>();
 
-		public T tokenValue(String tokenValue) {
+		private Builder(String tokenValue) {
 			this.tokenValue = tokenValue;
-			return downcast();
-		}
-
-		public T claim(String name, Object value) {
-			this.claims.put(name, value);
-			return downcast();
-		}
-
-		public T clearClaims(Map<String, Object> claims) {
-			this.claims.clear();
-			return downcast();
 		}
 
 		/**
-		 * Adds to existing claims (does not replace existing ones)
-		 * @param claims claims to add
-		 * @return this builder to further configure
+		 * Use this token value in the resulting {@link Jwt}
+		 *
+		 * @param tokenValue The token value to use
+		 * @return the {@link Builder} for further configurations
 		 */
-		public T claims(Map<String, Object> claims) {
-			this.claims.putAll(claims);
-			return downcast();
-		}
-
-		public T header(String name, Object value) {
-			this.headers.put(name, value);
-			return downcast();
-		}
-
-		public T clearHeaders(Map<String, Object> headers) {
-			this.headers.clear();
-			return downcast();
-		}
-
-		/**
-		 * Adds to existing headers (does not replace existing ones)
-		 * @param headers headers to add
-		 * @return this builder to further configure
-		 */
-		public T headers(Map<String, Object> headers) {
-			headers.entrySet().stream().forEach(e -> this.header(e.getKey(), e.getValue()));
-			return downcast();
-		}
-
-		public Jwt build() {
-			final JwtClaimSet claimSet = new JwtClaimSet(claims);
-			return new Jwt(
-					this.tokenValue,
-					claimSet.getClaimAsInstant(JwtClaimNames.IAT),
-					claimSet.getClaimAsInstant(JwtClaimNames.EXP),
-					this.headers,
-					claimSet);
-		}
-
-		public T audience(Stream<String> audience) {
-			this.claim(JwtClaimNames.AUD, audience.collect(Collectors.toList()));
-			return downcast();
-		}
-
-		public T audience(Collection<String> audience) {
-			return audience(audience.stream());
-		}
-
-		public T audience(String... audience) {
-			return audience(Stream.of(audience));
-		}
-
-		public T expiresAt(Instant expiresAt) {
-			this.claim(JwtClaimNames.EXP, expiresAt.getEpochSecond());
-			return downcast();
-		}
-
-		public T jti(String jti) {
-			this.claim(JwtClaimNames.JTI, jti);
-			return downcast();
-		}
-
-		public T issuedAt(Instant issuedAt) {
-			this.claim(JwtClaimNames.IAT, issuedAt.getEpochSecond());
-			return downcast();
-		}
-
-		public T issuer(URL issuer) {
-			this.claim(JwtClaimNames.ISS, issuer.toExternalForm());
-			return downcast();
-		}
-
-		public T notBefore(Instant notBefore) {
-			this.claim(JwtClaimNames.NBF, notBefore.getEpochSecond());
-			return downcast();
-		}
-
-		public T subject(String subject) {
-			this.claim(JwtClaimNames.SUB, subject);
-			return downcast();
-		}
-		
-		@SuppressWarnings("unchecked")
-		protected T downcast() {
-			return (T) this;
-		}
-	}
-
-	private static final class JwtClaimSet extends HashMap<String, Object> implements JwtClaimAccessor {
-		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
-
-		public JwtClaimSet(Map<String, Object> claims) {
-			super(claims);
-		}
-
-		@Override
-		public Map<String, Object> getClaims() {
+		public Builder tokenValue(String tokenValue) {
+			this.tokenValue = tokenValue;
 			return this;
 		}
-		
+
+		/**
+		 * Use this claim in the resulting {@link Jwt}
+		 *
+		 * @param name The claim name
+		 * @param value The claim value
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder claim(String name, Object value) {
+			this.claims.put(name, value);
+			return this;
+		}
+
+		/**
+		 * Provides access to every {@link #claim(String, Object)}
+		 * declared so far with the possibility to add, replace, or remove.
+		 * @param claimsConsumer the consumer
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder claims(Consumer<Map<String, Object>> claimsConsumer) {
+			claimsConsumer.accept(this.claims);
+			return this;
+		}
+
+		/**
+		 * Use this header in the resulting {@link Jwt}
+		 *
+		 * @param name The header name
+		 * @param value The header value
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder header(String name, Object value) {
+			this.headers.put(name, value);
+			return this;
+		}
+
+		/**
+		 * Provides access to every {@link #header(String, Object)}
+		 * declared so far with the possibility to add, replace, or remove.
+		 * @param headersConsumer the consumer
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder headers(Consumer<Map<String, Object>> headersConsumer) {
+			headersConsumer.accept(this.headers);
+			return this;
+		}
+
+		/**
+		 * Use this audience in the resulting {@link Jwt}
+		 *
+		 * @param audience The audience(s) to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder audience(Collection<String> audience) {
+			return claim(AUD, audience);
+		}
+
+		/**
+		 * Use this expiration in the resulting {@link Jwt}
+		 *
+		 * @param expiresAt The expiration to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder expiresAt(Instant expiresAt) {
+			this.claim(EXP, expiresAt);
+			return this;
+		}
+
+		/**
+		 * Use this identifier in the resulting {@link Jwt}
+		 *
+		 * @param jti The identifier to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder jti(String jti) {
+			this.claim(JTI, jti);
+			return this;
+		}
+
+		/**
+		 * Use this issued-at timestamp in the resulting {@link Jwt}
+		 *
+		 * @param issuedAt The issued-at timestamp to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder issuedAt(Instant issuedAt) {
+			this.claim(IAT, issuedAt);
+			return this;
+		}
+
+		/**
+		 * Use this issuer in the resulting {@link Jwt}
+		 *
+		 * @param issuer The issuer to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder issuer(String issuer) {
+			this.claim(ISS, issuer);
+			return this;
+		}
+
+		/**
+		 * Use this not-before timestamp in the resulting {@link Jwt}
+		 *
+		 * @param notBefore The not-before timestamp to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder notBefore(Instant notBefore) {
+			this.claim(NBF, notBefore.getEpochSecond());
+			return this;
+		}
+
+		/**
+		 * Use this subject in the resulting {@link Jwt}
+		 *
+		 * @param subject The subject to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder subject(String subject) {
+			this.claim(SUB, subject);
+			return this;
+		}
+
+		/**
+		 * Build the {@link Jwt}
+		 *
+		 * @return The constructed {@link Jwt}
+		 */
+		public Jwt build() {
+			Instant iat = toInstant(this.claims.get(IAT));
+			Instant exp = toInstant(this.claims.get(EXP));
+			return new Jwt(this.tokenValue, iat, exp, this.headers, this.claims);
+		}
+
+		private Instant toInstant(Object timestamp) {
+			if (timestamp != null) {
+				Assert.isInstanceOf(Instant.class, timestamp, "timestamps must be of type Instant");
+			}
+			return (Instant) timestamp;
+		}
 	}
 }

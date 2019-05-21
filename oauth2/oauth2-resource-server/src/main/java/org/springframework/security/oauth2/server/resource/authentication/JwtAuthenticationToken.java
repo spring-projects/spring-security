@@ -17,11 +17,7 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.Transient;
@@ -74,74 +70,5 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 	@Override
 	public String getName() {
 		return this.getToken().getSubject();
-	}
-	
-	public static Builder<?> builder(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
-		return new Builder<>(Jwt.builder(), authoritiesConverter);
-	}
-	
-	public static Builder<?> builder() {
-		return builder(new JwtGrantedAuthoritiesConverter());
-	}
-	
-	/**
-	 * Helps configure a {@link JwtAuthenticationToken}
-	 *
-	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
-	 * @since 5.2
-	 */
-	public static class Builder<T extends Builder<T>> {
-
-		private Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter;
-
-		private final Jwt.Builder<?> jwt;
-
-		protected Builder(Jwt.Builder<?> principalBuilder, Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
-			this.authoritiesConverter = authoritiesConverter;
-			this.jwt = principalBuilder;
-		}
-
-		public T authoritiesConverter(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
-			this.authoritiesConverter = authoritiesConverter;
-			return downcast();
-		}
-
-		public T token(Consumer<Jwt.Builder<?>> jwtBuilderConsumer) {
-			jwtBuilderConsumer.accept(jwt);
-			return downcast();
-		}
-
-		public T name(String name) {
-			jwt.subject(name);
-			return downcast();
-		}
-
-		/**
-		 * Shortcut to set "scope" claim with a space separated string containing provided scope collection
-		 * @param scopes strings to join with spaces and set as "scope" claim
-		 * @return this builder to further configure
-		 */
-		public T scopes(String... scopes) {
-			jwt.claim("scope", Stream.of(scopes).collect(Collectors.joining(" ")));
-			return downcast();
-		}
-
-		public JwtAuthenticationToken build() {
-			final Jwt token = jwt.build();
-			return new JwtAuthenticationToken(token, getAuthorities(token));
-		}
-		
-		protected Jwt getToken() {
-			return jwt.build();
-		}
-		
-		protected Collection<GrantedAuthority> getAuthorities(Jwt token) {
-			return authoritiesConverter.convert(token);
-		}
-
-		@SuppressWarnings("unchecked")
-		protected T downcast() {
-			return (T) this;
-		}
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,15 @@
 
 package org.springframework.security.test.web.reactive.server;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import reactor.core.publisher.Mono;
+
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,18 +37,19 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.test.support.JwtAuthenticationTokenTestingBuilder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.MockServerConfigurer;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 
-import reactor.core.publisher.Mono;
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
 
 /**
  * Test utilities for working with Spring Security and
@@ -121,13 +126,30 @@ public class SecurityMockServerConfigurers {
 	 * declarative and do not require the JWT to be valid.
 	 *
 	 * @return the {@link JwtMutator} to further configure or use
+	 * @since 5.2
 	 */
 	public static JwtMutator mockJwt() {
-		return new JwtMutator();
+		return mockJwt(jwt -> {});
 	}
-	
-	public static JwtMutator mockJwt(Consumer<Jwt.Builder<?>> jwt) {
-		return new JwtMutator().token(jwt);
+
+	/**
+	 * Updates the ServerWebExchange to establish a {@link SecurityContext} that has a
+	 * {@link JwtAuthenticationToken} for the
+	 * {@link Authentication} and a {@link Jwt} for the
+	 * {@link Authentication#getPrincipal()}. All details are
+	 * declarative and do not require the JWT to be valid.
+	 *
+	 * @param jwtBuilderConsumer For configuring the underlying {@link Jwt}
+	 * @return the {@link JwtMutator} to further configure or use
+	 * @since 5.2
+	 */
+	public static JwtMutator mockJwt(Consumer<Jwt.Builder> jwtBuilderConsumer) {
+		Jwt.Builder jwtBuilder = Jwt.withTokenValue("token")
+				.header("alg", "none")
+				.claim(SUB, "user")
+				.claim("scope", "read");
+		jwtBuilderConsumer.accept(jwtBuilder);
+		return new JwtMutator(jwtBuilder.build());
 	}
 
 	public static CsrfMutator csrf() {
@@ -315,23 +337,68 @@ public class SecurityMockServerConfigurers {
 			return webFilterChain.filter(exchange);
 		}
 	}
-	
+
 	/**
+	 * Updates the WebServerExchange using
+	 * {@code {@link SecurityMockServerConfigurers#mockAuthentication(Authentication)}}.
+	 *
 	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+	 * @author Josh Cummings
 	 * @since 5.2
 	 */
-	public static class JwtMutator extends JwtAuthenticationTokenTestingBuilder<JwtMutator>
-			implements
-			WebTestClientConfigurer, MockServerConfigurer {
+	public static class JwtMutator implements WebTestClientConfigurer, MockServerConfigurer {
+		private Jwt jwt;
+		private Collection<GrantedAuthority> authorities;
+
+		private JwtMutator(Jwt jwt) {
+			this.jwt = jwt;
+			this.authorities = new JwtGrantedAuthoritiesConverter().convert(jwt);
+		}
+
+		/**
+		 * Use the provided authorities in the token
+		 * @param authorities the authorities to use
+		 * @return the {@link JwtMutator} for further configuration
+		 */
+		public JwtMutator authorities(Collection<GrantedAuthority> authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = authorities;
+			return this;
+		}
+
+		/**
+		 * Use the provided authorities in the token
+		 * @param authorities the authorities to use
+		 * @return the {@link JwtMutator} for further configuration
+		 */
+		public JwtMutator authorities(GrantedAuthority... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = Arrays.asList(authorities);
+			return this;
+		}
+
+		/**
+		 * Provides the configured {@link Jwt} so that custom authorities can be derived
+		 * from it
+		 *
+		 * @param authoritiesConverter the conversion strategy from {@link Jwt} to a {@link Collection}
+		 * of {@link GrantedAuthority}s
+		 * @return the {@link JwtMutator} for further configuration
+		 */
+		public JwtMutator authorities(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
+			Assert.notNull(authoritiesConverter, "authoritiesConverter cannot be null");
+			this.authorities = authoritiesConverter.convert(this.jwt);
+			return this;
+		}
 
 		@Override
 		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
-			mockAuthentication(build()).beforeServerCreated(builder);
+			configurer().beforeServerCreated(builder);
 		}
 
 		@Override
 		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
-			mockAuthentication(build()).afterConfigureAdded(serverSpec);
+			configurer().afterConfigureAdded(serverSpec);
 		}
 
 		@Override
@@ -339,7 +406,11 @@ public class SecurityMockServerConfigurers {
 				WebTestClient.Builder builder,
 				@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
 				@Nullable ClientHttpConnector connector) {
-			mockAuthentication(build()).afterConfigurerAdded(builder, httpHandlerBuilder, connector);
+			configurer().afterConfigurerAdded(builder, httpHandlerBuilder, connector);
+		}
+
+		private <T extends WebTestClientConfigurer & MockServerConfigurer> T configurer() {
+			return mockAuthentication(new JwtAuthenticationToken(this.jwt, this.authorities));
 		}
 	}
 }

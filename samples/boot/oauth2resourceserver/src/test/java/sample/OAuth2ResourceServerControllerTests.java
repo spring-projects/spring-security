@@ -15,14 +15,9 @@
  */
 package sample;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -31,9 +26,16 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 /**
  *
  * @author Jérôme Wacongne &lt;ch4mp@c4-soft.com&gt;
+ * @author Josh Cummings
  * @since 5.2.0
  *
  */
@@ -49,23 +51,22 @@ public class OAuth2ResourceServerControllerTests {
 
 	@Test
 	public void indexGreetsAuthenticatedUser() throws Exception {
-		mockMvc.perform(get("/").with(jwt().name("ch4mpy")))
+		mockMvc.perform(get("/").with(jwt(jwt -> jwt.subject("ch4mpy"))))
 				.andExpect(content().string(is("Hello, ch4mpy!")));
 	}
-	
+
 	@Test
 	public void messageCanBeReadWithScopeMessageReadAuthority() throws Exception {
-		mockMvc.perform(get("/message").with(jwt().scopes("message:read")))
+		mockMvc.perform(get("/message").with(jwt(jwt -> jwt.claim("scope", "message:read"))))
 				.andExpect(content().string(is("secret message")));
-		
+
 		mockMvc.perform(get("/message").with(jwt().authorities(new SimpleGrantedAuthority(("SCOPE_message:read")))))
 			.andExpect(content().string(is("secret message")));
 	}
-	
+
 	@Test
 	public void messageCanNotBeReadWithoutScopeMessageReadAuthority() throws Exception {
 		mockMvc.perform(get("/message").with(jwt()))
 				.andExpect(status().isForbidden());
 	}
-
 }
