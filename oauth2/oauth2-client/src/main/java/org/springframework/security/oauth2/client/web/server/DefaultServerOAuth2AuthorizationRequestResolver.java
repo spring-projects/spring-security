@@ -30,8 +30,10 @@ import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
@@ -63,8 +65,9 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 	/**
 	 * The default pattern used to resolve the {@link ClientRegistration#getRegistrationId()}
 	 */
-	public static final String DEFAULT_AUTHORIZATION_REQUEST_PATTERN = "/oauth2/authorization/{" + DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME
-			+ "}";
+	public static final String DEFAULT_AUTHORIZATION_REQUEST_PATTERN = "/oauth2/authorization/{" + DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME + "}";
+
+	private static final char PATH_DELIMITER = '/';
 
 	private final ServerWebExchangeMatcher authorizationRequestMatcher;
 
@@ -121,8 +124,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 
 	private OAuth2AuthorizationRequest authorizationRequest(ServerWebExchange exchange,
 			ClientRegistration clientRegistration) {
-		String redirectUriStr = this
-					.expandRedirectUri(exchange.getRequest(), clientRegistration);
+		String redirectUriStr = expandRedirectUri(exchange.getRequest(), clientRegistration);
 
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
@@ -153,23 +155,52 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 				.build();
 	}
 
-	private String expandRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
-		// Supported URI variables -> baseUrl, action, registrationId
-		// Used in -> CommonOAuth2Provider.DEFAULT_REDIRECT_URL = "{baseUrl}/{action}/oauth2/code/{registrationId}"
+	/**
+	 * Expands the {@link ClientRegistration#getRedirectUriTemplate()} with following provided variables:<br/>
+	 * - baseUrl (e.g. https://localhost/app) <br/>
+	 * - baseScheme (e.g. https) <br/>
+	 * - baseHost (e.g. localhost) <br/>
+	 * - basePort (e.g. :8080) <br/>
+	 * - basePath (e.g. /app) <br/>
+	 * - registrationId (e.g. google) <br/>
+	 * - action (e.g. login) <br/>
+	 * <p/>
+	 * Null variables are provided as empty strings.
+	 * <p/>
+	 * Default redirectUriTemplate is: {@link org.springframework.security.config.oauth2.client}.CommonOAuth2Provider#DEFAULT_REDIRECT_URL
+	 *
+	 * @return expanded URI
+	 */
+	private static String expandRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 
-		String baseUrl = UriComponentsBuilder.fromUri(request.getURI())
+		UriComponents uriComponents = UriComponentsBuilder.fromUri(request.getURI())
 				.replacePath(request.getPath().contextPath().value())
 				.replaceQuery(null)
-				.build()
-				.toUriString();
-		uriVariables.put("baseUrl", baseUrl);
-
-		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
-			String loginAction = "login";
-			uriVariables.put("action", loginAction);
+				.fragment(null)
+				.build();
+		String scheme = uriComponents.getScheme();
+		uriVariables.put("baseScheme", scheme == null ? "" : scheme);
+		String host = uriComponents.getHost();
+		uriVariables.put("baseHost", host == null ? "" : host);
+		// following logic is based on HierarchicalUriComponents#toUriString()
+		int port = uriComponents.getPort();
+		uriVariables.put("basePort", port == -1 ? "" : ":" + port);
+		String path = uriComponents.getPath();
+		if (StringUtils.hasLength(path)) {
+			if (path.charAt(0) != PATH_DELIMITER) {
+				path = PATH_DELIMITER + path;
+			}
 		}
+		uriVariables.put("basePath", path == null ? "" : path);
+		uriVariables.put("baseUrl", uriComponents.toUriString());
+
+		String action = "";
+		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
+			action = "login";
+		}
+		uriVariables.put("action", action);
 
 		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUriTemplate())
 				.buildAndExpand(uriVariables)
