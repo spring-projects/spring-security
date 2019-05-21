@@ -27,6 +27,8 @@ import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,6 +56,7 @@ import java.util.Map;
  */
 public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
 	private static final String REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
+	private static final char PATH_DELIMITER = '/';
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
@@ -127,7 +130,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 					") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 		}
 
-		String redirectUriStr = this.expandRedirectUri(request, clientRegistration, redirectUriAction);
+		String redirectUriStr = expandRedirectUri(request, clientRegistration, redirectUriAction);
 
 		OAuth2AuthorizationRequest authorizationRequest = builder
 				.clientId(clientRegistration.getClientId())
@@ -149,20 +152,49 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		return null;
 	}
 
-	private String expandRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration, String action) {
-		// Supported URI variables -> baseUrl, action, registrationId
-		// Used in -> CommonOAuth2Provider.DEFAULT_REDIRECT_URL = "{baseUrl}/{action}/oauth2/code/{registrationId}"
+	/**
+	 * Expands the {@link ClientRegistration#getRedirectUriTemplate()} with following provided variables:<br/>
+	 * - baseUrl (e.g. https://localhost/app) <br/>
+	 * - baseScheme (e.g. https) <br/>
+	 * - baseHost (e.g. localhost) <br/>
+	 * - basePort (e.g. :8080) <br/>
+	 * - basePath (e.g. /app) <br/>
+	 * - registrationId (e.g. google) <br/>
+	 * - action (e.g. login) <br/>
+	 * <p/>
+	 * Null variables are provided as empty strings.
+	 * <p/>
+	 * Default redirectUriTemplate is: {@link org.springframework.security.config.oauth2.client}.CommonOAuth2Provider#DEFAULT_REDIRECT_URL
+	 *
+	 * @return expanded URI
+	 */
+	private static String expandRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration, String action) {
 		Map<String, String> uriVariables = new HashMap<>();
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
-		String baseUrl = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
-				.replaceQuery(null)
+
+		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
 				.replacePath(request.getContextPath())
-				.build()
-				.toUriString();
-		uriVariables.put("baseUrl", baseUrl);
-		if (action != null) {
-			uriVariables.put("action", action);
+				.replaceQuery(null)
+				.fragment(null)
+				.build();
+		String scheme = uriComponents.getScheme();
+		uriVariables.put("baseScheme", scheme == null ? "" : scheme);
+		String host = uriComponents.getHost();
+		uriVariables.put("baseHost", host == null ? "" : host);
+		// following logic is based on HierarchicalUriComponents#toUriString()
+		int port = uriComponents.getPort();
+		uriVariables.put("basePort", port == -1 ? "" : ":" + port);
+		String path = uriComponents.getPath();
+		if (StringUtils.hasLength(path)) {
+			if (path.charAt(0) != PATH_DELIMITER) {
+				path = PATH_DELIMITER + path;
+			}
 		}
+		uriVariables.put("basePath", path == null ? "" : path);
+		uriVariables.put("baseUrl", uriComponents.toUriString());
+
+		uriVariables.put("action", action == null ? "" : action);
+
 		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUriTemplate())
 				.buildAndExpand(uriVariables)
 				.toUriString();

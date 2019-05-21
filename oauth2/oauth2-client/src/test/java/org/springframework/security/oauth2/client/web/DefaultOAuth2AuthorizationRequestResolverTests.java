@@ -41,15 +41,17 @@ import static org.assertj.core.api.Assertions.entry;
 public class DefaultOAuth2AuthorizationRequestResolverTests {
 	private ClientRegistration registration1;
 	private ClientRegistration registration2;
+	private ClientRegistration fineRedirectUriTemplateRegistration;
 	private ClientRegistration pkceRegistration;
 	private ClientRegistrationRepository clientRegistrationRepository;
-	private String authorizationRequestBaseUri = "/oauth2/authorization";
+	private final String authorizationRequestBaseUri = "/oauth2/authorization";
 	private DefaultOAuth2AuthorizationRequestResolver resolver;
 
 	@Before
 	public void setUp() {
 		this.registration1 = TestClientRegistrations.clientRegistration().build();
 		this.registration2 = TestClientRegistrations.clientRegistration2().build();
+		this.fineRedirectUriTemplateRegistration = fineRedirectUriTemplateClientRegistration().build();
 		this.pkceRegistration = TestClientRegistrations.clientRegistration()
 				.registrationId("pkce-client-registration-id")
 				.clientId("pkce-client-id")
@@ -58,7 +60,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				.build();
 
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(
-				this.registration1, this.registration2, this.pkceRegistration);
+				this.registration1, this.registration2, this.fineRedirectUriTemplateRegistration, this.pkceRegistration);
 		this.resolver = new DefaultOAuth2AuthorizationRequestResolver(
 				this.clientRegistrationRepository, this.authorizationRequestBaseUri);
 	}
@@ -150,6 +152,80 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				clientRegistration.getRedirectUriTemplate());
 		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
 				"http://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestRedirectUriTemplatedThenHttpRedirectUriWithExtraVarsExpanded() {
+		ClientRegistration clientRegistration = this.fineRedirectUriTemplateRegistration;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServerPort(8080);
+		request.setServletPath(requestUri);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
+				"http://localhost:8080/login/oauth2/code/" + clientRegistration.getRegistrationId());
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestRedirectUriTemplatedThenHttpsRedirectUriWithExtraVarsExpanded() {
+		ClientRegistration clientRegistration = this.fineRedirectUriTemplateRegistration;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setScheme("https");
+		request.setServerPort(8081);
+		request.setServletPath(requestUri);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
+				"https://localhost:8081/login/oauth2/code/" + clientRegistration.getRegistrationId());
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestIncludesPort80ThenExpandedRedirectUriWithExtraVarsExcludesPort() {
+		ClientRegistration clientRegistration = this.fineRedirectUriTemplateRegistration;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setScheme("http");
+		request.setServerPort(80);
+		request.setServletPath(requestUri);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
+				"http://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestIncludesPort443ThenExpandedRedirectUriWithExtraVarsExcludesPort() {
+		ClientRegistration clientRegistration = this.fineRedirectUriTemplateRegistration;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setScheme("https");
+		request.setServerPort(443);
+		request.setServletPath(requestUri);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
+				"https://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestHasNoPortThenExpandedRedirectUriWithExtraVarsExcludesPort() {
+		ClientRegistration clientRegistration = this.fineRedirectUriTemplateRegistration;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setScheme("https");
+		request.setServerPort(-1);
+		request.setServletPath(requestUri);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri()).isNotEqualTo(clientRegistration.getRedirectUriTemplate());
+		assertThat(authorizationRequest.getRedirectUri()).isEqualTo(
+				"https://localhost/login/oauth2/code/" + clientRegistration.getRegistrationId());
 	}
 
 	// gh-5520
@@ -300,5 +376,20 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 						"redirect_uri=http://localhost/login/oauth2/code/pkce-client-registration-id&" +
 						"code_challenge_method=S256&" +
 						"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
+	}
+
+	private static ClientRegistration.Builder fineRedirectUriTemplateClientRegistration() {
+		return ClientRegistration.withRegistrationId("fine-redirect-uri-template-client-registration")
+				.redirectUriTemplate("{baseScheme}://{baseHost}{basePort}{basePath}/{action}/oauth2/code/{registrationId}")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.scope("read:user")
+				.authorizationUri("https://example.com/login/oauth/authorize")
+				.tokenUri("https://example.com/login/oauth/access_token")
+				.userInfoUri("https://api.example.com/user")
+				.userNameAttributeName("id")
+				.clientName("Fine Redirect Uri Template Client")
+				.clientId("fine-redirect-uri-template-client")
+				.clientSecret("client-secret");
 	}
 }
