@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityBuilder;
@@ -1092,6 +1093,41 @@ public final class HttpSecurity extends
 	 */
 	public HttpBasicConfigurer<HttpSecurity> httpBasic() throws Exception {
 		return getOrApply(new HttpBasicConfigurer<>());
+	}
+
+	/**
+	 * Configures HTTP Basic authentication.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The example below demonstrates how to configure HTTP Basic authentication for an
+	 * application. The default realm is "Realm", but can be
+	 * customized using {@link HttpBasicConfigurer#realmName(String)}.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class HttpBasicSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.httpBasic(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @param httpBasicCustomizer the {@link Customizer} to provide more options for
+	 * the {@link HttpBasicConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity httpBasic(Customizer<HttpBasicConfigurer<HttpSecurity>> httpBasicCustomizer) throws Exception {
+		httpBasicCustomizer.customize(getOrApply(new HttpBasicConfigurer<>()));
+		return HttpSecurity.this;
 	}
 
 	public <C> void setSharedObject(Class<C> sharedType, C object) {
