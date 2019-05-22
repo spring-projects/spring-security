@@ -38,6 +38,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -102,6 +103,36 @@ public class NamespaceHttpBasicTests {
 		}
 	}
 
+	@Test
+	public void basicAuthenticationWhenUsingDefaultsInLambdaThenMatchesNamespace() throws Exception {
+		this.spring.register(HttpBasicLambdaConfig.class, UserConfig.class).autowire();
+
+		this.mvc.perform(get("/"))
+				.andExpect(status().isUnauthorized());
+
+		this.mvc.perform(get("/")
+				.with(httpBasic("user", "invalid")))
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\""));
+
+		this.mvc.perform(get("/")
+				.with(httpBasic("user", "password")))
+				.andExpect(status().isNotFound());
+	}
+
+	@EnableWebSecurity
+	static class HttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.httpBasic(withDefaults());
+			// @formatter:on
+		}
+	}
+
 	/**
 	 * http@realm equivalent
 	 */
@@ -124,6 +155,30 @@ public class NamespaceHttpBasicTests {
 					.anyRequest().hasRole("USER")
 					.and()
 				.httpBasic().realmName("Custom Realm");
+		}
+	}
+
+	@Test
+	public void basicAuthenticationWhenUsingCustomRealmInLambdaThenMatchesNamespace() throws Exception {
+		this.spring.register(CustomHttpBasicLambdaConfig.class, UserConfig.class).autowire();
+
+		this.mvc.perform(get("/")
+				.with(httpBasic("user", "invalid")))
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Custom Realm\""));
+	}
+
+	@EnableWebSecurity
+	static class CustomHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.httpBasic(httpBasicConfig -> httpBasicConfig.realmName("Custom Realm"));
+			// @formatter:on
 		}
 	}
 
@@ -153,6 +208,40 @@ public class NamespaceHttpBasicTests {
 			http
 				.httpBasic()
 					.authenticationDetailsSource(this.authenticationDetailsSource);
+		}
+
+		@Bean
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource() {
+			return this.authenticationDetailsSource;
+		}
+	}
+
+	@Test
+	public void basicAuthenticationWhenUsingAuthenticationDetailsSourceRefInLambdaThenMatchesNamespace()
+			throws Exception {
+		this.spring.register(AuthenticationDetailsSourceHttpBasicLambdaConfig.class, UserConfig.class).autowire();
+
+		AuthenticationDetailsSource<HttpServletRequest, ?> source =
+				this.spring.getContext().getBean(AuthenticationDetailsSource.class);
+
+		this.mvc.perform(get("/")
+				.with(httpBasic("user", "password")));
+
+		verify(source).buildDetails(any(HttpServletRequest.class));
+	}
+
+	@EnableWebSecurity
+	static class AuthenticationDetailsSourceHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource =
+				mock(AuthenticationDetailsSource.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic(httpBasicConfig ->
+						httpBasicConfig.authenticationDetailsSource(this.authenticationDetailsSource));
+			// @formatter:on
 		}
 
 		@Bean
@@ -193,6 +282,40 @@ public class NamespaceHttpBasicTests {
 					.and()
 				.httpBasic()
 					.authenticationEntryPoint(this.authenticationEntryPoint);
+		}
+	}
+
+	@Test
+	public void basicAuthenticationWhenUsingEntryPointRefInLambdaThenMatchesNamespace() throws Exception {
+		this.spring.register(EntryPointRefHttpBasicLambdaConfig.class, UserConfig.class).autowire();
+
+		this.mvc.perform(get("/"))
+				.andExpect(status().is(999));
+
+		this.mvc.perform(get("/")
+				.with(httpBasic("user", "invalid")))
+				.andExpect(status().is(999));
+
+		this.mvc.perform(get("/")
+				.with(httpBasic("user", "password")))
+				.andExpect(status().isNotFound());
+	}
+
+	@EnableWebSecurity
+	static class EntryPointRefHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
+		AuthenticationEntryPoint authenticationEntryPoint =
+				(request, response, ex) -> response.setStatus(999);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.httpBasic(httpBasicConfig ->
+						httpBasicConfig.authenticationEntryPoint(this.authenticationEntryPoint));
+			// @formatter:on
 		}
 	}
 }

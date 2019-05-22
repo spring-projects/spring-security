@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -88,6 +89,37 @@ public class HttpBasicConfigurerTests {
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
+		}
+	}
+
+	@Test
+	public void httpBasicWhenUsingDefaultsInLambdaThenResponseIncludesBasicChallenge() throws Exception {
+		this.spring.register(DefaultsLambdaEntryPointConfig.class).autowire();
+
+		this.mvc.perform(get("/"))
+				.andExpect(status().isUnauthorized())
+				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
+	}
+
+	@EnableWebSecurity
+	static class DefaultsLambdaEntryPointConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.httpBasic(withDefaults());
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication();
+			// @formatter:on
 		}
 	}
 
