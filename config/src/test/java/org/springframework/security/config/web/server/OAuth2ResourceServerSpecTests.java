@@ -41,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import reactor.core.publisher.Mono;
 
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -457,6 +458,13 @@ public class OAuth2ResourceServerSpecTests {
 				.expectStatus().isOk();
 	}
 
+	@Test
+	public void configureWhenUsingBothAuthenticationManagerResolverAndOpaqueThenWiringException() {
+		assertThatCode(() -> this.spring.register(AuthenticationManagerResolverPlusOtherConfig.class).autowire())
+				.isInstanceOf(BeanCreationException.class)
+				.hasMessageContaining("authenticationManagerResolver");
+	}
+
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class PublicKeyConfig {
@@ -846,6 +854,24 @@ public class OAuth2ResourceServerSpecTests {
 		@PreDestroy
 		void shutdown() throws IOException {
 			this.mockWebServer.shutdown();
+		}
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class AuthenticationManagerResolverPlusOtherConfig {
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+				.authorizeExchange()
+					.anyExchange().authenticated()
+					.and()
+				.oauth2ResourceServer()
+					.authenticationManagerResolver(mock(ReactiveAuthenticationManagerResolver.class))
+					.opaqueToken();
+
+			return http.build();
 		}
 	}
 

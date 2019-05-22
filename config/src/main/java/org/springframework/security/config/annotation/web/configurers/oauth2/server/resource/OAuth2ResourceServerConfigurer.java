@@ -232,19 +232,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		BearerTokenResolver bearerTokenResolver = getBearerTokenResolver();
 		this.requestMatcher.setBearerTokenResolver(bearerTokenResolver);
 
-		if (this.jwtConfigurer != null && this.opaqueTokenConfigurer != null) {
-			throw new IllegalStateException("Spring Security only supports JWTs or Opaque Tokens, not both at the " +
-					"same time");
-		}
-
-		if (this.jwtConfigurer == null && this.opaqueTokenConfigurer == null &&
-				this.authenticationManagerResolver == null ) {
-
-			throw new IllegalStateException("Jwt and Opaque Token are the only supported formats for bearer tokens " +
-					"in Spring Security and neither was found. Make sure to configure JWT " +
-					"via http.oauth2ResourceServer().jwt() or Opaque Tokens via " +
-					"http.oauth2ResourceServer().opaque().");
-		}
+		validateConfiguration();
 
 		AuthenticationManagerResolver resolver = this.authenticationManagerResolver;
 		if (resolver == null) {
@@ -258,6 +246,27 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		filter = postProcess(filter);
 
 		http.addFilter(filter);
+	}
+
+	private void validateConfiguration() {
+		if (this.authenticationManagerResolver == null) {
+			if (this.jwtConfigurer == null && this.opaqueTokenConfigurer == null) {
+				throw new IllegalStateException("Jwt and Opaque Token are the only supported formats for bearer tokens " +
+						"in Spring Security and neither was found. Make sure to configure JWT " +
+						"via http.oauth2ResourceServer().jwt() or Opaque Tokens via " +
+						"http.oauth2ResourceServer().opaqueToken().");
+			}
+
+			if (this.jwtConfigurer != null && this.opaqueTokenConfigurer != null) {
+				throw new IllegalStateException("Spring Security only supports JWTs or Opaque Tokens, not both at the " +
+						"same time.");
+			}
+		} else {
+			if (this.jwtConfigurer != null || this.opaqueTokenConfigurer != null) {
+				throw new IllegalStateException("If an authenticationManagerResolver() is configured, then it takes " +
+						"precedence over any jwt() or opaqueToken() configuration.");
+			}
+		}
 	}
 
 	public class JwtConfigurer {

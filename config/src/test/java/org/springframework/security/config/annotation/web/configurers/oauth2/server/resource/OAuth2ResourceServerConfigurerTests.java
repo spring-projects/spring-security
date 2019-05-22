@@ -65,6 +65,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -1358,6 +1359,13 @@ public class OAuth2ResourceServerConfigurerTests {
 				.hasMessageContaining("Spring Security only supports JWTs or Opaque Tokens");
 	}
 
+	@Test
+	public void configureWhenUsingBothAuthenticationManagerResolverAndOpaqueThenWiringException() {
+		assertThatCode(() -> this.spring.register(AuthenticationManagerResolverPlusOtherConfig.class).autowire())
+				.isInstanceOf(BeanCreationException.class)
+				.hasMessageContaining("authenticationManagerResolver");
+	}
+
 	// -- support
 
 	@EnableWebSecurity
@@ -2061,6 +2069,21 @@ public class OAuth2ResourceServerConfigurerTests {
 					.opaqueToken()
 						.introspectionUri("https://idp.example.com"); // missing credentials
 			// @formatter:on
+		}
+	}
+
+	@EnableWebSecurity
+	static class AuthenticationManagerResolverPlusOtherConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2ResourceServer()
+					.authenticationManagerResolver(mock(AuthenticationManagerResolver.class))
+					.opaqueToken();
 		}
 	}
 

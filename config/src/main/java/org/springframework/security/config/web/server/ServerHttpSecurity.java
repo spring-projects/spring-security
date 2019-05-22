@@ -1622,17 +1622,7 @@ public class ServerHttpSecurity {
 			registerDefaultAuthenticationEntryPoint(http);
 			registerDefaultCsrfOverride(http);
 
-			if (this.jwt != null && this.opaqueToken != null) {
-				throw new IllegalStateException("Spring Security only supports JWTs or Opaque Tokens, not both at the " +
-						"same time");
-			}
-
-			if (this.jwt == null && this.opaqueToken == null && this.authenticationManagerResolver == null) {
-				throw new IllegalStateException("Jwt and Opaque Token are the only supported formats for bearer tokens " +
-						"in Spring Security and neither was found. Make sure to configure JWT " +
-						"via http.oauth2ResourceServer().jwt() or Opaque Tokens via " +
-						"http.oauth2ResourceServer().opaqueToken().");
-			}
+			validateConfiguration();
 
 			if (this.authenticationManagerResolver != null) {
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(this.authenticationManagerResolver);
@@ -1643,6 +1633,27 @@ public class ServerHttpSecurity {
 				this.jwt.configure(http);
 			} else if (this.opaqueToken != null) {
 				this.opaqueToken.configure(http);
+			}
+		}
+
+		private void validateConfiguration() {
+			if (this.authenticationManagerResolver == null) {
+				if (this.jwt == null && this.opaqueToken == null) {
+					throw new IllegalStateException("Jwt and Opaque Token are the only supported formats for bearer tokens " +
+							"in Spring Security and neither was found. Make sure to configure JWT " +
+							"via http.oauth2ResourceServer().jwt() or Opaque Tokens via " +
+							"http.oauth2ResourceServer().opaqueToken().");
+				}
+
+				if (this.jwt != null && this.opaqueToken != null) {
+					throw new IllegalStateException("Spring Security only supports JWTs or Opaque Tokens, not both at the " +
+							"same time.");
+				}
+			} else {
+				if (this.jwt != null || this.opaqueToken != null) {
+					throw new IllegalStateException("If an authenticationManagerResolver() is configured, then it takes " +
+							"precedence over any jwt() or opaqueToken() configuration.");
+				}
 			}
 		}
 
