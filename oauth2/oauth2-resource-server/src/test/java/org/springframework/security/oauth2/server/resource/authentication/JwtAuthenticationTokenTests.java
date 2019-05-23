@@ -16,24 +16,19 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
-import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.assertj.core.util.Maps;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
+import static org.springframework.security.oauth2.jose.jws.JwsAlgorithms.RS256;
 
 /**
  * Tests for {@link JwtAuthenticationToken}
@@ -45,8 +40,7 @@ public class JwtAuthenticationTokenTests {
 
 	@Test
 	public void getNameWhenJwtHasSubjectThenReturnsSubject() {
-		Jwt jwt = this.jwt(Maps.newHashMap("sub", "Carl"));
-
+		Jwt jwt = builder().subject("Carl").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
 
 		assertThat(token.getName()).isEqualTo("Carl");
@@ -54,8 +48,7 @@ public class JwtAuthenticationTokenTests {
 
 	@Test
 	public void getNameWhenJwtHasNoSubjectThenReturnsNull() {
-		Jwt jwt = this.jwt(Maps.newHashMap("claim", "value"));
-
+		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
 
 		assertThat(token.getName()).isNull();
@@ -70,40 +63,34 @@ public class JwtAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenUsingCorrectParametersThenConstructedCorrectly() {
-		Collection authorities = Arrays.asList(new SimpleGrantedAuthority("test"));
-		Map claims = Maps.newHashMap("claim", "value");
-		Jwt jwt = this.jwt(claims);
-
+		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
+		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
 
 		assertThat(token.getAuthorities()).isEqualTo(authorities);
 		assertThat(token.getPrincipal()).isEqualTo(jwt);
 		assertThat(token.getCredentials()).isEqualTo(jwt);
 		assertThat(token.getToken()).isEqualTo(jwt);
-		assertThat(token.getTokenAttributes()).isEqualTo(claims);
+		assertThat(token.getTokenAttributes()).isEqualTo(jwt.getClaims());
 		assertThat(token.isAuthenticated()).isTrue();
 	}
 
 	@Test
 	public void constructorWhenUsingOnlyJwtThenConstructedCorrectly() {
-		Map claims = Maps.newHashMap("claim", "value");
-		Jwt jwt = this.jwt(claims);
-
+		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
 
 		assertThat(token.getAuthorities()).isEmpty();
 		assertThat(token.getPrincipal()).isEqualTo(jwt);
 		assertThat(token.getCredentials()).isEqualTo(jwt);
 		assertThat(token.getToken()).isEqualTo(jwt);
-		assertThat(token.getTokenAttributes()).isEqualTo(claims);
+		assertThat(token.getTokenAttributes()).isEqualTo(jwt.getClaims());
 		assertThat(token.isAuthenticated()).isFalse();
 	}
 
 	@Test
 	public void getNameWhenConstructedWithJwtThenReturnsSubject() {
-		Map claims = Maps.newHashMap(SUB, "Hayden");
-		Jwt jwt = this.jwt(claims);
-
+		Jwt jwt = builder().subject("Hayden").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
 
 		assertThat(token.getName()).isEqualTo("Hayden");
@@ -111,10 +98,8 @@ public class JwtAuthenticationTokenTests {
 
 	@Test
 	public void getNameWhenConstructedWithJwtAndAuthoritiesThenReturnsSubject() {
-		Collection authorities = Arrays.asList(new SimpleGrantedAuthority("test"));
-		Map claims = Maps.newHashMap(SUB, "Hayden");
-		Jwt jwt = this.jwt(claims);
-
+		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
+		Jwt jwt = builder().subject("Hayden").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
 
 		assertThat(token.getName()).isEqualTo("Hayden");
@@ -122,10 +107,8 @@ public class JwtAuthenticationTokenTests {
 
 	@Test
 	public void getNameWhenConstructedWithNameThenReturnsProvidedName() {
-		Collection authorities = Arrays.asList(new SimpleGrantedAuthority("test"));
-		Map claims = Maps.newHashMap("claim", "value");
-		Jwt jwt = this.jwt(claims);
-
+		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
+		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities, "Hayden");
 
 		assertThat(token.getName()).isEqualTo("Hayden");
@@ -133,19 +116,15 @@ public class JwtAuthenticationTokenTests {
 
 	@Test
 	public void getNameWhenConstructedWithNoSubjectThenReturnsNull() {
-		Collection authorities = Arrays.asList(new SimpleGrantedAuthority("test"));
-		Map claims = Maps.newHashMap("claim", "value");
-		Jwt jwt = this.jwt(claims);
+		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
+		Jwt jwt = builder().claim("claim", "value").build();
 
 		assertThat(new JwtAuthenticationToken(jwt, authorities, null).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt, authorities).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt).getName()).isNull();
 	}
 
-	private Jwt jwt(Map<String, Object> claims) {
-		Map<String, Object> headers = new HashMap<>();
-		headers.put("alg", JwsAlgorithms.RS256);
-
-		return new Jwt("token", Instant.now(), Instant.now().plusSeconds(3600), headers, claims);
+	private Jwt.Builder builder() {
+		return Jwt.withTokenValue("token").header("alg", RS256);
 	}
 }
