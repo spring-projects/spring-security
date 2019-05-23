@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
 
 /**
  * Tests for {@link JwtAuthenticationToken}
@@ -99,8 +100,8 @@ public class JwtAuthenticationTokenTests {
 	}
 
 	@Test
-	public void constructorWhenProvidingJwtAndAuthoritiesThenSetsNameCorrectly() {
-		Map claims = Maps.newHashMap("sub", "Hayden");
+	public void getNameWhenConstructedWithJwtThenReturnsSubject() {
+		Map claims = Maps.newHashMap(SUB, "Hayden");
 		Jwt jwt = this.jwt(claims);
 
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
@@ -109,8 +110,18 @@ public class JwtAuthenticationTokenTests {
 	}
 
 	@Test
-	public void constructorWhenUsingAllParametersThenReturnsCorrectName() {
+	public void getNameWhenConstructedWithJwtAndAuthoritiesThenReturnsSubject() {
+		Collection authorities = Arrays.asList(new SimpleGrantedAuthority("test"));
+		Map claims = Maps.newHashMap(SUB, "Hayden");
+		Jwt jwt = this.jwt(claims);
 
+		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
+
+		assertThat(token.getName()).isEqualTo("Hayden");
+	}
+
+	@Test
+	public void getNameWhenConstructedWithNameThenReturnsProvidedName() {
 		Collection authorities = Arrays.asList(new SimpleGrantedAuthority("test"));
 		Map claims = Maps.newHashMap("claim", "value");
 		Jwt jwt = this.jwt(claims);
@@ -118,6 +129,17 @@ public class JwtAuthenticationTokenTests {
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities, "Hayden");
 
 		assertThat(token.getName()).isEqualTo("Hayden");
+	}
+
+	@Test
+	public void getNameWhenConstructedWithNoSubjectThenReturnsNull() {
+		Collection authorities = Arrays.asList(new SimpleGrantedAuthority("test"));
+		Map claims = Maps.newHashMap("claim", "value");
+		Jwt jwt = this.jwt(claims);
+
+		assertThat(new JwtAuthenticationToken(jwt, authorities, null).getName()).isNull();
+		assertThat(new JwtAuthenticationToken(jwt, authorities).getName()).isNull();
+		assertThat(new JwtAuthenticationToken(jwt).getName()).isNull();
 	}
 
 	private Jwt jwt(Map<String, Object> claims) {
