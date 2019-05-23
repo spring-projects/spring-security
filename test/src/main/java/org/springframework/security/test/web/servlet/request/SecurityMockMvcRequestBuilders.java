@@ -23,6 +23,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -71,6 +72,8 @@ public final class SecurityMockMvcRequestBuilders {
 	 * Creates a logout request (including any necessary {@link CsrfToken}) to the
 	 * specified {@code logoutUrl}
 	 *
+	 * @param logoutUrl the logout request URL
+	 *
 	 * @return the LogoutRequestBuilder for additional customizations
 	 */
 	public static LogoutRequestBuilder logout(String logoutUrl) {
@@ -103,6 +106,19 @@ public final class SecurityMockMvcRequestBuilders {
 		 */
 		public LogoutRequestBuilder logoutUrl(String logoutUrl) {
 			this.logoutUrl = logoutUrl;
+			return this;
+		}
+
+		/**
+		 * Specifies the logout URL to POST to.
+		 *
+		 * @param logoutUrl the logout URL to POST to.
+		 * @param uriVars the URI variables
+		 * @return the {@link LogoutRequestBuilder} for additional customizations
+		 */
+		public LogoutRequestBuilder logoutUrl(String logoutUrl, Object... uriVars) {
+			this.logoutUrl = UriComponentsBuilder.fromPath(logoutUrl)
+					.buildAndExpand(uriVars).encode().toString();
 			return this;
 		}
 
@@ -143,6 +159,19 @@ public final class SecurityMockMvcRequestBuilders {
 		 */
 		public FormLoginRequestBuilder loginProcessingUrl(String loginProcessingUrl) {
 			this.loginProcessingUrl = loginProcessingUrl;
+			return this;
+		}
+
+		/**
+		 * Specifies the URL to POST to.
+		 *
+		 * @param loginProcessingUrl the URL to POST to
+		 * @param uriVars the URI variables
+		 * @return the {@link FormLoginRequestBuilder} for additional customizations
+		 */
+		public FormLoginRequestBuilder loginProcessingUrl(String loginProcessingUrl, Object... uriVars) {
+			this.loginProcessingUrl = UriComponentsBuilder.fromPath(loginProcessingUrl)
+					.buildAndExpand(uriVars).encode().toString();
 			return this;
 		}
 

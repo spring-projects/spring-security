@@ -58,4 +58,17 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 		assertThat(request.getRequestURI()).isEqualTo("/admin/logout");
 	}
 
+	@Test
+	public void customWithUriVars() {
+		MockHttpServletRequest request = logout().logoutUrl("/uri-logout/{var1}/{var2}", "val1", "val2").buildRequest(
+				servletContext);
+
+		CsrfToken token = (CsrfToken) request.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
+
+		assertThat(request.getMethod()).isEqualTo("POST");
+		assertThat(request.getParameter(token.getParameterName())).isEqualTo(
+				token.getToken());
+		assertThat(request.getRequestURI()).isEqualTo("/uri-logout/val1/val2");
+	}
+
 }
