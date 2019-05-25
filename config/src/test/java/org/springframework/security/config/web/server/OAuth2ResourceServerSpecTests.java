@@ -25,7 +25,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -56,7 +55,6 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -556,13 +554,12 @@ public class OAuth2ResourceServerSpecTests {
 
 		@Bean
 		Converter<Jwt, Mono<AbstractAuthenticationToken>> jwtAuthenticationConverter() {
-			JwtAuthenticationConverter converter = new JwtAuthenticationConverter() {
-				@Override
-				protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
+
+			JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+			converter.setJwtGrantedAuthoritiesConverter(jwt -> {
 					String[] claims = ((String) jwt.getClaims().get("scope")).split(" ");
 					return Stream.of(claims).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-				}
-			};
+				});
 
 			return new ReactiveJwtAuthenticationConverterAdapter(converter);
 		}

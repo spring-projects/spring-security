@@ -27,7 +27,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -1484,12 +1483,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 
 		Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
-			return new JwtAuthenticationConverter() {
-				@Override
-				protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
-					return Collections.singletonList(new SimpleGrantedAuthority("message:read"));
-				}
-			};
+			JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+			converter.setJwtGrantedAuthoritiesConverter(jwt ->
+					Collections.singletonList(new SimpleGrantedAuthority("message:read"))
+			);
+			return converter;
 		}
 	}
 
