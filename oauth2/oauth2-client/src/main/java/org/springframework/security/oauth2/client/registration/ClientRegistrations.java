@@ -106,7 +106,7 @@ public final class ClientRegistrations {
 	 * Example usage:
 	 * </p>
 	 * <pre>
-	 * ClientRegistration registration = ClientRegistrations.fromOAuth2IssuerLocation("https://example.com")
+	 * ClientRegistration registration = ClientRegistrations.fromIssuerLocation("https://example.com")
 	 *     .clientId("client-id")
 	 *     .clientSecret("client-secret")
 	 *     .build();
@@ -114,7 +114,7 @@ public final class ClientRegistrations {
 	 * @param issuer
 	 * @return a {@link ClientRegistration.Builder} that was initialized by the Authorization Sever Metadata Provider
 	 */
-	public static ClientRegistration.Builder fromOAuth2IssuerLocation(String issuer) {
+	public static ClientRegistration.Builder fromIssuerLocation(String issuer) {
 		String configuration = getIssuerConfiguration(issuer, OIDC_METADATA_PATH, OAUTH2_METADATA_PATH);
 		AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
 		return withProviderConfiguration(metadata, issuer);

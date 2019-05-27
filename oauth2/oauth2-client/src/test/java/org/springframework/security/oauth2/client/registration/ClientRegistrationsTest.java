@@ -335,7 +335,7 @@ public class ClientRegistrationsTest {
 
 	@Test
 	public void issuerWhenOauth2EmptyStringThenMeaningfulErrorMessage() {
-		assertThatThrownBy(() -> ClientRegistrations.fromOAuth2IssuerLocation(""))
+		assertThatThrownBy(() -> ClientRegistrations.fromIssuerLocation(""))
 				.hasMessageContaining("Unable to resolve Configuration with the provided Issuer of \"\"");
 	}
 
@@ -365,7 +365,7 @@ public class ClientRegistrationsTest {
 				.setBody(body)
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
-		assertThatThrownBy(() -> ClientRegistrations.fromOAuth2IssuerLocation(this.issuer))
+		assertThatThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer))
 				.hasMessageContaining("The Issuer \"https://example.com\" provided in the configuration metadata did not match the requested issuer \"" + this.issuer + "\"");
 	}
 
@@ -392,7 +392,7 @@ public class ClientRegistrationsTest {
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		this.server.enqueue(mockResponse);
 
-		return ClientRegistrations.fromOAuth2IssuerLocation(this.issuer)
+		return ClientRegistrations.fromIssuerLocation(this.issuer)
 			.clientId("client-id")
 			.clientSecret("client-secret");
 	}
