@@ -47,6 +47,7 @@ public class ClientRegistrationsTest {
 
 	/**
 	 * Contains all optional parameters that are found in ClientRegistration
+	 * lkasjf
 	 */
 	private static final String DEFAULT_RESPONSE =
 			"{\n"
@@ -335,13 +336,13 @@ public class ClientRegistrationsTest {
 	@Test
 	public void issuerWhenOauth2EmptyStringThenMeaningfulErrorMessage() {
 		assertThatThrownBy(() -> ClientRegistrations.fromOAuth2IssuerLocation(""))
-				.hasMessageContaining("Unable to resolve the Authorization Server Metadata with the provided Issuer of \"\"");
+				.hasMessageContaining("Unable to resolve Configuration with the provided Issuer of \"\"");
 	}
 
 	@Test
 	public void issuerWhenEmptyStringThenMeaningfulErrorMessage() {
 		assertThatThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(""))
-				.hasMessageContaining("Unable to resolve the OpenID Configuration with the provided Issuer of \"\"");
+				.hasMessageContaining("Unable to resolve Configuration with the provided Issuer of \"\"");
 	}
 
 	@Test

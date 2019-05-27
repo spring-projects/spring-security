@@ -16,26 +16,25 @@
 
 package org.springframework.security.oauth2.client.registration;
 
-import com.nimbusds.oauth2.sdk.GrantType;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
-import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import java.net.URI;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.nimbusds.oauth2.sdk.GrantType;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 /**
  * Allows creating a {@link ClientRegistration.Builder} from an
@@ -49,10 +48,8 @@ import java.util.Map;
  * @since 5.1
  */
 public final class ClientRegistrations {
-
-	private static final String WELL_KNOWN_PATH = "/.well-known/";
-	private static final String OIDC_METADATA_PATH = "openid-configuration";
-	private static final String OAUTH2_METADATA_PATH = "oauth-authorization-server";
+	private static final String OIDC_METADATA_PATH = "/.well-known/openid-configuration";
+	private static final String OAUTH2_METADATA_PATH = "/.well-known/oauth-authorization-server";
 
 	/**
 	 * Creates a {@link ClientRegistration.Builder}  using the provided
@@ -87,7 +84,7 @@ public final class ClientRegistrations {
 	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID Provider Configuration.
 	 */
 	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {
-		String configuration = getOpenIdConfiguration(issuer);
+		String configuration = getIssuerConfiguration(issuer, OIDC_METADATA_PATH);
 		OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
 		return withProviderConfiguration(metadata, issuer)
 				.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString());
@@ -118,7 +115,7 @@ public final class ClientRegistrations {
 	 * @return a {@link ClientRegistration.Builder} that was initialized by the Authorization Sever Metadata Provider
 	 */
 	public static ClientRegistration.Builder fromOAuth2IssuerLocation(String issuer) {
-		String configuration = getOAuth2Configuration(issuer);
+		String configuration = getIssuerConfiguration(issuer, OIDC_METADATA_PATH, OAUTH2_METADATA_PATH);
 		AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
 		return withProviderConfiguration(metadata, issuer);
 	}
@@ -154,53 +151,75 @@ public final class ClientRegistrations {
 				.clientName(issuer);
 	}
 
-	private static String getOpenIdConfiguration(String issuer) {
-		final String wellKnownPath = WELL_KNOWN_PATH + OIDC_METADATA_PATH;
-		final String invalidIssuerMessage = "Unable to resolve the OpenID Configuration with the provided Issuer of \"" + issuer + "\"";
+	/**
+	 * When the length of paths is equal to one (1) then it's a request for OpenId v1 discovery endpoint
+	 * hence a request to "/issuer1/.well-known/openid-configuration" is being made. Otherwise, all
+	 * three (3) discovery endpoint are queried one after another depending on result of previous query
+	 * as shown below in the following order
+	 *
+	 * 1) Request "/.well-known/openid-configuration/issuer1"
+	 *
+	 * 2) If (1) is not resolved then request "/issuer1/.well-known/openid-configuration"
+	 *
+	 * 3) If (2) is not resolved then request "/.well-known/oauth-authorization-server/issuer1"
+	 *
+	 * If none of the above is resolved then thrown an error indicating that issuer could not be
+	 * resolved.
+	 *
+	 * @param issuer
+	 * @param paths
+	 * @return String Configuration Metadata
+	 */
+	private static String getIssuerConfiguration(String issuer, String... paths) {
+		Assert.notEmpty(paths, "paths cannot be empty or null.");
 
-		RestTemplate rest = new RestTemplate();
-
-		URI uri = URI.create(issuer);
-		try {
-			/**
-			 * Results in /.well-known/openid-configuration/issuer1 assuming issuer is https://example.com/issuer1
-			 */
-			String url = UriComponentsBuilder.fromUri(uri).replacePath(wellKnownPath + uri.getPath()).toUriString();
-			return rest.getForObject(url, String.class);
-		} catch(HttpClientErrorException e) {
-			if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-				 /**
-				  * As per the <a href="https://tools.ietf.org/html/rfc8414#section-5">Section 5</a> when the first attempt for
-				  * https://example.com/.well-known/openid-configuration/issuer1 failed then for backward compatibility
-				  * check https://example.com/issuer1/.well-known/openid-configuration for Open ID only.
-				  *
-				  * Results in /issuer1/.well-known/openid-configuration where issuer is https://example.com/issuer1
-				  */
-				String url = UriComponentsBuilder.fromUri(uri).replacePath(uri.getPath() + wellKnownPath).toUriString();
-				return rest.getForObject(url, String.class);
-			} else {
-				throw new IllegalArgumentException(invalidIssuerMessage, e);
+		String[] urls = buildIssuerConfigurationURLs(issuer, paths);
+		for(String url: urls) {
+			String response = makeIssuerRequest(url);
+			if(response != null) {
+				return response;
 			}
-		} catch(RuntimeException e) {
-			throw new IllegalArgumentException(invalidIssuerMessage, e);
+		}
+		throw new IllegalArgumentException("Unable to resolve Configuration with the provided Issuer of \"" + issuer + "\"");
+	}
+
+	private static String makeIssuerRequest(String uri) {
+		RestTemplate rest = new RestTemplate();
+		try {
+			return rest.getForObject(uri, String.class);
+		} catch(RuntimeException ex) {
+			return null;
 		}
 	}
 
-	private static String getOAuth2Configuration(String issuer) {
-		final String wellKnownPath = WELL_KNOWN_PATH + OAUTH2_METADATA_PATH;
+	private static String[] buildIssuerConfigurationURLs(String issuer, String... paths) {
+		Assert.isTrue(paths.length == 1 || paths.length == 2, "");
+		URI issuerURI = URI.create(issuer);
 
-		RestTemplate rest = new RestTemplate();
-
-		URI uri = URI.create(issuer);
-		try {
-			/**
-			 * Results in /.well-known/oauth-authorization-server/issuer1 where issuer is https://example.com/issuer1
-			 */
-			String url = UriComponentsBuilder.fromUri(uri).replacePath(wellKnownPath + uri.getPath()).toUriString();
-			return rest.getForObject(url, String.class);
-		} catch(RuntimeException e) {
-			throw new IllegalArgumentException("Unable to resolve the Authorization Server Metadata with the provided "
-					+ "Issuer of \"" + issuer + "\"", e);
+		if(paths.length == 1) {
+			return new String[] {
+					/**
+					 * Results in /issuer1/.well-known/openid-configuration for backward compatibility
+					 */
+					UriComponentsBuilder.fromUri(issuerURI).replacePath(issuerURI.getPath() + paths[0]).toUriString()
+			};
+		} else {
+			 return new String[] {
+					 /**
+					  * Returns an array of URLs as follow when issuer1 is provided
+					  *
+					  * [0] => /.well-known/openid-configuration/issuer1 that follows
+					  *
+					  * [1] => /issuer1/.well-known/openid-configuration for backward compatibility as explained in
+					  * the <a href="https://tools.ietf.org/html/rfc8414#section-5">Section 5</a> of RF 8414
+					  *
+					  * [2] => /.well-known/oauth-authorization-server/issuer1
+					  *
+					  */
+					 UriComponentsBuilder.fromUri(issuerURI).replacePath(paths[0] + issuerURI.getPath()).toUriString(),
+					 UriComponentsBuilder.fromUri(issuerURI).replacePath(issuerURI.getPath() + paths[0]).toUriString(),
+					 UriComponentsBuilder.fromUri(issuerURI).replacePath(paths[1] + issuerURI.getPath()).toUriString()
+			 };
 		}
 	}
 
