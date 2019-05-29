@@ -19,6 +19,7 @@ package org.springframework.security.web.authentication.switchuser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.util.Assert;
 
 /**
  * Custom {@code GrantedAuthority} used by
@@ -44,6 +45,8 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 	// ===================================================================================================
 
 	public SwitchUserGrantedAuthority(String role, Authentication source) {
+		Assert.notNull(role, "role cannot be null");
+		Assert.notNull(source, "source cannot be null");
 		this.role = role;
 		this.source = source;
 	}
