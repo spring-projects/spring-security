@@ -14,6 +14,9 @@
 package org.springframework.security.crypto.bcrypt;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.security.SecureRandom;
 
@@ -740,6 +743,30 @@ public class BCrypt {
 		return hashpw(passwordb, salt);
 	}
 
+	public static String hashpw(CharSequence password, String salt) {
+		byte passwordb[];
+		char[] pass = new char[password.length()];
+		for(int i =0; i < password.length(); i++) {
+			pass[i] = password.charAt(i);
+		}
+		passwordb = toBytes(pass);
+		return hashpw(passwordb, salt);
+	}
+
+	public static String hashpw(char[] password, String salt) {
+		byte passwordb[];
+		passwordb = toBytes(password);
+		return hashpw(passwordb, salt);
+	}
+
+	private static byte[] toBytes(char[] chars) {
+		CharBuffer charBuffer = CharBuffer.wrap(chars);
+		ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(charBuffer);
+		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
+		Arrays.fill(byteBuffer.array(), (byte) 0); // clear sensitive data
+		return bytes;
+	}
+
 	/**
 	 * Hash a password using the OpenBSD bcrypt scheme
 	 * @param passwordb	the password to hash, as a byte array
@@ -904,6 +931,14 @@ public class BCrypt {
 	 * @return	true if the passwords match, false otherwise
 	 */
 	public static boolean checkpw(String plaintext, String hashed) {
+		return equalsNoEarlyReturn(hashed, hashpw(plaintext, hashed));
+	}
+
+	public static boolean checkpw(char[] plaintext, String hashed) {
+		return equalsNoEarlyReturn(hashed, hashpw(plaintext, hashed));
+	}
+
+	public static boolean checkpw(CharSequence plaintext, String hashed) {
 		return equalsNoEarlyReturn(hashed, hashpw(plaintext, hashed));
 	}
 

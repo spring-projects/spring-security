@@ -108,7 +108,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 		} else {
 			salt = BCrypt.gensalt(version.getVersion());
 		}
-		return BCrypt.hashpw(rawPassword.toString(), salt);
+		return BCrypt.hashpw(rawPassword, salt);
 	}
 
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
@@ -122,7 +122,21 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 			return false;
 		}
 
-		return BCrypt.checkpw(rawPassword.toString(), encodedPassword);
+		return BCrypt.checkpw(rawPassword, encodedPassword);
+	}
+
+	public boolean matches(char[] rawPassword, String encodedPassword) {
+		if (encodedPassword == null || encodedPassword.length() == 0) {
+			logger.warn("Empty encoded password");
+			return false;
+		}
+
+		if (!BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
+			logger.warn("Encoded password does not look like BCrypt");
+			return false;
+		}
+
+		return BCrypt.checkpw(rawPassword, encodedPassword);
 	}
 
 	/**
