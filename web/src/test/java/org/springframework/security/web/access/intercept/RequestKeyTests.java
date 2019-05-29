@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,10 @@
  */
 package org.springframework.security.web.access.intercept;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.springframework.security.web.access.intercept.RequestKey;
 
 /**
@@ -62,5 +63,15 @@ public class RequestKeyTests {
 
 		assertThat(key1.equals(key2)).isFalse();
 		assertThat(key2.equals(key1)).isFalse();
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	@Test
+	public void keysWithNullUrlFailsAssertion() throws Exception {
+		assertThatThrownBy(() -> new RequestKey(null, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("url cannot be null");
 	}
 }
