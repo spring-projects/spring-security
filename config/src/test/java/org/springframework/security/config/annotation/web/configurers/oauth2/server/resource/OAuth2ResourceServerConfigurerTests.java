@@ -565,6 +565,22 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
+	public void requestWhenIntrospectionConfiguredThenSessionIsNotCreated()
+			throws Exception {
+
+		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class, BasicController.class).autowire();
+		mockRestOperations(json("Active"));
+
+		MvcResult result = this.mvc.perform(get("/authenticated")
+				.with(bearerToken("token")))
+				.andExpect(status().isOk())
+				.andExpect(content().string("test-subject"))
+				.andReturn();
+
+		assertThat(result.getRequest().getSession(false)).isNull();
+	}
+
+	@Test
 	public void requestWhenUsingDefaultsAndNoBearerTokenThenSessionIsCreated()
 			throws Exception {
 
