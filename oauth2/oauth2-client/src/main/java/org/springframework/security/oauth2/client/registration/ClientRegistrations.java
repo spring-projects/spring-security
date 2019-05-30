@@ -16,12 +16,11 @@
 
 package org.springframework.security.oauth2.client.registration;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.nimbusds.oauth2.sdk.GrantType;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
@@ -30,11 +29,11 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.nimbusds.oauth2.sdk.GrantType;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
-import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+import java.net.URI;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Allows creating a {@link ClientRegistration.Builder} from an
@@ -174,9 +173,9 @@ public final class ClientRegistrations {
 		Assert.notEmpty(paths, "paths cannot be empty or null.");
 
 		String[] urls = buildIssuerConfigurationURLs(issuer, paths);
-		for(String url: urls) {
+		for (String url: urls) {
 			String response = makeIssuerRequest(url);
-			if(response != null) {
+			if (response != null) {
 				return response;
 			}
 		}
@@ -196,7 +195,7 @@ public final class ClientRegistrations {
 		Assert.isTrue(paths.length == 1 || paths.length == 2, "");
 		URI issuerURI = URI.create(issuer);
 
-		if(paths.length == 1) {
+		if (paths.length == 1) {
 			return new String[] {
 					/**
 					 * Results in /issuer1/.well-known/openid-configuration for backward compatibility
@@ -204,8 +203,8 @@ public final class ClientRegistrations {
 					UriComponentsBuilder.fromUri(issuerURI).replacePath(issuerURI.getPath() + paths[0]).toUriString()
 			};
 		} else {
-			 return new String[] {
-					 /**
+			return new String[] {
+					/**
 					  * Returns an array of URLs as follow when issuer1 is provided
 					  *
 					  * [0] => /.well-known/openid-configuration/issuer1 that follows
@@ -216,10 +215,10 @@ public final class ClientRegistrations {
 					  * [2] => /.well-known/oauth-authorization-server/issuer1
 					  *
 					  */
-					 UriComponentsBuilder.fromUri(issuerURI).replacePath(paths[0] + issuerURI.getPath()).toUriString(),
-					 UriComponentsBuilder.fromUri(issuerURI).replacePath(issuerURI.getPath() + paths[0]).toUriString(),
-					 UriComponentsBuilder.fromUri(issuerURI).replacePath(paths[1] + issuerURI.getPath()).toUriString()
-			 };
+					UriComponentsBuilder.fromUri(issuerURI).replacePath(paths[0] + issuerURI.getPath()).toUriString(),
+					UriComponentsBuilder.fromUri(issuerURI).replacePath(issuerURI.getPath() + paths[0]).toUriString(),
+					UriComponentsBuilder.fromUri(issuerURI).replacePath(paths[1] + issuerURI.getPath()).toUriString()
+			};
 		}
 	}
 
