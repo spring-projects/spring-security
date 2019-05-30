@@ -15,8 +15,13 @@
  */
 package org.springframework.security.test.web.servlet.request;
 
-import java.util.Arrays;
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
@@ -34,6 +39,8 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.web.support.WebTestUtils;
@@ -153,5 +160,23 @@ public class SecurityMockMvcRequestPostProcessorsJwtTests {
 		SecurityContext context = this.contextCaptor.getValue();
 		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
 				.containsOnly(this.authority1);
+	}
+
+	@Test
+	public void jwtWhenProvidingPreparedJwtThenUsesItForAuthentication() {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put(IdTokenClaimNames.SUB, "some_user");
+		Jwt originalToken = new Jwt("token123", Instant.now(), Instant.now().plusSeconds(3600),
+				Collections.singletonMap("header1", "value1"), claims);
+		jwt(originalToken).postProcessRequest(this.request);
+
+
+		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
+				any(HttpServletResponse.class));
+		SecurityContext context = this.contextCaptor.getValue();
+		JwtAuthenticationToken retrievedToken = (JwtAuthenticationToken) context.getAuthentication();
+		assertThat(retrievedToken.getToken().getSubject()).isEqualTo("some_user");
+		assertThat(retrievedToken.getToken().getTokenValue()).isEqualTo("token123");
+		assertThat(retrievedToken.getToken().getHeaders().get("header1")).isEqualTo("value1");
 	}
 }
