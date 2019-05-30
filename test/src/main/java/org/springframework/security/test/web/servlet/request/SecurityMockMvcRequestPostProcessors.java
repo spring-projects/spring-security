@@ -263,6 +263,35 @@ public final class SecurityMockMvcRequestPostProcessors {
 	}
 
 	/**
+	 * Establish a {@link SecurityContext} that has a
+	 * {@link JwtAuthenticationToken} for the
+	 * {@link Authentication} and a {@link Jwt} for the
+	 * {@link Authentication#getPrincipal()}. All details are
+	 * declarative and do not require the JWT to be valid.
+	 *
+	 * <p>
+	 * The support works by associating the authentication to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
+	 * @param jwt The preliminary constructed {@link Jwt}
+	 * @return the {@link JwtRequestPostProcessor} for additional customization
+	 * @since 5.2
+	 */
+	public static JwtRequestPostProcessor jwt(Jwt jwt) {
+		return new JwtRequestPostProcessor(jwt);
+	}
+
+	/**
 	 * Establish a {@link SecurityContext} that uses the specified {@link Authentication}
 	 * for the {@link Authentication#getPrincipal()} and a custom {@link UserDetails}. All
 	 * details are declarative and do not require that the user actually exists.
