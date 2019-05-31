@@ -695,6 +695,8 @@ public class ServerHttpSecurity {
 
 		private ServerWebExchangeMatcher authenticationMatcher;
 
+		private ServerAuthenticationSuccessHandler authenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler();
+
 		/**
 		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
 		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
@@ -703,6 +705,18 @@ public class ServerHttpSecurity {
 		 */
 		public OAuth2LoginSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		/**
+		 * The {@link ServerAuthenticationSuccessHandler} used after authentication success. Defaults to
+		 * {@link RedirectServerAuthenticationSuccessHandler} redirecting to "/".
+		 * @param authenticationSuccessHandler the success handler to use
+		 * @return the {@link OAuth2LoginSpec} to continue configuring
+		 */
+		public OAuth2LoginSpec authenticationSuccessHandler(ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
+			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
+			this.authenticationSuccessHandler = authenticationSuccessHandler;
 			return this;
 		}
 
@@ -821,9 +835,8 @@ public class ServerHttpSecurity {
 			AuthenticationWebFilter authenticationFilter = new OAuth2LoginAuthenticationWebFilter(manager, authorizedClientRepository);
 			authenticationFilter.setRequiresAuthenticationMatcher(getAuthenticationMatcher());
 			authenticationFilter.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
-			RedirectServerAuthenticationSuccessHandler redirectHandler = new RedirectServerAuthenticationSuccessHandler();
 
-			authenticationFilter.setAuthenticationSuccessHandler(redirectHandler);
+			authenticationFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
 			authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationFailureHandler() {
 				@Override
 				public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange,
