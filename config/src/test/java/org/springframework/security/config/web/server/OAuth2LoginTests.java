@@ -23,7 +23,11 @@ import java.util.Map;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.stubbing.Answer;
 import org.openqa.selenium.WebDriver;
+import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,6 +188,8 @@ public class OAuth2LoginTests {
 		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class,
 				OAuth2LoginMockAuthenticationManagerConfig.class).autowire();
 
+		String redirectLocation = "/custom-redirect-location";
+
 		WebTestClient webTestClient = WebTestClientBuilder
 				.bindToWebFilters(this.springSecurity)
 				.build();
@@ -194,6 +200,7 @@ public class OAuth2LoginTests {
 		ReactiveAuthenticationManager manager = config.manager;
 		ServerWebExchangeMatcher matcher = config.matcher;
 		ServerOAuth2AuthorizationRequestResolver resolver = config.resolver;
+		ServerAuthenticationSuccessHandler successHandler = config.successHandler;
 
 		OAuth2AuthorizationExchange exchange = TestOAuth2AuthorizationExchanges.success();
 		OAuth2User user = TestOAuth2Users.create();
@@ -205,16 +212,25 @@ public class OAuth2LoginTests {
 		when(manager.authenticate(any())).thenReturn(Mono.just(result));
 		when(matcher.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
 		when(resolver.resolve(any())).thenReturn(Mono.empty());
+		when(successHandler.onAuthenticationSuccess(any(), any())).thenAnswer((Answer<Mono<Void>>) invocation -> {
+			WebFilterExchange webFilterExchange = invocation.getArgument(0);
+			Authentication authentication = invocation.getArgument(1);
+
+			return new RedirectServerAuthenticationSuccessHandler(redirectLocation)
+					.onAuthenticationSuccess(webFilterExchange, authentication);
+		});
 
 		webTestClient.get()
 			.uri("/login/oauth2/code/github")
 			.exchange()
-			.expectStatus().is3xxRedirection();
+			.expectStatus().is3xxRedirection()
+			.expectHeader().valueEquals("Location", redirectLocation);
 
 		verify(converter).convert(any());
 		verify(manager).authenticate(any());
 		verify(matcher).matches(any());
 		verify(resolver).resolve(any());
+		verify(successHandler).onAuthenticationSuccess(any(), any());
 	}
 
 	@Configuration
@@ -227,6 +243,8 @@ public class OAuth2LoginTests {
 
 		ServerOAuth2AuthorizationRequestResolver resolver = mock(ServerOAuth2AuthorizationRequestResolver.class);
 
+		ServerAuthenticationSuccessHandler successHandler = mock(ServerAuthenticationSuccessHandler.class);
+
 		@Bean
 		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			http
@@ -237,7 +255,8 @@ public class OAuth2LoginTests {
 					.authenticationConverter(authenticationConverter)
 					.authenticationManager(manager)
 					.authenticationMatcher(matcher)
-					.authorizationRequestResolver(resolver);
+					.authorizationRequestResolver(resolver)
+					.authenticationSuccessHandler(successHandler);
 			return http.build();
 		}
 	}
@@ -425,4 +444,5 @@ public class OAuth2LoginTests {
 	<T> T getBean(Class<T> beanClass) {
 		return this.spring.getContext().getBean(beanClass);
 	}
+
 }
