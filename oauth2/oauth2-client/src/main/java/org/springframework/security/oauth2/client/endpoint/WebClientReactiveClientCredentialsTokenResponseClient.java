@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,6 @@ public class WebClientReactiveClientCredentialsTokenResponseClient implements Re
 	private Consumer<HttpHeaders> headers(ClientRegistration clientRegistration) {
 		return headers -> {
 			headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-			headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
 			if (ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
 				headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
 			}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,9 +98,11 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
 
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
-		String body = this.server.takeRequest().getUtf8Body();
+		RecordedRequest actualRequest = this.server.takeRequest();
+		String body = actualRequest.getUtf8Body();
 
 		assertThat(response.getAccessToken()).isNotNull();
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isNull();
 		assertThat(body).isEqualTo("grant_type=client_credentials&scope=read%3Auser&client_id=client-id&client_secret=client-secret");
 	}
 
