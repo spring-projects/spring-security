@@ -31,6 +31,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,8 @@ import java.util.Map;
 /**
  * Allows creating a {@link ClientRegistration.Builder} from an
  * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">OpenID Provider Configuration</a>
- * and
- * <a href="https://tools.ietf.org/html/rfc8414#section-3">Obtaining Authorization Server Metadata</a>.
+ * or <a href="https://tools.ietf.org/html/rfc8414#section-3">Authorization Server Metadata</a> based on
+ * provided issuer.
  *
  * @author Rob Winch
  * @author Josh Cummings
@@ -49,6 +50,10 @@ import java.util.Map;
 public final class ClientRegistrations {
 	private static final String OIDC_METADATA_PATH = "/.well-known/openid-configuration";
 	private static final String OAUTH2_METADATA_PATH = "/.well-known/oauth-authorization-server";
+
+	enum ProviderType {
+		OIDCV1, OIDC, OAUTH2;
+	}
 
 	/**
 	 * Creates a {@link ClientRegistration.Builder}  using the provided
@@ -83,23 +88,42 @@ public final class ClientRegistrations {
 	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID Provider Configuration.
 	 */
 	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {
-		String configuration = getIssuerConfiguration(issuer, OIDC_METADATA_PATH);
-		OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
+		Map<ProviderType, String> configuration = getIssuerConfiguration(issuer, OIDC_METADATA_PATH);
+		OIDCProviderMetadata metadata = parse(configuration.get(ProviderType.OIDCV1), OIDCProviderMetadata::parse);
 		return withProviderConfiguration(metadata, issuer)
 				.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString());
 	}
 
 	/**
-	 * Creates a {@link ClientRegistration.Builder} using the provided issuer by making an
-	 * <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server Metadata Request</a> and using the
-	 * values in the <a href="https://tools.ietf.org/html/rfc8414#section-3.2">Authorization Server Metadata Response</a>
-	 * to initialize the {@link ClientRegistration.Builder}.
+	 * Unlike <strong>fromOidcIssuerLocation</strong> the <strong>fromIssuerLocation</strong> queries three different endpoints and uses the
+	 * returned response from whichever that returns successfully. When <strong>fromIssuerLocation</strong> is invoked with an issuer
+	 * the following sequence of actions take place
 	 *
-	 * <p>
-	 * For example, if the issuer provided is "https://example.com", then an "Authorization Server Metadata Request" will
-	 * be made to "https://example.com/.well-known/oauth-authorization-server". The result is expected to be an "Authorization
-	 * Server Metadata Response".
-	 * </p>
+	 * <ol>
+	 * 	<li>
+	 *     The first request is made against <i>{host}/.well-known/openid-configuration/issuer1</i> where issuer is equal to
+	 *     <strong>issuer1</strong>. See <a href="https://tools.ietf.org/html/rfc8414#section-5">Compatibility Notes</a> of RFC 8414
+	 *     specification for more details.
+	 *  </li>
+	 *  <li>
+	 *  	If the first attempt request returned non-Success (i.e. 200 status code) response then based on <strong>Compatibility Notes</strong> of
+	 *  <strong>RFC 8414</strong> a fallback <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">
+	 *  OpenID Provider Configuration Request</a> is made to <i>{host}/issuer1/.well-known/openid-configuration</i>
+	 *  </li>
+	 *  <li>
+	 *  	If the second attempted request returns a non-Success (i.e. 200 status code) response then based a final
+	 *  <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server Metadata Request</a> is being made to
+	 *  <i>{host}/.well-known/oauth-authorization-server/issuer1</i>.
+	 *  </li>
+	 * </ol>
+	 *
+	 *
+	 * As explained above, <strong>fromIssuerLocation</strong> would behave the exact same way as <strong>fromOidcIssuerLocation</strong> and that is
+	 * because <strong>fromIssuerLocation</strong> does the exact same processing as <strong>fromOidcIssuerLocation</strong> behind the scene. Use of
+	 * <strong>fromIssuerLocation</strong> is encouraged due to the fact that it is well-aligned with RFC 8414 specification and more specifically
+	 * it queries latest OIDC metadata endpoint with a fallback to legacy OIDC v1 discovery endpoint.
+	 *
+	 * The <strong>fromIssuerLocation</strong> is based on <a href="https://tools.ietf.org/html/rfc8414">RFC 8414</a> specification.
 	 *
 	 * <p>
 	 * Example usage:
@@ -110,13 +134,24 @@ public final class ClientRegistrations {
 	 *     .clientSecret("client-secret")
 	 *     .build();
 	 * </pre>
+	 *
 	 * @param issuer
 	 * @return a {@link ClientRegistration.Builder} that was initialized by the Authorization Sever Metadata Provider
 	 */
 	public static ClientRegistration.Builder fromIssuerLocation(String issuer) {
-		String configuration = getIssuerConfiguration(issuer, OIDC_METADATA_PATH, OAUTH2_METADATA_PATH);
-		AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
-		return withProviderConfiguration(metadata, issuer);
+		Map<ProviderType, String> configuration = getIssuerConfiguration(issuer, OIDC_METADATA_PATH, OAUTH2_METADATA_PATH);
+
+		if (configuration.containsKey(ProviderType.OAUTH2)) {
+			AuthorizationServerMetadata metadata = parse(configuration.get(ProviderType.OAUTH2), AuthorizationServerMetadata::parse);
+			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer);
+			return builder;
+		} else {
+			String response = configuration.getOrDefault(ProviderType.OIDC, configuration.get(ProviderType.OIDCV1));
+			OIDCProviderMetadata metadata = parse(response, OIDCProviderMetadata::parse);
+			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer)
+					.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString());
+			return builder;
+		}
 	}
 
 	private static ClientRegistration.Builder withProviderConfiguration(AuthorizationServerMetadata metadata, String issuer) {
@@ -152,34 +187,47 @@ public final class ClientRegistrations {
 
 	/**
 	 * When the length of paths is equal to one (1) then it's a request for OpenId v1 discovery endpoint
-	 * hence a request to "/issuer1/.well-known/openid-configuration" is being made. Otherwise, all
-	 * three (3) discovery endpoint are queried one after another depending on result of previous query
-	 * as shown below in the following order
-	 *
-	 * 1) Request "/.well-known/openid-configuration/issuer1"
-	 *
-	 * 2) If (1) is not resolved then request "/issuer1/.well-known/openid-configuration"
-	 *
-	 * 3) If (2) is not resolved then request "/.well-known/oauth-authorization-server/issuer1"
-	 *
-	 * If none of the above is resolved then thrown an error indicating that issuer could not be
-	 * resolved.
+	 * hence the request is made to <strong>{host}/issuer1/.well-known/openid-configuration</strong>.
+	 * Otherwise, all three (3) metadata endpoints are queried one after another.
 	 *
 	 * @param issuer
 	 * @param paths
-	 * @return String Configuration Metadata
+	 * @throws IllegalArgumentException if the paths is null or empty or if none of the providers
+	 * responded to given issuer and paths requests
+	 * @return Map<String, Object> - Configuration Metadata from the given issuer
 	 */
-	private static String getIssuerConfiguration(String issuer, String... paths) {
+	private static Map<ProviderType, String> getIssuerConfiguration(String issuer, String... paths) {
 		Assert.notEmpty(paths, "paths cannot be empty or null.");
 
-		String[] urls = buildIssuerConfigurationURLs(issuer, paths);
-		for (String url: urls) {
-			String response = makeIssuerRequest(url);
-			if (response != null) {
-				return response;
-			}
+		Map<ProviderType, String> providersUrl = buildIssuerConfigurationUrls(issuer, paths);
+		Map<ProviderType, String> providerResponse = new HashMap<>();
+
+		if (providersUrl.containsKey(ProviderType.OIDC)) {
+			providerResponse = mapResponse(providersUrl, ProviderType.OIDC);
 		}
-		throw new IllegalArgumentException("Unable to resolve Configuration with the provided Issuer of \"" + issuer + "\"");
+
+		// Fallback to OpenId v1 Discovery Endpoint based on RFC 8414 Compatibility Notes
+		if (providerResponse.isEmpty() && providersUrl.containsKey(ProviderType.OIDCV1)) {
+			providerResponse = mapResponse(providersUrl, ProviderType.OIDCV1);
+		}
+
+		if (providerResponse.isEmpty() && providersUrl.containsKey(ProviderType.OAUTH2)) {
+			providerResponse = mapResponse(providersUrl, ProviderType.OAUTH2);
+		}
+
+		if (providerResponse.isEmpty()) {
+			throw new IllegalArgumentException("Unable to resolve Configuration with the provided Issuer of \"" + issuer + "\"");
+		}
+		return providerResponse;
+	}
+
+	private static Map<ProviderType, String> mapResponse(Map<ProviderType, String> providersUrl, ProviderType providerType) {
+		Map<ProviderType, String> providerResponse = new HashMap<>();
+		String response = makeIssuerRequest(providersUrl.get(providerType));
+		if (response != null) {
+			providerResponse.put(providerType, response);
+		}
+		return providerResponse;
 	}
 
 	private static String makeIssuerRequest(String uri) {
@@ -191,35 +239,56 @@ public final class ClientRegistrations {
 		}
 	}
 
-	private static String[] buildIssuerConfigurationURLs(String issuer, String... paths) {
-		Assert.isTrue(paths.length == 1 || paths.length == 2, "");
+	/**
+	 * When invoked with a path then make a
+	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">
+	 * OpenID Provider Configuration Request</a> by querying the OpenId Connection Discovery 1.0 endpoint
+	 * and the url would look as follow <strong>{host}/issuer1/.well-known/openid-configuration</strong>
+	 *
+	 * <p>
+	 * When more than one path is provided then query all the three (3) endpoints for metadata configuration
+	 * as per <a href="https://tools.ietf.org/html/rfc8414#section-5">Section 5</a> of RF 8414 specification
+	 * and the URLs would look as follow
+	 * </p>
+	 *
+	 * <ol>
+	 * <li>
+	 * <strong>{host}/.well-known/openid-configuration/issuer1</strong>  - OpenID as per RFC 8414
+	 * </li>
+	 * <li>
+	 * <strong>{host}/issuer1/.well-known/openid-configuration</strong> -  OpenID Connect 1.0 Discovery Compatibility as per RFC 8414
+	 * </li>
+	 * <li>
+	 * <strong>/.well-known/oauth-authorization-server/issuer1</strong> - OAuth2 Authorization Server Metadata as per RFC 8414
+	 * </li>
+	 * </ol>
+	 *
+	 * @param issuer
+	 * @param paths
+	 * @throws IllegalArgumentException throws exception if paths length is not 1 or 3, 1 for <strong>fromOidcLocationIssuer</strong>
+	 * and 3 for the newly introduced <strong>fromIssuerLocation</strong> to support querying 3 different metadata provider endpoints
+	 * @return Map<ProviderType, String> key-value map of provider with its request url
+	 */
+	private static Map<ProviderType, String> buildIssuerConfigurationUrls(String issuer, String... paths) {
+		Assert.isTrue(paths.length != 1 || paths.length != 3, "paths length can either be 1 or 3");
+
+		Map<ProviderType, String> providersUrl = new HashMap<>();
+
 		URI issuerURI = URI.create(issuer);
 
 		if (paths.length == 1) {
-			return new String[] {
-					/**
-					 * Results in /issuer1/.well-known/openid-configuration for backward compatibility
-					 */
-					UriComponentsBuilder.fromUri(issuerURI).replacePath(issuerURI.getPath() + paths[0]).toUriString()
-			};
+			providersUrl.put(ProviderType.OIDCV1,
+					UriComponentsBuilder.fromUri(issuerURI).replacePath(issuerURI.getPath() + paths[0]).toUriString());
 		} else {
-			return new String[] {
-					/**
-					  * Returns an array of URLs as follow when issuer1 is provided
-					  *
-					  * [0] => /.well-known/openid-configuration/issuer1 that follows
-					  *
-					  * [1] => /issuer1/.well-known/openid-configuration for backward compatibility as explained in
-					  * the <a href="https://tools.ietf.org/html/rfc8414#section-5">Section 5</a> of RF 8414
-					  *
-					  * [2] => /.well-known/oauth-authorization-server/issuer1
-					  *
-					  */
-					UriComponentsBuilder.fromUri(issuerURI).replacePath(paths[0] + issuerURI.getPath()).toUriString(),
-					UriComponentsBuilder.fromUri(issuerURI).replacePath(issuerURI.getPath() + paths[0]).toUriString(),
-					UriComponentsBuilder.fromUri(issuerURI).replacePath(paths[1] + issuerURI.getPath()).toUriString()
-			};
+			providersUrl.put(ProviderType.OIDC,
+					UriComponentsBuilder.fromUri(issuerURI).replacePath(paths[0] + issuerURI.getPath()).toUriString());
+			providersUrl.put(ProviderType.OIDCV1,
+					UriComponentsBuilder.fromUri(issuerURI).replacePath(issuerURI.getPath() + paths[0]).toUriString());
+			providersUrl.put(ProviderType.OAUTH2,
+					UriComponentsBuilder.fromUri(issuerURI).replacePath(paths[1] + issuerURI.getPath()).toUriString());
 		}
+
+		return providersUrl;
 	}
 
 	private static ClientAuthenticationMethod getClientAuthenticationMethod(String issuer,
