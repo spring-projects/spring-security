@@ -89,21 +89,31 @@ public class JwtDecodersTests {
 
 		JwtDecoder decoder = JwtDecoders.fromOidcIssuerLocation(this.issuer);
 
-		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH))
-				.isInstanceOf(JwtValidationException.class)
-				.hasMessageContaining("This iss claim is not equal to the configured issuer");
+		assertResponseIsTypicalThenReturnedDecoderValidatesIssuer(decoder);
+	}
+
+	@Test
+	public void issuerWhenOidcFallbackResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
+		prepareConfigurationResponseForOidcFallback("issuer1", null);
+
+		JwtDecoder decoder = JwtDecoders.fromIssuerLocation(this.issuer);
+
+		assertResponseIsTypicalThenReturnedDecoderValidatesIssuer(decoder);
 	}
 
 	@Test
 	public void issuerWhenOauth2ResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
-		prepareConfigurationResponse();
-		this.server.enqueue(new MockResponse().setBody(JWK_SET));
+		prepareConfigurationResponseForOauth2("issuer1", null);
 
-		JwtDecoder decoder = JwtDecoders.fromOAuth2IssuerLocation(this.issuer);
+		JwtDecoder decoder = JwtDecoders.fromIssuerLocation(this.issuer);
 
+		assertResponseIsTypicalThenReturnedDecoderValidatesIssuer(decoder);
+	}
+
+	private void assertResponseIsTypicalThenReturnedDecoderValidatesIssuer(JwtDecoder decoder) {
 		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH))
-				.isInstanceOf(JwtValidationException.class)
-				.hasMessageContaining("This iss claim is not equal to the configured issuer");
+		.isInstanceOf(JwtValidationException.class)
+		.hasMessageContaining("This iss claim is not equal to the configured issuer");
 	}
 
 	@Test
@@ -115,58 +125,81 @@ public class JwtDecodersTests {
 	}
 
 	@Test
-	public void issuerWhenOauth2ContainsTrailingSlashThenSuccess() {
+	public void issuerWhenOidcFallbackContainsTrailingSlashThenSuccess() {
 		prepareConfigurationResponse();
 		this.server.enqueue(new MockResponse().setBody(JWK_SET));
-		assertThat(JwtDecoders.fromOAuth2IssuerLocation(this.issuer)).isNotNull();
+		assertThat(JwtDecoders.fromIssuerLocation(this.issuer)).isNotNull();
+		assertThat(this.issuer).endsWith("/");
+	}
+
+	@Test
+	public void issuerWhenOauth2ContainsTrailingSlashThenSuccess() {
+		prepareConfigurationResponseForOauth2("", null);
+		assertThat(JwtDecoders.fromIssuerLocation(this.issuer)).isNotNull();
 		assertThat(this.issuer).endsWith("/");
 	}
 
 	@Test
 	public void issuerWhenResponseIsNonCompliantThenThrowsRuntimeException() {
 		prepareConfigurationResponse("{ \"missing_required_keys\" : \"and_values\" }");
-
 		assertThatCode(() -> JwtDecoders.fromOidcIssuerLocation(this.issuer))
 				.isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
-	public void issuerWhenOauth2ResponseIsNonCompliantThenThrowsRuntimeException() {
-		prepareConfigurationResponse("{ \"missing_required_keys\" : \"and_values\" }");
+	public void issuerWhenOidcFallbackResponseIsNonCompliantThenThrowsRuntimeException() {
+		prepareConfigurationResponseForOidcFallback("", "{ \"missing_required_keys\" : \"and_values\" }");
+		assertThatCode(() -> JwtDecoders.fromIssuerLocation(this.issuer))
+				.isInstanceOf(RuntimeException.class);
+	}
 
-		assertThatCode(() -> JwtDecoders.fromOAuth2IssuerLocation(this.issuer))
+	@Test
+	public void issuerWhenOauth2ResponseIsNonCompliantThenThrowsRuntimeException() {
+		prepareConfigurationResponseForOauth2("", "{ \"missing_required_keys\" : \"and_values\" }");
+		System.out.println("this.issuer = " + this.issuer);
+		assertThatCode(() -> JwtDecoders.fromIssuerLocation(this.issuer))
 				.isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
 	public void issuerWhenResponseIsMalformedThenThrowsRuntimeException() {
 		prepareConfigurationResponse("malformed");
+		assertThatCode(() -> JwtDecoders.fromOidcIssuerLocation(this.issuer))
+				.isInstanceOf(RuntimeException.class);
+	}
 
+	@Test
+	public void issuerWhenOidcFallbackResponseIsMalformedThenThrowsRuntimeException() {
+		prepareConfigurationResponseForOidcFallback("", "malformed");
 		assertThatCode(() -> JwtDecoders.fromOidcIssuerLocation(this.issuer))
 				.isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
 	public void issuerWhenOauth2ResponseIsMalformedThenThrowsRuntimeException() {
-		prepareConfigurationResponse("malformed");
-
-		assertThatCode(() -> JwtDecoders.fromOAuth2IssuerLocation(this.issuer))
+		prepareConfigurationResponseForOauth2("", "malformed");
+		assertThatCode(() -> JwtDecoders.fromIssuerLocation(this.issuer))
 				.isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
 	public void issuerWhenRespondingIssuerMismatchesRequestedIssuerThenThrowsIllegalStateException() {
 		prepareConfigurationResponse();
-
 		assertThatCode(() -> JwtDecoders.fromOidcIssuerLocation(this.issuer + "/wrong"))
 				.isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
-	public void issuerWhenOauth2RespondingIssuerMismatchesRequestedIssuerThenThrowsIllegalStateException() {
-		prepareConfigurationResponse();
+	public void issuerWhenOidcFallbackRespondingIssuerMismatchesRequestedIssuerThenThrowsIllegalStateException() {
+		prepareConfigurationResponseForOidcFallback("", null);
+		assertThatCode(() -> JwtDecoders.fromIssuerLocation(this.issuer + "/wrong"))
+				.isInstanceOf(IllegalStateException.class);
+	}
 
-		assertThatCode(() -> JwtDecoders.fromOAuth2IssuerLocation(this.issuer + "/wrong"))
+	@Test
+	public void issuerWhenOauth2RespondingIssuerMismatchesRequestedIssuerThenThrowsIllegalStateException() {
+		prepareConfigurationResponseForOauth2("", null);
+		assertThatCode(() -> JwtDecoders.fromIssuerLocation(this.issuer + "/wrong"))
 				.isInstanceOf(IllegalStateException.class);
 	}
 
@@ -181,36 +214,13 @@ public class JwtDecodersTests {
 	}
 
 	@Test
-	public void issuerWhenOauth2RequestedIssuerIsUnresponsiveThenThrowsIllegalArgumentException()
+	public void issuerWhenOidcFallbackRequestedIssuerIsUnresponsiveThenThrowsIllegalArgumentException()
 			throws Exception {
 
 		this.server.shutdown();
 
-		assertThatCode(() -> JwtDecoders.fromOAuth2IssuerLocation("https://issuer"))
+		assertThatCode(() -> JwtDecoders.fromIssuerLocation("https://issuer"))
 				.isInstanceOf(IllegalArgumentException.class);
-	}
-
-	/**
-	 *
-	 * Test compatibility with Legacy Oidc Discovery Endpoint. The first request is made to issuer with
-	 * path "/.well-known/openid-configuration/issuer1" and if the response status 404 then a subsequent
-	 * request is made to "/issuer1/.well-known/openid-configruation" as shown below.
-	 *
-	 * GET /.well-known/openid-configuration/issuer1 HTTP/1.1 and responded: HTTP/1.1 404 Client Error
-	 *
-	 * and subsequent attempt
-	 *
-	 * GET /issuer1/.well-known/openid-configuration HTTP/1.1 and responded: HTTP/1.1 200 OK
-	 *
-	 * See <a href="https://tools.ietf.org/html/rfc8414#section-5">Section 5</a> for more information.
-	 *
-	 * @throws Exception
-	 */
-	@Test
-	public void issuerWhenLegacyOidcDiscoveryEndpointAllInformationThenSuccess() throws Exception {
-		prepareConfigurationResponseForCompatibility("issuer1");
-		assertThat(JwtDecoders.fromOidcIssuerLocation(this.issuer)).isNotNull();
-		assertThat(this.issuer).endsWith("/issuer1");
 	}
 
 	private void prepareConfigurationResponse() {
@@ -225,23 +235,66 @@ public class JwtDecodersTests {
 		this.server.enqueue(mockResponse);
 	}
 
-	private void prepareConfigurationResponseForCompatibility(String path) {
+	/**
+	 * A mock server that responds to API requests for OIDC (i.e. openid-configuration) metadata endpoint when the
+	 * request path matches the switch case.
+	 *
+	 * @param path
+	 * @param body
+	 */
+	private void prepareConfigurationResponseForOidcFallback(String path, String body) {
 		this.issuer = this.server.url(path).toString();
-		String body = String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, this.issuer);
+		String responseBody = body != null ? body : String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, this.issuer);
 
 		final Dispatcher dispatcher = new Dispatcher() {
 			@Override
-			public MockResponse dispatch(RecordedRequest request) throws
-					InterruptedException {
-				if (request.getPath().indexOf(path + "/.well-known/openid-configuration") != -1) {
-					return new MockResponse().setResponseCode(200)
-							.setBody(body)
-							.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+			public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+				switch(request.getPath()) {
+					case "/issuer1/.well-known/openid-configuration":
+					case "/wrong/.well-known/openid-configuration":
+						return buildSuccessMockResponse(responseBody);
+					case "/issuer1/.well-known/jwks.json":
+						return buildSuccessMockResponse(JWK_SET);
+
 				}
 				return new MockResponse().setResponseCode(404);
 			}
 		};
 		this.server.setDispatcher(dispatcher);
+	}
+
+	/**
+	 * A mock server that responds to API requests for OAuth2 (oauth-authorization-server) metadata endpoint when the
+	 * request path matches the switch case.
+	 *
+	 * @param path
+	 * @param body
+	 */
+	private void prepareConfigurationResponseForOauth2(String path, String body) {
+		this.issuer = this.server.url(path).toString();
+		final String responseBody = body != null ? body : String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, this.issuer);
+
+		final Dispatcher dispatcher = new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+				switch(request.getPath()) {
+					case "/.well-known/oauth-authorization-server/issuer1":
+					case "/.well-known/oauth-authorization-server/wrong":
+					case "/.well-known/oauth-authorization-server/":
+						return buildSuccessMockResponse(responseBody);
+					case "/issuer1/.well-known/jwks.json":
+						return buildSuccessMockResponse(JWK_SET);
+				}
+				return new MockResponse().setResponseCode(404);
+			}
+		};
+		this.server.setDispatcher(dispatcher);
+	}
+
+	private MockResponse buildSuccessMockResponse(String body) {
+		return new MockResponse().setResponseCode(200)
+				.setBody(body)
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 	}
 
 	private String createIssuerFromServer() {
