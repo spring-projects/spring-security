@@ -28,7 +28,7 @@ Contains the top-level packages:
 
 [[spring-security-remoting]]
 == Remoting - spring-security-remoting.jar
-Provides intergration with Spring Remoting.
+Provides integration with Spring Remoting.
 You don't need this unless you are writing a remote client which uses Spring Remoting.
 The main package is `org.springframework.security.remoting`.
 
