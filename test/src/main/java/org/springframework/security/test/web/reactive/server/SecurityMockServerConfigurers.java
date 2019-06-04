@@ -152,6 +152,21 @@ public class SecurityMockServerConfigurers {
 		return new JwtMutator(jwtBuilder.build());
 	}
 
+	/**
+	 * Updates the ServerWebExchange to establish a {@link SecurityContext} that has a
+	 * {@link JwtAuthenticationToken} for the
+	 * {@link Authentication} and a {@link Jwt} for the
+	 * {@link Authentication#getPrincipal()}. All details are
+	 * declarative and do not require the JWT to be valid.
+	 *
+	 * @param jwt The preliminary constructed {@link Jwt}
+	 * @return the {@link JwtMutator} to further configure or use
+	 * @since 5.2
+	 */
+	public static JwtMutator mockJwt(Jwt jwt) {
+		return new JwtMutator(jwt);
+	}
+
 	public static CsrfMutator csrf() {
 		return new CsrfMutator();
 	}
