@@ -15,8 +15,12 @@
  */
 package org.springframework.security.test.web.reactive.server;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +33,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.reactive.result.method.annotation.CurrentSecurityContextArgumentResolver;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
@@ -135,5 +141,26 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 		SecurityContext context = securityContextController.removeSecurityContext();
 		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
 				.containsOnly(this.authority1);
+	}
+
+	@Test
+	public void mockJwtWhenProvidingPreparedJwtThenProducesJwtAuthentication() {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put(IdTokenClaimNames.SUB, "some_user");
+		Jwt originalToken = new Jwt("token123", Instant.now(), Instant.now().plusSeconds(3600),
+				Collections.singletonMap("header1", "value1"), claims);
+		client
+				.mutateWith(mockJwt(originalToken))
+				.get()
+				.exchange()
+				.expectStatus().isOk();
+
+		SecurityContext context = securityContextController.removeSecurityContext();
+		assertThat(context.getAuthentication()).isInstanceOf(
+				JwtAuthenticationToken.class);
+		JwtAuthenticationToken retrievedToken = (JwtAuthenticationToken) context.getAuthentication();
+		assertThat(retrievedToken.getToken().getSubject()).isEqualTo("some_user");
+		assertThat(retrievedToken.getToken().getTokenValue()).isEqualTo("token123");
+		assertThat(retrievedToken.getToken().getHeaders().get("header1")).isEqualTo("value1");
 	}
 }
