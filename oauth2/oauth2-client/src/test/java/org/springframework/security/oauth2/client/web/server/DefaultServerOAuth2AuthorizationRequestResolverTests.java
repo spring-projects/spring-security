@@ -91,6 +91,20 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	}
 
 	@Test
+	public void resolveWhenForwardedHeadersClientRegistrationFoundThenWorks() {
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(
+				Mono.just(this.registration));
+		ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/oauth2/authorization/id").header("X-Forwarded-Host", "evil.com"));
+
+		OAuth2AuthorizationRequest request = this.resolver.resolve(exchange).block();
+
+		assertThat(request.getAuthorizationRequestUri()).matches("https://example.com/login/oauth/authorize\\?" +
+				"response_type=code&client_id=client-id&" +
+				"scope=read:user&state=.*?&" +
+				"redirect_uri=/login/oauth2/code/registration-id");
+	}
+
+	@Test
 	public void resolveWhenAuthorizationRequestWithValidPkceClientThenResolves() {
 		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(
 				Mono.just(TestClientRegistrations.clientRegistration()
