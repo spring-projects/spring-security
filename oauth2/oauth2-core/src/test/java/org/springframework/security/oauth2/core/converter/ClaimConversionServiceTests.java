@@ -88,7 +88,7 @@ public class ClaimConversionServiceTests {
 
 	@Test
 	public void convertInstantWhenDateThenConverts() {
-		Instant instant = Instant.now();
+		Instant instant = new Date().toInstant();
 		assertThat(this.conversionService.convert(Date.from(instant), Instant.class)).isEqualTo(instant);
 	}
 
