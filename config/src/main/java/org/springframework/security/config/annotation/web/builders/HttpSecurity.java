@@ -464,7 +464,7 @@ public final class HttpSecurity extends
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and()
 	 * 		// Example jee() configuration
-	 * 				.jee().mappableRoles(&quot;ROLE_USER&quot;, &quot;ROLE_ADMIN&quot;);
+	 * 				.jee().mappableRoles(&quot;USER&quot;, &quot;ADMIN&quot;);
 	 * 	}
 	 * }
 	 * </pre>
