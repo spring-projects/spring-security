@@ -863,11 +863,7 @@ public class ServerHttpSecurity {
 		}
 
 		private ServerWebExchangeMatcher createAttemptAuthenticationRequestMatcher() {
-			PathPatternParserServerWebExchangeMatcher loginPathMatcher = new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}");
-			ServerWebExchangeMatcher notAuthenticatedMatcher = e  -> ReactiveSecurityContextHolder.getContext()
-					.flatMap(p -> ServerWebExchangeMatcher.MatchResult.notMatch())
-					.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.match());
-			return new AndServerWebExchangeMatcher(loginPathMatcher, notAuthenticatedMatcher);
+			return new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}");
 		}
 
 		private ReactiveOAuth2UserService<OidcUserRequest, OidcUser> getOidcUserService() {

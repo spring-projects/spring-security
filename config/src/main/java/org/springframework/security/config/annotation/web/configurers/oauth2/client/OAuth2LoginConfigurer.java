@@ -432,9 +432,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 				this.loginProcessingUrl);
 		this.setAuthenticationFilter(authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
-		RequestMatcher authenticationNullMatcher = request -> SecurityContextHolder.getContext().getAuthentication() == null;
-		authenticationFilter.setRequiresAuthenticationRequestMatcher(new AndRequestMatcher(createLoginProcessingUrlMatcher(this.loginProcessingUrl),
-				authenticationNullMatcher));
+		authenticationFilter.setRequiresAuthenticationRequestMatcher(createLoginProcessingUrlMatcher(this.loginProcessingUrl));
 
 		if (this.loginPage != null) {
 			// Set custom login page
