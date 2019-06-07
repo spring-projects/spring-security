@@ -233,4 +233,47 @@ public class RoleHierarchyImplTests {
 				roleHierarchyImpl.getReachableGrantedAuthorities(authorities1),
 				authorities3)).isTrue();
 	}
+
+	// gh-6954
+	@Test
+	public void testJavadoc() {
+		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_A");
+		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_A", "ROLE_B", "ROLE_AUTHENTICATED", "ROLE_UNAUTHENTICATED");
+		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+		roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\n"
+				+ "ROLE_B > ROLE_AUTHENTICATED\n"
+				+ "ROLE_AUTHENTICATED > ROLE_UNAUTHENTICATED");
+
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities)).containsExactlyInAnyOrderElementsOf(allAuthorities);
+	}
+
+	// gh-6954
+	@Test
+	public void testInterfaceJavadoc() {
+		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_HIGHEST");
+		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_HIGHEST", "ROLE_HIGHER", "ROLE_LOW", "ROLE_LOWER");
+		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+		roleHierarchyImpl.setHierarchy("ROLE_HIGHEST > ROLE_HIGHER\n"
+				+ "ROLE_HIGHER > ROLE_LOW\n"
+				+ "ROLE_LOW > ROLE_LOWER");
+
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities)).containsExactlyInAnyOrderElementsOf(allAuthorities);
+	}
+
+	// gh-6954
+	@Test
+	public void singleLineLargeHierarchy() {
+		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_HIGHEST");
+		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_HIGHEST", "ROLE_HIGHER", "ROLE_LOW", "ROLE_LOWER");
+		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+		roleHierarchyImpl.setHierarchy("ROLE_HIGHEST > ROLE_HIGHER > ROLE_LOW > ROLE_LOWER");
+
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities)).containsExactlyInAnyOrderElementsOf(allAuthorities);
+	}
 }
