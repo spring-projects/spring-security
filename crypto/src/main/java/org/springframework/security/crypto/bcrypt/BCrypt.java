@@ -780,6 +780,10 @@ public class BCrypt {
 		// Extract number of rounds
 		if (salt.charAt(off + 2) > '$')
 			throw new IllegalArgumentException ("Missing salt rounds");
+
+		if (off == 4 && saltLength < 29) {
+			throw new IllegalArgumentException("Invalid salt");
+		}
 		rounds = Integer.parseInt(salt.substring(off, off + 2));
 
 		real_salt = salt.substring(off + 3, off + 25);

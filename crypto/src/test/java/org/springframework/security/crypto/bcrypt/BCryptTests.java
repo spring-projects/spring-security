@@ -338,6 +338,11 @@ public class BCryptTests {
 				"$2$05$......................bvpG2UfzdyW/S0ny/4YyEZrmczoJfVm");
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void hashpwFailsWhenSaltIsTooShort() {
+		BCrypt.hashpw("password", "$2a$10$123456789012345678901");
+	}
+
 	@Test
 	public void equalsOnStringsIsCorrect() {
 		assertThat(BCrypt.equalsNoEarlyReturn("", "")).isTrue();
