@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -39,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Josh Cummings
  */
 public class ReactiveJwtAuthenticationConverterAdapterTests {
-	JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+	Converter<Jwt, AbstractAuthenticationToken> converter = new JwtAuthenticationConverter();
 	ReactiveJwtAuthenticationConverterAdapter jwtAuthenticationConverter =
 			new ReactiveJwtAuthenticationConverterAdapter(converter);
 
