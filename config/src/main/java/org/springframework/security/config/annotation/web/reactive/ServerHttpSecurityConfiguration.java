@@ -42,7 +42,7 @@ import org.springframework.web.reactive.result.method.annotation.ArgumentResolve
  * @author Dan Zheng
  * @since 5.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class ServerHttpSecurityConfiguration {
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.HttpSecurityConfiguration.";
 	private static final String HTTPSECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "httpSecurity";

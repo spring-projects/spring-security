@@ -542,7 +542,7 @@ public class AuthenticationConfigurationTests {
 				.isInstanceOf(AlreadyBuiltException.class);
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class AuthenticationConfigurationSubclass extends AuthenticationConfiguration {
 	}
 }

@@ -38,7 +38,7 @@ import org.springframework.web.reactive.result.view.AbstractView;
  * @author Rob Winch
  * @since 5.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class WebFluxSecurityConfiguration {
 	public static final int WEB_FILTER_CHAIN_FILTER_ORDER = 0 - 100;
 

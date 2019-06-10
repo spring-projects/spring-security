@@ -38,7 +38,7 @@ import java.util.Arrays;
  * @author Tadaya Tsuyukubo
  * @since 5.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class ReactiveMethodSecurityConfiguration implements ImportAware {
 	private int advisorOrder;
 

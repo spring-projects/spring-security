@@ -89,7 +89,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 	}
 
 	@Test
-	public void rolePrefixWithGrantedAuthorityDefaultsAndSubclassWithProxyingDisabled() {
+	public void rolePrefixWithGrantedAuthorityDefaultsAndSubclassWithProxyingEnabled() {
 		this.spring.register(SubclassConfig.class).autowire();
 
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
@@ -105,7 +105,7 @@ public class ReactiveMethodSecurityConfigurationTests {
 		assertThat(root.hasRole("ABC")).isTrue();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class SubclassConfig extends ReactiveMethodSecurityConfiguration {
 	}
 }

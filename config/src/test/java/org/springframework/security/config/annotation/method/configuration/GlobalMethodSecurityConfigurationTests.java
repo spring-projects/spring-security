@@ -557,7 +557,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	@Test
 	public void methodSecurityInterceptorUsesMetadataSourceBeanWhenProxyingDisabled() {
-		this.spring.register(CustomMetadataSourceProxylessConfig.class).autowire();
+		this.spring.register(CustomMetadataSourceBeanProxyEnabledConfig.class).autowire();
 		MethodSecurityInterceptor methodInterceptor =
 				(MethodSecurityInterceptor) this.spring.getContext().getBean(MethodInterceptor.class);
 		MethodSecurityMetadataSource methodSecurityMetadataSource =
@@ -567,7 +567,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	}
 
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
-	@Configuration(proxyBeanMethods = false)
-	public static class CustomMetadataSourceProxylessConfig extends GlobalMethodSecurityConfiguration {
+	@Configuration
+	public static class CustomMetadataSourceBeanProxyEnabledConfig extends GlobalMethodSecurityConfiguration {
 	}
 }

@@ -406,7 +406,7 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenProxyingDisabledAndSubclassThenFilterChainsCreated() {
+	public void loadConfigWhenBeanProxyingEnabledAndSubclassThenFilterChainsCreated() {
 		this.spring.register(GlobalAuthenticationWebSecurityConfigurerAdaptersConfig.class, SubclassConfig.class).autowire();
 
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
@@ -415,7 +415,7 @@ public class WebSecurityConfigurationTests {
 		assertThat(filterChains).hasSize(4);
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class SubclassConfig extends WebSecurityConfiguration {
 	}
 

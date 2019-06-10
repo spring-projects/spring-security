@@ -58,7 +58,7 @@ final class OAuth2ClientConfiguration {
 		}
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	static class OAuth2ClientWebMvcSecurityConfiguration implements WebMvcConfigurer {
 		private ClientRegistrationRepository clientRegistrationRepository;
 		private OAuth2AuthorizedClientRepository authorizedClientRepository;

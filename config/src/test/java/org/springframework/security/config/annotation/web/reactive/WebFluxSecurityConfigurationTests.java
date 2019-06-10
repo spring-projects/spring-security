@@ -44,7 +44,7 @@ public class WebFluxSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenProxyingDisabledAndSubclassThenWebFilterChainProxyExists() {
+	public void loadConfigWhenBeanProxyingEnabledAndSubclassThenWebFilterChainProxyExists() {
 		this.spring.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
 				WebFluxSecurityConfigurationTests.SubclassConfig.class).autowire();
 		WebFilterChainProxy webFilterChainProxy = this.spring.getContext().getBean(WebFilterChainProxy.class);
@@ -52,7 +52,7 @@ public class WebFluxSecurityConfigurationTests {
 		assertThat(webFilterChainProxy).isNotNull();
 	}
 
-	@Configuration(proxyBeanMethods = false)
+	@Configuration
 	static class SubclassConfig extends WebFluxSecurityConfiguration {
 	}
 }

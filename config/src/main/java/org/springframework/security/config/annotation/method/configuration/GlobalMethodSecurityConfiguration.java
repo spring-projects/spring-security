@@ -79,7 +79,7 @@ import org.springframework.util.Assert;
  * @since 3.2
  * @see EnableGlobalMethodSecurity
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class GlobalMethodSecurityConfiguration
 		implements ImportAware, SmartInitializingSingleton, BeanFactoryAware {
 	private static final Log logger = LogFactory
