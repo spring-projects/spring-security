@@ -63,7 +63,7 @@ import org.springframework.security.web.context.AbstractSecurityWebApplicationIn
  * @author Keesun Baik
  * @since 3.2
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAware {
 	private WebSecurity webSecurity;
 

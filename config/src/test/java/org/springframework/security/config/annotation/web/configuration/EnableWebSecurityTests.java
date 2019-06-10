@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,6 +120,70 @@ public class EnableWebSecurityTests {
 			String principal(@AuthenticationPrincipal String principal) {
 				return principal;
 			}
+		}
+	}
+
+	@Test
+	public void enableWebSecurityWhenNoConfigurationAnnotationThenBeanProxyingEnabled() {
+		this.spring.register(BeanProxyEnabledByDefaultConfig.class).autowire();
+
+		Child childBean = this.spring.getContext().getBean(Child.class);
+		Parent parentBean = this.spring.getContext().getBean(Parent.class);
+
+		assertThat(parentBean.getChild()).isSameAs(childBean);
+	}
+
+	@EnableWebSecurity
+	static class BeanProxyEnabledByDefaultConfig extends WebSecurityConfigurerAdapter {
+		@Bean
+		public Child child() {
+			return new Child();
+		}
+
+		@Bean
+		public Parent parent() {
+			return new Parent(child());
+		}
+	}
+
+	@Test
+	public void enableWebSecurityWhenProxyBeanMethodsFalseThenBeanProxyingDisabled() {
+		this.spring.register(BeanProxyDisabledConfig.class).autowire();
+
+		Child childBean = this.spring.getContext().getBean(Child.class);
+		Parent parentBean = this.spring.getContext().getBean(Parent.class);
+
+		assertThat(parentBean.getChild()).isNotSameAs(childBean);
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableWebSecurity
+	static class BeanProxyDisabledConfig extends WebSecurityConfigurerAdapter {
+		@Bean
+		public Child child() {
+			return new Child();
+		}
+
+		@Bean
+		public Parent parent() {
+			return new Parent(child());
+		}
+	}
+
+	static class Parent {
+		private Child child;
+
+		Parent(Child child) {
+			this.child = child;
+		}
+
+		public Child getChild() {
+			return child;
+		}
+	}
+
+	static class Child {
+		Child() {
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -366,5 +367,71 @@ public class EnableWebFluxSecurityTests {
 		DataBuffer buffer = new DefaultDataBufferFactory().allocateBuffer();
 		buffer.write(body.getBytes(StandardCharsets.UTF_8));
 		return buffer;
+	}
+
+	@Test
+	public void enableWebFluxSecurityWhenNoConfigurationAnnotationThenBeanProxyingEnabled() {
+		this.spring.register(BeanProxyEnabledByDefaultConfig.class).autowire();
+
+		Child childBean = this.spring.getContext().getBean(Child.class);
+		Parent parentBean = this.spring.getContext().getBean(Parent.class);
+
+		assertThat(parentBean.getChild()).isSameAs(childBean);
+	}
+
+	@EnableWebFluxSecurity
+	@Import(ReactiveAuthenticationTestConfiguration.class)
+	static class BeanProxyEnabledByDefaultConfig {
+		@Bean
+		public Child child() {
+			return new Child();
+		}
+
+		@Bean
+		public Parent parent() {
+			return new Parent(child());
+		}
+	}
+
+	@Test
+	public void enableWebFluxSecurityWhenProxyBeanMethodsFalseThenBeanProxyingDisabled() {
+		this.spring.register(BeanProxyDisabledConfig.class).autowire();
+
+		Child childBean = this.spring.getContext().getBean(Child.class);
+		Parent parentBean = this.spring.getContext().getBean(Parent.class);
+
+		assertThat(parentBean.getChild()).isNotSameAs(childBean);
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableWebFluxSecurity
+	@Import(ReactiveAuthenticationTestConfiguration.class)
+	static class BeanProxyDisabledConfig {
+		@Bean
+		public Child child() {
+			return new Child();
+		}
+
+		@Bean
+		public Parent parent() {
+			return new Parent(child());
+		}
+	}
+
+	static class Parent {
+		private Child child;
+
+		Parent(Child child) {
+			this.child = child;
+		}
+
+		public Child getChild() {
+			return child;
+		}
+	}
+
+	static class Child {
+		Child() {
+		}
 	}
 }

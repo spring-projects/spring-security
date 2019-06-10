@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  * @since 3.2
  *
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Import(ObjectPostProcessorConfiguration.class)
 public class AuthenticationConfiguration {
 
