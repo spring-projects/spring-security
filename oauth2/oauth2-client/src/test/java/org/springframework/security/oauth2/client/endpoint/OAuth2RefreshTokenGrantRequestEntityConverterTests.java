@@ -1,0 +1,77 @@
+/*
+ * Copyright 2002-2019 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.springframework.security.oauth2.client.endpoint;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
+import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.util.MultiValueMap;
+
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+
+/**
+ * Tests for {@link OAuth2RefreshTokenGrantRequestEntityConverter}.
+ *
+ * @author Joe Grandja
+ */
+public class OAuth2RefreshTokenGrantRequestEntityConverterTests {
+	private OAuth2RefreshTokenGrantRequestEntityConverter converter = new OAuth2RefreshTokenGrantRequestEntityConverter();
+	private OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest;
+
+	@Before
+	public void setup() {
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(TestClientRegistrations.clientRegistration().build(),
+				"principal", TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken());
+		this.refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(authorizedClient, Collections.singleton("read"));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void convertWhenGrantRequestValidThenConverts() {
+		RequestEntity<?> requestEntity = this.converter.convert(this.refreshTokenGrantRequest);
+
+		OAuth2AuthorizedClient authorizedClient = this.refreshTokenGrantRequest.getAuthorizedClient();
+
+		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
+		assertThat(requestEntity.getUrl().toASCIIString()).isEqualTo(
+				authorizedClient.getClientRegistration().getProviderDetails().getTokenUri());
+
+		HttpHeaders headers = requestEntity.getHeaders();
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
+		assertThat(headers.getContentType()).isEqualTo(
+				MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
+		assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).startsWith("Basic ");
+
+		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE)).isEqualTo(
+				AuthorizationGrantType.REFRESH_TOKEN.getValue());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.REFRESH_TOKEN)).isEqualTo(
+				authorizedClient.getRefreshToken().getTokenValue());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read");
+	}
+}
