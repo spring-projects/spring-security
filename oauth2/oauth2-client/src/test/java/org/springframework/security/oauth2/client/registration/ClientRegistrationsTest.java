@@ -16,24 +16,23 @@
 
 package org.springframework.security.oauth2.client.registration;
 
+import java.util.Arrays;
+import java.util.Map;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-
-import java.util.Arrays;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -147,8 +146,8 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOauth2AllInformationThenSuccess() throws Exception {
-		ClientRegistration registration = registrationOauth2("", null).build();
+	public void issuerWhenOAuth2AllInformationThenSuccess() throws Exception {
+		ClientRegistration registration = registrationOAuth2("", null).build();
 		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
 		assertIssuerMetadata(registration, provider);
 	}
@@ -182,8 +181,8 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOauth2ContainsTrailingSlashThenSuccess() throws Exception {
-		assertThat(registrationOauth2("", null)).isNotNull();
+	public void issuerWhenOAuth2ContainsTrailingSlashThenSuccess() throws Exception {
+		assertThat(registrationOAuth2("", null)).isNotNull();
 		assertThat(this.issuer).endsWith("/");
 	}
 
@@ -213,10 +212,10 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOauth2ScopesNullThenScopesDefaulted() throws Exception {
+	public void issuerWhenOAuth2ScopesNullThenScopesDefaulted() throws Exception {
 		this.response.remove("scopes_supported");
 
-		ClientRegistration registration = registrationOauth2("", null).build();
+		ClientRegistration registration = registrationOAuth2("", null).build();
 
 		assertThat(registration.getScopes()).containsOnly("openid");
 	}
@@ -232,10 +231,10 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOauth2GrantTypesSupportedNullThenDefaulted() throws Exception {
+	public void issuerWhenOAuth2GrantTypesSupportedNullThenDefaulted() throws Exception {
 		this.response.remove("grant_types_supported");
 
-		ClientRegistration registration = registrationOauth2("", null).build();
+		ClientRegistration registration = registrationOAuth2("", null).build();
 
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
@@ -254,10 +253,10 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOauth2GrantTypesSupportedInvalidThenException() throws Exception {
+	public void issuerWhenOAuth2GrantTypesSupportedInvalidThenException() throws Exception {
 		this.response.put("grant_types_supported", Arrays.asList("implicit"));
 
-		assertThatThrownBy(() -> registrationOauth2("", null))
+		assertThatThrownBy(() -> registrationOAuth2("", null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \"" + this.issuer + "\" returned a configuration of [implicit]");
 	}
@@ -272,10 +271,10 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOauth2TokenEndpointAuthMethodsNullThenDefaulted() throws Exception {
+	public void issuerWhenOAuth2TokenEndpointAuthMethodsNullThenDefaulted() throws Exception {
 		this.response.remove("token_endpoint_auth_methods_supported");
 
-		ClientRegistration registration = registrationOauth2("", null).build();
+		ClientRegistration registration = registrationOAuth2("", null).build();
 
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 	}
@@ -290,10 +289,10 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOauth2TokenEndpointAuthMethodsPostThenMethodIsPost() throws Exception {
+	public void issuerWhenOAuth2TokenEndpointAuthMethodsPostThenMethodIsPost() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("client_secret_post"));
 
-		ClientRegistration registration = registrationOauth2("", null).build();
+		ClientRegistration registration = registrationOAuth2("", null).build();
 
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.POST);
 	}
@@ -308,10 +307,10 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOauth2TokenEndpointAuthMethodsNoneThenMethodIsNone() throws Exception {
+	public void issuerWhenOAuth2TokenEndpointAuthMethodsNoneThenMethodIsNone() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("none"));
 
-		ClientRegistration registration = registrationOauth2("", null).build();
+		ClientRegistration registration = registrationOAuth2("", null).build();
 
 		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.NONE);
 	}
@@ -330,24 +329,24 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOauth2TokenEndpointAuthMethodsInvalidThenException() throws Exception {
+	public void issuerWhenOAuth2TokenEndpointAuthMethodsInvalidThenException() throws Exception {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
 
-		assertThatThrownBy(() -> registrationOauth2("", null))
+		assertThatThrownBy(() -> registrationOAuth2("", null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and ClientAuthenticationMethod.NONE are supported. The issuer \"" + this.issuer + "\" returned a configuration of [tls_client_auth]");
 	}
 
 	@Test
-	public void issuerWhenOauth2EmptyStringThenMeaningfulErrorMessage() {
+	public void issuerWhenOAuth2EmptyStringThenMeaningfulErrorMessage() {
 		assertThatThrownBy(() -> ClientRegistrations.fromIssuerLocation(""))
-				.hasMessageContaining("Unable to resolve Configuration with the provided Issuer of \"\"");
+				.hasMessageContaining("issuer cannot be empty");
 	}
 
 	@Test
 	public void issuerWhenEmptyStringThenMeaningfulErrorMessage() {
 		assertThatThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(""))
-				.hasMessageContaining("Unable to resolve Configuration with the provided Issuer of \"\"");
+				.hasMessageContaining("issuer cannot be empty");
 	}
 
 	@Test
@@ -363,7 +362,7 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOauth2ConfigurationDoesNotMatchThenMeaningfulErrorMessage()  throws Exception {
+	public void issuerWhenOAuth2ConfigurationDoesNotMatchThenMeaningfulErrorMessage()  throws Exception {
 		this.issuer = createIssuerFromServer("");
 		String body = this.mapper.writeValueAsString(this.response);
 		MockResponse mockResponse = new MockResponse()
@@ -388,7 +387,7 @@ public class ClientRegistrationsTest {
 			.clientSecret("client-secret");
 	}
 
-	private ClientRegistration.Builder registrationOauth2(String path, String body) throws Exception {
+	private ClientRegistration.Builder registrationOAuth2(String path, String body) throws Exception {
 		this.issuer = createIssuerFromServer(path);
 		this.response.put("issuer", this.issuer);
 		this.issuer = this.server.url(path).toString();
@@ -435,7 +434,6 @@ public class ClientRegistrationsTest {
 		final Dispatcher dispatcher = new Dispatcher() {
 			@Override
 			public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-				System.out.println("request.getPath:" + request.getPath());
 				switch(request.getPath()) {
 					case "/issuer1/.well-known/openid-configuration":
 					case "/.well-known/openid-configuration/":
