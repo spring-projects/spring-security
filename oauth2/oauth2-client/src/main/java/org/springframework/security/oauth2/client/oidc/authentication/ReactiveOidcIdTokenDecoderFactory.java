@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
@@ -73,7 +74,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER =
 			new ClaimTypeConverter(createDefaultClaimTypeConverters());
 	private final Map<String, ReactiveJwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
-	private Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = OidcIdTokenValidator::new;
+	private Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = new DefaultOidcIdTokenValidatorFactory();
 	private Function<ClientRegistration, JwsAlgorithm> jwsAlgorithmResolver = clientRegistration -> SignatureAlgorithm.RS256;
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory =
 			clientRegistration -> DEFAULT_CLAIM_TYPE_CONVERTER;
@@ -189,7 +190,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 
 	/**
 	 * Sets the factory that provides an {@link OAuth2TokenValidator}, which is used by the {@link ReactiveJwtDecoder}.
-	 * The default is {@link OidcIdTokenValidator}.
+	 * The default composes {@link JwtTimestampValidator} and {@link OidcIdTokenValidator}.
 	 *
 	 * @param jwtValidatorFactory the factory that provides an {@link OAuth2TokenValidator}
 	 */
