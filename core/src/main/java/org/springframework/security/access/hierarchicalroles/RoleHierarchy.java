@@ -33,7 +33,7 @@ public interface RoleHierarchy {
 	 * that are (transitively) reachable from them in the role hierarchy.
 	 * <p>
 	 * Example:<br>
-	 * Role hierarchy: ROLE_A &gt; ROLE_B and ROLE_B &gt; ROLE_C.<br>
+	 * Role hierarchy: ROLE_A &gt; ROLE_B &gt; ROLE_C.<br>
 	 * Directly assigned authority: ROLE_A.<br>
 	 * Reachable authorities: ROLE_A, ROLE_B, ROLE_C.
 	 *
