@@ -100,6 +100,16 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
+	 * Get {@link Jwt} validator.
+	 * 
+	 * @since 5.2
+	 * @return jwt validator
+	 */
+	public OAuth2TokenValidator<Jwt> getJwtValidator() {
+		return this.jwtValidator;
+	}
+
+	/**
 	 * Use the following {@link Converter} for manipulating the JWT's claim set
 	 *
 	 * @param claimSetConverter the {@link Converter} to use
