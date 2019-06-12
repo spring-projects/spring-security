@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
+import org.springframework.security.oauth2.client.ClientCredentialsOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -42,6 +44,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -67,6 +70,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	private OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private OAuth2AuthorizedClientArgumentResolver argumentResolver;
 	private MockHttpServletRequest request;
+	private MockHttpServletResponse response;
 
 	@Before
 	public void setup() {
@@ -109,6 +113,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 				eq(this.registration2.getRegistrationId()), any(Authentication.class), any(HttpServletRequest.class)))
 				.thenReturn(this.authorizedClient2);
 		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
 	}
 
 	@After
@@ -125,6 +130,12 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	@Test
 	public void constructorWhenOAuth2AuthorizedClientRepositoryIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(this.clientRegistrationRepository, null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setAuthorizedClientProviderWhenProviderIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.argumentResolver.setAuthorizedClientProvider(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -206,7 +217,12 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	public void resolveArgumentWhenAuthorizedClientNotFoundForClientCredentialsClientThenResolvesFromTokenResponseClient() throws Exception {
 		OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient =
 				mock(OAuth2AccessTokenResponseClient.class);
-		this.argumentResolver.setClientCredentialsTokenResponseClient(clientCredentialsTokenResponseClient);
+		ClientCredentialsOAuth2AuthorizedClientProvider clientCredentialsAuthorizedClientProvider =
+				new ClientCredentialsOAuth2AuthorizedClientProvider(
+						this.clientRegistrationRepository, this.authorizedClientRepository);
+		clientCredentialsAuthorizedClientProvider.setAccessTokenResponseClient(clientCredentialsTokenResponseClient);
+		this.argumentResolver.setAuthorizedClientProvider(clientCredentialsAuthorizedClientProvider);
+
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
 				.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER)
@@ -219,7 +235,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		MethodParameter methodParameter = this.getMethodParameter("clientCredentialsClient", OAuth2AuthorizedClient.class);
 
 		OAuth2AuthorizedClient authorizedClient = (OAuth2AuthorizedClient) this.argumentResolver.resolveArgument(
-				methodParameter, null, new ServletWebRequest(this.request), null);
+				methodParameter, null, new ServletWebRequest(this.request, this.response), null);
 
 		assertThat(authorizedClient).isNotNull();
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.registration2);
@@ -227,7 +243,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		assertThat(authorizedClient.getAccessToken()).isSameAs(accessTokenResponse.getAccessToken());
 
 		verify(this.authorizedClientRepository).saveAuthorizedClient(
-				eq(authorizedClient), eq(this.authentication), any(HttpServletRequest.class), eq(null));
+				eq(authorizedClient), eq(this.authentication), any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	private MethodParameter getMethodParameter(String methodName, Class<?>... paramTypes) {
