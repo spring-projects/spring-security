@@ -120,13 +120,13 @@ public class SessionRegistryImpl implements SessionRegistry,
 		Assert.hasText(sessionId, "SessionId required as per interface contract");
 		Assert.notNull(principal, "Principal required as per interface contract");
 
+		if (getSessionInformation(sessionId) != null) {
+			removeSessionInformation(sessionId);
+		}
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("Registering session " + sessionId + ", for principal "
 					+ principal);
-		}
-
-		if (getSessionInformation(sessionId) != null) {
-			removeSessionInformation(sessionId);
 		}
 
 		sessionIds.put(sessionId,
