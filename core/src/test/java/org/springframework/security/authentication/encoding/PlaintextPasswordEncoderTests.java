@@ -70,4 +70,10 @@ public class PlaintextPasswordEncoderTests {
 		assertThat(demerged[0]).isEqualTo("password");
 		assertThat(demerged[1]).isEqualTo("foo");
 	}
+
+	@Test
+	public void testNull() {
+		PlaintextPasswordEncoder encoder = new PlaintextPasswordEncoder();
+		assertThat(encoder.isPasswordValid(null, "null", null)).isFalse();
+	}
 }
