@@ -17,7 +17,6 @@ package sample;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -27,12 +26,14 @@ import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.oauth2.server.resource.introspection.NimbusOAuth2TokenIntrospectionClient;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2TokenIntrospectionClient;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.introspection.NimbusOAuth2TokenIntrospectionClient;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2TokenIntrospectionClient;
+
+import static org.springframework.security.web.authentication.MultiTenantAuthenticationManagerResolver.resolveFromPath;
 
 /**
  * @author Josh Cummings
@@ -64,13 +65,7 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 		Map<String, AuthenticationManager> authenticationManagers = new HashMap<>();
 		authenticationManagers.put("tenantOne", jwt());
 		authenticationManagers.put("tenantTwo", opaque());
-		return request -> {
-			String[] pathParts = request.getRequestURI().split("/");
-			String tenantId = pathParts.length > 0 ? pathParts[1] : null;
-			return Optional.ofNullable(tenantId)
-					.map(authenticationManagers::get)
-					.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
-		};
+		return resolveFromPath(authenticationManagers::get);
 	}
 
 	AuthenticationManager jwt() {
