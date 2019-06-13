@@ -59,7 +59,7 @@ dependencyManagement {
 		dependency 'com.squareup.okhttp3:okhttp:3.14.1'
 		dependency 'com.squareup.okio:okio:1.13.0'
 		dependency 'com.sun.xml.bind:jaxb-core:2.3.0.1'
-		dependency 'com.sun.xml.bind:jaxb-impl:2.3.0.1'
+		dependency 'com.sun.xml.bind:jaxb-impl:2.3.2'
 		dependency 'com.unboundid:unboundid-ldapsdk:4.0.10'
 		dependency 'com.vaadin.external.google:android-json:0.0.20131108.vaadin1'
 		dependency 'commons-cli:commons-cli:1.4'
