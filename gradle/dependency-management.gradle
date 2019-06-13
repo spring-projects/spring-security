@@ -17,7 +17,7 @@ dependencyManagement {
 		mavenBom "org.springframework.data:spring-data-releasetrain:${springDataVersion}"
 	}
 	dependencies {
-		dependency 'cglib:cglib-nodep:3.2.10'
+		dependency 'cglib:cglib-nodep:3.2.12'
 		dependency 'com.squareup.okhttp3:mockwebserver:3.14.1'
 		dependency 'opensymphony:sitemesh:2.4.2'
 		dependency 'org.gebish:geb-spock:0.10.0'
