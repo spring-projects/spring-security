@@ -13,6 +13,7 @@ try {
 		stage('Check') {
 			node {
 				checkout scm
+				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
 						sh "./gradlew clean check  --refresh-dependencies --no-daemon --stacktrace"
@@ -30,6 +31,7 @@ try {
 		stage('Sonar') {
 			node {
 				checkout scm
+				sh "git clean -dfx"
 				withCredentials([string(credentialsId: 'spring-sonar.login', variable: 'SONAR_LOGIN')]) {
 					try {
 						withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
@@ -51,6 +53,7 @@ try {
 		stage('Snapshot Tests') {
 			node {
 				checkout scm
+				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
 						sh "./gradlew clean test -PforceMavenRepositories=snapshot -PspringVersion='5.+' -PreactorVersion=Dysprosium-BUILD-SNAPSHOT -PspringDataVersion=Lovelace-BUILD-SNAPSHOT --refresh-dependencies --no-daemon --stacktrace"
@@ -66,6 +69,7 @@ try {
 		stage('JDK 9') {
 			node {
 				checkout scm
+				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk9' }"]) {
 						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
@@ -81,6 +85,7 @@ try {
 		stage('JDK 10') {
 			node {
 				checkout scm
+				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk10' }"]) {
 						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
@@ -96,6 +101,7 @@ try {
 		stage('JDK 11') {
 			node {
 				checkout scm
+				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk11' }"]) {
 						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
@@ -111,6 +117,7 @@ try {
 		stage('JDK 12') {
 			node {
 				checkout scm
+				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'openjdk12' }"]) {
 						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
@@ -128,6 +135,7 @@ try {
 			stage('Deploy Artifacts') {
 				node {
 					checkout scm
+					sh "git clean -dfx"
 					withCredentials([file(credentialsId: 'spring-signing-secring.gpg', variable: 'SIGNING_KEYRING_FILE')]) {
 						withCredentials([string(credentialsId: 'spring-gpg-passphrase', variable: 'SIGNING_PASSWORD')]) {
 							withCredentials([usernamePassword(credentialsId: 'oss-token', passwordVariable: 'OSSRH_PASSWORD', usernameVariable: 'OSSRH_USERNAME')]) {
@@ -146,6 +154,7 @@ try {
 			stage('Deploy Docs') {
 				node {
 					checkout scm
+					sh "git clean -dfx"
 					withCredentials([file(credentialsId: 'docs.spring.io-jenkins_private_ssh_key', variable: 'DEPLOY_SSH_KEY')]) {
 						withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
 							sh "./gradlew deployDocs -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME --refresh-dependencies --no-daemon --stacktrace"
@@ -158,6 +167,7 @@ try {
 			stage('Deploy Schema') {
 				node {
 					checkout scm
+					sh "git clean -dfx"
 					withCredentials([file(credentialsId: 'docs.spring.io-jenkins_private_ssh_key', variable: 'DEPLOY_SSH_KEY')]) {
 						withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
 							sh "./gradlew deploySchema -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME --refresh-dependencies --no-daemon --stacktrace"
