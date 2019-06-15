@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 /**
  * Tests for {@link ClaimAccessor}.
@@ -100,5 +103,45 @@ public class ClaimAccessorTests {
 		this.claims.put(claimName, null);
 
 		assertThat(this.claimAccessor.getClaimAsString(claimName)).isNull();
+	}
+
+	@Test
+	public void getClaimWhenNotExistingThenReturnNull() {
+		String claimName = "list";
+		List<String> actualClaimValue = this.claimAccessor.getClaim(claimName);
+		assertThat(actualClaimValue).isNull();
+	}
+
+	@Test
+	public void getClaimWhenValueIsConvertedThenReturnList() {
+		List<String> expectedClaimValue = Arrays.asList("item1", "item2");
+		String claimName = "list";
+		this.claims.put(claimName, expectedClaimValue);
+
+		List<String> actualClaimValue = this.claimAccessor.getClaim(claimName);
+
+		assertThat(actualClaimValue).containsOnlyElementsOf(expectedClaimValue);
+	}
+
+	@Test
+	public void getClaimWhenValueIsConvertedThenReturnBoolean() {
+		boolean expectedClaimValue = true;
+		String claimName = "boolean";
+		this.claims.put(claimName, expectedClaimValue);
+
+		boolean actualClaimValue = this.claimAccessor.getClaim(claimName);
+
+		assertThat(actualClaimValue).isEqualTo(expectedClaimValue);
+	}
+
+	@Test
+	public void getClaimWhenValueIsNotConvertedThenThrowClassCastException() {
+		String expectedClaimValue = "true";
+		String claimName = "boolean";
+		this.claims.put(claimName, expectedClaimValue);
+
+		Throwable thrown = catchThrowable(() -> { boolean actualClaimValue = this.claimAccessor.getClaim(claimName); });
+
+		assertThat(thrown).isInstanceOf(ClassCastException.class);
 	}
 }
