@@ -106,7 +106,7 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 				OAuth2AuthorizationContext.authorize(this.clientRegistration).principal(this.principal).build();
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("context.HttpServletRequest cannot be null");
+				.hasMessage("The context attribute cannot be null 'javax.servlet.http.HttpServletRequest'");
 	}
 
 	@Test
@@ -118,7 +118,7 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 						.build();
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("context.HttpServletResponse cannot be null");
+				.hasMessage("The context attribute cannot be null 'javax.servlet.http.HttpServletResponse'");
 	}
 
 	@Test

@@ -20,7 +20,6 @@ import org.reactivestreams.Subscription;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.AuthorizationCodeOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ClientCredentialsOAuth2AuthorizedClientProvider;
@@ -54,7 +53,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -317,7 +316,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 				.filter(req -> req.attribute(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME).isPresent())
 				.switchIfEmpty(mergeRequestAttributesFromContext(request))
 				.filter(req -> req.attribute(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME).isPresent())
-				.flatMap(req -> reauthorizeClientIfNecessary(req, next, getOAuth2AuthorizedClient(req.attributes())))
+				.flatMap(req -> reauthorizeClientIfNecessary(getOAuth2AuthorizedClient(req.attributes()), req))
 				.map(authorizedClient -> bearer(request, authorizedClient))
 				.flatMap(next::exchange)
 				.switchIfEmpty(next.exchange(request));
@@ -388,46 +387,57 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 			OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
 					clientRegistrationId, authentication, request);
 			if (authorizedClient == null) {
-				authorizedClient = getAuthorizedClient(clientRegistrationId, attrs);
+				authorizedClient = authorizeClient(clientRegistrationId, attrs);
 			}
 			oauth2AuthorizedClient(authorizedClient).accept(attrs);
 		}
 	}
 
-	private OAuth2AuthorizedClient getAuthorizedClient(String clientRegistrationId, Map<String, Object> attrs) {
+	private OAuth2AuthorizedClient authorizeClient(String clientRegistrationId, Map<String, Object> attributes) {
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
 		if (clientRegistration == null) {
 			throw new IllegalArgumentException("Could not find ClientRegistration with id " + clientRegistrationId);
 		}
-		Authentication authentication = getAuthentication(attrs);
-		if (authentication == null) {
-			authentication = new PrincipalNameAuthentication("anonymousUser");
+
+		OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext.authorize(clientRegistration);
+		Authentication authentication = getAuthentication(attributes);
+		if (authentication != null) {
+			contextBuilder.principal(authentication);
+		} else {
+			contextBuilder.principal("anonymousUser");
 		}
-		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext.authorize(clientRegistration)
-				.principal(authentication)
-				.attribute(HttpServletRequest.class.getName(), getRequest(attrs))
-				.attribute(HttpServletResponse.class.getName(), getResponse(attrs))
+		OAuth2AuthorizationContext authorizationContext = contextBuilder
+				.attributes(defaultContextAttributes(attributes))
 				.build();
 		return this.authorizedClientProvider.authorize(authorizationContext);
 	}
 
 	private Mono<OAuth2AuthorizedClient> reauthorizeClientIfNecessary(
-			ClientRequest request, ExchangeFunction next, OAuth2AuthorizedClient authorizedClient) {
+			OAuth2AuthorizedClient authorizedClient, ClientRequest request) {
 		if (this.authorizedClientProvider == null || !hasTokenExpired(authorizedClient)) {
 			return Mono.just(authorizedClient);
 		}
 
 		Map<String, Object> attributes = request.attributes();
+
+		OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext.reauthorize(authorizedClient);
 		Authentication authentication = getAuthentication(attributes);
-		if (authentication == null) {
-			authentication = new PrincipalNameAuthentication(authorizedClient.getPrincipalName());
+		if (authentication != null) {
+			contextBuilder.principal(authentication);
+		} else {
+			contextBuilder.principal(authorizedClient.getPrincipalName());
 		}
-		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext.reauthorize(authorizedClient)
-				.principal(authentication)
-				.attribute(HttpServletRequest.class.getName(), getRequest(attributes))
-				.attribute(HttpServletResponse.class.getName(), getResponse(attributes))
+		OAuth2AuthorizationContext authorizationContext = contextBuilder
+				.attributes(defaultContextAttributes(attributes))
 				.build();
 		return Mono.fromSupplier(() -> this.authorizedClientProvider.authorize(authorizationContext));
+	}
+
+	private Map<String, Object> defaultContextAttributes(Map<String, Object> attributes) {
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put(HttpServletRequest.class.getName(), getRequest(attributes));
+		contextAttributes.put(HttpServletResponse.class.getName(), getResponse(attributes));
+		return contextAttributes;
 	}
 
 	private boolean hasTokenExpired(OAuth2AuthorizedClient authorizedClient) {
@@ -476,53 +486,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 
 	static HttpServletResponse getResponse(Map<String, Object> attrs) {
 		return (HttpServletResponse) attrs.get(HTTP_SERVLET_RESPONSE_ATTR_NAME);
-	}
-
-	private static class PrincipalNameAuthentication implements Authentication {
-		private final String username;
-
-		private PrincipalNameAuthentication(String username) {
-			this.username = username;
-		}
-
-		@Override
-		public Collection<? extends GrantedAuthority> getAuthorities() {
-			throw unsupported();
-		}
-
-		@Override
-		public Object getCredentials() {
-			throw unsupported();
-		}
-
-		@Override
-		public Object getDetails() {
-			throw unsupported();
-		}
-
-		@Override
-		public Object getPrincipal() {
-			throw unsupported();
-		}
-
-		@Override
-		public boolean isAuthenticated() {
-			throw unsupported();
-		}
-
-		@Override
-		public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-			throw unsupported();
-		}
-
-		@Override
-		public String getName() {
-			return this.username;
-		}
-
-		private UnsupportedOperationException unsupported() {
-			return new UnsupportedOperationException("Not Supported");
-		}
 	}
 
 	private static class RequestContextSubscriber<T> implements CoreSubscriber<T> {

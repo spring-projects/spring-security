@@ -35,7 +35,8 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenRe
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -122,7 +123,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 				OAuth2AuthorizationContext.reauthorize(this.authorizedClient).principal(this.principal).build();
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("context.HttpServletRequest cannot be null");
+				.hasMessage("The context attribute cannot be null 'javax.servlet.http.HttpServletRequest'");
 	}
 
 	@Test
@@ -134,7 +135,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 						.build();
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("context.HttpServletResponse cannot be null");
+				.hasMessage("The context attribute cannot be null 'javax.servlet.http.HttpServletResponse'");
 	}
 
 	@Test
@@ -163,20 +164,21 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
-	public void authorizeWhenAuthorizedAndScopeProvidedThenScopeRequested() {
+	public void authorizeWhenAuthorizedAndSpaceDelimitedScopeProvidedThenScopeRequested() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
 				.refreshToken("new-refresh-token")
 				.build();
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
-		Set<String> scope = Collections.singleton("read");
+		String scope = "read write";
+		Set<String> scopes = new HashSet<>(Arrays.asList("read", "write"));
 
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.reauthorize(this.authorizedClient)
 						.principal(this.principal)
 						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
 						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
-						.attribute("SCOPE", scope)
+						.attribute(RefreshTokenOAuth2AuthorizedClientProvider.REQUEST_SCOPE_ATTRIBUTE_NAME, scope)
 						.build();
 
 		this.authorizedClientProvider.authorize(authorizationContext);
@@ -184,28 +186,32 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		ArgumentCaptor<OAuth2RefreshTokenGrantRequest> refreshTokenGrantRequestArgCaptor =
 				ArgumentCaptor.forClass(OAuth2RefreshTokenGrantRequest.class);
 		verify(this.accessTokenResponseClient).getTokenResponse(refreshTokenGrantRequestArgCaptor.capture());
-		assertThat(refreshTokenGrantRequestArgCaptor.getValue().getScopes()).isEqualTo(scope);
+		assertThat(refreshTokenGrantRequestArgCaptor.getValue().getScopes()).isEqualTo(scopes);
 	}
 
 	@Test
-	public void authorizeWhenAuthorizedAndInvalidScopeProvidedThenThrowIllegalArgumentException() {
+	public void authorizeWhenAuthorizedAndCommaDelimitedScopeProvidedThenScopeRequested() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
 				.refreshToken("new-refresh-token")
 				.build();
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
-		String scope = "read";
+		String scope = "read, write";
+		Set<String> scopes = new HashSet<>(Arrays.asList("read", "write"));
 
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.reauthorize(this.authorizedClient)
 						.principal(this.principal)
 						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
 						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
-						.attribute("SCOPE", scope)
+						.attribute(RefreshTokenOAuth2AuthorizedClientProvider.REQUEST_SCOPE_ATTRIBUTE_NAME, scope)
 						.build();
 
-		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("The 'SCOPE' attribute must be of type " + Set.class.getName());
+		this.authorizedClientProvider.authorize(authorizationContext);
+
+		ArgumentCaptor<OAuth2RefreshTokenGrantRequest> refreshTokenGrantRequestArgCaptor =
+				ArgumentCaptor.forClass(OAuth2RefreshTokenGrantRequest.class);
+		verify(this.accessTokenResponseClient).getTokenResponse(refreshTokenGrantRequestArgCaptor.capture());
+		assertThat(refreshTokenGrantRequestArgCaptor.getValue().getScopes()).isEqualTo(scopes);
 	}
 }

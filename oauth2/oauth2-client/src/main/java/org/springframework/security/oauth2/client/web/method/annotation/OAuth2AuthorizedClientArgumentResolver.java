@@ -123,17 +123,16 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 
 		HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
 
-		OAuth2AuthorizationContext.Builder authorizationContextBuilder = OAuth2AuthorizationContext.authorize(clientRegistration);
-		if (principal == null) {
-			authorizationContextBuilder.principal("anonymousUser");
+		OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext.authorize(clientRegistration);
+		if (principal != null) {
+			contextBuilder.principal(principal);
 		} else {
-			authorizationContextBuilder.principal(principal);
+			contextBuilder.principal("anonymousUser");
 		}
-		OAuth2AuthorizationContext authorizationContext = authorizationContextBuilder
+		OAuth2AuthorizationContext authorizationContext = contextBuilder
 				.attribute(HttpServletRequest.class.getName(), servletRequest)
 				.attribute(HttpServletResponse.class.getName(), servletResponse)
 				.build();
-
 		return this.authorizedClientProvider.authorize(authorizationContext);
 	}
 
