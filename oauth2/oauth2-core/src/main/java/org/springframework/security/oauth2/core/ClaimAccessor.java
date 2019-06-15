@@ -159,4 +159,17 @@ public interface ClaimAccessor {
 		}
 		return convertedValue;
 	}
+
+	/**
+	 * Returns the claim value as a {@code T} type.
+	 * It assumes that the given claim has already been converted to type {@code T}.
+	 *
+	 * @param claim the name of the claim
+	 * @param <T> the type of the claim
+	 * @return the claim value
+	 */
+	@SuppressWarnings("unchecked")
+	default <T> T getClaim(String claim) {
+		return (T) this.getClaims().get(claim);
+	}
 }
