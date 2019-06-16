@@ -209,6 +209,37 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 				eq(reauthorizedClient), eq(this.principal), eq(this.serverWebExchange));
 	}
 
+	@Test
+	public void authorizeWhenRequestParameterUsernamePasswordThenMappedToContext() {
+		when(this.clientRegistrationRepository.findByRegistrationId(
+				eq(this.clientRegistration.getRegistrationId()))).thenReturn(Mono.just(this.clientRegistration));
+
+		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.just(this.authorizedClient));
+
+		// Override the mock with the default
+		this.authorizedClientManager.setContextAttributesMapper(
+				new DefaultServerOAuth2AuthorizedClientManager.DefaultContextAttributesMapper());
+
+		this.serverWebExchange = MockServerWebExchange.builder(
+				MockServerHttpRequest
+						.get("/")
+						.queryParam(OAuth2ParameterNames.USERNAME, "username")
+						.queryParam(OAuth2ParameterNames.PASSWORD, "password"))
+				.build();
+
+		ServerOAuth2AuthorizeRequest authorizeRequest = new ServerOAuth2AuthorizeRequest(
+				this.clientRegistration.getRegistrationId(), this.principal, this.serverWebExchange);
+		this.authorizedClientManager.authorize(authorizeRequest).block();
+
+		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
+
+		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
+		String username = authorizationContext.getAttribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME);
+		assertThat(username).isEqualTo("username");
+		String password = authorizationContext.getAttribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME);
+		assertThat(password).isEqualTo("password");
+	}
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenUnsupportedProviderThenNotReauthorized() {
@@ -255,9 +286,8 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 				eq(reauthorizedClient), eq(this.principal), eq(this.serverWebExchange));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
-	public void reauthorizeWhenRequestScopeParameterThenMappedToContext() {
+	public void reauthorizeWhenRequestParameterScopeThenMappedToContext() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(
 				this.clientRegistration, this.principal.getName(),
 				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
@@ -276,20 +306,12 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 
 		ServerOAuth2AuthorizeRequest reauthorizeRequest = new ServerOAuth2AuthorizeRequest(
 				this.authorizedClient, this.principal, this.serverWebExchange);
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest).block();
+		this.authorizedClientManager.authorize(reauthorizeRequest).block();
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
-		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
-		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
-		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-		assertThat(authorizationContext.getAttributes()).containsKey(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		String[] requestScopeAttribute = authorizationContext.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		assertThat(requestScopeAttribute).contains("read", "write");
-
-		assertThat(authorizedClient).isSameAs(reauthorizedClient);
-		verify(this.authorizedClientRepository).saveAuthorizedClient(
-				eq(reauthorizedClient), eq(this.principal), eq(this.serverWebExchange));
 	}
 }

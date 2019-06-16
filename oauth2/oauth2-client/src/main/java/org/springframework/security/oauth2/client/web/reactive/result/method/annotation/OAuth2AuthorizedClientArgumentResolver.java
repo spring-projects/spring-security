@@ -98,6 +98,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 						.authorizationCode()
 						.refreshToken()
 						.clientCredentials()
+						.password()
 						.build();
 		DefaultServerOAuth2AuthorizedClientManager authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
 				clientRegistrationRepository, authorizedClientRepository);

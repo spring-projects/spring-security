@@ -591,6 +591,90 @@ public class ClientRegistrationTests {
 	}
 
 	@Test
+	public void buildWhenPasswordGrantAllAttributesProvidedThenAllAttributesAreSet() {
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.scope(SCOPES.toArray(new String[0]))
+				.tokenUri(TOKEN_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+
+		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
+		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
+		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.PASSWORD);
+		assertThat(registration.getScopes()).isEqualTo(SCOPES);
+		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
+		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
+	}
+
+	@Test
+	public void buildWhenPasswordGrantRegistrationIdIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() ->
+				ClientRegistration.withRegistrationId(null)
+						.clientId(CLIENT_ID)
+						.clientSecret(CLIENT_SECRET)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+						.tokenUri(TOKEN_URI)
+						.build()
+		).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void buildWhenPasswordGrantClientIdIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() ->
+				ClientRegistration.withRegistrationId(REGISTRATION_ID)
+						.clientId(null)
+						.clientSecret(CLIENT_SECRET)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+						.tokenUri(TOKEN_URI)
+						.build()
+		).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void buildWhenPasswordGrantClientSecretIsNullThenDefaultToEmpty() {
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(null)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.tokenUri(TOKEN_URI)
+				.build();
+		assertThat(clientRegistration.getClientSecret()).isEqualTo("");
+	}
+
+	@Test
+	public void buildWhenPasswordGrantClientAuthenticationMethodNotProvidedThenDefaultToBasic() {
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.tokenUri(TOKEN_URI)
+				.build();
+		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
+	}
+
+	@Test
+	public void buildWhenPasswordGrantTokenUriIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() ->
+				ClientRegistration.withRegistrationId(REGISTRATION_ID)
+						.clientId(CLIENT_ID)
+						.clientSecret(CLIENT_SECRET)
+						.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+						.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+						.tokenUri(null)
+						.build()
+		).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
 	public void buildWhenCustomGrantAllAttributesProvidedThenAllAttributesAreSet() {
 		AuthorizationGrantType customGrantType = new AuthorizationGrantType("CUSTOM");
 		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)

@@ -46,6 +46,7 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClientCredentialsTokenResponseClient;
@@ -57,6 +58,7 @@ import org.springframework.security.oauth2.client.web.server.ServerOAuth2Authori
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.reactive.function.BodyInserter;
@@ -102,6 +104,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Mock
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshTokenTokenResponseClient;
 
+	@Mock
+	private ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenResponseClient;
+
 	private ServerWebExchange serverWebExchange = MockServerWebExchange.builder(MockServerHttpRequest.get("/")).build();
 
 	@Captor
@@ -126,6 +131,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 						.authorizationCode()
 						.refreshToken(configurer -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 						.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
+						.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
 						.build();
 		DefaultServerOAuth2AuthorizedClientManager authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
@@ -401,6 +407,48 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(request0.url().toASCIIString()).isEqualTo("https://example.com");
 		assertThat(request0.method()).isEqualTo(HttpMethod.GET);
 		assertThat(getBody(request0)).isEmpty();
+	}
+
+	@Test
+	public void filterWhenPasswordClientNotAuthorizedThenGetNewToken() {
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("test", "this");
+		ClientRegistration registration = TestClientRegistrations.password().build();
+
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("new-token")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(360)
+				.build();
+		when(this.passwordTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+
+		when(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId()))).thenReturn(Mono.just(registration));
+		when(this.authorizedClientRepository.loadAuthorizedClient(eq(registration.getRegistrationId()), eq(authentication), any())).thenReturn(Mono.empty());
+
+		this.serverWebExchange = MockServerWebExchange.builder(
+				MockServerHttpRequest
+						.get("/")
+						.queryParam(OAuth2ParameterNames.USERNAME, "username")
+						.queryParam(OAuth2ParameterNames.PASSWORD, "password"))
+				.build();
+
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(clientRegistrationId(registration.getRegistrationId()))
+				.build();
+
+		this.function.filter(request, this.exchange)
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.subscriberContext(serverWebExchange())
+				.block();
+
+		verify(this.passwordTokenResponseClient).getTokenResponse(any());
+		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(authentication), any());
+
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(1);
+		ClientRequest request1 = requests.get(0);
+		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer new-token");
+		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request1)).isEmpty();
 	}
 
 	@Test

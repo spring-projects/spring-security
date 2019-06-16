@@ -28,7 +28,6 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -134,13 +133,19 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 
 		@Override
 		public Map<String, Object> apply(OAuth2AuthorizeRequest authorizeRequest) {
-			Map<String, Object> contextAttributes = Collections.emptyMap();
+			Map<String, Object> contextAttributes = new HashMap<>();
 			String scope = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.SCOPE);
 			if (StringUtils.hasText(scope)) {
-				contextAttributes = new HashMap<>();
 				contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
 						StringUtils.delimitedListToStringArray(scope, " "));
 			}
+			String username = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.USERNAME);
+			String password = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.PASSWORD);
+			if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+				contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
+				contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
+			}
+
 			return contextAttributes;
 		}
 	}

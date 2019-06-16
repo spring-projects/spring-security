@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.DefaultPasswordTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -48,6 +49,7 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	private RestOperations accessTokenClient;
 	private DefaultClientCredentialsTokenResponseClient clientCredentialsTokenResponseClient;
 	private DefaultRefreshTokenTokenResponseClient refreshTokenTokenResponseClient;
+	private DefaultPasswordTokenResponseClient passwordTokenResponseClient;
 	private Authentication principal;
 
 	@SuppressWarnings("unchecked")
@@ -61,6 +63,8 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 		this.refreshTokenTokenResponseClient.setRestOperations(this.accessTokenClient);
 		this.clientCredentialsTokenResponseClient = new DefaultClientCredentialsTokenResponseClient();
 		this.clientCredentialsTokenResponseClient.setRestOperations(this.accessTokenClient);
+		this.passwordTokenResponseClient = new DefaultPasswordTokenResponseClient();
+		this.passwordTokenResponseClient.setRestOperations(this.accessTokenClient);
 		this.principal = new TestingAuthenticationToken("principal", "password");
 	}
 
@@ -126,12 +130,32 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	}
 
 	@Test
+	public void buildWhenPasswordProviderThenProviderAuthorizes() {
+		OAuth2AuthorizedClientProvider authorizedClientProvider =
+				OAuth2AuthorizedClientProviderBuilder.builder()
+						.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
+						.build();
+
+		OAuth2AuthorizationContext authorizationContext =
+				OAuth2AuthorizationContext.withClientRegistration(TestClientRegistrations.password().build())
+						.principal(this.principal)
+						.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
+						.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
+						.build();
+		OAuth2AuthorizedClient authorizedClient = authorizedClientProvider.authorize(authorizationContext);
+
+		assertThat(authorizedClient).isNotNull();
+		verify(this.accessTokenClient).exchange(any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class));
+	}
+
+	@Test
 	public void buildWhenAllProvidersThenProvidersAuthorize() {
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
 				OAuth2AuthorizedClientProviderBuilder.builder()
 						.authorizationCode()
 						.refreshToken(configurer -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 						.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
+						.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
 						.build();
 
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
@@ -172,6 +196,18 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 
 		assertThat(authorizedClient).isNotNull();
 		verify(this.accessTokenClient, times(2)).exchange(any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class));
+
+		// password
+		OAuth2AuthorizationContext passwordContext =
+				OAuth2AuthorizationContext.withClientRegistration(TestClientRegistrations.password().build())
+						.principal(this.principal)
+						.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
+						.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
+						.build();
+		authorizedClient = authorizedClientProvider.authorize(passwordContext);
+
+		assertThat(authorizedClient).isNotNull();
+		verify(this.accessTokenClient, times(3)).exchange(any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class));
 	}
 
 	@Test

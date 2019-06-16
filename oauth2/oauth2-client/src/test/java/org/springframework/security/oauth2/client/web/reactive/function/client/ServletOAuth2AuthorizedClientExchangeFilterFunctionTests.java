@@ -55,6 +55,7 @@ import org.springframework.security.oauth2.client.endpoint.DefaultClientCredenti
 import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -64,6 +65,7 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepo
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.client.RestOperations;
@@ -87,6 +89,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.*;
 
 /**
@@ -103,6 +106,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient;
 	@Mock
 	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshTokenTokenResponseClient;
+	@Mock
+	private OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenResponseClient;
 	@Mock
 	private WebClient.RequestHeadersSpec<?> spec;
 	@Captor
@@ -136,6 +141,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 						.authorizationCode()
 						.refreshToken(configurer -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 						.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
+						.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
 						.build();
 		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
@@ -431,6 +437,43 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		ClientRequest request1 = requests.get(0);
 		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer token");
+		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request1)).isEmpty();
+	}
+
+	@Test
+	public void filterWhenPasswordClientNotAuthorizedThenGetNewToken() {
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("new-token")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(360)
+				.build();
+		when(this.passwordTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+
+		ClientRegistration registration = TestClientRegistrations.password().build();
+		when(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId()))).thenReturn(registration);
+
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		servletRequest.setParameter(OAuth2ParameterNames.USERNAME, "username");
+		servletRequest.setParameter(OAuth2ParameterNames.PASSWORD, "password");
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(clientRegistrationId(registration.getRegistrationId()))
+				.attributes(authentication(this.authentication))
+				.attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse))
+				.build();
+
+		this.function.filter(request, this.exchange).block();
+
+		verify(this.passwordTokenResponseClient).getTokenResponse(any());
+		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(authentication), any(), any());
+
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(1);
+		ClientRequest request1 = requests.get(0);
+		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer new-token");
 		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
 		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
 		assertThat(getBody(request1)).isEmpty();

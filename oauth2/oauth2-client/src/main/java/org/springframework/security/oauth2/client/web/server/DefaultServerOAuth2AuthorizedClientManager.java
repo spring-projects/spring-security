@@ -26,7 +26,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -130,12 +129,17 @@ public final class DefaultServerOAuth2AuthorizedClientManager implements ServerO
 
 		@Override
 		public Map<String, Object> apply(ServerOAuth2AuthorizeRequest authorizeRequest) {
-			Map<String, Object> contextAttributes = Collections.emptyMap();
+			Map<String, Object> contextAttributes = new HashMap<>();
 			String scope = authorizeRequest.getServerWebExchange().getRequest().getQueryParams().getFirst(OAuth2ParameterNames.SCOPE);
 			if (StringUtils.hasText(scope)) {
-				contextAttributes = new HashMap<>();
 				contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
 						StringUtils.delimitedListToStringArray(scope, " "));
+			}
+			String username = authorizeRequest.getServerWebExchange().getRequest().getQueryParams().getFirst(OAuth2ParameterNames.USERNAME);
+			String password = authorizeRequest.getServerWebExchange().getRequest().getQueryParams().getFirst(OAuth2ParameterNames.PASSWORD);
+			if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+				contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
+				contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
 			}
 			return contextAttributes;
 		}

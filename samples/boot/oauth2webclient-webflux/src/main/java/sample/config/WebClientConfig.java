@@ -54,6 +54,7 @@ public class WebClientConfig {
 						.authorizationCode()
 						.refreshToken()
 						.clientCredentials()
+						.password()
 						.build();
 		DefaultServerOAuth2AuthorizedClientManager authorizedClientManager =
 				new DefaultServerOAuth2AuthorizedClientManager(

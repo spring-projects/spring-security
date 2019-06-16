@@ -77,6 +77,7 @@ final class OAuth2ClientConfiguration {
 								.refreshToken()
 								.clientCredentials(configurer ->
 										Optional.ofNullable(this.accessTokenResponseClient).ifPresent(configurer::accessTokenResponseClient))
+								.password()
 								.build();
 				DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 						this.clientRegistrationRepository, this.authorizedClientRepository);

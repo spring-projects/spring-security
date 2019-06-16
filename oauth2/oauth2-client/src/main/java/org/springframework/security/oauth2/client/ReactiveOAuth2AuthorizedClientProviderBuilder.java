@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.client;
 
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.util.Assert;
@@ -31,7 +32,8 @@ import java.util.stream.Collectors;
  * A builder that builds a {@link DelegatingReactiveOAuth2AuthorizedClientProvider} composed of
  * one or more {@link ReactiveOAuth2AuthorizedClientProvider}(s) that implement specific authorization grants.
  * The supported authorization grants are {@link #authorizationCode() authorization_code},
- * {@link #refreshToken() refresh_token} and {@link #clientCredentials() client_credentials}.
+ * {@link #refreshToken() refresh_token}, {@link #clientCredentials() client_credentials}
+ * and {@link #password() password}.
  * In addition to the standard authorization grants, an implementation of an extension grant
  * may be supplied via {@link #provider(ReactiveOAuth2AuthorizedClientProvider)}.
  *
@@ -41,6 +43,7 @@ import java.util.stream.Collectors;
  * @see AuthorizationCodeReactiveOAuth2AuthorizedClientProvider
  * @see RefreshTokenReactiveOAuth2AuthorizedClientProvider
  * @see ClientCredentialsReactiveOAuth2AuthorizedClientProvider
+ * @see PasswordReactiveOAuth2AuthorizedClientProvider
  * @see DelegatingReactiveOAuth2AuthorizedClientProvider
  */
 public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
@@ -242,6 +245,64 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 			}
 			if (this.clockSkew != null) {
 				authorizedClientProvider.setClockSkew(this.clockSkew);
+			}
+			return authorizedClientProvider;
+		}
+	}
+
+	/**
+	 * Configures support for the {@code password} grant.
+	 *
+	 * @return the {@link ReactiveOAuth2AuthorizedClientProviderBuilder}
+	 */
+	public ReactiveOAuth2AuthorizedClientProviderBuilder password() {
+		this.builders.computeIfAbsent(PasswordReactiveOAuth2AuthorizedClientProvider.class, k -> new PasswordGrantBuilder());
+		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
+	}
+
+	/**
+	 * Configures support for the {@code password} grant.
+	 *
+	 * @param builderConsumer a {@code Consumer} of {@link PasswordGrantBuilder} used for further configuration
+	 * @return the {@link ReactiveOAuth2AuthorizedClientProviderBuilder}
+	 */
+	public ReactiveOAuth2AuthorizedClientProviderBuilder password(Consumer<PasswordGrantBuilder> builderConsumer) {
+		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders.computeIfAbsent(
+				PasswordReactiveOAuth2AuthorizedClientProvider.class, k -> new PasswordGrantBuilder());
+		builderConsumer.accept(builder);
+		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
+	}
+
+	/**
+	 * A builder for the {@code password} grant.
+	 */
+	public class PasswordGrantBuilder implements Builder {
+		private ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient;
+
+		private PasswordGrantBuilder() {
+		}
+
+		/**
+		 * Sets the client used when requesting an access token credential at the Token Endpoint.
+		 *
+		 * @param accessTokenResponseClient the client used when requesting an access token credential at the Token Endpoint
+		 * @return the {@link PasswordGrantBuilder}
+		 */
+		public PasswordGrantBuilder accessTokenResponseClient(ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient) {
+			this.accessTokenResponseClient = accessTokenResponseClient;
+			return this;
+		}
+
+		/**
+		 * Builds an instance of {@link PasswordReactiveOAuth2AuthorizedClientProvider}.
+		 *
+		 * @return the {@link PasswordReactiveOAuth2AuthorizedClientProvider}
+		 */
+		@Override
+		public ReactiveOAuth2AuthorizedClientProvider build() {
+			PasswordReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = new PasswordReactiveOAuth2AuthorizedClientProvider();
+			if (this.accessTokenResponseClient != null) {
+				authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
 			}
 			return authorizedClientProvider;
 		}
