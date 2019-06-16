@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
@@ -26,7 +27,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -43,7 +43,7 @@ public final class DefaultServerOAuth2AuthorizedClientManager implements ServerO
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 	private final ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 	private ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = context -> Mono.empty();
-	private Function<ServerOAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper = new DefaultContextAttributesMapper();
+	private Function<ServerOAuth2AuthorizeRequest, Mono<Map<String, Object>>> contextAttributesMapper = new DefaultContextAttributesMapper();
 
 	/**
 	 * Constructs a {@code DefaultServerOAuth2AuthorizedClientManager} using the provided parameters.
@@ -72,33 +72,46 @@ public final class DefaultServerOAuth2AuthorizedClientManager implements ServerO
 						this.authorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal, serverWebExchange)))
 				.flatMap(authorizedClient -> {
 					// Re-authorize
-					OAuth2AuthorizationContext reauthorizationContext =
-							OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
-									.principal(principal)
-									.attributes(this.contextAttributesMapper.apply(authorizeRequest))
-									.build();
-					return Mono.just(reauthorizationContext)
+					return authorizationContext(authorizeRequest, authorizedClient)
 							.flatMap(this.authorizedClientProvider::authorize)
 							.doOnNext(reauthorizedClient ->
 									this.authorizedClientRepository.saveAuthorizedClient(
 											reauthorizedClient, principal, serverWebExchange))
-							// Return the `authorizedClient` if `reauthorizedClient` is null, e.g. re-authorization is not supported
-							.defaultIfEmpty(authorizedClient);
+							// Default to the existing authorizedClient if the client was not re-authorized
+							.defaultIfEmpty(authorizeRequest.getAuthorizedClient() != null ?
+									authorizeRequest.getAuthorizedClient() : authorizedClient);
 				})
 				.switchIfEmpty(Mono.defer(() ->
 						// Authorize
 						this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
 								.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(
 										"Could not find ClientRegistration with id '" + clientRegistrationId + "'")))
-								.map(clientRegistration -> OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
-										.principal(principal)
-										.attributes(this.contextAttributesMapper.apply(authorizeRequest))
-										.build())
+								.flatMap(clientRegistration -> authorizationContext(authorizeRequest, clientRegistration))
 								.flatMap(this.authorizedClientProvider::authorize)
 								.doOnNext(authorizedClient ->
 										this.authorizedClientRepository.saveAuthorizedClient(
 												authorizedClient, principal, serverWebExchange))
 				));
+	}
+
+	private Mono<OAuth2AuthorizationContext> authorizationContext(ServerOAuth2AuthorizeRequest authorizeRequest,
+																	OAuth2AuthorizedClient authorizedClient) {
+		return Mono.just(authorizeRequest)
+				.flatMap(this.contextAttributesMapper::apply)
+				.map(attrs -> OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
+						.principal(authorizeRequest.getPrincipal())
+						.attributes(attrs)
+						.build());
+	}
+
+	private Mono<OAuth2AuthorizationContext> authorizationContext(ServerOAuth2AuthorizeRequest authorizeRequest,
+																	ClientRegistration clientRegistration) {
+		return Mono.just(authorizeRequest)
+				.flatMap(this.contextAttributesMapper::apply)
+				.map(attrs -> OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
+						.principal(authorizeRequest.getPrincipal())
+						.attributes(attrs)
+						.build());
 	}
 
 	/**
@@ -118,7 +131,7 @@ public final class DefaultServerOAuth2AuthorizedClientManager implements ServerO
 	 * @param contextAttributesMapper the {@code Function} used for supplying the {@code Map} of attributes
 	 *                                   to the {@link OAuth2AuthorizationContext#getAttributes() authorization context}
 	 */
-	public void setContextAttributesMapper(Function<ServerOAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper) {
+	public void setContextAttributesMapper(Function<ServerOAuth2AuthorizeRequest, Mono<Map<String, Object>>> contextAttributesMapper) {
 		Assert.notNull(contextAttributesMapper, "contextAttributesMapper cannot be null");
 		this.contextAttributesMapper = contextAttributesMapper;
 	}
@@ -126,18 +139,17 @@ public final class DefaultServerOAuth2AuthorizedClientManager implements ServerO
 	/**
 	 * The default implementation of the {@link #setContextAttributesMapper(Function) contextAttributesMapper}.
 	 */
-	public static class DefaultContextAttributesMapper implements Function<ServerOAuth2AuthorizeRequest, Map<String, Object>> {
+	public static class DefaultContextAttributesMapper implements Function<ServerOAuth2AuthorizeRequest, Mono<Map<String, Object>>> {
 
 		@Override
-		public Map<String, Object> apply(ServerOAuth2AuthorizeRequest authorizeRequest) {
-			Map<String, Object> contextAttributes = Collections.emptyMap();
+		public Mono<Map<String, Object>> apply(ServerOAuth2AuthorizeRequest authorizeRequest) {
+			Map<String, Object> contextAttributes = new HashMap<>();
 			String scope = authorizeRequest.getServerWebExchange().getRequest().getQueryParams().getFirst(OAuth2ParameterNames.SCOPE);
 			if (StringUtils.hasText(scope)) {
-				contextAttributes = new HashMap<>();
 				contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
 						StringUtils.delimitedListToStringArray(scope, " "));
 			}
-			return contextAttributes;
+			return Mono.just(contextAttributes);
 		}
 	}
 }

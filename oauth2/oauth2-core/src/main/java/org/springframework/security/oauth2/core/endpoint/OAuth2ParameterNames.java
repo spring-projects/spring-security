@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,6 +84,16 @@ public interface OAuth2ParameterNames {
 	 * {@code refresh_token} - used in Access Token Request and Access Token Response.
 	 */
 	String REFRESH_TOKEN = "refresh_token";
+
+	/**
+	 * {@code username} - used in Access Token Request.
+	 */
+	String USERNAME = "username";
+
+	/**
+	 * {@code password} - used in Access Token Request.
+	 */
+	String PASSWORD = "password";
 
 	/**
 	 * {@code error} - used in Authorization Response and Access Token Response.

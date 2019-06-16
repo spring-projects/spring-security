@@ -61,4 +61,15 @@ public class TestClientRegistrations {
 				.clientId("client-id")
 				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS);
 	}
+
+	public static ClientRegistration.Builder password() {
+		return ClientRegistration.withRegistrationId("password")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.scope("read", "write")
+				.tokenUri("https://example.com/login/oauth/access_token")
+				.clientName("Client Name")
+				.clientId("client-id")
+				.clientSecret("client-secret");
+	}
 }

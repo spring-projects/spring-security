@@ -105,6 +105,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 						.authorizationCode()
 						.refreshToken()
 						.clientCredentials()
+						.password()
 						.build();
 		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				clientRegistrationRepository, authorizedClientRepository);
@@ -193,6 +194,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 						.authorizationCode()
 						.refreshToken()
 						.clientCredentials(configurer -> configurer.accessTokenResponseClient(clientCredentialsTokenResponseClient))
+						.password()
 						.build();
 		((DefaultOAuth2AuthorizedClientManager) this.authorizedClientManager).setAuthorizedClientProvider(authorizedClientProvider);
 	}

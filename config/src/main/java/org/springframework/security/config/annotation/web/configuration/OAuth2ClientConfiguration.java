@@ -74,8 +74,8 @@ final class OAuth2ClientConfiguration {
 				OAuth2AuthorizedClientProviderBuilder authorizedClientProviderBuilder =
 						OAuth2AuthorizedClientProviderBuilder.builder()
 								.authorizationCode()
-								.refreshToken();
-
+								.refreshToken()
+								.password();
 				if (this.accessTokenResponseClient != null) {
 					authorizedClientProviderBuilder.clientCredentials(configurer ->
 									configurer.accessTokenResponseClient(this.accessTokenResponseClient));
@@ -83,7 +83,6 @@ final class OAuth2ClientConfiguration {
 					authorizedClientProviderBuilder.clientCredentials();
 				}
 				OAuth2AuthorizedClientProvider authorizedClientProvider = authorizedClientProviderBuilder.build();
-
 				DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 						this.clientRegistrationRepository, this.authorizedClientRepository);
 				authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);

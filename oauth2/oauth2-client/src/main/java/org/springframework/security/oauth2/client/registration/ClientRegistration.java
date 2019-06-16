@@ -15,6 +15,13 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.oauth2.core.AuthenticationMethod;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,13 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.oauth2.core.AuthenticationMethod;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * A representation of a client registration with an OAuth 2.0 or OpenID Connect 1.0 Provider.
@@ -484,6 +484,8 @@ public final class ClientRegistration implements Serializable {
 			Assert.notNull(this.authorizationGrantType, "authorizationGrantType cannot be null");
 			if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(this.authorizationGrantType)) {
 				this.validateClientCredentialsGrantType();
+			} else if (AuthorizationGrantType.PASSWORD.equals(this.authorizationGrantType)) {
+				this.validatePasswordGrantType();
 			} else if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
 				this.validateImplicitGrantType();
 			} else if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)) {
@@ -547,6 +549,14 @@ public final class ClientRegistration implements Serializable {
 		private void validateClientCredentialsGrantType() {
 			Assert.isTrue(AuthorizationGrantType.CLIENT_CREDENTIALS.equals(this.authorizationGrantType),
 					() -> "authorizationGrantType must be " + AuthorizationGrantType.CLIENT_CREDENTIALS.getValue());
+			Assert.hasText(this.registrationId, "registrationId cannot be empty");
+			Assert.hasText(this.clientId, "clientId cannot be empty");
+			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
+		}
+
+		private void validatePasswordGrantType() {
+			Assert.isTrue(AuthorizationGrantType.PASSWORD.equals(this.authorizationGrantType),
+					() -> "authorizationGrantType must be " + AuthorizationGrantType.PASSWORD.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");

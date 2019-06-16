@@ -36,13 +36,20 @@ import java.util.Map;
  */
 public final class OAuth2AuthorizationContext {
 	/**
-	 * The name of the {@link #getAttribute(String) attribute}
-	 * in the {@link OAuth2AuthorizationContext context}
-	 * associated to the value for the "request scope(s)".
-	 * The value of the attribute is a {@code String[]} of scope(s) to be requested
-	 * by the {@link OAuth2AuthorizationContext#getClientRegistration() client}.
+	 * The name of the {@link #getAttribute(String) attribute} in the context associated to the value for the "request scope(s)".
+	 * The value of the attribute is a {@code String[]} of scope(s) to be requested by the {@link #getClientRegistration() client}.
 	 */
 	public static final String REQUEST_SCOPE_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".REQUEST_SCOPE");
+
+	/**
+	 * The name of the {@link #getAttribute(String) attribute} in the context associated to the value for the resource owner's username.
+	 */
+	public static final String USERNAME_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".USERNAME");
+
+	/**
+	 * The name of the {@link #getAttribute(String) attribute} in the context associated to the value for the resource owner's password.
+	 */
+	public static final String PASSWORD_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".PASSWORD");
 
 	private ClientRegistration clientRegistration;
 	private OAuth2AuthorizedClient authorizedClient;

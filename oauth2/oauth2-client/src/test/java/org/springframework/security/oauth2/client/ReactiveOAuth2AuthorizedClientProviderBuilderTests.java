@@ -150,6 +150,37 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 	}
 
 	@Test
+	public void buildWhenPasswordProviderThenProviderAuthorizes() throws Exception {
+		String accessTokenSuccessResponse = "{\n" +
+				"	\"access_token\": \"access-token-1234\",\n" +
+				"   \"token_type\": \"bearer\",\n" +
+				"   \"expires_in\": \"3600\"\n" +
+				"}\n";
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+
+		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+				ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+						.password()
+						.build();
+
+		OAuth2AuthorizationContext authorizationContext =
+				OAuth2AuthorizationContext.withClientRegistration(this.clientRegistrationBuilder.authorizationGrantType(AuthorizationGrantType.PASSWORD).build())
+						.principal(this.principal)
+						.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
+						.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
+						.build();
+		OAuth2AuthorizedClient authorizedClient = authorizedClientProvider.authorize(authorizationContext).block();
+
+		assertThat(authorizedClient).isNotNull();
+
+		assertThat(this.server.getRequestCount()).isEqualTo(1);
+
+		RecordedRequest recordedRequest = this.server.takeRequest();
+		String formParameters = recordedRequest.getBody().readUtf8();
+		assertThat(formParameters).contains("grant_type=password");
+	}
+
+	@Test
 	public void buildWhenAllProvidersThenProvidersAuthorize() throws Exception {
 		String accessTokenSuccessResponse = "{\n" +
 				"	\"access_token\": \"access-token-1234\",\n" +
@@ -158,12 +189,14 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 				"}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 				ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
 						.authorizationCode()
 						.refreshToken()
 						.clientCredentials()
+						.password()
 						.build();
 
 		// authorization_code
@@ -211,6 +244,23 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 		recordedRequest = this.server.takeRequest();
 		formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("grant_type=client_credentials");
+
+		// password
+		OAuth2AuthorizationContext passwordContext =
+				OAuth2AuthorizationContext.withClientRegistration(this.clientRegistrationBuilder.authorizationGrantType(AuthorizationGrantType.PASSWORD).build())
+						.principal(this.principal)
+						.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
+						.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
+						.build();
+		authorizedClient = authorizedClientProvider.authorize(passwordContext).block();
+
+		assertThat(authorizedClient).isNotNull();
+
+		assertThat(this.server.getRequestCount()).isEqualTo(3);
+
+		recordedRequest = this.server.takeRequest();
+		formParameters = recordedRequest.getBody().readUtf8();
+		assertThat(formParameters).contains("grant_type=password");
 	}
 
 	@Test

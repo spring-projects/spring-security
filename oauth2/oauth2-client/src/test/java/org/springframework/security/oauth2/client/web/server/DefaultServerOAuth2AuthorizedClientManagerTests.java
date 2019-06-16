@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.web.server;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -31,10 +32,13 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,7 +76,7 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 		this.authorizedClientProvider = mock(ReactiveOAuth2AuthorizedClientProvider.class);
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.empty());
 		this.contextAttributesMapper = mock(Function.class);
-		when(this.contextAttributesMapper.apply(any())).thenReturn(Collections.emptyMap());
+		when(this.contextAttributesMapper.apply(any())).thenReturn(Mono.just(Collections.emptyMap()));
 		this.authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		this.authorizedClientManager.setAuthorizedClientProvider(this.authorizedClientProvider);
@@ -209,6 +213,49 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 				eq(reauthorizedClient), eq(this.principal), eq(this.serverWebExchange));
 	}
 
+	@Test
+	public void authorizeWhenRequestFormParameterUsernamePasswordThenMappedToContext() {
+		when(this.clientRegistrationRepository.findByRegistrationId(
+				eq(this.clientRegistration.getRegistrationId()))).thenReturn(Mono.just(this.clientRegistration));
+
+		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.just(this.authorizedClient));
+
+		// Set custom contextAttributesMapper capable of mapping the form parameters
+		this.authorizedClientManager.setContextAttributesMapper(authorizeRequest ->
+			Mono.just(authorizeRequest.getServerWebExchange())
+					.flatMap(ServerWebExchange::getFormData)
+					.map(formData -> {
+						Map<String, Object> contextAttributes = new HashMap<>();
+						String username = formData.getFirst(OAuth2ParameterNames.USERNAME);
+						String password = formData.getFirst(OAuth2ParameterNames.PASSWORD);
+						if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+							contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
+							contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
+						}
+						return contextAttributes;
+					})
+		);
+
+		this.serverWebExchange = MockServerWebExchange.builder(
+				MockServerHttpRequest
+						.post("/")
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+						.body("username=username&password=password"))
+				.build();
+
+		ServerOAuth2AuthorizeRequest authorizeRequest = new ServerOAuth2AuthorizeRequest(
+				this.clientRegistration.getRegistrationId(), this.principal, this.serverWebExchange);
+		this.authorizedClientManager.authorize(authorizeRequest).block();
+
+		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
+
+		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
+		String username = authorizationContext.getAttribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME);
+		assertThat(username).isEqualTo("username");
+		String password = authorizationContext.getAttribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME);
+		assertThat(password).isEqualTo("password");
+	}
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenUnsupportedProviderThenNotReauthorized() {
@@ -255,9 +302,8 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 				eq(reauthorizedClient), eq(this.principal), eq(this.serverWebExchange));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
-	public void reauthorizeWhenRequestScopeParameterThenMappedToContext() {
+	public void reauthorizeWhenRequestParameterScopeThenMappedToContext() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(
 				this.clientRegistration, this.principal.getName(),
 				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
@@ -276,20 +322,12 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 
 		ServerOAuth2AuthorizeRequest reauthorizeRequest = new ServerOAuth2AuthorizeRequest(
 				this.authorizedClient, this.principal, this.serverWebExchange);
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest).block();
+		this.authorizedClientManager.authorize(reauthorizeRequest).block();
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
-		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
-		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
-		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-		assertThat(authorizationContext.getAttributes()).containsKey(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		String[] requestScopeAttribute = authorizationContext.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		assertThat(requestScopeAttribute).contains("read", "write");
-
-		assertThat(authorizedClient).isSameAs(reauthorizedClient);
-		verify(this.authorizedClientRepository).saveAuthorizedClient(
-				eq(reauthorizedClient), eq(this.principal), eq(this.serverWebExchange));
 	}
 }

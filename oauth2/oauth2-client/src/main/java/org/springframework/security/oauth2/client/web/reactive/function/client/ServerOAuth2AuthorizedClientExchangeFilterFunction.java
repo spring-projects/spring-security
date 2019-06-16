@@ -122,6 +122,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 						.authorizationCode()
 						.refreshToken()
 						.clientCredentials()
+						.password()
 						.build();
 		DefaultServerOAuth2AuthorizedClientManager authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
 				clientRegistrationRepository, authorizedClientRepository);
@@ -263,6 +264,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 						.authorizationCode()
 						.refreshToken(configurer -> configurer.clockSkew(this.accessTokenExpiresSkew))
 						.clientCredentials(this::updateClientCredentialsProvider)
+						.password(configurer -> configurer.clockSkew(this.accessTokenExpiresSkew))
 						.build();
 		((DefaultServerOAuth2AuthorizedClientManager) this.authorizedClientManager).setAuthorizedClientProvider(authorizedClientProvider);
 	}
