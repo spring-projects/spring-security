@@ -40,6 +40,20 @@ public interface ClaimAccessor {
 	Map<String, Object> getClaims();
 
 	/**
+	 * Returns the claim value as a {@code T} type.
+	 * It assumes that the given claim has already been converted to type {@code T}.
+	 *
+	 * @since 5.2
+	 * @param claim the name of the claim
+	 * @param <T> the type of the claim
+	 * @return the claim value
+	 */
+	@SuppressWarnings("unchecked")
+	default <T> T getClaim(String claim) {
+		return !containsClaim(claim) ? null : (T) this.getClaims().get(claim);
+	}
+
+	/**
 	 * Returns {@code true} if the claim exists in {@link #getClaims()}, otherwise {@code false}.
 	 *
 	 * @param claim the name of the claim
@@ -158,18 +172,5 @@ public interface ClaimAccessor {
 					"' of type '" + claimValue.getClass() + "' to List.");
 		}
 		return convertedValue;
-	}
-
-	/**
-	 * Returns the claim value as a {@code T} type.
-	 * It assumes that the given claim has already been converted to type {@code T}.
-	 *
-	 * @param claim the name of the claim
-	 * @param <T> the type of the claim
-	 * @return the claim value
-	 */
-	@SuppressWarnings("unchecked")
-	default <T> T getClaim(String claim) {
-		return (T) this.getClaims().get(claim);
 	}
 }

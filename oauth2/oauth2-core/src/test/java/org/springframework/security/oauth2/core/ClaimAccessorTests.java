@@ -106,7 +106,14 @@ public class ClaimAccessorTests {
 	}
 
 	@Test
-	public void getClaimWhenValueIsConvertedToList() {
+	public void getClaimWhenNotExistingThenReturnNull() {
+		String claimName = "list";
+		List<String> actualClaimValue = this.claimAccessor.getClaim(claimName);
+		assertThat(actualClaimValue).isNull();
+	}
+
+	@Test
+	public void getClaimWhenValueIsConvertedThenReturnList() {
 		List<String> expectedClaimValue = Arrays.asList("item1", "item2");
 		String claimName = "list";
 		this.claims.put(claimName, expectedClaimValue);
@@ -117,18 +124,18 @@ public class ClaimAccessorTests {
 	}
 
 	@Test
-	public void getClaimWhenValueIsConvertedToBoolean() {
+	public void getClaimWhenValueIsConvertedThenReturnBoolean() {
 		boolean expectedClaimValue = true;
 		String claimName = "boolean";
 		this.claims.put(claimName, expectedClaimValue);
 
 		boolean actualClaimValue = this.claimAccessor.getClaim(claimName);
 
-		assertThat(actualClaimValue).isEqualTo((expectedClaimValue));
+		assertThat(actualClaimValue).isEqualTo(expectedClaimValue);
 	}
 
 	@Test
-	public void getClaimWhenValueIsNotConvertedToType() {
+	public void getClaimWhenValueIsNotConvertedThenThrowClassCastException() {
 		String expectedClaimValue = "true";
 		String claimName = "boolean";
 		this.claims.put(claimName, expectedClaimValue);
