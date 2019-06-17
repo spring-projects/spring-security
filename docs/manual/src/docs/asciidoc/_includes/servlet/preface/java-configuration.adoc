@@ -719,8 +719,8 @@ Resource Server uses `JwtTimestampValidator` to verify a token's validity window
 ```java
 @Bean
 JwtDecoder jwtDecoder() {
-     NimbusJwtDecoderJwkSupport jwtDecoder = (NimbusJwtDecoderJwkSupport)
-             JwtDecoders.withOidcIssuerLocation(issuerUri);
+     NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)
+             JwtDecoders.fromOidcIssuerLocation(issuerUri);
 
      OAuth2TokenValidator<Jwt> withClockSkew = new DelegatingOAuth2TokenValidator<>(
             new JwtTimestampValidator(Duration.ofSeconds(60)),
@@ -759,8 +759,8 @@ Then, to add into a resource server, it's a matter of specifying the `JwtDecoder
 ```java
 @Bean
 JwtDecoder jwtDecoder() {
-    NimbusJwtDecoderJwkSupport jwtDecoder = (NimbusJwtDecoderJwkSupport)
-        JwtDecoders.withOidcIssuerLocation(issuerUri);
+    NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)
+        JwtDecoders.fromOidcIssuerLocation(issuerUri);
 
     OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator();
     OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuerUri);
