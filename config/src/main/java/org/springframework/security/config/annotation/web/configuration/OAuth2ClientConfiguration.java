@@ -77,8 +77,7 @@ final class OAuth2ClientConfiguration {
 								this.clientRegistrationRepository, this.authorizedClientRepository);
 				if (this.accessTokenResponseClient != null) {
 					ClientCredentialsOAuth2AuthorizedClientProvider clientCredentialsAuthorizedClientProvider =
-							new ClientCredentialsOAuth2AuthorizedClientProvider(
-									this.clientRegistrationRepository, this.authorizedClientRepository);
+							new ClientCredentialsOAuth2AuthorizedClientProvider();
 					clientCredentialsAuthorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
 					OAuth2AuthorizedClientProvider authorizedClientProvider = new DelegatingOAuth2AuthorizedClientProvider(
 							new AuthorizationCodeOAuth2AuthorizedClientProvider(), clientCredentialsAuthorizedClientProvider);

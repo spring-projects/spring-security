@@ -18,23 +18,17 @@ package org.springframework.security.oauth2.client;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,7 +36,6 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -51,8 +44,6 @@ import static org.mockito.Mockito.*;
  * @author Joe Grandja
  */
 public class RefreshTokenOAuth2AuthorizedClientProviderTests {
-	private ClientRegistrationRepository clientRegistrationRepository;
-	private OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private RefreshTokenOAuth2AuthorizedClientProvider authorizedClientProvider;
 	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
 	private ClientRegistration clientRegistration;
@@ -61,30 +52,13 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 
 	@Before
 	public void setup() {
-		this.clientRegistrationRepository = mock(ClientRegistrationRepository.class);
-		this.authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
-		this.authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider(
-				this.clientRegistrationRepository, this.authorizedClientRepository);
+		this.authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 		this.authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.principal = new TestingAuthenticationToken("principal", "password");
 		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration, this.principal.getName(),
 				TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken());
-	}
-
-	@Test
-	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new RefreshTokenOAuth2AuthorizedClientProvider(null, this.authorizedClientRepository))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientRegistrationRepository cannot be null");
-	}
-
-	@Test
-	public void constructorWhenOAuth2AuthorizedClientRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new RefreshTokenOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizedClientRepository cannot be null");
 	}
 
 	@Test
@@ -118,27 +92,6 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
-	public void authorizeWhenHttpServletRequestIsNullThenThrowIllegalArgumentException() {
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forReauthorization(this.authorizedClient).principal(this.principal).build();
-		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("The context attribute cannot be null 'javax.servlet.http.HttpServletRequest'");
-	}
-
-	@Test
-	public void authorizeWhenHttpServletResponseIsNullThenThrowIllegalArgumentException() {
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forReauthorization(this.authorizedClient)
-						.principal(this.principal)
-						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
-						.build();
-		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("The context attribute cannot be null 'javax.servlet.http.HttpServletResponse'");
-	}
-
-	@Test
 	public void authorizeWhenAuthorizedWithRefreshTokenThenReauthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
 				.refreshToken("new-refresh-token")
@@ -148,8 +101,6 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.forReauthorization(this.authorizedClient)
 						.principal(this.principal)
-						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
-						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
 						.build();
 
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
@@ -158,9 +109,6 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
 		assertThat(authorizedClient.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
-		verify(this.authorizedClientRepository).saveAuthorizedClient(
-				eq(authorizedClient), eq(this.principal),
-				any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
@@ -176,8 +124,6 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.forReauthorization(this.authorizedClient)
 						.principal(this.principal)
-						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
-						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
 						.attribute(RefreshTokenOAuth2AuthorizedClientProvider.REQUEST_SCOPE_ATTRIBUTE_NAME, scope)
 						.build();
 
@@ -202,8 +148,6 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.forReauthorization(this.authorizedClient)
 						.principal(this.principal)
-						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
-						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
 						.attribute(RefreshTokenOAuth2AuthorizedClientProvider.REQUEST_SCOPE_ATTRIBUTE_NAME, scope)
 						.build();
 
