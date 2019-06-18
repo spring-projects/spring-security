@@ -34,7 +34,7 @@ public final class AuthorizationCodeOAuth2AuthorizedClientProvider implements OA
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(context.getClientRegistration().getAuthorizationGrantType()) &&
-				context.authorizationRequired()) {
+				context.authorizationRequested()) {
 			// ClientAuthorizationRequiredException is caught by OAuth2AuthorizationRequestRedirectFilter which initiates authorization
 			throw new ClientAuthorizationRequiredException(context.getClientRegistration().getRegistrationId());
 		}

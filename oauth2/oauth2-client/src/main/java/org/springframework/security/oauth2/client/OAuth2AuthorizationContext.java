@@ -46,7 +46,7 @@ public final class OAuth2AuthorizationContext {
 	}
 
 	/**
-	 * Returns the {@link ClientRegistration client} requiring authorization.
+	 * Returns the {@link ClientRegistration client} requesting authorization.
 	 *
 	 * @return the {@link ClientRegistration}
 	 */
@@ -64,10 +64,10 @@ public final class OAuth2AuthorizationContext {
 	}
 
 	/**
-	 * Returns the {@link OAuth2AuthorizedClient authorized client} which requires re-authorization
-	 * or {@code null} if the {@link #getClientRegistration() client} needs to be authorized.
+	 * Returns the {@link OAuth2AuthorizedClient authorized client} requesting re-authorization
+	 * or {@code null} if the {@link #getClientRegistration() client} is requesting to be authorized.
 	 *
-	 * @return the {@link OAuth2AuthorizedClient} which requires re-authorization or {@code null} if the client needs to be authorized
+	 * @return the {@link OAuth2AuthorizedClient} requesting re-authorization or {@code null} if the client is requesting to be authorized
 	 */
 	@Nullable
 	public OAuth2AuthorizedClient getAuthorizedClient() {
@@ -97,40 +97,40 @@ public final class OAuth2AuthorizationContext {
 	}
 
 	/**
-	 * Returns {@code true} if the client needs to be authorized, otherwise {@code false}.
+	 * Returns {@code true} if the client is requesting authorization, otherwise {@code false}.
 	 *
-	 * @return {@code true} if the client needs to be authorized, otherwise {@code false}.
+	 * @return {@code true} if the client is requesting authorization, otherwise {@code false}.
 	 */
-	public boolean authorizationRequired() {
+	public boolean authorizationRequested() {
 		return getAuthorizedClient() == null;
 	}
 
 	/**
-	 * Returns {@code true} if the client needs to be re-authorized, otherwise {@code false}.
+	 * Returns {@code true} if the client is requesting re-authorization, otherwise {@code false}.
 	 *
-	 * @return {@code true} if the client needs to be re-authorized, otherwise {@code false}.
+	 * @return {@code true} if the client is requesting re-authorization, otherwise {@code false}.
 	 */
-	public boolean reauthorizationRequired() {
+	public boolean reauthorizationRequested() {
 		return getAuthorizedClient() != null;
 	}
 
 	/**
-	 * Returns a new {@link Builder} with the {@link ClientRegistration client} requiring authorization.
+	 * Returns a new {@link Builder} with the {@link ClientRegistration client} requesting authorization.
 	 *
-	 * @param clientRegistration the {@link ClientRegistration client} requiring authorization
+	 * @param clientRegistration the {@link ClientRegistration client} requesting authorization
 	 * @return the {@link Builder}
 	 */
-	public static Builder authorize(ClientRegistration clientRegistration) {
+	public static Builder forAuthorization(ClientRegistration clientRegistration) {
 		return new Builder(clientRegistration);
 	}
 
 	/**
-	 * Returns a new {@link Builder} with the {@link OAuth2AuthorizedClient authorized client} requiring re-authorization.
+	 * Returns a new {@link Builder} with the {@link OAuth2AuthorizedClient authorized client} requesting re-authorization.
 	 *
-	 * @param authorizedClient the {@link OAuth2AuthorizedClient authorized client} requiring re-authorization
+	 * @param authorizedClient the {@link OAuth2AuthorizedClient authorized client} requesting re-authorization
 	 * @return the {@link Builder}
 	 */
-	public static Builder reauthorize(OAuth2AuthorizedClient authorizedClient) {
+	public static Builder forReauthorization(OAuth2AuthorizedClient authorizedClient) {
 		return new Builder(authorizedClient);
 	}
 

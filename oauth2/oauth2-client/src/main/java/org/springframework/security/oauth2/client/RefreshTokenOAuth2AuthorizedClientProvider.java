@@ -93,7 +93,7 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 	@Nullable
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-		if (!context.reauthorizationRequired() || context.getAuthorizedClient().getRefreshToken() == null) {
+		if (!context.reauthorizationRequested() || context.getAuthorizedClient().getRefreshToken() == null) {
 			return null;
 		}
 

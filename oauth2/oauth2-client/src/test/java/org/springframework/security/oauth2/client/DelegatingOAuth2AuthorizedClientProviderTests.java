@@ -64,7 +64,7 @@ public class DelegatingOAuth2AuthorizedClientProviderTests {
 
 		DelegatingOAuth2AuthorizedClientProvider delegate = new DelegatingOAuth2AuthorizedClientProvider(
 				mock(OAuth2AuthorizedClientProvider.class), mock(OAuth2AuthorizedClientProvider.class), authorizedClientProvider);
-		OAuth2AuthorizationContext context = OAuth2AuthorizationContext.reauthorize(authorizedClient).principal(principal).build();
+		OAuth2AuthorizationContext context = OAuth2AuthorizationContext.forReauthorization(authorizedClient).principal(principal).build();
 		OAuth2AuthorizedClient reauthorizedClient = delegate.authorize(context);
 		assertThat(reauthorizedClient).isSameAs(authorizedClient);
 	}
@@ -72,7 +72,7 @@ public class DelegatingOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenProviderCantAuthorizeThenReturnNull() {
 		OAuth2AuthorizationContext context = OAuth2AuthorizationContext
-				.authorize(TestClientRegistrations.clientRegistration().build())
+				.forAuthorization(TestClientRegistrations.clientRegistration().build())
 				.principal(new TestingAuthenticationToken("principal", "password"))
 				.build();
 

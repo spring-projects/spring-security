@@ -399,7 +399,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 			throw new IllegalArgumentException("Could not find ClientRegistration with id " + clientRegistrationId);
 		}
 
-		OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext.authorize(clientRegistration);
+		OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext.forAuthorization(clientRegistration);
 		Authentication authentication = getAuthentication(attributes);
 		if (authentication != null) {
 			contextBuilder.principal(authentication);
@@ -420,7 +420,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 
 		Map<String, Object> attributes = request.attributes();
 
-		OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext.reauthorize(authorizedClient);
+		OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext.forReauthorization(authorizedClient);
 		Authentication authentication = getAuthentication(attributes);
 		if (authentication != null) {
 			contextBuilder.principal(authentication);

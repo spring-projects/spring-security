@@ -104,7 +104,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenNotAuthorizedThenUnableToReauthorize() {
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.authorize(this.clientRegistration).principal(this.principal).build();
+				OAuth2AuthorizationContext.forAuthorization(this.clientRegistration).principal(this.principal).build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
 	}
 
@@ -113,14 +113,14 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 				this.clientRegistration, this.principal.getName(), this.authorizedClient.getAccessToken());
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.reauthorize(authorizedClient).principal(this.principal).build();
+				OAuth2AuthorizationContext.forReauthorization(authorizedClient).principal(this.principal).build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
 	}
 
 	@Test
 	public void authorizeWhenHttpServletRequestIsNullThenThrowIllegalArgumentException() {
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.reauthorize(this.authorizedClient).principal(this.principal).build();
+				OAuth2AuthorizationContext.forReauthorization(this.authorizedClient).principal(this.principal).build();
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("The context attribute cannot be null 'javax.servlet.http.HttpServletRequest'");
@@ -129,7 +129,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenHttpServletResponseIsNullThenThrowIllegalArgumentException() {
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.reauthorize(this.authorizedClient)
+				OAuth2AuthorizationContext.forReauthorization(this.authorizedClient)
 						.principal(this.principal)
 						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
 						.build();
@@ -146,7 +146,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.reauthorize(this.authorizedClient)
+				OAuth2AuthorizationContext.forReauthorization(this.authorizedClient)
 						.principal(this.principal)
 						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
 						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
@@ -174,7 +174,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		Set<String> scopes = new HashSet<>(Arrays.asList("read", "write"));
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.reauthorize(this.authorizedClient)
+				OAuth2AuthorizationContext.forReauthorization(this.authorizedClient)
 						.principal(this.principal)
 						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
 						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
@@ -200,7 +200,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		Set<String> scopes = new HashSet<>(Arrays.asList("read", "write"));
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.reauthorize(this.authorizedClient)
+				OAuth2AuthorizationContext.forReauthorization(this.authorizedClient)
 						.principal(this.principal)
 						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
 						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
