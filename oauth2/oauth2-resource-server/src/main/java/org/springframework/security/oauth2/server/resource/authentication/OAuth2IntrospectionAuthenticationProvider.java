@@ -32,6 +32,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2TokenIntrospectionClient;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
@@ -123,7 +124,7 @@ public final class OAuth2IntrospectionAuthenticationProvider implements Authenti
 		OAuth2AccessToken accessToken  = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				token, iat, exp);
 		Collection<GrantedAuthority> authorities = extractAuthorities(claims);
-		return new OAuth2IntrospectionAuthenticationToken(accessToken, claims, authorities);
+		return new OAuth2IntrospectionAuthenticationToken(accessToken, new OAuth2TokenAttributes(claims), authorities);
 	}
 
 	private Collection<GrantedAuthority> extractAuthorities(Map<String, Object> claims) {

@@ -24,6 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.Transient;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import org.springframework.util.Assert;
 
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SUBJECT;
@@ -53,7 +54,7 @@ public class OAuth2IntrospectionAuthenticationToken
 	 * @param authorities The authorities associated with the given token
 	 */
 	public OAuth2IntrospectionAuthenticationToken(OAuth2AccessToken token,
-			Map<String, Object> attributes, Collection<? extends GrantedAuthority> authorities) {
+			OAuth2TokenAttributes attributes, Collection<? extends GrantedAuthority> authorities) {
 
 		this(token, attributes, authorities, null);
 	}
@@ -65,18 +66,20 @@ public class OAuth2IntrospectionAuthenticationToken
 	 * @param authorities The authorities associated with the given token
 	 * @param name The name associated with this token
 	 */
-	public OAuth2IntrospectionAuthenticationToken(OAuth2AccessToken token,
-		Map<String, Object> attributes, Collection<? extends GrantedAuthority> authorities, String name) {
+	public OAuth2IntrospectionAuthenticationToken(OAuth2AccessToken token, OAuth2TokenAttributes attributes,
+		Collection<? extends GrantedAuthority> authorities, String name) {
 
 		super(token, attributes(attributes), token, authorities);
 		this.attributes = attributes(attributes);
-		this.name = name == null ? (String) attributes.get(SUBJECT) : name;
+		this.name = name == null ? (String) this.attributes.get(SUBJECT) : name;
 		setAuthenticated(true);
 	}
 
-	private static Map<String, Object> attributes(Map<String, Object> attributes) {
-		Assert.notEmpty(attributes, "attributes cannot be empty");
-		return Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
+	private static Map<String, Object> attributes(OAuth2TokenAttributes attributes) {
+		Assert.notNull(attributes, "attributes cannot be empty");
+		Map<String, Object> attr = attributes.getAttributes();
+		Assert.notEmpty(attr, "attributes cannot be empty");
+		return Collections.unmodifiableMap(new LinkedHashMap<>(attr));
 	}
 
 	/**
