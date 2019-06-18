@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
@@ -101,7 +102,7 @@ public class OAuth2IntrospectionReactiveAuthenticationManager implements Reactiv
 					OAuth2AccessToken accessToken =
 							new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
 					Collection<GrantedAuthority> authorities = extractAuthorities(claims);
-					return new OAuth2IntrospectionAuthenticationToken(accessToken, claims, authorities);
+					return new OAuth2IntrospectionAuthenticationToken(accessToken, new OAuth2TokenAttributes(claims), authorities);
 				})
 				.onErrorMap(OAuth2IntrospectionException.class, this::onError);
 	}

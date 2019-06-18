@@ -79,6 +79,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
@@ -159,7 +160,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	private static final String CLIENT_ID = "client-id";
 	private static final String CLIENT_SECRET = "client-secret";
 	private static final OAuth2IntrospectionAuthenticationToken INTROSPECTION_AUTHENTICATION_TOKEN =
-			new OAuth2IntrospectionAuthenticationToken(noScopes(), JWT_CLAIMS, Collections.emptyList());
+			new OAuth2IntrospectionAuthenticationToken(noScopes(), new OAuth2TokenAttributes(JWT_CLAIMS), Collections.emptyList());
 
 	@Autowired(required = false)
 	MockMvc mvc;
