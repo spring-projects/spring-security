@@ -165,4 +165,28 @@ public class DefaultBearerTokenResolverTests {
 
 		assertThat(this.resolver.resolve(request)).isNull();
 	}
+
+	@Test
+	public void resolveWhenQueryParameterIsPresentWithMissingTokenThenAuthenticationExceptionIsThrown() {
+		this.resolver.setAllowUriQueryParameter(true);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("GET");
+		request.addParameter("access_token", "");
+
+		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
+				.hasMessageContaining(("Bearer token is malformed"));
+	}
+
+	@Test
+	public void resolveWhenQueryParameterWithInvalidCharactersIsPresentThenAuthenticationExceptionIsThrown() {
+		this.resolver.setAllowUriQueryParameter(true);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("GET");
+		request.addParameter("access_token", "an\"invalid\"token");
+
+		assertThatCode(() -> this.resolver.resolve(request)).isInstanceOf(OAuth2AuthenticationException.class)
+				.hasMessageContaining(("Bearer token is malformed"));
+	}
 }

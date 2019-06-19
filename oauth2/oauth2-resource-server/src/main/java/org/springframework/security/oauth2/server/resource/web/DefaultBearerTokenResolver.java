@@ -39,6 +39,9 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	private static final Pattern authorizationPattern = Pattern.compile(
 		"^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
 		Pattern.CASE_INSENSITIVE);
+	private static final Pattern queryParametersPattern = Pattern.compile(
+			"^(?<token>[a-zA-Z0-9-._~+/]+)=*$",
+			Pattern.CASE_INSENSITIVE);
 
 	private boolean allowFormEncodedBodyParameter = false;
 
@@ -90,17 +93,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	private static String resolveFromAuthorizationHeader(HttpServletRequest request) {
 		String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
-			Matcher matcher = authorizationPattern.matcher(authorization);
-
-			if (!matcher.matches()) {
-				BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_TOKEN,
-						HttpStatus.UNAUTHORIZED,
-						"Bearer token is malformed",
-						"https://tools.ietf.org/html/rfc6750#section-3.1");
-				throw new OAuth2AuthenticationException(error);
-			}
-
-			return matcher.group("token");
+			return validateToken(authorization, authorizationPattern);
 		}
 		return null;
 	}
@@ -112,7 +105,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		}
 
 		if (values.length == 1) {
-			return values[0];
+			return validateToken(values[0], queryParametersPattern);
 		}
 
 		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST,
@@ -125,5 +118,19 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	private boolean isParameterTokenSupportedForRequest(HttpServletRequest request) {
 		return ((this.allowFormEncodedBodyParameter && "POST".equals(request.getMethod()))
 				|| (this.allowUriQueryParameter && "GET".equals(request.getMethod())));
+	}
+
+	private static String validateToken(String token, Pattern pattern) {
+		Matcher matcher = pattern.matcher(token);
+
+		if (!matcher.matches()) {
+			BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_TOKEN,
+					HttpStatus.UNAUTHORIZED,
+					"Bearer token is malformed",
+					"https://tools.ietf.org/html/rfc6750#section-3.1");
+			throw new OAuth2AuthenticationException(error);
+		}
+
+		return matcher.group("token");
 	}
 }
