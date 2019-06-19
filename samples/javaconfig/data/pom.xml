@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-javaconfig-data</artifactId>
-  <version>4.2.12.RELEASE</version>
+  <version>4.2.13.RELEASE</version>
   <name>spring-security-samples-javaconfig-data</name>
   <description>spring-security-samples-javaconfig-data</description>
   <url>https://spring.io/spring-security</url>
@@ -81,13 +81,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-data</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

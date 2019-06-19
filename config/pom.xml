@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-config</artifactId>
-  <version>4.2.12.RELEASE</version>
+  <version>4.2.13.RELEASE</version>
   <name>spring-security-config</name>
   <description>spring-security-config</description>
   <url>https://spring.io/spring-security</url>
@@ -51,7 +51,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -97,28 +97,28 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-ldap</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-messaging</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-openid</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
@@ -365,13 +365,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-aspects</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-cas</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-javaconfig-openid</artifactId>
-  <version>4.2.12.RELEASE</version>
+  <version>4.2.13.RELEASE</version>
   <packaging>war</packaging>
   <name>spring-security-samples-javaconfig-openid</name>
   <description>spring-security-samples-javaconfig-openid</description>
@@ -91,31 +91,31 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-openid</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-samples-javaconfig-messages</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.2.12.RELEASE</version>
+      <version>4.2.13.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
