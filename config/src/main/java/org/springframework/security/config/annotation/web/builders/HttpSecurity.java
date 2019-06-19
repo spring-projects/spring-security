@@ -682,6 +682,45 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Allows configuring exception handling. This is automatically applied when using
+	 * {@link WebSecurityConfigurerAdapter}.
+	 *
+	 * <h2>Example Custom Configuration</h2>
+	 *
+	 * The following customization will ensure that users who are denied access are forwarded
+	 * to the page "/errors/access-denied".
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class ExceptionHandlingSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			// sample exception handling customization
+	 * 			.exceptionHandling(exceptionHandling ->
+	 * 				exceptionHandling
+	 * 					.accessDeniedPage(&quot;/errors/access-denied&quot;)
+	 * 			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @param exceptionHandlingCustomizer the {@link Customizer} to provide more options for
+	 * the {@link ExceptionHandlingConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity exceptionHandling(Customizer<ExceptionHandlingConfigurer<HttpSecurity>> exceptionHandlingCustomizer) throws Exception {
+		exceptionHandlingCustomizer.customize(getOrApply(new ExceptionHandlingConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Sets up management of the {@link SecurityContext} on the
 	 * {@link SecurityContextHolder} between {@link HttpServletRequest}'s. This is
 	 * automatically applied when using {@link WebSecurityConfigurerAdapter}.
