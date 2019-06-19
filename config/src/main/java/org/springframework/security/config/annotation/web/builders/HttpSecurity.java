@@ -772,6 +772,35 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Adds CSRF support. This is activated by default when using
+	 * {@link WebSecurityConfigurerAdapter}'s default constructor. You can disable it
+	 * using:
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 *     protected void configure(HttpSecurity http) throws Exception {
+	 *         http
+	 *             .csrf(csrf -> csrf.disable());
+	 *     }
+	 * }
+	 * </pre>
+	 *
+	 * @param csrfCustomizer the {@link Customizer} to provide more options for
+	 * the {@link CsrfConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity csrf(Customizer<CsrfConfigurer<HttpSecurity>> csrfCustomizer) throws Exception {
+		ApplicationContext context = getContext();
+		csrfCustomizer.customize(getOrApply(new CsrfConfigurer<>(context)));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Provides logout support. This is automatically applied when using
 	 * {@link WebSecurityConfigurerAdapter}. The default is that accessing the URL
 	 * "/logout" will log the user out by invalidating the HTTP Session, cleaning up any

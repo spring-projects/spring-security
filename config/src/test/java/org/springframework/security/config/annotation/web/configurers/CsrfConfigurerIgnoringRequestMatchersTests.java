@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,36 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 	}
 
 	@Test
+	public void requestWhenIgnoringRequestMatchersInLambdaThenAugmentedByConfiguredRequestMatcher()
+			throws Exception {
+		this.spring.register(IgnoringRequestInLambdaMatchers.class, BasicController.class).autowire();
+
+		this.mvc.perform(get("/path"))
+				.andExpect(status().isForbidden());
+
+		this.mvc.perform(post("/path"))
+				.andExpect(status().isOk());
+	}
+
+	@EnableWebSecurity
+	static class IgnoringRequestInLambdaMatchers extends WebSecurityConfigurerAdapter {
+		RequestMatcher requestMatcher =
+				request -> HttpMethod.POST.name().equals(request.getMethod());
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf(csrf ->
+					csrf
+						.requireCsrfProtectionMatcher(new AntPathRequestMatcher("/path"))
+						.ignoringRequestMatchers(this.requestMatcher)
+				);
+			// @formatter:on
+		}
+	}
+
+	@Test
 	public void requestWhenIgnoringRequestMatcherThenUnionsWithConfiguredIgnoringAntMatchers()
 			throws Exception {
 
@@ -103,6 +133,40 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 				.csrf()
 					.ignoringAntMatchers("/no-csrf")
 					.ignoringRequestMatchers(this.requestMatcher);
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void requestWhenIgnoringRequestMatcherInLambdaThenUnionsWithConfiguredIgnoringAntMatchers()
+			throws Exception {
+
+		this.spring.register(IgnoringPathsAndMatchersInLambdaConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(put("/csrf"))
+				.andExpect(status().isForbidden());
+
+		this.mvc.perform(post("/csrf"))
+				.andExpect(status().isOk());
+
+		this.mvc.perform(put("/no-csrf"))
+				.andExpect(status().isOk());
+	}
+
+	@EnableWebSecurity
+	static class IgnoringPathsAndMatchersInLambdaConfig extends WebSecurityConfigurerAdapter {
+		RequestMatcher requestMatcher =
+				request -> HttpMethod.POST.name().equals(request.getMethod());
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf(csrf ->
+					csrf
+						.ignoringAntMatchers("/no-csrf")
+						.ignoringRequestMatchers(this.requestMatcher)
+				);
 			// @formatter:on
 		}
 	}
