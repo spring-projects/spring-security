@@ -7,4 +7,4 @@ It would be very helpful if you could provide a complete and minimal sample that
 
 ### Post questions on StackOverflow not GitHub
 
-If you have a question or need help with a specific topic, please search for an answer on StackOverflow first. If you can't find the answer than please post your question on StackOverflow. If you don't get an answer on StackOverflow after a few days, feel free to create a ticket with a link to the StackOverflow question. Our preference is to keep GitHub issues for bug reports or new feature and enhancement requests.
+Thanks for getting in touch, but it feels like this is a question that would be better suited to Stack Overflow. As mentioned in the guidelines for contributing , we prefer to use GitHub issues only for bugs and enhancements. Feel free to update this issue with a link to the re-posted question (so that other people can find it) or add some more details if you feel this is a genuine bug.
