@@ -28,7 +28,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,7 +37,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -180,31 +178,6 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(OAuth2LoginConfig.EVENTS).isNotEmpty();
 		assertThat(OAuth2LoginConfig.EVENTS).hasSize(1);
 		assertThat(OAuth2LoginConfig.EVENTS.get(0)).isInstanceOf(AuthenticationSuccessEvent.class);
-	}
-
-	@Test
-	public void oauth2LoginWhenAuthenticatedThenIgnored() throws Exception {
-		// setup application context
-		loadConfig(OAuth2LoginConfig.class);
-
-		// authenticate
-		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("a",
-				"b", "ROLE_TEST");
-
-		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, new SecurityContextImpl(expectedAuthentication));
-
-		// setup authentication parameters
-		this.request.setParameter("code", "code123");
-		this.request.setParameter("state", "state");
-
-		// perform test
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
-
-		// assertions
-		Authentication authentication = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
-				.getAuthentication();
-		assertThat(authentication).isEqualTo(expectedAuthentication);
 	}
 
 	@Test
