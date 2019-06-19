@@ -774,6 +774,53 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Provides logout support. This is automatically applied when using
+	 * {@link WebSecurityConfigurerAdapter}. The default is that accessing the URL
+	 * "/logout" will log the user out by invalidating the HTTP Session, cleaning up any
+	 * {@link #rememberMe()} authentication that was configured, clearing the
+	 * {@link SecurityContextHolder}, and then redirect to "/login?success".
+	 *
+	 * <h2>Example Custom Configuration</h2>
+	 *
+	 * The following customization to log out when the URL "/custom-logout" is invoked.
+	 * Log out will remove the cookie named "remove", not invalidate the HttpSession,
+	 * clear the SecurityContextHolder, and upon completion redirect to "/logout-success".
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class LogoutSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.formLogin()
+	 * 				.and()
+	 * 			// sample logout customization
+	 * 			.logout(logout ->
+	 * 				logout.deleteCookies(&quot;remove&quot;)
+	 * 					.invalidateHttpSession(false)
+	 * 					.logoutUrl(&quot;/custom-logout&quot;)
+	 * 					.logoutSuccessUrl(&quot;/logout-success&quot;)
+	 * 			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @param logoutCustomizer the {@link Customizer} to provide more options for
+	 * the {@link LogoutConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity logout(Customizer<LogoutConfigurer<HttpSecurity>> logoutCustomizer) throws Exception {
+		logoutCustomizer.customize(getOrApply(new LogoutConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Allows configuring how an anonymous user is represented. This is automatically
 	 * applied when used in conjunction with {@link WebSecurityConfigurerAdapter}. By
 	 * default anonymous users will be represented with an

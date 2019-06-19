@@ -37,10 +37,15 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -78,6 +83,26 @@ public class LogoutConfigurerTests {
 	}
 
 	@Test
+	public void configureWhenDefaultLogoutSuccessHandlerForHasNullLogoutHandlerInLambdaThenException() {
+		assertThatThrownBy(() -> this.spring.register(NullLogoutSuccessHandlerInLambdaConfig.class).autowire())
+				.isInstanceOf(BeanCreationException.class)
+				.hasRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@EnableWebSecurity
+	static class NullLogoutSuccessHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout(logout ->
+					logout.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class))
+				);
+			// @formatter:on
+		}
+	}
+
+	@Test
 	public void configureWhenDefaultLogoutSuccessHandlerForHasNullMatcherThenException() {
 		assertThatThrownBy(() -> this.spring.register(NullMatcherConfig.class).autowire())
 				.isInstanceOf(BeanCreationException.class)
@@ -92,6 +117,26 @@ public class LogoutConfigurerTests {
 			http
 				.logout()
 					.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null);
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void configureWhenDefaultLogoutSuccessHandlerForHasNullMatcherInLambdaThenException() {
+		assertThatThrownBy(() -> this.spring.register(NullMatcherInLambdaConfig.class).autowire())
+				.isInstanceOf(BeanCreationException.class)
+				.hasRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@EnableWebSecurity
+	static class NullMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout(logout ->
+					logout.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null)
+				);
 			// @formatter:on
 		}
 	}
@@ -263,6 +308,29 @@ public class LogoutConfigurerTests {
 		}
 	}
 
+	@Test
+	public void logoutWhenCustomLogoutUrlInLambdaThenRedirectsToLogin() throws Exception {
+		this.spring.register(CsrfDisabledAndCustomLogoutInLambdaConfig.class).autowire();
+
+		this.mvc.perform(get("/custom/logout"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+	}
+
+	@EnableWebSecurity
+	static class CsrfDisabledAndCustomLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf()
+					.disable()
+				.logout(logout -> logout.logoutUrl("/custom/logout"));
+			// @formatter:on
+		}
+	}
+
 	// SEC-3170
 	@Test
 	public void configureWhenLogoutHandlerNullThenException() {
@@ -279,6 +347,24 @@ public class LogoutConfigurerTests {
 			http
 				.logout()
 					.addLogoutHandler(null);
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void configureWhenLogoutHandlerNullInLambdaThenException() {
+		assertThatThrownBy(() -> this.spring.register(NullLogoutHandlerInLambdaConfig.class).autowire())
+				.isInstanceOf(BeanCreationException.class)
+				.hasRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@EnableWebSecurity
+	static class NullLogoutHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout(logout -> logout.addLogoutHandler(null));
 			// @formatter:on
 		}
 	}
