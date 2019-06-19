@@ -54,7 +54,6 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeReactiveAuthenticationManager;
@@ -647,11 +646,7 @@ public class ServerHttpSecurity {
 		}
 
 		private ServerWebExchangeMatcher createAttemptAuthenticationRequestMatcher() {
-			PathPatternParserServerWebExchangeMatcher loginPathMatcher = new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}");
-			ServerWebExchangeMatcher notAuthenticatedMatcher = e  -> ReactiveSecurityContextHolder.getContext()
-					.flatMap(p -> ServerWebExchangeMatcher.MatchResult.notMatch())
-					.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.match());
-			return new AndServerWebExchangeMatcher(loginPathMatcher, notAuthenticatedMatcher);
+			return new PathPatternParserServerWebExchangeMatcher("/login/oauth2/code/{registrationId}");
 		}
 
 		private ReactiveOAuth2UserService<OidcUserRequest, OidcUser> getOidcUserService() {
