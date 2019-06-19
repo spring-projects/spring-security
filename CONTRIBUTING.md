@@ -33,6 +33,18 @@ Not sure what a pull request is, or how to submit one? Take a look at GitHub's e
 # Search GitHub issues; create an issue if necessary
 Is there already an issue that addresses your concern? Do a bit of searching in our [GitHub issues ](https://github.com/spring-projects/spring-security/issues) to see if you can find something similar. If not, please create a new issue before submitting a pull request unless the change is not a user facing issue.
 
+# Using GitHub Issues
+We use GitHub issues to track bugs and enhancements.
+If you have a general usage question please ask on [Stack Overflow](https://stackoverflow.com).
+The Spring Security team and the broader community monitor the [`spring-security`](https://stackoverflow.com/tags/spring-security) tag.
+
+If you are reporting a bug, please help to speed up problem diagnosis by providing as much
+information as possible. Ideally, that would include a small
+[sample project](https://github.com/spring-projects/spring-boot-issues) that reproduces the
+problem.
+
+
+
 # Discuss non-trivial contribution ideas with committers
 If you're considering anything more than correcting a typo or fixing a minor bug, please discuss it on the [Spring Security Gitter](https://gitter.im/spring-projects/spring-security) before submitting a pull request. We're happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
 
