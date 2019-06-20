@@ -62,8 +62,8 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER =
 			new ClaimTypeConverter(createDefaultClaimTypeConverters());
-	private final Set<String> userInfoScopes = new HashSet<>(
-		Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
+	private Set<String> accessibleScopes = new HashSet<>(Arrays.asList(
+			OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
 	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = new DefaultOAuth2UserService();
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory =
 			clientRegistration -> DEFAULT_CLAIM_TYPE_CONVERTER;
@@ -160,8 +160,9 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(
 			userRequest.getClientRegistration().getAuthorizationGrantType())) {
 
-			// Return true if there is at least one match between the authorized scope(s) and UserInfo scope(s)
-			return CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(), this.userInfoScopes);
+			// Return true if there is at least one match between the authorized scope(s) and accessible scope(s)
+			return this.accessibleScopes.isEmpty() ||
+					CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(), this.accessibleScopes);
 		}
 
 		return false;
@@ -189,5 +190,20 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	public final void setClaimTypeConverterFactory(Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
+	}
+
+	/**
+	 * Sets the scope(s) that allow access to the user info resource.
+	 * The default is {@link OidcScopes#PROFILE profile}, {@link OidcScopes#EMAIL email}, {@link OidcScopes#ADDRESS address} and {@link OidcScopes#PHONE phone}.
+	 * The scope(s) are checked against the "granted" scope(s) associated to the {@link OidcUserRequest#getAccessToken() access token}
+	 * to determine if the user info resource is accessible or not.
+	 * If there is at least one match, the user info resource will be requested, otherwise it will not.
+	 *
+	 * @since 5.2
+	 * @param accessibleScopes the scope(s) that allow access to the user info resource
+	 */
+	public final void setAccessibleScopes(Set<String> accessibleScopes) {
+		Assert.notNull(accessibleScopes, "accessibleScopes cannot be null");
+		this.accessibleScopes = accessibleScopes;
 	}
 }
