@@ -99,7 +99,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	@Test
-	public void testDefaultProcessesFilterUrlMatchesWithPathParameter() {
+	public void testDefaultProcessesFilterUrlMatchesWithPathParameter() throws Exception {
 		MockHttpServletRequest request = createMockAuthenticationRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockAuthenticationFilter filter = new MockAuthenticationFilter();
