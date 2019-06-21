@@ -50,6 +50,7 @@ import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Operators;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.context.Context;
 
 import javax.servlet.http.HttpServletRequest;
@@ -258,7 +259,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 			spec.attributes(attrs -> {
 				populateDefaultRequestResponse(attrs);
 				populateDefaultAuthentication(attrs);
-				populateDefaultOAuth2AuthorizedClient(attrs);
 			});
 		};
 	}
@@ -349,20 +349,33 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-		return Mono.just(request)
-				.filter(req -> req.attribute(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME).isPresent())
-				.switchIfEmpty(mergeRequestAttributesFromContext(request))
+		return mergeRequestAttributesIfNecessary(request)
 				.filter(req -> req.attribute(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME).isPresent())
 				.flatMap(req -> authorizedClient(getOAuth2AuthorizedClient(req.attributes()), req))
+				.switchIfEmpty(Mono.defer(() ->
+						mergeRequestAttributesIfNecessary(request)
+								.filter(req -> resolveClientRegistrationId(req) != null)
+								.flatMap(req -> authorizeClient(resolveClientRegistrationId(req), req))
+				))
 				.map(authorizedClient -> bearer(request, authorizedClient))
 				.flatMap(next::exchange)
-				.switchIfEmpty(next.exchange(request));
+				.switchIfEmpty(Mono.defer(() -> next.exchange(request)));
+	}
+
+	private Mono<ClientRequest> mergeRequestAttributesIfNecessary(ClientRequest request) {
+		if (!request.attribute(HTTP_SERVLET_REQUEST_ATTR_NAME).isPresent() ||
+				!request.attribute(HTTP_SERVLET_RESPONSE_ATTR_NAME).isPresent() ||
+				!request.attribute(AUTHENTICATION_ATTR_NAME).isPresent()) {
+			return mergeRequestAttributesFromContext(request);
+		} else {
+			return Mono.just(request);
+		}
 	}
 
 	private Mono<ClientRequest> mergeRequestAttributesFromContext(ClientRequest request) {
-		return Mono.just(ClientRequest.from(request))
-				.flatMap(builder -> Mono.subscriberContext()
-						.map(ctx -> builder.attributes(attrs -> populateRequestAttributes(attrs, ctx))))
+		ClientRequest.Builder builder = ClientRequest.from(request);
+		return Mono.subscriberContext()
+				.map(ctx -> builder.attributes(attrs -> populateRequestAttributes(attrs, ctx)))
 				.map(ClientRequest.Builder::build);
 	}
 
@@ -376,7 +389,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		if (ctx.hasKey(AUTHENTICATION_ATTR_NAME)) {
 			attrs.putIfAbsent(AUTHENTICATION_ATTR_NAME, ctx.get(AUTHENTICATION_ATTR_NAME));
 		}
-		populateDefaultOAuth2AuthorizedClient(attrs);
 	}
 
 	private void populateDefaultRequestResponse(Map<String, Object> attrs) {
@@ -403,32 +415,38 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		attrs.putIfAbsent(AUTHENTICATION_ATTR_NAME, authentication);
 	}
 
-	private void populateDefaultOAuth2AuthorizedClient(Map<String, Object> attrs) {
-		if (this.authorizedClientManager == null ||
-				attrs.containsKey(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME)) {
-			return;
-		}
-
-		Authentication authentication = getAuthentication(attrs);
+	private String resolveClientRegistrationId(ClientRequest request) {
+		Map<String, Object> attrs = request.attributes();
 		String clientRegistrationId = getClientRegistrationId(attrs);
 		if (clientRegistrationId == null) {
 			clientRegistrationId = this.defaultClientRegistrationId;
 		}
+		Authentication authentication = getAuthentication(attrs);
 		if (clientRegistrationId == null
 				&& this.defaultOAuth2AuthorizedClient
 				&& authentication instanceof OAuth2AuthenticationToken) {
 			clientRegistrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 		}
-		if (clientRegistrationId != null) {
-			HttpServletRequest request = getRequest(attrs);
-			if (authentication == null) {
-				authentication = ANONYMOUS_AUTHENTICATION;
-			}
-			OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
-					clientRegistrationId, authentication, request, getResponse(attrs));
-			OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
-			oauth2AuthorizedClient(authorizedClient).accept(attrs);
+		return clientRegistrationId;
+	}
+
+	private Mono<OAuth2AuthorizedClient> authorizeClient(String clientRegistrationId, ClientRequest request) {
+		if (this.authorizedClientManager == null) {
+			return Mono.empty();
 		}
+		Map<String, Object> attrs = request.attributes();
+		Authentication authentication = getAuthentication(attrs);
+		if (authentication == null) {
+			authentication = ANONYMOUS_AUTHENTICATION;
+		}
+		HttpServletRequest servletRequest = getRequest(attrs);
+		HttpServletResponse servletResponse = getResponse(attrs);
+		OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
+				clientRegistrationId, authentication, servletRequest, servletResponse);
+
+		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated thread via subscribeOn(Schedulers.elastic())
+		// since it performs a blocking I/O operation using RestTemplate internally
+		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(authorizeRequest)).subscribeOn(Schedulers.elastic());
 	}
 
 	private Mono<OAuth2AuthorizedClient> authorizedClient(OAuth2AuthorizedClient authorizedClient, ClientRequest request) {
@@ -444,7 +462,10 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		HttpServletResponse servletResponse = getResponse(attrs);
 		OAuth2AuthorizeRequest reauthorizeRequest = new OAuth2AuthorizeRequest(
 				authorizedClient, authentication, servletRequest, servletResponse);
-		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(reauthorizeRequest));
+
+		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated thread via subscribeOn(Schedulers.elastic())
+		// since it performs a blocking I/O operation using RestTemplate internally
+		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(reauthorizeRequest)).subscribeOn(Schedulers.elastic());
 	}
 
 	private ClientRequest bearer(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {
