@@ -75,7 +75,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -207,7 +206,10 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	}
 
 	@Test
-	public void defaultRequestOAuth2AuthorizedClientWhenDefaultTrueAndAuthenticationAndClientRegistrationIdNullThenOAuth2AuthorizedClient() {
+	public void defaultRequestOAuth2AuthorizedClientWhenDefaultTrueAndClientRegistrationIdNullThenOAuth2AuthorizedClient() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
 		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,
 				this.authorizedClientRepository);
 		this.function.setDefaultOAuth2AuthorizedClient(true);
@@ -241,6 +243,9 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Test
 	public void defaultRequestOAuth2AuthorizedClientWhenAuthenticationAndClientRegistrationIdThenIdIsExplicit() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
 		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,
 				this.authorizedClientRepository);
 		OAuth2User user = mock(OAuth2User.class);
@@ -259,7 +264,11 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	}
 
 	@Test
-	public void defaultRequestOAuth2AuthorizedClientWhenAuthenticationNullAndClientRegistrationIdThenOAuth2AuthorizedClient() {
+	public void defaultRequestOAuth2AuthorizedClientWhenClientRegistrationIdThenOAuth2AuthorizedClient() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
+		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,
 				this.authorizedClientRepository);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
@@ -271,63 +280,6 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		assertThat(getOAuth2AuthorizedClient(attrs)).isEqualTo(authorizedClient);
 		verify(this.authorizedClientRepository).loadAuthorizedClient(eq("id"), any(), any());
-	}
-
-	@Test
-	public void defaultRequestWhenClientCredentialsThenAuthorizedClient() {
-		this.registration = TestClientRegistrations.clientCredentials().build();
-		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,
-				this.authorizedClientRepository);
-		this.function.setClientCredentialsTokenResponseClient(this.clientCredentialsTokenResponseClient);
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(this.registration);
-		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses
-				.accessTokenResponse().build();
-		when(this.clientCredentialsTokenResponseClient.getTokenResponse(any())).thenReturn(
-				accessTokenResponse);
-
-		clientRegistrationId(this.registration.getRegistrationId()).accept(this.result);
-
-		Map<String, Object> attrs = getDefaultRequestAttributes();
-		OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(attrs);
-
-		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
-		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.registration);
-		assertThat(authorizedClient.getPrincipalName()).isEqualTo("anonymousUser");
-		assertThat(authorizedClient.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
-	}
-
-	@Test
-	public void defaultRequestWhenDefaultClientRegistrationIdThenAuthorizedClient() {
-		this.registration = TestClientRegistrations.clientCredentials().build();
-		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,
-				this.authorizedClientRepository);
-		this.function.setDefaultClientRegistrationId(this.registration.getRegistrationId());
-		this.function.setClientCredentialsTokenResponseClient(this.clientCredentialsTokenResponseClient);
-		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(this.registration);
-		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses
-				.accessTokenResponse().build();
-		when(this.clientCredentialsTokenResponseClient.getTokenResponse(any())).thenReturn(
-				accessTokenResponse);
-
-		Map<String, Object> attrs = getDefaultRequestAttributes();
-		OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(attrs);
-
-		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
-		assertThat(authorizedClient.getClientRegistration()).isEqualTo(this.registration);
-		assertThat(authorizedClient.getPrincipalName()).isEqualTo("anonymousUser");
-		assertThat(authorizedClient.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
-	}
-
-	@Test
-	public void defaultRequestWhenClientIdNotFoundThenIllegalArgumentException() {
-		this.registration = TestClientRegistrations.clientCredentials().build();
-		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,
-				this.authorizedClientRepository);
-
-		clientRegistrationId(this.registration.getRegistrationId()).accept(this.result);
-
-		assertThatCode(() -> getDefaultRequestAttributes())
-			.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	private Map<String, Object> getDefaultRequestAttributes() {
