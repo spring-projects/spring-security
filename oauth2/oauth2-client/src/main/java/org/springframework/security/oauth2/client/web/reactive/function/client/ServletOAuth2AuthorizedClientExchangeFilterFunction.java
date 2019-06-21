@@ -288,20 +288,33 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-		return Mono.just(request)
-				.filter(req -> req.attribute(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME).isPresent())
-				.switchIfEmpty(mergeRequestAttributesFromContext(request))
+		return mergeRequestAttributesIfNecessary(request)
 				.filter(req -> req.attribute(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME).isPresent())
 				.flatMap(req -> authorizedClient(req, next, getOAuth2AuthorizedClient(req.attributes())))
+				.switchIfEmpty(Mono.defer(() ->
+					mergeRequestAttributesIfNecessary(request)
+							.filter(req -> req.attribute(CLIENT_REGISTRATION_ID_ATTR_NAME).isPresent())
+							.flatMap(this::authorizeClient)
+				))
 				.map(authorizedClient -> bearer(request, authorizedClient))
 				.flatMap(next::exchange)
-				.switchIfEmpty(next.exchange(request));
+				.switchIfEmpty(Mono.defer(() -> next.exchange(request)));
+	}
+
+	private Mono<ClientRequest> mergeRequestAttributesIfNecessary(ClientRequest request) {
+		if (!request.attribute(HTTP_SERVLET_REQUEST_ATTR_NAME).isPresent() ||
+				!request.attribute(HTTP_SERVLET_RESPONSE_ATTR_NAME).isPresent() ||
+				!request.attribute(AUTHENTICATION_ATTR_NAME).isPresent()) {
+			return mergeRequestAttributesFromContext(request);
+		} else {
+			return Mono.just(request);
+		}
 	}
 
 	private Mono<ClientRequest> mergeRequestAttributesFromContext(ClientRequest request) {
-		return Mono.just(ClientRequest.from(request))
-				.flatMap(builder -> Mono.subscriberContext()
-						.map(ctx -> builder.attributes(attrs -> populateRequestAttributes(attrs, ctx))))
+		ClientRequest.Builder builder = ClientRequest.from(request);
+		return Mono.subscriberContext()
+				.map(ctx -> builder.attributes(attrs -> populateRequestAttributes(attrs, ctx)))
 				.map(ClientRequest.Builder::build);
 	}
 
@@ -348,35 +361,37 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 			return;
 		}
 
-		Authentication authentication = getAuthentication(attrs);
 		String clientRegistrationId = getClientRegistrationId(attrs);
 		if (clientRegistrationId == null) {
 			clientRegistrationId = this.defaultClientRegistrationId;
 		}
+		Authentication authentication = getAuthentication(attrs);
 		if (clientRegistrationId == null
 				&& this.defaultOAuth2AuthorizedClient
 				&& authentication instanceof OAuth2AuthenticationToken) {
 			clientRegistrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 		}
-		if (clientRegistrationId != null) {
-			HttpServletRequest request = getRequest(attrs);
-			OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository
-					.loadAuthorizedClient(clientRegistrationId, authentication,
-							request);
-			if (authorizedClient == null) {
-				authorizedClient = getAuthorizedClient(clientRegistrationId, attrs);
+		HttpServletRequest request = getRequest(attrs);
+		if (clientRegistrationId != null && authentication != null && request != null) {
+			OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
+					clientRegistrationId, authentication, request);
+			if (authorizedClient != null) {
+				oauth2AuthorizedClient(authorizedClient).accept(attrs);
 			}
-			oauth2AuthorizedClient(authorizedClient).accept(attrs);
 		}
 	}
 
-	private OAuth2AuthorizedClient getAuthorizedClient(String clientRegistrationId, Map<String, Object> attrs) {
+	private Mono<OAuth2AuthorizedClient> authorizeClient(ClientRequest request) {
+		Map<String, Object> attrs = request.attributes();
+		String clientRegistrationId = getClientRegistrationId(attrs);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
 		if (clientRegistration == null) {
 			throw new IllegalArgumentException("Could not find ClientRegistration with id " + clientRegistrationId);
 		}
 		if (isClientCredentialsGrantType(clientRegistration)) {
-			return authorizeWithClientCredentials(clientRegistration, attrs);
+			// NOTE: 'authorizeWithClientCredentials()' needs to be executed on a dedicated thread via subscribeOn(Schedulers.elastic())
+			// since it performs a blocking I/O operation using RestTemplate internally
+			return Mono.fromSupplier(() -> authorizeWithClientCredentials(clientRegistration, attrs)).subscribeOn(Schedulers.elastic());
 		}
 		throw new ClientAuthorizationRequiredException(clientRegistrationId);
 	}
@@ -414,7 +429,9 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		ClientRegistration clientRegistration = authorizedClient.getClientRegistration();
 		if (isClientCredentialsGrantType(clientRegistration) && hasTokenExpired(authorizedClient)) {
 			// Client credentials grant do not have refresh tokens but can expire so we need to get another one
-			return Mono.fromSupplier(() -> authorizeWithClientCredentials(clientRegistration, request.attributes()));
+			// NOTE: 'authorizeWithClientCredentials()' needs to be executed on a dedicated thread via subscribeOn(Schedulers.elastic())
+			// since it performs a blocking I/O operation using RestTemplate internally
+			return Mono.fromSupplier(() -> authorizeWithClientCredentials(clientRegistration, request.attributes())).subscribeOn(Schedulers.elastic());
 		} else if (shouldRefreshToken(authorizedClient)) {
 			return authorizeWithRefreshToken(request, next, authorizedClient);
 		}
