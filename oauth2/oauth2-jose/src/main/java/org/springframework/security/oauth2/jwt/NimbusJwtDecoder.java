@@ -16,6 +16,17 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import javax.crypto.SecretKey;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -32,10 +43,11 @@ import com.nimbusds.jose.util.ResourceRetriever;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
-import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -50,17 +62,6 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
-
-import javax.crypto.SecretKey;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.interfaces.RSAPublicKey;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * A low-level Nimbus implementation of {@link JwtDecoder} which takes a raw Nimbus configuration.
@@ -119,11 +120,11 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	@Override
 	public Jwt decode(String token) throws JwtException {
 		JWT jwt = parse(token);
-		if (jwt instanceof SignedJWT) {
-			Jwt createdJwt = createJwt(token, jwt);
-			return validateJwt(createdJwt);
+		if (jwt instanceof PlainJWT) {
+			throw new JwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
 		}
-		throw new JwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
+		Jwt createdJwt = createJwt(token, jwt);
+		return validateJwt(createdJwt);
 	}
 
 	private JWT parse(String token) {
