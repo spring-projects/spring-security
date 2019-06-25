@@ -81,9 +81,19 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
 	private static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER = "Content-Security-Policy-Report-Only";
 
+	private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
+
 	private String policyDirectives;
 
 	private boolean reportOnly;
+
+	/**
+	 * Creates a new instance. Default value: default-src 'self'
+	 */
+	public ContentSecurityPolicyHeaderWriter() {
+		setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
+		this.reportOnly = false;
+	}
 
 	/**
 	 * Creates a new instance

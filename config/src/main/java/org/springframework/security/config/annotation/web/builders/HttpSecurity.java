@@ -339,6 +339,103 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Adds the Security headers to the response. This is activated by default when using
+	 * {@link WebSecurityConfigurerAdapter}'s default constructor.
+	 *
+	 * <h2>Example Configurations</h2>
+	 *
+	 * Accepting the default provided by {@link WebSecurityConfigurerAdapter} or only invoking
+	 * {@link #headers()} without invoking additional methods on it, is the equivalent of:
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 *	&#064;Override
+	 *	protected void configure(HttpSecurity http) throws Exception {
+	 *		http
+	 *			.headers(headers ->
+	 *				headers
+	 *					.contentTypeOptions(withDefaults())
+	 *					.xssProtection(withDefaults())
+	 *					.cacheControl(withDefaults())
+	 *					.httpStrictTransportSecurity(withDefaults())
+	 *					.frameOptions(withDefaults()
+	 *			);
+	 *	}
+	 * }
+	 * </pre>
+	 *
+	 * You can disable the headers using the following:
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 *	&#064;Override
+	 *	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.headers(headers -> headers.disable());
+	 *	}
+	 * }
+	 * </pre>
+	 *
+	 * You can enable only a few of the headers by first invoking
+	 * {@link HeadersConfigurer#defaultsDisabled()}
+	 * and then invoking the appropriate methods on the {@link #headers()} result.
+	 * For example, the following will enable {@link HeadersConfigurer#cacheControl()} and
+	 * {@link HeadersConfigurer#frameOptions()} only.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 *	&#064;Override
+	 *	protected void configure(HttpSecurity http) throws Exception {
+	 *		http
+	 *			.headers(headers ->
+	 *				headers
+	 *			 		.defaultsDisabled()
+	 *			 		.cacheControl(withDefaults())
+	 *			 		.frameOptions(withDefaults())
+	 *			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * You can also choose to keep the defaults but explicitly disable a subset of headers.
+	 * For example, the following will enable all the default headers except
+	 * {@link HeadersConfigurer#frameOptions()}.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 *  protected void configure(HttpSecurity http) throws Exception {
+	 *  	http
+	 *  		.headers(headers ->
+	 *  			headers
+	 *  				.frameOptions(frameOptions -> frameOptions.disable())
+	 *  		);
+	 * }
+	 * </pre>
+	 *
+	 * @param headersCustomizer the {@link Customizer} to provide more options for
+	 * the {@link HeadersConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity headers(Customizer<HeadersConfigurer<HttpSecurity>> headersCustomizer) throws Exception {
+		headersCustomizer.customize(getOrApply(new HeadersConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Adds a {@link CorsFilter} to be used. If a bean by the name of corsFilter is
 	 * provided, that {@link CorsFilter} is used. Else if corsConfigurationSource is
 	 * defined, then that {@link CorsConfiguration} is used. Otherwise, if Spring MVC is
