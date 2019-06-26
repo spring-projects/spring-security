@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.authentication;
 
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -109,6 +110,7 @@ public class UsernamePasswordAuthenticationFilter extends
 	 * @return the password that will be presented in the <code>Authentication</code>
 	 * request token to the <code>AuthenticationManager</code>
 	 */
+	@Nullable
 	protected String obtainPassword(HttpServletRequest request) {
 		return request.getParameter(passwordParameter);
 	}
@@ -122,6 +124,7 @@ public class UsernamePasswordAuthenticationFilter extends
 	 * @return the username that will be presented in the <code>Authentication</code>
 	 * request token to the <code>AuthenticationManager</code>
 	 */
+	@Nullable
 	protected String obtainUsername(HttpServletRequest request) {
 		return request.getParameter(usernameParameter);
 	}
