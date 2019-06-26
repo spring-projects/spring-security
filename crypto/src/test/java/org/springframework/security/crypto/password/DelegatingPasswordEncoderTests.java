@@ -215,12 +215,16 @@ public class DelegatingPasswordEncoderTests {
 	}
 
 	@Test
-	public void upgradeEncodingWhenSameIdThenFalse() {
-		assertThat(this.passwordEncoder.upgradeEncoding(this.bcryptEncodedPassword)).isFalse();
+	public void upgradeEncodingWhenSameIdThenEncoderDecides() {
+		this.passwordEncoder.upgradeEncoding(this.bcryptEncodedPassword);
+
+		verify(bcrypt).upgradeEncoding(this.encodedPassword);
 	}
 
 	@Test
 	public void upgradeEncodingWhenDifferentIdThenTrue() {
 		assertThat(this.passwordEncoder.upgradeEncoding(this.noopEncodedPassword)).isTrue();
+
+		verifyZeroInteractions(bcrypt);
 	}
 }
