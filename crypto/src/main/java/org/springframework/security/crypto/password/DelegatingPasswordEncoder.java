@@ -217,9 +217,15 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean upgradeEncoding(String encodedPassword) {
-		String id = extractId(encodedPassword);
-		return !this.idForEncode.equalsIgnoreCase(id);
+	public boolean upgradeEncoding(String prefixEncodedPassword) {
+		String id = extractId(prefixEncodedPassword);
+		if (!this.idForEncode.equalsIgnoreCase(id)) {
+			return true;
+		}
+		else {
+			String encodedPassword = extractEncodedPassword(prefixEncodedPassword);
+			return this.idToPasswordEncoder.get(id).upgradeEncoding(encodedPassword);
+		}
 	}
 
 	private String extractEncodedPassword(String prefixEncodedPassword) {

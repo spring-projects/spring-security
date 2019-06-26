@@ -169,4 +169,16 @@ public class BCryptPasswordEncoderTests {
 		assertThat(encoder.matches("password", "012345678901234567890123456789")).isFalse();
 	}
 
+	@Test
+	public void upgradeFromLowerStrength() {
+		BCryptPasswordEncoder weakEncoder = new BCryptPasswordEncoder(5);
+		BCryptPasswordEncoder strongEncoder = new BCryptPasswordEncoder(15);
+
+		String weakPassword = weakEncoder.encode("password");
+		String strongPassword = strongEncoder.encode("password");
+
+		assertThat(weakEncoder.upgradeEncoding(strongPassword)).isFalse();
+		assertThat(strongEncoder.upgradeEncoding(weakPassword)).isTrue();
+	}
+
 }
