@@ -218,7 +218,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient =
 				mock(OAuth2AccessTokenResponseClient.class);
 		ClientCredentialsOAuth2AuthorizedClientProvider clientCredentialsAuthorizedClientProvider =
-				new ClientCredentialsOAuth2AuthorizedClientProvider();
+				new ClientCredentialsOAuth2AuthorizedClientProvider(
+						this.clientRegistrationRepository, this.authorizedClientRepository);
 		clientCredentialsAuthorizedClientProvider.setAccessTokenResponseClient(clientCredentialsTokenResponseClient);
 		this.argumentResolver.setAuthorizedClientProvider(clientCredentialsAuthorizedClientProvider);
 

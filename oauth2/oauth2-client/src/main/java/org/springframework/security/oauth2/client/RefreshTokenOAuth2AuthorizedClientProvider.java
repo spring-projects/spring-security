@@ -19,11 +19,15 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,14 +50,41 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 	 */
 	public static final String REQUEST_SCOPE_ATTRIBUTE_NAME = "org.springframework.security.oauth2.client.REQUEST_SCOPE";
 
+	private static final String HTTP_SERVLET_REQUEST_ATTRIBUTE_NAME = HttpServletRequest.class.getName();
+	private static final String HTTP_SERVLET_RESPONSE_ATTRIBUTE_NAME = HttpServletResponse.class.getName();
+
+	private final ClientRegistrationRepository clientRegistrationRepository;
+	private final OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient =
 			new DefaultRefreshTokenTokenResponseClient();
+
+	/**
+	 * Constructs a {@code RefreshTokenOAuth2AuthorizedClientProvider} using the provided parameters.
+	 *
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @param authorizedClientRepository the repository of authorized clients
+	 */
+	public RefreshTokenOAuth2AuthorizedClientProvider(ClientRegistrationRepository clientRegistrationRepository,
+														OAuth2AuthorizedClientRepository authorizedClientRepository) {
+		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
+		this.clientRegistrationRepository = clientRegistrationRepository;
+		this.authorizedClientRepository = authorizedClientRepository;
+	}
 
 	/**
 	 * Attempt to re-authorize the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided {@code context}.
 	 * Returns {@code null} if re-authorization is not supported,
 	 * e.g. the {@link OAuth2AuthorizedClient#getRefreshToken() refresh token} is not available for the
 	 * {@link OAuth2AuthorizationContext#getAuthorizedClient() authorized client}.
+	 *
+	 * <p>
+	 * The following {@link OAuth2AuthorizationContext#getAttributes() context attributes} are supported:
+	 * <ol>
+	 *  <li>{@code "javax.servlet.http.HttpServletRequest"} (required) - the {@code HttpServletRequest}</li>
+	 *  <li>{@code "javax.servlet.http.HttpServletResponse"} (required) - the {@code HttpServletResponse}</li>
+	 *  <li>{@code "org.springframework.security.oauth2.client.REQUEST_SCOPE"} (optional) - a space-delimited or comma-delimited {@code String} of scope(s) to be requested by the {@link OAuth2AuthorizationContext#getClientRegistration() client}</li>
+	 * </ol>
 	 *
 	 * @param context the context that holds authorization-specific state for the client
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if re-authorization is not supported
@@ -65,6 +96,11 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 		if (!context.reauthorizationRequested() || context.getAuthorizedClient().getRefreshToken() == null) {
 			return null;
 		}
+
+		HttpServletRequest request = context.getAttribute(HTTP_SERVLET_REQUEST_ATTRIBUTE_NAME);
+		HttpServletResponse response = context.getAttribute(HTTP_SERVLET_RESPONSE_ATTRIBUTE_NAME);
+		Assert.notNull(request, "The context attribute cannot be null '" + HTTP_SERVLET_REQUEST_ATTRIBUTE_NAME + "'");
+		Assert.notNull(response, "The context attribute cannot be null '" + HTTP_SERVLET_RESPONSE_ATTRIBUTE_NAME + "'");
 
 		String requestScope = context.getAttribute(REQUEST_SCOPE_ATTRIBUTE_NAME);
 		Set<String> scopes = null;
@@ -83,6 +119,12 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 				context.getPrincipal().getName(),
 				tokenResponse.getAccessToken(),
 				tokenResponse.getRefreshToken());
+
+		this.authorizedClientRepository.saveAuthorizedClient(
+				authorizedClient,
+				context.getPrincipal(),
+				request,
+				response);
 
 		return authorizedClient;
 	}

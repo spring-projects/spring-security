@@ -139,10 +139,10 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		ClientCredentialsOAuth2AuthorizedClientProvider clientCredentialsAuthorizedClientProvider =
-				new ClientCredentialsOAuth2AuthorizedClientProvider();
+				new ClientCredentialsOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, this.authorizedClientRepository);
 		clientCredentialsAuthorizedClientProvider.setAccessTokenResponseClient(this.clientCredentialsTokenResponseClient);
 		RefreshTokenOAuth2AuthorizedClientProvider refreshTokenAuthorizedClientProvider =
-				new RefreshTokenOAuth2AuthorizedClientProvider();
+				new RefreshTokenOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, this.authorizedClientRepository);
 		refreshTokenAuthorizedClientProvider.setAccessTokenResponseClient(this.refreshTokenTokenResponseClient);
 		this.authorizedClientProvider = new DelegatingOAuth2AuthorizedClientProvider(
 				new AuthorizationCodeOAuth2AuthorizedClientProvider(),
@@ -299,6 +299,10 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		clientRegistrationId(this.registration.getRegistrationId()).accept(this.result);
 
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
+
 		Map<String, Object> attrs = getDefaultRequestAttributes();
 		OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(attrs);
 
@@ -316,6 +320,10 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses
 				.accessTokenResponse().build();
 		when(this.clientCredentialsTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
 
 		Map<String, Object> attrs = getDefaultRequestAttributes();
 		OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(attrs);
@@ -404,6 +412,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.attributes(authentication(this.authentication))
+				.attributes(httpServletRequest(new MockHttpServletRequest()))
+				.attributes(httpServletResponse(new MockHttpServletResponse()))
 				.build();
 
 		this.function.filter(request, this.exchange).block();
@@ -439,7 +449,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		DefaultRefreshTokenTokenResponseClient refreshTokenTokenResponseClient = new DefaultRefreshTokenTokenResponseClient();
 		refreshTokenTokenResponseClient.setRestOperations(refreshTokenClient);
 
-		RefreshTokenOAuth2AuthorizedClientProvider authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
+		RefreshTokenOAuth2AuthorizedClientProvider authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider(
+				this.clientRegistrationRepository, this.authorizedClientRepository);
 		authorizedClientProvider.setAccessTokenResponseClient(refreshTokenTokenResponseClient);
 		this.function.setAuthorizedClientProvider(authorizedClientProvider);
 
@@ -457,6 +468,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.attributes(authentication(this.authentication))
+				.attributes(httpServletRequest(new MockHttpServletRequest()))
+				.attributes(httpServletResponse(new MockHttpServletResponse()))
 				.build();
 
 		this.function.filter(request, this.exchange).block();
@@ -526,6 +539,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.attributes(authentication(this.authentication))
+				.attributes(httpServletRequest(new MockHttpServletRequest()))
+				.attributes(httpServletResponse(new MockHttpServletResponse()))
 				.build();
 
 		this.function.filter(request, this.exchange).block();
@@ -565,6 +580,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				"principalName", this.accessToken, refreshToken);
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.attributes(httpServletRequest(new MockHttpServletRequest()))
+				.attributes(httpServletResponse(new MockHttpServletResponse()))
 				.build();
 
 		this.function.filter(request, this.exchange).block();
@@ -678,6 +695,10 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 //		this.function.afterPropertiesSet();		// Hooks.onLastOperator() NOT initialized
 		this.function.setDefaultOAuth2AuthorizedClient(true);
 
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servletRequest, servletResponse));
+
 		OAuth2User user = mock(OAuth2User.class);
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
 		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
@@ -703,6 +724,10 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.function.afterPropertiesSet();			// Hooks.onLastOperator() initialized
 		this.function.destroy();					// Hooks.onLastOperator() released
 		this.function.setDefaultOAuth2AuthorizedClient(true);
+
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servletRequest, servletResponse));
 
 		OAuth2User user = mock(OAuth2User.class);
 		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");

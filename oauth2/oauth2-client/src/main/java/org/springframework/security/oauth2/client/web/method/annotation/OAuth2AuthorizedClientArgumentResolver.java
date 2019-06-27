@@ -121,24 +121,19 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 			return null;
 		}
 
+		HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
+
 		OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext.forAuthorization(clientRegistration);
 		if (principal != null) {
 			contextBuilder.principal(principal);
 		} else {
 			contextBuilder.principal("anonymousUser");
 		}
-		OAuth2AuthorizationContext authorizationContext = contextBuilder.build();
-		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
-
-		HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
-
-		this.authorizedClientRepository.saveAuthorizedClient(
-				authorizedClient,
-				authorizationContext.getPrincipal(),
-				servletRequest,
-				servletResponse);
-
-		return authorizedClient;
+		OAuth2AuthorizationContext authorizationContext = contextBuilder
+				.attribute(HttpServletRequest.class.getName(), servletRequest)
+				.attribute(HttpServletResponse.class.getName(), servletResponse)
+				.build();
+		return this.authorizedClientProvider.authorize(authorizationContext);
 	}
 
 	private String resolveClientRegistrationId(MethodParameter parameter) {
@@ -187,7 +182,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	private OAuth2AuthorizedClientProvider createAuthorizedClientProvider(
 			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
 		ClientCredentialsOAuth2AuthorizedClientProvider clientCredentialsAuthorizedClientProvider =
-				new ClientCredentialsOAuth2AuthorizedClientProvider();
+				new ClientCredentialsOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, this.authorizedClientRepository);
 		clientCredentialsAuthorizedClientProvider.setAccessTokenResponseClient(clientCredentialsTokenResponseClient);
 		return new DelegatingOAuth2AuthorizedClientProvider(
 				new AuthorizationCodeOAuth2AuthorizedClientProvider(), clientCredentialsAuthorizedClientProvider);

@@ -53,6 +53,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -131,14 +132,15 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 			OAuth2AuthorizedClientRepository authorizedClientRepository) {
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientRepository = authorizedClientRepository;
-		this.authorizedClientProvider = createDefaultAuthorizedClientProvider();
+		this.authorizedClientProvider = createDefaultAuthorizedClientProvider(clientRegistrationRepository, authorizedClientRepository);
 	}
 
-	private static OAuth2AuthorizedClientProvider createDefaultAuthorizedClientProvider() {
+	private static OAuth2AuthorizedClientProvider createDefaultAuthorizedClientProvider(
+			ClientRegistrationRepository clientRegistrationRepository, OAuth2AuthorizedClientRepository authorizedClientRepository) {
 		return new DelegatingOAuth2AuthorizedClientProvider(
 				new AuthorizationCodeOAuth2AuthorizedClientProvider(),
-				new ClientCredentialsOAuth2AuthorizedClientProvider(),
-				new RefreshTokenOAuth2AuthorizedClientProvider());
+				new ClientCredentialsOAuth2AuthorizedClientProvider(clientRegistrationRepository, authorizedClientRepository),
+				new RefreshTokenOAuth2AuthorizedClientProvider(clientRegistrationRepository, authorizedClientRepository));
 	}
 
 	@Override
@@ -179,12 +181,12 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	private OAuth2AuthorizedClientProvider createAuthorizedClientProvider(
 			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
 		ClientCredentialsOAuth2AuthorizedClientProvider clientCredentialsAuthorizedClientProvider =
-				new ClientCredentialsOAuth2AuthorizedClientProvider();
+				new ClientCredentialsOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, this.authorizedClientRepository);
 		clientCredentialsAuthorizedClientProvider.setAccessTokenResponseClient(clientCredentialsTokenResponseClient);
 		return new DelegatingOAuth2AuthorizedClientProvider(
 				new AuthorizationCodeOAuth2AuthorizedClientProvider(),
 				clientCredentialsAuthorizedClientProvider,
-				new RefreshTokenOAuth2AuthorizedClientProvider());
+				new RefreshTokenOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, this.authorizedClientRepository));
 	}
 
 	/**
@@ -404,16 +406,10 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		} else {
 			contextBuilder.principal("anonymousUser");
 		}
-		OAuth2AuthorizationContext authorizationContext = contextBuilder.build();
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
-
-		this.authorizedClientRepository.saveAuthorizedClient(
-				authorizedClient,
-				authorizationContext.getPrincipal(),
-				getRequest(attributes),
-				getResponse(attributes));
-
-		return authorizedClient;
+		OAuth2AuthorizationContext authorizationContext = contextBuilder
+				.attributes(defaultContextAttributes(attributes))
+				.build();
+		return this.authorizedClientProvider.authorize(authorizationContext);
 	}
 
 	private Mono<OAuth2AuthorizedClient> reauthorizeClientIfNecessary(
@@ -431,17 +427,17 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		} else {
 			contextBuilder.principal(authorizedClient.getPrincipalName());
 		}
-		OAuth2AuthorizationContext authorizationContext = contextBuilder.build();
+		OAuth2AuthorizationContext authorizationContext = contextBuilder
+				.attributes(defaultContextAttributes(attributes))
+				.build();
+		return Mono.fromSupplier(() -> this.authorizedClientProvider.authorize(authorizationContext));
+	}
 
-		return Mono.fromSupplier(() -> {
-			OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
-			this.authorizedClientRepository.saveAuthorizedClient(
-					reauthorizedClient,
-					authorizationContext.getPrincipal(),
-					getRequest(attributes),
-					getResponse(attributes));
-			return reauthorizedClient;
-		});
+	private Map<String, Object> defaultContextAttributes(Map<String, Object> attributes) {
+		Map<String, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put(HttpServletRequest.class.getName(), getRequest(attributes));
+		contextAttributes.put(HttpServletResponse.class.getName(), getResponse(attributes));
+		return contextAttributes;
 	}
 
 	private boolean hasTokenExpired(OAuth2AuthorizedClient authorizedClient) {
