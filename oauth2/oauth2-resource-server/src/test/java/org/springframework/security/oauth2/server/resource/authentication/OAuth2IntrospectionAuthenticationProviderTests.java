@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2TokenIntrospectionClient;
@@ -63,9 +64,9 @@ public class OAuth2IntrospectionAuthenticationProviderTests {
 		Authentication result =
 				provider.authenticate(new BearerTokenAuthenticationToken("token"));
 
-		assertThat(result.getPrincipal()).isInstanceOf(Map.class);
+		assertThat(result.getPrincipal()).isInstanceOf(OAuth2TokenAttributes.class);
 
-		Map<String, Object> attributes = (Map<String, Object>) result.getPrincipal();
+		Map<String, Object> attributes = ((OAuth2TokenAttributes) result.getPrincipal()).getAttributes();
 		assertThat(attributes)
 				.isNotNull()
 				.containsEntry(ACTIVE, true)
@@ -94,9 +95,9 @@ public class OAuth2IntrospectionAuthenticationProviderTests {
 
 		Authentication result =
 				provider.authenticate(new BearerTokenAuthenticationToken("token"));
-		assertThat(result.getPrincipal()).isInstanceOf(Map.class);
+		assertThat(result.getPrincipal()).isInstanceOf(OAuth2TokenAttributes.class);
 
-		Map<String, Object> attributes = (Map<String, Object>) result.getPrincipal();
+		Map<String, Object> attributes = ((OAuth2TokenAttributes) result.getPrincipal()).getAttributes();
 		assertThat(attributes)
 				.isNotNull()
 				.doesNotContainKey(SCOPE);

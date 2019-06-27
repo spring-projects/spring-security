@@ -69,7 +69,7 @@ public class OAuth2IntrospectionAuthenticationToken
 	public OAuth2IntrospectionAuthenticationToken(OAuth2AccessToken token, OAuth2TokenAttributes attributes,
 		Collection<? extends GrantedAuthority> authorities, String name) {
 
-		super(token, attributes(attributes), token, authorities);
+		super(token, attributes, token, authorities);
 		this.attributes = attributes(attributes);
 		this.name = name == null ? (String) this.attributes.get(SUBJECT) : name;
 		setAuthenticated(true);
