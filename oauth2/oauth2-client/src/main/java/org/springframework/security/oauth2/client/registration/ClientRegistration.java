@@ -486,7 +486,7 @@ public final class ClientRegistration implements Serializable {
 				this.validateClientCredentialsGrantType();
 			} else if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
 				this.validateImplicitGrantType();
-			} else {
+			} else if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)) {
 				this.validateAuthorizationCodeGrantType();
 			}
 			this.validateScopes();
