@@ -126,13 +126,13 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	public boolean upgradeEncoding(String encodedPassword) {
 		if (encodedPassword == null || encodedPassword.length() == 0) {
 			logger.warn("Empty encoded password");
-			return false;
+			return true;
 		}
 
 		Matcher matcher = BCRYPT_PATTERN.matcher(encodedPassword);
 		if (!matcher.matches()) {
 			logger.warn("Encoded password does not look like BCrypt");
-			return false;
+			return true;
 		}
 		else {
 			int strength = Integer.parseInt(matcher.group(2));

@@ -16,6 +16,7 @@
 package org.springframework.security.crypto.bcrypt;
 
 import org.junit.Test;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoderTests;
 
 import java.security.SecureRandom;
 
@@ -179,6 +180,21 @@ public class BCryptPasswordEncoderTests {
 
 		assertThat(weakEncoder.upgradeEncoding(strongPassword)).isFalse();
 		assertThat(strongEncoder.upgradeEncoding(weakPassword)).isTrue();
+	}
+
+	/**
+	 * @see DelegatingPasswordEncoderTests#upgradeEncodingWhenNullIdThenTrue()
+	 */
+	@Test
+	public void upgradeFromNull() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		assertThat(encoder.upgradeEncoding(null)).isTrue();
+	}
+
+	@Test
+	public void upgradeFromNonBCrypt() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		assertThat(encoder.upgradeEncoding("not-a-bcrypt-password")).isTrue();
 	}
 
 }
