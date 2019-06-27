@@ -531,6 +531,66 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Allows configuring of Session Management.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following configuration demonstrates how to enforce that only a single instance
+	 * of a user is authenticated at a time. If a user authenticates with the username
+	 * "user" without logging out and an attempt to authenticate with "user" is made the
+	 * first session will be forcibly terminated and sent to the "/login?expired" URL.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class SessionManagementSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.anyRequest().hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.formLogin(formLogin ->
+	 * 				formLogin
+	 * 					.permitAll()
+	 * 			)
+	 * 			.sessionManagement(sessionManagement ->
+	 * 				sessionManagement
+	 * 					.maximumSessions(1)
+	 * 					.expiredUrl(&quot;/login?expired&quot;)
+	 * 			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * When using {@link SessionManagementConfigurer#maximumSessions(int)}, do not forget
+	 * to configure {@link HttpSessionEventPublisher} for the application to ensure that
+	 * expired sessions are cleaned up.
+	 *
+	 * In a web.xml this can be configured using the following:
+	 *
+	 * <pre>
+	 * &lt;listener&gt;
+	 *      &lt;listener-class&gt;org.springframework.security.web.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+	 * &lt;/listener&gt;
+	 * </pre>
+	 *
+	 * Alternatively,
+	 * {@link AbstractSecurityWebApplicationInitializer#enableHttpSessionEventPublisher()}
+	 * could return true.
+	 *
+	 * @param sessionManagementCustomizer the {@link Customizer} to provide more options for
+	 * the {@link SessionManagementConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity sessionManagement(Customizer<SessionManagementConfigurer<HttpSecurity>> sessionManagementCustomizer) throws Exception {
+		sessionManagementCustomizer.customize(getOrApply(new SessionManagementConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Allows configuring a {@link PortMapper} that is available from
 	 * {@link HttpSecurity#getSharedObject(Class)}. Other provided
 	 * {@link SecurityConfigurer} objects use this configured {@link PortMapper} as a
