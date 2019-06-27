@@ -449,6 +449,36 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Adds a {@link CorsFilter} to be used. If a bean by the name of corsFilter is
+	 * provided, that {@link CorsFilter} is used. Else if corsConfigurationSource is
+	 * defined, then that {@link CorsConfiguration} is used. Otherwise, if Spring MVC is
+	 * on the classpath a {@link HandlerMappingIntrospector} is used.
+	 * You can enable CORS using:
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class CorsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 *     protected void configure(HttpSecurity http) throws Exception {
+	 *         http
+	 *             .cors(withDefaults());
+	 *     }
+	 * }
+	 * </pre>
+	 *
+	 * @param corsCustomizer the {@link Customizer} to provide more options for
+	 * the {@link CorsConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity cors(Customizer<CorsConfigurer<HttpSecurity>> corsCustomizer) throws Exception {
+		corsCustomizer.customize(getOrApply(new CorsConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Allows configuring of Session Management.
 	 *
 	 * <h2>Example Configuration</h2>
