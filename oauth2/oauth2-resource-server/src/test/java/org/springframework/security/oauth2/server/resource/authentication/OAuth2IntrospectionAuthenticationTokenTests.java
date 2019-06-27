@@ -93,7 +93,7 @@ public class OAuth2IntrospectionAuthenticationTokenTests {
 	public void constructorWhenAttributesAreNullOrEmptyThenThrowsException() {
 		assertThatCode(() -> new OAuth2IntrospectionAuthenticationToken(this.token, null, null))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("attributes cannot be empty");
+				.hasMessageContaining("principal cannot be null");
 
 		assertThatCode(() -> new OAuth2IntrospectionAuthenticationToken(this.token,
 									new OAuth2TokenAttributes(Collections.emptyMap()), null))

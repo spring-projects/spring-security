@@ -16,6 +16,7 @@
 package sample;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,8 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class OAuth2ResourceServerController {
 
 	@GetMapping("/")
-	public String index(@AuthenticationPrincipal(expression="['sub']") String subject) {
-		return String.format("Hello, %s!", subject);
+	public String index(@AuthenticationPrincipal OAuth2TokenAttributes attributes) {
+		return String.format("Hello, %s!", (String) attributes.getAttribute("sub"));
 	}
 
 	@GetMapping("/message")
