@@ -22,12 +22,15 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentia
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Duration;
+import java.time.Instant;
 
 /**
  * An implementation of an {@link OAuth2AuthorizedClientProvider}
@@ -45,6 +48,7 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 	private final OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient =
 			new DefaultClientCredentialsTokenResponseClient();
+	private Duration clockSkew = Duration.ofSeconds(60);
 
 	/**
 	 * Constructs a {@code ClientCredentialsOAuth2AuthorizedClientProvider} using the provided parameters.
@@ -61,10 +65,11 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 	}
 
 	/**
-	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided {@code context}.
+	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistrationId() client} in the provided {@code context}.
 	 * Returns {@code null} if authorization (or re-authorization) is not supported,
 	 * e.g. the client's {@link ClientRegistration#getAuthorizationGrantType() authorization grant type}
-	 * is not {@link AuthorizationGrantType#CLIENT_CREDENTIALS client_credentials}.
+	 * is not {@link AuthorizationGrantType#CLIENT_CREDENTIALS client_credentials} OR
+	 * the {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
 	 *
 	 * <p>
 	 * The following {@link OAuth2AuthorizationContext#getAttributes() context attributes} are supported:
@@ -80,14 +85,25 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 	@Nullable
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-		if (!AuthorizationGrantType.CLIENT_CREDENTIALS.equals(context.getClientRegistration().getAuthorizationGrantType())) {
-			return null;
-		}
 
 		HttpServletRequest request = context.getAttribute(HTTP_SERVLET_REQUEST_ATTRIBUTE_NAME);
 		HttpServletResponse response = context.getAttribute(HTTP_SERVLET_RESPONSE_ATTRIBUTE_NAME);
 		Assert.notNull(request, "The context attribute cannot be null '" + HTTP_SERVLET_REQUEST_ATTRIBUTE_NAME + "'");
 		Assert.notNull(response, "The context attribute cannot be null '" + HTTP_SERVLET_RESPONSE_ATTRIBUTE_NAME + "'");
+
+		String clientRegistrationId = context.getClientRegistrationId();
+		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
+		Assert.notNull(clientRegistration, "Could not find ClientRegistration with id '" + clientRegistrationId + "'");
+
+		if (!AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType())) {
+			return null;
+		}
+
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
+				clientRegistrationId, context.getPrincipal(), request);
+		if (authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken())) {
+			return null;
+		}
 
 		// As per spec, in section 4.4.3 Access Token Response
 		// https://tools.ietf.org/html/rfc6749#section-4.4.3
@@ -97,22 +113,21 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 		// is the same as acquiring a new access token (authorization).
 
 		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest =
-				new OAuth2ClientCredentialsGrantRequest(context.getClientRegistration());
+				new OAuth2ClientCredentialsGrantRequest(clientRegistration);
 		OAuth2AccessTokenResponse tokenResponse =
 				this.accessTokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
 
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				context.getClientRegistration(),
-				context.getPrincipal().getName(),
-				tokenResponse.getAccessToken());
+		authorizedClient = new OAuth2AuthorizedClient(
+				clientRegistration, context.getPrincipal().getName(), tokenResponse.getAccessToken());
 
 		this.authorizedClientRepository.saveAuthorizedClient(
-				authorizedClient,
-				context.getPrincipal(),
-				request,
-				response);
+				authorizedClient, context.getPrincipal(), request, response);
 
 		return authorizedClient;
+	}
+
+	private boolean hasTokenExpired(AbstractOAuth2Token token) {
+		return token.getExpiresAt().isBefore(Instant.now().minus(this.clockSkew));
 	}
 
 	/**
@@ -123,5 +138,18 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 	public void setAccessTokenResponseClient(OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient) {
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
+	}
+
+	/**
+	 * Sets the maximum acceptable clock skew, which is used when checking the
+	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} expiry. The default is 60 seconds.
+	 * An access token is considered expired if it's before {@code Instant.now() - clockSkew}.
+	 *
+	 * @param clockSkew the maximum acceptable clock skew
+	 */
+	public void setClockSkew(Duration clockSkew) {
+		Assert.notNull(clockSkew, "clockSkew cannot be null");
+		Assert.isTrue(clockSkew.getSeconds() >= 0, "clockSkew must be >= 0");
+		this.clockSkew = clockSkew;
 	}
 }

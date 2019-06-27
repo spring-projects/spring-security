@@ -23,16 +23,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.AuthorizationCodeOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ClientCredentialsOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.DefaultOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.DelegatingOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.util.Assert;
@@ -109,21 +110,9 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
 		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
-
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
-				clientRegistrationId, principal, servletRequest);
-		if (authorizedClient != null) {
-			return authorizedClient;
-		}
-
-		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
-		if (clientRegistration == null) {
-			return null;
-		}
-
 		HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
 
-		OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext.forAuthorization(clientRegistration);
+		OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext.forClient(clientRegistrationId);
 		if (principal != null) {
 			contextBuilder.principal(principal);
 		} else {
@@ -184,7 +173,16 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 		ClientCredentialsOAuth2AuthorizedClientProvider clientCredentialsAuthorizedClientProvider =
 				new ClientCredentialsOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, this.authorizedClientRepository);
 		clientCredentialsAuthorizedClientProvider.setAccessTokenResponseClient(clientCredentialsTokenResponseClient);
-		return new DelegatingOAuth2AuthorizedClientProvider(
-				new AuthorizationCodeOAuth2AuthorizedClientProvider(), clientCredentialsAuthorizedClientProvider);
+		AuthorizationCodeOAuth2AuthorizedClientProvider authorizationCodeAuthorizedClientProvider =
+				new AuthorizationCodeOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, this.authorizedClientRepository);
+		RefreshTokenOAuth2AuthorizedClientProvider refreshTokenAuthorizedClientProvider =
+				new RefreshTokenOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, this.authorizedClientRepository);
+
+		DelegatingOAuth2AuthorizedClientProvider delegate = new DelegatingOAuth2AuthorizedClientProvider(
+				authorizationCodeAuthorizedClientProvider, refreshTokenAuthorizedClientProvider, clientCredentialsAuthorizedClientProvider);
+		delegate.setDefaultAuthorizedClientProvider(
+				new DefaultOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, this.authorizedClientRepository));
+
+		return delegate;
 	}
 }

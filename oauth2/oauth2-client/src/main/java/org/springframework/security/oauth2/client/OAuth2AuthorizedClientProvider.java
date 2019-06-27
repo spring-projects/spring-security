@@ -32,7 +32,7 @@ import reactor.util.annotation.Nullable;
 public interface OAuth2AuthorizedClientProvider {
 
 	/**
-	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided context.
+	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistrationId() client} in the provided context.
 	 * Implementations must return {@code null} if authorization is not supported for the specified client,
 	 * e.g. the provider doesn't support the {@link ClientRegistration#getAuthorizationGrantType() authorization grant} type configured for the client.
 	 *

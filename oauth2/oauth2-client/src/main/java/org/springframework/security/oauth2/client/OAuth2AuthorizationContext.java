@@ -37,41 +37,29 @@ import java.util.Map;
  * @see OAuth2AuthorizedClientProvider
  */
 public final class OAuth2AuthorizationContext {
-	private ClientRegistration clientRegistration;
+	private String clientRegistrationId;
 	private Authentication principal;
-	private OAuth2AuthorizedClient authorizedClient;
 	private Map<String, Object> attributes;
 
 	private OAuth2AuthorizationContext() {
 	}
 
 	/**
-	 * Returns the {@link ClientRegistration client} requesting authorization.
+	 * Returns the {@link ClientRegistration client registration} identifier.
 	 *
-	 * @return the {@link ClientRegistration}
+	 * @return the client registration identifier
 	 */
-	public ClientRegistration getClientRegistration() {
-		return this.clientRegistration;
+	public String getClientRegistrationId() {
+		return this.clientRegistrationId;
 	}
 
 	/**
-	 * Returns the {@code Principal} to be associated with the authorized client.
+	 * Returns the {@code Principal} (to be) associated to the authorized client.
 	 *
-	 * @return the {@code Principal} to be associated with the authorized client
+	 * @return the {@code Principal} (to be) associated to the authorized client
 	 */
 	public Authentication getPrincipal() {
 		return this.principal;
-	}
-
-	/**
-	 * Returns the {@link OAuth2AuthorizedClient authorized client} requesting re-authorization
-	 * or {@code null} if the {@link #getClientRegistration() client} is requesting to be authorized.
-	 *
-	 * @return the {@link OAuth2AuthorizedClient} requesting re-authorization or {@code null} if the client is requesting to be authorized
-	 */
-	@Nullable
-	public OAuth2AuthorizedClient getAuthorizedClient() {
-		return this.authorizedClient;
 	}
 
 	/**
@@ -97,66 +85,32 @@ public final class OAuth2AuthorizationContext {
 	}
 
 	/**
-	 * Returns {@code true} if the client is requesting authorization, otherwise {@code false}.
+	 * Returns a new {@link Builder} initialized with the {@link ClientRegistration client registration} identifier.
 	 *
-	 * @return {@code true} if the client is requesting authorization, otherwise {@code false}.
-	 */
-	public boolean authorizationRequested() {
-		return getAuthorizedClient() == null;
-	}
-
-	/**
-	 * Returns {@code true} if the client is requesting re-authorization, otherwise {@code false}.
-	 *
-	 * @return {@code true} if the client is requesting re-authorization, otherwise {@code false}.
-	 */
-	public boolean reauthorizationRequested() {
-		return getAuthorizedClient() != null;
-	}
-
-	/**
-	 * Returns a new {@link Builder} with the {@link ClientRegistration client} requesting authorization.
-	 *
-	 * @param clientRegistration the {@link ClientRegistration client} requesting authorization
+	 * @param clientRegistrationId the {@link ClientRegistration client registration} identifier
 	 * @return the {@link Builder}
 	 */
-	public static Builder forAuthorization(ClientRegistration clientRegistration) {
-		return new Builder(clientRegistration);
-	}
-
-	/**
-	 * Returns a new {@link Builder} with the {@link OAuth2AuthorizedClient authorized client} requesting re-authorization.
-	 *
-	 * @param authorizedClient the {@link OAuth2AuthorizedClient authorized client} requesting re-authorization
-	 * @return the {@link Builder}
-	 */
-	public static Builder forReauthorization(OAuth2AuthorizedClient authorizedClient) {
-		return new Builder(authorizedClient);
+	public static Builder forClient(String clientRegistrationId) {
+		return new Builder(clientRegistrationId);
 	}
 
 	/**
 	 * A builder for {@link OAuth2AuthorizationContext}.
 	 */
 	public static class Builder {
-		private ClientRegistration clientRegistration;
+		private String clientRegistrationId;
 		private Authentication principal;
-		private OAuth2AuthorizedClient authorizedClient;
 		private Map<String, Object> attributes;
 
-		private Builder(ClientRegistration clientRegistration) {
-			Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-			this.clientRegistration = clientRegistration;
-		}
-
-		private Builder(OAuth2AuthorizedClient authorizedClient) {
-			Assert.notNull(authorizedClient, "authorizedClient cannot be null");
-			this.authorizedClient = authorizedClient;
+		private Builder(String clientRegistrationId) {
+			Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
+			this.clientRegistrationId = clientRegistrationId;
 		}
 
 		/**
-		 * Sets the {@code Principal} to be associated with the authorized client
+		 * Sets the {@code Principal} (to be) associated to the authorized client.
 		 *
-		 * @param principal the {@code Principal} to be associated with the authorized client
+		 * @param principal the {@code Principal} (to be) associated to the authorized client
 		 * @return the {@link Builder}
 		 */
 		public Builder principal(Authentication principal) {
@@ -165,9 +119,9 @@ public final class OAuth2AuthorizationContext {
 		}
 
 		/**
-		 * Sets the {@code Principal}'s name to be associated with the authorized client
+		 * Sets the {@code Principal}'s name (to be) associated to the authorized client.
 		 *
-		 * @param principalName the {@code Principal}'s name to be associated with the authorized client
+		 * @param principalName the {@code Principal}'s name (to be) associated to the authorized client
 		 * @return the {@link Builder}
 		 */
 		public Builder principal(String principalName) {
@@ -209,12 +163,7 @@ public final class OAuth2AuthorizationContext {
 		public OAuth2AuthorizationContext build() {
 			Assert.notNull(this.principal, "principal cannot be null");
 			OAuth2AuthorizationContext context = new OAuth2AuthorizationContext();
-			if (this.authorizedClient != null) {
-				context.clientRegistration = this.authorizedClient.getClientRegistration();
-				context.authorizedClient = this.authorizedClient;
-			} else {
-				context.clientRegistration = this.clientRegistration;
-			}
+			context.clientRegistrationId = this.clientRegistrationId;
 			context.principal = this.principal;
 			context.attributes = Collections.unmodifiableMap(
 					CollectionUtils.isEmpty(this.attributes) ?
@@ -227,6 +176,7 @@ public final class OAuth2AuthorizationContext {
 		private final String principalName;
 
 		private PrincipalNameAuthentication(String principalName) {
+			Assert.hasText(principalName, "principalName cannot be empty");
 			this.principalName = principalName;
 		}
 

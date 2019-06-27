@@ -16,37 +16,38 @@
 package org.springframework.security.oauth2.client;
 
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * An implementation of an {@link OAuth2AuthorizedClientProvider}
- * for the {@link AuthorizationGrantType#AUTHORIZATION_CODE authorization_code} grant.
+ * The default implementation of an {@link OAuth2AuthorizedClientProvider} that simply
+ * {@link OAuth2AuthorizedClientRepository#loadAuthorizedClient(String, Authentication, HttpServletRequest) loads}
+ * an {@link OAuth2AuthorizedClient} from the authorized client repository.
  *
  * @author Joe Grandja
  * @since 5.2
  * @see OAuth2AuthorizedClientProvider
  */
-public final class AuthorizationCodeOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
+public final class DefaultOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
 	private static final String HTTP_SERVLET_REQUEST_ATTRIBUTE_NAME = HttpServletRequest.class.getName();
 	private static final String HTTP_SERVLET_RESPONSE_ATTRIBUTE_NAME = HttpServletResponse.class.getName();
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final OAuth2AuthorizedClientRepository authorizedClientRepository;
 
 	/**
-	 * Constructs an {@code AuthorizationCodeOAuth2AuthorizedClientProvider} using the provided parameters.
+	 * Constructs an {@code DefaultOAuth2AuthorizedClientProvider} using the provided parameters.
 	 *
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientRepository the repository of authorized clients
 	 */
-	public AuthorizationCodeOAuth2AuthorizedClientProvider(ClientRegistrationRepository clientRegistrationRepository,
-															OAuth2AuthorizedClientRepository authorizedClientRepository) {
+	public DefaultOAuth2AuthorizedClientProvider(ClientRegistrationRepository clientRegistrationRepository,
+													OAuth2AuthorizedClientRepository authorizedClientRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
@@ -54,10 +55,9 @@ public final class AuthorizationCodeOAuth2AuthorizedClientProvider implements OA
 	}
 
 	/**
-	 * Attempt to authorize the {@link OAuth2AuthorizationContext#getClientRegistrationId() client} in the provided {@code context}.
-	 * Returns {@code null} if authorization is not supported,
-	 * e.g. the client's {@link ClientRegistration#getAuthorizationGrantType() authorization grant type}
-	 * is not {@link AuthorizationGrantType#AUTHORIZATION_CODE authorization_code} OR the client is already authorized.
+	 * Attempts to {@link OAuth2AuthorizedClientRepository#loadAuthorizedClient(String, Authentication, HttpServletRequest) load}
+	 * an {@link OAuth2AuthorizedClient} using the {@link OAuth2AuthorizationContext#getClientRegistrationId() client}
+	 * in the provided {@code context}. Returns {@code null} if the client is not authorized.
 	 *
 	 * <p>
 	 * The following {@link OAuth2AuthorizationContext#getAttributes() context attributes} are supported:
@@ -67,7 +67,7 @@ public final class AuthorizationCodeOAuth2AuthorizedClientProvider implements OA
 	 * </ol>
 	 *
 	 * @param context the context that holds authorization-specific state for the client
-	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization is not supported
+	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if the client is not authorized
 	 */
 	@Override
 	@Nullable
@@ -83,17 +83,6 @@ public final class AuthorizationCodeOAuth2AuthorizedClientProvider implements OA
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
 		Assert.notNull(clientRegistration, "Could not find ClientRegistration with id '" + clientRegistrationId + "'");
 
-		if (!AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
-			return null;
-		}
-
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
-				clientRegistrationId, context.getPrincipal(), request);
-		if (authorizedClient == null) {
-			// ClientAuthorizationRequiredException is caught by OAuth2AuthorizationRequestRedirectFilter which initiates authorization
-			throw new ClientAuthorizationRequiredException(clientRegistrationId);
-		}
-
-		return null;
+		return this.authorizedClientRepository.loadAuthorizedClient(clientRegistrationId, context.getPrincipal(), request);
 	}
 }

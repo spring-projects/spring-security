@@ -44,60 +44,38 @@ public class OAuth2AuthorizationContextTests {
 	}
 
 	@Test
-	public void authorizeWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationContext.forAuthorization(null).build())
+	public void forClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient(null).build())
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientRegistration cannot be null");
+				.hasMessage("clientRegistrationId cannot be empty");
 	}
 
 	@Test
-	public void authorizeWhenPrincipalIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationContext.forAuthorization(this.clientRegistration).build())
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("principal cannot be null");
-	}
-
-	@Test
-	public void authorizeWhenAllValuesProvidedThenAllValuesAreSet() {
-		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext.forAuthorization(this.clientRegistration)
-				.principal(this.principal)
-				.attribute("attribute1", "value1")
-				.attribute("attribute2", "value2")
-				.build();
-		assertThat(authorizationContext.getClientRegistration()).isSameAs(this.clientRegistration);
-		assertThat(authorizationContext.getPrincipal()).isSameAs(this.principal);
-		assertThat(authorizationContext.getAuthorizedClient()).isNull();
-		assertThat(authorizationContext.getAttributes()).contains(
-				entry("attribute1", "value1"), entry("attribute2", "value2"));
-		assertThat(authorizationContext.authorizationRequested()).isTrue();
-	}
-
-	@Test
-	public void reauthorizeWhenAuthorizedClientIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationContext.forReauthorization(null).build())
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizedClient cannot be null");
-	}
-
-	@Test
-	public void reauthorizeWhenPrincipalIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationContext.forReauthorization(this.authorizedClient).build())
+	public void forClientWhenPrincipalIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId()).build())
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("principal cannot be null");
 	}
 
 	@Test
-	public void reauthorizeWhenAllValuesProvidedThenAllValuesAreSet() {
-		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext.forReauthorization(this.authorizedClient)
+	public void forClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId())
+				.principal((String) null)
+				.build())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("principalName cannot be empty");
+	}
+
+	@Test
+	public void forClientWhenAllValuesProvidedThenAllValuesAreSet() {
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId())
 				.principal(this.principal)
 				.attribute("attribute1", "value1")
 				.attribute("attribute2", "value2")
 				.build();
-		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
-		assertThat(authorizationContext.getClientRegistration()).isSameAs(this.authorizedClient.getClientRegistration());
+		assertThat(authorizationContext.getClientRegistrationId()).isSameAs(this.clientRegistration.getRegistrationId());
 		assertThat(authorizationContext.getPrincipal()).isSameAs(this.principal);
 		assertThat(authorizationContext.getAttributes()).contains(
 				entry("attribute1", "value1"), entry("attribute2", "value2"));
-		assertThat(authorizationContext.reauthorizationRequested()).isTrue();
 	}
 }

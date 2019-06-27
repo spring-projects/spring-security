@@ -186,21 +186,22 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		SecurityContextHolder.setContext(securityContext);
 		MethodParameter methodParameter = this.getMethodParameter("registrationIdEmpty", OAuth2AuthorizedClient.class);
 		assertThat(this.argumentResolver.resolveArgument(
-				methodParameter, null, new ServletWebRequest(this.request), null)).isSameAs(this.authorizedClient1);
+				methodParameter, null, new ServletWebRequest(this.request, this.response), null)).isSameAs(this.authorizedClient1);
 	}
 
 	@Test
 	public void resolveArgumentWhenAuthorizedClientFoundThenResolves() throws Exception {
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient", OAuth2AuthorizedClient.class);
 		assertThat(this.argumentResolver.resolveArgument(
-				methodParameter, null, new ServletWebRequest(this.request), null)).isSameAs(this.authorizedClient1);
+				methodParameter, null, new ServletWebRequest(this.request, this.response), null)).isSameAs(this.authorizedClient1);
 	}
 
 	@Test
-	public void resolveArgumentWhenRegistrationIdInvalidThenDoesNotResolve() throws Exception {
+	public void resolveArgumentWhenRegistrationIdInvalidThenThrowIllegalArgumentException() {
 		MethodParameter methodParameter = this.getMethodParameter("registrationIdInvalid", OAuth2AuthorizedClient.class);
-		assertThat(this.argumentResolver.resolveArgument(
-				methodParameter, null, new ServletWebRequest(this.request), null)).isNull();
+		assertThatThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null, new ServletWebRequest(this.request, this.response), null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Could not find ClientRegistration with id 'invalid'");
 	}
 
 	@Test
@@ -208,7 +209,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		when(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(), any(HttpServletRequest.class)))
 				.thenReturn(null);
 		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient", OAuth2AuthorizedClient.class);
-		assertThatThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null, new ServletWebRequest(this.request), null))
+		assertThatThrownBy(() -> this.argumentResolver.resolveArgument(methodParameter, null, new ServletWebRequest(this.request, this.response), null))
 				.isInstanceOf(ClientAuthorizationRequiredException.class);
 	}
 

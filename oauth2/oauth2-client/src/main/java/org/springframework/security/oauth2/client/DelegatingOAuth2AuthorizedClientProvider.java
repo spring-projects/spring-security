@@ -30,7 +30,7 @@ import java.util.Objects;
  * <p>
  * Each provider is given a chance to
  * {@link OAuth2AuthorizedClientProvider#authorize(OAuth2AuthorizationContext) authorize}
- * the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided context
+ * the {@link OAuth2AuthorizationContext#getClientRegistrationId() client} in the provided context
  * with the first {@code non-null} {@link OAuth2AuthorizedClient} being returned.
  *
  * @author Joe Grandja
@@ -39,6 +39,7 @@ import java.util.Objects;
  */
 public final class DelegatingOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
 	private final List<OAuth2AuthorizedClientProvider> authorizedClientProviders;
+	private OAuth2AuthorizedClientProvider defaultAuthorizedClientProvider;
 
 	/**
 	 * Constructs a {@code DelegatingOAuth2AuthorizedClientProvider} using the provided parameters.
@@ -68,6 +69,19 @@ public final class DelegatingOAuth2AuthorizedClientProvider implements OAuth2Aut
 				.map(authorizedClientProvider -> authorizedClientProvider.authorize(context))
 				.filter(Objects::nonNull)
 				.findFirst()
-				.orElse(null);
+				.orElse(this.defaultAuthorizedClientProvider != null ?
+						this.defaultAuthorizedClientProvider.authorize(context) : null);
+	}
+
+	/**
+	 * Sets the default {@link OAuth2AuthorizedClientProvider} used if none of the
+	 * {@link OAuth2AuthorizedClientProvider}(s) in the {@code List}
+	 * are able to authorize the {@link OAuth2AuthorizationContext#getClientRegistrationId() client}.
+	 *
+	 * @param authorizedClientProvider the default {@link OAuth2AuthorizedClientProvider}
+	 */
+	public void setDefaultAuthorizedClientProvider(OAuth2AuthorizedClientProvider authorizedClientProvider) {
+		Assert.notNull(authorizedClientProvider, "authorizedClientProvider cannot be null");
+		this.defaultAuthorizedClientProvider = authorizedClientProvider;
 	}
 }

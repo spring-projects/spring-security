@@ -27,15 +27,18 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Duration;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -86,6 +89,20 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
+	public void setClockSkewWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("clockSkew cannot be null");
+	}
+
+	@Test
+	public void setClockSkewWhenNegativeSecondsThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(-1)))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("clockSkew must be >= 0");
+	}
+
+	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(null))
 				.isInstanceOf(IllegalArgumentException.class)
@@ -93,17 +110,11 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
-	public void authorizeWhenNotClientCredentialsThenUnableToAuthorize() {
-		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forAuthorization(clientRegistration).principal(this.principal).build();
-		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
-	}
-
-	@Test
 	public void authorizeWhenHttpServletRequestIsNullThenThrowIllegalArgumentException() {
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forAuthorization(this.clientRegistration).principal(this.principal).build();
+				OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId())
+						.principal(this.principal)
+						.build();
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("The context attribute cannot be null 'javax.servlet.http.HttpServletRequest'");
@@ -112,7 +123,7 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenHttpServletResponseIsNullThenThrowIllegalArgumentException() {
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forAuthorization(this.clientRegistration)
+				OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId())
 						.principal(this.principal)
 						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
 						.build();
@@ -122,12 +133,43 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
+	public void authorizeWhenClientRegistrationNotFoundThenThrowIllegalArgumentException() {
+		OAuth2AuthorizationContext authorizationContext =
+				OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId())
+						.principal(this.principal)
+						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
+						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
+						.build();
+		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Could not find ClientRegistration with id '" + this.clientRegistration.getRegistrationId() + "'");
+	}
+
+	@Test
+	public void authorizeWhenNotClientCredentialsThenUnableToAuthorize() {
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		when(this.clientRegistrationRepository.findByRegistrationId(
+				eq(clientRegistration.getRegistrationId()))).thenReturn(clientRegistration);
+
+		OAuth2AuthorizationContext authorizationContext =
+				OAuth2AuthorizationContext.forClient(clientRegistration.getRegistrationId())
+						.principal(this.principal)
+						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
+						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
+						.build();
+		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
+	}
+
+	@Test
 	public void authorizeWhenClientCredentialsAndNotAuthorizedThenAuthorize() {
+		when(this.clientRegistrationRepository.findByRegistrationId(
+				eq(this.clientRegistration.getRegistrationId()))).thenReturn(this.clientRegistration);
+
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forAuthorization(this.clientRegistration)
+				OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId())
 						.principal(this.principal)
 						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
 						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
@@ -144,15 +186,24 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
-	public void authorizeWhenClientCredentialsAndAuthorizedThenReauthorize() {
+	public void authorizeWhenClientCredentialsAndTokenExpiredThenReauthorize() {
+		when(this.clientRegistrationRepository.findByRegistrationId(
+				eq(this.clientRegistration.getRegistrationId()))).thenReturn(this.clientRegistration);
+
+		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
+		Instant expiresAt = issuedAt.plus(Duration.ofMinutes(60));
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(
+				OAuth2AccessToken.TokenType.BEARER, "access-token-1234", issuedAt, expiresAt);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.clientRegistration, this.principal.getName(), accessToken);
+		when(this.authorizedClientRepository.loadAuthorizedClient(eq(this.clientRegistration.getRegistrationId()),
+				eq(this.principal), any(HttpServletRequest.class))).thenReturn(authorizedClient);
+
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.clientRegistration, this.principal.getName(), TestOAuth2AccessTokens.noScopes());
-
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forReauthorization(authorizedClient)
+				OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId())
 						.principal(this.principal)
 						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
 						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
@@ -166,5 +217,25 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 		verify(this.authorizedClientRepository).saveAuthorizedClient(
 				eq(authorizedClient), eq(this.principal),
 				any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
+	@Test
+	public void authorizeWhenClientCredentialsAndTokenNotExpiredThenNotReauthorize() {
+		when(this.clientRegistrationRepository.findByRegistrationId(
+				eq(this.clientRegistration.getRegistrationId()))).thenReturn(this.clientRegistration);
+
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.clientRegistration, this.principal.getName(), TestOAuth2AccessTokens.noScopes());
+		when(this.authorizedClientRepository.loadAuthorizedClient(eq(this.clientRegistration.getRegistrationId()),
+				eq(this.principal), any(HttpServletRequest.class))).thenReturn(authorizedClient);
+
+		OAuth2AuthorizationContext authorizationContext =
+				OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId())
+						.principal(this.principal)
+						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
+						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
+						.build();
+
+		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
 	}
 }

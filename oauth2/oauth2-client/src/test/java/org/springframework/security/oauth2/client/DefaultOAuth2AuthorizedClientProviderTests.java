@@ -38,14 +38,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for {@link AuthorizationCodeOAuth2AuthorizedClientProvider}.
+ * Tests for {@link DefaultOAuth2AuthorizedClientProvider}.
  *
  * @author Joe Grandja
  */
-public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
+public class DefaultOAuth2AuthorizedClientProviderTests {
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private OAuth2AuthorizedClientRepository authorizedClientRepository;
-	private AuthorizationCodeOAuth2AuthorizedClientProvider authorizedClientProvider;
+	private DefaultOAuth2AuthorizedClientProvider authorizedClientProvider;
 	private ClientRegistration clientRegistration;
 	private OAuth2AuthorizedClient authorizedClient;
 	private Authentication principal;
@@ -54,7 +54,7 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 	public void setup() {
 		this.clientRegistrationRepository = mock(ClientRegistrationRepository.class);
 		this.authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
-		this.authorizedClientProvider = new AuthorizationCodeOAuth2AuthorizedClientProvider(
+		this.authorizedClientProvider = new DefaultOAuth2AuthorizedClientProvider(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.authorizedClient = new OAuth2AuthorizedClient(
@@ -64,14 +64,14 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new AuthorizationCodeOAuth2AuthorizedClientProvider(null, this.authorizedClientRepository))
+		assertThatThrownBy(() -> new DefaultOAuth2AuthorizedClientProvider(null, this.authorizedClientRepository))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("clientRegistrationRepository cannot be null");
 	}
 
 	@Test
 	public void constructorWhenOAuth2AuthorizedClientRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new AuthorizationCodeOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, null))
+		assertThatThrownBy(() -> new DefaultOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("authorizedClientRepository cannot be null");
 	}
@@ -119,22 +119,7 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
-	public void authorizeWhenNotAuthorizationCodeThenUnableToAuthorize() {
-		ClientRegistration clientCredentialsClient = TestClientRegistrations.clientCredentials().build();
-		when(this.clientRegistrationRepository.findByRegistrationId(
-				eq(clientCredentialsClient.getRegistrationId()))).thenReturn(clientCredentialsClient);
-
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(clientCredentialsClient.getRegistrationId())
-						.principal(this.principal)
-						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
-						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
-						.build();
-		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
-	}
-
-	@Test
-	public void authorizeWhenAuthorizationCodeAndAuthorizedThenNotAuthorize() {
+	public void authorizeWhenAuthorizedThenReturnAuthorizedClient() {
 		when(this.clientRegistrationRepository.findByRegistrationId(
 				eq(this.clientRegistration.getRegistrationId()))).thenReturn(this.clientRegistration);
 
@@ -147,21 +132,6 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
 						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
 						.build();
-		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
-	}
-
-	@Test
-	public void authorizeWhenAuthorizationCodeAndNotAuthorizedThenAuthorize() {
-		when(this.clientRegistrationRepository.findByRegistrationId(
-				eq(this.clientRegistration.getRegistrationId()))).thenReturn(this.clientRegistration);
-
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId())
-						.principal(this.principal)
-						.attribute(HttpServletRequest.class.getName(), new MockHttpServletRequest())
-						.attribute(HttpServletResponse.class.getName(), new MockHttpServletResponse())
-						.build();
-		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
-				.isInstanceOf(ClientAuthorizationRequiredException.class);
+		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isSameAs(this.authorizedClient);
 	}
 }
