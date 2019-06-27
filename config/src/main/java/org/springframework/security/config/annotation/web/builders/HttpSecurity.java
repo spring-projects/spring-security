@@ -962,8 +962,7 @@ public final class HttpSecurity extends
 	 * 			.authorizeRequests()
 	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 				.and()
-	 * 			.formLogin()
-	 * 				.and()
+	 * 			.formLogin(withDefaults())
 	 * 			// sample logout customization
 	 * 			.logout(logout ->
 	 * 				logout.deleteCookies(&quot;remove&quot;)
@@ -1110,6 +1109,71 @@ public final class HttpSecurity extends
 	 */
 	public FormLoginConfigurer<HttpSecurity> formLogin() throws Exception {
 		return getOrApply(new FormLoginConfigurer<>());
+	}
+
+	/**
+	 * Specifies to support form based authentication. If
+	 * {@link FormLoginConfigurer#loginPage(String)} is not specified a default login page
+	 * will be generated.
+	 *
+	 * <h2>Example Configurations</h2>
+	 *
+	 * The most basic configuration defaults to automatically generating a login page at
+	 * the URL "/login", redirecting to "/login?error" for authentication failure. The
+	 * details of the login page can be found on
+	 * {@link FormLoginConfigurer#loginPage(String)}
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class FormLoginSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.formLogin(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * The configuration below demonstrates customizing the defaults.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class FormLoginSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.formLogin(formLogin ->
+	 * 				formLogin
+	 * 					.usernameParameter(&quot;username&quot;)
+	 * 					.passwordParameter(&quot;password&quot;)
+	 * 					.loginPage(&quot;/authentication/login&quot;)
+	 * 					.failureUrl(&quot;/authentication/login?failed&quot;)
+	 * 					.loginProcessingUrl(&quot;/authentication/login/process&quot;)
+	 * 			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @see FormLoginConfigurer#loginPage(String)
+	 *
+	 * @param formLoginCustomizer the {@link Customizer} to provide more options for
+	 * the {@link FormLoginConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity formLogin(Customizer<FormLoginConfigurer<HttpSecurity>> formLoginCustomizer) throws Exception {
+		formLoginCustomizer.customize(getOrApply(new FormLoginConfigurer<>()));
+		return HttpSecurity.this;
 	}
 
 	/**
