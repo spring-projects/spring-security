@@ -16,7 +16,6 @@
 package org.springframework.security.crypto.bcrypt;
 
 import org.junit.Test;
-import org.springframework.security.crypto.password.DelegatingPasswordEncoderTests;
 
 import java.security.SecureRandom;
 
@@ -183,18 +182,22 @@ public class BCryptPasswordEncoderTests {
 	}
 
 	/**
-	 * @see DelegatingPasswordEncoderTests#upgradeEncodingWhenNullIdThenTrue()
+	 * @see <a href="https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</>
 	 */
 	@Test
-	public void upgradeFromNull() {
+	public void upgradeFromNullOrEmpty() {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		assertThat(encoder.upgradeEncoding(null)).isTrue();
+		assertThat(encoder.upgradeEncoding(null)).isFalse();
+		assertThat(encoder.upgradeEncoding("")).isFalse();
 	}
 
-	@Test
+	/**
+	 * @see <a href="https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</>
+	 */
+	@Test(expected = IllegalArgumentException.class)
 	public void upgradeFromNonBCrypt() {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		assertThat(encoder.upgradeEncoding("not-a-bcrypt-password")).isTrue();
+		encoder.upgradeEncoding("not-a-bcrypt-password");
 	}
 
 }
