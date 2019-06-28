@@ -30,12 +30,7 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.jwk.source.JWKSecurityContextJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.JWKSecurityContext;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -318,18 +313,13 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 * @since 5.2
 	 */
 	public static final class PublicKeyReactiveJwtDecoderBuilder {
-		private final RSAKey key;
+		private final RSAPublicKey key;
 		private JWSAlgorithm jwsAlgorithm;
 
 		private PublicKeyReactiveJwtDecoderBuilder(RSAPublicKey key) {
 			Assert.notNull(key, "key cannot be null");
-			this.key = rsaKey(key);
+			this.key = key;
 			this.jwsAlgorithm = JWSAlgorithm.RS256;
-		}
-
-		private static RSAKey rsaKey(RSAPublicKey publicKey) {
-			return new RSAKey.Builder(publicKey)
-					.build();
 		}
 
 		/**
@@ -363,10 +353,8 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 						this.jwsAlgorithm + ". Please indicate one of RS256, RS384, or RS512.");
 			}
 
-			JWKSet jwkSet = new JWKSet(this.key);
-			JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(jwkSet);
 			JWSKeySelector<SecurityContext> jwsKeySelector =
-					new JWSVerificationKeySelector<>(this.jwsAlgorithm, jwkSource);
+					new SingleKeyJWSKeySelector<>(this.jwsAlgorithm, this.key);
 			DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSKeySelector(jwsKeySelector);
 
@@ -418,9 +406,8 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		}
 
 		Converter<JWT, Mono<JWTClaimsSet>> processor() {
-			JWKSource<SecurityContext> jwkSource = new ImmutableSecret<>(this.secretKey);
 			JWSKeySelector<SecurityContext> jwsKeySelector =
-					new JWSVerificationKeySelector<>(this.jwsAlgorithm, jwkSource);
+					new SingleKeyJWSKeySelector<>(this.jwsAlgorithm, this.secretKey);
 			DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSKeySelector(jwsKeySelector);
 
