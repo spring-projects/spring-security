@@ -134,6 +134,30 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		return decodeAndCheckMatches(rawPassword, encodedPassword);
 	}
 
+	@Override
+	public boolean upgradeEncoding(String encodedPassword) {
+		if (encodedPassword == null || encodedPassword.isEmpty()) {
+			return false;
+		}
+
+		String[] parts = encodedPassword.split("\\$");
+
+		if (parts.length != 4) {
+			throw new IllegalArgumentException("Encoded password does not look like SCrypt: " + encodedPassword);
+		}
+
+		long params = Long.parseLong(parts[1], 16);
+
+		int cpuCost = (int) Math.pow(2, params >> 16 & 0xffff);
+		int memoryCost = (int) params >> 8 & 0xff;
+		int parallelization = (int) params & 0xff;
+
+		return cpuCost < this.cpuCost
+				|| memoryCost < this.memoryCost
+				|| parallelization < this.parallelization;
+		
+	}
+
 	private boolean decodeAndCheckMatches(CharSequence rawPassword, String encodedPassword) {
 		String[] parts = encodedPassword.split("\\$");
 

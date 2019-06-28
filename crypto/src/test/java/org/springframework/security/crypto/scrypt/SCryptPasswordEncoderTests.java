@@ -116,5 +116,35 @@ public class SCryptPasswordEncoderTests {
 		new SCryptPasswordEncoder(2, 8, 1, -1, 16);
 	}
 
+	@Test
+	public void upgradeEncoding_nullOrEmptyInput() {
+		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		assertThat(encoder.upgradeEncoding(null)).isFalse();
+		assertThat(encoder.upgradeEncoding("")).isFalse();
+	}
+
+	@Test
+	public void upgradeEncoding_sameEncoder() {
+		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		String encoded = encoder.encode("password");
+		assertThat(encoder.upgradeEncoding(encoded)).isFalse();
+	}
+
+	@Test
+	public void upgradeEncoding_weakerToStronger() {
+		SCryptPasswordEncoder weakEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 10), 4, 1, 32, 64);
+		SCryptPasswordEncoder strongEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 16), 8, 1, 32, 64);
+
+		String weakPassword = weakEncoder.encode("password");
+		String strongPassword = strongEncoder.encode("password");
+
+		assertThat(strongEncoder.upgradeEncoding(weakPassword)).isTrue();
+		assertThat(weakEncoder.upgradeEncoding(strongPassword)).isFalse();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void upgradeEncoding_invalidInput() {
+		new SCryptPasswordEncoder().upgradeEncoding("not-a-scrypt-password");
+	}
 }
 
