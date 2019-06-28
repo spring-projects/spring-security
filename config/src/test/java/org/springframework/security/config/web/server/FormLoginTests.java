@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
@@ -40,6 +42,10 @@ import reactor.core.publisher.Mono;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * @author Rob Winch
@@ -150,6 +156,42 @@ public class FormLoginTests {
 			.submit(HomePage.class);
 
 		assertThat(driver.getCurrentUrl()).endsWith("/custom");
+	}
+
+	@Test
+	public void customAuthenticationManager() {
+		ReactiveAuthenticationManager defaultAuthenticationManager = mock(ReactiveAuthenticationManager.class);
+		ReactiveAuthenticationManager customAuthenticationManager = mock(ReactiveAuthenticationManager.class);
+
+		given(defaultAuthenticationManager.authenticate(any())).willThrow(new RuntimeException("should not interact with default auth manager"));
+		given(customAuthenticationManager.authenticate(any())).willReturn(Mono.just(new TestingAuthenticationToken("user", "password", "ROLE_USER", "ROLE_ADMIN")));
+
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authenticationManager(defaultAuthenticationManager)
+			.formLogin()
+				.authenticationManager(customAuthenticationManager)
+				.and()
+			.build();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+			.bindToWebFilters(securityWebFilter)
+			.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+			.webTestClientSetup(webTestClient)
+			.build();
+
+		DefaultLoginPage loginPage = DefaultLoginPage.to(driver)
+			.assertAt();
+
+		HomePage homePage = loginPage.loginForm()
+			.username("user")
+			.password("password")
+			.submit(HomePage.class);
+
+		homePage.assertAt();
+
+		verifyZeroInteractions(defaultAuthenticationManager);
 	}
 
 	public static class CustomLoginPage {

@@ -19,6 +19,8 @@ package org.springframework.security.config.web.server;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -188,6 +190,25 @@ public class ServerHttpSecurityTests {
 								.map(ServerLogoutHandler::getClass)
 								.collect(Collectors.toList()))
 				.isEqualTo(Arrays.asList(SecurityContextServerLogoutHandler.class, CsrfServerLogoutHandler.class));
+	}
+
+	@Test
+	public void basicWithCustomAuthenticationManager() {
+		ReactiveAuthenticationManager customAuthenticationManager = mock(ReactiveAuthenticationManager.class);
+		given(customAuthenticationManager.authenticate(any())).willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
+
+		SecurityWebFilterChain securityFilterChain = this.http.httpBasic().authenticationManager(customAuthenticationManager).and().build();
+		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
+
+		client.get()
+				.uri("/")
+				.headers(headers -> headers.setBasicAuth("rob", "rob"))
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"));
+
+		verifyZeroInteractions(this.authenticationManager);
 	}
 
 	private <T extends WebFilter> Optional<T> getWebFilter(SecurityWebFilterChain filterChain, Class<T> filterClass) {

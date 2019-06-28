@@ -1277,11 +1277,15 @@ public class ServerHttpSecurity {
 			this.cors.configure(this);
 		}
 		if (this.httpBasic != null) {
-			this.httpBasic.authenticationManager(this.authenticationManager);
+			if (this.httpBasic.authenticationManager == null) {
+				this.httpBasic.authenticationManager(this.authenticationManager);
+			}
 			this.httpBasic.configure(this);
 		}
 		if (this.formLogin != null) {
-			this.formLogin.authenticationManager(this.authenticationManager);
+			if (this.formLogin.authenticationManager == null) {
+				this.formLogin.authenticationManager(this.authenticationManager);
+			}
 			if (this.securityContextRepository != null) {
 				this.formLogin.securityContextRepository(this.securityContextRepository);
 			}
