@@ -752,6 +752,86 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Configures container based pre authentication. In this case, authentication
+	 * is managed by the Servlet Container.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following configuration will use the principal found on the
+	 * {@link HttpServletRequest} and if the user is in the role "ROLE_USER" or
+	 * "ROLE_ADMIN" will add that to the resulting {@link Authentication}.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class JeeSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.jee(jee ->
+	 * 				jee
+	 * 					.mappableRoles(&quot;USER&quot;, &quot;ADMIN&quot;)
+	 * 			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * Developers wishing to use pre authentication with the container will need to ensure
+	 * their web.xml configures the security constraints. For example, the web.xml (there
+	 * is no equivalent Java based configuration supported by the Servlet specification)
+	 * might look like:
+	 *
+	 * <pre>
+	 * &lt;login-config&gt;
+	 *     &lt;auth-method&gt;FORM&lt;/auth-method&gt;
+	 *     &lt;form-login-config&gt;
+	 *         &lt;form-login-page&gt;/login&lt;/form-login-page&gt;
+	 *         &lt;form-error-page&gt;/login?error&lt;/form-error-page&gt;
+	 *     &lt;/form-login-config&gt;
+	 * &lt;/login-config&gt;
+	 *
+	 * &lt;security-role&gt;
+	 *     &lt;role-name&gt;ROLE_USER&lt;/role-name&gt;
+	 * &lt;/security-role&gt;
+	 * &lt;security-constraint&gt;
+	 *     &lt;web-resource-collection&gt;
+	 *     &lt;web-resource-name&gt;Public&lt;/web-resource-name&gt;
+	 *         &lt;description&gt;Matches unconstrained pages&lt;/description&gt;
+	 *         &lt;url-pattern&gt;/login&lt;/url-pattern&gt;
+	 *         &lt;url-pattern&gt;/logout&lt;/url-pattern&gt;
+	 *         &lt;url-pattern&gt;/resources/*&lt;/url-pattern&gt;
+	 *     &lt;/web-resource-collection&gt;
+	 * &lt;/security-constraint&gt;
+	 * &lt;security-constraint&gt;
+	 *     &lt;web-resource-collection&gt;
+	 *         &lt;web-resource-name&gt;Secured Areas&lt;/web-resource-name&gt;
+	 *         &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+	 *     &lt;/web-resource-collection&gt;
+	 *     &lt;auth-constraint&gt;
+	 *         &lt;role-name&gt;ROLE_USER&lt;/role-name&gt;
+	 *     &lt;/auth-constraint&gt;
+	 * &lt;/security-constraint&gt;
+	 * </pre>
+	 *
+	 * Last you will need to configure your container to contain the user with the correct
+	 * roles. This configuration is specific to the Servlet Container, so consult your
+	 * Servlet Container's documentation.
+	 *
+	 * @param jeeCustomizer the {@link Customizer} to provide more options for
+	 * the {@link JeeConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity jee(Customizer<JeeConfigurer<HttpSecurity>> jeeCustomizer) throws Exception {
+		jeeCustomizer.customize(getOrApply(new JeeConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Configures X509 based pre authentication.
 	 *
 	 * <h2>Example Configuration</h2>
