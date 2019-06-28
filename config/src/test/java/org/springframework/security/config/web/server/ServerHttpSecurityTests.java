@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -280,6 +281,25 @@ public class ServerHttpSecurityTests {
 				.returnResult();
 
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
+	}
+
+	@Test
+	public void basicWithCustomAuthenticationManager() {
+		ReactiveAuthenticationManager customAuthenticationManager = mock(ReactiveAuthenticationManager.class);
+		given(customAuthenticationManager.authenticate(any())).willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
+
+		SecurityWebFilterChain securityFilterChain = this.http.httpBasic().authenticationManager(customAuthenticationManager).and().build();
+		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
+
+		client.get()
+				.uri("/")
+				.headers(headers -> headers.setBasicAuth("rob", "rob"))
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"));
+
+		verifyZeroInteractions(this.authenticationManager);
 	}
 
 	@Test
