@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -60,6 +61,9 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
 
 	private AuthenticationEntryPoint authenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
+
+	private AuthenticationFailureHandler authenticationFailureHandler = (request, response, exception) ->
+		authenticationEntryPoint.commence(request, response, exception);
 
 	/**
 	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided parameter(s)
@@ -131,7 +135,7 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 				this.logger.debug("Authentication request for failed: " + failed);
 			}
 
-			this.authenticationEntryPoint.commence(request, response, failed);
+			this.authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
 		}
 	}
 
@@ -151,5 +155,15 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	public final void setAuthenticationEntryPoint(final AuthenticationEntryPoint authenticationEntryPoint) {
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
 		this.authenticationEntryPoint = authenticationEntryPoint;
+	}
+
+	/**
+	 * Set the {@link AuthenticationFailureHandler} to use. Default implementation invokes {@link AuthenticationEntryPoint}.
+	 * @param authenticationFailureHandler the {@code AuthenticationFailureHandler} to use
+	 * @since 5.2
+	 */
+	public final void setAuthenticationFailureHandler(final AuthenticationFailureHandler authenticationFailureHandler) {
+		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
 }

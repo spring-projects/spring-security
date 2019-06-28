@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenAuthentica
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -54,6 +55,9 @@ import static org.mockito.Mockito.when;
 public class BearerTokenAuthenticationFilterTests {
 	@Mock
 	AuthenticationEntryPoint authenticationEntryPoint;
+
+	@Mock
+	AuthenticationFailureHandler authenticationFailureHandler;
 
 	@Mock
 	AuthenticationManager authenticationManager;
@@ -138,7 +142,7 @@ public class BearerTokenAuthenticationFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenAuthenticationFailsThenPropagatesError() throws ServletException, IOException {
+	public void doFilterWhenAuthenticationFailsWithDefaultHandlerThenPropagatesError() throws ServletException, IOException {
 		BearerTokenError error = new BearerTokenError(
 				BearerTokenErrorCodes.INVALID_TOKEN,
 				HttpStatus.UNAUTHORIZED,
@@ -157,6 +161,29 @@ public class BearerTokenAuthenticationFilterTests {
 		filter.doFilter(this.request, this.response, this.filterChain);
 
 		verify(this.authenticationEntryPoint).commence(this.request, this.response, exception);
+	}
+
+	@Test
+	public void doFilterWhenAuthenticationFailsWithCustomHandlerThenPropagatesError() throws ServletException, IOException {
+		BearerTokenError error = new BearerTokenError(
+				BearerTokenErrorCodes.INVALID_TOKEN,
+				HttpStatus.UNAUTHORIZED,
+				"description",
+				"uri"
+		);
+
+		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(error);
+
+		when(this.bearerTokenResolver.resolve(this.request)).thenReturn("token");
+		when(this.authenticationManager.authenticate(any(BearerTokenAuthenticationToken.class)))
+				.thenThrow(exception);
+
+		BearerTokenAuthenticationFilter filter =
+				addMocks(new BearerTokenAuthenticationFilter(this.authenticationManager));
+		filter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
+		filter.doFilter(this.request, this.response, this.filterChain);
+
+		verify(this.authenticationFailureHandler).onAuthenticationFailure(this.request, this.response, exception);
 	}
 
 	@Test
