@@ -634,6 +634,52 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Allows configuring a {@link PortMapper} that is available from
+	 * {@link HttpSecurity#getSharedObject(Class)}. Other provided
+	 * {@link SecurityConfigurer} objects use this configured {@link PortMapper} as a
+	 * default {@link PortMapper} when redirecting from HTTP to HTTPS or from HTTPS to
+	 * HTTP (for example when used in combination with {@link #requiresChannel()}. By
+	 * default Spring Security uses a {@link PortMapperImpl} which maps the HTTP port 8080
+	 * to the HTTPS port 8443 and the HTTP port of 80 to the HTTPS port of 443.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following configuration will ensure that redirects within Spring Security from
+	 * HTTP of a port of 9090 will redirect to HTTPS port of 9443 and the HTTP port of 80
+	 * to the HTTPS port of 443.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class PortMapperSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.requiresChannel()
+	 * 				.anyRequest().requiresSecure()
+	 * 				.and()
+	 * 			.portMapper(portMapper ->
+	 * 				portMapper
+	 * 					.http(9090).mapsTo(9443)
+	 * 					.http(80).mapsTo(443)
+	 * 			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @see #requiresChannel()
+	 * @param portMapperCustomizer the {@link Customizer} to provide more options for
+	 * the {@link PortMapperConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity portMapper(Customizer<PortMapperConfigurer<HttpSecurity>> portMapperCustomizer) throws Exception {
+		portMapperCustomizer.customize(getOrApply(new PortMapperConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Configures container based pre authentication. In this case, authentication
 	 * is managed by the Servlet Container.
 	 *

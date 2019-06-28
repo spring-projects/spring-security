@@ -22,7 +22,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.web.PortMapperImpl;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Collections;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -59,6 +62,58 @@ public class PortMapperConfigurerTests {
 					.http(543).mapsTo(123)
 					.and()
 				.portMapper();
+		}
+	}
+
+	@Test
+	public void requestWhenPortMapperHttpMapsToInLambdaThenRedirectsToHttpsPort() throws Exception {
+		this.spring.register(HttpMapsToInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(get("http://localhost:543"))
+				.andExpect(redirectedUrl("https://localhost:123"));
+	}
+
+	@EnableWebSecurity
+	static class HttpMapsToInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.requiresChannel()
+					.anyRequest().requiresSecure()
+					.and()
+				.portMapper(portMapper ->
+					portMapper
+						.http(543).mapsTo(123)
+				);
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void requestWhenCustomPortMapperInLambdaThenRedirectsToHttpsPort() throws Exception {
+		this.spring.register(CustomPortMapperInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(get("http://localhost:543"))
+				.andExpect(redirectedUrl("https://localhost:123"));
+	}
+
+	@EnableWebSecurity
+	static class CustomPortMapperInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			PortMapperImpl customPortMapper = new PortMapperImpl();
+			customPortMapper.setPortMappings(Collections.singletonMap("543", "123"));
+			// @formatter:off
+			http
+				.requiresChannel()
+					.anyRequest().requiresSecure()
+					.and()
+				.portMapper(portMapper ->
+					portMapper
+						.portMapper(customPortMapper)
+				);
+			// @formatter:on
 		}
 	}
 }
