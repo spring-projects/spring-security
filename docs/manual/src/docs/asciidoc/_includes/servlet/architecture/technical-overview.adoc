@@ -156,7 +156,7 @@ Let's consider a standard authentication scenario that everyone is familiar with
 . The user proceeds, potentially to perform some operation which is potentially protected by an access control mechanism which checks the required permissions for the operation against the current security context information.
 
 
-The first three items constitute the authentication process so we'll take a look at how these take place within Spring Security.
+The first four items constitute the authentication process so we'll take a look at how these take place within Spring Security.
 
 . The username and password are obtained and combined into an instance of `UsernamePasswordAuthenticationToken` (an instance of the `Authentication` interface, which we saw earlier).
 . The token is passed to an instance of `AuthenticationManager` for validation.
