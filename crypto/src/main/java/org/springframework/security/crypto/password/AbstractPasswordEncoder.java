@@ -19,6 +19,8 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
+import java.security.MessageDigest;
+
 import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
 import static org.springframework.security.crypto.util.EncodingUtils.subArray;
 
@@ -59,14 +61,6 @@ public abstract class AbstractPasswordEncoder implements PasswordEncoder {
 	 * Constant time comparison to prevent against timing attacks.
 	 */
 	protected static boolean matches(byte[] expected, byte[] actual) {
-		if (expected.length != actual.length) {
-			return false;
-		}
-
-		int result = 0;
-		for (int i = 0; i < expected.length; i++) {
-			result |= expected[i] ^ actual[i];
-		}
-		return result == 0;
+		return MessageDigest.isEqual(expected, actual);
 	}
 }

@@ -14,6 +14,8 @@
 package org.springframework.security.crypto.bcrypt;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.security.SecureRandom;
 
@@ -912,17 +914,6 @@ public class BCrypt {
 	}
 
 	static boolean equalsNoEarlyReturn(String a, String b) {
-		char[] caa = a.toCharArray();
-		char[] cab = b.toCharArray();
-
-		if (caa.length != cab.length) {
-			return false;
-		}
-
-		byte ret = 0;
-		for (int i = 0; i < caa.length; i++) {
-			ret |= caa[i] ^ cab[i];
-		}
-		return ret == 0;
+		return MessageDigest.isEqual(a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));
 	}
 }

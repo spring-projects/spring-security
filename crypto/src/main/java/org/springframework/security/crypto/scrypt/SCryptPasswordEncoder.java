@@ -15,6 +15,7 @@
  */
 package org.springframework.security.crypto.scrypt;
 
+import java.security.MessageDigest;
 import java.util.Base64;
 
 import org.apache.commons.logging.Log;
@@ -152,15 +153,7 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		byte[] generated = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization,
 				keyLength);
 
-		if (derived.length != generated.length) {
-			return false;
-		}
-
-		int result = 0;
-		for (int i = 0; i < derived.length; i++) {
-			result |= derived[i] ^ generated[i];
-		}
-		return result == 0;
+		return MessageDigest.isEqual(derived, generated);
 	}
 
 	private String digest(CharSequence rawPassword, byte[] salt) {
