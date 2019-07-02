@@ -862,6 +862,42 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Configures X509 based pre authentication.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following configuration will attempt to extract the username from the X509
+	 * certificate. Remember that the Servlet Container will need to be configured to
+	 * request client certificates in order for this to work.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class X509SecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;)
+	 * 				.hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.x509(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @param x509Customizer the {@link Customizer} to provide more options for
+	 * the {@link X509Configurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity x509(Customizer<X509Configurer<HttpSecurity>> x509Customizer) throws Exception {
+		x509Customizer.customize(getOrApply(new X509Configurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Allows configuring of Remember Me authentication.
 	 *
 	 * <h2>Example Configuration</h2>
