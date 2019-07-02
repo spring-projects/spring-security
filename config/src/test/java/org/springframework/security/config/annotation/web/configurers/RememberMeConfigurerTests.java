@@ -51,6 +51,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
@@ -299,6 +300,44 @@ public class RememberMeConfigurerTests {
 		}
 	}
 
+
+	@Test
+	public void loginWhenRememberMeConfiguredInLambdaThenRespondsWithRememberMeCookie() throws Exception {
+		this.spring.register(RememberMeInLambdaConfig.class).autowire();
+
+		this.mvc.perform(post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true"))
+				.andExpect(cookie().exists("remember-me"));
+	}
+
+	@EnableWebSecurity
+	static class RememberMeInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.formLogin(withDefaults())
+				.rememberMe(withDefaults());
+			// @formatter:on
+		}
+
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
 	@Test
 	public void loginWhenRememberMeTrueAndCookieDomainThenRememberMeCookieHasDomain() throws Exception {
 		this.spring.register(RememberMeCookieDomainConfig.class).autowire();
@@ -324,6 +363,45 @@ public class RememberMeConfigurerTests {
 					.and()
 				.rememberMe()
 					.rememberMeCookieDomain("spring.io");
+			// @formatter:on
+		}
+
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void loginWhenRememberMeTrueAndCookieDomainInLambdaThenRememberMeCookieHasDomain() throws Exception {
+		this.spring.register(RememberMeCookieDomainInLambdaConfig.class).autowire();
+
+		this.mvc.perform(post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true"))
+				.andExpect(cookie().exists("remember-me"))
+				.andExpect(cookie().domain("remember-me", "spring.io"));
+	}
+
+	@EnableWebSecurity
+	static class RememberMeCookieDomainInLambdaConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.formLogin(withDefaults())
+				.rememberMe(rememberMe ->
+					rememberMe
+						.rememberMeCookieDomain("spring.io")
+				);
 			// @formatter:on
 		}
 

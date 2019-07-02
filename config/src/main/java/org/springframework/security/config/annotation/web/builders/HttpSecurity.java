@@ -935,6 +935,43 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Allows configuring of Remember Me authentication.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following configuration demonstrates how to allow token based remember me
+	 * authentication. Upon authenticating if the HTTP parameter named "remember-me"
+	 * exists, then the user will be remembered even after their
+	 * {@link javax.servlet.http.HttpSession} expires.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RememberMeSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.formLogin(withDefaults())
+	 * 			.rememberMe(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @param rememberMeCustomizer the {@link Customizer} to provide more options for
+	 * the {@link RememberMeConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity rememberMe(Customizer<RememberMeConfigurer<HttpSecurity>> rememberMeCustomizer) throws Exception {
+		rememberMeCustomizer.customize(getOrApply(new RememberMeConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Allows restricting access based upon the {@link HttpServletRequest} using
 	 *
 	 * <h2>Example Configurations</h2>
