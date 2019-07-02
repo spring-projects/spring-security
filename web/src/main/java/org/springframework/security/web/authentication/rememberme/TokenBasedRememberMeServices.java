@@ -256,15 +256,8 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	private static boolean equals(String expected, String actual) {
 		byte[] expectedBytes = bytesUtf8(expected);
 		byte[] actualBytes = bytesUtf8(actual);
-		if (expectedBytes.length != actualBytes.length) {
-			return false;
-		}
 
-		int result = 0;
-		for (int i = 0; i < expectedBytes.length; i++) {
-			result |= expectedBytes[i] ^ actualBytes[i];
-		}
-		return result == 0;
+		return MessageDigest.isEqual(expectedBytes, actualBytes);
 	}
 
 	private static byte[] bytesUtf8(String s) {

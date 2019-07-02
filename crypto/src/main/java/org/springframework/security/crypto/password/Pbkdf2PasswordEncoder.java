@@ -16,6 +16,7 @@
 package org.springframework.security.crypto.password;
 
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
@@ -141,22 +142,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		byte[] digested = decode(encodedPassword);
 		byte[] salt = subArray(digested, 0, this.saltGenerator.getKeyLength());
-		return matches(digested, encode(rawPassword, salt));
-	}
-
-	/**
-	 * Constant time comparison to prevent against timing attacks.
-	 */
-	private static boolean matches(byte[] expected, byte[] actual) {
-		if (expected.length != actual.length) {
-			return false;
-		}
-
-		int result = 0;
-		for (int i = 0; i < expected.length; i++) {
-			result |= expected[i] ^ actual[i];
-		}
-		return result == 0;
+		return MessageDigest.isEqual(digested, encode(rawPassword, salt));
 	}
 
 	private byte[] decode(String encodedBytes) {
