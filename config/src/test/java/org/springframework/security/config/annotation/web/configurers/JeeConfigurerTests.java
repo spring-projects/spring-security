@@ -151,9 +151,10 @@ public class JeeConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().hasRole("USER")
+				)
 				.jee(jee ->
 					jee
 						.mappableRoles("USER")
@@ -185,9 +186,10 @@ public class JeeConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().hasRole("USER")
+				)
 				.jee(jee ->
 					jee
 						.mappableAuthorities("ROLE_USER")
@@ -226,9 +228,10 @@ public class JeeConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().hasRole("USER")
+				)
 				.jee(jee ->
 					jee
 						.authenticatedUserDetailsService(authenticationUserDetailsService)

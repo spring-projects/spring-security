@@ -548,9 +548,10 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.anyRequest().hasRole(&quot;USER&quot;)
-	 * 				.and()
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.anyRequest().hasRole(&quot;USER&quot;)
+	 * 			)
 	 * 			.formLogin(formLogin ->
 	 * 				formLogin
 	 * 					.permitAll()
@@ -769,9 +770,10 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
 	 * 			.jee(jee ->
 	 * 				jee
 	 * 					.mappableRoles(&quot;USER&quot;, &quot;ADMIN&quot;)
@@ -878,10 +880,10 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.antMatchers(&quot;/**&quot;)
-	 * 				.hasRole(&quot;USER&quot;)
-	 * 				.and()
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
 	 * 			.x509(withDefaults());
 	 * 	}
 	 * }
@@ -952,9 +954,10 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
 	 * 			.formLogin(withDefaults())
 	 * 			.rememberMe(withDefaults());
 	 * 	}
@@ -1043,6 +1046,91 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Allows restricting access based upon the {@link HttpServletRequest} using
+	 * {@link RequestMatcher} implementations (i.e. via URL patterns).
+	 *
+	 * <h2>Example Configurations</h2>
+	 *
+	 * The most basic example is to configure all URLs to require the role "ROLE_USER".
+	 * The configuration below requires authentication to every URL and will grant access
+	 * to both the user "admin" and "user".
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.formLogin(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * We can also configure multiple URLs. The configuration below requires
+	 * authentication to every URL and will grant access to URLs starting with /admin/ to
+	 * only the "admin" user. All other URLs either user can access.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.formLogin(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * Note that the matchers are considered in order. Therefore, the following is invalid
+	 * because the first matcher matches every request and will never get to the second
+	 * mapping:
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		 http
+	 * 		 	.authorizeRequests(authorizeRequests ->
+	 * 		 		authorizeRequests
+	 * 			 		.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			 		.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 		 	);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @see #requestMatcher(RequestMatcher)
+	 *
+	 * @param authorizeRequestsCustomizer the {@link Customizer} to provide more options for
+	 * the {@link ExpressionUrlAuthorizationConfigurer.ExpressionInterceptUrlRegistry}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity authorizeRequests(Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> authorizeRequestsCustomizer)
+			throws Exception {
+		ApplicationContext context = getContext();
+		authorizeRequestsCustomizer.customize(getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context))
+				.getRegistry());
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Allows configuring the Request Cache. For example, a protected page (/protected)
 	 * may be requested prior to authentication. The application will redirect the user to
 	 * a login page. After authentication, Spring Security will redirect the user to the
@@ -1075,9 +1163,10 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
 	 * 			.requestCache(requestCache ->
 	 * 				requestCache.disable()
 	 * 			);
@@ -1124,9 +1213,10 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
 	 * 			// sample exception handling customization
 	 * 			.exceptionHandling(exceptionHandling ->
 	 * 				exceptionHandling
@@ -1288,9 +1378,10 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
 	 * 			.formLogin(withDefaults())
 	 * 			// sample logout customization
 	 * 			.logout(logout ->
@@ -1460,9 +1551,10 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
 	 * 			.formLogin(withDefaults());
 	 * 	}
 	 * }
@@ -1478,9 +1570,10 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
 	 * 			.formLogin(formLogin ->
 	 * 				formLogin
 	 * 					.usernameParameter(&quot;username&quot;)
@@ -1717,9 +1810,10 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
 	 * 			.httpBasic(withDefaults());
 	 * 	}
 	 * }

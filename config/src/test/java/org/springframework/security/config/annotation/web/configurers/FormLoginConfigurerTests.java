@@ -254,9 +254,10 @@ public class FormLoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().hasRole("USER")
+				)
 				.formLogin(withDefaults());
 			// @formatter:on
 		}
@@ -387,9 +388,10 @@ public class FormLoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().hasRole("USER")
+				)
 				.formLogin(formLogin ->
 					formLogin
 						.loginPage("/authenticate")
@@ -458,9 +460,10 @@ public class FormLoginConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().authenticated()
+				)
 				.formLogin(formLogin ->
 					formLogin
 						.loginProcessingUrl("/loginCheck")

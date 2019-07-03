@@ -291,9 +291,10 @@ public class RequestCacheConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().authenticated()
+				)
 				.formLogin(withDefaults())
 				.requestCache(RequestCacheConfigurer::disable);
 			// @formatter:on
@@ -318,9 +319,10 @@ public class RequestCacheConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().authenticated()
+				)
 				.formLogin(withDefaults())
 				.requestCache(withDefaults());
 			// @formatter:on
@@ -345,9 +347,10 @@ public class RequestCacheConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().authenticated()
+				)
 				.formLogin(withDefaults())
 				.requestCache(requestCache ->
 					requestCache

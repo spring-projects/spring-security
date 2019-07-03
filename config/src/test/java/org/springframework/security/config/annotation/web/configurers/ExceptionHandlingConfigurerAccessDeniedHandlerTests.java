@@ -109,9 +109,10 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().denyAll()
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().denyAll()
+				)
 				.exceptionHandling(exceptionHandling ->
 					exceptionHandling
 						.defaultAccessDeniedHandlerFor(

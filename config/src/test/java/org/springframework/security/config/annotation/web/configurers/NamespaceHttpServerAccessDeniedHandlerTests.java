@@ -98,9 +98,10 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().denyAll()
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().denyAll()
+				)
 				.exceptionHandling(exceptionHandling ->
 					exceptionHandling.accessDeniedPage("/AccessDeniedPageConfig")
 				);
@@ -152,9 +153,10 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().denyAll()
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().denyAll()
+				)
 				.exceptionHandling(exceptionHandling ->
 						exceptionHandling.accessDeniedHandler(accessDeniedHandler())
 				);
