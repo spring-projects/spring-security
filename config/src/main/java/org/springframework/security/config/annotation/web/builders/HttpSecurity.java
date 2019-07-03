@@ -62,6 +62,7 @@ import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -1246,6 +1247,39 @@ public final class HttpSecurity extends
 	 */
 	public SecurityContextConfigurer<HttpSecurity> securityContext() throws Exception {
 		return getOrApply(new SecurityContextConfigurer<>());
+	}
+
+	/**
+	 * Sets up management of the {@link SecurityContext} on the
+	 * {@link SecurityContextHolder} between {@link HttpServletRequest}'s. This is
+	 * automatically applied when using {@link WebSecurityConfigurerAdapter}.
+	 *
+	 * The following customization specifies the shared {@link SecurityContextRepository}
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class SecurityContextSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.securityContext(securityContext ->
+	 * 				securityContext
+	 * 					.securityContextRepository(SCR)
+	 * 			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @param securityContextCustomizer the {@link Customizer} to provide more options for
+	 * the {@link SecurityContextConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity securityContext(Customizer<SecurityContextConfigurer<HttpSecurity>> securityContextCustomizer) throws Exception {
+		securityContextCustomizer.customize(getOrApply(new SecurityContextConfigurer<>()));
+		return HttpSecurity.this;
 	}
 
 	/**
