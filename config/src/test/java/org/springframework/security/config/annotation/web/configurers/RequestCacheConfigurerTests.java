@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,6 +43,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -268,6 +270,90 @@ public class RequestCacheConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			super.configure(http);
 			http.requestCache().disable();
+		}
+	}
+
+	@Test
+	public void getWhenRequestCacheIsDisabledInLambdaThenExceptionTranslationFilterDoesNotStoreRequest() throws Exception {
+		this.spring.register(RequestCacheDisabledInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
+
+		MockHttpSession session = (MockHttpSession)
+				this.mvc.perform(get("/bob"))
+						.andReturn().getRequest().getSession();
+
+		this.mvc.perform(formLogin(session))
+				.andExpect(redirectedUrl("/"));
+	}
+
+	@EnableWebSecurity
+	static class RequestCacheDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.formLogin(withDefaults())
+				.requestCache(RequestCacheConfigurer::disable);
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void getWhenRequestCacheInLambdaThenRedirectedToCachedPage() throws Exception {
+		this.spring.register(RequestCacheInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
+
+		MockHttpSession session = (MockHttpSession)
+				this.mvc.perform(get("/bob"))
+						.andReturn().getRequest().getSession();
+
+		this.mvc.perform(formLogin(session))
+				.andExpect(redirectedUrl("http://localhost/bob"));
+	}
+
+	@EnableWebSecurity
+	static class RequestCacheInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.formLogin(withDefaults())
+				.requestCache(withDefaults());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void getWhenCustomRequestCacheInLambdaThenCustomRequestCacheUsed() throws Exception {
+		this.spring.register(CustomRequestCacheInLambdaConfig.class, DefaultSecurityConfig.class).autowire();
+
+		MockHttpSession session = (MockHttpSession)
+				this.mvc.perform(get("/bob"))
+						.andReturn().getRequest().getSession();
+
+		this.mvc.perform(formLogin(session))
+				.andExpect(redirectedUrl("/"));
+	}
+
+	@EnableWebSecurity
+	static class CustomRequestCacheInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.formLogin(withDefaults())
+				.requestCache(requestCache ->
+					requestCache
+						.requestCache(new NullRequestCache())
+				);
+			// @formatter:on
 		}
 	}
 

@@ -1057,6 +1057,46 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Allows configuring the Request Cache. For example, a protected page (/protected)
+	 * may be requested prior to authentication. The application will redirect the user to
+	 * a login page. After authentication, Spring Security will redirect the user to the
+	 * originally requested protected page (/protected). This is automatically applied
+	 * when using {@link WebSecurityConfigurerAdapter}.
+	 *
+	 * <h2>Example Custom Configuration</h2>
+	 *
+	 * The following example demonstrates how to disable request caching.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequestCacheDisabledSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.requestCache(requestCache ->
+	 * 				requestCache.disable()
+	 * 			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @param requestCacheCustomizer the {@link Customizer} to provide more options for
+	 * the {@link RequestCacheConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity requestCache(Customizer<RequestCacheConfigurer<HttpSecurity>> requestCacheCustomizer)
+			throws Exception {
+		requestCacheCustomizer.customize(getOrApply(new RequestCacheConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Allows configuring exception handling. This is automatically applied when using
 	 * {@link WebSecurityConfigurerAdapter}.
 	 *
