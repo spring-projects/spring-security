@@ -156,7 +156,6 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		return cpuCost < this.cpuCost
 				|| memoryCost < this.memoryCost
 				|| parallelization < this.parallelization;
-		
 	}
 
 	private boolean decodeAndCheckMatches(CharSequence rawPassword, String encodedPassword) {

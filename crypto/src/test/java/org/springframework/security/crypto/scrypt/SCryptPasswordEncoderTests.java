@@ -117,21 +117,37 @@ public class SCryptPasswordEncoderTests {
 	}
 
 	@Test
-	public void upgradeEncoding_nullOrEmptyInput() {
+	public void upgradeEncodingWhenNullThenFalse() {
 		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
 		assertThat(encoder.upgradeEncoding(null)).isFalse();
+	}
+
+	@Test
+	public void upgradeEncodingWhenEmptyThenFalse() {
+		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
 		assertThat(encoder.upgradeEncoding("")).isFalse();
 	}
 
 	@Test
-	public void upgradeEncoding_sameEncoder() {
+	public void upgradeEncodingWhenSameEncoderThenFalse() {
 		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
 		String encoded = encoder.encode("password");
 		assertThat(encoder.upgradeEncoding(encoded)).isFalse();
 	}
 
 	@Test
-	public void upgradeEncoding_weakerToStronger() {
+	public void upgradeEncodingWhenWeakerToStrongerThenFalse() {
+		SCryptPasswordEncoder weakEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 10), 4, 1, 32, 64);
+		SCryptPasswordEncoder strongEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 16), 8, 1, 32, 64);
+
+		String weakPassword = weakEncoder.encode("password");
+		String strongPassword = strongEncoder.encode("password");
+
+		assertThat(weakEncoder.upgradeEncoding(strongPassword)).isFalse();
+	}
+
+	@Test
+	public void upgradeEncodingWhenStrongerToWeakerThenTrue() {
 		SCryptPasswordEncoder weakEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 10), 4, 1, 32, 64);
 		SCryptPasswordEncoder strongEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 16), 8, 1, 32, 64);
 
@@ -139,11 +155,10 @@ public class SCryptPasswordEncoderTests {
 		String strongPassword = strongEncoder.encode("password");
 
 		assertThat(strongEncoder.upgradeEncoding(weakPassword)).isTrue();
-		assertThat(weakEncoder.upgradeEncoding(strongPassword)).isFalse();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void upgradeEncoding_invalidInput() {
+	public void upgradeEncodingWhenInvalidInputThenException() {
 		new SCryptPasswordEncoder().upgradeEncoding("not-a-scrypt-password");
 	}
 }
