@@ -122,10 +122,10 @@ public class BCryptTests {
 	@Test
 	public void testHashpw() {
 		print("BCrypt.hashpw(): ");
-		for (int i = 0; i < test_vectors.length; i++) {
-			String plain = test_vectors[i][0];
-			String salt = test_vectors[i][1];
-			String expected = test_vectors[i][2];
+		for (String[] test_vector : test_vectors) {
+			String plain = test_vector[0];
+			String salt = test_vector[1];
+			String expected = test_vector[2];
 			String hashed = BCrypt.hashpw(plain, salt);
 			assertThat(expected).isEqualTo(hashed);
 			print(".");
@@ -176,9 +176,9 @@ public class BCryptTests {
 	@Test
 	public void testCheckpw_success() {
 		print("BCrypt.checkpw w/ good passwords: ");
-		for (int i = 0; i < test_vectors.length; i++) {
-			String plain = test_vectors[i][0];
-			String expected = test_vectors[i][2];
+		for (String[] test_vector : test_vectors) {
+			String plain = test_vector[0];
+			String expected = test_vector[2];
 			assertThat(BCrypt.checkpw(plain, expected)).isTrue();
 			print(".");
 		}

@@ -34,11 +34,11 @@ public final class Hex {
 		char[] result = new char[2 * nBytes];
 
 		int j = 0;
-		for (int i = 0; i < nBytes; i++) {
+		for (byte aByte : bytes) {
 			// Char for top 4 bits
-			result[j++] = HEX[(0xF0 & bytes[i]) >>> 4];
+			result[j++] = HEX[(0xF0 & aByte) >>> 4];
 			// Bottom 4
-			result[j++] = HEX[(0x0F & bytes[i])];
+			result[j++] = HEX[(0x0F & aByte)];
 		}
 
 		return result;

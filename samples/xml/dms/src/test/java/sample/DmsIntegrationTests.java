@@ -105,12 +105,12 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 		assertThat(rootElements).hasSize(3);
 		Directory homeDir = null;
 		Directory nonHomeDir = null;
-		for (int i = 0; i < rootElements.length; i++) {
-			if (rootElements[i].getName().equals(username)) {
-				homeDir = (Directory) rootElements[i];
+		for (AbstractElement rootElement : rootElements) {
+			if (rootElement.getName().equals(username)) {
+				homeDir = (Directory) rootElement;
 			}
 			else {
-				nonHomeDir = (Directory) rootElements[i];
+				nonHomeDir = (Directory) rootElement;
 			}
 		}
 		System.out.println("Home directory......: " + homeDir.getFullName());
@@ -135,9 +135,9 @@ public class DmsIntegrationTests extends AbstractTransactionalJUnit4SpringContex
 		// Of course, we shouldn't find a "confidential" directory in the results if we're
 		// filtering
 		Directory nonHomeConfidentialDir = null;
-		for (int i = 0; i < nonHomeElements.length; i++) {
-			if (nonHomeElements[i].getName().equals("confidential")) {
-				nonHomeConfidentialDir = (Directory) nonHomeElements[i];
+		for (AbstractElement nonHomeElement : nonHomeElements) {
+			if (nonHomeElement.getName().equals("confidential")) {
+				nonHomeConfidentialDir = (Directory) nonHomeElement;
 			}
 		}
 

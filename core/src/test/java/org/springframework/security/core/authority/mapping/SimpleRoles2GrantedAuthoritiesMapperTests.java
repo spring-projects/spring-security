@@ -129,8 +129,8 @@ public class SimpleRoles2GrantedAuthoritiesMapperTests {
 		List<GrantedAuthority> result = mapper
 				.getGrantedAuthorities(Arrays.asList(roles));
 		Collection<String> resultColl = new ArrayList<>(result.size());
-		for (int i = 0; i < result.size(); i++) {
-			resultColl.add(result.get(i).getAuthority());
+		for (GrantedAuthority grantedAuthority : result) {
+			resultColl.add(grantedAuthority.getAuthority());
 		}
 		Collection<String> expectedColl = Arrays.asList(expectedGas);
 		assertThat(expectedColl.containsAll(resultColl)

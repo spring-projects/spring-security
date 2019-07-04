@@ -128,8 +128,8 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 
 		Collection<String> expectedRolesColl = Arrays.asList(expectedRoles);
 		Collection<String> gasRolesSet = new HashSet<>();
-		for (int i = 0; i < gas.size(); i++) {
-			gasRolesSet.add(gas.get(i).getAuthority());
+		for (GrantedAuthority grantedAuthority : gas) {
+			gasRolesSet.add(grantedAuthority.getAuthority());
 		}
 		assertThat(expectedRolesColl.containsAll(gasRolesSet)
 				&& gasRolesSet.containsAll(expectedRolesColl)).withFailMessage(
