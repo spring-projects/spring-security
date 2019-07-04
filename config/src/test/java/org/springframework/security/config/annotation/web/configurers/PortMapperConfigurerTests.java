@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,9 +79,10 @@ public class PortMapperConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requiresChannel()
+				.requiresChannel(requiresChannel ->
+					requiresChannel
 					.anyRequest().requiresSecure()
-					.and()
+				)
 				.portMapper(portMapper ->
 					portMapper
 						.http(543).mapsTo(123)
@@ -106,9 +107,10 @@ public class PortMapperConfigurerTests {
 			customPortMapper.setPortMappings(Collections.singletonMap("543", "123"));
 			// @formatter:off
 			http
-				.requiresChannel()
-					.anyRequest().requiresSecure()
-					.and()
+				.requiresChannel(requiresChannel ->
+					requiresChannel
+						.anyRequest().requiresSecure()
+				)
 				.portMapper(portMapper ->
 					portMapper
 						.portMapper(customPortMapper)

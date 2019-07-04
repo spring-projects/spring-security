@@ -658,9 +658,10 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.requiresChannel()
-	 * 				.anyRequest().requiresSecure()
-	 * 				.and()
+	 * 			.requiresChannel(requiresChannel ->
+	 * 				requiresChannel
+	 * 					.anyRequest().requiresSecure()
+	 * 			)
 	 * 			.portMapper(portMapper ->
 	 * 				portMapper
 	 * 					.http(9090).mapsTo(9443)
@@ -1892,6 +1893,52 @@ public final class HttpSecurity extends
 		ApplicationContext context = getContext();
 		return getOrApply(new ChannelSecurityConfigurer<>(context))
 				.getRegistry();
+	}
+
+	/**
+	 * Configures channel security. In order for this configuration to be useful at least
+	 * one mapping to a required channel must be provided.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The example below demonstrates how to require HTTPs for every request. Only
+	 * requiring HTTPS for some requests is supported, but not recommended since an
+	 * application that allows for HTTP introduces many security vulnerabilities. For one
+	 * such example, read about <a
+	 * href="https://en.wikipedia.org/wiki/Firesheep">Firesheep</a>.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class ChannelSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.formLogin(withDefaults())
+	 * 			.requiresChannel(requiresChannel ->
+	 * 				requiresChannel
+	 * 					.anyRequest().requiresSecure()
+	 * 			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @param requiresChannelCustomizer the {@link Customizer} to provide more options for
+	 * the {@link ChannelSecurityConfigurer.ChannelRequestMatcherRegistry}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity requiresChannel(Customizer<ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry> requiresChannelCustomizer)
+			throws Exception {
+		ApplicationContext context = getContext();
+		requiresChannelCustomizer.customize(getOrApply(new ChannelSecurityConfigurer<>(context))
+				.getRegistry());
+		return HttpSecurity.this;
 	}
 
 	/**
