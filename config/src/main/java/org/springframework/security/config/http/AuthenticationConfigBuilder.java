@@ -261,7 +261,7 @@ final class AuthenticationConfigBuilder {
 						.rootBeanDefinition(OPEN_ID_CONSUMER_CLASS);
 				BeanDefinitionBuilder axFactory = BeanDefinitionBuilder
 						.rootBeanDefinition(OPEN_ID_ATTRIBUTE_FACTORY_CLASS);
-				ManagedMap<String, ManagedList<BeanDefinition>> axMap = new ManagedMap<String, ManagedList<BeanDefinition>>();
+				ManagedMap<String, ManagedList<BeanDefinition>> axMap = new ManagedMap<>();
 
 				for (Element attrExElt : attrExElts) {
 					String identifierMatch = attrExElt.getAttribute("identifier-match");

@@ -92,9 +92,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final List<String> FORBIDDEN_BACKSLASH = Collections.unmodifiableList(Arrays.asList("\\", "%5c", "%5C"));
 
-	private Set<String> encodedUrlBlacklist = new HashSet<String>();
+	private Set<String> encodedUrlBlacklist = new HashSet<>();
 
-	private Set<String> decodedUrlBlacklist = new HashSet<String>();
+	private Set<String> decodedUrlBlacklist = new HashSet<>();
 
 	private Set<String> allowedHttpMethods = createDefaultAllowedHttpMethods();
 

@@ -36,7 +36,7 @@ public class LdapAuthorityTests {
 
 	@Before
 	public void setUp() {
-		Map<String, List<String>> attributes = new HashMap<String, List<String>>();
+		Map<String, List<String>> attributes = new HashMap<>();
 		attributes.put(SpringSecurityLdapTemplate.DN_KEY, Arrays.asList(DN));
 		attributes.put("mail",
 				Arrays.asList("filip@ldap.test.org", "filip@ldap.test2.org"));

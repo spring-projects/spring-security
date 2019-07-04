@@ -233,7 +233,7 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * @return the {@link MessageSecurityMetadataSource} to use
 	 */
 	protected MessageSecurityMetadataSource createMetadataSource() {
-		LinkedHashMap<MessageMatcher<?>, String> matcherToExpression = new LinkedHashMap<MessageMatcher<?>, String>();
+		LinkedHashMap<MessageMatcher<?>, String> matcherToExpression = new LinkedHashMap<>();
 		for (Map.Entry<MatcherBuilder, String> entry : this.matcherToExpression
 				.entrySet()) {
 			matcherToExpression.put(entry.getKey().build(), entry.getValue());

@@ -124,7 +124,7 @@ public class CsrfRequestDataValueProcessorTests {
 	public void createGetExtraHiddenFieldsHasCsrfToken() {
 		CsrfToken token = new DefaultCsrfToken("1", "a", "b");
 		this.exchange.getAttributes().put(DEFAULT_CSRF_ATTR_NAME, token);
-		Map<String, String> expected = new HashMap<String, String>();
+		Map<String, String> expected = new HashMap<>();
 		expected.put(token.getParameterName(), token.getToken());
 
 		CsrfRequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();

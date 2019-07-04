@@ -111,7 +111,7 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 	 */
 	private static final class CompositeObjectPostProcessor implements
 			ObjectPostProcessor<Object> {
-		private List<ObjectPostProcessor<? extends Object>> postProcessors = new ArrayList<ObjectPostProcessor<?>>();
+		private List<ObjectPostProcessor<? extends Object>> postProcessors = new ArrayList<>();
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public Object postProcess(Object object) {

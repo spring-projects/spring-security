@@ -266,7 +266,7 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	@Override
 	public List<Cookie> getCookies() {
-		List<Cookie> cookieList = new ArrayList<Cookie>(cookies.size());
+		List<Cookie> cookieList = new ArrayList<>(cookies.size());
 
 		for (SavedCookie savedCookie : cookies) {
 			cookieList.add(savedCookie.getCookie());

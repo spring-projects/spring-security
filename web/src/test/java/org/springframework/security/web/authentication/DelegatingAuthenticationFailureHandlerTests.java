@@ -69,7 +69,7 @@ public class DelegatingAuthenticationFailureHandlerTests {
 
 	@Before
 	public void setup() {
-		handlers = new LinkedHashMap<Class<? extends AuthenticationException>, AuthenticationFailureHandler>();
+		handlers = new LinkedHashMap<>();
 	}
 
 	@Test

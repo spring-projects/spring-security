@@ -284,7 +284,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 
 		InvalidSessionAccessDeniedHandler invalidSessionDeniedHandler = new InvalidSessionAccessDeniedHandler(
 				invalidSessionStrategy);
-		LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers = new LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler>();
+		LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers = new LinkedHashMap<>();
 		handlers.put(MissingCsrfTokenException.class, invalidSessionDeniedHandler);
 		return new DelegatingAccessDeniedHandler(handlers, defaultAccessDeniedHandler);
 	}

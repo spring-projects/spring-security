@@ -321,7 +321,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 * @return the {@link AxFetchListFactory} to use
 	 */
 	private AxFetchListFactory attributesToFetchFactory() {
-		Map<String, List<OpenIDAttribute>> identityToAttrs = new HashMap<String, List<OpenIDAttribute>>();
+		Map<String, List<OpenIDAttribute>> identityToAttrs = new HashMap<>();
 		for (AttributeExchangeConfigurer conf : this.attributeExchangeConfigurers) {
 			identityToAttrs.put(conf.identifier, conf.getAttributes());
 		}

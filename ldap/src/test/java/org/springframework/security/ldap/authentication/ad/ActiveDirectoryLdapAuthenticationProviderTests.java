@@ -400,7 +400,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setContextEnvironmentPropertiesEmpty() {
-		provider.setContextEnvironmentProperties(new Hashtable<String, Object>());
+		provider.setContextEnvironmentProperties(new Hashtable<>());
 	}
 
 	@Test

@@ -48,7 +48,7 @@ final class AutowiredWebSecurityConfigurersIgnoreParents {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<SecurityConfigurer<Filter, WebSecurity>> getWebSecurityConfigurers() {
-		List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers = new ArrayList<SecurityConfigurer<Filter, WebSecurity>>();
+		List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers = new ArrayList<>();
 		Map<String, WebSecurityConfigurer> beansOfType = beanFactory
 				.getBeansOfType(WebSecurityConfigurer.class);
 		for (Entry<String, WebSecurityConfigurer> entry : beansOfType.entrySet()) {

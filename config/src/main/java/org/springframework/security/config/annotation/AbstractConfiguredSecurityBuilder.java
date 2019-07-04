@@ -55,10 +55,10 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		extends AbstractSecurityBuilder<O> {
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers = new LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>>();
-	private final List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<SecurityConfigurer<O, B>>();
+	private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers = new LinkedHashMap<>();
+	private final List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<>();
 
-	private final Map<Class<? extends Object>, Object> sharedObjects = new HashMap<Class<? extends Object>, Object>();
+	private final Map<Class<? extends Object>, Object> sharedObjects = new HashMap<>();
 
 	private final boolean allowConfigurersOfSameType;
 
@@ -199,7 +199,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 			List<SecurityConfigurer<O, B>> configs = allowConfigurersOfSameType ? this.configurers
 					.get(clazz) : null;
 			if (configs == null) {
-				configs = new ArrayList<SecurityConfigurer<O, B>>(1);
+				configs = new ArrayList<>(1);
 			}
 			configs.add(configurer);
 			this.configurers.put(clazz, configs);
@@ -386,7 +386,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	}
 
 	private Collection<SecurityConfigurer<O, B>> getConfigurers() {
-		List<SecurityConfigurer<O, B>> result = new ArrayList<SecurityConfigurer<O, B>>();
+		List<SecurityConfigurer<O, B>> result = new ArrayList<>();
 		for (List<SecurityConfigurer<O, B>> configs : this.configurers.values()) {
 			result.addAll(configs);
 		}

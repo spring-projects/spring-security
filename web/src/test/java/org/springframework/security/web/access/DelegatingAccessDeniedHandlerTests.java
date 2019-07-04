@@ -53,7 +53,7 @@ public class DelegatingAccessDeniedHandlerTests {
 
 	@Before
 	public void setup() {
-		handlers = new LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler>();
+		handlers = new LinkedHashMap<>();
 	}
 
 	@Test

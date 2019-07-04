@@ -62,7 +62,7 @@ public class OAuth2BodyExtractorsTests {
 		messageReaders.add(new DecoderHttpMessageReader<>(new Jackson2JsonDecoder()));
 		messageReaders.add(new FormHttpMessageReader());
 
-		this.hints = new HashMap<String, Object>();
+		this.hints = new HashMap<>();
 		this.context = new BodyExtractor.Context() {
 			@Override
 			public List<HttpMessageReader<?>> messageReaders() {

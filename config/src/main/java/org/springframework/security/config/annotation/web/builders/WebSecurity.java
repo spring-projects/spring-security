@@ -83,7 +83,7 @@ public final class WebSecurity extends
 
 	private final List<RequestMatcher> ignoredRequests = new ArrayList<>();
 
-	private final List<SecurityBuilder<? extends SecurityFilterChain>> securityFilterChainBuilders = new ArrayList<SecurityBuilder<? extends SecurityFilterChain>>();
+	private final List<SecurityBuilder<? extends SecurityFilterChain>> securityFilterChainBuilders = new ArrayList<>();
 
 	private IgnoredRequestConfigurer ignoredRequestRegistry;
 

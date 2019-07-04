@@ -415,7 +415,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * @return the shared Objects
 	 */
 	private Map<Class<? extends Object>, Object> createSharedObjects() {
-		Map<Class<? extends Object>, Object> sharedObjects = new HashMap<Class<? extends Object>, Object>();
+		Map<Class<? extends Object>, Object> sharedObjects = new HashMap<>();
 		sharedObjects.putAll(localConfigureAuthenticationBldr.getSharedObjects());
 		sharedObjects.put(UserDetailsService.class, userDetailsService());
 		sharedObjects.put(ApplicationContext.class, context);

@@ -203,12 +203,12 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 		String formattedFilter = MessageFormat.format(filter, encodedParams);
 		logger.debug("Using filter: " + formattedFilter);
 
-		final HashSet<Map<String, List<String>>> set = new HashSet<Map<String, List<String>>>();
+		final HashSet<Map<String, List<String>>> set = new HashSet<>();
 
 		ContextMapper roleMapper = new ContextMapper() {
 			public Object mapFromContext(Object ctx) {
 				DirContextAdapter adapter = (DirContextAdapter) ctx;
-				Map<String, List<String>> record = new HashMap<String, List<String>>();
+				Map<String, List<String>> record = new HashMap<>();
 				if (attributeNames == null || attributeNames.length == 0) {
 					try {
 						for (NamingEnumeration ae = adapter.getAttributes().getAll(); ae

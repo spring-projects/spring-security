@@ -114,7 +114,7 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends
 							+ ". Try completing it with something like requestUrls().<something>.hasRole('USER')");
 		}
 
-		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
+		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 		for (UrlMapping mapping : getUrlMappings()) {
 			RequestMatcher matcher = mapping.getRequestMatcher();
 			Collection<ConfigAttribute> configAttrs = mapping.getConfigAttrs();

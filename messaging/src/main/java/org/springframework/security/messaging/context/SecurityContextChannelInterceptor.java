@@ -43,7 +43,7 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 		implements ExecutorChannelInterceptor {
 	private final SecurityContext EMPTY_CONTEXT = SecurityContextHolder
 			.createEmptyContext();
-	private static final ThreadLocal<Stack<SecurityContext>> ORIGINAL_CONTEXT = new ThreadLocal<Stack<SecurityContext>>();
+	private static final ThreadLocal<Stack<SecurityContext>> ORIGINAL_CONTEXT = new ThreadLocal<>();
 
 	private final String authenticationHeaderName;
 

@@ -91,7 +91,7 @@ public class ThrowableAnalyzer {
 	 * Creates a new <code>ThrowableAnalyzer</code> instance.
 	 */
 	public ThrowableAnalyzer() {
-		this.extractorMap = new TreeMap<Class<? extends Throwable>, ThrowableCauseExtractor>(
+		this.extractorMap = new TreeMap<>(
 				CLASS_HIERARCHY_COMPARATOR);
 
 		initExtractorMap();

@@ -131,7 +131,7 @@ public class DelegatingSecurityContextExecutorService extends
 		if (tasks == null) {
 			return null;
 		}
-		List<Callable<T>> results = new ArrayList<Callable<T>>(tasks.size());
+		List<Callable<T>> results = new ArrayList<>(tasks.size());
 		for (Callable<T> task : tasks) {
 			results.add(wrap(task));
 		}

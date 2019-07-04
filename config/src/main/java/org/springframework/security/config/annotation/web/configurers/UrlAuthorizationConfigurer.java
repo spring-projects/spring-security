@@ -173,7 +173,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	@Override
 	@SuppressWarnings("rawtypes")
 	final List<AccessDecisionVoter<? extends Object>> getDecisionVoters(H http) {
-		List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
+		List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<>();
 		decisionVoters.add(new RoleVoter());
 		decisionVoters.add(new AuthenticatedVoter());
 		return decisionVoters;
