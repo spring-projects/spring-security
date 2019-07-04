@@ -54,7 +54,6 @@ import org.springframework.security.authorization.AuthorityReactiveAuthorization
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -103,7 +102,6 @@ import org.springframework.security.web.server.DelegatingServerAuthenticationEnt
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
@@ -233,6 +231,7 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
  * @author Rob Winch
  * @author Vedran Pavic
  * @author Rafiullah Hamedy
+ * @author Eddú Meléndez
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -981,6 +980,8 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationSuccessHandler authenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler();
 
+		private ServerAuthenticationFailureHandler authenticationFailureHandler = (webFilterExchange, exception) -> Mono.error(exception);
+
 		/**
 		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
 		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
@@ -1003,6 +1004,19 @@ public class ServerHttpSecurity {
 		public OAuth2LoginSpec authenticationSuccessHandler(ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
 			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
 			this.authenticationSuccessHandler = authenticationSuccessHandler;
+			return this;
+		}
+
+		/**
+		 * The {@link ServerAuthenticationFailureHandler} used after authentication failure.
+		 *
+		 * @since 5.2
+		 * @param authenticationFailureHandler the failure handler to use
+		 * @return the {@link OAuth2LoginSpec} to customize
+		 */
+		public OAuth2LoginSpec authenticationFailureHandler(ServerAuthenticationFailureHandler authenticationFailureHandler) {
+			Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+			this.authenticationFailureHandler = authenticationFailureHandler;
 			return this;
 		}
 
@@ -1123,13 +1137,7 @@ public class ServerHttpSecurity {
 			authenticationFilter.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
 
 			authenticationFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
-			authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationFailureHandler() {
-				@Override
-				public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange,
-						AuthenticationException exception) {
-					return Mono.error(exception);
-				}
-			});
+			authenticationFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
 			authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
 
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
