@@ -1295,6 +1295,36 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Integrates the {@link HttpServletRequest} methods with the values found on the
+	 * {@link SecurityContext}. This is automatically applied when using
+	 * {@link WebSecurityConfigurerAdapter}. You can disable it using:
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class ServletApiSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.servletApi(servletApi ->
+	 * 				servletApi.disable()
+	 * 			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @param servletApiCustomizer the {@link Customizer} to provide more options for
+	 * the {@link ServletApiConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity servletApi(Customizer<ServletApiConfigurer<HttpSecurity>> servletApiCustomizer) throws Exception {
+		servletApiCustomizer.customize(getOrApply(new ServletApiConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Adds CSRF support. This is activated by default when using
 	 * {@link WebSecurityConfigurerAdapter}'s default constructor. You can disable it
 	 * using:
