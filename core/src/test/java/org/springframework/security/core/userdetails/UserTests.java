@@ -129,7 +129,7 @@ public class UserTests {
 				"ROLE_ONE");
 		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).contains(
 				"ROLE_TWO");
-		assertThat(user.toString().indexOf("rod") != -1).isTrue();
+		assertThat(user.toString()).contains("rod");
 	}
 
 	@Test
