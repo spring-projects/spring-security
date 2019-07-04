@@ -60,7 +60,7 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 			ExpressionParser parser) {
 		Assert.notNull(parser, "SecurityExpressionHandler returned a null parser object");
 
-		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestToExpressionAttributesMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>(
+		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestToExpressionAttributesMap = new LinkedHashMap<>(
 				requestMap);
 
 		for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : requestMap

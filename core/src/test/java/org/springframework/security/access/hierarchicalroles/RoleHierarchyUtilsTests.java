@@ -39,7 +39,7 @@ public class RoleHierarchyUtilsTests {
 				"ROLE_C > ROLE_D" + EOL;
 		// @formatter:on
 
-		Map<String, List<String>> roleHierarchyMap = new TreeMap<String, List<String>>();
+		Map<String, List<String>> roleHierarchyMap = new TreeMap<>();
 		roleHierarchyMap.put("ROLE_A", asList("ROLE_B", "ROLE_C"));
 		roleHierarchyMap.put("ROLE_B", asList("ROLE_D"));
 		roleHierarchyMap.put("ROLE_C", asList("ROLE_D"));
@@ -61,7 +61,7 @@ public class RoleHierarchyUtilsTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void roleHierarchyFromMapWhenRoleNullThenThrowsIllegalArgumentException() throws Exception {
-		Map<String, List<String>> roleHierarchyMap = new HashMap<String, List<String>>();
+		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put(null, asList("ROLE_B", "ROLE_C"));
 
 		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
@@ -69,7 +69,7 @@ public class RoleHierarchyUtilsTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void roleHierarchyFromMapWhenRoleEmptyThenThrowsIllegalArgumentException() throws Exception {
-		Map<String, List<String>> roleHierarchyMap = new HashMap<String, List<String>>();
+		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("", asList("ROLE_B", "ROLE_C"));
 
 		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
@@ -77,7 +77,7 @@ public class RoleHierarchyUtilsTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void roleHierarchyFromMapWhenImpliedRolesNullThenThrowsIllegalArgumentException() throws Exception {
-		Map<String, List<String>> roleHierarchyMap = new HashMap<String, List<String>>();
+		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("ROLE_A", null);
 
 		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
@@ -85,7 +85,7 @@ public class RoleHierarchyUtilsTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void roleHierarchyFromMapWhenImpliedRolesEmptyThenThrowsIllegalArgumentException() throws Exception {
-		Map<String, List<String>> roleHierarchyMap = new HashMap<String, List<String>>();
+		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("ROLE_A", Collections.<String>emptyList());
 
 		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);

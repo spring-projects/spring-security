@@ -154,7 +154,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 
 	private MappableAttributesRetriever getMappableRolesRetriever(String[] mappedRoles) {
 		SimpleMappableAttributesRetriever result = new SimpleMappableAttributesRetriever();
-		result.setMappableAttributes(new HashSet<String>(Arrays.asList(mappedRoles)));
+		result.setMappableAttributes(new HashSet<>(Arrays.asList(mappedRoles)));
 		return result;
 	}
 

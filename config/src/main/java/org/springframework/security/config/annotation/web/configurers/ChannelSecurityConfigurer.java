@@ -80,7 +80,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractHttpConfigurer<ChannelSecurityConfigurer<H>, H> {
 	private ChannelProcessingFilter channelFilter = new ChannelProcessingFilter();
-	private LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
+	private LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 	private List<ChannelProcessor> channelProcessors;
 
 	private final ChannelRequestMatcherRegistry REGISTRY;

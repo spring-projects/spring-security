@@ -176,7 +176,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	 * will become a key that references a set of the reachable lower roles.
 	 */
 	private void buildRolesReachableInOneStepMap() {
-		this.rolesReachableInOneStepMap = new HashMap<GrantedAuthority, Set<GrantedAuthority>>();
+		this.rolesReachableInOneStepMap = new HashMap<>();
 		try (BufferedReader bufferedReader = new BufferedReader(
 				new StringReader(this.roleHierarchyStringRepresentation))) {
 			for (String readLine; (readLine = bufferedReader.readLine()) != null;) {
@@ -187,7 +187,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 					GrantedAuthority lowerRole = new SimpleGrantedAuthority(roles[i].replaceAll("^\\s+|\\s+$", ""));
 					Set<GrantedAuthority> rolesReachableInOneStepSet;
 					if (!this.rolesReachableInOneStepMap.containsKey(higherRole)) {
-						rolesReachableInOneStepSet = new HashSet<GrantedAuthority>();
+						rolesReachableInOneStepSet = new HashSet<>();
 						this.rolesReachableInOneStepMap.put(higherRole, rolesReachableInOneStepSet);
 					} else {
 						rolesReachableInOneStepSet = this.rolesReachableInOneStepMap.get(higherRole);

@@ -43,7 +43,7 @@ public class PasswordEncoderParser {
 	private static final Map<String, Class<?>> ENCODER_CLASSES;
 
 	static {
-		ENCODER_CLASSES = new HashMap<String, Class<?>>();
+		ENCODER_CLASSES = new HashMap<>();
 		ENCODER_CLASSES.put(OPT_HASH_BCRYPT, BCryptPasswordEncoder.class);
 	}
 

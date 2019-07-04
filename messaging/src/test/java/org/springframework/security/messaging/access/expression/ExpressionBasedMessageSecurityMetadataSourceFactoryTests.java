@@ -58,7 +58,7 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 	public void setup() {
 		expression1 = "permitAll";
 		expression2 = "denyAll";
-		matcherToExpression = new LinkedHashMap<MessageMatcher<?>, String>();
+		matcherToExpression = new LinkedHashMap<>();
 		matcherToExpression.put(matcher1, expression1);
 		matcherToExpression.put(matcher2, expression2);
 

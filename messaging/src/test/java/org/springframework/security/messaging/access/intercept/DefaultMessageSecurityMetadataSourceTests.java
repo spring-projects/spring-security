@@ -54,7 +54,7 @@ public class DefaultMessageSecurityMetadataSourceTests {
 
 	@Before
 	public void setup() {
-		messageMap = new LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>>();
+		messageMap = new LinkedHashMap<>();
 		messageMap.put(matcher1, Arrays.<ConfigAttribute> asList(config1));
 		messageMap.put(matcher2, Arrays.<ConfigAttribute> asList(config2));
 

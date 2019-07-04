@@ -43,7 +43,7 @@ class UnmodifiableListDeserializer extends JsonDeserializer<List> {
 	public List deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode node = mapper.readTree(jp);
-		List<Object> result = new ArrayList<Object>();
+		List<Object> result = new ArrayList<>();
 		if (node != null) {
 			if (node instanceof ArrayNode) {
 				ArrayNode arrayNode = (ArrayNode) node;

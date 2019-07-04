@@ -108,7 +108,7 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	public static MessageSecurityMetadataSource createExpressionMessageMetadataSource(
 			LinkedHashMap<MessageMatcher<?>, String> matcherToExpression, SecurityExpressionHandler<Message<Object>> handler) {
 
-		LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>> matcherToAttrs = new LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>>();
+		LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>> matcherToAttrs = new LinkedHashMap<>();
 
 		for (Map.Entry<MessageMatcher<?>, String> entry : matcherToExpression.entrySet()) {
 			MessageMatcher<?> matcher = entry.getKey();

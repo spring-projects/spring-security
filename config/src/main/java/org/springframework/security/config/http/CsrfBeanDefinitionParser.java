@@ -144,7 +144,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		if (invalidSessionStrategy == null) {
 			return defaultDeniedHandler;
 		}
-		ManagedMap<Class<? extends AccessDeniedException>, BeanDefinition> handlers = new ManagedMap<Class<? extends AccessDeniedException>, BeanDefinition>();
+		ManagedMap<Class<? extends AccessDeniedException>, BeanDefinition> handlers = new ManagedMap<>();
 		BeanDefinitionBuilder invalidSessionHandlerBldr = BeanDefinitionBuilder
 				.rootBeanDefinition(InvalidSessionAccessDeniedHandler.class);
 		invalidSessionHandlerBldr.addConstructorArgValue(invalidSessionStrategy);

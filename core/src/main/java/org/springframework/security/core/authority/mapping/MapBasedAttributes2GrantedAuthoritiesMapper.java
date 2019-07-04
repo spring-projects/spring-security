@@ -88,7 +88,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements
 	 * @return the processed Map
 	 */
 	private Map<String, Collection<GrantedAuthority>> preProcessMap(Map<?, ?> orgMap) {
-		Map<String, Collection<GrantedAuthority>> result = new HashMap<String, Collection<GrantedAuthority>>(
+		Map<String, Collection<GrantedAuthority>> result = new HashMap<>(
 				orgMap.size());
 
 		for (Map.Entry<?, ?> entry : orgMap.entrySet()) {

@@ -42,7 +42,7 @@ public final class DelegatingMethodSecurityMetadataSource extends
 			.emptyList();
 
 	private final List<MethodSecurityMetadataSource> methodSecurityMetadataSources;
-	private final Map<DefaultCacheKey, Collection<ConfigAttribute>> attributeCache = new HashMap<DefaultCacheKey, Collection<ConfigAttribute>>();
+	private final Map<DefaultCacheKey, Collection<ConfigAttribute>> attributeCache = new HashMap<>();
 
 	// ~ Constructor
 	// ====================================================================================================

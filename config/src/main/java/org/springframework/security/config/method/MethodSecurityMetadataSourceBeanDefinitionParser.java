@@ -44,7 +44,7 @@ public class MethodSecurityMetadataSourceBeanDefinitionParser extends
 	public AbstractBeanDefinition parseInternal(Element elt, ParserContext pc) {
 		// Parse the included methods
 		List<Element> methods = DomUtils.getChildElementsByTagName(elt, Elements.PROTECT);
-		Map<String, List<ConfigAttribute>> mappings = new LinkedHashMap<String, List<ConfigAttribute>>();
+		Map<String, List<ConfigAttribute>> mappings = new LinkedHashMap<>();
 
 		for (Element protectmethodElt : methods) {
 			String[] tokens = StringUtils

@@ -43,7 +43,7 @@ public class UnanimousBasedTests {
 		RoleVoter roleVoter = new RoleVoter();
 		DenyVoter denyForSureVoter = new DenyVoter();
 		DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
-		List<AccessDecisionVoter<? extends Object>> voters = new Vector<AccessDecisionVoter<? extends Object>>();
+		List<AccessDecisionVoter<? extends Object>> voters = new Vector<>();
 		voters.add(roleVoter);
 		voters.add(denyForSureVoter);
 		voters.add(denyAgainForSureVoter);
@@ -56,7 +56,7 @@ public class UnanimousBasedTests {
 
 		DenyVoter denyForSureVoter = new DenyVoter();
 		DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
-		List<AccessDecisionVoter<? extends Object>> voters = new Vector<AccessDecisionVoter<? extends Object>>();
+		List<AccessDecisionVoter<? extends Object>> voters = new Vector<>();
 		voters.add(roleVoter);
 		voters.add(denyForSureVoter);
 		voters.add(denyAgainForSureVoter);

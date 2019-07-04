@@ -273,7 +273,7 @@ class KeyConfig {
 class SubjectAttributeUserTokenConverter extends DefaultUserAuthenticationConverter {
 	@Override
 	public Map<String, ?> convertUserAuthentication(Authentication authentication) {
-		Map<String, Object> response = new LinkedHashMap<String, Object>();
+		Map<String, Object> response = new LinkedHashMap<>();
 		response.put("sub", authentication.getName());
 		if (authentication.getAuthorities() != null && !authentication.getAuthorities().isEmpty()) {
 			response.put(AUTHORITIES, AuthorityUtils.authorityListToSet(authentication.getAuthorities()));

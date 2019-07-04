@@ -381,7 +381,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
 	private Map<String, List<ConfigAttribute>> parseProtectPointcuts(
 			ParserContext parserContext, List<Element> protectPointcutElts) {
-		Map<String, List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String, List<ConfigAttribute>>();
+		Map<String, List<ConfigAttribute>> pointcutMap = new LinkedHashMap<>();
 
 		for (Element childElt : protectPointcutElts) {
 			String accessConfig = childElt.getAttribute(ATT_ACCESS);
