@@ -287,6 +287,6 @@ public class AuthenticationManagerBuilder
 	private <C extends UserDetailsAwareConfigurer<AuthenticationManagerBuilder, ? extends UserDetailsService>> C apply(
 			C configurer) throws Exception {
 		this.defaultUserDetailsService = configurer.getUserDetailsService();
-		return (C) super.apply(configurer);
+		return super.apply(configurer);
 	}
 }

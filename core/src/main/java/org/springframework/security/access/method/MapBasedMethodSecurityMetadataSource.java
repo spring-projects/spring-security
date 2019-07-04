@@ -98,7 +98,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 			Class<?> clazz) {
 		RegisteredMethod registeredMethod = new RegisteredMethod(method, clazz);
 		if (methodMap.containsKey(registeredMethod)) {
-			return (List<ConfigAttribute>) methodMap.get(registeredMethod);
+			return methodMap.get(registeredMethod);
 		}
 		// Search superclass
 		if (clazz.getSuperclass() != null) {
@@ -166,7 +166,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 		// register all matching methods
 		for (Method method : matchingMethods) {
 			RegisteredMethod registeredMethod = new RegisteredMethod(method, javaType);
-			String regMethodName = (String) this.nameMap.get(registeredMethod);
+			String regMethodName = this.nameMap.get(registeredMethod);
 
 			if ((regMethodName == null)
 					|| (!regMethodName.equals(name) && (regMethodName.length() <= name

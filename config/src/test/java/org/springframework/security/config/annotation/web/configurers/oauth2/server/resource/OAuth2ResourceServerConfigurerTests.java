@@ -2072,11 +2072,11 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	private <T> T bean(Class<T> beanClass) {
-		return (T) this.spring.getContext().getBean(beanClass);
+		return this.spring.getContext().getBean(beanClass);
 	}
 
 	private <T> T verifyBean(Class<T> beanClass) {
-		return (T) verify(this.spring.getContext().getBean(beanClass));
+		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
 	private String json(String name) throws IOException {

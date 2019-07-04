@@ -38,7 +38,7 @@ public class IndexPage {
 
 	public static <T> T to(WebDriver driver, int port, Class<T> page) {
 		driver.get("http://localhost:" + port +"/");
-		return (T) PageFactory.initElements(driver, page);
+		return PageFactory.initElements(driver, page);
 	}
 
 	public IndexPage assertAt() {

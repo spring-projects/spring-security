@@ -24,7 +24,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 
 import org.springframework.ldap.core.DirContextAdapter;
@@ -122,7 +121,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testPasswordEncoderCantBeNull() {
-		authenticator.setPasswordEncoder((PasswordEncoder) null);
+		authenticator.setPasswordEncoder(null);
 	}
 
 	@Test

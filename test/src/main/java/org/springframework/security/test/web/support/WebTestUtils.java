@@ -122,7 +122,7 @@ public abstract class WebTestUtils {
 		if (springSecurityFilterChain == null) {
 			return null;
 		}
-		List<Filter> filters = (List<Filter>) ReflectionTestUtils
+		List<Filter> filters = ReflectionTestUtils
 				.invokeMethod(springSecurityFilterChain, "getFilters", request);
 		if (filters == null) {
 			return null;

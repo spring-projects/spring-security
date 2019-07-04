@@ -23,7 +23,7 @@ public final class ExpressionUtils {
 
 	public static boolean evaluateAsBoolean(Expression expr, EvaluationContext ctx) {
 		try {
-			return ((Boolean) expr.getValue(ctx, Boolean.class)).booleanValue();
+			return expr.getValue(ctx, Boolean.class).booleanValue();
 		}
 		catch (EvaluationException e) {
 			throw new IllegalArgumentException("Failed to evaluate expression '"

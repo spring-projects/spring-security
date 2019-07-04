@@ -274,7 +274,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		ListIterator<ModificationItem> modIt = mods.listIterator();
 
 		while (modIt.hasNext()) {
-			ModificationItem mod = (ModificationItem) modIt.next();
+			ModificationItem mod = modIt.next();
 			Attribute a = mod.getAttribute();
 			if ("objectclass".equalsIgnoreCase(a.getID())) {
 				modIt.remove();

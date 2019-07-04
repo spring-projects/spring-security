@@ -17,7 +17,6 @@
 package org.springframework.security.jackson2;
 
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -54,7 +53,7 @@ public class CoreJackson2Module extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		SecurityJackson2Modules.enableDefaultTyping((ObjectMapper) context.getOwner());
+		SecurityJackson2Modules.enableDefaultTyping(context.getOwner());
 		context.setMixInAnnotations(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(RememberMeAuthenticationToken.class, RememberMeAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);

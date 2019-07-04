@@ -89,7 +89,7 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 			NodeList roles = secRoleElt.getElementsByTagName("role-name");
 
 			if (roles.getLength() > 0) {
-				String roleName = ((Element) roles.item(0)).getTextContent().trim();
+				String roleName = roles.item(0).getTextContent().trim();
 				roleNames.add(roleName);
 				logger.info("Retrieved role-name '" + roleName + "' from web.xml");
 			}

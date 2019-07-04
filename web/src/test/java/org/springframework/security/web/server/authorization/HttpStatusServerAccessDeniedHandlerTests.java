@@ -45,7 +45,7 @@ public class HttpStatusServerAccessDeniedHandlerTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorHttpStatusWhenNullThenException() {
-		new HttpStatusServerAccessDeniedHandler((HttpStatus) null);
+		new HttpStatusServerAccessDeniedHandler(null);
 	}
 
 	@Test

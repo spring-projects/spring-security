@@ -120,7 +120,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 			sha.update(salt);
 		}
 
-		byte[] hash = combineHashAndSalt(sha.digest(), (byte[]) salt);
+		byte[] hash = combineHashAndSalt(sha.digest(), salt);
 
 		String prefix;
 

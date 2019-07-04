@@ -58,7 +58,7 @@ public class AnonymousAuthenticationTokenTests {
 
 		try {
 			new AnonymousAuthenticationToken("key", "Test",
-					(List<GrantedAuthority>) null);
+					null);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {

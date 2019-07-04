@@ -17,7 +17,6 @@
 package org.springframework.security.cas.jackson2;
 
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.jasig.cas.client.authentication.AttributePrincipalImpl;
 import org.jasig.cas.client.validation.AssertionImpl;
@@ -48,7 +47,7 @@ public class CasJackson2Module extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		SecurityJackson2Modules.enableDefaultTyping((ObjectMapper) context.getOwner());
+		SecurityJackson2Modules.enableDefaultTyping(context.getOwner());
 		context.setMixInAnnotations(AssertionImpl.class, AssertionImplMixin.class);
 		context.setMixInAnnotations(AttributePrincipalImpl.class, AttributePrincipalImplMixin.class);
 		context.setMixInAnnotations(CasAuthenticationToken.class, CasAuthenticationTokenMixin.class);

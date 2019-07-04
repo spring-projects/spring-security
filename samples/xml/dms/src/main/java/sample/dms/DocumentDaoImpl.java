@@ -112,7 +112,7 @@ public class DocumentDaoImpl extends JdbcDaoSupport implements DocumentDao {
 									.getLong("id")));
 						}
 					});
-			return (AbstractElement[]) directories.toArray(new AbstractElement[] {});
+			return directories.toArray(new AbstractElement[] {});
 		}
 		List<AbstractElement> directories = getJdbcTemplate().query(
 				SELECT_FROM_DIRECTORY, new Object[] { directory.getId() },
@@ -140,7 +140,7 @@ public class DocumentDaoImpl extends JdbcDaoSupport implements DocumentDao {
 				});
 		// Add the File elements after the Directory elements
 		directories.addAll(files);
-		return (AbstractElement[]) directories.toArray(new AbstractElement[] {});
+		return directories.toArray(new AbstractElement[] {});
 	}
 
 	public void update(File file) {
