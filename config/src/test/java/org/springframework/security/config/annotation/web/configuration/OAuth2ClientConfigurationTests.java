@@ -75,6 +75,7 @@ public class OAuth2ClientConfigurationTests {
 
 		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		OAuth2AuthorizedClient authorizedClient = mock(OAuth2AuthorizedClient.class);
+		when(authorizedClient.getClientRegistration()).thenReturn(clientRegistration);
 		when(authorizedClientRepository.loadAuthorizedClient(
 				eq(clientRegistrationId), eq(authentication), any(HttpServletRequest.class)))
 				.thenReturn(authorizedClient);

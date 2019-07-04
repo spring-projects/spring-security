@@ -17,12 +17,10 @@ package org.springframework.security.oauth2.client;
 
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -37,7 +35,8 @@ import java.util.Map;
  * @see OAuth2AuthorizedClientProvider
  */
 public final class OAuth2AuthorizationContext {
-	private String clientRegistrationId;
+	private ClientRegistration clientRegistration;
+	private OAuth2AuthorizedClient authorizedClient;
 	private Authentication principal;
 	private Map<String, Object> attributes;
 
@@ -45,12 +44,23 @@ public final class OAuth2AuthorizationContext {
 	}
 
 	/**
-	 * Returns the {@link ClientRegistration client registration} identifier.
+	 * Returns the {@link ClientRegistration client registration}.
 	 *
-	 * @return the client registration identifier
+	 * @return the {@link ClientRegistration}
 	 */
-	public String getClientRegistrationId() {
-		return this.clientRegistrationId;
+	public ClientRegistration getClientRegistration() {
+		return this.clientRegistration;
+	}
+
+	/**
+	 * Returns the {@link OAuth2AuthorizedClient authorized client} or {@code null}
+	 * if the {@link #forClient(ClientRegistration) client registration} was supplied.
+	 *
+	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if the client registration was supplied
+	 */
+	@Nullable
+	public OAuth2AuthorizedClient getAuthorizedClient() {
+		return this.authorizedClient;
 	}
 
 	/**
@@ -72,7 +82,7 @@ public final class OAuth2AuthorizationContext {
 	}
 
 	/**
-	 * Returns the value of an attribute associated to the context, or {@code null} if not available.
+	 * Returns the value of an attribute associated to the context or {@code null} if not available.
 	 *
 	 * @param name the name of the attribute
 	 * @param <T> the type of the attribute
@@ -85,26 +95,42 @@ public final class OAuth2AuthorizationContext {
 	}
 
 	/**
-	 * Returns a new {@link Builder} initialized with the {@link ClientRegistration client registration} identifier.
+	 * Returns a new {@link Builder} initialized with the {@link ClientRegistration}.
 	 *
-	 * @param clientRegistrationId the {@link ClientRegistration client registration} identifier
+	 * @param clientRegistration the {@link ClientRegistration client registration}
 	 * @return the {@link Builder}
 	 */
-	public static Builder forClient(String clientRegistrationId) {
-		return new Builder(clientRegistrationId);
+	public static Builder forClient(ClientRegistration clientRegistration) {
+		return new Builder(clientRegistration);
+	}
+
+	/**
+	 * Returns a new {@link Builder} initialized with the {@link OAuth2AuthorizedClient}.
+	 *
+	 * @param authorizedClient the {@link OAuth2AuthorizedClient authorized client}
+	 * @return the {@link Builder}
+	 */
+	public static Builder forClient(OAuth2AuthorizedClient authorizedClient) {
+		return new Builder(authorizedClient);
 	}
 
 	/**
 	 * A builder for {@link OAuth2AuthorizationContext}.
 	 */
 	public static class Builder {
-		private String clientRegistrationId;
+		private ClientRegistration clientRegistration;
+		private OAuth2AuthorizedClient authorizedClient;
 		private Authentication principal;
 		private Map<String, Object> attributes;
 
-		private Builder(String clientRegistrationId) {
-			Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
-			this.clientRegistrationId = clientRegistrationId;
+		private Builder(ClientRegistration clientRegistration) {
+			Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+			this.clientRegistration = clientRegistration;
+		}
+
+		private Builder(OAuth2AuthorizedClient authorizedClient) {
+			Assert.notNull(authorizedClient, "authorizedClient cannot be null");
+			this.authorizedClient = authorizedClient;
 		}
 
 		/**
@@ -115,17 +141,6 @@ public final class OAuth2AuthorizationContext {
 		 */
 		public Builder principal(Authentication principal) {
 			this.principal = principal;
-			return this;
-		}
-
-		/**
-		 * Sets the {@code Principal}'s name (to be) associated to the authorized client.
-		 *
-		 * @param principalName the {@code Principal}'s name (to be) associated to the authorized client
-		 * @return the {@link Builder}
-		 */
-		public Builder principal(String principalName) {
-			this.principal = new PrincipalNameAuthentication(principalName);
 			return this;
 		}
 
@@ -163,60 +178,17 @@ public final class OAuth2AuthorizationContext {
 		public OAuth2AuthorizationContext build() {
 			Assert.notNull(this.principal, "principal cannot be null");
 			OAuth2AuthorizationContext context = new OAuth2AuthorizationContext();
-			context.clientRegistrationId = this.clientRegistrationId;
+			if (this.authorizedClient != null) {
+				context.clientRegistration = this.authorizedClient.getClientRegistration();
+				context.authorizedClient = this.authorizedClient;
+			} else {
+				context.clientRegistration = this.clientRegistration;
+			}
 			context.principal = this.principal;
 			context.attributes = Collections.unmodifiableMap(
 					CollectionUtils.isEmpty(this.attributes) ?
 							Collections.emptyMap() : new LinkedHashMap<>(this.attributes));
 			return context;
-		}
-	}
-
-	private static class PrincipalNameAuthentication implements Authentication {
-		private final String principalName;
-
-		private PrincipalNameAuthentication(String principalName) {
-			Assert.hasText(principalName, "principalName cannot be empty");
-			this.principalName = principalName;
-		}
-
-		@Override
-		public Collection<? extends GrantedAuthority> getAuthorities() {
-			throw unsupported();
-		}
-
-		@Override
-		public Object getCredentials() {
-			throw unsupported();
-		}
-
-		@Override
-		public Object getDetails() {
-			throw unsupported();
-		}
-
-		@Override
-		public Object getPrincipal() {
-			return getName();
-		}
-
-		@Override
-		public boolean isAuthenticated() {
-			throw unsupported();
-		}
-
-		@Override
-		public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-			throw unsupported();
-		}
-
-		@Override
-		public String getName() {
-			return this.principalName;
-		}
-
-		private UnsupportedOperationException unsupported() {
-			return new UnsupportedOperationException("Not Supported");
 		}
 	}
 }

@@ -44,36 +44,35 @@ public class OAuth2AuthorizationContextTests {
 	}
 
 	@Test
-	public void forClientWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient(null).build())
+	public void forClientWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient((ClientRegistration) null).build())
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientRegistrationId cannot be empty");
+				.hasMessage("clientRegistration cannot be null");
+	}
+
+	@Test
+	public void forClientWhenAuthorizedClientIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient((OAuth2AuthorizedClient) null).build())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("authorizedClient cannot be null");
 	}
 
 	@Test
 	public void forClientWhenPrincipalIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId()).build())
+		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient(this.clientRegistration).build())
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("principal cannot be null");
 	}
 
 	@Test
-	public void forClientWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId())
-				.principal((String) null)
-				.build())
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("principalName cannot be empty");
-	}
-
-	@Test
 	public void forClientWhenAllValuesProvidedThenAllValuesAreSet() {
-		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext.forClient(this.clientRegistration.getRegistrationId())
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext.forClient(this.authorizedClient)
 				.principal(this.principal)
 				.attribute("attribute1", "value1")
 				.attribute("attribute2", "value2")
 				.build();
-		assertThat(authorizationContext.getClientRegistrationId()).isSameAs(this.clientRegistration.getRegistrationId());
+		assertThat(authorizationContext.getClientRegistration()).isSameAs(this.clientRegistration);
+		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
 		assertThat(authorizationContext.getPrincipal()).isSameAs(this.principal);
 		assertThat(authorizationContext.getAttributes()).contains(
 				entry("attribute1", "value1"), entry("attribute2", "value2"));

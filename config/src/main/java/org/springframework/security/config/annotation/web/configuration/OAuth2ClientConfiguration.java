@@ -20,14 +20,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.security.oauth2.client.AuthorizationCodeOAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.client.ClientCredentialsOAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.client.DefaultOAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.client.DelegatingOAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.util.ClassUtils;
@@ -77,21 +75,16 @@ final class OAuth2ClientConfiguration {
 						new OAuth2AuthorizedClientArgumentResolver(
 								this.clientRegistrationRepository, this.authorizedClientRepository);
 				if (this.accessTokenResponseClient != null) {
-					ClientCredentialsOAuth2AuthorizedClientProvider clientCredentialsAuthorizedClientProvider =
-							new ClientCredentialsOAuth2AuthorizedClientProvider(
-									this.clientRegistrationRepository, this.authorizedClientRepository);
-					clientCredentialsAuthorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
-					AuthorizationCodeOAuth2AuthorizedClientProvider authorizationCodeAuthorizedClientProvider =
-							new AuthorizationCodeOAuth2AuthorizedClientProvider(
-									this.clientRegistrationRepository, this.authorizedClientRepository);
-					RefreshTokenOAuth2AuthorizedClientProvider refreshTokenAuthorizedClientProvider =
-							new RefreshTokenOAuth2AuthorizedClientProvider(
-									this.clientRegistrationRepository, this.authorizedClientRepository);
-					DelegatingOAuth2AuthorizedClientProvider authorizedClientProvider = new DelegatingOAuth2AuthorizedClientProvider(
-							authorizationCodeAuthorizedClientProvider, refreshTokenAuthorizedClientProvider, clientCredentialsAuthorizedClientProvider);
-					authorizedClientProvider.setDefaultAuthorizedClientProvider(
-							new DefaultOAuth2AuthorizedClientProvider(this.clientRegistrationRepository, this.authorizedClientRepository));
-					authorizedClientArgumentResolver.setAuthorizedClientProvider(authorizedClientProvider);
+					OAuth2AuthorizedClientProvider authorizedClientProvider =
+							OAuth2AuthorizedClientProviderBuilder.withProvider()
+									.authorizationCode()
+									.refreshToken()
+									.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.accessTokenResponseClient))
+									.build();
+					DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
+							this.clientRegistrationRepository, this.authorizedClientRepository);
+					authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+					authorizedClientArgumentResolver.setAuthorizedClientManager(authorizedClientManager);
 				}
 				argumentResolvers.add(authorizedClientArgumentResolver);
 			}

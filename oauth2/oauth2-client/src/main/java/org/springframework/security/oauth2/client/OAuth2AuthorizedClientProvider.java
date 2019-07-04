@@ -15,9 +15,9 @@
  */
 package org.springframework.security.oauth2.client;
 
+import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import reactor.util.annotation.Nullable;
 
 /**
  * A strategy for authorizing (or re-authorizing) an OAuth 2.0 Client.
@@ -32,7 +32,7 @@ import reactor.util.annotation.Nullable;
 public interface OAuth2AuthorizedClientProvider {
 
 	/**
-	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistrationId() client} in the provided context.
+	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided context.
 	 * Implementations must return {@code null} if authorization is not supported for the specified client,
 	 * e.g. the provider doesn't support the {@link ClientRegistration#getAuthorizationGrantType() authorization grant} type configured for the client.
 	 *
