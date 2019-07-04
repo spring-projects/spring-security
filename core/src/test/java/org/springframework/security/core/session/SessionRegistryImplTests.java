@@ -180,8 +180,8 @@ public class SessionRegistryImplTests {
 	private boolean contains(String sessionId, Object principal) {
 		List<SessionInformation> info = sessionRegistry.getAllSessions(principal, false);
 
-		for (int i = 0; i < info.size(); i++) {
-			if (sessionId.equals(info.get(i).getSessionId())) {
+		for (SessionInformation sessionInformation : info) {
+			if (sessionId.equals(sessionInformation.getSessionId())) {
 				return true;
 			}
 		}

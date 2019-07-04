@@ -16,7 +16,6 @@
 package sample.dms;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.util.Assert;
@@ -88,8 +87,7 @@ public abstract class AbstractElement {
 
 		StringBuilder sb = new StringBuilder();
 		String lastCharacter = null;
-		for (Iterator<String> i = strings.iterator(); i.hasNext();) {
-			String token = i.next();
+		for (String token : strings) {
 			if (!"/".equals(lastCharacter) && lastCharacter != null) {
 				sb.append("/");
 			}
