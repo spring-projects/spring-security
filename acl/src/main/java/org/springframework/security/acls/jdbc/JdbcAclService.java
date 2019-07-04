@@ -118,7 +118,7 @@ public class JdbcAclService implements AclService {
 		Assert.isTrue(map.containsKey(object),
 				() -> "There should have been an Acl entry for ObjectIdentity " + object);
 
-		return (Acl) map.get(object);
+		return map.get(object);
 	}
 
 	public Acl readAclById(ObjectIdentity object) throws NotFoundException {

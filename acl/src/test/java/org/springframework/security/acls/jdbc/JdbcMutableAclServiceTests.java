@@ -319,7 +319,7 @@ public class JdbcMutableAclServiceTests extends
 
 		Acl acl = jdbcMutableAclService.readAclById(getTopParentOid());
 		assertThat(acl).isNotNull();
-		assertThat(getTopParentOid()).isEqualTo(((MutableAcl) acl).getObjectIdentity());
+		assertThat(getTopParentOid()).isEqualTo(acl.getObjectIdentity());
 	}
 
 	@Test

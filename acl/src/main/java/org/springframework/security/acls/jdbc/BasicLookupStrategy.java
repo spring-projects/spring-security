@@ -455,7 +455,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 		// Now we have the parent (if there is one), create the true AclImpl
 		AclImpl result = new AclImpl(inputAcl.getObjectIdentity(),
-				(Long) inputAcl.getId(), aclAuthorizationStrategy, grantingStrategy,
+				inputAcl.getId(), aclAuthorizationStrategy, grantingStrategy,
 				parent, null, inputAcl.isEntriesInheriting(), inputAcl.getOwner());
 
 		// Copy the "aces" from the input to the destination

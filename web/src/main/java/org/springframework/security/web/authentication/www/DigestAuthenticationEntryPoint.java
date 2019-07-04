@@ -84,7 +84,7 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		HttpServletResponse httpResponse = response;
 
 		// compute a nonce (do not use remote IP address due to proxy farms)
 		// format of nonce is:

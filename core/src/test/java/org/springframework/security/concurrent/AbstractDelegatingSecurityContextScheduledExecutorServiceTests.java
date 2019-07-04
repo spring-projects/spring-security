@@ -62,7 +62,7 @@ public abstract class AbstractDelegatingSecurityContextScheduledExecutorServiceT
 	@Test
 	public void scheduleCallable() {
 		when(
-				(ScheduledFuture<Object>) delegate.schedule(wrappedCallable, 1,
+				delegate.schedule(wrappedCallable, 1,
 						TimeUnit.SECONDS)).thenReturn(expectedResult);
 		ScheduledFuture<Object> result = executor.schedule(callable, 1, TimeUnit.SECONDS);
 		assertThat(result).isEqualTo(expectedResult);

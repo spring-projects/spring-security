@@ -40,7 +40,7 @@ public class KeyBasedPersistenceTokenServiceTests {
 		service.setServerSecret("MY:SECRET$$$#");
 		service.setServerInteger(Integer.valueOf(454545));
 		try {
-			SecureRandom rnd = (SecureRandom) fb.getObject();
+			SecureRandom rnd = fb.getObject();
 			service.setSecureRandom(rnd);
 			service.afterPropertiesSet();
 		}

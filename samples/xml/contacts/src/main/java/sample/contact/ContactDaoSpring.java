@@ -102,7 +102,7 @@ public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
 			return null;
 		}
 		else {
-			return (Contact) list.get(0);
+			return list.get(0);
 		}
 	}
 

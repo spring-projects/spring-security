@@ -406,7 +406,7 @@ public class JdbcUserDetailsManagerTests {
 		private Map<String, UserDetails> cache = new HashMap<>();
 
 		public UserDetails getUserFromCache(String username) {
-			return (User) cache.get(username);
+			return cache.get(username);
 		}
 
 		public void putUserInCache(UserDetails user) {

@@ -501,13 +501,13 @@ public class AclImplTests {
 		assertThat(acl.isSidLoaded(BEN)).isTrue();
 		assertThat(acl.isSidLoaded(null)).isTrue();
 		assertThat(acl.isSidLoaded(new ArrayList<>(0))).isTrue();
-		assertThat(acl.isSidLoaded(Arrays.asList((Sid) new GrantedAuthoritySid(
+		assertThat(acl.isSidLoaded(Arrays.asList(new GrantedAuthoritySid(
 				"ROLE_IGNORED"), new GrantedAuthoritySid("ROLE_IGNORED"))))
 			.isTrue();
-		assertThat(acl.isSidLoaded(Arrays.asList((Sid) new GrantedAuthoritySid(
+		assertThat(acl.isSidLoaded(Arrays.asList(new GrantedAuthoritySid(
 				"ROLE_GENERAL"), new GrantedAuthoritySid("ROLE_IGNORED"))))
 			.isFalse();
-		assertThat(acl.isSidLoaded(Arrays.asList((Sid) new GrantedAuthoritySid(
+		assertThat(acl.isSidLoaded(Arrays.asList(new GrantedAuthoritySid(
 				"ROLE_IGNORED"), new GrantedAuthoritySid("ROLE_GENERAL"))))
 			.isFalse();
 	}
