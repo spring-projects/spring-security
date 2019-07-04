@@ -25,8 +25,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 import org.openqa.selenium.WebDriver;
+
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import reactor.core.publisher.Mono;
 
@@ -97,6 +103,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 5.1
  */
 public class OAuth2LoginTests {
@@ -233,6 +240,59 @@ public class OAuth2LoginTests {
 		verify(successHandler).onAuthenticationSuccess(any(), any());
 	}
 
+	@Test
+	public void oauth2LoginFailsWhenCustomObjectsThenUsed() {
+		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class,
+				OAuth2LoginMockAuthenticationManagerConfig.class).autowire();
+
+		String redirectLocation = "/custom-redirect-location";
+		String failureRedirectLocation = "/failure-redirect-location";
+
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(this.springSecurity)
+				.build();
+
+		OAuth2LoginMockAuthenticationManagerConfig config = this.spring.getContext()
+				.getBean(OAuth2LoginMockAuthenticationManagerConfig.class);
+		ServerAuthenticationConverter converter = config.authenticationConverter;
+		ReactiveAuthenticationManager manager = config.manager;
+		ServerWebExchangeMatcher matcher = config.matcher;
+		ServerOAuth2AuthorizationRequestResolver resolver = config.resolver;
+		ServerAuthenticationSuccessHandler successHandler = config.successHandler;
+		ServerAuthenticationFailureHandler failureHandler = config.failureHandler;
+
+		when(converter.convert(any())).thenReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
+		when(manager.authenticate(any())).thenReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("error"), "message")));
+		when(matcher.matches(any())).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
+		when(resolver.resolve(any())).thenReturn(Mono.empty());
+		when(successHandler.onAuthenticationSuccess(any(), any())).thenAnswer((Answer<Mono<Void>>) invocation -> {
+			WebFilterExchange webFilterExchange = invocation.getArgument(0);
+			Authentication authentication = invocation.getArgument(1);
+
+			return new RedirectServerAuthenticationSuccessHandler(redirectLocation)
+					.onAuthenticationSuccess(webFilterExchange, authentication);
+		});
+		when(failureHandler.onAuthenticationFailure(any(), any())).thenAnswer((Answer<Mono<Void>>) invocation -> {
+			WebFilterExchange webFilterExchange = invocation.getArgument(0);
+			AuthenticationException authenticationException = invocation.getArgument(1);
+
+			return new RedirectServerAuthenticationFailureHandler(failureRedirectLocation)
+					.onAuthenticationFailure(webFilterExchange, authenticationException);
+		});
+
+		webTestClient.get()
+				.uri("/login/oauth2/code/github")
+				.exchange()
+				.expectStatus().is3xxRedirection()
+				.expectHeader().valueEquals("Location", failureRedirectLocation);
+
+		verify(converter).convert(any());
+		verify(manager).authenticate(any());
+		verify(matcher).matches(any());
+		verify(resolver).resolve(any());
+		verify(failureHandler).onAuthenticationFailure(any(), any());
+	}
+
 	@Configuration
 	static class OAuth2LoginMockAuthenticationManagerConfig {
 		ReactiveAuthenticationManager manager = mock(ReactiveAuthenticationManager.class);
@@ -245,6 +305,8 @@ public class OAuth2LoginTests {
 
 		ServerAuthenticationSuccessHandler successHandler = mock(ServerAuthenticationSuccessHandler.class);
 
+		ServerAuthenticationFailureHandler failureHandler = mock(ServerAuthenticationFailureHandler.class);
+
 		@Bean
 		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			http
@@ -256,7 +318,8 @@ public class OAuth2LoginTests {
 					.authenticationManager(manager)
 					.authenticationMatcher(matcher)
 					.authorizationRequestResolver(resolver)
-					.authenticationSuccessHandler(successHandler);
+					.authenticationSuccessHandler(successHandler)
+					.authenticationFailureHandler(failureHandler);
 			return http.build();
 		}
 	}

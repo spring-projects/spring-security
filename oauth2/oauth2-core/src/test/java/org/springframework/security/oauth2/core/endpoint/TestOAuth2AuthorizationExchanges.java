@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.core.endpoint;
 
 /**
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 5.1
  */
 public class TestOAuth2AuthorizationExchanges {
@@ -25,6 +26,12 @@ public class TestOAuth2AuthorizationExchanges {
 	public static OAuth2AuthorizationExchange success() {
 		OAuth2AuthorizationRequest request = TestOAuth2AuthorizationRequests.request().build();
 		OAuth2AuthorizationResponse response = TestOAuth2AuthorizationResponses.success().build();
+		return new OAuth2AuthorizationExchange(request, response);
+	}
+
+	public static OAuth2AuthorizationExchange failure() {
+		OAuth2AuthorizationRequest request = TestOAuth2AuthorizationRequests.request().build();
+		OAuth2AuthorizationResponse response = TestOAuth2AuthorizationResponses.error().build();
 		return new OAuth2AuthorizationExchange(request, response);
 	}
 }
