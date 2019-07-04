@@ -1532,6 +1532,76 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Allows configuring how an anonymous user is represented. This is automatically
+	 * applied when used in conjunction with {@link WebSecurityConfigurerAdapter}. By
+	 * default anonymous users will be represented with an
+	 * {@link org.springframework.security.authentication.AnonymousAuthenticationToken}
+	 * and contain the role "ROLE_ANONYMOUS".
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following configuration demonstrates how to specify that anonymous users should
+	 * contain the role "ROLE_ANON" instead.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AnononymousSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.formLogin(withDefaults())
+	 * 			// sample anonymous customization
+	 * 			.anonymous(anonymous ->
+	 * 				anonymous
+	 * 					.authorities(&quot;ROLE_ANON&quot;)
+	 * 			)
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * The following demonstrates how to represent anonymous users as null. Note that this
+	 * can cause {@link NullPointerException} in code that assumes anonymous
+	 * authentication is enabled.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.formLogin(withDefaults())
+	 * 			// sample anonymous customization
+	 * 			.anonymous(anonymous ->
+	 * 				anonymous.disabled()
+	 * 			);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @param anonymousCustomizer the {@link Customizer} to provide more options for
+	 * the {@link AnonymousConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity anonymous(Customizer<AnonymousConfigurer<HttpSecurity>> anonymousCustomizer) throws Exception {
+		anonymousCustomizer.customize(getOrApply(new AnonymousConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+
+	/**
 	 * Specifies to support form based authentication. If
 	 * {@link FormLoginConfigurer#loginPage(String)} is not specified a default login page
 	 * will be generated.
