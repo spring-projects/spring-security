@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,5 +83,25 @@ public class IpAddressMatcherTests {
 		matcher = new IpAddressMatcher("192.168.0.159/0");
 		assertThat(matcher.matches("123.4.5.6")).isTrue();
 		assertThat(matcher.matches("192.168.0.159")).isTrue();
+	}
+
+	// SEC-2576
+	@Test
+	public void ipv4RequiredAddressMaskTooLongThenIllegalArgumentException() {
+		String ipv4AddressWithTooLongMask = "192.168.1.104/33";
+		assertThatCode(() -> new IpAddressMatcher(ipv4AddressWithTooLongMask))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage(String.format("IP address %s is too short for bitmask of " +
+						"length %d", "192.168.1.104", 33));
+	}
+
+	// SEC-2576
+	@Test
+	public void ipv6RequiredAddressMaskTooLongThenIllegalArgumentException() {
+		String ipv6AddressWithTooLongMask = "fe80::21f:5bff:fe33:bd68/129";
+		assertThatCode(() -> new IpAddressMatcher(ipv6AddressWithTooLongMask))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage(String.format("IP address %s is too short for bitmask of " +
+						"length %d", "fe80::21f:5bff:fe33:bd68", 129));
 	}
 }

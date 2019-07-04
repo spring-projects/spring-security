@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
 /**
  * Matches a request based on IP Address or subnet mask matching against the remote
@@ -55,6 +56,9 @@ public final class IpAddressMatcher implements RequestMatcher {
 			nMaskBits = -1;
 		}
 		requiredAddress = parseAddress(ipAddress);
+		Assert.isTrue(requiredAddress.getAddress().length * 8 >= nMaskBits,
+				String.format("IP address %s is too short for bitmask of length %d",
+						ipAddress, nMaskBits));
 	}
 
 	public boolean matches(HttpServletRequest request) {
