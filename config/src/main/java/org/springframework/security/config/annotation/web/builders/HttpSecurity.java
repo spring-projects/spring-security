@@ -2235,6 +2235,107 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Allows specifying which {@link HttpServletRequest} instances this
+	 * {@link HttpSecurity} will be invoked on. This method allows for easily invoking the
+	 * {@link HttpSecurity} for multiple different {@link RequestMatcher} instances. If
+	 * only a single {@link RequestMatcher} is necessary consider using {@link #mvcMatcher(String)},
+	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, or
+	 * {@link #requestMatcher(RequestMatcher)}.
+	 *
+	 * <p>
+	 * Invoking {@link #requestMatchers()} will not override previous invocations of {@link #mvcMatcher(String)}},
+	 * {@link #requestMatchers()}, {@link #antMatcher(String)},
+	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
+	 * </p>
+	 *
+	 * <h3>Example Configurations</h3>
+	 *
+	 * The following configuration enables the {@link HttpSecurity} for URLs that begin
+	 * with "/api/" or "/oauth/".
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.requestMatchers(requestMatchers ->
+	 * 				requestMatchers
+	 * 					.antMatchers(&quot;/api/**&quot;, &quot;/oauth/**&quot;)
+	 * 			)
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.httpBasic(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * The configuration below is the same as the previous configuration.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.requestMatchers(requestMatchers ->
+	 * 				requestMatchers
+	 * 					.antMatchers(&quot;/api/**&quot;)
+	 * 					.antMatchers(&quot;/oauth/**&quot;)
+	 * 			)
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.httpBasic(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * The configuration below is also the same as the above configuration.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.requestMatchers(requestMatchers ->
+	 * 				requestMatchers
+	 * 					.antMatchers(&quot;/api/**&quot;)
+	 * 			)
+	 *			.requestMatchers(requestMatchers ->
+	 *			requestMatchers
+	 * 				.antMatchers(&quot;/oauth/**&quot;)
+	 * 			)
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.httpBasic(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @param requestMatcherCustomizer the {@link Customizer} to provide more options for
+	 * the {@link RequestMatcherConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity requestMatchers(Customizer<RequestMatcherConfigurer> requestMatcherCustomizer) throws Exception {
+		requestMatcherCustomizer.customize(requestMatcherConfigurer);
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Allows configuring the {@link HttpSecurity} to only be invoked when matching the
 	 * provided {@link RequestMatcher}. If more advanced configuration is necessary,
 	 * consider using {@link #requestMatchers()}.
