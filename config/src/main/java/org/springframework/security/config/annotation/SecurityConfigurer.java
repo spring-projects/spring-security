@@ -34,7 +34,7 @@ public interface SecurityConfigurer<O, B extends SecurityBuilder<O>> {
 	 * Initialize the {@link SecurityBuilder}. Here only shared state should be created
 	 * and modified, but not properties on the {@link SecurityBuilder} used for building
 	 * the object. This ensures that the {@link #configure(SecurityBuilder)} method uses
-	 * the correct shared objects when building.
+	 * the correct shared objects when building. Configurers should be applied here.
 	 *
 	 * @param builder
 	 * @throws Exception
