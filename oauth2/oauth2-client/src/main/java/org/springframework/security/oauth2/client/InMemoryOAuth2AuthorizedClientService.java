@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,12 +32,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 5.0
  * @see OAuth2AuthorizedClientService
  * @see OAuth2AuthorizedClient
+ * @see OAuth2AuthorizedClientId
  * @see ClientRegistration
  * @see Authentication
  */
 public final class InMemoryOAuth2AuthorizedClientService implements OAuth2AuthorizedClientService {
+	private final Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients;
 	private final ClientRegistrationRepository clientRegistrationRepository;
-	private Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients = new ConcurrentHashMap<>();
 
 	/**
 	 * Constructs an {@code InMemoryOAuth2AuthorizedClientService} using the provided parameters.
@@ -47,15 +48,22 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 	public InMemoryOAuth2AuthorizedClientService(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
+		this.authorizedClients = new ConcurrentHashMap<>();
 	}
 
 	/**
-	 * Sets the map of authorized clients to use.
-	 * @param authorizedClients the map of authorized clients
+	 * Constructs an {@code InMemoryOAuth2AuthorizedClientService} using the provided parameters.
+	 *
+	 * @since 5.2
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @param authorizedClients the initial {@code Map} of authorized client(s) keyed by {@link OAuth2AuthorizedClientId}
 	 */
-	public void setAuthorizedClients(Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients) {
-		Assert.notNull(authorizedClients, "authorizedClients cannot be null");
-		this.authorizedClients = authorizedClients;
+	public InMemoryOAuth2AuthorizedClientService(ClientRegistrationRepository clientRegistrationRepository,
+													Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients) {
+		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+		Assert.notEmpty(authorizedClients, "authorizedClients cannot be empty");
+		this.clientRegistrationRepository = clientRegistrationRepository;
+		this.authorizedClients = new ConcurrentHashMap<>(authorizedClients);
 	}
 
 	@Override
@@ -67,14 +75,14 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 		if (registration == null) {
 			return null;
 		}
-		return (T) this.authorizedClients.get(OAuth2AuthorizedClientId.create(registration, principalName));
+		return (T) this.authorizedClients.get(new OAuth2AuthorizedClientId(clientRegistrationId, principalName));
 	}
 
 	@Override
 	public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
-		this.authorizedClients.put(OAuth2AuthorizedClientId.create(authorizedClient.getClientRegistration(),
+		this.authorizedClients.put(new OAuth2AuthorizedClientId(authorizedClient.getClientRegistration().getRegistrationId(),
 				principal.getName()), authorizedClient);
 	}
 
@@ -84,8 +92,7 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 		Assert.hasText(principalName, "principalName cannot be empty");
 		ClientRegistration registration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
 		if (registration != null) {
-			this.authorizedClients.remove(OAuth2AuthorizedClientId.create(registration, principalName));
+			this.authorizedClients.remove(new OAuth2AuthorizedClientId(clientRegistrationId, principalName));
 		}
 	}
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,7 @@
  */
 package org.springframework.security.oauth2.client;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.junit.Test;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -27,10 +23,12 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
+import java.util.Collections;
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -66,25 +64,24 @@ public class InMemoryOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
-	public void constructorWhenAuthorizedClientsIsNullThenIllegalArgumentException() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.authorizedClientService.setAuthorizedClients(null))
-				.withMessage("authorizedClients cannot be null");
+	public void constructorWhenAuthorizedClientsIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> new InMemoryOAuth2AuthorizedClientService(this.clientRegistrationRepository, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("authorizedClients cannot be empty");
 	}
 
 	@Test
-	public void constructorWhenAuthorizedClientsIsEmptyMapThenRepositoryUsingSuppliedAuthorizedClients() {
+	public void constructorWhenAuthorizedClientsProvidedThenUseProvidedAuthorizedClients() {
 		String registrationId = this.registration3.getRegistrationId();
 
 		Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients = Collections.singletonMap(
-				OAuth2AuthorizedClientId.create(this.registration3, this.principalName1),
+				new OAuth2AuthorizedClientId(this.registration3.getRegistrationId(), this.principalName1),
 				mock(OAuth2AuthorizedClient.class));
 		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
-		given(clientRegistrationRepository.findByRegistrationId(eq(registrationId))).willReturn(this.registration3);
+		when(clientRegistrationRepository.findByRegistrationId(eq(registrationId))).thenReturn(this.registration3);
 
 		InMemoryOAuth2AuthorizedClientService authorizedClientService = new InMemoryOAuth2AuthorizedClientService(
-				this.clientRegistrationRepository);
-		authorizedClientService.setAuthorizedClients(authorizedClients);
+				clientRegistrationRepository, authorizedClients);
 		assertThat((OAuth2AuthorizedClient) authorizedClientService.loadAuthorizedClient(
 				registrationId, this.principalName1)).isNotNull();
 	}

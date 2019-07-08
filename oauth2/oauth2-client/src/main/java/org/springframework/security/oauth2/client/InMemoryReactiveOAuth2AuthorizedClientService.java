@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,14 @@
  */
 package org.springframework.security.oauth2.client;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.util.Assert;
-
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An {@link OAuth2AuthorizedClientService} that stores
@@ -38,11 +37,11 @@ import reactor.core.publisher.Mono;
  * @see Authentication
  */
 public final class InMemoryReactiveOAuth2AuthorizedClientService implements ReactiveOAuth2AuthorizedClientService {
-	private final Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients = new ConcurrentHashMap<>();;
+	private final Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients = new ConcurrentHashMap<>();
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
 	/**
-	 * Constructs an {@code InMemoryOAuth2AuthorizedClientService} using the provided parameters.
+	 * Constructs an {@code InMemoryReactiveOAuth2AuthorizedClientService} using the provided parameters.
 	 *
 	 * @param clientRegistrationRepository the repository of client registrations
 	 */
@@ -57,7 +56,7 @@ public final class InMemoryReactiveOAuth2AuthorizedClientService implements Reac
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		return (Mono<T>) this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
-				.map(clientRegistration -> OAuth2AuthorizedClientId.create(clientRegistration, principalName))
+				.map(clientRegistration -> new OAuth2AuthorizedClientId(clientRegistrationId, principalName))
 				.flatMap(identifier -> Mono.justOrEmpty(this.authorizedClients.get(identifier)));
 	}
 
@@ -66,8 +65,8 @@ public final class InMemoryReactiveOAuth2AuthorizedClientService implements Reac
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
 		return Mono.fromRunnable(() -> {
-			OAuth2AuthorizedClientId identifier = OAuth2AuthorizedClientId.create(
-					authorizedClient.getClientRegistration(), principal.getName());
+			OAuth2AuthorizedClientId identifier = new OAuth2AuthorizedClientId(
+					authorizedClient.getClientRegistration().getRegistrationId(), principal.getName());
 			this.authorizedClients.put(identifier, authorizedClient);
 		});
 	}
@@ -77,9 +76,8 @@ public final class InMemoryReactiveOAuth2AuthorizedClientService implements Reac
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		return this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
-				.map(clientRegistration -> OAuth2AuthorizedClientId.create(clientRegistration, principalName))
+				.map(clientRegistration -> new OAuth2AuthorizedClientId(clientRegistrationId, principalName))
 				.doOnNext(this.authorizedClients::remove)
 				.then(Mono.empty());
 	}
-
 }
