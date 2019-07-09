@@ -20,6 +20,7 @@ import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
@@ -202,6 +203,20 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	}
 
 	/**
+	 * Configures the Authorization Server's Authorization Endpoint.
+	 *
+	 * @param authorizationEndpointCustomizer the {@link Customizer} to provide more options for
+	 * the {@link AuthorizationEndpointConfig}
+	 * @return the {@link OAuth2LoginConfigurer} for further customizations
+	 * @throws Exception
+	 */
+	public OAuth2LoginConfigurer<B> authorizationEndpoint(Customizer<AuthorizationEndpointConfig> authorizationEndpointCustomizer)
+			throws Exception {
+		authorizationEndpointCustomizer.customize(this.authorizationEndpointConfig);
+		return this;
+	}
+
+	/**
 	 * Configuration options for the Authorization Server's Authorization Endpoint.
 	 */
 	public class AuthorizationEndpointConfig {
@@ -269,6 +284,20 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	}
 
 	/**
+	 * Configures the Authorization Server's Token Endpoint.
+	 *
+	 * @param tokenEndpointCustomizer the {@link Customizer} to provide more options for
+	 * the {@link TokenEndpointConfig}
+	 * @return the {@link OAuth2LoginConfigurer} for further customizations
+	 * @throws Exception
+	 */
+	public OAuth2LoginConfigurer<B> tokenEndpoint(Customizer<TokenEndpointConfig> tokenEndpointCustomizer)
+			throws Exception {
+		tokenEndpointCustomizer.customize(this.tokenEndpointConfig);
+		return this;
+	}
+
+	/**
 	 * Configuration options for the Authorization Server's Token Endpoint.
 	 */
 	public class TokenEndpointConfig {
@@ -311,6 +340,20 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	}
 
 	/**
+	 * Configures the Client's Redirection Endpoint.
+	 *
+	 * @param redirectionEndpointCustomizer the {@link Customizer} to provide more options for
+	 * the {@link RedirectionEndpointConfig}
+	 * @return the {@link OAuth2LoginConfigurer} for further customizations
+	 * @throws Exception
+	 */
+	public OAuth2LoginConfigurer<B> redirectionEndpoint(Customizer<RedirectionEndpointConfig> redirectionEndpointCustomizer)
+			throws Exception {
+		redirectionEndpointCustomizer.customize(this.redirectionEndpointConfig);
+		return this;
+	}
+
+	/**
 	 * Configuration options for the Client's Redirection Endpoint.
 	 */
 	public class RedirectionEndpointConfig {
@@ -348,6 +391,20 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	 */
 	public UserInfoEndpointConfig userInfoEndpoint() {
 		return this.userInfoEndpointConfig;
+	}
+
+	/**
+	 * Configures the Authorization Server's UserInfo Endpoint.
+	 *
+	 * @param userInfoEndpointCustomizer the {@link Customizer} to provide more options for
+	 * the {@link UserInfoEndpointConfig}
+	 * @return the {@link OAuth2LoginConfigurer} for further customizations
+	 * @throws Exception
+	 */
+	public OAuth2LoginConfigurer<B> userInfoEndpoint(Customizer<UserInfoEndpointConfig> userInfoEndpointCustomizer)
+			throws Exception {
+		userInfoEndpointCustomizer.customize(this.userInfoEndpointConfig);
+		return this;
 	}
 
 	/**

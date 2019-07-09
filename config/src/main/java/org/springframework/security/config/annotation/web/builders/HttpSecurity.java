@@ -1949,6 +1949,103 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
+	 * <br>
+	 * <br>
+	 *
+	 * The &quot;authentication flow&quot; is implemented using the <b>Authorization Code Grant</b>, as specified in the
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">OAuth 2.0 Authorization Framework</a>
+	 * and <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">OpenID Connect Core 1.0</a>
+	 * specification.
+	 * <br>
+	 * <br>
+	 *
+	 * As a prerequisite to using this feature, you must register a client with a provider.
+	 * The client registration information may than be used for configuring
+	 * a {@link org.springframework.security.oauth2.client.registration.ClientRegistration} using a
+	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.Builder}.
+	 * <br>
+	 * <br>
+	 *
+	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}(s) are composed within a
+	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistrationRepository},
+	 * which is <b>required</b> and must be registered with the {@link ApplicationContext} or
+	 * configured via <code>oauth2Login().clientRegistrationRepository(..)</code>.
+	 * <br>
+	 * <br>
+	 *
+	 * The default configuration provides an auto-generated login page at <code>&quot;/login&quot;</code> and
+	 * redirects to <code>&quot;/login?error&quot;</code> when an authentication error occurs.
+	 * The login page will display each of the clients with a link
+	 * that is capable of initiating the &quot;authentication flow&quot;.
+	 * <br>
+	 * <br>
+	 *
+	 * <p>
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following example shows the minimal configuration required, using Google as the Authentication Provider.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * public class OAuth2LoginConfig {
+	 *
+	 * 	&#064;EnableWebSecurity
+	 * 	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * 		&#064;Override
+	 * 		protected void configure(HttpSecurity http) throws Exception {
+	 * 			http
+	 * 				.authorizeRequests(authorizeRequests ->
+	 * 					authorizeRequests
+	 * 						.anyRequest().authenticated()
+	 * 				)
+	 * 				.oauth2Login(withDefaults());
+	 *		}
+	 *	}
+	 *
+	 *	&#064;Bean
+	 *	public ClientRegistrationRepository clientRegistrationRepository() {
+	 *		return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
+	 *	}
+	 *
+	 * 	private ClientRegistration googleClientRegistration() {
+	 * 		return ClientRegistration.withRegistrationId("google")
+	 * 			.clientId("google-client-id")
+	 * 			.clientSecret("google-client-secret")
+	 * 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+	 * 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+	 * 			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+	 * 			.scope("openid", "profile", "email", "address", "phone")
+	 * 			.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
+	 * 			.tokenUri("https://www.googleapis.com/oauth2/v4/token")
+	 * 			.userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
+	 * 			.userNameAttributeName(IdTokenClaimNames.SUB)
+	 * 			.jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
+	 * 			.clientName("Google")
+	 * 			.build();
+	 *	}
+	 * }
+	 * </pre>
+	 *
+	 * <p>
+	 * For more advanced configuration, see {@link OAuth2LoginConfigurer} for available options to customize the defaults.
+	 *
+	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
+	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Flow</a>
+	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
+	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
+	 *
+	 * @param oauth2LoginCustomizer the {@link Customizer} to provide more options for
+	 * the {@link OAuth2LoginConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity oauth2Login(Customizer<OAuth2LoginConfigurer<HttpSecurity>> oauth2LoginCustomizer) throws Exception {
+		oauth2LoginCustomizer.customize(getOrApply(new OAuth2LoginConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Configures OAuth 2.0 Client support.
 	 *
 	 * @since 5.1
