@@ -240,6 +240,128 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Allows configuring OpenID based authentication.
+	 *
+	 * <h2>Example Configurations</h2>
+	 *
+	 * A basic example accepting the defaults and not using attribute exchange:
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) {
+	 * 		http
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.openidLogin(openidLogin ->
+	 * 				openidLogin
+	 * 					.permitAll()
+	 * 			);
+	 * 	}
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+	 * 		auth.inMemoryAuthentication()
+	 * 				// the username must match the OpenID of the user you are
+	 * 				// logging in with
+	 * 				.withUser(
+	 * 						&quot;https://www.google.com/accounts/o8/id?id=lmkCn9xzPdsxVwG7pjYMuDgNNdASFmobNkcRPaWU&quot;)
+	 * 				.password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * A more advanced example demonstrating using attribute exchange and providing a
+	 * custom AuthenticationUserDetailsService that will make any user that authenticates
+	 * a valid user.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.openidLogin(openidLogin ->
+	 * 				openidLogin
+	 * 					.loginPage(&quot;/login&quot;)
+	 * 					.permitAll()
+	 * 					.authenticationUserDetailsService(
+	 * 						new AutoProvisioningUserDetailsService())
+	 * 					.attributeExchange(googleExchange ->
+	 * 						googleExchange
+	 * 							.identifierPattern(&quot;https://www.google.com/.*&quot;)
+	 * 							.attribute(emailAttribute ->
+	 * 								emailAttribute
+	 * 									.name(&quot;email&quot;)
+	 * 									.type(&quot;https://axschema.org/contact/email&quot;)
+	 * 									.required(true)
+	 * 							)
+	 * 							.attribute(firstnameAttribute ->
+	 * 								firstnameAttribute
+	 * 									.name(&quot;firstname&quot;)
+	 * 									.type(&quot;https://axschema.org/namePerson/first&quot;)
+	 * 									.required(true)
+	 * 							)
+	 * 							.attribute(lastnameAttribute ->
+	 * 								lastnameAttribute
+	 * 									.name(&quot;lastname&quot;)
+	 * 									.type(&quot;https://axschema.org/namePerson/last&quot;)
+	 * 									.required(true)
+	 * 							)
+	 * 					)
+	 * 					.attributeExchange(yahooExchange ->
+	 * 						yahooExchange
+	 * 							.identifierPattern(&quot;.*yahoo.com.*&quot;)
+	 * 							.attribute(emailAttribute ->
+	 * 								emailAttribute
+	 * 									.name(&quot;email&quot;)
+	 * 									.type(&quot;https://schema.openid.net/contact/email&quot;)
+	 * 									.required(true)
+	 * 							)
+	 * 							.attribute(fullnameAttribute ->
+	 * 								fullnameAttribute
+	 * 									.name(&quot;fullname&quot;)
+	 * 									.type(&quot;https://axschema.org/namePerson&quot;)
+	 * 									.required(true)
+	 * 							)
+	 * 					)
+	 * 			);
+	 * 	}
+	 * }
+	 *
+	 * public class AutoProvisioningUserDetailsService implements
+	 * 		AuthenticationUserDetailsService&lt;OpenIDAuthenticationToken&gt; {
+	 * 	public UserDetails loadUserDetails(OpenIDAuthenticationToken token)
+	 * 			throws UsernameNotFoundException {
+	 * 		return new User(token.getName(), &quot;NOTUSED&quot;,
+	 * 				AuthorityUtils.createAuthorityList(&quot;ROLE_USER&quot;));
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @see OpenIDLoginConfigurer
+	 *
+	 * @param openidLoginCustomizer the {@link Customizer} to provide more options for
+	 * the {@link OpenIDLoginConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity openidLogin(Customizer<OpenIDLoginConfigurer<HttpSecurity>> openidLoginCustomizer) throws Exception {
+		openidLoginCustomizer.customize(getOrApply(new OpenIDLoginConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Adds the Security headers to the response. This is activated by default when using
 	 * {@link WebSecurityConfigurerAdapter}'s default constructor. Accepting the
 	 * default provided by {@link WebSecurityConfigurerAdapter} or only invoking
