@@ -2060,6 +2060,41 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Configures OAuth 2.0 Client support.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following example demonstrates how to enable OAuth 2.0 Client support for all endpoints.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.anyRequest().authenticated()
+	 * 			)
+	 * 			.oauth2Client(withDefaults());
+	 *	}
+	 * }
+	 * </pre>
+	 *
+	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization Framework</a>
+	 *
+	 * @param oauth2ClientCustomizer the {@link Customizer} to provide more options for
+	 * the {@link OAuth2ClientConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity oauth2Client(Customizer<OAuth2ClientConfigurer<HttpSecurity>> oauth2ClientCustomizer) throws Exception {
+		oauth2ClientCustomizer.customize(getOrApply(new OAuth2ClientConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Configures OAuth 2.0 Resource Server support.
 	 *
 	 * @since 5.1
