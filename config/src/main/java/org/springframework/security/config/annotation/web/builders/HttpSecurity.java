@@ -2109,6 +2109,55 @@ public final class HttpSecurity extends
 	}
 
 	/**
+	 * Configures OAuth 2.0 Resource Server support.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following example demonstrates how to configure a custom JWT authentication converter.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests(authorizeRequests ->
+	 * 				authorizeRequests
+	 * 					.anyRequest().authenticated()
+	 * 			)
+	 * 			.oauth2ResourceServer(oauth2ResourceServer ->
+	 * 				oauth2ResourceServer
+	 * 					.jwt(jwt ->
+	 * 						jwt
+	 * 							.jwtAuthenticationConverter(jwtDecoder())
+	 * 					)
+	 * 			);
+	 *	}
+	 *
+	 * 	&#064;Bean
+	 * 	public JwtDecoder jwtDecoder() {
+	 * 		return JwtDecoders.fromOidcIssuerLocation(issuerUri);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization Framework</a>
+	 *
+	 * @param oauth2ResourceServerCustomizer the {@link Customizer} to provide more options for
+	 * the {@link OAuth2ResourceServerConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity oauth2ResourceServer(Customizer<OAuth2ResourceServerConfigurer<HttpSecurity>> oauth2ResourceServerCustomizer)
+			throws Exception {
+		OAuth2ResourceServerConfigurer<HttpSecurity> configurer = getOrApply(new OAuth2ResourceServerConfigurer<>(getContext()));
+		this.postProcess(configurer);
+		oauth2ResourceServerCustomizer.customize(configurer);
+		return HttpSecurity.this;
+	}
+
+	/**
 	 * Configures channel security. In order for this configuration to be useful at least
 	 * one mapping to a required channel must be provided.
 	 *

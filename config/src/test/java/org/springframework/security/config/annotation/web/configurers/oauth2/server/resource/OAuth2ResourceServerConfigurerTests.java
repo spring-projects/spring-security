@@ -127,6 +127,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withPublicKey;
@@ -185,6 +186,19 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
+	public void getWhenUsingDefaultsInLambdaWithValidBearerTokenThenAcceptsRequest()
+			throws Exception {
+
+		this.spring.register(RestOperationsConfig.class, DefaultInLambdaConfig.class, BasicController.class).autowire();
+		mockRestOperations(jwks("Default"));
+		String token = this.token("ValidNoScopes");
+
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isOk())
+				.andExpect(content().string("ok"));
+	}
+
+	@Test
 	public void getWhenUsingJwkSetUriThenAcceptsRequest() throws Exception {
 		this.spring.register(WebServerConfig.class, JwkSetUriConfig.class, BasicController.class).autowire();
 		mockWebServer(jwks("Default"));
@@ -195,6 +209,16 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(content().string("ok"));
 	}
 
+	@Test
+	public void getWhenUsingJwkSetUriInLambdaThenAcceptsRequest() throws Exception {
+		this.spring.register(WebServerConfig.class, JwkSetUriInLambdaConfig.class, BasicController.class).autowire();
+		mockWebServer(jwks("Default"));
+		String token = this.token("ValidNoScopes");
+
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isOk())
+				.andExpect(content().string("ok"));
+	}
 
 	@Test
 	public void getWhenUsingDefaultsWithExpiredBearerTokenThenInvalidToken()
@@ -757,6 +781,23 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
+	public void requestWhenCustomJwtDecoderInLambdaOnDslThenUsed()
+			throws Exception {
+
+		this.spring.register(CustomJwtDecoderInLambdaOnDsl.class, BasicController.class).autowire();
+
+		CustomJwtDecoderInLambdaOnDsl config = this.spring.getContext().getBean(CustomJwtDecoderInLambdaOnDsl.class);
+		JwtDecoder decoder = config.decoder();
+
+		when(decoder.decode(anyString())).thenReturn(JWT);
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken(JWT_TOKEN)))
+				.andExpect(status().isOk())
+				.andExpect(content().string(JWT_SUBJECT));
+	}
+
+	@Test
 	public void requestWhenCustomJwtDecoderExposedAsBeanThenUsed()
 			throws Exception {
 
@@ -1068,6 +1109,17 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
+	public void getWhenOpaqueTokenInLambdaAndIntrospectingThenOk() throws Exception {
+		this.spring.register(RestOperationsConfig.class, OpaqueTokenInLambdaConfig.class, BasicController.class).autowire();
+		mockRestOperations(json("Active"));
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken("token")))
+				.andExpect(status().isOk())
+				.andExpect(content().string("test-subject"));
+	}
+
+	@Test
 	public void getWhenIntrospectionFailsThenUnauthorized() throws Exception {
 		this.spring.register(RestOperationsConfig.class, OpaqueTokenConfig.class).autowire();
 		mockRestOperations(json("Inactive"));
@@ -1093,6 +1145,20 @@ public class OAuth2ResourceServerConfigurerTests {
 	@Test
 	public void getWhenCustomIntrospectionAuthenticationManagerThenUsed() throws Exception {
 		this.spring.register(OpaqueTokenAuthenticationManagerConfig.class, BasicController.class).autowire();
+
+		when(bean(AuthenticationProvider.class).authenticate(any(Authentication.class)))
+				.thenReturn(INTROSPECTION_AUTHENTICATION_TOKEN);
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken("token")))
+				.andExpect(status().isOk())
+				.andExpect(content().string("mock-test-subject"));
+
+		verifyBean(AuthenticationProvider.class).authenticate(any(Authentication.class));
+	}
+
+	@Test
+	public void getWhenCustomIntrospectionAuthenticationManagerInLambdaThenUsed() throws Exception {
+		this.spring.register(OpaqueTokenAuthenticationManagerInLambdaConfig.class, BasicController.class).autowire();
 
 		when(bean(AuthenticationProvider.class).authenticate(any(Authentication.class)))
 				.thenReturn(INTROSPECTION_AUTHENTICATION_TOKEN);
@@ -1312,6 +1378,26 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class DefaultInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.antMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
+						.anyRequest().authenticated()
+				)
+				.oauth2ResourceServer(oauth2ResourceServer ->
+					oauth2ResourceServer
+						.jwt(withDefaults())
+				);
+			// @formatter:on
+		}
+	}
+
+	@EnableWebSecurity
 	static class JwkSetUriConfig extends WebSecurityConfigurerAdapter {
 		@Value("${mockwebserver.url:https://example.org}")
 		String jwkSetUri;
@@ -1327,6 +1413,31 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.jwkSetUri(this.jwkSetUri);
+			// @formatter:on
+		}
+	}
+
+	@EnableWebSecurity
+	static class JwkSetUriInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Value("${mockwebserver.url:https://example.org}")
+		String jwkSetUri;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.antMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
+						.anyRequest().authenticated()
+				)
+				.oauth2ResourceServer(oauth2ResourceServer ->
+					oauth2ResourceServer
+						.jwt(jwt ->
+							jwt
+								.jwkSetUri(this.jwkSetUri)
+						)
+				);
 			// @formatter:on
 		}
 	}
@@ -1678,6 +1789,33 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class CustomJwtDecoderInLambdaOnDsl extends WebSecurityConfigurerAdapter {
+		JwtDecoder decoder = mock(JwtDecoder.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().authenticated()
+				)
+				.oauth2ResourceServer(oauth2ResourceServer ->
+					oauth2ResourceServer
+						.jwt(jwt ->
+							jwt
+								.decoder(decoder())
+						)
+				);
+			// @formatter:on
+		}
+
+		JwtDecoder decoder() {
+			return this.decoder;
+		}
+	}
+
+	@EnableWebSecurity
 	static class CustomJwtDecoderAsBean extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -1832,6 +1970,25 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class OpaqueTokenInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.antMatchers("/requires-read-scope").hasAuthority("SCOPE_message:read")
+						.anyRequest().authenticated()
+				)
+				.oauth2ResourceServer(oauth2ResourceServer ->
+					oauth2ResourceServer
+						.opaqueToken(withDefaults())
+				);
+			// @formatter:on
+		}
+	}
+
+	@EnableWebSecurity
 	static class OpaqueTokenAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -1843,6 +2000,32 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.opaqueToken()
 						.authenticationManager(authenticationProvider()::authenticate);
+			// @formatter:on
+		}
+
+		@Bean
+		public AuthenticationProvider authenticationProvider() {
+			return mock(AuthenticationProvider.class);
+		}
+	}
+
+	@EnableWebSecurity
+	static class OpaqueTokenAuthenticationManagerInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().authenticated()
+				)
+				.oauth2ResourceServer(oauth2ResourceServer ->
+					oauth2ResourceServer
+						.opaqueToken(opaqueToken ->
+							opaqueToken
+								.authenticationManager(authenticationProvider()::authenticate)
+						)
+				);
 			// @formatter:on
 		}
 
