@@ -108,7 +108,6 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -373,7 +372,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/requires-read-scope")
 				.with(bearerToken(token)))
 				.andExpect(status().isForbidden())
-				.andExpect(insufficientScopeHeader(""));
+				.andExpect(insufficientScopeHeader());
 	}
 
 	@Test
@@ -387,7 +386,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/requires-read-scope")
 				.with(bearerToken(token)))
 				.andExpect(status().isForbidden())
-				.andExpect(insufficientScopeHeader("message:write"));
+				.andExpect(insufficientScopeHeader());
 	}
 
 	@Test
@@ -473,7 +472,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/ms-requires-read-scope")
 				.with(bearerToken(token)))
 				.andExpect(status().isForbidden())
-				.andExpect(insufficientScopeHeader(""));
+				.andExpect(insufficientScopeHeader());
 
 	}
 
@@ -488,7 +487,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/ms-requires-read-scope")
 				.with(bearerToken(token)))
 				.andExpect(status().isForbidden())
-				.andExpect(insufficientScopeHeader("message:write"));
+				.andExpect(insufficientScopeHeader());
 	}
 
 	@Test
@@ -502,7 +501,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/ms-deny")
 				.with(bearerToken(token)))
 				.andExpect(status().isForbidden())
-				.andExpect(insufficientScopeHeader("message:read"));
+				.andExpect(insufficientScopeHeader());
 	}
 
 	// -- Resource Server should not engage csrf
@@ -2047,12 +2046,11 @@ public class OAuth2ResourceServerConfigurerTests {
 		);
 	}
 
-	private static ResultMatcher insufficientScopeHeader(String scope) {
+	private static ResultMatcher insufficientScopeHeader() {
 		return header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer " +
 				"error=\"insufficient_scope\"" +
-				", error_description=\"The token provided has insufficient scope [" + scope + "] for this request\"" +
-				", error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"" +
-				(StringUtils.hasText(scope) ? ", scope=\"" + scope + "\"" : ""));
+				", error_description=\"The request requires higher privileges than provided by the access token.\"" +
+				", error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
 	}
 
 	private void mockWebServer(String response) {

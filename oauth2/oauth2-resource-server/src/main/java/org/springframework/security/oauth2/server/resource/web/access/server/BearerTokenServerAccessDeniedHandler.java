@@ -16,14 +16,6 @@
 
 package org.springframework.security.oauth2.server.resource.web.access.server;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import reactor.core.publisher.Mono;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -31,8 +23,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
-import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Translates any {@link AccessDeniedException} into an HTTP response in accordance with
@@ -63,8 +61,7 @@ public class BearerTokenServerAccessDeniedHandler implements ServerAccessDeniedH
 
 		return exchange.getPrincipal()
 				.filter(AbstractOAuth2TokenAuthenticationToken.class::isInstance)
-				.cast(AbstractOAuth2TokenAuthenticationToken.class)
-				.map(token -> errorMessageParameters(token, parameters))
+				.map(token -> errorMessageParameters(parameters))
 				.switchIfEmpty(Mono.just(parameters))
 				.flatMap(params -> respond(exchange, params));
 	}
@@ -78,20 +75,10 @@ public class BearerTokenServerAccessDeniedHandler implements ServerAccessDeniedH
 		this.realmName = realmName;
 	}
 
-	private static Map<String, String> errorMessageParameters(
-			AbstractOAuth2TokenAuthenticationToken token,
-			Map<String, String> parameters) {
-
-		String scope = getScope(token);
-
+	private static Map<String, String> errorMessageParameters(Map<String, String> parameters) {
 		parameters.put("error", BearerTokenErrorCodes.INSUFFICIENT_SCOPE);
-		parameters.put("error_description",
-				String.format("The token provided has insufficient scope [%s] for this request", scope));
+		parameters.put("error_description", "The request requires higher privileges than provided by the access token.");
 		parameters.put("error_uri", "https://tools.ietf.org/html/rfc6750#section-3.1");
-
-		if (StringUtils.hasText(scope)) {
-			parameters.put("scope", scope);
-		}
 
 		return parameters;
 	}
@@ -101,25 +88,6 @@ public class BearerTokenServerAccessDeniedHandler implements ServerAccessDeniedH
 		exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
 		exchange.getResponse().getHeaders().set(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticate);
 		return exchange.getResponse().setComplete();
-	}
-
-	private static String getScope(AbstractOAuth2TokenAuthenticationToken token) {
-
-		Map<String, Object> attributes = token.getTokenAttributes();
-
-		for (String attributeName : WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES) {
-			Object scopes = attributes.get(attributeName);
-			if (scopes instanceof String) {
-				return (String) scopes;
-			} else if (scopes instanceof Collection) {
-				Collection coll = (Collection) scopes;
-				return (String) coll.stream()
-						.map(String::valueOf)
-						.collect(Collectors.joining(" "));
-			}
-		}
-
-		return "";
 	}
 
 	private static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {

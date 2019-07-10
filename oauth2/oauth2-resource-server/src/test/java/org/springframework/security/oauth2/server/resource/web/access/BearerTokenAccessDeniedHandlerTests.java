@@ -16,20 +16,17 @@
 
 package org.springframework.security.oauth2.server.resource.web.access;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-
-import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
+
+import java.util.Collections;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -81,7 +78,7 @@ public class BearerTokenAccessDeniedHandlerTests {
 	}
 
 	@Test
-	public void handleWhenTokenHasNoScopesThenInsufficientScopeError()
+	public void handleWhenOAuth2AuthenticatedThenStatus403AndAuthHeaderWithInsufficientScopeErrorAttribute()
 			throws Exception {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -94,130 +91,8 @@ public class BearerTokenAccessDeniedHandlerTests {
 
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\", " +
-				"error_description=\"The token provided has insufficient scope [] for this request\", " +
+				"error_description=\"The request requires higher privileges than provided by the access token.\", " +
 				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
-	}
-
-
-	@Test
-	public void handleWhenTokenHasScopeAttributeThenInsufficientScopeErrorWithScopes()
-			throws Exception {
-
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-
-		Map<String, Object> attributes = Maps.newHashMap("scope", "message:read message:write");
-		Authentication token = new TestingOAuth2TokenAuthenticationToken(attributes);
-		request.setUserPrincipal(token);
-
-		this.accessDeniedHandler.handle(request, response, null);
-
-		assertThat(response.getStatus()).isEqualTo(403);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\", " +
-				"error_description=\"The token provided has insufficient scope [message:read message:write] for this request\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\", " +
-				"scope=\"message:read message:write\"");
-	}
-
-	@Test
-	public void handleWhenTokenHasEmptyScopeAttributeThenInsufficientScopeError()
-			throws Exception {
-
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-
-		Map<String, Object> attributes = Maps.newHashMap("scope", "");
-		Authentication token = new TestingOAuth2TokenAuthenticationToken(attributes);
-		request.setUserPrincipal(token);
-
-		this.accessDeniedHandler.handle(request, response, null);
-
-		assertThat(response.getStatus()).isEqualTo(403);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\", " +
-				"error_description=\"The token provided has insufficient scope [] for this request\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
-	}
-
-	@Test
-	public void handleWhenTokenHasScpAttributeThenInsufficientScopeErrorWithScopes()
-			throws Exception {
-
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-
-		Map<String, Object> attributes = Maps.newHashMap("scp", Arrays.asList("message:read", "message:write"));
-		Authentication token = new TestingOAuth2TokenAuthenticationToken(attributes);
-		request.setUserPrincipal(token);
-
-		this.accessDeniedHandler.handle(request, response, null);
-
-		assertThat(response.getStatus()).isEqualTo(403);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\", " +
-				"error_description=\"The token provided has insufficient scope [message:read message:write] for this request\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\", " +
-				"scope=\"message:read message:write\"");
-	}
-
-	@Test
-	public void handleWhenTokenHasEmptyScpAttributeThenInsufficientScopeError()
-			throws Exception {
-
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-
-		Map<String, Object> attributes = Maps.newHashMap("scp", Collections.emptyList());
-		Authentication token = new TestingOAuth2TokenAuthenticationToken(attributes);
-		request.setUserPrincipal(token);
-
-		this.accessDeniedHandler.handle(request, response, null);
-
-		assertThat(response.getStatus()).isEqualTo(403);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\", " +
-				"error_description=\"The token provided has insufficient scope [] for this request\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
-	}
-
-	@Test
-	public void handleWhenTokenHasBothScopeAndScpAttributesTheInsufficientErrorBasedOnScopeAttribute()
-			throws Exception {
-
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-
-		Map<String, Object> attributes = Maps.newHashMap("scp", Arrays.asList("message:read", "message:write"));
-		Authentication token = new TestingOAuth2TokenAuthenticationToken(attributes);
-		request.setUserPrincipal(token);
-		attributes.put("scope", "missive:read missive:write");
-
-		this.accessDeniedHandler.handle(request, response, null);
-
-		assertThat(response.getStatus()).isEqualTo(403);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\", " +
-				"error_description=\"The token provided has insufficient scope [missive:read missive:write] for this request\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\", " +
-				"scope=\"missive:read missive:write\"");
-	}
-
-	@Test
-	public void handleWhenTokenHasScopeAttributeAndRealmIsSetThenInsufficientScopeErrorWithScopesAndRealm()
-			throws Exception {
-
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-
-		Map<String, Object> attributes = Maps.newHashMap("scope", "message:read message:write");
-		Authentication token = new TestingOAuth2TokenAuthenticationToken(attributes);
-		request.setUserPrincipal(token);
-
-		this.accessDeniedHandler.setRealmName("test");
-		this.accessDeniedHandler.handle(request, response, null);
-
-		assertThat(response.getStatus()).isEqualTo(403);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer realm=\"test\", " +
-				"error=\"insufficient_scope\", " +
-				"error_description=\"The token provided has insufficient scope [message:read message:write] for this request\", " +
-				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\", " +
-				"scope=\"message:read message:write\"");
 	}
 
 	@Test
