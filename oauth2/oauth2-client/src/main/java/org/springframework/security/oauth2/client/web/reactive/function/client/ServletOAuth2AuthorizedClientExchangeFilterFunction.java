@@ -19,8 +19,10 @@ package org.springframework.security.oauth2.client.web.reactive.function.client;
 import org.reactivestreams.Subscription;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.ClientCredentialsOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -33,8 +35,10 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentia
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.OAuth2ReauthorizeRequest;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -81,8 +85,7 @@ import java.util.function.Consumer;
  * are true:
  *
  * <ul>
- * <li>The {@link #setAuthorizedClientManager(OAuth2AuthorizedClientManager) OAuth2AuthorizedClientManager} on the
- * {@link ServletOAuth2AuthorizedClientExchangeFilterFunction} is not null</li>
+ * <li>The {@link OAuth2AuthorizedClientManager} is not null</li>
  * <li>A refresh token is present on the {@link OAuth2AuthorizedClient}</li>
  * <li>The access token will be expired in
  * {@link #setAccessTokenExpiresSkew(Duration)}</li>
@@ -94,6 +97,7 @@ import java.util.function.Consumer;
  * @author Rob Winch
  * @author Joe Grandja
  * @since 5.1
+ * @see OAuth2AuthorizedClientManager
  */
 public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		implements ExchangeFilterFunction, InitializingBean, DisposableBean {
@@ -109,11 +113,10 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 
 	private static final String REQUEST_CONTEXT_OPERATOR_KEY = RequestContextSubscriber.class.getName();
 
+	private static final Authentication ANONYMOUS_AUTHENTICATION = new AnonymousAuthenticationToken(
+			"anonymous", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+
 	private Duration accessTokenExpiresSkew = Duration.ofMinutes(1);
-
-	private ClientRegistrationRepository clientRegistrationRepository;
-
-	private OAuth2AuthorizedClientRepository authorizedClientRepository;
 
 	private OAuth2AuthorizedClientManager authorizedClientManager;
 
@@ -124,11 +127,30 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction() {
 	}
 
+	/**
+	 * Constructs a {@code ServletOAuth2AuthorizedClientExchangeFilterFunction} using the provided parameters.
+	 *
+	 * @since 5.2
+	 * @param authorizedClientManager the {@link OAuth2AuthorizedClientManager} which manages the authorized client(s)
+	 */
+	public ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager authorizedClientManager) {
+		Assert.notNull(authorizedClientManager, "authorizedClientManager cannot be null");
+		this.authorizedClientManager = authorizedClientManager;
+	}
+
+	/**
+	 * Constructs a {@code ServletOAuth2AuthorizedClientExchangeFilterFunction} using the provided parameters.
+	 *
+	 * @deprecated Use {@link #ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)} instead.
+	 * 				See {@link DefaultOAuth2AuthorizedClientManager} and {@link OAuth2AuthorizedClientProviderBuilder}.
+	 *
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @param authorizedClientRepository the repository of authorized clients
+	 */
+	@Deprecated
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction(
 			ClientRegistrationRepository clientRegistrationRepository,
 			OAuth2AuthorizedClientRepository authorizedClientRepository) {
-		this.clientRegistrationRepository = clientRegistrationRepository;
-		this.authorizedClientRepository = authorizedClientRepository;
 		this.authorizedClientManager = createDefaultAuthorizedClientManager(clientRegistrationRepository, authorizedClientRepository);
 	}
 
@@ -141,7 +163,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 						.refreshToken()
 						.clientCredentials()
 						.build();
-
 		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				clientRegistrationRepository, authorizedClientRepository);
 		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
@@ -160,20 +181,9 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	}
 
 	/**
-	 * Sets the {@link OAuth2AuthorizedClientManager} which manages the {@link OAuth2AuthorizedClient Authorized Client(s)}.
-	 *
-	 * @since 5.2
-	 * @param authorizedClientManager the {@link OAuth2AuthorizedClientManager} which manages the authorized client(s)
-	 */
-	public void setAuthorizedClientManager(OAuth2AuthorizedClientManager authorizedClientManager) {
-		Assert.notNull(authorizedClientManager, "authorizedClientManager cannot be null");
-		this.authorizedClientManager = authorizedClientManager;
-	}
-
-	/**
 	 * Sets the {@link OAuth2AccessTokenResponseClient} used for getting an {@link OAuth2AuthorizedClient} for the client_credentials grant.
 	 *
-	 * @deprecated Use {@link #setAuthorizedClientManager(OAuth2AuthorizedClientManager)} instead.
+	 * @deprecated Use {@link #ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)} instead.
 	 * 				Create an instance of {@link ClientCredentialsOAuth2AuthorizedClientProvider} configured with a
 	 * 				{@link ClientCredentialsOAuth2AuthorizedClientProvider#setAccessTokenResponseClient(OAuth2AccessTokenResponseClient) DefaultClientCredentialsTokenResponseClient}
 	 * 				(or a custom one) and than supply it to {@link DefaultOAuth2AuthorizedClientManager#setAuthorizedClientProvider(OAuth2AuthorizedClientProvider) DefaultOAuth2AuthorizedClientManager}.
@@ -184,30 +194,27 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	public void setClientCredentialsTokenResponseClient(
 			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
 		Assert.notNull(clientCredentialsTokenResponseClient, "clientCredentialsTokenResponseClient cannot be null");
-		this.authorizedClientManager = createAuthorizedClientManager(clientCredentialsTokenResponseClient);
+		updateAuthorizedClientManager(clientCredentialsTokenResponseClient);
 	}
 
-	private OAuth2AuthorizedClientManager createAuthorizedClientManager() {
-		return createAuthorizedClientManager(new DefaultClientCredentialsTokenResponseClient());
+	private void updateAuthorizedClientManager() {
+		updateAuthorizedClientManager(new DefaultClientCredentialsTokenResponseClient());
 	}
 
-	private OAuth2AuthorizedClientManager createAuthorizedClientManager(
+	private void updateAuthorizedClientManager(
 			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
 
-		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.withProvider()
-						.authorizationCode()
-						.refreshToken(configurer -> configurer.clockSkew(this.accessTokenExpiresSkew))
-						.clientCredentials(configurer -> configurer
-								.accessTokenResponseClient(clientCredentialsTokenResponseClient)
-								.clockSkew(this.accessTokenExpiresSkew))
-						.build();
-
-		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
-				this.clientRegistrationRepository, this.authorizedClientRepository);
-		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
-
-		return authorizedClientManager;
+		if (this.authorizedClientManager instanceof DefaultOAuth2AuthorizedClientManager) {
+			OAuth2AuthorizedClientProvider authorizedClientProvider =
+					OAuth2AuthorizedClientProviderBuilder.withProvider()
+							.authorizationCode()
+							.refreshToken(configurer -> configurer.clockSkew(this.accessTokenExpiresSkew))
+							.clientCredentials(configurer -> configurer
+									.accessTokenResponseClient(clientCredentialsTokenResponseClient)
+									.clockSkew(this.accessTokenExpiresSkew))
+							.build();
+			((DefaultOAuth2AuthorizedClientManager) this.authorizedClientManager).setAuthorizedClientProvider(authorizedClientProvider);
+		}
 	}
 
 	/**
@@ -328,7 +335,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	public void setAccessTokenExpiresSkew(Duration accessTokenExpiresSkew) {
 		Assert.notNull(accessTokenExpiresSkew, "accessTokenExpiresSkew cannot be null");
 		this.accessTokenExpiresSkew = accessTokenExpiresSkew;
-		this.authorizedClientManager = createAuthorizedClientManager();
+		updateAuthorizedClientManager();
 	}
 
 	@Override
@@ -388,7 +395,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	}
 
 	private void populateDefaultOAuth2AuthorizedClient(Map<String, Object> attrs) {
-		if (this.authorizedClientRepository == null ||
+		if (this.authorizedClientManager == null ||
 				attrs.containsKey(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME)) {
 			return;
 		}
@@ -405,12 +412,12 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		}
 		if (clientRegistrationId != null) {
 			HttpServletRequest request = getRequest(attrs);
-			OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
-					clientRegistrationId, authentication, request);
-			if (authorizedClient == null) {
-				authorizedClient = this.authorizedClientManager.authorize(
-						clientRegistrationId, authentication, request, getResponse(attrs));
+			if (authentication == null) {
+				authentication = ANONYMOUS_AUTHENTICATION;
 			}
+			OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
+					clientRegistrationId, authentication, request, getResponse(attrs));
+			OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
 			oauth2AuthorizedClient(authorizedClient).accept(attrs);
 		}
 	}
@@ -420,11 +427,15 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 			return Mono.just(authorizedClient);
 		}
 		Map<String, Object> attrs = request.attributes();
-		Authentication authentication = getAuthentication(attrs) != null ?
-				getAuthentication(attrs) : new PrincipalNameAuthentication(authorizedClient.getPrincipalName());
+		Authentication authentication = getAuthentication(attrs);
+		if (authentication == null) {
+			authentication = new PrincipalNameAuthentication(authorizedClient.getPrincipalName());
+		}
 		HttpServletRequest servletRequest = getRequest(attrs);
 		HttpServletResponse servletResponse = getResponse(attrs);
-		return Mono.fromSupplier(() -> this.authorizedClientManager.reauthorize(authorizedClient, authentication, servletRequest, servletResponse));
+		OAuth2ReauthorizeRequest reauthorizeRequest = new OAuth2ReauthorizeRequest(
+				authorizedClient, authentication, servletRequest, servletResponse);
+		return Mono.fromSupplier(() -> this.authorizedClientManager.reauthorize(reauthorizeRequest));
 	}
 
 	private ClientRequest bearer(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {

@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * The default implementation of an {@link OAuth2AuthorizedClientManager}.
@@ -42,8 +42,7 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private OAuth2AuthorizedClientProvider authorizedClientProvider = context -> null;
-	private BiFunction<ClientRegistration, HttpServletRequest, Map<String, Object>> contextAttributesMapper =
-			(clientRegistration, request) -> Collections.emptyMap();
+	private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper = authorizeRequest -> Collections.emptyMap();
 
 	/**
 	 * Constructs a {@code DefaultOAuth2AuthorizedClientManager} using the provided parameters.
@@ -61,59 +60,55 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 
 	@Nullable
 	@Override
-	public OAuth2AuthorizedClient authorize(String clientRegistrationId, Authentication principal,
-											HttpServletRequest request, HttpServletResponse response) {
+	public OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
+		Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");
 
-		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
-		Assert.notNull(principal, "principal cannot be null");
-		Assert.notNull(request, "request cannot be null");
-		Assert.notNull(response, "response cannot be null");
+		String clientRegistrationId = authorizeRequest.getClientRegistrationId();
+		Authentication principal = authorizeRequest.getPrincipal();
+		HttpServletRequest servletRequest = authorizeRequest.getServletRequest();
+		HttpServletResponse servletResponse = authorizeRequest.getServletResponse();
 
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
 		Assert.notNull(clientRegistration, "Could not find ClientRegistration with id '" + clientRegistrationId + "'");
 
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
-				clientRegistrationId, principal, request);
+				clientRegistrationId, principal, servletRequest);
 		if (authorizedClient != null) {
-			return reauthorizeIfNecessary(authorizedClient, principal, request, response);
+			OAuth2ReauthorizeRequest reauthorizeRequest = new OAuth2ReauthorizeRequest(
+					authorizedClient, principal, servletRequest, servletResponse);
+			return reauthorize(reauthorizeRequest);
 		}
 
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.forClient(clientRegistration)
 						.principal(principal)
-						.attributes(this.contextAttributesMapper.apply(clientRegistration, request))
+						.attributes(this.contextAttributesMapper.apply(authorizeRequest))
 						.build();
 		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
 		if (authorizedClient != null) {
-			this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, request, response);
+			this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, servletRequest, servletResponse);
 		}
 
 		return authorizedClient;
 	}
 
 	@Override
-	public OAuth2AuthorizedClient reauthorize(OAuth2AuthorizedClient authorizedClient, Authentication principal,
-												HttpServletRequest request, HttpServletResponse response) {
+	public OAuth2AuthorizedClient reauthorize(OAuth2ReauthorizeRequest reauthorizeRequest) {
+		Assert.notNull(reauthorizeRequest, "reauthorizeRequest cannot be null");
 
-		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
-		Assert.notNull(principal, "principal cannot be null");
-		Assert.notNull(request, "request cannot be null");
-		Assert.notNull(response, "response cannot be null");
-
-		return reauthorizeIfNecessary(authorizedClient, principal, request, response);
-	}
-
-	private OAuth2AuthorizedClient reauthorizeIfNecessary(OAuth2AuthorizedClient authorizedClient, Authentication principal,
-															HttpServletRequest request, HttpServletResponse response) {
+		OAuth2AuthorizedClient authorizedClient = reauthorizeRequest.getAuthorizedClient();
+		Authentication principal = reauthorizeRequest.getPrincipal();
+		HttpServletRequest servletRequest = reauthorizeRequest.getServletRequest();
+		HttpServletResponse servletResponse = reauthorizeRequest.getServletResponse();
 
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.forClient(authorizedClient)
 						.principal(principal)
-						.attributes(this.contextAttributesMapper.apply(authorizedClient.getClientRegistration(), request))
+						.attributes(this.contextAttributesMapper.apply(reauthorizeRequest))
 						.build();
 		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
 		if (reauthorizedClient != null) {
-			this.authorizedClientRepository.saveAuthorizedClient(reauthorizedClient, principal, request, response);
+			this.authorizedClientRepository.saveAuthorizedClient(reauthorizedClient, principal, servletRequest, servletResponse);
 			return reauthorizedClient;
 		}
 
@@ -131,13 +126,13 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 	}
 
 	/**
-	 * Sets the {@code BiFunction} used for mapping attribute(s) from the {@link ClientRegistration} and/or {@code HttpServletRequest}
-	 * to a {@code Map} of attributes to be associated to the {@link OAuth2AuthorizationContext#getAttributes() authorization context}.
+	 * Sets the {@code Function} used for mapping attribute(s) from the {@link OAuth2AuthorizeRequest} to a {@code Map} of attributes
+	 * to be associated to the {@link OAuth2AuthorizationContext#getAttributes() authorization context}.
 	 *
-	 * @param contextAttributesMapper the {@code BiFunction} used for supplying the {@code Map} of attributes
+	 * @param contextAttributesMapper the {@code Function} used for supplying the {@code Map} of attributes
 	 *                                   to the {@link OAuth2AuthorizationContext#getAttributes() authorization context}
 	 */
-	public void setContextAttributesMapper(BiFunction<ClientRegistration, HttpServletRequest, Map<String, Object>> contextAttributesMapper) {
+	public void setContextAttributesMapper(Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper) {
 		Assert.notNull(contextAttributesMapper, "contextAttributesMapper cannot be null");
 		this.contextAttributesMapper = contextAttributesMapper;
 	}

@@ -28,6 +28,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.ClientCredentialsOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
@@ -103,8 +105,16 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 				.build();
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1, this.registration2);
 		this.authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
-		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(
+		OAuth2AuthorizedClientProvider authorizedClientProvider =
+				OAuth2AuthorizedClientProviderBuilder.withProvider()
+						.authorizationCode()
+						.refreshToken()
+						.clientCredentials()
+						.build();
+		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
+		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager);
 		this.authorizedClient1 = new OAuth2AuthorizedClient(this.registration1, this.principalName, mock(OAuth2AccessToken.class));
 		when(this.authorizedClientRepository.loadAuthorizedClient(
 				eq(this.registration1.getRegistrationId()), any(Authentication.class), any(HttpServletRequest.class)))
@@ -135,8 +145,8 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 	}
 
 	@Test
-	public void setAuthorizedClientManagerWhenProviderIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.argumentResolver.setAuthorizedClientManager(null))
+	public void constructorWhenAuthorizedClientManagerIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> new OAuth2AuthorizedClientArgumentResolver(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -225,7 +235,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		authorizedClientManager.setAuthorizedClientProvider(clientCredentialsAuthorizedClientProvider);
-		this.argumentResolver.setAuthorizedClientManager(authorizedClientManager);
+		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager);
 
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
 				.withToken("access-token-1234")

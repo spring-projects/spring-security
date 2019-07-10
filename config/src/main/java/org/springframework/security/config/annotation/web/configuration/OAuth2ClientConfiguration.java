@@ -71,22 +71,17 @@ final class OAuth2ClientConfiguration {
 		@Override
 		public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
 			if (this.clientRegistrationRepository != null && this.authorizedClientRepository != null) {
-				OAuth2AuthorizedClientArgumentResolver authorizedClientArgumentResolver =
-						new OAuth2AuthorizedClientArgumentResolver(
-								this.clientRegistrationRepository, this.authorizedClientRepository);
-				if (this.accessTokenResponseClient != null) {
-					OAuth2AuthorizedClientProvider authorizedClientProvider =
-							OAuth2AuthorizedClientProviderBuilder.withProvider()
-									.authorizationCode()
-									.refreshToken()
-									.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.accessTokenResponseClient))
-									.build();
-					DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
-							this.clientRegistrationRepository, this.authorizedClientRepository);
-					authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
-					authorizedClientArgumentResolver.setAuthorizedClientManager(authorizedClientManager);
-				}
-				argumentResolvers.add(authorizedClientArgumentResolver);
+				OAuth2AuthorizedClientProvider authorizedClientProvider =
+						OAuth2AuthorizedClientProviderBuilder.withProvider()
+								.authorizationCode()
+								.refreshToken()
+								.clientCredentials(configurer ->
+										Optional.ofNullable(this.accessTokenResponseClient).ifPresent(configurer::accessTokenResponseClient))
+								.build();
+				DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
+						this.clientRegistrationRepository, this.authorizedClientRepository);
+				authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+				argumentResolvers.add(new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager));
 			}
 		}
 

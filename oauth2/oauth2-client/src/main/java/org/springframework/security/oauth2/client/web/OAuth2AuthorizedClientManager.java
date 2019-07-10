@@ -16,13 +16,9 @@
 package org.springframework.security.oauth2.client.web;
 
 import org.springframework.lang.Nullable;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Implementations of this interface are responsible for the overall management
@@ -47,35 +43,27 @@ public interface OAuth2AuthorizedClientManager {
 
 	/**
 	 * Attempt to authorize or re-authorize (if required) the {@link ClientRegistration client}
-	 * identified by the provided {@code clientRegistrationId}.
+	 * identified by the provided {@link OAuth2AuthorizeRequest#getClientRegistrationId() clientRegistrationId}.
 	 * Implementations must return {@code null} if authorization is not supported for the specified client,
 	 * e.g. the associated {@link OAuth2AuthorizedClientProvider}(s) does not support
 	 * the {@link ClientRegistration#getAuthorizationGrantType() authorization grant} type configured for the client.
 	 *
-	 * @param clientRegistrationId the identifier for the client's registration
-	 * @param principal the {@code Principal} {@link Authentication} (to be) associated to the authorized client
-	 * @param request the {@code HttpServletRequest}
-	 * @param response the {@code HttpServletResponse}
+	 * @param authorizeRequest the authorize request
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization is not supported for the specified client
 	 */
 	@Nullable
-	OAuth2AuthorizedClient authorize(String clientRegistrationId, Authentication principal,
-										HttpServletRequest request, HttpServletResponse response);
+	OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest);
 
 	/**
-	 * Attempt to re-authorize (if required) the provided {@link OAuth2AuthorizedClient authorized client}.
-	 * Implementations must return the provided {@code authorizedClient} if re-authorization is not supported
+	 * Attempt to re-authorize (if required) the provided {@link OAuth2ReauthorizeRequest#getAuthorizedClient() authorized client}.
+	 * Implementations must return the provided authorized client if re-authorization is not supported
 	 * for the {@link OAuth2AuthorizedClient#getClientRegistration() client} OR is not required,
 	 * e.g. a {@link OAuth2AuthorizedClient#getRefreshToken() refresh token} is not available OR
 	 * the {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
 	 *
-	 * @param authorizedClient the authorized client
-	 * @param principal the {@code Principal} {@link Authentication} associated to the authorized client
-	 * @param request the {@code HttpServletRequest}
-	 * @param response the {@code HttpServletResponse}
-	 * @return the re-authorized {@link OAuth2AuthorizedClient} or the provided {@code authorizedClient} if not re-authorized
+	 * @param reauthorizeRequest the re-authorize request
+	 * @return the re-authorized {@link OAuth2AuthorizedClient} or the provided {@link OAuth2ReauthorizeRequest#getAuthorizedClient() authorized client} if not re-authorized
 	 */
-	OAuth2AuthorizedClient reauthorize(OAuth2AuthorizedClient authorizedClient, Authentication principal,
-										HttpServletRequest request, HttpServletResponse response);
+	OAuth2AuthorizedClient reauthorize(OAuth2ReauthorizeRequest reauthorizeRequest);
 
 }
