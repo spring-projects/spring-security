@@ -192,7 +192,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 					} else {
 						rolesReachableInOneStepSet = this.rolesReachableInOneStepMap.get(higherRole);
 					}
-					addReachableRoles(rolesReachableInOneStepSet, lowerRole);
+					rolesReachableInOneStepSet.add(lowerRole);
 					if (logger.isDebugEnabled()) {
 						logger.debug("buildRolesReachableInOneStepMap() - From role " + higherRole
 								+ " one can reach role " + lowerRole + " in one step.");
@@ -227,7 +227,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 				// take a role from the rolesToVisit set
 				GrantedAuthority aRole = rolesToVisitSet.iterator().next();
 				rolesToVisitSet.remove(aRole);
-				addReachableRoles(visitedRolesSet, aRole);
+				visitedRolesSet.add(aRole);
 				if (this.rolesReachableInOneStepMap.containsKey(aRole)) {
 					Set<GrantedAuthority> newReachableRoles = this.rolesReachableInOneStepMap
 							.get(aRole);
