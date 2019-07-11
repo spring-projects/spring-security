@@ -215,33 +215,19 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 		// iterate over all higher roles from rolesReachableInOneStepMap
 
 		for (GrantedAuthority role : this.rolesReachableInOneStepMap.keySet()) {
-			Set<GrantedAuthority> rolesToVisitSet = new HashSet<>();
-
-			if (this.rolesReachableInOneStepMap.containsKey(role)) {
-				rolesToVisitSet.addAll(this.rolesReachableInOneStepMap.get(role));
-			}
-
+			Set<GrantedAuthority> rolesToVisitSet = new HashSet<>(this.rolesReachableInOneStepMap.get(role));
 			Set<GrantedAuthority> visitedRolesSet = new HashSet<>();
 
 			while (!rolesToVisitSet.isEmpty()) {
 				// take a role from the rolesToVisit set
 				GrantedAuthority aRole = rolesToVisitSet.iterator().next();
 				rolesToVisitSet.remove(aRole);
-				visitedRolesSet.add(aRole);
-				if (this.rolesReachableInOneStepMap.containsKey(aRole)) {
-					Set<GrantedAuthority> newReachableRoles = this.rolesReachableInOneStepMap
-							.get(aRole);
-
-					// definition of a cycle: you can reach the role you are starting from
-					if (rolesToVisitSet.contains(role)
-							|| visitedRolesSet.contains(role)) {
-						throw new CycleInRoleHierarchyException();
-					}
-					else {
-						// no cycle
-						rolesToVisitSet.addAll(newReachableRoles);
-					}
+				if (!visitedRolesSet.add(aRole) || !this.rolesReachableInOneStepMap.containsKey(aRole)) {
+					continue; // Already visited role or role with missing hierarchy
+				} else if (role.equals(aRole)) {
+					throw new CycleInRoleHierarchyException();
 				}
+				rolesToVisitSet.addAll(this.rolesReachableInOneStepMap.get(aRole));
 			}
 			this.rolesReachableInOneOrMoreStepsMap.put(role, visitedRolesSet);
 

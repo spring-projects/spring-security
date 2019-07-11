@@ -168,6 +168,12 @@ public class RoleHierarchyImplTests {
 		}
 		catch (CycleInRoleHierarchyException e) {
 		}
+
+		try {
+			roleHierarchyImpl.setHierarchy("ROLE_C > ROLE_B\nROLE_B > ROLE_A\nROLE_A > ROLE_B");
+			fail("Cycle in role hierarchy was not detected!");
+		} catch (CycleInRoleHierarchyException e) {
+		}
 	}
 
 	@Test
