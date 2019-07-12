@@ -70,6 +70,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	private static final Authentication ANONYMOUS_AUTHENTICATION = new AnonymousAuthenticationToken(
 			"anonymous", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 	private OAuth2AuthorizedClientManager authorizedClientManager;
+	private boolean defaultAuthorizedClientManager;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClientArgumentResolver} using the provided parameters.
@@ -97,6 +98,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.authorizedClientManager = createDefaultAuthorizedClientManager(clientRegistrationRepository, authorizedClientRepository);
+		this.defaultAuthorizedClientManager = true;
 	}
 
 	private static OAuth2AuthorizedClientManager createDefaultAuthorizedClientManager(
@@ -182,20 +184,20 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	public final void setClientCredentialsTokenResponseClient(
 			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
 		Assert.notNull(clientCredentialsTokenResponseClient, "clientCredentialsTokenResponseClient cannot be null");
-		updateAuthorizedClientManager(clientCredentialsTokenResponseClient);
+		Assert.state(this.defaultAuthorizedClientManager, "The client cannot be set when the constructor used is \"OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientManager)\". " +
+				"Instead, use the constructor \"OAuth2AuthorizedClientArgumentResolver(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
+		updateDefaultAuthorizedClientManager(clientCredentialsTokenResponseClient);
 	}
 
-	private void updateAuthorizedClientManager(
+	private void updateDefaultAuthorizedClientManager(
 			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
 
-		if (this.authorizedClientManager instanceof DefaultOAuth2AuthorizedClientManager) {
-			OAuth2AuthorizedClientProvider authorizedClientProvider =
-					OAuth2AuthorizedClientProviderBuilder.withProvider()
-							.authorizationCode()
-							.refreshToken()
-							.clientCredentials(configurer -> configurer.accessTokenResponseClient(clientCredentialsTokenResponseClient))
-							.build();
-			((DefaultOAuth2AuthorizedClientManager) this.authorizedClientManager).setAuthorizedClientProvider(authorizedClientProvider);
-		}
+		OAuth2AuthorizedClientProvider authorizedClientProvider =
+				OAuth2AuthorizedClientProviderBuilder.withProvider()
+						.authorizationCode()
+						.refreshToken()
+						.clientCredentials(configurer -> configurer.accessTokenResponseClient(clientCredentialsTokenResponseClient))
+						.build();
+		((DefaultOAuth2AuthorizedClientManager) this.authorizedClientManager).setAuthorizedClientProvider(authorizedClientProvider);
 	}
 }

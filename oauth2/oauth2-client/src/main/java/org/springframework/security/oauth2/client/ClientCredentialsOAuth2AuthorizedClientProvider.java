@@ -42,9 +42,6 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 			new DefaultClientCredentialsTokenResponseClient();
 	private Duration clockSkew = Duration.ofSeconds(60);
 
-	public ClientCredentialsOAuth2AuthorizedClientProvider() {
-	}
-
 	/**
 	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided {@code context}.
 	 * Returns {@code null} if authorization (or re-authorization) is not supported,

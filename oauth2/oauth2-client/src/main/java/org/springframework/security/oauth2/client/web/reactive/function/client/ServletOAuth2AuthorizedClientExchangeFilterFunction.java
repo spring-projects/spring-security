@@ -28,8 +28,8 @@ import org.springframework.security.oauth2.client.ClientCredentialsOAuth2Authori
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
+import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -87,8 +87,7 @@ import java.util.function.Consumer;
  * <ul>
  * <li>The {@link OAuth2AuthorizedClientManager} is not null</li>
  * <li>A refresh token is present on the {@link OAuth2AuthorizedClient}</li>
- * <li>The access token will be expired in
- * {@link #setAccessTokenExpiresSkew(Duration)}</li>
+ * <li>The access token is expired</li>
  * <li>The {@link SecurityContextHolder} will be used to attempt to save
  * the token. If it is empty, then the principal name on the {@link OAuth2AuthorizedClient}
  * will be used to create an Authentication for saving.</li>
@@ -116,9 +115,15 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	private static final Authentication ANONYMOUS_AUTHENTICATION = new AnonymousAuthenticationToken(
 			"anonymous", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
+	@Deprecated
 	private Duration accessTokenExpiresSkew = Duration.ofMinutes(1);
 
+	@Deprecated
+	private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient;
+
 	private OAuth2AuthorizedClientManager authorizedClientManager;
+
+	private boolean defaultAuthorizedClientManager;
 
 	private boolean defaultOAuth2AuthorizedClient;
 
@@ -152,6 +157,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 			ClientRegistrationRepository clientRegistrationRepository,
 			OAuth2AuthorizedClientRepository authorizedClientRepository) {
 		this.authorizedClientManager = createDefaultAuthorizedClientManager(clientRegistrationRepository, authorizedClientRepository);
+		this.defaultAuthorizedClientManager = true;
 	}
 
 	private static OAuth2AuthorizedClientManager createDefaultAuthorizedClientManager(
@@ -194,27 +200,27 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	public void setClientCredentialsTokenResponseClient(
 			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
 		Assert.notNull(clientCredentialsTokenResponseClient, "clientCredentialsTokenResponseClient cannot be null");
-		updateAuthorizedClientManager(clientCredentialsTokenResponseClient);
+		Assert.state(this.defaultAuthorizedClientManager, "The client cannot be set when the constructor used is \"ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)\". " +
+				"Instead, use the constructor \"ServletOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
+		this.clientCredentialsTokenResponseClient = clientCredentialsTokenResponseClient;
+		updateDefaultAuthorizedClientManager();
 	}
 
-	private void updateAuthorizedClientManager() {
-		updateAuthorizedClientManager(new DefaultClientCredentialsTokenResponseClient());
+	private void updateDefaultAuthorizedClientManager() {
+		OAuth2AuthorizedClientProvider authorizedClientProvider =
+				OAuth2AuthorizedClientProviderBuilder.withProvider()
+						.authorizationCode()
+						.refreshToken(configurer -> configurer.clockSkew(this.accessTokenExpiresSkew))
+						.clientCredentials(this::updateClientCredentialsProvider)
+						.build();
+		((DefaultOAuth2AuthorizedClientManager) this.authorizedClientManager).setAuthorizedClientProvider(authorizedClientProvider);
 	}
 
-	private void updateAuthorizedClientManager(
-			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
-
-		if (this.authorizedClientManager instanceof DefaultOAuth2AuthorizedClientManager) {
-			OAuth2AuthorizedClientProvider authorizedClientProvider =
-					OAuth2AuthorizedClientProviderBuilder.withProvider()
-							.authorizationCode()
-							.refreshToken(configurer -> configurer.clockSkew(this.accessTokenExpiresSkew))
-							.clientCredentials(configurer -> configurer
-									.accessTokenResponseClient(clientCredentialsTokenResponseClient)
-									.clockSkew(this.accessTokenExpiresSkew))
-							.build();
-			((DefaultOAuth2AuthorizedClientManager) this.authorizedClientManager).setAuthorizedClientProvider(authorizedClientProvider);
+	private void updateClientCredentialsProvider(OAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilder builder) {
+		if (this.clientCredentialsTokenResponseClient != null) {
+			builder.accessTokenResponseClient(this.clientCredentialsTokenResponseClient);
 		}
+		builder.clockSkew(this.accessTokenExpiresSkew);
 	}
 
 	/**
@@ -330,12 +336,20 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	/**
 	 * An access token will be considered expired by comparing its expiration to now +
 	 * this skewed Duration. The default is 1 minute.
+	 *
+	 * @deprecated The {@code accessTokenExpiresSkew} should be configured with the specific {@link OAuth2AuthorizedClientProvider} implementation,
+	 * 				e.g. {@link ClientCredentialsOAuth2AuthorizedClientProvider#setClockSkew(Duration) ClientCredentialsOAuth2AuthorizedClientProvider} or
+	 * 				{@link RefreshTokenOAuth2AuthorizedClientProvider#setClockSkew(Duration) RefreshTokenOAuth2AuthorizedClientProvider}.
+	 *
 	 * @param accessTokenExpiresSkew the Duration to use.
 	 */
+	@Deprecated
 	public void setAccessTokenExpiresSkew(Duration accessTokenExpiresSkew) {
 		Assert.notNull(accessTokenExpiresSkew, "accessTokenExpiresSkew cannot be null");
+		Assert.state(this.defaultAuthorizedClientManager, "The accessTokenExpiresSkew cannot be set when the constructor used is \"ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)\". " +
+				"Instead, use the constructor \"ServletOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 		this.accessTokenExpiresSkew = accessTokenExpiresSkew;
-		updateAuthorizedClientManager();
+		updateDefaultAuthorizedClientManager();
 	}
 
 	@Override

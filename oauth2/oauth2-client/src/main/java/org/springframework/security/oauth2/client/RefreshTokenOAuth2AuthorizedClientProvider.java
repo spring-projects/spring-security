@@ -53,9 +53,6 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 			new DefaultRefreshTokenTokenResponseClient();
 	private Duration clockSkew = Duration.ofSeconds(60);
 
-	public RefreshTokenOAuth2AuthorizedClientProvider() {
-	}
-
 	/**
 	 * Attempt to re-authorize the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided {@code context}.
 	 * Returns {@code null} if re-authorization is not supported,

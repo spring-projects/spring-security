@@ -30,9 +30,6 @@ import org.springframework.util.Assert;
  */
 public final class AuthorizationCodeOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
 
-	public AuthorizationCodeOAuth2AuthorizedClientProvider() {
-	}
-
 	/**
 	 * Attempt to authorize the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided {@code context}.
 	 * Returns {@code null} if authorization is not supported,
