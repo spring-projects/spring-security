@@ -187,7 +187,9 @@ WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.csrf().disable();
+			.csrf(csrf ->
+			    csrf.disable()
+			);
 	}
 }
 ----
@@ -314,8 +316,10 @@ public class WebSecurityConfig extends
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.csrf()
-				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+			.csrf(csrf ->
+			    csrf
+				    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+			);
 	}
 }
 ----
@@ -391,8 +395,10 @@ WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.logout()
-				.logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+			.logout(logout ->
+			    logout
+				    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+			);
 	}
 }
 ----

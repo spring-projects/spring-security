@@ -285,10 +285,11 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests()
-				.anyRequest().authenticated()
-				.and()
-			.oauth2Login();
+			.authorizeRequests(authorizeRequests ->
+			    authorizeRequests
+				    .anyRequest().authenticated()
+			)
+			.oauth2Login(withDefaults());
 	}
 }
 ----
@@ -310,10 +311,11 @@ public class OAuth2LoginConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.oauth2Login();
+				.authorizeRequests(authorizeRequests ->
+				    authorizeRequests
+					    .anyRequest().authenticated()
+				)
+				.oauth2Login(withDefaults());
 		}
 	}
 
@@ -358,10 +360,11 @@ public class OAuth2LoginConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.oauth2Login();
+				.authorizeRequests(authorizeRequests ->
+				    authorizeRequests
+					    .anyRequest().authenticated()
+				)
+				.oauth2Login(withDefaults());
 		}
 	}
 

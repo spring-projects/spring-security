@@ -137,12 +137,12 @@ How does Spring Security know that we want to require all users to be authentica
 ----
 protected void configure(HttpSecurity http) throws Exception {
 	http
-		.authorizeRequests()
-			.anyRequest().authenticated()
-			.and()
-		.formLogin()
-			.and()
-		.httpBasic();
+		.authorizeRequests(authorizeRequests ->
+		    authorizeRequests
+			    .anyRequest().authenticated()
+		)
+		.formLogin(withDefaults())
+		.httpBasic(withDefaults());
 }
 ----
 
@@ -163,10 +163,6 @@ You will notice that this configuration is quite similar the XML Namespace confi
 </http>
 ----
 
-The Java Configuration equivalent of closing an XML tag is expressed using the `and()` method which allows us to continue configuring the parent.
-If you read the code it also makes sense.
-I want to configure authorized requests __and__ configure form login __and__ configure HTTP Basic authentication.
-
 [[jc-form]]
 == Java Configuration and Form Login
 You might be wondering where the login form came from when you were prompted to log in, since we made no mention of any HTML files or JSPs.
@@ -180,12 +176,15 @@ To do so we can update our configuration as seen below:
 ----
 protected void configure(HttpSecurity http) throws Exception {
 	http
-		.authorizeRequests()
-			.anyRequest().authenticated()
-			.and()
-		.formLogin()
-			.loginPage("/login") // <1>
-			.permitAll();        // <2>
+		.authorizeRequests(authorizeRequests ->
+		    authorizeRequests
+			    .anyRequest().authenticated()
+		)
+		.formLogin(formLogin ->
+		    formLogin
+			    .loginPage("/login") // <1>
+			    .permitAll()         // <2>
+	    );
 }
 ----
 
@@ -245,14 +244,14 @@ For example:
 ----
 protected void configure(HttpSecurity http) throws Exception {
 	http
-		.authorizeRequests()                                                                <1>
-			.antMatchers("/resources/**", "/signup", "/about").permitAll()                  <2>
-			.antMatchers("/admin/**").hasRole("ADMIN")                                      <3>
-			.antMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")            <4>
-			.anyRequest().authenticated()                                                   <5>
-			.and()
-		// ...
-		.formLogin();
+		.authorizeRequests(authorizeRequests ->                                        // <1>
+		    authorizeRequests
+			    .antMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
+			    .antMatchers("/admin/**").hasRole("ADMIN")                             // <3>
+			    .antMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")   // <4>
+			    .anyRequest().authenticated()                                          // <5>
+		)
+		.formLogin(withDefaults());
 }
 ----
 
@@ -282,14 +281,15 @@ Similar to configuring login capabilities, however, you also have various option
 ----
 protected void configure(HttpSecurity http) throws Exception {
 	http
-		.logout()                                                                <1>
-			.logoutUrl("/my/logout")                                                 <2>
-			.logoutSuccessUrl("/my/index")                                           <3>
-			.logoutSuccessHandler(logoutSuccessHandler)                              <4>
-			.invalidateHttpSession(true)                                             <5>
-			.addLogoutHandler(logoutHandler)                                         <6>
-			.deleteCookies(cookieNamesToClear)                                       <7>
-			.and()
+		.logout(logout ->                                                       // <1>
+		    logout
+			    .logoutUrl("/my/logout")                                        // <2>
+			    .logoutSuccessUrl("/my/index")                                  // <3>
+			    .logoutSuccessHandler(logoutSuccessHandler)                     // <4>
+			    .invalidateHttpSession(true)                                    // <5>
+			    .addLogoutHandler(logoutHandler)                                // <6>
+			    .deleteCookies(cookieNamesToClear)                              // <7>
+		)
 		...
 }
 ----
@@ -510,11 +510,14 @@ The first is a `WebSecurityConfigurerAdapter` that configures the app as a resou
 ```java
 protected void configure(HttpSecurity http) {
     http
-        .authorizeRequests()
-            .anyRequest().authenticated()
-            .and()
-        .oauth2ResourceServer()
-            .jwt();
+        .authorizeRequests(authorizeRequests ->
+            authorizeRequests
+                .anyRequest().authenticated()
+        )
+        .oauth2ResourceServer(oauth2ResourceServer ->
+            oauth2ResourceServer
+                .jwt(withDefaults())
+        );
 }
 ```
 
@@ -527,13 +530,18 @@ Replacing this is as simple as exposing the bean within the application:
 public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .mvcMatchers("/messages/**").hasAuthority("SCOPE_message:read")
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .jwt()
-                    .jwtAuthenticationConverter(myConverter());
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .mvcMatchers("/messages/**").hasAuthority("SCOPE_message:read")
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .jwt(jwt ->
+                        jwt
+                            .jwtAuthenticationConverter(myConverter())
+                    )
+            );
     }
 }
 ```
@@ -565,12 +573,17 @@ An authorization server's JWK Set Uri can be configured <<oauth2resourceserver-j
 public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .jwt()
-                    .jwkSetUri("https://idp.example.com/.well-known/jwks.json");
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .jwt(jwt ->
+                        jwt
+                            .jwkSetUri("https://idp.example.com/.well-known/jwks.json")
+                    )
+            );
     }
 }
 ```
@@ -587,12 +600,17 @@ More powerful than `jwkSetUri()` is `decoder()`, which will completely replace a
 public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .jwt()
-                    .decoder(myCustomDecoder());
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .jwt(jwt ->
+                        jwt
+                            .decoder(myCustomDecoder())
+                    )
+            );
     }
 }
 ```
@@ -627,13 +645,16 @@ This means that to protect an endpoint or method with a scope derived from a JWT
 public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .mvcMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
-                .mvcMatchers("/messages/**").hasAuthority("SCOPE_messages")
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .jwt();
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .mvcMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
+                    .mvcMatchers("/messages/**").hasAuthority("SCOPE_messages")
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .jwt(withDefaults())
+            );
     }
 }
 ```
@@ -659,12 +680,17 @@ To this end, the DSL exposes `jwtAuthenticationConverter()`:
 public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .jwt()
-                    .jwtAuthenticationConverter(grantedAuthoritiesExtractor());
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .jwt(jwt ->
+                        jwt
+                            .jwtAuthenticationConverter(grantedAuthoritiesExtractor())
+                    )
+            );
     }
 }
 
@@ -1078,10 +1104,11 @@ public class MultiHttpSecurityConfig {
 		protected void configure(HttpSecurity http) throws Exception {
 			http
 				.antMatcher("/api/**")                               <3>
-				.authorizeRequests()
-					.anyRequest().hasRole("ADMIN")
-					.and()
-				.httpBasic();
+				.authorizeRequests(authorizeRequests ->
+				    authorizeRequests
+					    .anyRequest().hasRole("ADMIN")
+			    )
+				.httpBasic(withDefaults());
 		}
 	}
 
@@ -1091,10 +1118,11 @@ public class MultiHttpSecurityConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin();
+				.authorizeRequests(authorizeRequests ->
+				    authorizeRequests
+					    .anyRequest().authenticated()
+				)
+				.formLogin(withDefaults());
 		}
 	}
 }
@@ -1221,15 +1249,17 @@ For example, if you wanted to configure the `filterSecurityPublishAuthorizationS
 @Override
 protected void configure(HttpSecurity http) throws Exception {
 	http
-		.authorizeRequests()
-			.anyRequest().authenticated()
-			.withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
-				public <O extends FilterSecurityInterceptor> O postProcess(
-						O fsi) {
-					fsi.setPublishAuthorizationSuccess(true);
-					return fsi;
-				}
-			});
+		.authorizeRequests(authorizeRequests ->
+			authorizeRequests
+				.anyRequest().authenticated()
+				.withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
+					public <O extends FilterSecurityInterceptor> O postProcess(
+							O fsi) {
+						fsi.setPublishAuthorizationSuccess(true);
+						return fsi;
+					}
+				})
+		);
 }
 ----
 

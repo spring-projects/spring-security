@@ -18,7 +18,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			// by default uses a Bean by the name of corsConfigurationSource
-			.cors().and()
+			.cors(withDefaults())
 			...
 	}
 
@@ -59,7 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http
 			// if Spring MVC is on classpath and no CorsConfigurationSource is provided,
 			// Spring Security will use CORS configuration provided to Spring MVC
-			.cors().and()
+			.cors(withDefaults())
 			...
 	}
 }
