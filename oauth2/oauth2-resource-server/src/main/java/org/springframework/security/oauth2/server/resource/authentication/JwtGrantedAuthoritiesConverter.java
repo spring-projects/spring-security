@@ -35,10 +35,40 @@ import org.springframework.util.StringUtils;
  * @since 5.2
  */
 public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
-	private static final String SCOPE_AUTHORITY_PREFIX = "SCOPE_";
-
+	private static final String DEFAULT_AUTHORITIES_CLAIM = "authorities";
+	private static final String DEFAULT_AUTHORITIES_PREFIX = "";
 	private static final Collection<String> WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES =
 			Arrays.asList("scope", "scp");
+	
+	private String prefix;
+	
+	private String authoritiesClaimName;
+
+	public JwtGrantedAuthoritiesConverter(String prefix, String authoritiesClaim) {
+		super();
+		this.prefix = prefix;
+		this.authoritiesClaimName = authoritiesClaim;
+	}
+	
+	public JwtGrantedAuthoritiesConverter() {
+		this("SCOPE_", "scope");
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
+	public String getAuthoritiesClaimName() {
+		return authoritiesClaimName;
+	}
+
+	public void setAuthoritiesClaimName(String authoritiesClaim) {
+		this.authoritiesClaimName = authoritiesClaim;
+	}
 
 	/**
 	 * Extracts the authorities
@@ -47,9 +77,13 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	 */
 	@Override
 	public Collection<GrantedAuthority> convert(Jwt jwt) {
-		return getScopes(jwt)
+		Collection<String> authoritiesNames = WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES.contains(authoritiesClaimName) ? getScopes(jwt) : jwt.getClaimAsStringList(authoritiesClaimName);
+		if(authoritiesNames == null) {
+			return null;
+		}
+		return authoritiesNames
 				.stream()
-				.map(authority -> SCOPE_AUTHORITY_PREFIX + authority)
+				.map(authority -> prefix + authority)
 				.map(SimpleGrantedAuthority::new)
 				.collect(Collectors.toList());
 	}
