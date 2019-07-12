@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * @author Joe Grandja
  */
@@ -33,15 +35,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests()
-				.mvcMatchers("/", "/public/**").permitAll()
-				.anyRequest().authenticated()
-				.and()
-			.formLogin()
-				.and()
-			.oauth2Login()
-				.and()
-			.oauth2Client();
+			.authorizeRequests(authorizeRequests ->
+				authorizeRequests
+					.mvcMatchers("/", "/public/**").permitAll()
+					.anyRequest().authenticated()
+			)
+			.formLogin(withDefaults())
+			.oauth2Login(withDefaults())
+			.oauth2Client(withDefaults());
 	}
 
 	@Bean

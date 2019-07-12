@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -39,15 +41,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests()
-				.antMatchers("/resources/**").permitAll()
-				.anyRequest().authenticated()
-				.and()
-			.formLogin()
-				.loginPage("/login")
-				.permitAll()
-				.and()
-			.rememberMe();
+			.authorizeRequests(authorizeRequests ->
+				authorizeRequests
+					.antMatchers("/resources/**").permitAll()
+					.anyRequest().authenticated()
+			)
+			.formLogin(formLogin ->
+				formLogin
+					.loginPage("/login")
+					.permitAll()
+			)
+			.rememberMe(withDefaults());
 	}
 	// @formatter:on
 }

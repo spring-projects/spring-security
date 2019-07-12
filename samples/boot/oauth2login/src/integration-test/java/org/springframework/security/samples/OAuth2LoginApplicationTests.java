@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -358,15 +358,21 @@ public class OAuth2LoginApplicationTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.oauth2Login()
-					.tokenEndpoint()
-						.accessTokenResponseClient(this.mockAccessTokenResponseClient())
-						.and()
-					.userInfoEndpoint()
-						.userService(this.mockUserService());
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().authenticated()
+				)
+				.oauth2Login(oauth2Login ->
+					oauth2Login
+						.tokenEndpoint(tokenEndpoint ->
+							tokenEndpoint
+								.accessTokenResponseClient(this.mockAccessTokenResponseClient())
+						)
+						.userInfoEndpoint(userInfoEndpoint ->
+							userInfoEndpoint
+								.userService(this.mockUserService())
+						)
+				);
 		}
 		// @formatter:on
 
