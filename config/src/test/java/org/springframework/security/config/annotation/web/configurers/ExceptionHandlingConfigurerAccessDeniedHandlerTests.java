@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,6 +82,48 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 					.defaultAccessDeniedHandlerFor(
 							new AccessDeniedHandlerImpl(),
 							AnyRequestMatcher.INSTANCE);
+			// @formatter:on
+		}
+	}
+
+	@Test
+	@WithMockUser(roles = "ANYTHING")
+	public void getWhenAccessDeniedOverriddenInLambdaThenCustomizesResponseByRequest()
+			throws Exception {
+		this.spring.register(RequestMatcherBasedAccessDeniedHandlerInLambdaConfig.class).autowire();
+
+		this.mvc.perform(get("/hello"))
+				.andExpect(status().isIAmATeapot());
+
+		this.mvc.perform(get("/goodbye"))
+				.andExpect(status().isForbidden());
+	}
+
+	@EnableWebSecurity
+	static class RequestMatcherBasedAccessDeniedHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
+		AccessDeniedHandler teapotDeniedHandler =
+				(request, response, exception) ->
+						response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().denyAll()
+				)
+				.exceptionHandling(exceptionHandling ->
+					exceptionHandling
+						.defaultAccessDeniedHandlerFor(
+								this.teapotDeniedHandler,
+								new AntPathRequestMatcher("/hello/**")
+						)
+						.defaultAccessDeniedHandlerFor(
+								new AccessDeniedHandlerImpl(),
+								AnyRequestMatcher.INSTANCE
+						)
+				);
 			// @formatter:on
 		}
 	}

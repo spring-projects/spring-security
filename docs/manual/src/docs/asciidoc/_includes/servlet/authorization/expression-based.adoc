@@ -169,9 +169,11 @@ or in Java configuration
 [source,java]
 ----
 http
-		.authorizeRequests()
-				.antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,#userId)")
-				...
+	.authorizeRequests(authorizeRequests ->
+	    authorizeRequests
+			.antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,#userId)")
+			...
+	);
 ----
 
 In both configurations URLs that match would pass in the path variable (and convert it) into checkUserId method.

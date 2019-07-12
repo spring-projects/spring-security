@@ -135,4 +135,27 @@ public class ChannelSecurityConfigurerTests {
 			// @formatter:on
 		}
 	}
+
+	@Test
+	public void requestWhenRequiresChannelConfiguredInLambdaThenRedirectsToHttps() throws Exception {
+		this.spring.register(RequiresChannelInLambdaConfig.class).autowire();
+
+		mvc.perform(get("/"))
+				.andExpect(redirectedUrl("https://localhost/"));
+	}
+
+	@EnableWebSecurity
+	static class RequiresChannelInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.requiresChannel(requiresChannel ->
+					requiresChannel
+						.anyRequest().requiresSecure()
+			);
+			// @formatter:on
+		}
+	}
 }

@@ -28,14 +28,22 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
+import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import javax.servlet.http.HttpSession;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
@@ -148,6 +156,99 @@ public class SecurityContextConfigurerTests {
 			auth
 				.inMemoryAuthentication()
 				.withUser("user").password("password").roles("USER");
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void requestWhenSecurityContextWithDefaultsInLambdaThenSessionIsCreated() throws Exception {
+		this.spring.register(SecurityContextWithDefaultsInLambdaConfig.class).autowire();
+
+		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
+		HttpSession session = mvcResult.getRequest().getSession(false);
+		assertThat(session).isNotNull();
+	}
+
+	@EnableWebSecurity
+	static class SecurityContextWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(withDefaults())
+				.securityContext(withDefaults());
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void requestWhenSecurityContextDisabledInLambdaThenContextNotSavedInSession() throws Exception {
+		this.spring.register(SecurityContextDisabledInLambdaConfig.class).autowire();
+
+		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
+		HttpSession session = mvcResult.getRequest().getSession(false);
+		assertThat(session).isNull();
+	}
+
+	@EnableWebSecurity
+	static class SecurityContextDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(withDefaults())
+				.securityContext(AbstractHttpConfigurer::disable);
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void requestWhenNullSecurityContextRepositoryInLambdaThenContextNotSavedInSession() throws Exception {
+		this.spring.register(NullSecurityContextRepositoryInLambdaConfig.class).autowire();
+
+		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
+		HttpSession session = mvcResult.getRequest().getSession(false);
+		assertThat(session).isNull();
+	}
+
+	@EnableWebSecurity
+	static class NullSecurityContextRepositoryInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(withDefaults())
+				.securityContext(securityContext ->
+					securityContext
+						.securityContextRepository(new NullSecurityContextRepository())
+				);
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
 	}

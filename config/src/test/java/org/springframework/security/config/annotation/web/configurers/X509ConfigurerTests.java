@@ -38,6 +38,7 @@ import java.security.cert.X509Certificate;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -109,6 +110,69 @@ public class X509ConfigurerTests {
 					.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)")
 					.and()
 				.x509();
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser("rod").password("password").roles("USER", "ADMIN");
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void x509WhenConfiguredInLambdaThenUsesDefaults() throws Exception {
+		this.spring.register(DefaultsInLambdaConfig.class).autowire();
+		X509Certificate certificate = loadCert("rod.cer");
+
+		this.mvc.perform(get("/")
+				.with(x509(certificate)))
+				.andExpect(authenticated().withUsername("rod"));
+	}
+
+	@EnableWebSecurity
+	static class DefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.x509(withDefaults());
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser("rod").password("password").roles("USER", "ADMIN");
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void x509WhenSubjectPrincipalRegexInLambdaThenUsesRegexToExtractPrincipal() throws Exception {
+		this.spring.register(SubjectPrincipalRegexInLambdaConfig.class).autowire();
+		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
+
+		this.mvc.perform(get("/")
+				.with(x509(certificate)))
+				.andExpect(authenticated().withUsername("rod"));
+	}
+
+	@EnableWebSecurity
+	static class SubjectPrincipalRegexInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.x509(x509 ->
+					x509
+						.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)")
+				);
 			// @formatter:on
 		}
 

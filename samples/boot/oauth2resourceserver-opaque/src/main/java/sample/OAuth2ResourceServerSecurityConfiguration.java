@@ -34,14 +34,19 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 	protected void configure(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http
-			.authorizeRequests()
-				.mvcMatchers("/message/**").hasAuthority("SCOPE_message:read")
-				.anyRequest().authenticated()
-				.and()
-			.oauth2ResourceServer()
-				.opaqueToken()
-					.introspectionUri(this.introspectionUri)
-					.introspectionClientCredentials(this.clientId, this.clientSecret);
+			.authorizeRequests(authorizeRequests ->
+				authorizeRequests
+					.mvcMatchers("/message/**").hasAuthority("SCOPE_message:read")
+					.anyRequest().authenticated()
+			)
+			.oauth2ResourceServer(oauth2ResourceServer ->
+				oauth2ResourceServer
+					.opaqueToken(opaqueToken ->
+						opaqueToken
+							.introspectionUri(this.introspectionUri)
+							.introspectionClientCredentials(this.clientId, this.clientSecret)
+					)
+			);
 		// @formatter:on
 	}
 }

@@ -84,6 +84,32 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	}
 
 	@Test
+	public void requestWhenCustomAccessDeniedPageInLambdaThenForwardedToCustomPage() throws Exception {
+		this.spring.register(AccessDeniedPageInLambdaConfig.class).autowire();
+
+		this.mvc.perform(get("/")
+				.with(authentication(user())))
+				.andExpect(status().isForbidden())
+				.andExpect(forwardedUrl("/AccessDeniedPageConfig"));
+	}
+
+	@EnableWebSecurity
+	static class AccessDeniedPageInLambdaConfig extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().denyAll()
+				)
+				.exceptionHandling(exceptionHandling ->
+					exceptionHandling.accessDeniedPage("/AccessDeniedPageConfig")
+				);
+			// @formatter:on
+		}
+	}
+
+	@Test
 	public void requestWhenCustomAccessDeniedHandlerThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(AccessDeniedHandlerRefConfig.class).autowire();
 		this.mvc.perform(get("/")
@@ -106,6 +132,40 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		@Bean
 		AccessDeniedHandler accessDeniedHandler() {
 			return mock(AccessDeniedHandler.class);
+		}
+	}
+
+	@Test
+	public void requestWhenCustomAccessDeniedHandlerInLambdaThenBehaviorMatchesNamespace() throws Exception {
+		this.spring.register(AccessDeniedHandlerRefInLambdaConfig.class).autowire();
+
+		this.mvc.perform(get("/")
+				.with(authentication(user())));
+
+		verify(AccessDeniedHandlerRefInLambdaConfig.accessDeniedHandler)
+				.handle(any(HttpServletRequest.class), any(HttpServletResponse.class), any(AccessDeniedException.class));
+	}
+
+	@EnableWebSecurity
+	static class AccessDeniedHandlerRefInLambdaConfig extends WebSecurityConfigurerAdapter {
+		static AccessDeniedHandler accessDeniedHandler = mock(AccessDeniedHandler.class);
+
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().denyAll()
+				)
+				.exceptionHandling(exceptionHandling ->
+						exceptionHandling.accessDeniedHandler(accessDeniedHandler())
+				);
+			// @formatter:on
+		}
+
+		@Bean
+		AccessDeniedHandler accessDeniedHandler() {
+			return accessDeniedHandler;
 		}
 	}
 

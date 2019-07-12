@@ -65,6 +65,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -131,6 +132,19 @@ public class OAuth2ClientConfigurerTests {
 	@Test
 	public void configureWhenAuthorizationCodeRequestThenRedirectForAuthorization() throws Exception {
 		this.spring.register(OAuth2ClientConfig.class).autowire();
+
+		MvcResult mvcResult = this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
+			.andExpect(status().is3xxRedirection())
+			.andReturn();
+		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?" +
+				"response_type=code&client_id=client-1&" +
+				"scope=user&state=.{15,}&" +
+				"redirect_uri=http://localhost/client-1");
+	}
+
+	@Test
+	public void configureWhenOauth2ClientInLambdaThenRedirectForAuthorization() throws Exception {
+		this.spring.register(OAuth2ClientInLambdaConfig.class).autowire();
 
 		MvcResult mvcResult = this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
 			.andExpect(status().is3xxRedirection())
@@ -246,6 +260,32 @@ public class OAuth2ClientConfigurerTests {
 			public String resource1(@RegisteredOAuth2AuthorizedClient("registration-1") OAuth2AuthorizedClient authorizedClient) {
 				return "resource1";
 			}
+		}
+	}
+
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class OAuth2ClientInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().authenticated()
+				)
+				.oauth2Client(withDefaults());
+			// @formatter:on
+		}
+
+		@Bean
+		public ClientRegistrationRepository clientRegistrationRepository() {
+			return clientRegistrationRepository;
+		}
+
+		@Bean
+		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return authorizedClientRepository;
 		}
 	}
 }

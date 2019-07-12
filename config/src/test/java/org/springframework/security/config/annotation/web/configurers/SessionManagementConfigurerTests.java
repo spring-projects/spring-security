@@ -54,6 +54,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -202,6 +203,51 @@ public class SessionManagementConfigurerTests {
 	}
 
 	@Test
+	public void authenticateWhenNewSessionFixationProtectionInLambdaThenCreatesNewSession() throws Exception {
+		this.spring.register(SFPNewSessionInLambdaConfig.class).autowire();
+
+		MockHttpSession givenSession = new MockHttpSession();
+		String givenSessionId = givenSession.getId();
+		givenSession.setAttribute("name", "value");
+
+		MockHttpSession resultingSession = (MockHttpSession)
+				this.mvc.perform(get("/auth")
+						.session(givenSession)
+						.with(httpBasic("user", "password")))
+						.andExpect(status().isNotFound())
+						.andReturn().getRequest().getSession(false);
+
+		assertThat(givenSessionId).isNotEqualTo(resultingSession.getId());
+		assertThat(resultingSession.getAttribute("name")).isNull();
+	}
+
+	@EnableWebSecurity
+	static class SFPNewSessionInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.sessionManagement(sessionManagement ->
+					sessionManagement
+						.sessionFixation(sessionFixation ->
+							sessionFixation.newSession()
+						)
+				)
+				.httpBasic(withDefaults());
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
+	@Test
 	public void loginWhenUserLoggedInAndMaxSessionsIsOneThenLoginPrevented() throws Exception {
 		this.spring.register(ConcurrencyControlConfig.class).autowire();
 
@@ -258,6 +304,76 @@ public class SessionManagementConfigurerTests {
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void loginWhenUserLoggedInAndMaxSessionsOneInLambdaThenLoginPrevented() throws Exception {
+		this.spring.register(ConcurrencyControlInLambdaConfig.class).autowire();
+
+		this.mvc.perform(post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password"));
+
+		this.mvc.perform(post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+	}
+
+	@EnableWebSecurity
+	static class ConcurrencyControlInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		public void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(withDefaults())
+				.sessionManagement(sessionManagement ->
+					sessionManagement
+						.sessionConcurrency(sessionConcurrency ->
+							sessionConcurrency
+								.maximumSessions(1)
+								.maxSessionsPreventsLogin(true)
+						)
+				);
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void requestWhenSessionCreationPolicyStateLessInLambdaThenNoSessionCreated() throws Exception {
+		this.spring.register(SessionCreationPolicyStateLessInLambdaConfig.class).autowire();
+
+		MvcResult mvcResult = this.mvc.perform(get("/"))
+				.andReturn();
+		HttpSession session = mvcResult.getRequest().getSession(false);
+
+		assertThat(session).isNull();
+	}
+
+	@EnableWebSecurity
+	static class SessionCreationPolicyStateLessInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.sessionManagement(sessionManagement ->
+					sessionManagement
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				);
 			// @formatter:on
 		}
 	}

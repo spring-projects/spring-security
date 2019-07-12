@@ -60,9 +60,15 @@ public class WebSecurityConfig extends
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			// ...
-			.headers()
-				.frameOptions().sameOrigin()
-				.httpStrictTransportSecurity().disable();
+			.headers(headers ->
+			    headers
+				    .frameOptions(frameOptions ->
+				        frameOptions.sameOrigin()
+				    )
+				    .httpStrictTransportSecurity(hsts ->
+				        hsts.disable()
+				    )
+			);
 	}
 }
 ----
@@ -92,15 +98,17 @@ If you are using Spring Security's Java Configuration the following will only ad
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		// do not use any default headers unless explicitly listed
-		.defaultsDisabled()
-		.cacheControl();
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    // do not use any default headers unless explicitly listed
+                    .defaultsDisabled()
+                    .cacheControl(withDefaults())
+            );
+    }
 }
 ----
 
@@ -126,12 +134,14 @@ If necessary, you can disable all of the HTTP Security response headers with the
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers().disable();
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers.disable()
+            );
+    }
 }
 ----
 
@@ -182,14 +192,16 @@ Similarly, you can enable only cache control within Java Configuration with the 
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.defaultsDisabled()
-		.cacheControl();
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .defaultsDisabled()
+                    .cacheControl(withDefaults())
+            );
+    }
 }
 ----
 
@@ -263,14 +275,16 @@ If you want more control over the headers, you can explicitly specify the conten
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.defaultsDisabled()
-		.contentTypeOptions();
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .defaultsDisabled()
+                    .contentTypeOptions(withDefaults())
+            );
+    }
 }
 ----
 
@@ -327,16 +341,20 @@ Similarly, you can enable only HSTS headers with Java Configuration:
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.httpStrictTransportSecurity()
-			.includeSubdomains(true)
-			.preload(true)
-			.maxAgeSeconds(31536000);
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .httpStrictTransportSecurity(hsts ->
+                        hsts
+                            .includeSubDomains(true)
+                            .preload(true)
+                            .maxAgeInSeconds(31536000)
+                    )
+            );
+    }
 }
 ----
 
@@ -399,16 +417,20 @@ Similarly, you can enable HPKP headers with Java Configuration:
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-				http
-				// ...
-				.headers()
-						.httpPublicKeyPinning()
-								.includeSubdomains(true)
-								.reportUri("https://example.net/pkp-report")
-								.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", "E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";
-		}
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			// ...
+			.headers(headers ->
+			    headers
+					.httpPublicKeyPinning(hpkp ->
+					    hpkp
+							.includeSubDomains(true)
+							.reportUri("https://example.net/pkp-report")
+							.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", "E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=")
+				    )
+			);
+	}
 }
 ----
 
@@ -461,14 +483,18 @@ Similarly, you can customize frame options to use the same origin within Java Co
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.frameOptions()
-			.sameOrigin();
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .frameOptions(frameOptions ->
+                        frameOptions
+                            .sameOrigin()
+                    )
+            );
+    }
 }
 ----
 
@@ -511,14 +537,18 @@ Similarly, you can customize XSS protection within Java Configuration with the f
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.xssProtection()
-			.block(false);
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .xssProtection(xssProtection ->
+                        xssProtection
+                            .block(false)
+                    )
+            );
+    }
 }
 ----
 
@@ -625,13 +655,18 @@ Similarly, you can enable the CSP header using Java configuration as shown below
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.contentSecurityPolicy("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/");
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .contentSecurityPolicy(csp ->
+                        csp
+                            .policyDirectives("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/")
+                       )
+            );
+    }
 }
 ----
 
@@ -643,14 +678,19 @@ To enable the CSP _'report-only'_ header, provide the following Java configurati
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.contentSecurityPolicy("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/")
-		.reportOnly();
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .contentSecurityPolicy(csp ->
+                        csp
+                            .policyDirectives("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/")
+                            .reportOnly()
+                    )
+            );
+    }
 }
 ----
 
@@ -707,13 +747,18 @@ Similarly, you can enable the Referrer Policy header using Java configuration as
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.referrerPolicy(ReferrerPolicy.SAME_ORIGIN);
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .referrerPolicy(referrerPolicy ->
+                        referrerPolicy
+                            .policy(ReferrerPolicy.SAME_ORIGIN)
+                    )
+            );
+    }
 }
 ----
 
@@ -757,13 +802,15 @@ Similarly, you can enable the Feature Policy header using Java configuration as 
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.featurePolicy("geolocation 'self'");
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .featurePolicy("geolocation 'self'")
+            );
+    }
 }
 ----
 
@@ -804,13 +851,15 @@ Similarly, the headers could be added to the response using Java Configuration a
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.addHeaderWriter(new StaticHeadersWriter("X-Custom-Security-Header","header-value"));
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .addHeaderWriter(new StaticHeadersWriter("X-Custom-Security-Header","header-value"))
+            );
+    }
 }
 ----
 
@@ -849,13 +898,15 @@ We could also restrict framing of content to the same origin with Java configura
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	http
-	// ...
-	.headers()
-		.addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN));
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN))
+            );
+    }
 }
 ----
 
@@ -903,17 +954,21 @@ We could also prevent framing of content to the log in page using java configura
 public class WebSecurityConfig extends
 WebSecurityConfigurerAdapter {
 
-@Override
-protected void configure(HttpSecurity http) throws Exception {
-	RequestMatcher matcher = new AntPathRequestMatcher("/login");
-	DelegatingRequestMatcherHeaderWriter headerWriter =
-		new DelegatingRequestMatcherHeaderWriter(matcher,new XFrameOptionsHeaderWriter());
-	http
-	// ...
-	.headers()
-		.frameOptions().disabled()
-		.addHeaderWriter(headerWriter);
-}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        RequestMatcher matcher = new AntPathRequestMatcher("/login");
+        DelegatingRequestMatcherHeaderWriter headerWriter =
+            new DelegatingRequestMatcherHeaderWriter(matcher,new XFrameOptionsHeaderWriter());
+        http
+            // ...
+            .headers(headers ->
+                headers
+                    .frameOptions(frameOptions ->
+                        frameOptions.disable()
+                    )
+                    .addHeaderWriter(headerWriter)
+            );
+    }
 }
 ----
 

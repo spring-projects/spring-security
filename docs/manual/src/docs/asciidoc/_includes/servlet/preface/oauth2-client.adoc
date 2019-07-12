@@ -20,14 +20,18 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Client()
-				.clientRegistrationRepository(this.clientRegistrationRepository())
-				.authorizedClientRepository(this.authorizedClientRepository())
-				.authorizedClientService(this.authorizedClientService())
-				.authorizationCodeGrant()
-					.authorizationRequestRepository(this.authorizationRequestRepository())
-					.authorizationRequestResolver(this.authorizationRequestResolver())
-					.accessTokenResponseClient(this.accessTokenResponseClient());
+			.oauth2Client(oauth2Client ->
+			    oauth2Client
+				    .clientRegistrationRepository(this.clientRegistrationRepository())
+				    .authorizedClientRepository(this.authorizedClientRepository())
+				    .authorizedClientService(this.authorizedClientService())
+				    .authorizationCodeGrant(authorizationCodeGrant ->
+					    authorizationCodeGrant
+						    .authorizationRequestRepository(this.authorizationRequestRepository())
+						    .authorizationRequestResolver(this.authorizationRequestResolver())
+						    .accessTokenResponseClient(this.accessTokenResponseClient())
+				    )
+			);
 	}
 }
 ----
@@ -245,10 +249,14 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Client()
-				.authorizationCodeGrant()
-					.authorizationRequestRepository(this.cookieAuthorizationRequestRepository())
-					...
+			.oauth2Client(oauth2Client ->
+			    oauth2Client
+				    .authorizationCodeGrant(authorizationCodeGrant ->
+				        authorizationCodeGrant
+					        .authorizationRequestRepository(this.cookieAuthorizationRequestRepository())
+					        ...
+					)
+			);
 	}
 
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> cookieAuthorizationRequestRepository() {
@@ -285,14 +293,19 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests()
-				.anyRequest().authenticated()
-				.and()
-			.oauth2Login()
-				.authorizationEndpoint()
-					.authorizationRequestResolver(
-							new CustomAuthorizationRequestResolver(
-									this.clientRegistrationRepository));    <1>
+			.authorizeRequests(authorizeRequests ->
+			    authorizeRequests
+				    .anyRequest().authenticated()
+			)
+			.oauth2Login(oauth2Login ->
+				oauth2Login
+					.authorizationEndpoint(authorizationEndpoint ->
+						authorizationEndpoint
+							.authorizationRequestResolver(
+							    new CustomAuthorizationRequestResolver(
+							            this.clientRegistrationRepository))    <1>
+					)
+			);
 	}
 }
 
@@ -422,10 +435,14 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Client()
-				.authorizationCodeGrant()
-					.accessTokenResponseClient(this.customAccessTokenResponseClient())
-					...
+			.oauth2Client(oauth2Client ->
+			    oauth2Client
+				    .authorizationCodeGrant(authorizationCodeGrant ->
+				        authorizationCodeGrant
+					        .accessTokenResponseClient(this.customAccessTokenResponseClient())
+					        ...
+					 )
+			);
 	}
 
 	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> customAccessTokenResponseClient() {

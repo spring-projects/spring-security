@@ -47,6 +47,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -226,6 +227,53 @@ public class ServletApiConfigurerTests {
 			// @formatter:off
 			http
 				.setSharedObject(AuthenticationTrustResolver.class, TR);
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void requestWhenServletApiWithDefaultsInLambdaThenUsesDefaultRolePrefix() throws Exception {
+		this.spring.register(ServletApiWithDefaultsInLambdaConfig.class, AdminController.class).autowire();
+
+		this.mvc.perform(get("/admin")
+				.with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
+				.andExpect(status().isOk());
+	}
+
+	@EnableWebSecurity
+	static class ServletApiWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.servletApi(withDefaults());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void requestWhenRolePrefixInLambdaThenUsesCustomRolePrefix() throws Exception {
+		this.spring.register(RolePrefixInLambdaConfig.class, AdminController.class).autowire();
+
+		this.mvc.perform(get("/admin")
+				.with(user("user").authorities(AuthorityUtils.createAuthorityList("PERMISSION_ADMIN"))))
+				.andExpect(status().isOk());
+
+		this.mvc.perform(get("/admin")
+				.with(user("user").authorities(AuthorityUtils.createAuthorityList("ROLE_ADMIN"))))
+				.andExpect(status().isForbidden());
+	}
+
+	@EnableWebSecurity
+	static class RolePrefixInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.servletApi(servletApi ->
+					servletApi
+						.rolePrefix("PERMISSION_")
+				);
 			// @formatter:on
 		}
 	}

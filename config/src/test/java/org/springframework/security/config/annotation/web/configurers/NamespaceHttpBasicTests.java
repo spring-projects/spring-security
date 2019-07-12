@@ -125,9 +125,10 @@ public class NamespaceHttpBasicTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().hasRole("USER")
+				)
 				.httpBasic(withDefaults());
 			// @formatter:on
 		}
@@ -174,9 +175,10 @@ public class NamespaceHttpBasicTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().hasRole("USER")
+				)
 				.httpBasic(httpBasicConfig -> httpBasicConfig.realmName("Custom Realm"));
 			// @formatter:on
 		}
@@ -310,9 +312,10 @@ public class NamespaceHttpBasicTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().hasRole("USER")
+				)
 				.httpBasic(httpBasicConfig ->
 						httpBasicConfig.authenticationEntryPoint(this.authenticationEntryPoint));
 			// @formatter:on

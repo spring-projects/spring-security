@@ -42,6 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
@@ -196,6 +197,82 @@ public class FormLoginConfigurerTests {
 	}
 
 	@Test
+	public void loginWhenFormLoginDefaultsInLambdaThenHasDefaultUsernameAndPasswordParameterNames() throws Exception {
+		this.spring.register(FormLoginInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin().user("username", "user").password("password", "password"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void loginWhenFormLoginDefaultsInLambdaThenHasDefaultFailureUrl() throws Exception {
+		this.spring.register(FormLoginInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin().user("invalid"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+	}
+
+	@Test
+	public void loginWhenFormLoginDefaultsInLambdaThenHasDefaultSuccessUrl() throws Exception {
+		this.spring.register(FormLoginInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin())
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void getLoginPageWhenFormLoginDefaultsInLambdaThenNotSecured() throws Exception {
+		this.spring.register(FormLoginInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(get("/login"))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void loginWhenFormLoginDefaultsInLambdaThenSecured() throws Exception {
+		this.spring.register(FormLoginInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(post("/login"))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void requestProtectedWhenFormLoginDefaultsInLambdaThenRedirectsToLogin() throws Exception {
+		this.spring.register(FormLoginInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(get("/private"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("http://localhost/login"));
+	}
+
+	@EnableWebSecurity
+	static class FormLoginInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().hasRole("USER")
+				)
+				.formLogin(withDefaults());
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
+	@Test
 	public void getLoginPageWhenFormLoginPermitAllThenPermittedAndNoRedirect() throws Exception {
 		this.spring.register(FormLoginConfigPermitAll.class).autowire();
 
@@ -298,6 +375,34 @@ public class FormLoginConfigurerTests {
 	}
 
 	@Test
+	public void getLoginPageWhenCustomLoginPageInLambdaThenPermittedAndNoRedirect() throws Exception {
+		this.spring.register(FormLoginDefaultsInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(get("/authenticate"))
+				.andExpect(redirectedUrl(null));
+	}
+
+	@EnableWebSecurity
+	static class FormLoginDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().hasRole("USER")
+				)
+				.formLogin(formLogin ->
+					formLogin
+						.loginPage("/authenticate")
+						.permitAll()
+				)
+				.logout(LogoutConfigurer::permitAll);
+			// @formatter:on
+		}
+	}
+
+	@Test
 	public void loginWhenCustomLoginProcessingUrlThenRedirectsToHome() throws Exception {
 		this.spring.register(FormLoginLoginProcessingUrlConfig.class).autowire();
 
@@ -327,6 +432,51 @@ public class FormLoginConfigurerTests {
 					.logoutSuccessUrl("/login")
 					.logoutUrl("/logout")
 					.deleteCookies("JSESSIONID");
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void loginWhenCustomLoginProcessingUrlInLambdaThenRedirectsToHome() throws Exception {
+		this.spring.register(FormLoginLoginProcessingUrlInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin("/loginCheck"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/"));
+	}
+
+	@EnableWebSecurity
+	static class FormLoginLoginProcessingUrlInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().authenticated()
+				)
+				.formLogin(formLogin ->
+					formLogin
+						.loginProcessingUrl("/loginCheck")
+						.loginPage("/login")
+						.defaultSuccessUrl("/", true)
+						.permitAll()
+				)
+				.logout(logout ->
+					logout
+						.logoutSuccessUrl("/login")
+						.logoutUrl("/logout")
+						.deleteCookies("JSESSIONID")
+				);
 			// @formatter:on
 		}
 

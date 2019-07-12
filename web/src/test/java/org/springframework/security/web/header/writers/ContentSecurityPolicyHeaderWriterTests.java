@@ -44,6 +44,15 @@ public class ContentSecurityPolicyHeaderWriterTests {
 	}
 
 	@Test
+	public void writeHeadersWhenNoPolicyDirectivesThenUsesDefault() {
+		ContentSecurityPolicyHeaderWriter noPolicyWriter = new ContentSecurityPolicyHeaderWriter();
+		noPolicyWriter.writeHeaders(request, response);
+
+		assertThat(response.getHeaderNames()).hasSize(1);
+		assertThat(response.getHeader("Content-Security-Policy")).isEqualTo(DEFAULT_POLICY_DIRECTIVES);
+	}
+
+	@Test
 	public void writeHeadersContentSecurityPolicyDefault() {
 		writer.writeHeaders(request, response);
 
@@ -62,6 +71,16 @@ public class ContentSecurityPolicyHeaderWriterTests {
 
 		assertThat(response.getHeaderNames()).hasSize(1);
 		assertThat(response.getHeader("Content-Security-Policy")).isEqualTo(policyDirectives);
+	}
+
+	@Test
+	public void writeHeadersWhenNoPolicyDirectivesReportOnlyThenUsesDefault() {
+		ContentSecurityPolicyHeaderWriter noPolicyWriter = new ContentSecurityPolicyHeaderWriter();
+		writer.setReportOnly(true);
+		noPolicyWriter.writeHeaders(request, response);
+
+		assertThat(response.getHeaderNames()).hasSize(1);
+		assertThat(response.getHeader("Content-Security-Policy")).isEqualTo(DEFAULT_POLICY_DIRECTIVES);
 	}
 
 	@Test

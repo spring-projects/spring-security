@@ -71,4 +71,37 @@ public class RequestMatcherConfigurerTests {
 			// @formatter:on
 		}
 	}
+
+	@Test
+	public void authorizeRequestsWhenInvokedMultipleTimesInLambdaThenChainsPaths() throws Exception {
+		this.spring.register(AuthorizeRequestInLambdaConfig.class).autowire();
+
+		this.mvc.perform(get("/oauth/abc"))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/api/abc"))
+				.andExpect(status().isForbidden());
+	}
+
+	@EnableWebSecurity
+	static class AuthorizeRequestInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.requestMatchers(requestMatchers ->
+					requestMatchers
+						.antMatchers("/api/**")
+				)
+				.requestMatchers(requestMatchers ->
+					requestMatchers
+						.antMatchers("/oauth/**")
+				)
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().denyAll()
+				);
+			// @formatter:on
+		}
+	}
 }

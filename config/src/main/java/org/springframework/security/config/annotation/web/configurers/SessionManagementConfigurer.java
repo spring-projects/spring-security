@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.GenericApplicationListenerAdapter;
 import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -250,6 +251,19 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
+	 * Allows configuring session fixation protection.
+	 *
+	 * @param sessionFixationCustomizer the {@link Customizer} to provide more options for
+	 * the {@link SessionFixationConfigurer}
+	 * @return the {@link SessionManagementConfigurer} for further customizations
+	 */
+	public SessionManagementConfigurer<H> sessionFixation(Customizer<SessionFixationConfigurer> sessionFixationCustomizer)
+			throws Exception {
+		sessionFixationCustomizer.customize(new SessionFixationConfigurer());
+		return this;
+	}
+
+	/**
 	 * Controls the maximum number of sessions for a user. The default is to allow any
 	 * number of users.
 	 * @param maximumSessions the maximum number of sessions for a user
@@ -258,6 +272,20 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
 		this.maximumSessions = maximumSessions;
 		return new ConcurrencyControlConfigurer();
+	}
+
+	/**
+	 * Controls the maximum number of sessions for a user. The default is to allow any
+	 * number of users.
+	 *
+	 * @param sessionConcurrencyCustomizer the {@link Customizer} to provide more options for
+	 * the {@link ConcurrencyControlConfigurer}
+	 * @return the {@link SessionManagementConfigurer} for further customizations
+	 */
+	public SessionManagementConfigurer<H> sessionConcurrency(Customizer<ConcurrencyControlConfigurer> sessionConcurrencyCustomizer)
+			throws Exception {
+		sessionConcurrencyCustomizer.customize(new ConcurrencyControlConfigurer());
+		return this;
 	}
 
 	/**
@@ -337,6 +365,18 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @author Rob Winch
 	 */
 	public final class ConcurrencyControlConfigurer {
+
+		/**
+		 * Controls the maximum number of sessions for a user. The default is to allow any
+		 * number of users.
+		 *
+		 * @param maximumSessions the maximum number of sessions for a user
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
+		public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
+			SessionManagementConfigurer.this.maximumSessions = maximumSessions;
+			return this;
+		}
 
 		/**
 		 * The URL to redirect to if a user tries to access a resource and their session

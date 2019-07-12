@@ -55,6 +55,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
@@ -206,6 +207,26 @@ public class CsrfConfigurerTests {
 			http
 				.csrf()
 					.disable();
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void postWhenCsrfDisabledInLambdaThenRespondsWithOk() throws Exception {
+		this.spring.register(DisableCsrfInLambdaConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(post("/"))
+				.andExpect(status().isOk());
+	}
+
+	@EnableWebSecurity
+	static class DisableCsrfInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf(AbstractHttpConfigurer::disable);
 			// @formatter:on
 		}
 	}
@@ -387,6 +408,40 @@ public class CsrfConfigurerTests {
 	}
 
 	@Test
+	public void requireCsrfProtectionMatcherInLambdaWhenRequestDoesNotMatchThenRespondsWithOk() throws Exception {
+		RequireCsrfProtectionMatcherInLambdaConfig.MATCHER = mock(RequestMatcher.class);
+		this.spring.register(RequireCsrfProtectionMatcherInLambdaConfig.class, BasicController.class).autowire();
+		when(RequireCsrfProtectionMatcherInLambdaConfig.MATCHER.matches(any()))
+				.thenReturn(false);
+
+		this.mvc.perform(get("/"))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void requireCsrfProtectionMatcherInLambdaWhenRequestMatchesThenRespondsWithForbidden() throws Exception {
+		RequireCsrfProtectionMatcherInLambdaConfig.MATCHER = mock(RequestMatcher.class);
+		when(RequireCsrfProtectionMatcherInLambdaConfig.MATCHER.matches(any())).thenReturn(true);
+		this.spring.register(RequireCsrfProtectionMatcherInLambdaConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(get("/"))
+				.andExpect(status().isForbidden());
+	}
+
+	@EnableWebSecurity
+	static class RequireCsrfProtectionMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
+		static RequestMatcher MATCHER;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf(csrf -> csrf.requireCsrfProtectionMatcher(MATCHER));
+			// @formatter:on
+		}
+	}
+
+	@Test
 	public void getWhenCustomCsrfTokenRepositoryThenRepositoryIsUsed() throws Exception {
 		CsrfTokenRepositoryConfig.REPO = mock(CsrfTokenRepository.class);
 		when(CsrfTokenRepositoryConfig.REPO.loadToken(any()))
@@ -450,6 +505,32 @@ public class CsrfConfigurerTests {
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void getWhenCustomCsrfTokenRepositoryInLambdaThenRepositoryIsUsed() throws Exception {
+		CsrfTokenRepositoryInLambdaConfig.REPO = mock(CsrfTokenRepository.class);
+		when(CsrfTokenRepositoryInLambdaConfig.REPO.loadToken(any()))
+				.thenReturn(new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token"));
+		this.spring.register(CsrfTokenRepositoryInLambdaConfig.class, BasicController.class).autowire();
+
+		this.mvc.perform(get("/"))
+				.andExpect(status().isOk());
+		verify(CsrfTokenRepositoryInLambdaConfig.REPO).loadToken(any(HttpServletRequest.class));
+	}
+
+	@EnableWebSecurity
+	static class CsrfTokenRepositoryInLambdaConfig extends WebSecurityConfigurerAdapter {
+		static CsrfTokenRepository REPO;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(withDefaults())
+				.csrf(csrf -> csrf.csrfTokenRepository(REPO));
 			// @formatter:on
 		}
 	}

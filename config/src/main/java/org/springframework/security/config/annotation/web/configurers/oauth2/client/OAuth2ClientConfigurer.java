@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -133,6 +134,20 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 	 */
 	public AuthorizationCodeGrantConfigurer authorizationCodeGrant() {
 		return this.authorizationCodeGrantConfigurer;
+	}
+
+	/**
+	 * Configures the OAuth 2.0 Authorization Code Grant.
+	 *
+	 * @param authorizationCodeGrantCustomizer the {@link Customizer} to provide more options for
+	 * the {@link AuthorizationCodeGrantConfigurer}
+	 * @return the {@link OAuth2ClientConfigurer} for further customizations
+	 * @throws Exception
+	 */
+	public OAuth2ClientConfigurer<B> authorizationCodeGrant(Customizer<AuthorizationCodeGrantConfigurer> authorizationCodeGrantCustomizer)
+			throws Exception {
+		authorizationCodeGrantCustomizer.customize(this.authorizationCodeGrantConfigurer);
+		return this;
 	}
 
 	/**
