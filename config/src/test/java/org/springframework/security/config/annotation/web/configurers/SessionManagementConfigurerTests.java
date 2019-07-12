@@ -203,6 +203,51 @@ public class SessionManagementConfigurerTests {
 	}
 
 	@Test
+	public void authenticateWhenNewSessionFixationProtectionInLambdaThenCreatesNewSession() throws Exception {
+		this.spring.register(SFPNewSessionInLambdaConfig.class).autowire();
+
+		MockHttpSession givenSession = new MockHttpSession();
+		String givenSessionId = givenSession.getId();
+		givenSession.setAttribute("name", "value");
+
+		MockHttpSession resultingSession = (MockHttpSession)
+				this.mvc.perform(get("/auth")
+						.session(givenSession)
+						.with(httpBasic("user", "password")))
+						.andExpect(status().isNotFound())
+						.andReturn().getRequest().getSession(false);
+
+		assertThat(givenSessionId).isNotEqualTo(resultingSession.getId());
+		assertThat(resultingSession.getAttribute("name")).isNull();
+	}
+
+	@EnableWebSecurity
+	static class SFPNewSessionInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.sessionManagement(sessionManagement ->
+					sessionManagement
+						.sessionFixation(sessionFixation ->
+							sessionFixation.newSession()
+						)
+				)
+				.httpBasic(withDefaults());
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+	}
+
+	@Test
 	public void loginWhenUserLoggedInAndMaxSessionsIsOneThenLoginPrevented() throws Exception {
 		this.spring.register(ConcurrencyControlConfig.class).autowire();
 
@@ -289,8 +334,11 @@ public class SessionManagementConfigurerTests {
 				.formLogin(withDefaults())
 				.sessionManagement(sessionManagement ->
 					sessionManagement
-						.maximumSessions(1)
-						.maxSessionsPreventsLogin(true)
+						.sessionConcurrency(sessionConcurrency ->
+							sessionConcurrency
+								.maximumSessions(1)
+								.maxSessionsPreventsLogin(true)
+						)
 				);
 			// @formatter:on
 		}

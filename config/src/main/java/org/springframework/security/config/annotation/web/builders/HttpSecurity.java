@@ -681,8 +681,11 @@ public final class HttpSecurity extends
 	 * 			)
 	 * 			.sessionManagement(sessionManagement ->
 	 * 				sessionManagement
-	 * 					.maximumSessions(1)
-	 * 					.expiredUrl(&quot;/login?expired&quot;)
+	 * 					.sessionConcurrency(sessionConcurrency ->
+	 * 						sessionConcurrency
+	 * 							.maximumSessions(1)
+	 * 							.expiredUrl(&quot;/login?expired&quot;)
+	 * 					)
 	 * 			);
 	 * 	}
 	 * }
