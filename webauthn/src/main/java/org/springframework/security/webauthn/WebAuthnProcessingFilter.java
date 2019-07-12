@@ -16,7 +16,6 @@
 
 package org.springframework.security.webauthn;
 
-import com.webauthn4j.server.ServerProperty;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -25,8 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.webauthn.request.WebAuthnAuthenticationRequest;
-import org.springframework.security.webauthn.server.ServerPropertyProvider;
+import org.springframework.security.webauthn.server.WebAuthnServerProperty;
+import org.springframework.security.webauthn.server.WebAuthnServerPropertyProvider;
 import org.springframework.util.Assert;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.StringUtils;
@@ -77,7 +76,7 @@ public class WebAuthnProcessingFilter extends UsernamePasswordAuthenticationFilt
 	private String signatureParameter = SPRING_SECURITY_FORM_SIGNATURE_KEY;
 	private String clientExtensionsJSONParameter = SPRING_SECURITY_FORM_CLIENT_EXTENSIONS_JSON_KEY;
 
-	private ServerPropertyProvider serverPropertyProvider;
+	private WebAuthnServerPropertyProvider serverPropertyProvider;
 
 	private List<String> expectedAuthenticationExtensionIds = Collections.emptyList();
 
@@ -100,7 +99,7 @@ public class WebAuthnProcessingFilter extends UsernamePasswordAuthenticationFilt
 	 * @param authorities            authorities for FirstOfMultiFactorAuthenticationToken
 	 * @param serverPropertyProvider provider for ServerProperty
 	 */
-	public WebAuthnProcessingFilter(List<GrantedAuthority> authorities, ServerPropertyProvider serverPropertyProvider) {
+	public WebAuthnProcessingFilter(List<GrantedAuthority> authorities, WebAuthnServerPropertyProvider serverPropertyProvider) {
 		super();
 		Assert.notNull(authorities, "authorities must not be null");
 		Assert.notNull(serverPropertyProvider, "serverPropertyProvider must not be null");
@@ -136,19 +135,19 @@ public class WebAuthnProcessingFilter extends UsernamePasswordAuthenticationFilt
 			byte[] rawAuthenticatorData = authenticatorData == null ? null : Base64Utils.decodeFromUrlSafeString(authenticatorData);
 			byte[] signatureBytes = signature == null ? null : Base64Utils.decodeFromUrlSafeString(signature);
 
-			ServerProperty serverProperty = serverPropertyProvider.provide(request);
+			WebAuthnServerProperty webAuthnServerProperty = serverPropertyProvider.provide(request);
 
-			WebAuthnAuthenticationRequest webAuthnAuthenticationRequest = new WebAuthnAuthenticationRequest(
+			WebAuthnAuthenticationData webAuthnAuthenticationData = new WebAuthnAuthenticationData(
 					rawId,
 					rawClientData,
 					rawAuthenticatorData,
 					signatureBytes,
 					clientExtensionsJSON,
-					serverProperty,
+					webAuthnServerProperty,
 					true,
 					expectedAuthenticationExtensionIds
 			);
-			authRequest = new WebAuthnAssertionAuthenticationToken(webAuthnAuthenticationRequest);
+			authRequest = new WebAuthnAssertionAuthenticationToken(webAuthnAuthenticationData);
 		}
 
 		// Allow subclasses to set the "details" property
@@ -226,11 +225,11 @@ public class WebAuthnProcessingFilter extends UsernamePasswordAuthenticationFilt
 		this.expectedAuthenticationExtensionIds = expectedAuthenticationExtensionIds;
 	}
 
-	public ServerPropertyProvider getServerPropertyProvider() {
+	public WebAuthnServerPropertyProvider getServerPropertyProvider() {
 		return serverPropertyProvider;
 	}
 
-	public void setServerPropertyProvider(ServerPropertyProvider serverPropertyProvider) {
+	public void setServerPropertyProvider(WebAuthnServerPropertyProvider serverPropertyProvider) {
 		this.serverPropertyProvider = serverPropertyProvider;
 	}
 

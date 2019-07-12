@@ -16,10 +16,6 @@
 
 package org.springframework.security.webauthn;
 
-import com.webauthn4j.authenticator.Authenticator;
-import com.webauthn4j.data.WebAuthnAuthenticationContext;
-import com.webauthn4j.util.exception.WebAuthnException;
-import com.webauthn4j.validator.WebAuthnAuthenticationContextValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -29,14 +25,12 @@ import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsChecker;
+import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticator;
 import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticatorService;
 import org.springframework.security.webauthn.exception.CredentialIdNotFoundException;
-import org.springframework.security.webauthn.request.WebAuthnAuthenticationRequest;
 import org.springframework.security.webauthn.userdetails.WebAuthnUserDetails;
+import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsChecker;
 import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsService;
-import org.springframework.security.webauthn.util.ExceptionUtil;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
@@ -58,11 +52,11 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 	private WebAuthnUserDetailsService userDetailsService;
 	private WebAuthnAuthenticatorService authenticatorService;
-	private WebAuthnAuthenticationContextValidator authenticationContextValidator;
+	private WebAuthnManager webAuthnManager;
 	private boolean forcePrincipalAsString = false;
 	private boolean hideCredentialIdNotFoundExceptions = true;
-	private UserDetailsChecker preAuthenticationChecks = new DefaultPreAuthenticationChecks();
-	private UserDetailsChecker postAuthenticationChecks = new DefaultPostAuthenticationChecks();
+	private WebAuthnUserDetailsChecker preAuthenticationChecks = new DefaultPreAuthenticationChecks();
+	private WebAuthnUserDetailsChecker postAuthenticationChecks = new DefaultPostAuthenticationChecks();
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
 	// ~ Constructor
@@ -71,15 +65,15 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 	public WebAuthnAuthenticationProvider(
 			WebAuthnUserDetailsService userDetailsService,
 			WebAuthnAuthenticatorService authenticatorService,
-			WebAuthnAuthenticationContextValidator authenticationContextValidator) {
+			WebAuthnManager webAuthnManager) {
 
 		Assert.notNull(userDetailsService, "userDetailsService must not be null");
 		Assert.notNull(authenticatorService, "authenticatorService must not be null");
-		Assert.notNull(authenticationContextValidator, "authenticationContextValidator must not be null");
+		Assert.notNull(webAuthnManager, "webAuthnManager must not be null");
 
 		this.userDetailsService = userDetailsService;
 		this.authenticatorService = authenticatorService;
-		this.authenticationContextValidator = authenticationContextValidator;
+		this.webAuthnManager = webAuthnManager;
 	}
 
 	// ~ Methods
@@ -96,7 +90,7 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 
 		WebAuthnAssertionAuthenticationToken authenticationToken = (WebAuthnAssertionAuthenticationToken) authentication;
 
-		WebAuthnAuthenticationRequest credentials = authenticationToken.getCredentials();
+		WebAuthnAuthenticationData credentials = authenticationToken.getCredentials();
 		if (credentials == null) {
 			logger.debug("Authentication failed: no credentials provided");
 
@@ -108,8 +102,8 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 		byte[] credentialId = credentials.getCredentialId();
 
 		WebAuthnUserDetails user = retrieveWebAuthnUserDetails(credentialId);
-		Authenticator authenticator = user.getAuthenticators().stream()
-				.filter(item -> Arrays.equals(item.getAttestedCredentialData().getCredentialId(), credentialId))
+		WebAuthnAuthenticator authenticator = user.getAuthenticators().stream()
+				.filter(item -> Arrays.equals(item.getCredentialId(), credentialId))
 				.findFirst()
 				.orElse(null);
 
@@ -142,29 +136,23 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 		return WebAuthnAssertionAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	void doAuthenticate(WebAuthnAssertionAuthenticationToken authenticationToken, Authenticator authenticator, WebAuthnUserDetails user) {
+	void doAuthenticate(WebAuthnAssertionAuthenticationToken authenticationToken, WebAuthnAuthenticator webAuthnAuthenticator, WebAuthnUserDetails user) {
 
-		WebAuthnAuthenticationRequest credentials = authenticationToken.getCredentials();
-
-		boolean userVerificationRequired = isUserVerificationRequired(user, credentials);
-
-		WebAuthnAuthenticationContext authenticationContext = new WebAuthnAuthenticationContext(
-				credentials.getCredentialId(),
-				credentials.getClientDataJSON(),
-				credentials.getAuthenticatorData(),
-				credentials.getSignature(),
-				credentials.getClientExtensionsJSON(),
-				credentials.getServerProperty(),
+		WebAuthnAuthenticationData webAuthnAuthenticationData = authenticationToken.getCredentials();
+		boolean userVerificationRequired = isUserVerificationRequired(user, webAuthnAuthenticationData);
+		webAuthnAuthenticationData = new WebAuthnAuthenticationData(
+				webAuthnAuthenticationData.getCredentialId(),
+				webAuthnAuthenticationData.getClientDataJSON(),
+				webAuthnAuthenticationData.getAuthenticatorData(),
+				webAuthnAuthenticationData.getSignature(),
+				webAuthnAuthenticationData.getClientExtensionsJSON(),
+				webAuthnAuthenticationData.getServerProperty(),
 				userVerificationRequired,
-				credentials.isUserPresenceRequired(),
-				credentials.getExpectedAuthenticationExtensionIds()
+				webAuthnAuthenticationData.isUserPresenceRequired(),
+				webAuthnAuthenticationData.getExpectedAuthenticationExtensionIds()
 		);
 
-		try {
-			authenticationContextValidator.validate(authenticationContext, authenticator);
-		} catch (WebAuthnException e) {
-			throw ExceptionUtil.wrapWithAuthenticationException(e);
-		}
+		webAuthnManager.verifyAuthenticationData(webAuthnAuthenticationData, webAuthnAuthenticator);
 
 	}
 
@@ -204,32 +192,32 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 		this.userDetailsService = userDetailsService;
 	}
 
-	protected UserDetailsChecker getPreAuthenticationChecks() {
+	protected WebAuthnUserDetailsChecker getPreAuthenticationChecks() {
 		return preAuthenticationChecks;
 	}
 
 	/**
 	 * Sets the policy will be used to verify the status of the loaded
-	 * <code>UserDetails</code> <em>before</em> validation of the credentials takes place.
+	 * <code>WebAuthnUserDetails</code> <em>before</em> validation of the credentials takes place.
 	 *
 	 * @param preAuthenticationChecks strategy to be invoked prior to authentication.
 	 */
-	public void setPreAuthenticationChecks(UserDetailsChecker preAuthenticationChecks) {
+	public void setPreAuthenticationChecks(WebAuthnUserDetailsChecker preAuthenticationChecks) {
 		this.preAuthenticationChecks = preAuthenticationChecks;
 	}
 
-	protected UserDetailsChecker getPostAuthenticationChecks() {
+	protected WebAuthnUserDetailsChecker getPostAuthenticationChecks() {
 		return postAuthenticationChecks;
 	}
 
-	public void setPostAuthenticationChecks(UserDetailsChecker postAuthenticationChecks) {
+	public void setPostAuthenticationChecks(WebAuthnUserDetailsChecker postAuthenticationChecks) {
 		this.postAuthenticationChecks = postAuthenticationChecks;
 	}
 
 	WebAuthnUserDetails retrieveWebAuthnUserDetails(byte[] credentialId) {
 		WebAuthnUserDetails user;
 		try {
-			user = userDetailsService.loadUserByCredentialId(credentialId);
+			user = userDetailsService.loadWebAuthnUserByCredentialId(credentialId);
 		} catch (CredentialIdNotFoundException notFound) {
 			if (hideCredentialIdNotFoundExceptions) {
 				throw new BadCredentialsException(messages.getMessage(
@@ -249,7 +237,7 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 		return user;
 	}
 
-	boolean isUserVerificationRequired(WebAuthnUserDetails user, WebAuthnAuthenticationRequest credentials) {
+	boolean isUserVerificationRequired(WebAuthnUserDetails user, WebAuthnAuthenticationData credentials) {
 
 		Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -261,9 +249,9 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 		}
 	}
 
-	private class DefaultPreAuthenticationChecks implements UserDetailsChecker {
+	private class DefaultPreAuthenticationChecks implements WebAuthnUserDetailsChecker {
 		@Override
-		public void check(UserDetails user) {
+		public void check(WebAuthnUserDetails user) {
 			if (!user.isAccountNonLocked()) {
 				logger.debug("User account is locked");
 
@@ -290,9 +278,9 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 		}
 	}
 
-	private class DefaultPostAuthenticationChecks implements UserDetailsChecker {
+	private class DefaultPostAuthenticationChecks implements WebAuthnUserDetailsChecker {
 		@Override
-		public void check(UserDetails user) {
+		public void check(WebAuthnUserDetails user) {
 			if (!user.isCredentialsNonExpired()) {
 				logger.debug("User account credentials have expired");
 

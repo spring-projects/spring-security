@@ -14,30 +14,14 @@
  * limitations under the License.
  */
 
-package org.springframework.security.webauthn.authenticator;
+package org.springframework.security.webauthn.challenge;
 
-import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsService;
+public interface WebAuthnChallenge {
 
-import java.util.Set;
-
-/**
- * Models core authenticator information retrieved by a {@link WebAuthnUserDetailsService}
- *
- * @author Yoshikazu Nojima
- * @see WebAuthnUserDetailsService
- */
-public interface WebAuthnAuthenticator {
-
-	byte[] getCredentialId();
-
-	byte[] getAttestationObject();
-
-	long getCounter();
-
-	void setCounter(long counter);
-
-	Set<WebAuthnAuthenticatorTransport> getTransports();
-
-	String getClientExtensions();
-
+	/**
+	 * Gets the challenge value. Cannot be null.
+	 *
+	 * @return the challenge value
+	 */
+	byte[] getValue();
 }

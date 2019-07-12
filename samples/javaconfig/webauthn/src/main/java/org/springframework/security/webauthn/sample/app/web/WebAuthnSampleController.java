@@ -16,19 +16,27 @@
 
 package org.springframework.security.webauthn.sample.app.web;
 
+import com.webauthn4j.util.Base64UrlUtil;
 import com.webauthn4j.util.UUIDUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.MultiFactorAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.webauthn.WebAuthnRegistrationRequestValidationResponse;
+import org.springframework.security.webauthn.WebAuthnDataConverter;
+import org.springframework.security.webauthn.WebAuthnOptionWebHelper;
+import org.springframework.security.webauthn.WebAuthnRegistrationRequest;
 import org.springframework.security.webauthn.WebAuthnRegistrationRequestValidator;
+import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticator;
+import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticatorImpl;
+import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticatorTransport;
+import org.springframework.security.webauthn.exception.DataConversionException;
 import org.springframework.security.webauthn.exception.ValidationException;
-import org.springframework.security.webauthn.sample.domain.entity.AuthenticatorEntity;
-import org.springframework.security.webauthn.sample.domain.entity.UserEntity;
-import org.springframework.security.webauthn.sample.domain.exception.WebAuthnSampleBusinessException;
-import org.springframework.security.webauthn.sample.domain.service.WebAuthnUserDetailsServiceImpl;
+import org.springframework.security.webauthn.userdetails.InMemoryWebAuthnAndPasswordUserDetailsManager;
+import org.springframework.security.webauthn.userdetails.WebAuthnAndPasswordUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.Base64Utils;
@@ -36,14 +44,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Login controller
@@ -51,6 +56,8 @@ import java.util.UUID;
 @SuppressWarnings("SameReturnValue")
 @Controller
 public class WebAuthnSampleController {
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private static final String REDIRECT_LOGIN = "redirect:/login";
 	private static final String REDIRECT_SIGNUP = "redirect:/signup";
@@ -62,13 +69,25 @@ public class WebAuthnSampleController {
 	private static final String VIEW_DASHBOARD_DASHBOARD = "dashboard/dashboard";
 
 	@Autowired
-	private WebAuthnUserDetailsServiceImpl webAuthnUserDetailsService;
+	private InMemoryWebAuthnAndPasswordUserDetailsManager webAuthnUserDetailsService;
 
 	@Autowired
 	private WebAuthnRegistrationRequestValidator registrationRequestValidator;
 
 	@Autowired
+	private WebAuthnOptionWebHelper webAuthnOptionWebHelper;
+
+	@Autowired
+	private WebAuthnDataConverter webAuthnDataConverter;
+
+	@Autowired
 	private PasswordEncoder passwordEncoder;
+
+	@ModelAttribute
+	public void addAttributes(Model model, HttpServletRequest request) {
+		model.addAttribute("webAuthnChallenge", webAuthnOptionWebHelper.getChallenge(request));
+		model.addAttribute("webAuthnCredentialIds", webAuthnOptionWebHelper.getCredentialIds());
+	}
 
 	@RequestMapping(value = "/")
 	public String index(Model model) {
@@ -91,49 +110,70 @@ public class WebAuthnSampleController {
 	}
 
 	@RequestMapping(value = "/signup", method = RequestMethod.POST)
-	public String create(HttpServletRequest request, HttpServletResponse response, @Valid @ModelAttribute("userForm") UserCreateForm userCreateForm, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+	public String create(HttpServletRequest request, @Valid @ModelAttribute("userForm") UserCreateForm userCreateForm, BindingResult result, Model model) {
 
 		if (result.hasErrors()) {
 			return VIEW_SIGNUP_SIGNUP;
 		}
-		WebAuthnRegistrationRequestValidationResponse webAuthnRegistrationRequestValidationResponse;
+
+		WebAuthnRegistrationRequest webAuthnRegistrationRequest = new WebAuthnRegistrationRequest(
+				request,
+				userCreateForm.getAuthenticator().getClientDataJSON(),
+				userCreateForm.getAuthenticator().getAttestationObject(),
+				userCreateForm.getAuthenticator().getTransports(),
+				userCreateForm.getAuthenticator().getClientExtensions()
+		);
 		try {
-			webAuthnRegistrationRequestValidationResponse = registrationRequestValidator.validate(
-					request,
-					userCreateForm.getAuthenticator().getClientDataJSON(),
-					userCreateForm.getAuthenticator().getAttestationObject(),
-					null, //TODO
-					userCreateForm.getAuthenticator().getClientExtensions()
-			);
-		} catch (ValidationException e) {
+			registrationRequestValidator.validate(webAuthnRegistrationRequest);
+		}
+		catch (ValidationException e){
+			logger.debug("WebAuthn registration request validation failed.", e);
+			return VIEW_SIGNUP_SIGNUP;
+		}
+		catch (DataConversionException e){
+			logger.debug("WebAuthn registration request data conversion failed.", e);
 			return VIEW_SIGNUP_SIGNUP;
 		}
 
-		UserEntity destination = new UserEntity();
-
-		destination.setUserHandle(Base64Utils.decodeFromUrlSafeString(userCreateForm.getUserHandle()));
-		destination.setUsername(userCreateForm.getUsername());
-		destination.setPassword(passwordEncoder.encode(userCreateForm.getPassword()));
-
-		List<AuthenticatorEntity> authenticators = new ArrayList<>();
-		AuthenticatorEntity authenticator = new AuthenticatorEntity();
 		AuthenticatorCreateForm sourceAuthenticator = userCreateForm.getAuthenticator();
-		authenticator.setUser(destination);
-		authenticator.setName(null); // sample application doesn't name authenticator
-		authenticator.setAttestationStatement(webAuthnRegistrationRequestValidationResponse.getAttestationObject().getAttestationStatement());
-		authenticator.setAttestedCredentialData(webAuthnRegistrationRequestValidationResponse.getAttestationObject().getAuthenticatorData().getAttestedCredentialData());
-		authenticator.setCounter(webAuthnRegistrationRequestValidationResponse.getAttestationObject().getAuthenticatorData().getSignCount());
-		authenticator.setTransports(sourceAuthenticator.getTransports());
+
+		byte[] attestationObject = Base64UrlUtil.decode(sourceAuthenticator.getAttestationObject());
+		byte[] authenticatorData = webAuthnDataConverter.extractAuthenticatorData(attestationObject);
+		byte[] attestedCredentialData = webAuthnDataConverter.extractAttestedCredentialData(authenticatorData);
+		byte[] credentialId = webAuthnDataConverter.extractCredentialId(attestedCredentialData);
+		long signCount = webAuthnDataConverter.extractSignCount(authenticatorData);
+		Set<WebAuthnAuthenticatorTransport> transports;
+		if (sourceAuthenticator.getTransports() == null) {
+			transports = null;
+		}
+		else {
+			transports = sourceAuthenticator.getTransports().stream()
+					.map(WebAuthnAuthenticatorTransport::create)
+					.collect(Collectors.toSet());
+		}
+
+		List<WebAuthnAuthenticator> authenticators = new ArrayList<>();
+		WebAuthnAuthenticator authenticator = new WebAuthnAuthenticatorImpl(
+				credentialId,
+				null,
+				attestationObject,
+				signCount,
+				transports,
+				sourceAuthenticator.getClientExtensions());
+
 		authenticators.add(authenticator);
 
-		destination.setAuthenticators(authenticators);
-		destination.setLocked(false);
-		destination.setSingleFactorAuthenticationAllowed(userCreateForm.isSingleFactorAuthenticationAllowed());
+		byte[] userHandle = Base64Utils.decodeFromUrlSafeString(userCreateForm.getUserHandle());
+		String username = userCreateForm.getUsername();
+		String password = passwordEncoder.encode(userCreateForm.getPassword());
+		List<GrantedAuthority> authorities = Collections.emptyList();
+		boolean singleFactorAuthenticationAllowed = userCreateForm.isSingleFactorAuthenticationAllowed();
+		WebAuthnAndPasswordUser user = new WebAuthnAndPasswordUser(userHandle, username, password, authenticators, singleFactorAuthenticationAllowed, authorities);
 
-		UserEntity user = destination;
+
 		try {
 			webAuthnUserDetailsService.createUser(user);
-		} catch (WebAuthnSampleBusinessException ex) {
+		} catch (IllegalArgumentException ex) {
 			return VIEW_SIGNUP_SIGNUP;
 		}
 

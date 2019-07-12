@@ -14,30 +14,17 @@
  * limitations under the License.
  */
 
-package org.springframework.security.webauthn.authenticator;
+package org.springframework.security.webauthn.server;
 
-import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsService;
+import javax.servlet.http.HttpServletRequest;
 
-import java.util.Set;
+public interface EffectiveRpIdProvider {
 
-/**
- * Models core authenticator information retrieved by a {@link WebAuthnUserDetailsService}
- *
- * @author Yoshikazu Nojima
- * @see WebAuthnUserDetailsService
- */
-public interface WebAuthnAuthenticator {
-
-	byte[] getCredentialId();
-
-	byte[] getAttestationObject();
-
-	long getCounter();
-
-	void setCounter(long counter);
-
-	Set<WebAuthnAuthenticatorTransport> getTransports();
-
-	String getClientExtensions();
-
+	/**
+	 * returns effective rpId based on request origin and configured <code>rpId</code>.
+	 *
+	 * @param request request
+	 * @return effective rpId
+	 */
+	String getEffectiveRpId(HttpServletRequest request);
 }

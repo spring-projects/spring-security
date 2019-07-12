@@ -16,7 +16,6 @@
 
 package org.springframework.security.webauthn.config.configurers;
 
-import com.webauthn4j.validator.WebAuthnAuthenticationContextValidator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +27,15 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.webauthn.WebAuthn4JWebAuthnManager;
 import org.springframework.security.webauthn.WebAuthnAuthenticationProvider;
+import org.springframework.security.webauthn.WebAuthnManager;
 import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticatorService;
-import org.springframework.security.webauthn.challenge.ChallengeRepository;
-import org.springframework.security.webauthn.challenge.HttpSessionChallengeRepository;
-import org.springframework.security.webauthn.options.OptionsProvider;
-import org.springframework.security.webauthn.options.OptionsProviderImpl;
-import org.springframework.security.webauthn.server.ServerPropertyProvider;
-import org.springframework.security.webauthn.server.ServerPropertyProviderImpl;
+import org.springframework.security.webauthn.challenge.HttpSessionWebAuthnChallengeRepository;
+import org.springframework.security.webauthn.challenge.WebAuthnChallengeRepository;
+import org.springframework.security.webauthn.server.EffectiveRpIdProvider;
+import org.springframework.security.webauthn.server.WebAuthnServerPropertyProvider;
+import org.springframework.security.webauthn.server.WebAuthnServerPropertyProviderImpl;
 import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsService;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -56,7 +56,7 @@ public class WebAuthnAuthenticationProviderConfigurerSpringTest {
 
 
 	@EnableWebSecurity
-	static class Config  extends WebSecurityConfigurerAdapter {
+	static class Config extends WebSecurityConfigurerAdapter {
 
 		@Autowired
 		private WebAuthnUserDetailsService webAuthnUserDetailsService;
@@ -64,37 +64,8 @@ public class WebAuthnAuthenticationProviderConfigurerSpringTest {
 		@Autowired
 		private WebAuthnAuthenticatorService webAuthnAuthenticatorService;
 
-		@Configuration
-		static class BeanConfig {
-			@Bean
-			public WebAuthnUserDetailsService webAuthnUserDetailsService(){
-				return mock(WebAuthnUserDetailsService.class);
-			}
-
-			@Bean
-			public WebAuthnAuthenticatorService webAuthnAuthenticatorService(){
-				return mock(WebAuthnAuthenticatorService.class);
-			}
-
-			@Bean
-			public ChallengeRepository challengeRepository() {
-				return new HttpSessionChallengeRepository();
-			}
-
-			@Bean
-			public OptionsProvider optionsProvider(WebAuthnUserDetailsService webAuthnUserDetailsService, ChallengeRepository challengeRepository) {
-				OptionsProviderImpl optionsProviderImpl = new OptionsProviderImpl(webAuthnUserDetailsService, challengeRepository);
-				optionsProviderImpl.setRpId("example.com");
-				return optionsProviderImpl;
-			}
-
-			@Bean
-			public ServerPropertyProvider serverPropertyProvider(OptionsProvider optionsProvider, ChallengeRepository challengeRepository) {
-				return new ServerPropertyProviderImpl(optionsProvider, challengeRepository);
-			}
-
-
-		}
+		@Autowired
+		private WebAuthnManager webAuthnManager;
 
 		@Bean
 		@Override
@@ -116,7 +87,38 @@ public class WebAuthnAuthenticationProviderConfigurerSpringTest {
 
 		@Override
 		public void configure(AuthenticationManagerBuilder builder) throws Exception {
-			builder.apply(new WebAuthnAuthenticationProviderConfigurer<>(webAuthnUserDetailsService, webAuthnAuthenticatorService, new WebAuthnAuthenticationContextValidator()));
+			builder.apply(new WebAuthnAuthenticationProviderConfigurer<>(webAuthnUserDetailsService, webAuthnAuthenticatorService, webAuthnManager));
+		}
+
+		@Configuration
+		static class BeanConfig {
+
+			@Bean
+			public WebAuthn4JWebAuthnManager webAuthn4JWebAuthnAuthenticationManager() {
+				return mock(WebAuthn4JWebAuthnManager.class);
+			}
+
+			@Bean
+			public WebAuthnUserDetailsService webAuthnUserDetailsService() {
+				return mock(WebAuthnUserDetailsService.class);
+			}
+
+			@Bean
+			public WebAuthnAuthenticatorService webAuthnAuthenticatorService() {
+				return mock(WebAuthnAuthenticatorService.class);
+			}
+
+			@Bean
+			public WebAuthnChallengeRepository challengeRepository() {
+				return new HttpSessionWebAuthnChallengeRepository();
+			}
+
+			@Bean
+			public WebAuthnServerPropertyProvider serverPropertyProvider(EffectiveRpIdProvider effectiveRpIdProvider, WebAuthnChallengeRepository webAuthnChallengeRepository) {
+				return new WebAuthnServerPropertyProviderImpl(effectiveRpIdProvider, webAuthnChallengeRepository);
+			}
+
+
 		}
 
 	}

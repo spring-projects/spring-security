@@ -17,7 +17,6 @@
 package org.springframework.security.webauthn;
 
 import org.junit.Test;
-import org.springframework.security.webauthn.request.WebAuthnAuthenticationRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,7 +40,7 @@ public class WebAuthnAuthenticationTokenTest {
 	 */
 	@Test
 	public void test_methods() {
-		WebAuthnAuthenticationRequest credential = mock(WebAuthnAuthenticationRequest.class);
+		WebAuthnAuthenticationData credential = mock(WebAuthnAuthenticationData.class);
 		WebAuthnAuthenticationToken webAuthnAuthenticationToken = new WebAuthnAuthenticationToken("username", credential, null);
 
 		assertThat(webAuthnAuthenticationToken.getPrincipal()).isEqualTo("username");
@@ -50,7 +49,7 @@ public class WebAuthnAuthenticationTokenTest {
 
 	@Test
 	public void equals_hashCode_test() {
-		WebAuthnAuthenticationRequest credential = mock(WebAuthnAuthenticationRequest.class);
+		WebAuthnAuthenticationData credential = mock(WebAuthnAuthenticationData.class);
 		WebAuthnAuthenticationToken tokenA = new WebAuthnAuthenticationToken("username", credential, null);
 		WebAuthnAuthenticationToken tokenB = new WebAuthnAuthenticationToken("username", credential, null);
 		assertThat(tokenA).isEqualTo(tokenB);

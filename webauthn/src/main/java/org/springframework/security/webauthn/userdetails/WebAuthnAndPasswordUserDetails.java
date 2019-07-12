@@ -14,30 +14,14 @@
  * limitations under the License.
  */
 
-package org.springframework.security.webauthn.authenticator;
+package org.springframework.security.webauthn.userdetails;
 
-import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsService;
+import org.springframework.security.core.userdetails.MFAUserDetails;
 
-import java.util.Set;
+public interface WebAuthnAndPasswordUserDetails extends WebAuthnUserDetails, MFAUserDetails {
 
-/**
- * Models core authenticator information retrieved by a {@link WebAuthnUserDetailsService}
- *
- * @author Yoshikazu Nojima
- * @see WebAuthnUserDetailsService
- */
-public interface WebAuthnAuthenticator {
+	boolean isSingleFactorAuthenticationAllowed();
 
-	byte[] getCredentialId();
-
-	byte[] getAttestationObject();
-
-	long getCounter();
-
-	void setCounter(long counter);
-
-	Set<WebAuthnAuthenticatorTransport> getTransports();
-
-	String getClientExtensions();
+	void setSingleFactorAuthenticationAllowed(boolean singleFactorAuthenticationAllowed);
 
 }

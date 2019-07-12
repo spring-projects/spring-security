@@ -14,30 +14,15 @@
  * limitations under the License.
  */
 
-package org.springframework.security.webauthn.authenticator;
+package org.springframework.security.webauthn;
 
-import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsService;
+import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticator;
+import org.springframework.security.webauthn.server.EffectiveRpIdProvider;
 
-import java.util.Set;
+public interface WebAuthnManager extends EffectiveRpIdProvider {
 
-/**
- * Models core authenticator information retrieved by a {@link WebAuthnUserDetailsService}
- *
- * @author Yoshikazu Nojima
- * @see WebAuthnUserDetailsService
- */
-public interface WebAuthnAuthenticator {
+	void verifyRegistrationData(WebAuthnRegistrationData registrationData);
 
-	byte[] getCredentialId();
-
-	byte[] getAttestationObject();
-
-	long getCounter();
-
-	void setCounter(long counter);
-
-	Set<WebAuthnAuthenticatorTransport> getTransports();
-
-	String getClientExtensions();
+	void verifyAuthenticationData(WebAuthnAuthenticationData authenticationData, WebAuthnAuthenticator authenticator);
 
 }

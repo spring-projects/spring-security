@@ -17,7 +17,6 @@
 package org.springframework.security.webauthn;
 
 import org.junit.Test;
-import org.springframework.security.webauthn.request.WebAuthnAuthenticationRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -26,7 +25,7 @@ public class WebAuthnAssertionAuthenticationTokenTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setAuthenticated_with_true_test() {
-		WebAuthnAuthenticationRequest request = mock(WebAuthnAuthenticationRequest.class);
+		WebAuthnAuthenticationData request = mock(WebAuthnAuthenticationData.class);
 		WebAuthnAssertionAuthenticationToken token = new WebAuthnAssertionAuthenticationToken(request);
 		token.setAuthenticated(true);
 		assertThat(token.isAuthenticated()).isTrue();
@@ -34,7 +33,7 @@ public class WebAuthnAssertionAuthenticationTokenTest {
 
 	@Test
 	public void setAuthenticated_with_false_test() {
-		WebAuthnAuthenticationRequest request = mock(WebAuthnAuthenticationRequest.class);
+		WebAuthnAuthenticationData request = mock(WebAuthnAuthenticationData.class);
 		WebAuthnAssertionAuthenticationToken token = new WebAuthnAssertionAuthenticationToken(request);
 		token.setAuthenticated(false);
 		assertThat(token.isAuthenticated()).isFalse();
@@ -42,7 +41,7 @@ public class WebAuthnAssertionAuthenticationTokenTest {
 
 	@Test
 	public void eraseCredentials_test() {
-		WebAuthnAuthenticationRequest request = mock(WebAuthnAuthenticationRequest.class);
+		WebAuthnAuthenticationData request = mock(WebAuthnAuthenticationData.class);
 		WebAuthnAssertionAuthenticationToken token = new WebAuthnAssertionAuthenticationToken(request);
 		token.eraseCredentials();
 		assertThat(token.getCredentials()).isNull();
@@ -50,7 +49,7 @@ public class WebAuthnAssertionAuthenticationTokenTest {
 
 	@Test
 	public void equals_hashCode_test() {
-		WebAuthnAuthenticationRequest request = mock(WebAuthnAuthenticationRequest.class);
+		WebAuthnAuthenticationData request = mock(WebAuthnAuthenticationData.class);
 		WebAuthnAssertionAuthenticationToken tokenA = new WebAuthnAssertionAuthenticationToken(request);
 		WebAuthnAssertionAuthenticationToken tokenB = new WebAuthnAssertionAuthenticationToken(request);
 

@@ -14,30 +14,9 @@
  * limitations under the License.
  */
 
-package org.springframework.security.webauthn.authenticator;
+package org.springframework.security.webauthn.userdetails;
 
-import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsService;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
-import java.util.Set;
-
-/**
- * Models core authenticator information retrieved by a {@link WebAuthnUserDetailsService}
- *
- * @author Yoshikazu Nojima
- * @see WebAuthnUserDetailsService
- */
-public interface WebAuthnAuthenticator {
-
-	byte[] getCredentialId();
-
-	byte[] getAttestationObject();
-
-	long getCounter();
-
-	void setCounter(long counter);
-
-	Set<WebAuthnAuthenticatorTransport> getTransports();
-
-	String getClientExtensions();
-
+public interface WebAuthnAndPasswordUserDetailsService extends UserDetailsService, WebAuthnUserDetailsService {
 }

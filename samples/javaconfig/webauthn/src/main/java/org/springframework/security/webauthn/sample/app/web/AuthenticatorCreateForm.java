@@ -16,8 +16,6 @@
 
 package org.springframework.security.webauthn.sample.app.web;
 
-import com.webauthn4j.data.AuthenticatorTransport;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
@@ -32,7 +30,7 @@ public class AuthenticatorCreateForm {
 	@Valid
 	private String attestationObject;
 
-	private Set<AuthenticatorTransport> transports;
+	private Set<String> transports;
 
 	@NotNull
 	private String clientExtensions;
@@ -53,11 +51,11 @@ public class AuthenticatorCreateForm {
 		this.attestationObject = attestationObject;
 	}
 
-	public Set<AuthenticatorTransport> getTransports() {
+	public Set<String> getTransports() {
 		return transports;
 	}
 
-	public void setTransports(Set<AuthenticatorTransport> transports) {
+	public void setTransports(Set<String> transports) {
 		this.transports = transports;
 	}
 

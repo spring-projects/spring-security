@@ -16,43 +16,59 @@
 
 package org.springframework.security.webauthn.sample.app.config;
 
-import com.webauthn4j.validator.WebAuthnAuthenticationContextValidator;
-import com.webauthn4j.validator.WebAuthnRegistrationContextValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.webauthn.WebAuthnRegistrationRequestValidator;
-import org.springframework.security.webauthn.challenge.ChallengeRepository;
-import org.springframework.security.webauthn.challenge.HttpSessionChallengeRepository;
-import org.springframework.security.webauthn.options.OptionsProvider;
-import org.springframework.security.webauthn.options.OptionsProviderImpl;
-import org.springframework.security.webauthn.server.ServerPropertyProvider;
-import org.springframework.security.webauthn.server.ServerPropertyProviderImpl;
+import org.springframework.security.webauthn.*;
+import org.springframework.security.webauthn.challenge.HttpSessionWebAuthnChallengeRepository;
+import org.springframework.security.webauthn.challenge.WebAuthnChallengeRepository;
+import org.springframework.security.webauthn.server.EffectiveRpIdProvider;
+import org.springframework.security.webauthn.server.WebAuthnServerPropertyProvider;
+import org.springframework.security.webauthn.server.WebAuthnServerPropertyProviderImpl;
+import org.springframework.security.webauthn.userdetails.InMemoryWebAuthnAndPasswordUserDetailsManager;
 import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsService;
 
 @Configuration
 public class WebSecurityBeanConfig {
 
 	@Bean
-	public WebAuthnRegistrationRequestValidator webAuthnRegistrationRequestValidator(ServerPropertyProvider serverPropertyProvider) {
-		WebAuthnRegistrationContextValidator webAuthnRegistrationContextValidator = WebAuthnRegistrationContextValidator.createNonStrictRegistrationContextValidator();
-		return new WebAuthnRegistrationRequestValidator(webAuthnRegistrationContextValidator, serverPropertyProvider);
+	public WebAuthnServerPropertyProvider webAuthnServerPropertyProvider(EffectiveRpIdProvider effectiveRpIdProvider, WebAuthnChallengeRepository challengeRepository){
+		return new WebAuthnServerPropertyProviderImpl(effectiveRpIdProvider, challengeRepository);
 	}
 
 	@Bean
-	public ServerPropertyProvider serverPropertyProvider(WebAuthnUserDetailsService webAuthnUserDetailsService) {
-		ChallengeRepository challengeRepository = new HttpSessionChallengeRepository();
-		OptionsProvider optionsProvider = new OptionsProviderImpl(webAuthnUserDetailsService, challengeRepository);
-		return new ServerPropertyProviderImpl(optionsProvider, challengeRepository);
+	public WebAuthnChallengeRepository webAuthnChallengeRepository(){
+		return new HttpSessionWebAuthnChallengeRepository();
 	}
 
 	@Bean
-	public WebAuthnAuthenticationContextValidator webAuthnAuthenticationContextValidator() {
-		return new WebAuthnAuthenticationContextValidator();
+	public InMemoryWebAuthnAndPasswordUserDetailsManager webAuthnUserDetailsService(){
+		return new InMemoryWebAuthnAndPasswordUserDetailsManager();
 	}
+
+	@Bean
+	public WebAuthnOptionWebHelper webAuthnOptionWebHelper(WebAuthnChallengeRepository challengeRepository, WebAuthnUserDetailsService userDetailsService){
+		return new WebAuthnOptionWebHelper(challengeRepository, userDetailsService);
+	}
+
+	@Bean
+	public WebAuthnManager webAuthnAuthenticationManager(){
+		return new WebAuthn4JWebAuthnManager();
+	}
+
+	@Bean
+	public WebAuthnDataConverter webAuthnDataConverter(){
+		return new WebAuthnDataConverter();
+	}
+
+	@Bean
+	public WebAuthnRegistrationRequestValidator webAuthnRegistrationRequestValidator(WebAuthnManager webAuthnManager, WebAuthnServerPropertyProvider webAuthnServerPropertyProvider){
+		return new WebAuthnRegistrationRequestValidator(webAuthnManager, webAuthnServerPropertyProvider);
+	}
+
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {

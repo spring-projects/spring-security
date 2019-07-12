@@ -16,10 +16,6 @@
 
 package org.springframework.security.webauthn;
 
-import com.webauthn4j.authenticator.Authenticator;
-import com.webauthn4j.authenticator.AuthenticatorImpl;
-import com.webauthn4j.data.WebAuthnAuthenticationContext;
-import com.webauthn4j.validator.WebAuthnAuthenticationContextValidator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,14 +25,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticator;
+import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticatorImpl;
 import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticatorService;
 import org.springframework.security.webauthn.exception.BadChallengeException;
 import org.springframework.security.webauthn.exception.CredentialIdNotFoundException;
-import org.springframework.security.webauthn.request.WebAuthnAuthenticationRequest;
+import org.springframework.security.webauthn.userdetails.WebAuthnAndPasswordUser;
 import org.springframework.security.webauthn.userdetails.WebAuthnUserDetails;
-import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsImpl;
+import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsChecker;
 import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsService;
 
 import java.util.Collections;
@@ -54,14 +50,14 @@ public class WebAuthnAuthenticationProviderTest {
 
 	private WebAuthnAuthenticatorService authenticatorService = mock(WebAuthnAuthenticatorService.class);
 
-	private WebAuthnAuthenticationContextValidator authenticationContextValidator = mock(WebAuthnAuthenticationContextValidator.class);
+	private WebAuthnManager webAuthnManager = mock(WebAuthnManager.class);
 
 	private WebAuthnAuthenticationProvider authenticationProvider
-			= new WebAuthnAuthenticationProvider(userDetailsService, authenticatorService, authenticationContextValidator);
+			= new WebAuthnAuthenticationProvider(userDetailsService, authenticatorService, webAuthnManager);
 
 	@Before
 	public void setup() {
-		authenticationProvider = new WebAuthnAuthenticationProvider(userDetailsService, authenticatorService, authenticationContextValidator);
+		authenticationProvider = new WebAuthnAuthenticationProvider(userDetailsService, authenticatorService, webAuthnManager);
 	}
 
 	/**
@@ -92,28 +88,28 @@ public class WebAuthnAuthenticationProviderTest {
 		byte[] credentialId = new byte[32];
 		GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
 		WebAuthnAuthenticator authenticator = mock(WebAuthnAuthenticator.class, RETURNS_DEEP_STUBS);
-		WebAuthnUserDetailsImpl user = new WebAuthnUserDetailsImpl(
+		WebAuthnAndPasswordUser user = new WebAuthnAndPasswordUser(
 				new byte[0],
 				"dummy",
 				"dummy",
 				Collections.singletonList(authenticator),
 				Collections.singletonList(grantedAuthority));
-		when(authenticator.getAttestedCredentialData().getCredentialId()).thenReturn(credentialId);
+		when(authenticator.getCredentialId()).thenReturn(credentialId);
 
 		//When
-		WebAuthnAuthenticationRequest credential = mock(WebAuthnAuthenticationRequest.class);
+		WebAuthnAuthenticationData credential = mock(WebAuthnAuthenticationData.class);
 		when(credential.getCredentialId()).thenReturn(credentialId);
-		when(userDetailsService.loadUserByCredentialId(credentialId)).thenReturn(user);
+		when(userDetailsService.loadWebAuthnUserByCredentialId(credentialId)).thenReturn(user);
 		Authentication token = new WebAuthnAssertionAuthenticationToken(credential);
 		Authentication authenticatedToken = authenticationProvider.authenticate(token);
 
-		ArgumentCaptor<WebAuthnAuthenticationContext> captor = ArgumentCaptor.forClass(WebAuthnAuthenticationContext.class);
-		verify(authenticationContextValidator).validate(captor.capture(), any());
-		WebAuthnAuthenticationContext authenticationContext = captor.getValue();
+		ArgumentCaptor<WebAuthnAuthenticationData> captor = ArgumentCaptor.forClass(WebAuthnAuthenticationData.class);
+		verify(webAuthnManager).verifyAuthenticationData(captor.capture(), any());
+		WebAuthnAuthenticationData authenticationData = captor.getValue();
 
-		assertThat(authenticationContext.getExpectedExtensionIds()).isEqualTo(credential.getExpectedAuthenticationExtensionIds());
+		assertThat(authenticationData.getExpectedAuthenticationExtensionIds()).isEqualTo(credential.getExpectedAuthenticationExtensionIds());
 
-		assertThat(authenticatedToken.getPrincipal()).isInstanceOf(WebAuthnUserDetailsImpl.class);
+		assertThat(authenticatedToken.getPrincipal()).isInstanceOf(WebAuthnAndPasswordUser.class);
 		assertThat(authenticatedToken.getCredentials()).isEqualTo(credential);
 		assertThat(authenticatedToken.getAuthorities().toArray()).containsExactly(grantedAuthority);
 	}
@@ -127,18 +123,18 @@ public class WebAuthnAuthenticationProviderTest {
 		byte[] credentialId = new byte[32];
 		GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
 		WebAuthnAuthenticator authenticator = mock(WebAuthnAuthenticator.class, RETURNS_DEEP_STUBS);
-		WebAuthnUserDetailsImpl user = new WebAuthnUserDetailsImpl(
+		WebAuthnAndPasswordUser user = new WebAuthnAndPasswordUser(
 				new byte[0],
 				"dummy",
 				"dummy",
 				Collections.singletonList(authenticator),
 				Collections.singletonList(grantedAuthority));
-		when(authenticator.getAttestedCredentialData().getCredentialId()).thenReturn(credentialId);
+		when(authenticator.getCredentialId()).thenReturn(credentialId);
 
 		//When
-		WebAuthnAuthenticationRequest credential = mock(WebAuthnAuthenticationRequest.class);
+		WebAuthnAuthenticationData credential = mock(WebAuthnAuthenticationData.class);
 		when(credential.getCredentialId()).thenReturn(credentialId);
-		when(userDetailsService.loadUserByCredentialId(credentialId)).thenReturn(user);
+		when(userDetailsService.loadWebAuthnUserByCredentialId(credentialId)).thenReturn(user);
 		Authentication token = new WebAuthnAssertionAuthenticationToken(credential);
 		authenticationProvider.setForcePrincipalAsString(true);
 		Authentication authenticatedToken = authenticationProvider.authenticate(token);
@@ -157,20 +153,20 @@ public class WebAuthnAuthenticationProviderTest {
 		byte[] credentialId = new byte[32];
 		GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
 		WebAuthnAuthenticator authenticator = mock(WebAuthnAuthenticator.class, RETURNS_DEEP_STUBS);
-		WebAuthnUserDetailsImpl user = new WebAuthnUserDetailsImpl(
+		WebAuthnAndPasswordUser user = new WebAuthnAndPasswordUser(
 				new byte[0],
 				"dummy",
 				"dummy",
 				Collections.singletonList(authenticator),
 				Collections.singletonList(grantedAuthority));
-		when(authenticator.getAttestedCredentialData().getCredentialId()).thenReturn(credentialId);
+		when(authenticator.getCredentialId()).thenReturn(credentialId);
 
-		doThrow(com.webauthn4j.validator.exception.BadChallengeException.class).when(authenticationContextValidator).validate(any(), any());
+		doThrow(BadChallengeException.class).when(webAuthnManager).verifyAuthenticationData(any(), any());
 
 		//When
-		WebAuthnAuthenticationRequest credential = mock(WebAuthnAuthenticationRequest.class);
+		WebAuthnAuthenticationData credential = mock(WebAuthnAuthenticationData.class);
 		when(credential.getCredentialId()).thenReturn(credentialId);
-		when(userDetailsService.loadUserByCredentialId(credentialId)).thenReturn(user);
+		when(userDetailsService.loadWebAuthnUserByCredentialId(credentialId)).thenReturn(user);
 		Authentication token = new WebAuthnAssertionAuthenticationToken(credential);
 		authenticationProvider.authenticate(token);
 	}
@@ -182,7 +178,7 @@ public class WebAuthnAuthenticationProviderTest {
 		WebAuthnUserDetails expectedUser = mock(WebAuthnUserDetails.class);
 
 		//Given
-		when(userDetailsService.loadUserByCredentialId(credentialId)).thenReturn(expectedUser);
+		when(userDetailsService.loadWebAuthnUserByCredentialId(credentialId)).thenReturn(expectedUser);
 
 		//When
 		WebAuthnUserDetails userDetails = authenticationProvider.retrieveWebAuthnUserDetails(credentialId);
@@ -197,7 +193,7 @@ public class WebAuthnAuthenticationProviderTest {
 		byte[] credentialId = new byte[0];
 
 		//Given
-		when(userDetailsService.loadUserByCredentialId(credentialId)).thenThrow(CredentialIdNotFoundException.class);
+		when(userDetailsService.loadWebAuthnUserByCredentialId(credentialId)).thenThrow(CredentialIdNotFoundException.class);
 
 		//When
 		authenticationProvider.retrieveWebAuthnUserDetails(credentialId);
@@ -208,7 +204,7 @@ public class WebAuthnAuthenticationProviderTest {
 		byte[] credentialId = new byte[0];
 
 		//Given
-		when(userDetailsService.loadUserByCredentialId(credentialId)).thenThrow(CredentialIdNotFoundException.class);
+		when(userDetailsService.loadWebAuthnUserByCredentialId(credentialId)).thenThrow(CredentialIdNotFoundException.class);
 
 		//When
 		authenticationProvider.setHideCredentialIdNotFoundExceptions(false);
@@ -220,7 +216,7 @@ public class WebAuthnAuthenticationProviderTest {
 		byte[] credentialId = new byte[0];
 
 		//Given
-		when(userDetailsService.loadUserByCredentialId(credentialId)).thenThrow(RuntimeException.class);
+		when(userDetailsService.loadWebAuthnUserByCredentialId(credentialId)).thenThrow(RuntimeException.class);
 
 		//When
 		authenticationProvider.setHideCredentialIdNotFoundExceptions(false);
@@ -232,7 +228,7 @@ public class WebAuthnAuthenticationProviderTest {
 		byte[] credentialId = new byte[0];
 
 		//Given
-		when(userDetailsService.loadUserByCredentialId(credentialId)).thenReturn(null);
+		when(userDetailsService.loadWebAuthnUserByCredentialId(credentialId)).thenReturn(null);
 
 		//When
 		authenticationProvider.setHideCredentialIdNotFoundExceptions(false);
@@ -242,8 +238,8 @@ public class WebAuthnAuthenticationProviderTest {
 	@Test
 	public void getter_setter_test() {
 		WebAuthnUserDetailsService userDetailsService = mock(WebAuthnUserDetailsService.class);
-		UserDetailsChecker preAuthenticationChecker = mock(UserDetailsChecker.class);
-		UserDetailsChecker postAuthenticationChecker = mock(UserDetailsChecker.class);
+		WebAuthnUserDetailsChecker preAuthenticationChecker = mock(WebAuthnUserDetailsChecker.class);
+		WebAuthnUserDetailsChecker postAuthenticationChecker = mock(WebAuthnUserDetailsChecker.class);
 
 		authenticationProvider.setForcePrincipalAsString(true);
 		assertThat(authenticationProvider.isForcePrincipalAsString()).isTrue();
@@ -263,8 +259,8 @@ public class WebAuthnAuthenticationProviderTest {
 	@Test
 	public void userDetailsChecker_check_test() {
 		GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
-		Authenticator authenticator = new AuthenticatorImpl(null, null, 0);
-		WebAuthnUserDetailsImpl userDetails = new WebAuthnUserDetailsImpl(
+		WebAuthnAuthenticator authenticator = new WebAuthnAuthenticatorImpl(new byte[0], "dummy", new byte[0], 0, null, null);
+		WebAuthnAndPasswordUser userDetails = new WebAuthnAndPasswordUser(
 				new byte[0],
 				"dummy",
 				"dummy",
@@ -276,8 +272,8 @@ public class WebAuthnAuthenticationProviderTest {
 	@Test(expected = DisabledException.class)
 	public void userDetailsChecker_check_with_disabled_userDetails_test() {
 		GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
-		Authenticator authenticator = new AuthenticatorImpl(null, null, 0);
-		WebAuthnUserDetailsImpl userDetails = new WebAuthnUserDetailsImpl(
+		WebAuthnAuthenticator authenticator = new WebAuthnAuthenticatorImpl(new byte[0], "dummy", new byte[0], 0, null, null);
+		WebAuthnAndPasswordUser userDetails = new WebAuthnAndPasswordUser(
 				new byte[0],
 				"dummy",
 				"dummy",
@@ -294,8 +290,8 @@ public class WebAuthnAuthenticationProviderTest {
 	@Test(expected = AccountExpiredException.class)
 	public void userDetailsChecker_check_with_expired_userDetails_test() {
 		GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
-		Authenticator authenticator = new AuthenticatorImpl(null, null, 0);
-		WebAuthnUserDetailsImpl userDetails = new WebAuthnUserDetailsImpl(
+		WebAuthnAuthenticator authenticator = new WebAuthnAuthenticatorImpl(new byte[0], "dummy", new byte[0], 0, null, null);
+		WebAuthnAndPasswordUser userDetails = new WebAuthnAndPasswordUser(
 				new byte[0],
 				"dummy",
 				"dummy",
@@ -312,8 +308,8 @@ public class WebAuthnAuthenticationProviderTest {
 	@Test(expected = CredentialsExpiredException.class)
 	public void userDetailsChecker_check_with_credentials_expired_userDetails_test() {
 		GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
-		Authenticator authenticator = new AuthenticatorImpl(null, null, 0);
-		WebAuthnUserDetailsImpl userDetails = new WebAuthnUserDetailsImpl(
+		WebAuthnAuthenticator authenticator = new WebAuthnAuthenticatorImpl(new byte[0], "dummy", new byte[0], 0, null, null);
+		WebAuthnAndPasswordUser userDetails = new WebAuthnAndPasswordUser(
 				new byte[0],
 				"dummy",
 				"dummy",
@@ -330,8 +326,8 @@ public class WebAuthnAuthenticationProviderTest {
 	@Test(expected = LockedException.class)
 	public void userDetailsChecker_check_with_locked_userDetails_test() {
 		GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
-		Authenticator authenticator = new AuthenticatorImpl(null, null, 0);
-		WebAuthnUserDetailsImpl userDetails = new WebAuthnUserDetailsImpl(
+		WebAuthnAuthenticator authenticator = new WebAuthnAuthenticatorImpl(new byte[0], "dummy", new byte[0], 0, null, null);
+		WebAuthnAndPasswordUser userDetails = new WebAuthnAndPasswordUser(
 				new byte[0],
 				"dummy",
 				"dummy",
@@ -349,7 +345,7 @@ public class WebAuthnAuthenticationProviderTest {
 	public void isUserVerificationRequired_test() {
 		WebAuthnUserDetails webAuthnUserDetails = mock(WebAuthnUserDetails.class);
 		when(webAuthnUserDetails.getUsername()).thenReturn("john.doe");
-		WebAuthnAuthenticationRequest credentials = mock(WebAuthnAuthenticationRequest.class);
+		WebAuthnAuthenticationData credentials = mock(WebAuthnAuthenticationData.class);
 		when(credentials.isUserVerificationRequired()).thenReturn(true);
 		SecurityContext securityContext = mock(SecurityContext.class);
 		Authentication authentication = mock(Authentication.class);

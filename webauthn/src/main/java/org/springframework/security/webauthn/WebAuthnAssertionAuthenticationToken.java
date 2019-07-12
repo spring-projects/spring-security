@@ -19,7 +19,6 @@ package org.springframework.security.webauthn;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.webauthn.request.WebAuthnAuthenticationRequest;
 
 /**
  * An {@link Authentication} implementation for representing WebAuthn assertion like
@@ -31,7 +30,7 @@ public class WebAuthnAssertionAuthenticationToken extends AbstractAuthentication
 
 	// ~ Instance fields
 	// ================================================================================================
-	private WebAuthnAuthenticationRequest credentials;
+	private WebAuthnAuthenticationData credentials;
 
 
 	// ~ Constructor
@@ -44,7 +43,7 @@ public class WebAuthnAssertionAuthenticationToken extends AbstractAuthentication
 	 *
 	 * @param credentials credential
 	 */
-	public WebAuthnAssertionAuthenticationToken(WebAuthnAuthenticationRequest credentials) {
+	public WebAuthnAssertionAuthenticationToken(WebAuthnAuthenticationData credentials) {
 		super(null);
 		this.credentials = credentials;
 		setAuthenticated(false);
@@ -67,7 +66,7 @@ public class WebAuthnAssertionAuthenticationToken extends AbstractAuthentication
 	 * @return the stored WebAuthn authentication context
 	 */
 	@Override
-	public WebAuthnAuthenticationRequest getCredentials() {
+	public WebAuthnAuthenticationData getCredentials() {
 		return credentials;
 	}
 

@@ -19,7 +19,6 @@ package org.springframework.security.webauthn;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.webauthn.request.WebAuthnAuthenticationRequest;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -34,7 +33,7 @@ public class WebAuthnAuthenticationToken extends AbstractAuthenticationToken {
 	//~ Instance fields
 	// ================================================================================================
 	private Serializable principal;
-	private WebAuthnAuthenticationRequest credentials;
+	private WebAuthnAuthenticationData credentials;
 
 	// ~ Constructor
 	// ========================================================================================================
@@ -46,7 +45,7 @@ public class WebAuthnAuthenticationToken extends AbstractAuthenticationToken {
 	 * @param credentials credentials
 	 * @param authorities the collection of GrantedAuthority for the principal represented by this authentication object.
 	 */
-	public WebAuthnAuthenticationToken(Serializable principal, WebAuthnAuthenticationRequest credentials, Collection<? extends GrantedAuthority> authorities) {
+	public WebAuthnAuthenticationToken(Serializable principal, WebAuthnAuthenticationData credentials, Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 		this.principal = principal;
 		this.credentials = credentials;
@@ -68,7 +67,7 @@ public class WebAuthnAuthenticationToken extends AbstractAuthenticationToken {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public WebAuthnAuthenticationRequest getCredentials() {
+	public WebAuthnAuthenticationData getCredentials() {
 		return credentials;
 	}
 

@@ -16,10 +16,11 @@
 
 package org.springframework.security.webauthn.userdetails;
 
-import com.webauthn4j.authenticator.Authenticator;
-import org.springframework.security.core.userdetails.MFAUserDetails;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticator;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -27,12 +28,71 @@ import java.util.Collection;
  *
  * @author Yoshikazu Nojima
  */
-public interface WebAuthnUserDetails extends MFAUserDetails {
+public interface WebAuthnUserDetails extends Serializable {
+	// ~ Methods
+	// ========================================================================================================
 
-	@SuppressWarnings("squid:S1452")
-	Collection<? extends Authenticator> getAuthenticators();
+	/**
+	 * Returns the authorities granted to the user. Cannot return <code>null</code>.
+	 *
+	 * @return the authorities, sorted by natural key (never <code>null</code>)
+	 */
+	Collection<? extends GrantedAuthority> getAuthorities();
 
-	void setSingleFactorAuthenticationAllowed(boolean singleFactorAuthenticationAllowed);
-
+	/**
+	 * Returns the userHandle that identifies the user. Cannot return <code>null</code>.
+	 *
+	 * @return the userHandle (never <code>null</code>)
+	 */
 	byte[] getUserHandle();
+
+	/**
+	 * Returns the username used to authenticate the user. Cannot return <code>null</code>.
+	 *
+	 * @return the username (never <code>null</code>)
+	 */
+	String getUsername();
+
+	/**
+	 * Returns the authenticators used to authenticate the user.
+	 *
+	 * @return the authenticators
+	 */
+	@SuppressWarnings("squid:S1452")
+	Collection<? extends WebAuthnAuthenticator> getAuthenticators();
+
+	/**
+	 * Indicates whether the user's account has expired. An expired account cannot be
+	 * authenticated.
+	 *
+	 * @return <code>true</code> if the user's account is valid (ie non-expired),
+	 * <code>false</code> if no longer valid (ie expired)
+	 */
+	boolean isAccountNonExpired();
+
+	/**
+	 * Indicates whether the user is locked or unlocked. A locked user cannot be
+	 * authenticated.
+	 *
+	 * @return <code>true</code> if the user is not locked, <code>false</code> otherwise
+	 */
+	boolean isAccountNonLocked();
+
+	/**
+	 * Indicates whether the user's credentials (password) has expired. Expired
+	 * credentials prevent authentication.
+	 *
+	 * @return <code>true</code> if the user's credentials are valid (ie non-expired),
+	 * <code>false</code> if no longer valid (ie expired)
+	 */
+	boolean isCredentialsNonExpired();
+
+	/**
+	 * Indicates whether the user is enabled or disabled. A disabled user cannot be
+	 * authenticated.
+	 *
+	 * @return <code>true</code> if the user is enabled, <code>false</code> otherwise
+	 */
+	boolean isEnabled();
+
 }

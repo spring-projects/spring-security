@@ -1,89 +1,73 @@
 
 function createCredential(residentKeyRequirement){
 
-    return fetchAttestationOptions().then(function (options) {
-        var username = $("#username").val();
-        var userHandle = $("#userHandle").val();
+    var username = $("#username").val();
+    var userHandle = $("#userHandle").val();
+    var challenge = $("meta[name=webAuthnChallenge]").attr("content");
+    var credentialIds = $("meta[name=webAuthnCredentialId]")
+        .map(function(i, element){ return $(element).attr("content")})
+        .get();
 
-        var authenticatorSelection = options["authenticatorSelection"];
-        authenticatorSelection["requireResidentKey"] = residentKeyRequirement;
-        var publicKeyCredentialCreationOptions = {
-            rp: options["rp"],
-            user: {
-                id: base64url.decodeBase64url(userHandle),
-                name: username,
-                displayName: username
+    var publicKeyCredentialCreationOptions = {
+        rp: {
+            name: "Spring Security WebAuthn Sample"
+        },
+        user: {
+            id: base64url.decodeBase64url(userHandle),
+            name: username,
+            displayName: username
+        },
+        challenge: base64url.decodeBase64url(challenge),
+        pubKeyCredParams: [
+            {
+                "type": "public-key",
+                "alg": -7 //ES256
             },
-            challenge: base64url.decodeBase64url(options["challenge"]),
-            pubKeyCredParams: options["pubKeyCredParams"],
-            timeout: options["timeout"],
-            excludeCredentials: options["excludeCredentials"].map(function(credential){
-                return {
-                    type: credential["type"],
-                    id: base64url.decodeBase64url(credential["id"])
-                }
-            }),
-            authenticatorSelection: authenticatorSelection,
-            attestation: options["attestation"],
-            extensions: options["extensions"]
-        };
+            {
+                type: "public-key",
+                alg: -257 //RS256
+            }
+        ],
+        excludeCredentials: credentialIds.map(function(credentialId){
+            return {
+                type: "public-key",
+                id: base64url.decodeBase64url(credentialId)
+            }
+        }),
+        authenticatorSelection: {
+            requireResidentKey: residentKeyRequirement
+        },
+        attestation: "none"
+    };
 
-        var credentialCreationOptions = {
-            publicKey: publicKeyCredentialCreationOptions
-        };
+    var credentialCreationOptions = {
+        publicKey: publicKeyCredentialCreationOptions
+    };
 
-        return navigator.credentials.create(credentialCreationOptions);
-    });
+    return navigator.credentials.create(credentialCreationOptions);
 }
 
 function getCredential(userVerification){
-    return fetchAssertionOptions().then(function (options) {
-        var publicKeyCredentialRequestOptions = {
-            challenge: base64url.decodeBase64url(options["challenge"]),
-            timeout:  options["timeout"],
-            rpId: options["rpId"],
-            allowCredentials: options["allowCredentials"].map(function(credential){
-                return {
-                    type: credential["type"],
-                    id: base64url.decodeBase64url(credential["id"])
-                }
-            }),
-            userVerification: userVerification,
-            extensions: options["extensions"]
-        };
+    var challenge = $("meta[name=webAuthnChallenge]").attr("content");
+    var credentialIds = $("meta[name=webAuthnCredentialId]")
+        .map(function(i, element){ return $(element).attr("content")})
+        .get();
+    var publicKeyCredentialRequestOptions = {
+        challenge: base64url.decodeBase64url(challenge),
+        allowCredentials: credentialIds.map(function(credentialId){
+            return {
+                type: "public-key",
+                id: base64url.decodeBase64url(credentialId)
+            }
+        }),
+        userVerification: userVerification
+    };
 
-        var credentialRequestOptions = {
-            publicKey: publicKeyCredentialRequestOptions
-        };
+    var credentialRequestOptions = {
+        publicKey: publicKeyCredentialRequestOptions
+    };
 
-        return navigator.credentials.get(credentialRequestOptions);
-    });
-}
-
-function fetchAttestationOptions(){
-    return $.ajax({
-        type: 'GET',
-        url: './webauthn/attestation/options',
-        dataType: 'json'
-    }).done(function(options){
-        console.log(options);
-        return options;
-    }).fail(function(error){
-        console.log(error);
-    });
-}
-
-function fetchAssertionOptions(){
-    return $.ajax({
-        type: 'GET',
-        url: './webauthn/assertion/options',
-        dataType: 'json'
-    }).done(function(options){
-        console.log(options);
-        return options;
-    }).fail(function(error){
-        console.log(error);
-    });
+    return navigator.credentials.get(credentialRequestOptions);
 }
 
 $(document).ready(function() {

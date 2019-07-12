@@ -16,103 +16,44 @@
 
 package org.springframework.security.webauthn;
 
-import com.webauthn4j.data.WebAuthnRegistrationContext;
-import com.webauthn4j.server.ServerProperty;
 import com.webauthn4j.util.Base64UrlUtil;
-import com.webauthn4j.util.exception.WebAuthnException;
-import com.webauthn4j.validator.WebAuthnRegistrationContextValidationResponse;
-import com.webauthn4j.validator.WebAuthnRegistrationContextValidator;
-import org.springframework.security.webauthn.server.ServerPropertyProvider;
-import org.springframework.security.webauthn.util.ExceptionUtil;
+import org.springframework.security.webauthn.server.WebAuthnServerProperty;
+import org.springframework.security.webauthn.server.WebAuthnServerPropertyProvider;
 import org.springframework.util.Assert;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Set;
 
-/**
- * A validator for WebAuthn registration request
- *
- * @author Yoshikazu Nojima
- */
 public class WebAuthnRegistrationRequestValidator {
 
-	// ~ Instance fields
-	// ================================================================================================
-	private WebAuthnRegistrationContextValidator registrationContextValidator;
-	private ServerPropertyProvider serverPropertyProvider;
+	private WebAuthnManager webAuthnManager;
+	private WebAuthnServerPropertyProvider webAuthnServerPropertyProvider;
 
 	private List<String> expectedRegistrationExtensionIds;
 
-	// ~ Constructors
-	// ===================================================================================================
+	public WebAuthnRegistrationRequestValidator(
+			WebAuthnManager webAuthnManager,
+			WebAuthnServerPropertyProvider webAuthnServerPropertyProvider) {
 
-	/**
-	 * Constructor
-	 *
-	 * @param registrationContextValidator validator for {@link WebAuthnRegistrationContext}
-	 * @param serverPropertyProvider       provider for {@link ServerProperty}
-	 */
-	public WebAuthnRegistrationRequestValidator(WebAuthnRegistrationContextValidator registrationContextValidator, ServerPropertyProvider serverPropertyProvider) {
-
-		Assert.notNull(registrationContextValidator, "registrationContextValidator must not be null");
-		Assert.notNull(serverPropertyProvider, "serverPropertyProvider must not be null");
-
-		this.registrationContextValidator = registrationContextValidator;
-		this.serverPropertyProvider = serverPropertyProvider;
+		this.webAuthnManager = webAuthnManager;
+		this.webAuthnServerPropertyProvider = webAuthnServerPropertyProvider;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
+	public void validate(WebAuthnRegistrationRequest registrationRequest) {
 
-	public WebAuthnRegistrationRequestValidationResponse validate(
-			HttpServletRequest httpServletRequest,
-			String clientDataBase64url,
-			String attestationObjectBase64url,
-			Set<String> transports,
-			String clientExtensionsJSON
-	) {
-		Assert.notNull(httpServletRequest, "httpServletRequest must not be null");
-		Assert.hasText(clientDataBase64url, "clientDataBase64url must have text");
-		Assert.hasText(attestationObjectBase64url, "attestationObjectBase64url must have text");
-		if (transports != null) {
-			transports.forEach(transport -> Assert.hasText(transport, "each transport must have text"));
-		}
+		Assert.notNull(registrationRequest, "target must not be null");
+		Assert.notNull(registrationRequest.getHttpServletRequest(), "httpServletRequest must not be null");
 
-		WebAuthnRegistrationContext registrationContext =
-				createRegistrationContext(httpServletRequest, clientDataBase64url, attestationObjectBase64url, transports, clientExtensionsJSON);
+		WebAuthnServerProperty webAuthnServerProperty = webAuthnServerPropertyProvider.provide(registrationRequest.getHttpServletRequest());
 
-		try {
-			WebAuthnRegistrationContextValidationResponse response = registrationContextValidator.validate(registrationContext);
-			return new WebAuthnRegistrationRequestValidationResponse(
-					response.getCollectedClientData(),
-					response.getAttestationObject(),
-					response.getRegistrationExtensionsClientOutputs());
-		} catch (WebAuthnException e) {
-			throw ExceptionUtil.wrapWithAuthenticationException(e);
-		}
-	}
-
-	WebAuthnRegistrationContext createRegistrationContext(
-			HttpServletRequest request,
-			String clientDataBase64,
-			String attestationObjectBase64,
-			Set<String> transports,
-			String clientExtensionsJSON) {
-
-		byte[] clientDataBytes = Base64UrlUtil.decode(clientDataBase64);
-		byte[] attestationObjectBytes = Base64UrlUtil.decode(attestationObjectBase64);
-		ServerProperty serverProperty = serverPropertyProvider.provide(request);
-
-		return new WebAuthnRegistrationContext(
-				clientDataBytes,
-				attestationObjectBytes,
-				transports,
-				clientExtensionsJSON,
-				serverProperty,
-				false,
-				false,
+		WebAuthnRegistrationData webAuthnRegistrationData = new WebAuthnRegistrationData(
+				Base64UrlUtil.decode(registrationRequest.getClientDataBase64Url()),
+				Base64UrlUtil.decode(registrationRequest.getAttestationObjectBase64Url()),
+				registrationRequest.getTransports(),
+				registrationRequest.getClientExtensionsJSON(),
+				webAuthnServerProperty,
 				expectedRegistrationExtensionIds);
+
+		webAuthnManager.verifyRegistrationData(webAuthnRegistrationData);
 	}
 
 	public List<String> getExpectedRegistrationExtensionIds() {
@@ -122,4 +63,5 @@ public class WebAuthnRegistrationRequestValidator {
 	public void setExpectedRegistrationExtensionIds(List<String> expectedRegistrationExtensionIds) {
 		this.expectedRegistrationExtensionIds = expectedRegistrationExtensionIds;
 	}
+
 }
