@@ -57,6 +57,10 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 		this.authoritiesAttributeNames = Set.of(authoritiesAttributeNames);
 	}
 
+	public void setAuthoritiesAttributeNames(Collection<String> authoritiesAttributeNames) {
+		this.authoritiesAttributeNames = authoritiesAttributeNames.stream().collect(Collectors.toSet());
+	}
+
 	/**
 	 * Extracts the authorities
 	 * @param jwt The {@link Jwt} token
