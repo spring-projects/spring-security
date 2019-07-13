@@ -34,6 +34,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
  * @author Eric Deandrea
+ * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
  * @since 5.2
  */
 public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
@@ -42,15 +43,21 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	private static final Set<String> WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES =
 			Stream.of("scope", "scp").collect(Collectors.toSet());
 	
+	private String prefix;
 	private Set<String> authoritiesAttributeNames;
 
-	public JwtGrantedAuthoritiesConverter(Collection<String> authoritiesAttributeNames) {
+	public JwtGrantedAuthoritiesConverter(String prefix, Collection<String> authoritiesAttributeNames) {
 		super();
+		this.prefix = prefix;
 		this.authoritiesAttributeNames = new HashSet<>(authoritiesAttributeNames);
 	}
 	
 	public JwtGrantedAuthoritiesConverter() {
-		this(WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES);
+		this(DEFAULT_AUTHORITIES_PREFIX, WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES);
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 
 	public void setAuthoritiesAttributeNames(String... authoritiesAttributeNames) {
@@ -70,7 +77,7 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	public Collection<GrantedAuthority> convert(Jwt jwt) {
 		return authoritiesAttributeNames.stream()
 				.flatMap(claimName -> getAuthorities(jwt, claimName))
-				.map(authority -> DEFAULT_AUTHORITIES_PREFIX + authority)
+				.map(authority -> prefix + authority)
 				.map(SimpleGrantedAuthority::new)
 				.collect(Collectors.toSet());
 	}
