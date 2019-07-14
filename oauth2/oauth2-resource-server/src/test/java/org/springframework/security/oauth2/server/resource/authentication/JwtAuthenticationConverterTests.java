@@ -44,7 +44,7 @@ public class JwtAuthenticationConverterTests {
 	JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
 
 	public JwtAuthenticationConverterTests() {
-		authoritiesConverter.addAuthoritiesClaimName("authorities");
+		authoritiesConverter.addAuthoritiesClaimName("authorities", "");
 		jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
 	}
 
@@ -95,8 +95,8 @@ public class JwtAuthenticationConverterTests {
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
 		assertThat(authorities).containsExactlyInAnyOrder(
-				new SimpleGrantedAuthority("SCOPE_ROLE_USER"),
-				new SimpleGrantedAuthority("SCOPE_ROLE_ADMIN"),
+				new SimpleGrantedAuthority("ROLE_USER"),
+				new SimpleGrantedAuthority("ROLE_ADMIN"),
 				new SimpleGrantedAuthority("SCOPE_missive:read"),
 				new SimpleGrantedAuthority("SCOPE_missive:write"));
 	}

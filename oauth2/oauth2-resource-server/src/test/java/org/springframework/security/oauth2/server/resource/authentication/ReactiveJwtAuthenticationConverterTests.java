@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,6 +44,12 @@ import reactor.core.publisher.Flux;
  */
 public class ReactiveJwtAuthenticationConverterTests {
 	ReactiveJwtAuthenticationConverter jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverter();
+
+	public ReactiveJwtAuthenticationConverterTests() {
+		final JwtGrantedAuthoritiesConverter authoritiesConverter =
+				new JwtGrantedAuthoritiesConverter().addAuthoritiesClaimName("authorities", "");
+		this.jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new ReactiveJwtGrantedAuthoritiesConverterAdapter(authoritiesConverter));
+	}
 
 	@Test
 	public void convertWhenDefaultGrantedAuthoritiesConverterSet() {
@@ -77,6 +84,24 @@ public class ReactiveJwtAuthenticationConverterTests {
 
 		assertThat(authorities).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("blah"));
+	}
+
+	@Test
+	public void convertWhenTokenHasAttributesClaimsWithDifferentPrefixesThenPrefixesAreCorrectlyApplied( ) {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("authorities", Arrays.asList("ROLE_USER", "ROLE_ADMIN"));
+		claims.put("scope", "missive:read missive:write");
+		Jwt jwt = this.jwt(claims);
+
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
+
+		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
+
+		assertThat(authorities).containsExactlyInAnyOrder(
+				new SimpleGrantedAuthority("ROLE_USER"),
+				new SimpleGrantedAuthority("ROLE_ADMIN"),
+				new SimpleGrantedAuthority("SCOPE_missive:read"),
+				new SimpleGrantedAuthority("SCOPE_missive:write"));
 	}
 
 	private Jwt jwt(Map<String, Object> claims) {

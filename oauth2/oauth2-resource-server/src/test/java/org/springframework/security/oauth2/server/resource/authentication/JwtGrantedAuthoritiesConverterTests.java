@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
  */
 public class JwtGrantedAuthoritiesConverterTests {
 	private JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter =
-			new JwtGrantedAuthoritiesConverter().addAuthoritiesClaimName("authorities");
+			new JwtGrantedAuthoritiesConverter().addAuthoritiesClaimName("authorities", "");
 
 	@Test
 	public void convertWhenTokenHasScopeAttributeThenTranslatedToAuthorities() {

@@ -17,8 +17,8 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,32 +39,51 @@ import org.springframework.util.StringUtils;
 public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 	private static final String DEFAULT_AUTHORITIES_PREFIX = "SCOPE_";
 
-	private static final Set<String> WELL_KNOWN_SCOPE_CLAIM_NAMES =
-			Stream.of("scope", "scp").collect(Collectors.toSet());
+	private static final Map<String, String> WELL_KNOWN_SCOPE_CLAIM_NAMES = new HashMap<>();
+	static {
+		WELL_KNOWN_SCOPE_CLAIM_NAMES.put("scope", DEFAULT_AUTHORITIES_PREFIX);
+		WELL_KNOWN_SCOPE_CLAIM_NAMES.put("scp", DEFAULT_AUTHORITIES_PREFIX);
+	}
 
-	private Set<String> authoritiesClaimNames;
+	private Map<String, String> authoritiesClaimNames;
 
-	public JwtGrantedAuthoritiesConverter(Collection<String> authoritiesClaimNames) {
+	public JwtGrantedAuthoritiesConverter(Map<String, String> authoritiesClaimNames) {
 		super();
-		this.authoritiesClaimNames = new HashSet<>(authoritiesClaimNames);
+		this.authoritiesClaimNames = new HashMap<>(authoritiesClaimNames);
 	}
 
 	public JwtGrantedAuthoritiesConverter() {
 		this(WELL_KNOWN_SCOPE_CLAIM_NAMES);
 	}
 
-	public JwtGrantedAuthoritiesConverter addAuthoritiesClaimName(String authoritiesClaimName) {
-		this.authoritiesClaimNames.add(authoritiesClaimName);
+	/**
+	 * Provided token claim will be scanned for authorities, in addition to already configured ones.
+	 * See {@link #setAuthoritiesClaim(String, String)} to discard already configured ones.
+	 *
+	 * @param claimName
+	 * @param prefix
+	 */
+	public JwtGrantedAuthoritiesConverter addAuthoritiesClaimName(String authoritiesClaimName, String prefix) {
+		this.authoritiesClaimNames.put(authoritiesClaimName, prefix);
 		return this;
 	}
 
-	public JwtGrantedAuthoritiesConverter setAuthoritiesClaimNames(String... authoritiesClaimNames) {
-		this.authoritiesClaimNames = Stream.of(authoritiesClaimNames).collect(Collectors.toSet());
+	/**
+	 * Only provided token claim will be scanned for authorities. Already configured ones are discarded.
+	 * See {@link #addAuthoritiesClaim(String, String)} to add a new claim (or change prefix) to already configured ones.
+	 *
+	 * @param claimName
+	 * @param prefix
+	 */
+	public JwtGrantedAuthoritiesConverter setAuthoritiesClaimName(String authoritiesClaimName, String prefix) {
+		this.authoritiesClaimNames.clear();
+		this.authoritiesClaimNames.put(authoritiesClaimName, prefix);
 		return this;
 	}
 
-	public JwtGrantedAuthoritiesConverter setAuthoritiesClaimNames(Collection<String> authoritiesClaimNames) {
-		this.authoritiesClaimNames = authoritiesClaimNames.stream().collect(Collectors.toSet());
+	public JwtGrantedAuthoritiesConverter setAuthoritiesClaimNames(Map<String, String> authoritiesClaimNames) {
+		this.authoritiesClaimNames.clear();
+		this.authoritiesClaimNames.putAll(authoritiesClaimNames);
 		return this;
 	}
 
@@ -75,9 +94,8 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	 */
 	@Override
 	public Collection<GrantedAuthority> convert(Jwt jwt) {
-		return authoritiesClaimNames.stream()
-				.flatMap(claimName -> getAuthorities(jwt, claimName))
-				.map(authority -> DEFAULT_AUTHORITIES_PREFIX + authority)
+		return authoritiesClaimNames.entrySet().stream()
+				.flatMap(claim -> getAuthorities(jwt, claim.getKey()).map(claim.getValue()::concat))
 				.map(SimpleGrantedAuthority::new)
 				.collect(Collectors.toSet());
 	}
