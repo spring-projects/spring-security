@@ -16,10 +16,11 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,17 +29,44 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.StringUtils;
 
 /**
- * Extracts the {@link GrantedAuthority}s from scope attributes typically found in a
+ * Extracts the {@link GrantedAuthority}s from scope claims typically found in a
  * {@link Jwt}.
  *
+ * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
  * @author Eric Deandrea
  * @since 5.2
  */
 public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
-	private static final String SCOPE_AUTHORITY_PREFIX = "SCOPE_";
+	private static final String DEFAULT_AUTHORITIES_PREFIX = "SCOPE_";
 
-	private static final Collection<String> WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES =
-			Arrays.asList("scope", "scp");
+	private static final Set<String> WELL_KNOWN_SCOPE_CLAIM_NAMES =
+			Stream.of("scope", "scp").collect(Collectors.toSet());
+
+	private Set<String> authoritiesClaimNames;
+
+	public JwtGrantedAuthoritiesConverter(Collection<String> authoritiesClaimNames) {
+		super();
+		this.authoritiesClaimNames = new HashSet<>(authoritiesClaimNames);
+	}
+
+	public JwtGrantedAuthoritiesConverter() {
+		this(WELL_KNOWN_SCOPE_CLAIM_NAMES);
+	}
+
+	public JwtGrantedAuthoritiesConverter addAuthoritiesClaimName(String authoritiesClaimName) {
+		this.authoritiesClaimNames.add(authoritiesClaimName);
+		return this;
+	}
+
+	public JwtGrantedAuthoritiesConverter setAuthoritiesClaimNames(String... authoritiesClaimNames) {
+		this.authoritiesClaimNames = Stream.of(authoritiesClaimNames).collect(Collectors.toSet());
+		return this;
+	}
+
+	public JwtGrantedAuthoritiesConverter setAuthoritiesClaimNames(Collection<String> authoritiesClaimNames) {
+		this.authoritiesClaimNames = authoritiesClaimNames.stream().collect(Collectors.toSet());
+		return this;
+	}
 
 	/**
 	 * Extracts the authorities
@@ -47,32 +75,26 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	 */
 	@Override
 	public Collection<GrantedAuthority> convert(Jwt jwt) {
-		return getScopes(jwt)
-				.stream()
-				.map(authority -> SCOPE_AUTHORITY_PREFIX + authority)
+		return authoritiesClaimNames.stream()
+				.flatMap(claimName -> getAuthorities(jwt, claimName))
+				.map(authority -> DEFAULT_AUTHORITIES_PREFIX + authority)
 				.map(SimpleGrantedAuthority::new)
-				.collect(Collectors.toList());
+				.collect(Collectors.toSet());
 	}
 
-	/**
-	 * Gets the scopes from a {@link Jwt} token
-	 * @param jwt The {@link Jwt} token
-	 * @return The scopes from the token
-	 */
-	private Collection<String> getScopes(Jwt jwt) {
-		for ( String attributeName : WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES ) {
-			Object scopes = jwt.getClaims().get(attributeName);
-			if (scopes instanceof String) {
-				if (StringUtils.hasText((String) scopes)) {
-					return Arrays.asList(((String) scopes).split(" "));
-				} else {
-					return Collections.emptyList();
-				}
-			} else if (scopes instanceof Collection) {
-				return (Collection<String>) scopes;
+	@SuppressWarnings("unchecked")
+	private Stream<String> getAuthorities(Jwt jwt, String claimName) {
+		Object authorities = jwt.getClaim(claimName);
+		if (authorities instanceof String) {
+			if (StringUtils.hasText((String) authorities)) {
+				return Stream.of(((String) authorities).split(" "));
+			} else {
+				return Stream.empty();
 			}
+		} else if (authorities instanceof Collection) {
+			return ((Collection<String>) authorities).stream();
 		}
 
-		return Collections.emptyList();
+		return Stream.empty();
 	}
 }

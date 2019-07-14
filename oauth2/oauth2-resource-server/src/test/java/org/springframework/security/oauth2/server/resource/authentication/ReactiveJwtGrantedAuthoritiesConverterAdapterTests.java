@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -55,7 +54,7 @@ public class ReactiveJwtGrantedAuthoritiesConverterAdapterTests {
 						.toStream()
 						.collect(Collectors.toList());
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("blah"));
 	}
 

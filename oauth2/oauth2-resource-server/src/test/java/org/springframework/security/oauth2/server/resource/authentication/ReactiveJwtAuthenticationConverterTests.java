@@ -26,15 +26,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-
-import reactor.core.publisher.Flux;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
+
+import reactor.core.publisher.Flux;
 
 /**
  * Tests for {@link ReactiveJwtAuthenticationConverter}
@@ -52,7 +51,7 @@ public class ReactiveJwtAuthenticationConverterTests {
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
@@ -76,7 +75,7 @@ public class ReactiveJwtAuthenticationConverterTests {
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("blah"));
 	}
 

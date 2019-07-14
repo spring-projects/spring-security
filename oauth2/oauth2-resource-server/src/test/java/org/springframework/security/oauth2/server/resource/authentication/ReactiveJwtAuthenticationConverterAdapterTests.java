@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,15 +26,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link ReactiveJwtAuthenticationConverterAdapter}
@@ -51,7 +50,7 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
@@ -64,7 +63,7 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly();
+		assertThat(authorities).containsExactlyInAnyOrder();
 	}
 
 	@Test
@@ -75,7 +74,7 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
@@ -88,11 +87,11 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly();
+		assertThat(authorities).containsExactlyInAnyOrder();
 	}
 
 	@Test
-	public void convertWhenTokenHasBothScopeAndScpThenScopeAttributeIsTranslatedToAuthorities() {
+	public void convertWhenTokenHasBothScopeAndScpThenBothAttributesAreTranslatedToAuthorities() {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("scp", Arrays.asList("message:read", "message:write"));
 		claims.put("scope", "missive:read missive:write");
@@ -102,23 +101,11 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
+				new SimpleGrantedAuthority("SCOPE_message:read"),
+				new SimpleGrantedAuthority("SCOPE_message:write"),
 				new SimpleGrantedAuthority("SCOPE_missive:read"),
 				new SimpleGrantedAuthority("SCOPE_missive:write"));
-	}
-
-	@Test
-	public void convertWhenTokenHasEmptyScopeAndNonEmptyScpThenScopeAttributeIsTranslatedToNoAuthorities() {
-		Map<String, Object> claims = new HashMap<>();
-		claims.put("scp", Arrays.asList("message:read", "message:write"));
-		claims.put("scope", "");
-		Jwt jwt = this.jwt(claims);
-
-		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
-
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-
-		assertThat(authorities).containsExactly();
 	}
 
 	private Jwt jwt(Map<String, Object> claims) {

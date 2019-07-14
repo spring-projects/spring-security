@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.assertj.core.util.Maps;
 import org.junit.Test;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
@@ -40,7 +39,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * @since 5.2
  */
 public class JwtGrantedAuthoritiesConverterTests {
-	private JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+	private JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter =
+			new JwtGrantedAuthoritiesConverter().addAuthoritiesClaimName("authorities");
 
 	@Test
 	public void convertWhenTokenHasScopeAttributeThenTranslatedToAuthorities() {
@@ -48,7 +48,7 @@ public class JwtGrantedAuthoritiesConverterTests {
 
 		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
@@ -59,7 +59,7 @@ public class JwtGrantedAuthoritiesConverterTests {
 
 		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
-		assertThat(authorities).containsExactly();
+		assertThat(authorities).containsExactlyInAnyOrder();
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class JwtGrantedAuthoritiesConverterTests {
 
 		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
@@ -79,11 +79,11 @@ public class JwtGrantedAuthoritiesConverterTests {
 
 		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
-		assertThat(authorities).containsExactly();
+		assertThat(authorities).containsExactlyInAnyOrder();
 	}
 
 	@Test
-	public void convertWhenTokenHasBothScopeAndScpThenScopeAttributeIsTranslatedToAuthorities() {
+	public void convertWhenTokenHasBothScopeAndScpThenBothAttributesAreTranslatedToAuthorities() {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("scp", Arrays.asList("message:read", "message:write"));
 		claims.put("scope", "missive:read missive:write");
@@ -91,21 +91,11 @@ public class JwtGrantedAuthoritiesConverterTests {
 
 		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
+				new SimpleGrantedAuthority("SCOPE_message:read"),
+				new SimpleGrantedAuthority("SCOPE_message:write"),
 				new SimpleGrantedAuthority("SCOPE_missive:read"),
 				new SimpleGrantedAuthority("SCOPE_missive:write"));
-	}
-
-	@Test
-	public void convertWhenTokenHasEmptyScopeAndNonEmptyScpThenScopeAttributeIsTranslatedToNoAuthorities() {
-		Map<String, Object> claims = new HashMap<>();
-		claims.put("scp", Arrays.asList("message:read", "message:write"));
-		claims.put("scope", "");
-		Jwt jwt = this.jwt(claims);
-
-		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
-
-		assertThat(authorities).containsExactly();
 	}
 
 	private Jwt jwt(Map<String, Object> claims) {

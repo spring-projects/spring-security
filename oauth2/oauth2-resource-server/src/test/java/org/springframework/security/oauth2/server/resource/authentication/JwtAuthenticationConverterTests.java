@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,7 +40,13 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * @author Josh Cummings
  */
 public class JwtAuthenticationConverterTests {
+	JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
 	JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+
+	public JwtAuthenticationConverterTests() {
+		authoritiesConverter.addAuthoritiesClaimName("authorities");
+		jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
+	}
 
 	@Test
 	public void convertWhenDefaultGrantedAuthoritiesConverterSet() {
@@ -50,7 +55,7 @@ public class JwtAuthenticationConverterTests {
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));
 	}
@@ -74,8 +79,26 @@ public class JwtAuthenticationConverterTests {
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 
-		assertThat(authorities).containsExactly(
+		assertThat(authorities).containsExactlyInAnyOrder(
 				new SimpleGrantedAuthority("blah"));
+	}
+
+	@Test
+	public void convertWhenTokenHasAttributesClaimsWithDifferentPrefixesThenPrefixesAreCorrectlyApplied( ) {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("authorities", Arrays.asList("ROLE_USER", "ROLE_ADMIN"));
+		claims.put("scope", "missive:read missive:write");
+		Jwt jwt = this.jwt(claims);
+
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
+
+		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
+
+		assertThat(authorities).containsExactlyInAnyOrder(
+				new SimpleGrantedAuthority("SCOPE_ROLE_USER"),
+				new SimpleGrantedAuthority("SCOPE_ROLE_ADMIN"),
+				new SimpleGrantedAuthority("SCOPE_missive:read"),
+				new SimpleGrantedAuthority("SCOPE_missive:write"));
 	}
 
 	private Jwt jwt(Map<String, Object> claims) {
