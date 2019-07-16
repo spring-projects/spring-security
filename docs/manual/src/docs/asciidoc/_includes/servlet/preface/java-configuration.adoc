@@ -705,7 +705,7 @@ We can override this quite simply to alter the way granted authorities are deriv
 
 ```java
 static class GrantedAuthoritiesExtractor extends JwtAuthenticationConverter {
-    protected Collection<GrantedAuthorities> extractAuthorities(Jwt jwt) {
+    protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         Collection<String> authorities = (Collection<String>)
                 jwt.getClaims().get("mycustomclaim");
 
