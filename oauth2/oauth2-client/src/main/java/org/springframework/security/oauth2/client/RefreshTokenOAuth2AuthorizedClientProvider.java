@@ -89,8 +89,9 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 			scopes = new HashSet<>(Arrays.asList((String[]) requestScope));
 		}
 
-		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest =
-				new OAuth2RefreshTokenGrantRequest(authorizedClient, scopes);
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+				authorizedClient.getClientRegistration(), authorizedClient.getAccessToken(),
+				authorizedClient.getRefreshToken(), scopes);
 		OAuth2AccessTokenResponse tokenResponse =
 				this.accessTokenResponseClient.getTokenResponse(refreshTokenGrantRequest);
 

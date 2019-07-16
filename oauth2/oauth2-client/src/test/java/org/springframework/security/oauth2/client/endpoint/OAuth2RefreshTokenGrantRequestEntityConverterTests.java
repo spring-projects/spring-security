@@ -21,9 +21,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -45,9 +46,11 @@ public class OAuth2RefreshTokenGrantRequestEntityConverterTests {
 
 	@Before
 	public void setup() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(TestClientRegistrations.clientRegistration().build(),
-				"principal", TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken());
-		this.refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(authorizedClient, Collections.singleton("read"));
+		this.refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+				TestClientRegistrations.clientRegistration().build(),
+				TestOAuth2AccessTokens.scopes("read", "write"),
+				TestOAuth2RefreshTokens.refreshToken(),
+				Collections.singleton("read"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -55,11 +58,12 @@ public class OAuth2RefreshTokenGrantRequestEntityConverterTests {
 	public void convertWhenGrantRequestValidThenConverts() {
 		RequestEntity<?> requestEntity = this.converter.convert(this.refreshTokenGrantRequest);
 
-		OAuth2AuthorizedClient authorizedClient = this.refreshTokenGrantRequest.getAuthorizedClient();
+		ClientRegistration clientRegistration = this.refreshTokenGrantRequest.getClientRegistration();
+		OAuth2RefreshToken refreshToken = this.refreshTokenGrantRequest.getRefreshToken();
 
 		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
 		assertThat(requestEntity.getUrl().toASCIIString()).isEqualTo(
-				authorizedClient.getClientRegistration().getProviderDetails().getTokenUri());
+				clientRegistration.getProviderDetails().getTokenUri());
 
 		HttpHeaders headers = requestEntity.getHeaders();
 		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
@@ -71,7 +75,7 @@ public class OAuth2RefreshTokenGrantRequestEntityConverterTests {
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE)).isEqualTo(
 				AuthorizationGrantType.REFRESH_TOKEN.getValue());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.REFRESH_TOKEN)).isEqualTo(
-				authorizedClient.getRefreshToken().getTokenValue());
+				refreshToken.getTokenValue());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read");
 	}
 }

@@ -17,11 +17,10 @@ package org.springframework.security.oauth2.client.endpoint;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 
@@ -39,39 +38,45 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 public class OAuth2RefreshTokenGrantRequestTests {
 	private ClientRegistration clientRegistration;
-	private Authentication principal;
-	private OAuth2AuthorizedClient authorizedClient;
+	private OAuth2AccessToken accessToken;
+	private OAuth2RefreshToken refreshToken;
 
 	@Before
 	public void setup() {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
-		this.principal = new TestingAuthenticationToken("principal", "password");
-		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration, this.principal.getName(),
-				TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken());
+		this.accessToken = TestOAuth2AccessTokens.scopes("read", "write");
+		this.refreshToken = TestOAuth2RefreshTokens.refreshToken();
 	}
 
 	@Test
-	public void constructorWhenAuthorizedClientIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2RefreshTokenGrantRequest(null))
+	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> new OAuth2RefreshTokenGrantRequest(null, this.accessToken, this.refreshToken))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizedClient cannot be null");
+				.hasMessage("clientRegistration cannot be null");
+	}
+
+	@Test
+	public void constructorWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> new OAuth2RefreshTokenGrantRequest(this.clientRegistration, null, this.refreshToken))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("accessToken cannot be null");
 	}
 
 	@Test
 	public void constructorWhenRefreshTokenIsNullThenThrowIllegalArgumentException() {
-		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
-				this.principal.getName(), TestOAuth2AccessTokens.scopes("read", "write"));
-		assertThatThrownBy(() -> new OAuth2RefreshTokenGrantRequest(this.authorizedClient))
+		assertThatThrownBy(() -> new OAuth2RefreshTokenGrantRequest(this.clientRegistration, this.accessToken, null))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizedClient.refreshToken cannot be null");
+				.hasMessage("refreshToken cannot be null");
 	}
 
 	@Test
 	public void constructorWhenValidParametersProvidedThenCreated() {
 		Set<String> scopes = new HashSet<>(Arrays.asList("read", "write"));
-		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest =
-				new OAuth2RefreshTokenGrantRequest(this.authorizedClient, scopes);
-		assertThat(refreshTokenGrantRequest.getAuthorizedClient()).isSameAs(this.authorizedClient);
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+				this.clientRegistration, this.accessToken, this.refreshToken, scopes);
+		assertThat(refreshTokenGrantRequest.getClientRegistration()).isSameAs(this.clientRegistration);
+		assertThat(refreshTokenGrantRequest.getAccessToken()).isSameAs(this.accessToken);
+		assertThat(refreshTokenGrantRequest.getRefreshToken()).isSameAs(this.refreshToken);
 		assertThat(refreshTokenGrantRequest.getScopes()).isEqualTo(scopes);
 	}
 }

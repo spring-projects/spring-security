@@ -24,12 +24,12 @@ import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -48,7 +48,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class DefaultRefreshTokenTokenResponseClientTests {
 	private DefaultRefreshTokenTokenResponseClient tokenResponseClient = new DefaultRefreshTokenTokenResponseClient();
 	private ClientRegistration.Builder clientRegistrationBuilder;
-	private OAuth2AuthorizedClient authorizedClient;
+	private OAuth2AccessToken accessToken;
+	private OAuth2RefreshToken refreshToken;
 	private MockWebServer server;
 
 	@Before
@@ -57,8 +58,8 @@ public class DefaultRefreshTokenTokenResponseClientTests {
 		this.server.start();
 		String tokenUri = this.server.url("/oauth2/token").toString();
 		this.clientRegistrationBuilder = TestClientRegistrations.clientRegistration().tokenUri(tokenUri);
-		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistrationBuilder.build(),
-				"principal", TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken());
+		this.accessToken = TestOAuth2AccessTokens.scopes("read", "write");
+		this.refreshToken = TestOAuth2RefreshTokens.refreshToken();
 	}
 
 	@After
@@ -95,8 +96,8 @@ public class DefaultRefreshTokenTokenResponseClientTests {
 
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 
-		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest =
-				new OAuth2RefreshTokenGrantRequest(this.authorizedClient);
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
 
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest);
 
@@ -115,8 +116,8 @@ public class DefaultRefreshTokenTokenResponseClientTests {
 		assertThat(accessTokenResponse.getAccessToken().getTokenValue()).isEqualTo("access-token-1234");
 		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
-		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly(this.authorizedClient.getAccessToken().getScopes().toArray(new String[0]));
-		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo(this.authorizedClient.getRefreshToken().getTokenValue());
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly(this.accessToken.getScopes().toArray(new String[0]));
+		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo(this.refreshToken.getTokenValue());
 	}
 
 	@Test
@@ -131,11 +132,9 @@ public class DefaultRefreshTokenTokenResponseClientTests {
 		ClientRegistration clientRegistration = this.clientRegistrationBuilder
 				.clientAuthenticationMethod(ClientAuthenticationMethod.POST)
 				.build();
-		this.authorizedClient = new OAuth2AuthorizedClient(clientRegistration,
-				"principal", TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken());
 
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest =
-				new OAuth2RefreshTokenGrantRequest(this.authorizedClient);
+				new OAuth2RefreshTokenGrantRequest(clientRegistration, this.accessToken, this.refreshToken);
 
 		this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest);
 
@@ -156,8 +155,8 @@ public class DefaultRefreshTokenTokenResponseClientTests {
 				"}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 
-		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest =
-				new OAuth2RefreshTokenGrantRequest(this.authorizedClient);
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest))
 				.isInstanceOf(OAuth2AuthorizationException.class)
@@ -175,8 +174,8 @@ public class DefaultRefreshTokenTokenResponseClientTests {
 				"}\n";
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 
-		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest =
-				new OAuth2RefreshTokenGrantRequest(this.authorizedClient, Collections.singleton("read"));
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken, Collections.singleton("read"));
 
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest);
 
@@ -194,8 +193,8 @@ public class DefaultRefreshTokenTokenResponseClientTests {
 				"}\n";
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(400));
 
-		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest =
-				new OAuth2RefreshTokenGrantRequest(this.authorizedClient);
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest))
 				.isInstanceOf(OAuth2AuthorizationException.class)
@@ -206,8 +205,8 @@ public class DefaultRefreshTokenTokenResponseClientTests {
 	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() {
 		this.server.enqueue(new MockResponse().setResponseCode(500));
 
-		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest =
-				new OAuth2RefreshTokenGrantRequest(this.authorizedClient);
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest))
 				.isInstanceOf(OAuth2AuthorizationException.class)

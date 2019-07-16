@@ -51,7 +51,7 @@ public class OAuth2RefreshTokenGrantRequestEntityConverter implements Converter<
 	 */
 	@Override
 	public RequestEntity<?> convert(OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
-		ClientRegistration clientRegistration = refreshTokenGrantRequest.getAuthorizedClient().getClientRegistration();
+		ClientRegistration clientRegistration = refreshTokenGrantRequest.getClientRegistration();
 
 		HttpHeaders headers = OAuth2AuthorizationGrantRequestEntityUtils.getTokenRequestHeaders(clientRegistration);
 		MultiValueMap<String, String> formParameters = buildFormParameters(refreshTokenGrantRequest);
@@ -69,12 +69,12 @@ public class OAuth2RefreshTokenGrantRequestEntityConverter implements Converter<
 	 * @return a {@link MultiValueMap} of the form parameters used for the Access Token Request body
 	 */
 	private MultiValueMap<String, String> buildFormParameters(OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
-		ClientRegistration clientRegistration = refreshTokenGrantRequest.getAuthorizedClient().getClientRegistration();
+		ClientRegistration clientRegistration = refreshTokenGrantRequest.getClientRegistration();
 
 		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
 		formParameters.add(OAuth2ParameterNames.GRANT_TYPE, refreshTokenGrantRequest.getGrantType().getValue());
 		formParameters.add(OAuth2ParameterNames.REFRESH_TOKEN,
-				refreshTokenGrantRequest.getAuthorizedClient().getRefreshToken().getTokenValue());
+				refreshTokenGrantRequest.getRefreshToken().getTokenValue());
 		if (!CollectionUtils.isEmpty(refreshTokenGrantRequest.getScopes())) {
 			formParameters.add(OAuth2ParameterNames.SCOPE,
 					StringUtils.collectionToDelimitedString(refreshTokenGrantRequest.getScopes(), " "));

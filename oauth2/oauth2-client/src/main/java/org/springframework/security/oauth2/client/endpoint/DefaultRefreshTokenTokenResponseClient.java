@@ -89,12 +89,12 @@ public final class DefaultRefreshTokenTokenResponseClient implements OAuth2Acces
 				// https://tools.ietf.org/html/rfc6749#section-5.1
 				// If AccessTokenResponse.scope is empty, then default to the scope
 				// originally requested by the client in the Token Request
-				tokenResponseBuilder.scopes(refreshTokenGrantRequest.getAuthorizedClient().getAccessToken().getScopes());
+				tokenResponseBuilder.scopes(refreshTokenGrantRequest.getAccessToken().getScopes());
 			}
 
 			if (tokenResponse.getRefreshToken() == null) {
 				// Reuse existing refresh token
-				tokenResponseBuilder.refreshToken(refreshTokenGrantRequest.getAuthorizedClient().getRefreshToken().getTokenValue());
+				tokenResponseBuilder.refreshToken(refreshTokenGrantRequest.getRefreshToken().getTokenValue());
 			}
 
 			tokenResponse = tokenResponseBuilder.build();
