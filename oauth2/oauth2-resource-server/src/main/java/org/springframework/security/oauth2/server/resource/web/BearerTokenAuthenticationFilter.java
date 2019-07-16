@@ -132,7 +132,7 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 			SecurityContextHolder.clearContext();
 
 			if (debug) {
-				this.logger.debug("Authentication request for failed: " + failed);
+				this.logger.debug("Authentication request for failed!", failed);
 			}
 
 			this.authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
