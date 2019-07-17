@@ -35,6 +35,15 @@ import java.util.Map;
  * @see OAuth2AuthorizedClientProvider
  */
 public final class OAuth2AuthorizationContext {
+	/**
+	 * The name of the {@link #getAttribute(String) attribute}
+	 * in the {@link OAuth2AuthorizationContext context}
+	 * associated to the value for the "request scope(s)".
+	 * The value of the attribute is a {@code String[]} of scope(s) to be requested
+	 * by the {@link OAuth2AuthorizationContext#getClientRegistration() client}.
+	 */
+	public static final String REQUEST_SCOPE_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".REQUEST_SCOPE");
+
 	private ClientRegistration clientRegistration;
 	private OAuth2AuthorizedClient authorizedClient;
 	private Authentication principal;
@@ -54,7 +63,7 @@ public final class OAuth2AuthorizationContext {
 
 	/**
 	 * Returns the {@link OAuth2AuthorizedClient authorized client} or {@code null}
-	 * if the {@link #forClient(ClientRegistration) client registration} was supplied.
+	 * if the {@link #withClientRegistration(ClientRegistration) client registration} was supplied.
 	 *
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if the client registration was supplied
 	 */
@@ -100,7 +109,7 @@ public final class OAuth2AuthorizationContext {
 	 * @param clientRegistration the {@link ClientRegistration client registration}
 	 * @return the {@link Builder}
 	 */
-	public static Builder forClient(ClientRegistration clientRegistration) {
+	public static Builder withClientRegistration(ClientRegistration clientRegistration) {
 		return new Builder(clientRegistration);
 	}
 
@@ -110,7 +119,7 @@ public final class OAuth2AuthorizationContext {
 	 * @param authorizedClient the {@link OAuth2AuthorizedClient authorized client}
 	 * @return the {@link Builder}
 	 */
-	public static Builder forClient(OAuth2AuthorizedClient authorizedClient) {
+	public static Builder withAuthorizedClient(OAuth2AuthorizedClient authorizedClient) {
 		return new Builder(authorizedClient);
 	}
 

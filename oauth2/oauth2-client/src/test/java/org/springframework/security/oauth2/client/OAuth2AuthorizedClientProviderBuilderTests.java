@@ -68,19 +68,19 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 
 	@Test
 	public void providerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizedClientProviderBuilder.withProvider().provider(null))
+		assertThatThrownBy(() -> OAuth2AuthorizedClientProviderBuilder.builder().provider(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void buildWhenAuthorizationCodeProviderThenProviderAuthorizes() {
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.withProvider()
+				OAuth2AuthorizedClientProviderBuilder.builder()
 						.authorizationCode()
 						.build();
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(TestClientRegistrations.clientRegistration().build())
+				OAuth2AuthorizationContext.withClientRegistration(TestClientRegistrations.clientRegistration().build())
 						.principal(this.principal)
 						.build();
 		assertThatThrownBy(() -> authorizedClientProvider.authorize(authorizationContext))
@@ -90,7 +90,7 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	@Test
 	public void buildWhenRefreshTokenProviderThenProviderReauthorizes() {
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.withProvider()
+				OAuth2AuthorizedClientProviderBuilder.builder()
 						.refreshToken(configurer -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 						.build();
 
@@ -101,7 +101,7 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 				TestOAuth2RefreshTokens.refreshToken());
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(authorizedClient)
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
 						.principal(this.principal)
 						.build();
 		OAuth2AuthorizedClient reauthorizedClient = authorizedClientProvider.authorize(authorizationContext);
@@ -113,12 +113,12 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	@Test
 	public void buildWhenClientCredentialsProviderThenProviderAuthorizes() {
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.withProvider()
+				OAuth2AuthorizedClientProviderBuilder.builder()
 						.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
 						.build();
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(TestClientRegistrations.clientCredentials().build())
+				OAuth2AuthorizationContext.withClientRegistration(TestClientRegistrations.clientCredentials().build())
 						.principal(this.principal)
 						.build();
 		OAuth2AuthorizedClient authorizedClient = authorizedClientProvider.authorize(authorizationContext);
@@ -130,7 +130,7 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	@Test
 	public void buildWhenAllProvidersThenProvidersAuthorize() {
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.withProvider()
+				OAuth2AuthorizedClientProviderBuilder.builder()
 						.authorizationCode()
 						.refreshToken(configurer -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 						.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
@@ -141,7 +141,7 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 
 		// authorization_code
 		OAuth2AuthorizationContext authorizationCodeContext =
-				OAuth2AuthorizationContext.forClient(clientRegistration)
+				OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
 						.principal(this.principal)
 						.build();
 		assertThatThrownBy(() -> authorizedClientProvider.authorize(authorizationCodeContext))
@@ -156,7 +156,7 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 				TestOAuth2RefreshTokens.refreshToken());
 
 		OAuth2AuthorizationContext refreshTokenContext =
-				OAuth2AuthorizationContext.forClient(authorizedClient)
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
 						.principal(this.principal)
 						.build();
 		OAuth2AuthorizedClient reauthorizedClient = authorizedClientProvider.authorize(refreshTokenContext);
@@ -167,7 +167,7 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 
 		// client_credentials
 		OAuth2AuthorizationContext clientCredentialsContext =
-				OAuth2AuthorizationContext.forClient(TestClientRegistrations.clientCredentials().build())
+				OAuth2AuthorizationContext.withClientRegistration(TestClientRegistrations.clientCredentials().build())
 						.principal(this.principal)
 						.build();
 		authorizedClient = authorizedClientProvider.authorize(clientCredentialsContext);
@@ -181,12 +181,12 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 		OAuth2AuthorizedClientProvider customProvider = mock(OAuth2AuthorizedClientProvider.class);
 
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.withProvider()
+				OAuth2AuthorizedClientProviderBuilder.builder()
 						.provider(customProvider)
 						.build();
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(TestClientRegistrations.clientRegistration().build())
+				OAuth2AuthorizationContext.withClientRegistration(TestClientRegistrations.clientRegistration().build())
 						.principal(this.principal)
 						.build();
 		authorizedClientProvider.authorize(authorizationContext);

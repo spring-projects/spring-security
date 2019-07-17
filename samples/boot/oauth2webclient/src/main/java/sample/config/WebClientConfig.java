@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -34,9 +35,20 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class WebClientConfig {
 
 	@Bean
-	WebClient webClient(ClientRegistrationRepository clientRegistrationRepository, OAuth2AuthorizedClientRepository authorizedClientRepository) {
+	WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+		ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2 =
+				new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
+		oauth2.setDefaultOAuth2AuthorizedClient(true);
+		return WebClient.builder()
+				.apply(oauth2.oauth2Configuration())
+				.build();
+	}
+
+	@Bean
+	OAuth2AuthorizedClientManager authorizedClientManager(ClientRegistrationRepository clientRegistrationRepository,
+															OAuth2AuthorizedClientRepository authorizedClientRepository) {
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.withProvider()
+				OAuth2AuthorizedClientProviderBuilder.builder()
 						.authorizationCode()
 						.refreshToken()
 						.clientCredentials()
@@ -45,12 +57,6 @@ public class WebClientConfig {
 				clientRegistrationRepository, authorizedClientRepository);
 		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
-		ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2 =
-				new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
-		oauth2.setDefaultOAuth2AuthorizedClient(true);
-
-		return WebClient.builder()
-				.apply(oauth2.oauth2Configuration())
-				.build();
+		return authorizedClientManager;
 	}
 }

@@ -135,7 +135,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void setup() {
 		this.authentication = new TestingAuthenticationToken("test", "this");
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.withProvider()
+				OAuth2AuthorizedClientProviderBuilder.builder()
 						.authorizationCode()
 						.refreshToken(configurer -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 						.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))

@@ -72,7 +72,7 @@ final class OAuth2ClientConfiguration {
 		public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
 			if (this.clientRegistrationRepository != null && this.authorizedClientRepository != null) {
 				OAuth2AuthorizedClientProvider authorizedClientProvider =
-						OAuth2AuthorizedClientProviderBuilder.withProvider()
+						OAuth2AuthorizedClientProviderBuilder.builder()
 								.authorizationCode()
 								.refreshToken()
 								.clientCredentials(configurer ->

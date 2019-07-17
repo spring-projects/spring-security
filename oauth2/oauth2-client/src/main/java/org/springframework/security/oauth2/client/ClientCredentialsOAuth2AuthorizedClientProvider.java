@@ -58,9 +58,13 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 		Assert.notNull(context, "context cannot be null");
 
 		ClientRegistration clientRegistration = context.getClientRegistration();
+		if (!AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType())) {
+			return null;
+		}
+
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
-		if (!AuthorizationGrantType.CLIENT_CREDENTIALS.equals(clientRegistration.getAuthorizationGrantType()) ||
-				(authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken()))) {
+		if (authorizedClient != null && !hasTokenExpired(authorizedClient.getAccessToken())) {
+			// If client is already authorized but access token is NOT expired than no need for re-authorization
 			return null;
 		}
 

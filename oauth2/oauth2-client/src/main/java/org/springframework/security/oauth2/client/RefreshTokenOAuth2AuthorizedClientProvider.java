@@ -41,14 +41,6 @@ import java.util.Set;
  * @see DefaultRefreshTokenTokenResponseClient
  */
 public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
-	/**
-	 * The name of the {@link OAuth2AuthorizationContext#getAttribute(String) attribute}
-	 * in the {@link OAuth2AuthorizationContext context} associated to the value for the "requested scope(s)".
-	 * The value of the attribute is a {@code String[]} of scope(s) to be requested
-	 * by the {@link OAuth2AuthorizationContext#getClientRegistration() client}.
-	 */
-	public static final String REQUEST_SCOPE_ATTRIBUTE_NAME = "org.springframework.security.oauth2.client.REQUEST_SCOPE";
-
 	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient =
 			new DefaultRefreshTokenTokenResponseClient();
 	private Duration clockSkew = Duration.ofSeconds(60);
@@ -62,7 +54,7 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 	 * <p>
 	 * The following {@link OAuth2AuthorizationContext#getAttributes() context attributes} are supported:
 	 * <ol>
-	 *  <li>{@code "org.springframework.security.oauth2.client.REQUEST_SCOPE"} (optional) - a {@code String[]} of scope(s)
+	 *  <li>{@link OAuth2AuthorizationContext#REQUEST_SCOPE_ATTRIBUTE_NAME} (optional) - a {@code String[]} of scope(s)
 	 *  	to be requested by the {@link OAuth2AuthorizationContext#getClientRegistration() client}</li>
 	 * </ol>
 	 *
@@ -81,11 +73,11 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 			return null;
 		}
 
-		Object requestScope = context.getAttribute(REQUEST_SCOPE_ATTRIBUTE_NAME);
+		Object requestScope = context.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		Set<String> scopes = Collections.emptySet();
 		if (requestScope != null) {
 			Assert.isInstanceOf(String[].class, requestScope,
-					"The context attribute must be of type String[] '" + REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
+					"The context attribute must be of type String[] '" + OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
 			scopes = new HashSet<>(Arrays.asList((String[]) requestScope));
 		}
 

@@ -164,7 +164,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 			ClientRegistrationRepository clientRegistrationRepository, OAuth2AuthorizedClientRepository authorizedClientRepository) {
 
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.withProvider()
+				OAuth2AuthorizedClientProviderBuilder.builder()
 						.authorizationCode()
 						.refreshToken()
 						.clientCredentials()
@@ -208,7 +208,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 
 	private void updateDefaultAuthorizedClientManager() {
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.withProvider()
+				OAuth2AuthorizedClientProviderBuilder.builder()
 						.authorizationCode()
 						.refreshToken(configurer -> configurer.clockSkew(this.accessTokenExpiresSkew))
 						.clientCredentials(this::updateClientCredentialsProvider)

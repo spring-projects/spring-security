@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
 import java.util.function.Function;
 
@@ -246,6 +247,40 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
+
+		assertThat(authorizedClient).isSameAs(reauthorizedClient);
+		verify(this.authorizedClientRepository).saveAuthorizedClient(
+				eq(reauthorizedClient), eq(this.principal), eq(this.request), eq(this.response));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void reauthorizeWhenRequestScopeParameterThenMappedToContext() {
+		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(
+				this.clientRegistration, this.principal.getName(),
+				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
+
+		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(reauthorizedClient);
+
+		// Override the mock with the default
+		this.authorizedClientManager.setContextAttributesMapper(
+				new DefaultOAuth2AuthorizedClientManager.DefaultContextAttributesMapper());
+
+		this.request.addParameter(OAuth2ParameterNames.SCOPE, "read write");
+
+		OAuth2ReauthorizeRequest reauthorizeRequest = new OAuth2ReauthorizeRequest(
+				this.authorizedClient, this.principal, this.request, this.response);
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.reauthorize(reauthorizeRequest);
+
+		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
+
+		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
+		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
+		assertThat(authorizationContext.getAuthorizedClient()).isSameAs(this.authorizedClient);
+		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
+		assertThat(authorizationContext.getAttributes()).containsKey(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
+		String[] requestScopeAttribute = authorizationContext.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
+		assertThat(requestScopeAttribute).contains("read", "write");
 
 		assertThat(authorizedClient).isSameAs(reauthorizedClient);
 		verify(this.authorizedClientRepository).saveAuthorizedClient(

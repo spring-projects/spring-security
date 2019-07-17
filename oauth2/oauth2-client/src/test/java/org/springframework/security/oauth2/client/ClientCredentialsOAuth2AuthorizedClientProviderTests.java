@@ -90,7 +90,7 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(clientRegistration)
+				OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
 						.principal(this.principal)
 						.build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
@@ -102,7 +102,7 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(this.clientRegistration)
+				OAuth2AuthorizationContext.withClientRegistration(this.clientRegistration)
 						.principal(this.principal)
 						.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
@@ -125,7 +125,7 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(authorizedClient)
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
 						.principal(this.principal)
 						.build();
 		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
@@ -141,7 +141,7 @@ public class ClientCredentialsOAuth2AuthorizedClientProviderTests {
 				this.clientRegistration, this.principal.getName(), TestOAuth2AccessTokens.noScopes());
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(authorizedClient)
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
 						.principal(this.principal)
 						.build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();

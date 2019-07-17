@@ -21,7 +21,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGra
 import org.springframework.util.Assert;
 
 import java.time.Duration;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  * @see DelegatingOAuth2AuthorizedClientProvider
  */
 public final class OAuth2AuthorizedClientProviderBuilder {
-	private final Map<Class<?>, Builder> builders = new HashMap<>();
+	private final Map<Class<?>, Builder> builders = new LinkedHashMap<>();
 
 	private OAuth2AuthorizedClientProviderBuilder() {
 	}
@@ -54,7 +54,7 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 *
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
-	public static OAuth2AuthorizedClientProviderBuilder withProvider() {
+	public static OAuth2AuthorizedClientProviderBuilder builder() {
 		return new OAuth2AuthorizedClientProviderBuilder();
 	}
 
@@ -76,7 +76,7 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder authorizationCode() {
-		this.builders.computeIfAbsent(AuthorizationCodeGrantBuilder.class, k -> new AuthorizationCodeGrantBuilder());
+		this.builders.computeIfAbsent(AuthorizationCodeOAuth2AuthorizedClientProvider.class, k -> new AuthorizationCodeGrantBuilder());
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -105,7 +105,7 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder refreshToken() {
-		this.builders.computeIfAbsent(RefreshTokenGrantBuilder.class, k -> new RefreshTokenGrantBuilder());
+		this.builders.computeIfAbsent(RefreshTokenOAuth2AuthorizedClientProvider.class, k -> new RefreshTokenGrantBuilder());
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -117,7 +117,7 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 */
 	public OAuth2AuthorizedClientProviderBuilder refreshToken(Consumer<RefreshTokenGrantBuilder> builderConsumer) {
 		RefreshTokenGrantBuilder builder = (RefreshTokenGrantBuilder) this.builders.computeIfAbsent(
-				RefreshTokenGrantBuilder.class, k -> new RefreshTokenGrantBuilder());
+				RefreshTokenOAuth2AuthorizedClientProvider.class, k -> new RefreshTokenGrantBuilder());
 		builderConsumer.accept(builder);
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
@@ -179,7 +179,7 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder clientCredentials() {
-		this.builders.computeIfAbsent(ClientCredentialsGrantBuilder.class, k -> new ClientCredentialsGrantBuilder());
+		this.builders.computeIfAbsent(ClientCredentialsOAuth2AuthorizedClientProvider.class, k -> new ClientCredentialsGrantBuilder());
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -191,7 +191,7 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 */
 	public OAuth2AuthorizedClientProviderBuilder clientCredentials(Consumer<ClientCredentialsGrantBuilder> builderConsumer) {
 		ClientCredentialsGrantBuilder builder = (ClientCredentialsGrantBuilder) this.builders.computeIfAbsent(
-				ClientCredentialsGrantBuilder.class, k -> new ClientCredentialsGrantBuilder());
+				ClientCredentialsOAuth2AuthorizedClientProvider.class, k -> new ClientCredentialsGrantBuilder());
 		builderConsumer.accept(builder);
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}

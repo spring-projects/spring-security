@@ -57,7 +57,7 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 		ClientRegistration clientCredentialsClient = TestClientRegistrations.clientCredentials().build();
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(clientCredentialsClient)
+				OAuth2AuthorizationContext.withClientRegistration(clientCredentialsClient)
 						.principal(this.principal)
 						.build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
@@ -66,7 +66,7 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenAuthorizationCodeAndAuthorizedThenNotAuthorize() {
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(this.authorizedClient)
+				OAuth2AuthorizationContext.withAuthorizedClient(this.authorizedClient)
 						.principal(this.principal)
 						.build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
@@ -75,7 +75,7 @@ public class AuthorizationCodeOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenAuthorizationCodeAndNotAuthorizedThenAuthorize() {
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(this.clientRegistration)
+				OAuth2AuthorizationContext.withClientRegistration(this.clientRegistration)
 						.principal(this.principal)
 						.build();
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))

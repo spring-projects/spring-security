@@ -98,7 +98,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenNotAuthorizedThenUnableToReauthorize() {
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(this.clientRegistration)
+				OAuth2AuthorizationContext.withClientRegistration(this.clientRegistration)
 						.principal(this.principal)
 						.build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
@@ -110,7 +110,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 				this.clientRegistration, this.principal.getName(), this.authorizedClient.getAccessToken());
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(authorizedClient)
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
 						.principal(this.principal)
 						.build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
@@ -122,7 +122,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 				this.principal.getName(), TestOAuth2AccessTokens.noScopes(), this.authorizedClient.getRefreshToken());
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(authorizedClient)
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
 						.principal(this.principal)
 						.build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
@@ -136,7 +136,7 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(this.authorizedClient)
+				OAuth2AuthorizationContext.withAuthorizedClient(this.authorizedClient)
 						.principal(this.principal)
 						.build();
 
@@ -157,9 +157,9 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 
 		String[] requestScope = new String[] { "read", "write" };
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(this.authorizedClient)
+				OAuth2AuthorizationContext.withAuthorizedClient(this.authorizedClient)
 						.principal(this.principal)
-						.attribute(RefreshTokenOAuth2AuthorizedClientProvider.REQUEST_SCOPE_ATTRIBUTE_NAME, requestScope)
+						.attribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME, requestScope)
 						.build();
 
 		this.authorizedClientProvider.authorize(authorizationContext);
@@ -174,14 +174,14 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 	public void authorizeWhenAuthorizedAndInvalidRequestScopeProvidedThenThrowIllegalArgumentException() {
 		String invalidRequestScope = "read write";
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(this.authorizedClient)
+				OAuth2AuthorizationContext.withAuthorizedClient(this.authorizedClient)
 						.principal(this.principal)
-						.attribute(RefreshTokenOAuth2AuthorizedClientProvider.REQUEST_SCOPE_ATTRIBUTE_NAME, invalidRequestScope)
+						.attribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME, invalidRequestScope)
 						.build();
 
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(authorizationContext))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageStartingWith("The context attribute must be of type String[] '" +
-						RefreshTokenOAuth2AuthorizedClientProvider.REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
+						OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME + "'");
 	}
 }

@@ -107,7 +107,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1, this.registration2);
 		this.authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.withProvider()
+				OAuth2AuthorizedClientProviderBuilder.builder()
 						.authorizationCode()
 						.refreshToken()
 						.clientCredentials()

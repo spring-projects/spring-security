@@ -45,28 +45,28 @@ public class OAuth2AuthorizationContextTests {
 
 	@Test
 	public void forClientWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient((ClientRegistration) null).build())
+		assertThatThrownBy(() -> OAuth2AuthorizationContext.withClientRegistration((ClientRegistration) null).build())
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("clientRegistration cannot be null");
 	}
 
 	@Test
 	public void forClientWhenAuthorizedClientIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient((OAuth2AuthorizedClient) null).build())
+		assertThatThrownBy(() -> OAuth2AuthorizationContext.withAuthorizedClient((OAuth2AuthorizedClient) null).build())
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("authorizedClient cannot be null");
 	}
 
 	@Test
 	public void forClientWhenPrincipalIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationContext.forClient(this.clientRegistration).build())
+		assertThatThrownBy(() -> OAuth2AuthorizationContext.withClientRegistration(this.clientRegistration).build())
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("principal cannot be null");
 	}
 
 	@Test
 	public void forClientWhenAllValuesProvidedThenAllValuesAreSet() {
-		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext.forClient(this.authorizedClient)
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext.withAuthorizedClient(this.authorizedClient)
 				.principal(this.principal)
 				.attribute("attribute1", "value1")
 				.attribute("attribute2", "value2")

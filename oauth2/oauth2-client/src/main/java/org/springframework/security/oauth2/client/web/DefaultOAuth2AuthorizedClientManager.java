@@ -22,11 +22,14 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -42,7 +45,7 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private OAuth2AuthorizedClientProvider authorizedClientProvider = context -> null;
-	private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper = authorizeRequest -> Collections.emptyMap();
+	private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper = new DefaultContextAttributesMapper();
 
 	/**
 	 * Constructs a {@code DefaultOAuth2AuthorizedClientManager} using the provided parameters.
@@ -80,7 +83,7 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		}
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(clientRegistration)
+				OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
 						.principal(principal)
 						.attributes(this.contextAttributesMapper.apply(authorizeRequest))
 						.build();
@@ -102,7 +105,7 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		HttpServletResponse servletResponse = reauthorizeRequest.getServletResponse();
 
 		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.forClient(authorizedClient)
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
 						.principal(principal)
 						.attributes(this.contextAttributesMapper.apply(reauthorizeRequest))
 						.build();
@@ -135,5 +138,23 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 	public void setContextAttributesMapper(Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper) {
 		Assert.notNull(contextAttributesMapper, "contextAttributesMapper cannot be null");
 		this.contextAttributesMapper = contextAttributesMapper;
+	}
+
+	/**
+	 * The default implementation of the {@link #setContextAttributesMapper(Function) contextAttributesMapper}.
+	 */
+	public static class DefaultContextAttributesMapper implements Function<OAuth2AuthorizeRequest, Map<String, Object>> {
+
+		@Override
+		public Map<String, Object> apply(OAuth2AuthorizeRequest authorizeRequest) {
+			Map<String, Object> contextAttributes = Collections.emptyMap();
+			String scope = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.SCOPE);
+			if (StringUtils.hasText(scope)) {
+				contextAttributes = new HashMap<>();
+				contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
+						StringUtils.delimitedListToStringArray(scope, " "));
+			}
+			return contextAttributes;
+		}
 	}
 }
