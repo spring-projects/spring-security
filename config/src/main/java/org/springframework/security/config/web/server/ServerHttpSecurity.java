@@ -1121,6 +1121,23 @@ public class ServerHttpSecurity {
 		private OAuth2ClientSpec() {}
 	}
 
+	/**
+	 * Configures OAuth 2.0 Resource Server support.
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	 *      http
+	 *          // ...
+	 *          .oauth2ResourceServer()
+	 *              .jwt()
+	 *                  .publicKey(publicKey());
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @return the {@link OAuth2ResourceServerSpec} to customize
+	 */
 	public OAuth2ResourceServerSpec oauth2ResourceServer() {
 		if (this.resourceServer == null) {
 			this.resourceServer = new OAuth2ResourceServerSpec();
@@ -1199,6 +1216,11 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
+		/**
+		 * Enables JWT Resource Server support.
+		 *
+		 * @return the {@link JwtSpec} for additional configuration
+		 */
 		public JwtSpec jwt() {
 			if (this.jwt == null) {
 				this.jwt = new JwtSpec();
@@ -1206,6 +1228,11 @@ public class ServerHttpSecurity {
 			return this.jwt;
 		}
 
+		/**
+		 * Enables Opaque Token Resource Server support.
+		 *
+		 * @return the {@link OpaqueTokenSpec} for additional configuration
+		 */
 		public OpaqueTokenSpec opaqueToken() {
 			if (this.opaqueToken == null) {
 				this.opaqueToken = new OpaqueTokenSpec();
