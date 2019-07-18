@@ -677,6 +677,24 @@ public class ServerHttpSecurity {
 		}
 	}
 
+	/**
+	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	 *      http
+	 *          // ...
+	 *          .oauth2Login()
+	 *              .authenticationConverter(authenticationConverter)
+	 *              .authenticationManager(manager);
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 *
+	 * @return the {@link OAuth2LoginSpec} to customize
+	 */
 	public OAuth2LoginSpec oauth2Login() {
 		if (this.oauth2Login == null) {
 			this.oauth2Login = new OAuth2LoginSpec();
