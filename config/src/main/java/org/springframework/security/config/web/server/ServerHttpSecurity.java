@@ -576,7 +576,7 @@ public class ServerHttpSecurity {
 	 *              // expect a log in page at "/authenticate"
 	 *              // a POST "/authenticate" is where authentication occurs
 	 *              // error page at "/authenticate?error"
-	 *              .formLogin("/authenticate");
+	 *              .loginPage("/authenticate");
 	 *      return http.build();
 	 *  }
 	 * </pre>
