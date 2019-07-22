@@ -53,12 +53,20 @@ You can easily do this with the following Java Configuration:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.headers()
-			.hsts().disable()
-			.frameOptions().mode(Mode.SAMEORIGIN);
+		.headers(headers ->
+			headers
+				.hsts(hsts ->
+					hsts
+						.disable()
+				)
+				.frameOptions(frameOptions ->
+					frameOptions
+						.mode(Mode.SAMEORIGIN)
+				)
+		);
 	return http.build();
 }
 ----
@@ -72,11 +80,13 @@ If necessary, you can disable all of the HTTP Security response headers with the
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.headers()
-			.disable();
+		.headers(headers ->
+			headers
+				.disable()
+		);
 	return http.build();
 }
 ----
@@ -104,11 +114,13 @@ You can also disable cache control using the following Java Configuration:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.headers()
-			.cache().disable();
+		.headers(headers ->
+			headers
+				.cache(cache -> cache.disable())
+		);
 	return http.build();
 }
 ----
@@ -143,11 +155,13 @@ However, if need to disable the header, the following may be used:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.headers()
-			.contentTypeOptions().disable();
+		.headers(headers ->
+			headers
+				.contentTypeOptions(contentTypeOptions -> contentTypeOptions.disable())
+		);
 	return http.build();
 }
 ----
@@ -188,14 +202,18 @@ You can customize HSTS headers with Java Configuration:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.headers()
-			.hsts()
-				.includeSubdomains(true)
-				.preload(true)
-				.maxAge(Duration.ofDays(365));
+		.headers(headers ->
+			headers
+				.hsts(hsts ->
+					hsts
+						.includeSubdomains(true)
+						.preload(true)
+						.maxAge(Duration.ofDays(365))
+				)
+		);
 	return http.build();
 }
 ----
@@ -232,12 +250,16 @@ You can customize X-Frame-Options with Java Configuration using the following:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.headers()
-			.frameOptions()
-				.mode(SAMEORIGIN);
+		.headers(headers ->
+			headers
+				.frameOptions(frameOptions ->
+					frameOptions
+						.mode(SAMEORIGIN)
+				)
+		);
 	return http.build();
 }
 ----
@@ -264,12 +286,13 @@ However, we can customize with Java Configuration with the following:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.headers()
-			.xssProtection()
-				.disable();
+		.headers(headers ->
+			headers
+				.xssProtection(xssProtection -> xssProtection.disable())
+		);
 	return http.build();
 }
 ----
@@ -345,11 +368,16 @@ You can enable the CSP header using Java configuration as shown below:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.headers()
-			.contentSecurityPolicy("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/");
+		.headers(headers ->
+			headers
+				.contentSecurityPolicy(contentSecurityPolicy ->
+					contentSecurityPolicy
+						.policyDirectives("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/")
+				)
+		);
 	return http.build();
 }
 ----
@@ -359,12 +387,17 @@ To enable the CSP _'report-only'_ header, provide the following Java configurati
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.headers()
-			.contentSecurityPolicy("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/")
-			.reportOnly();
+		.headers(headers ->
+			headers
+				.contentSecurityPolicy(contentSecurityPolicy ->
+					contentSecurityPolicy
+						.policyDirectives("script-src 'self' https://trustedscripts.example.com; object-src https://trustedplugins.example.com; report-uri /csp-report-endpoint/")
+						.reportOnly()
+				)
+		);
 	return http.build();
 }
 ----
@@ -405,11 +438,16 @@ You can enable the Referrer-Policy header using Java configuration as shown belo
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.headers()
-			.referrerPolicy(ReferrerPolicy.SAME_ORIGIN);
+		.headers(headers ->
+			headers
+				.referrerPolicy(referrerPolicy ->
+					referrerPolicy
+						.policy(ReferrerPolicy.SAME_ORIGIN)
+				)
+		);
 	return http.build();
 }
 ----
@@ -438,11 +476,13 @@ You can enable the Feature-Policy header using Java configuration as shown below
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.headers()
-			.featurePolicy("geolocation 'self'");
+		.headers(headers ->
+			headers
+				.featurePolicy("geolocation 'self'")
+		);
 	return http.build();
 }
 ----

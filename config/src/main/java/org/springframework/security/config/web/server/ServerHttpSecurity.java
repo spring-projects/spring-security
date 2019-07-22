@@ -32,6 +32,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.springframework.security.config.Customizer;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -395,6 +396,48 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures HTTPS redirection rules. If the default is used:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 * 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	 * 	    http
+	 * 	        // ...
+	 * 	        .redirectToHttps(withDefaults());
+	 * 	    return http.build();
+	 * 	}
+	 * </pre>
+	 *
+	 * Then all non-HTTPS requests will be redirected to HTTPS.
+	 *
+	 * Typically, all requests should be HTTPS; however, the focus for redirection can also be narrowed:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 * 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 * 	    http
+	 * 	        // ...
+	 * 	        .redirectToHttps(redirectToHttps ->
+	 * 	        	redirectToHttps
+	 * 	            	.httpsRedirectWhen(serverWebExchange ->
+	 * 	            		serverWebExchange.getRequest().getHeaders().containsKey("X-Requires-Https"))
+	 * 	            );
+	 * 	    return http.build();
+	 * 	}
+	 * </pre>
+	 *
+	 * @param httpsRedirectCustomizer the {@link Customizer} to provide more options for
+	 * the {@link HttpsRedirectSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity redirectToHttps(Customizer<HttpsRedirectSpec> httpsRedirectCustomizer) throws Exception {
+		this.httpsRedirectSpec = new HttpsRedirectSpec();
+		httpsRedirectCustomizer.customize(this.httpsRedirectSpec);
+		return this;
+	}
+
+	/**
 	 * Configures <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet">CSRF Protection</a>
 	 * which is enabled by default. You can disable it using:
 	 *
@@ -437,6 +480,56 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet">CSRF Protection</a>
+	 * which is enabled by default. You can disable it using:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .csrf(csrf ->
+	 *              csrf.disabled()
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * Additional configuration options can be seen below:
+	 *
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .csrf(csrf ->
+	 *              csrf
+	 *                  // Handle CSRF failures
+	 *                  .accessDeniedHandler(accessDeniedHandler)
+	 *                  // Custom persistence of CSRF Token
+	 *                  .csrfTokenRepository(csrfTokenRepository)
+	 *                  // custom matching when CSRF protection is enabled
+	 *                  .requireCsrfProtectionMatcher(matcher)
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param csrfCustomizer the {@link Customizer} to provide more options for
+	 * the {@link CsrfSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity csrf(Customizer<CsrfSpec> csrfCustomizer) throws Exception {
+		if (this.csrf == null) {
+			this.csrf = new CsrfSpec();
+		}
+		csrfCustomizer.customize(this.csrf);
+		return this;
+	}
+
+	/**
 	 * Configures CORS headers. By default if a {@link CorsConfigurationSource} Bean is found, it will be used
 	 * to create a {@link CorsWebFilter}. If {@link CorsSpec#configurationSource(CorsConfigurationSource)} is invoked
 	 * it will be used instead. If neither has been configured, the Cors configuration will do nothing.
@@ -447,6 +540,24 @@ public class ServerHttpSecurity {
 			this.cors = new CorsSpec();
 		}
 		return this.cors;
+	}
+
+	/**
+	 * Configures CORS headers. By default if a {@link CorsConfigurationSource} Bean is found, it will be used
+	 * to create a {@link CorsWebFilter}. If {@link CorsSpec#configurationSource(CorsConfigurationSource)} is invoked
+	 * it will be used instead. If neither has been configured, the Cors configuration will do nothing.
+	 *
+	 * @param corsCustomizer the {@link Customizer} to provide more options for
+	 * the {@link CorsSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity cors(Customizer<CorsSpec> corsCustomizer) throws Exception {
+		if (this.cors == null) {
+			this.cors = new CorsSpec();
+		}
+		corsCustomizer.customize(this.cors);
+		return this;
 	}
 
 	/**
@@ -471,6 +582,36 @@ public class ServerHttpSecurity {
 			this.anonymous = new AnonymousSpec();
 		}
 		return this.anonymous;
+	}
+
+	/**
+	 * Enables and Configures anonymous authentication. Anonymous Authentication is disabled by default.
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .anonymous(anonymous ->
+	 *              anonymous
+	 *                  .key("key")
+	 *                  .authorities("ROLE_ANONYMOUS")
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param anonymousCustomizer the {@link Customizer} to provide more options for
+	 * the {@link AnonymousSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity anonymous(Customizer<AnonymousSpec> anonymousCustomizer) throws Exception {
+		if (this.anonymous == null) {
+			this.anonymous = new AnonymousSpec();
+		}
+		anonymousCustomizer.customize(this.anonymous);
+		return this;
 	}
 
 	/**
@@ -561,6 +702,38 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures HTTP Basic authentication. An example configuration is provided below:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .httpBasic(httpBasic ->
+	 *              httpBasic
+	 *                  // used for authenticating the credentials
+	 *                  .authenticationManager(authenticationManager)
+	 *                  // Custom persistence of the authentication
+	 *                  .securityContextRepository(securityContextRepository)
+	 *              );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param httpBasicCustomizer the {@link Customizer} to provide more options for
+	 * the {@link HttpBasicSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity httpBasic(Customizer<HttpBasicSpec> httpBasicCustomizer) throws Exception {
+		if (this.httpBasic == null) {
+			this.httpBasic = new HttpBasicSpec();
+		}
+		httpBasicCustomizer.customize(this.httpBasic);
+		return this;
+	}
+
+	/**
 	 * Configures form based authentication. An example configuration is provided below:
 	 *
 	 * <pre class="code">
@@ -591,6 +764,42 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures form based authentication. An example configuration is provided below:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .formLogin(formLogin ->
+	 *              formLogin
+	 *              	// used for authenticating the credentials
+	 *              	.authenticationManager(authenticationManager)
+	 *              	// Custom persistence of the authentication
+	 *              	.securityContextRepository(securityContextRepository)
+	 *              	// expect a log in page at "/authenticate"
+	 *              	// a POST "/authenticate" is where authentication occurs
+	 *              	// error page at "/authenticate?error"
+	 *              	.loginPage("/authenticate")
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param formLoginCustomizer the {@link Customizer} to provide more options for
+	 * the {@link FormLoginSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity formLogin(Customizer<FormLoginSpec> formLoginCustomizer) throws Exception {
+		if (this.formLogin == null) {
+			this.formLogin = new FormLoginSpec();
+		}
+		formLoginCustomizer.customize(this.formLogin);
+		return this;
+	}
+
+	/**
 	 * Configures x509 authentication using a certificate provided by a client.
 	 *
 	 * <pre class="code">
@@ -617,6 +826,39 @@ public class ServerHttpSecurity {
 		}
 
 		return this.x509;
+	}
+
+	/**
+	 * Configures x509 authentication using a certificate provided by a client.
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          .x509(x509 ->
+	 *              x509
+	 *          	    .authenticationManager(authenticationManager)
+	 *                  .principalExtractor(principalExtractor)
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * Note that if extractor is not specified, {@link SubjectDnX509PrincipalExtractor} will be used.
+	 * If authenticationManager is not specified, {@link ReactivePreAuthenticatedAuthenticationManager} will be used.
+	 *
+	 * @since 5.2
+	 * @param x509Customizer the {@link Customizer} to provide more options for
+	 * the {@link X509Spec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity x509(Customizer<X509Spec> x509Customizer) throws Exception {
+		if (this.x509 == null) {
+			this.x509 = new X509Spec();
+		}
+		x509Customizer.customize(this.x509);
+		return this;
 	}
 
 	/**
@@ -700,6 +942,36 @@ public class ServerHttpSecurity {
 			this.oauth2Login = new OAuth2LoginSpec();
 		}
 		return this.oauth2Login;
+	}
+
+	/**
+	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .oauth2Login(oauth2Login ->
+	 *              oauth2Login
+	 *                  .authenticationConverter(authenticationConverter)
+	 *                  .authenticationManager(manager)
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param oauth2LoginCustomizer the {@link Customizer} to provide more options for
+	 * the {@link OAuth2LoginSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity oauth2Login(Customizer<OAuth2LoginSpec> oauth2LoginCustomizer) throws Exception {
+		if (this.oauth2Login == null) {
+			this.oauth2Login = new OAuth2LoginSpec();
+		}
+		oauth2LoginCustomizer.customize(this.oauth2Login);
+		return this;
 	}
 
 	public class OAuth2LoginSpec {
@@ -995,6 +1267,36 @@ public class ServerHttpSecurity {
 		return this.client;
 	}
 
+	/**
+	 * Configures the OAuth2 client.
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .oauth2Client(oauth2Client ->
+	 *              oauth2Client
+	 *                  .clientRegistrationRepository(clientRegistrationRepository)
+	 *                  .authorizedClientRepository(authorizedClientRepository)
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param oauth2ClientCustomizer the {@link Customizer} to provide more options for
+	 * the {@link OAuth2ClientSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity oauth2Client(Customizer<OAuth2ClientSpec> oauth2ClientCustomizer) throws Exception {
+		if (this.client == null) {
+			this.client = new OAuth2ClientSpec();
+		}
+		oauth2ClientCustomizer.customize(this.client);
+		return this;
+	}
+
 	public class OAuth2ClientSpec {
 		private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
@@ -1146,6 +1448,39 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures OAuth 2.0 Resource Server support.
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .oauth2ResourceServer(oauth2ResourceServer ->
+	 *              oauth2ResourceServer
+	 *                  .jwt(jwt ->
+	 *                      jwt
+	 *                          .publicKey(publicKey())
+	 *                  )
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param oauth2ResourceServerCustomizer the {@link Customizer} to provide more options for
+	 * the {@link OAuth2ResourceServerSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity oauth2ResourceServer(Customizer<OAuth2ResourceServerSpec> oauth2ResourceServerCustomizer)
+			throws Exception {
+		if (this.resourceServer == null) {
+			this.resourceServer = new OAuth2ResourceServerSpec();
+		}
+		oauth2ResourceServerCustomizer.customize(this.resourceServer);
+		return this;
+	}
+
+	/**
 	 * Configures OAuth2 Resource Server Support
 	 */
 	public class OAuth2ResourceServerSpec {
@@ -1229,6 +1564,22 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Enables JWT Resource Server support.
+		 *
+		 * @param jwtCustomizer the {@link Customizer} to provide more options for
+		 * the {@link JwtSpec}
+		 * @return the {@link OAuth2ResourceServerSpec} to customize
+		 * @throws Exception
+		 */
+		public OAuth2ResourceServerSpec jwt(Customizer<JwtSpec> jwtCustomizer) throws Exception {
+			if (this.jwt == null) {
+				this.jwt = new JwtSpec();
+			}
+			jwtCustomizer.customize(this.jwt);
+			return this;
+		}
+
+		/**
 		 * Enables Opaque Token Resource Server support.
 		 *
 		 * @return the {@link OpaqueTokenSpec} for additional configuration
@@ -1238,6 +1589,22 @@ public class ServerHttpSecurity {
 				this.opaqueToken = new OpaqueTokenSpec();
 			}
 			return this.opaqueToken;
+		}
+
+		/**
+		 * Enables Opaque Token Resource Server support.
+		 *
+		 * @param opaqueTokenCustomizer the {@link Customizer} to provide more options for
+		 * the {@link OpaqueTokenSpec}
+		 * @return the {@link OAuth2ResourceServerSpec} to customize
+		 * @throws Exception
+		 */
+		public OAuth2ResourceServerSpec opaqueToken(Customizer<OpaqueTokenSpec> opaqueTokenCustomizer) throws Exception {
+			if (this.opaqueToken == null) {
+				this.opaqueToken = new OpaqueTokenSpec();
+			}
+			opaqueTokenCustomizer.customize(this.opaqueToken);
+			return this;
 		}
 
 		protected void configure(ServerHttpSecurity http) {
@@ -1562,6 +1929,58 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures HTTP Response Headers. The default headers are:
+	 *
+	 * <pre>
+	 * Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+	 * Pragma: no-cache
+	 * Expires: 0
+	 * X-Content-Type-Options: nosniff
+	 * Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+	 * X-Frame-Options: DENY
+	 * X-XSS-Protection: 1; mode=block
+	 * </pre>
+	 *
+	 * such that "Strict-Transport-Security" is only added on secure requests.
+	 *
+	 * An example configuration is provided below:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .headers(headers ->
+	 *              headers
+	 *                  // customize frame options to be same origin
+	 *                  .frameOptions(frameOptions ->
+	 *                      frameOptions
+	 *                          .mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN)
+	 *                   )
+	 *                  // disable cache control
+	 *                  .cache(cache ->
+	 *                      cache
+	 *                          .disable()
+	 *                  )
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param headerCustomizer the {@link Customizer} to provide more options for
+	 * the {@link HeaderSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity headers(Customizer<HeaderSpec> headerCustomizer) throws Exception {
+		if (this.headers == null) {
+			this.headers = new HeaderSpec();
+		}
+		headerCustomizer.customize(this.headers);
+		return this;
+	}
+
+	/**
 	 * Configures exception handling (i.e. handles when authentication is requested). An example configuration can
 	 * be found below:
 	 *
@@ -1584,6 +2003,38 @@ public class ServerHttpSecurity {
 			this.exceptionHandling = new ExceptionHandlingSpec();
 		}
 		return this.exceptionHandling;
+	}
+
+	/**
+	 * Configures exception handling (i.e. handles when authentication is requested). An example configuration can
+	 * be found below:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .exceptionHandling(exceptionHandling ->
+	 *              exceptionHandling
+	 *                  // customize how to request for authentication
+	 *                  .authenticationEntryPoint(entryPoint)
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param exceptionHandlingCustomizer the {@link Customizer} to provide more options for
+	 * the {@link ExceptionHandlingSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity exceptionHandling(Customizer<ExceptionHandlingSpec> exceptionHandlingCustomizer)
+			throws Exception {
+		if (this.exceptionHandling == null) {
+			this.exceptionHandling = new ExceptionHandlingSpec();
+		}
+		exceptionHandlingCustomizer.customize(this.exceptionHandling);
+		return this;
 	}
 
 	/**
@@ -1625,6 +2076,51 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures authorization. An example configuration can be found below:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .authorizeExchange(exchanges ->
+	 *              exchanges
+	 *                  // any URL that starts with /admin/ requires the role "ROLE_ADMIN"
+	 *                  .pathMatchers("/admin/**").hasRole("ADMIN")
+	 *                  // a POST to /users requires the role "USER_POST"
+	 *                  .pathMatchers(HttpMethod.POST, "/users").hasAuthority("USER_POST")
+	 *                  // a request to /users/{username} requires the current authentication's username
+	 *                  // to be equal to the {username}
+	 *                  .pathMatchers("/users/{username}").access((authentication, context) ->
+	 *                      authentication
+	 *                          .map(Authentication::getName)
+	 *                          .map(username -> username.equals(context.getVariables().get("username")))
+	 *                          .map(AuthorizationDecision::new)
+	 *                  )
+	 *                  // allows providing a custom matching strategy that requires the role "ROLE_CUSTOM"
+	 *                  .matchers(customMatcher).hasRole("CUSTOM")
+	 *                  // any other request requires the user to be authenticated
+	 *                  .anyExchange().authenticated()
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param authorizeExchangeCustomizer the {@link Customizer} to provide more options for
+	 * the {@link AuthorizeExchangeSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity authorizeExchange(Customizer<AuthorizeExchangeSpec> authorizeExchangeCustomizer)
+			throws Exception {
+		if (this.authorizeExchange == null) {
+			this.authorizeExchange = new AuthorizeExchangeSpec();
+		}
+		authorizeExchangeCustomizer.customize(this.authorizeExchange);
+		return this;
+	}
+
+	/**
 	 * Configures log out. An example configuration can be found below:
 	 *
 	 * <pre class="code">
@@ -1652,6 +2148,40 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures log out. An example configuration can be found below:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .logout(logout ->
+	 *              logout
+	 *                  // configures how log out is done
+	 *                  .logoutHandler(logoutHandler)
+	 *                  // log out will be performed on POST /signout
+	 *                  .logoutUrl("/signout")
+	 *                  // configure what is done on logout success
+	 *                  .logoutSuccessHandler(successHandler)
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param logoutCustomizer the {@link Customizer} to provide more options for
+	 * the {@link LogoutSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity logout(Customizer<LogoutSpec> logoutCustomizer) throws Exception {
+		if (this.logout == null) {
+			this.logout = new LogoutSpec();
+		}
+		logoutCustomizer.customize(this.logout);
+		return this;
+	}
+
+	/**
 	 * Configures the request cache which is used when a flow is interrupted (i.e. due to requesting credentials) so
 	 * that the request can be replayed after authentication. An example configuration can be found below:
 	 *
@@ -1671,6 +2201,34 @@ public class ServerHttpSecurity {
 	 */
 	public RequestCacheSpec requestCache() {
 		return this.requestCache;
+	}
+
+	/**
+	 * Configures the request cache which is used when a flow is interrupted (i.e. due to requesting credentials) so
+	 * that the request can be replayed after authentication. An example configuration can be found below:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *      http
+	 *          // ...
+	 *          .requestCache(requestCache ->
+	 *              requestCache
+	 *                  // configures how the request is cached
+	 *                  .requestCache(customRequestCache)
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 *
+	 * @param requestCacheCustomizer the {@link Customizer} to provide more options for
+	 * the {@link RequestCacheSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @throws Exception
+	 */
+	public ServerHttpSecurity requestCache(Customizer<RequestCacheSpec> requestCacheCustomizer) throws Exception {
+		requestCacheCustomizer.customize(this.requestCache);
+		return this;
 	}
 
 	/**
@@ -2550,11 +3108,38 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Configures cache control headers
+		 *
+		 * @param cacheCustomizer the {@link Customizer} to provide more options for
+		 * the {@link CacheSpec}
+		 * @return the {@link HeaderSpec} to customize
+		 * @throws Exception
+		 */
+		public HeaderSpec cache(Customizer<CacheSpec> cacheCustomizer) throws Exception {
+			cacheCustomizer.customize(new CacheSpec());
+			return this;
+		}
+
+		/**
 		 * Configures content type response headers
 		 * @return the {@link ContentTypeOptionsSpec} to configure
 		 */
 		public ContentTypeOptionsSpec contentTypeOptions() {
 			return new ContentTypeOptionsSpec();
+		}
+
+		/**
+		 * Configures content type response headers
+		 *
+		 * @param contentTypeOptionsCustomizer the {@link Customizer} to provide more options for
+		 * the {@link ContentTypeOptionsSpec}
+		 * @return the {@link HeaderSpec} to customize
+		 * @throws Exception
+		 */
+		public HeaderSpec contentTypeOptions(Customizer<ContentTypeOptionsSpec> contentTypeOptionsCustomizer)
+				throws Exception {
+			contentTypeOptionsCustomizer.customize(new ContentTypeOptionsSpec());
+			return this;
 		}
 
 		/**
@@ -2566,11 +3151,37 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Configures frame options response headers
+		 *
+		 * @param frameOptionsCustomizer the {@link Customizer} to provide more options for
+		 * the {@link FrameOptionsSpec}
+		 * @return the {@link HeaderSpec} to customize
+		 * @throws Exception
+		 */
+		public HeaderSpec frameOptions(Customizer<FrameOptionsSpec> frameOptionsCustomizer) throws Exception {
+			frameOptionsCustomizer.customize(new FrameOptionsSpec());
+			return this;
+		}
+
+		/**
 		 * Configures the Strict Transport Security response headers
 		 * @return the {@link HstsSpec} to configure
 		 */
 		public HstsSpec hsts() {
 			return new HstsSpec();
+		}
+
+		/**
+		 * Configures the Strict Transport Security response headers
+		 *
+		 * @param hstsCustomizer the {@link Customizer} to provide more options for
+		 * the {@link HstsSpec}
+		 * @return the {@link HeaderSpec} to customize
+		 * @throws Exception
+		 */
+		public HeaderSpec hsts(Customizer<HstsSpec> hstsCustomizer) throws Exception {
+			hstsCustomizer.customize(new HstsSpec());
+			return this;
 		}
 
 		protected void configure(ServerHttpSecurity http) {
@@ -2588,12 +3199,39 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Configures x-xss-protection response header.
+		 *
+		 * @param xssProtectionCustomizer the {@link Customizer} to provide more options for
+		 * the {@link XssProtectionSpec}
+		 * @return the {@link HeaderSpec} to customize
+		 * @throws Exception
+		 */
+		public HeaderSpec xssProtection(Customizer<XssProtectionSpec> xssProtectionCustomizer) throws Exception {
+			xssProtectionCustomizer.customize(new XssProtectionSpec());
+			return this;
+		}
+
+		/**
 		 * Configures {@code Content-Security-Policy} response header.
 		 * @param policyDirectives the policy directive(s)
 		 * @return the {@link ContentSecurityPolicySpec} to configure
 		 */
 		public ContentSecurityPolicySpec contentSecurityPolicy(String policyDirectives) {
 			return new ContentSecurityPolicySpec(policyDirectives);
+		}
+
+		/**
+		 * Configures {@code Content-Security-Policy} response header.
+		 *
+		 * @param contentSecurityPolicyCustomizer the {@link Customizer} to provide more options for
+		 * the {@link ContentSecurityPolicySpec}
+		 * @return the {@link HeaderSpec} to customize
+		 * @throws Exception
+		 */
+		public HeaderSpec contentSecurityPolicy(Customizer<ContentSecurityPolicySpec> contentSecurityPolicyCustomizer)
+				throws Exception {
+			contentSecurityPolicyCustomizer.customize(new ContentSecurityPolicySpec());
+			return this;
 		}
 
 		/**
@@ -2620,6 +3258,20 @@ public class ServerHttpSecurity {
 		 */
 		public ReferrerPolicySpec referrerPolicy() {
 			return new ReferrerPolicySpec();
+		}
+
+		/**
+		 * Configures {@code Referrer-Policy} response header.
+		 *
+		 * @param referrerPolicyCustomizer the {@link Customizer} to provide more options for
+		 * the {@link ReferrerPolicySpec}
+		 * @return the {@link HeaderSpec} to customize
+		 * @throws Exception
+		 */
+		public HeaderSpec referrerPolicy(Customizer<ReferrerPolicySpec> referrerPolicyCustomizer)
+				throws Exception {
+			referrerPolicyCustomizer.customize(new ReferrerPolicySpec());
+			return this;
 		}
 
 		/**
@@ -2781,6 +3433,7 @@ public class ServerHttpSecurity {
 		 * @since 5.1
 		 */
 		public class ContentSecurityPolicySpec {
+			private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
 
 			/**
 			 * Whether to include the {@code Content-Security-Policy-Report-Only} header in
@@ -2790,6 +3443,17 @@ public class ServerHttpSecurity {
 			 */
 			public HeaderSpec reportOnly(boolean reportOnly) {
 				HeaderSpec.this.contentSecurityPolicy.setReportOnly(reportOnly);
+				return HeaderSpec.this;
+			}
+
+			/**
+			 * Sets the security policy directive(s) to be used in the response header.
+			 *
+			 * @param policyDirectives the security policy directive(s)
+			 * @return the {@link HeaderSpec} to continue configuring
+			 */
+			public HeaderSpec policyDirectives(String policyDirectives) {
+				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
 				return HeaderSpec.this;
 			}
 
@@ -2806,6 +3470,9 @@ public class ServerHttpSecurity {
 				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
 			}
 
+			private ContentSecurityPolicySpec() {
+				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
+			}
 		}
 
 		/**
@@ -2839,6 +3506,17 @@ public class ServerHttpSecurity {
 		 * @since 5.1
 		 */
 		public class ReferrerPolicySpec {
+
+			/**
+			 * Sets the policy to be used in the response header.
+			 *
+			 * @param referrerPolicy a referrer policy
+			 * @return the {@link ReferrerPolicySpec} to continue configuring
+			 */
+			public ReferrerPolicySpec policy(ReferrerPolicy referrerPolicy) {
+				HeaderSpec.this.referrerPolicy.setPolicy(referrerPolicy);
+				return this;
+			}
 
 			/**
 			 * Allows method chaining to continue configuring the

@@ -27,7 +27,7 @@ The next step is to instruct Spring Security that you wish to act as an OAuth2 C
 SecurityWebFilterChain configure(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.oauth2Client();
+		.oauth2Client(withDefaults());
 	return http.build();
 }
 ----

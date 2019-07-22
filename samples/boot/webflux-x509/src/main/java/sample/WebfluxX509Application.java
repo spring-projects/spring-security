@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * @author Alexey Nesterov
  * @since 5.2
@@ -40,13 +42,14 @@ public class WebfluxX509Application {
 	}
 
 	@Bean
-	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
 		// @formatter:off
 		http
-			.x509()
-				.and()
-				.authorizeExchange()
-				.anyExchange().authenticated();
+			.x509(withDefaults())
+			.authorizeExchange(exchanges ->
+				exchanges
+					.anyExchange().authenticated()
+			);
 		// @formatter:on
 
 		return http.build();

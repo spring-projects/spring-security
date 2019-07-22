@@ -28,10 +28,10 @@ The following will disable the CORS integration within Spring Security:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.cors().disable();
+		.cors(cors -> cors.disable());
 	return http.build();
 }
 ----

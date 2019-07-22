@@ -128,10 +128,10 @@ ReactiveClientRegistrationRepository clientRegistrations() {
 }
 
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.oauth2Login();
+		.oauth2Login(withDefaults());
 	return http.build();
 }
 ----
@@ -141,14 +141,16 @@ Additional configuration options can be seen below:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.oauth2Login()
-			.authenticationConverter(converter)
-			.authenticationManager(manager)
-			.authorizedClientRepository(authorizedClients)
-			.clientRegistrationRepository(clientRegistrations);
+		.oauth2Login(oauth2Login ->
+			oauth2Login
+				.authenticationConverter(converter)
+				.authenticationManager(manager)
+				.authorizedClientRepository(authorizedClients)
+				.clientRegistrationRepository(clientRegistrations)
+		);
 	return http.build();
 }
 ----

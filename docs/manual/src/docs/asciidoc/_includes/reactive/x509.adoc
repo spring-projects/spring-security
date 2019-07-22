@@ -7,14 +7,14 @@ Below is an example of a reactive x509 security configuration:
 [source,java]
 ----
 @Bean
-public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-    http
-        .x509()
-        .and()
-        .authorizeExchange()
-            .anyExchange().permitAll();
-
-    return http.build();
+public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
+	http
+		.x509(withDefaults())
+		.authorizeExchange(exchanges ->
+			exchanges
+				.anyExchange().permitAll()
+		);
+	return http.build();
 }
 ----
 
@@ -25,28 +25,28 @@ The next example demonstrates how these defaults can be overridden.
 [source,java]
 ----
 @Bean
-public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-    SubjectDnX509PrincipalExtractor principalExtractor =
-            new SubjectDnX509PrincipalExtractor();
+public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
+	SubjectDnX509PrincipalExtractor principalExtractor =
+	        new SubjectDnX509PrincipalExtractor();
 
-    principalExtractor.setSubjectDnRegex("OU=(.*?)(?:,|$)");
+	principalExtractor.setSubjectDnRegex("OU=(.*?)(?:,|$)");
 
-    ReactiveAuthenticationManager authenticationManager = authentication -> {
-        authentication.setAuthenticated("Trusted Org Unit".equals(authentication.getName()));
-        return Mono.just(authentication);
-    };
+	ReactiveAuthenticationManager authenticationManager = authentication -> {
+		authentication.setAuthenticated("Trusted Org Unit".equals(authentication.getName()));
+		return Mono.just(authentication);
+	};
 
-    // @formatter:off
-    http
-        .x509()
-            .principalExtractor(principalExtractor)
-            .authenticationManager(authenticationManager)
-        .and()
-            .authorizeExchange()
-            .anyExchange().authenticated();
-    // @formatter:on
-
-    return http.build();
+	http
+		.x509(x509 ->
+			x509
+				.principalExtractor(principalExtractor)
+				.authenticationManager(authenticationManager)
+		)
+		.authorizeExchange(exchanges ->
+			exchanges
+				.anyExchange().authenticated()
+		);
+	return http.build();
 }
 ----
 

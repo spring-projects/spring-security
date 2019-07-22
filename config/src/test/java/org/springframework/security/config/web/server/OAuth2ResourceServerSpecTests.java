@@ -176,6 +176,27 @@ public class OAuth2ResourceServerSpecTests {
 	}
 
 	@Test
+	public void getWhenValidTokenAndPublicKeyInLambdaThenReturnsOk() {
+		this.spring.register(PublicKeyInLambdaConfig.class, RootController.class).autowire();
+
+		this.client.get()
+				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isOk();
+	}
+
+	@Test
+	public void getWhenExpiredTokenAndPublicKeyInLambdaThenReturnsInvalidToken() {
+		this.spring.register(PublicKeyInLambdaConfig.class).autowire();
+
+		this.client.get()
+				.headers(headers -> headers.setBearerAuth(this.expired))
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"invalid_token\""));
+	}
+
+	@Test
 	public void getWhenValidUsingPlaceholderThenReturnsOk() {
 		this.spring.register(PlaceholderConfig.class, RootController.class).autowire();
 
@@ -213,10 +234,38 @@ public class OAuth2ResourceServerSpecTests {
 				.expectStatus().isOk();
 	}
 
+	@Test
+	public void getWhenUsingJwkSetUriInLambdaThenConsultsAccordingly() {
+		this.spring.register(JwkSetUriInLambdaConfig.class, RootController.class).autowire();
+
+		MockWebServer mockWebServer = this.spring.getContext().getBean(MockWebServer.class);
+		mockWebServer.enqueue(new MockResponse().setBody(this.jwkSet));
+
+		this.client.get()
+				.headers(headers -> headers.setBearerAuth(this.messageReadTokenWithKid))
+				.exchange()
+				.expectStatus().isOk();
+	}
 
 	@Test
 	public void getWhenUsingCustomAuthenticationManagerThenUsesItAccordingly() {
 		this.spring.register(CustomAuthenticationManagerConfig.class).autowire();
+
+		ReactiveAuthenticationManager authenticationManager = this.spring.getContext().getBean(
+				ReactiveAuthenticationManager.class);
+		when(authenticationManager.authenticate(any(Authentication.class)))
+				.thenReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
+
+		this.client.get()
+				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"mock-failure\""));
+	}
+
+	@Test
+	public void getWhenUsingCustomAuthenticationManagerInLambdaThenUsesItAccordingly() {
+		this.spring.register(CustomAuthenticationManagerInLambdaConfig.class).autowire();
 
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext().getBean(
 				ReactiveAuthenticationManager.class);
@@ -396,6 +445,18 @@ public class OAuth2ResourceServerSpecTests {
 				.expectStatus().isOk();
 	}
 
+	@Test
+	public void introspectWhenValidAndIntrospectionInLambdaThenReturnsOk() {
+		this.spring.register(IntrospectionInLambdaConfig.class, RootController.class).autowire();
+		this.spring.getContext().getBean(MockWebServer.class)
+				.setDispatcher(requiresAuth(clientId, clientSecret, active));
+
+		this.client.get()
+				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isOk();
+	}
+
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class PublicKeyConfig {
@@ -411,6 +472,30 @@ public class OAuth2ResourceServerSpecTests {
 						.publicKey(publicKey());
 			// @formatter:on
 
+
+			return http.build();
+		}
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class PublicKeyInLambdaConfig {
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeExchange(exchanges ->
+					exchanges
+						.anyExchange().hasAuthority("SCOPE_message:read")
+				)
+				.oauth2ResourceServer(oauth2ResourceServer ->
+					oauth2ResourceServer
+						.jwt(jwt ->
+							jwt
+								.publicKey(publicKey())
+						)
+				);
+			// @formatter:on
 
 			return http.build();
 		}
@@ -453,6 +538,40 @@ public class OAuth2ResourceServerSpecTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.jwkSetUri(jwkSetUri);
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		MockWebServer mockWebServer() {
+			return this.mockWebServer;
+		}
+
+		@PreDestroy
+		void shutdown() throws IOException {
+			this.mockWebServer.shutdown();
+		}
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class JwkSetUriInLambdaConfig {
+		private MockWebServer mockWebServer = new MockWebServer();
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			String jwkSetUri = mockWebServer().url("/.well-known/jwks.json").toString();
+
+			// @formatter:off
+			http
+				.oauth2ResourceServer(oauth2ResourceServer ->
+					oauth2ResourceServer
+						.jwt(jwt ->
+							jwt
+								.jwkSetUri(jwkSetUri)
+						)
+				);
 			// @formatter:on
 
 			return http.build();
@@ -520,6 +639,31 @@ public class OAuth2ResourceServerSpecTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.authenticationManager(authenticationManager());
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		ReactiveAuthenticationManager authenticationManager() {
+			return mock(ReactiveAuthenticationManager.class);
+		}
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class CustomAuthenticationManagerInLambdaConfig {
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2ResourceServer(oauth2ResourceServer ->
+					oauth2ResourceServer
+						.jwt(jwt ->
+							jwt
+								.authenticationManager(authenticationManager())
+						)
+				);
 			// @formatter:on
 
 			return http.build();
@@ -654,6 +798,41 @@ public class OAuth2ResourceServerSpecTests {
 					.opaqueToken()
 						.introspectionUri(introspectionUri)
 						.introspectionClientCredentials("client", "secret");
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		MockWebServer mockWebServer() {
+			return this.mockWebServer;
+		}
+
+		@PreDestroy
+		void shutdown() throws IOException {
+			this.mockWebServer.shutdown();
+		}
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class IntrospectionInLambdaConfig {
+		private MockWebServer mockWebServer = new MockWebServer();
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			String introspectionUri = mockWebServer().url("/introspect").toString();
+
+			// @formatter:off
+			http
+				.oauth2ResourceServer(oauth2ResourceServer ->
+					oauth2ResourceServer
+						.opaqueToken(opaqueToken ->
+								opaqueToken
+									.introspectionUri(introspectionUri)
+									.introspectionClientCredentials("client", "secret")
+						)
+				);
 			// @formatter:on
 
 			return http.build();

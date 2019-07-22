@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
@@ -81,6 +82,40 @@ public class RequestCacheTests {
 			.requestCache()
 				.requestCache(NoOpServerRequestCache.getInstance())
 				.and()
+			.build();
+
+		WebTestClient webTestClient = WebTestClient
+			.bindToController(new SecuredPageController(), new WebTestClientBuilder.Http200RestController())
+			.webFilter(new WebFilterChainProxy(securityWebFilter))
+			.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+			.webTestClientSetup(webTestClient)
+			.build();
+
+		DefaultLoginPage loginPage = SecuredPage.to(driver, DefaultLoginPage.class)
+			.assertAt();
+
+		HomePage securedPage = loginPage.loginForm()
+			.username("user")
+			.password("password")
+			.submit(HomePage.class);
+
+		securedPage.assertAt();
+	}
+
+	@Test
+	public void requestWhenCustomRequestCacheInLambdaThenCustomCacheUsed() throws Exception {
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authorizeExchange(authorizeExchange ->
+				authorizeExchange
+					.anyExchange().authenticated()
+			)
+			.formLogin(withDefaults())
+			.requestCache(requestCache ->
+				requestCache
+					.requestCache(NoOpServerRequestCache.getInstance())
+			)
 			.build();
 
 		WebTestClient webTestClient = WebTestClient

@@ -46,6 +46,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
@@ -97,6 +98,49 @@ public class FormLoginTests {
 	}
 
 	@Test
+	public void formLoginWhenDefaultsInLambdaThenCreatesDefaultLoginPage() throws Exception {
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authorizeExchange(exchanges ->
+				exchanges
+					.anyExchange().authenticated()
+			)
+			.formLogin(withDefaults())
+			.build();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+			.bindToWebFilters(securityWebFilter)
+			.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+			.webTestClientSetup(webTestClient)
+			.build();
+
+		DefaultLoginPage loginPage = HomePage.to(driver, DefaultLoginPage.class)
+			.assertAt();
+
+		loginPage = loginPage.loginForm()
+			.username("user")
+			.password("invalid")
+			.submit(DefaultLoginPage.class)
+			.assertError();
+
+		HomePage homePage = loginPage.loginForm()
+			.username("user")
+			.password("password")
+			.submit(HomePage.class);
+
+		homePage.assertAt();
+
+		loginPage = DefaultLogoutPage.to(driver)
+			.assertAt()
+			.logout();
+
+		loginPage
+			.assertAt()
+			.assertLogout();
+	}
+
+	@Test
 	public void customLoginPage() {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.authorizeExchange()
@@ -106,6 +150,40 @@ public class FormLoginTests {
 			.formLogin()
 				.loginPage("/login")
 				.and()
+			.build();
+
+		WebTestClient webTestClient = WebTestClient
+			.bindToController(new CustomLoginPageController(), new WebTestClientBuilder.Http200RestController())
+			.webFilter(new WebFilterChainProxy(securityWebFilter))
+			.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+			.webTestClientSetup(webTestClient)
+			.build();
+
+		CustomLoginPage loginPage = HomePage.to(driver, CustomLoginPage.class)
+			.assertAt();
+
+		HomePage homePage = loginPage.loginForm()
+			.username("user")
+			.password("password")
+			.submit(HomePage.class);
+
+		homePage.assertAt();
+	}
+
+	@Test
+	public void formLoginWhenCustomLoginPageInLambdaThenUsed() throws Exception {
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authorizeExchange(exchanges ->
+				exchanges
+					.pathMatchers("/login").permitAll()
+					.anyExchange().authenticated()
+			)
+			.formLogin(formLogin ->
+				formLogin
+					.loginPage("/login")
+			)
 			.build();
 
 		WebTestClient webTestClient = WebTestClient
