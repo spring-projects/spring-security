@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,6 +92,39 @@ public class AuthorizeExchangeSpecTests {
 			.expectStatus().isUnauthorized();
 	}
 
+	@Test
+	public void antMatchersWhenPatternsInLambdaThenAnyMethod() throws Exception {
+		this.http
+			.csrf(ServerHttpSecurity.CsrfSpec::disable)
+			.authorizeExchange(exchanges ->
+				exchanges
+					.pathMatchers("/a", "/b").denyAll()
+					.anyExchange().permitAll()
+			);
+
+		WebTestClient client = buildClient();
+
+		client.get()
+			.uri("/a")
+			.exchange()
+			.expectStatus().isUnauthorized();
+
+		client.get()
+			.uri("/b")
+			.exchange()
+			.expectStatus().isUnauthorized();
+
+		client.post()
+			.uri("/a")
+			.exchange()
+			.expectStatus().isUnauthorized();
+
+		client.post()
+			.uri("/b")
+			.exchange()
+			.expectStatus().isUnauthorized();
+	}
+
 	@Test(expected = IllegalStateException.class)
 	public void antMatchersWhenNoAccessAndAnotherMatcherThenThrowsException() {
 		this.http
@@ -114,6 +147,16 @@ public class AuthorizeExchangeSpecTests {
 		this.http
 			.authorizeExchange()
 				.pathMatchers("/incomplete");
+		this.http.build();
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void buildWhenMatcherDefinedWithNoAccessInLambdaThenThrowsException() throws Exception {
+		this.http
+			.authorizeExchange(exchanges ->
+				exchanges
+					.pathMatchers("/incomplete")
+			);
 		this.http.build();
 	}
 

@@ -52,13 +52,14 @@ public class HelloWebfluxSecurityConfig {
 	}
 
 	@Bean
-	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 		http
-			.authorizeExchange()
-				.anyExchange().authenticated()
-				.and()
-			.httpBasic().and()
-			.formLogin();
+			.authorizeExchange(exchanges ->
+				exchanges
+					.anyExchange().authenticated()
+			)
+			.httpBasic(withDefaults())
+			.formLogin(withDefaults());
 		return http.build();
 	}
 }

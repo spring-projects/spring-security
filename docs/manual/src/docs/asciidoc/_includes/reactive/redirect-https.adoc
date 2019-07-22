@@ -7,10 +7,10 @@ Spring Security can be configured to perform a redirect to https using the follo
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.redirectToHttps();
+		.redirectToHttps(withDefaults());
 	return http.build();
 }
 ----
@@ -22,11 +22,13 @@ For example, if the production environment adds a header named `X-Forwarded-Prot
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
 		// ...
-		.redirectToHttps()
-			.httpsRedirectWhen(e -> e.getRequest().getHeaders().containsKey("X-Forwarded-Proto"));
+		.redirectToHttps(redirectToHttps ->
+			redirectToHttps
+				.httpsRedirectWhen(e -> e.getRequest().getHeaders().containsKey("X-Forwarded-Proto"))
+		);
 	return http.build();
 }
 ----

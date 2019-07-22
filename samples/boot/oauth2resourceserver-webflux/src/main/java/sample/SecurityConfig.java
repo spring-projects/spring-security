@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * @author Rob Winch
  * @since 5.1
@@ -31,12 +33,15 @@ public class SecurityConfig {
 	@Bean
 	SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 		http
-			.authorizeExchange()
-				.pathMatchers("/message/**").hasAuthority("SCOPE_message:read")
-				.anyExchange().authenticated()
-				.and()
-			.oauth2ResourceServer()
-				.jwt();
+			.authorizeExchange(exchanges ->
+				exchanges
+					.pathMatchers("/message/**").hasAuthority("SCOPE_message:read")
+					.anyExchange().authenticated()
+			)
+			.oauth2ResourceServer(oauth2ResourceServer ->
+				oauth2ResourceServer
+					.jwt(withDefaults())
+			);
 		return http.build();
 	}
 }

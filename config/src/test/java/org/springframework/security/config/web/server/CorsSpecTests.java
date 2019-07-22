@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,14 @@ public class CorsSpecTests {
 	@Test
 	public void corsWhenEnabledThenAccessControlAllowOriginAndSecurityHeaders() {
 		this.http.cors().configurationSource(this.source);
+		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
+		this.expectedHeaders.set("X-Frame-Options", "DENY");
+		assertHeaders();
+	}
+
+	@Test
+	public void corsWhenEnabledInLambdaThenAccessControlAllowOriginAndSecurityHeaders() throws Exception {
+		this.http.cors(cors -> cors.configurationSource(this.source));
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
 		assertHeaders();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ import org.springframework.security.web.server.authorization.HttpStatusServerAcc
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * @author Denys Ivano
  * @since 5.0.5
@@ -42,6 +44,29 @@ public class ExceptionHandlingSpecTests {
 				.and()
 			.exceptionHandling()
 				.and()
+			.build();
+
+		WebTestClient client = WebTestClientBuilder
+			.bindToWebFilters(securityWebFilter)
+			.build();
+
+		client
+			.get()
+			.uri("/test")
+			.exchange()
+			.expectStatus().isUnauthorized()
+			.expectHeader().valueMatches("WWW-Authenticate", "Basic.*");
+	}
+
+	@Test
+	public void requestWhenExceptionHandlingWithDefaultsInLambdaThenDefaultAuthenticationEntryPointUsed()
+			throws Exception {
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authorizeExchange(exchanges ->
+				exchanges
+					.anyExchange().authenticated()
+			)
+			.exceptionHandling(withDefaults())
 			.build();
 
 		WebTestClient client = WebTestClientBuilder
@@ -81,6 +106,31 @@ public class ExceptionHandlingSpecTests {
 	}
 
 	@Test
+	public void requestWhenCustomAuthenticationEntryPointInLambdaThenCustomAuthenticationEntryPointUsed() throws Exception {
+		SecurityWebFilterChain securityWebFilter = this.http
+				.authorizeExchange(exchanges ->
+					exchanges
+						.anyExchange().authenticated()
+				)
+				.exceptionHandling(exceptionHandling ->
+					exceptionHandling
+						.authenticationEntryPoint(redirectServerAuthenticationEntryPoint("/auth"))
+				)
+				.build();
+
+		WebTestClient client = WebTestClientBuilder
+			.bindToWebFilters(securityWebFilter)
+			.build();
+
+		client
+			.get()
+			.uri("/test")
+			.exchange()
+			.expectStatus().isFound()
+			.expectHeader().valueMatches("Location", ".*");
+	}
+
+	@Test
 	public void defaultAccessDeniedHandler() {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.csrf().disable()
@@ -102,6 +152,30 @@ public class ExceptionHandlingSpecTests {
 			.headers(headers -> headers.setBasicAuth("user", "password"))
 			.exchange()
 			.expectStatus().isForbidden();
+	}
+
+	@Test
+	public void requestWhenExceptionHandlingWithDefaultsInLambdaThenDefaultAccessDeniedHandlerUsed()
+			throws Exception {
+		SecurityWebFilterChain securityWebFilter = this.http
+				.httpBasic(withDefaults())
+				.authorizeExchange(exchanges ->
+					exchanges
+						.anyExchange().hasRole("ADMIN")
+				)
+				.exceptionHandling(withDefaults())
+				.build();
+
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+
+		client
+				.get()
+				.uri("/admin")
+				.headers(headers -> headers.setBasicAuth("user", "password"))
+				.exchange()
+				.expectStatus().isForbidden();
 	}
 
 	@Test
@@ -127,6 +201,33 @@ public class ExceptionHandlingSpecTests {
 			.headers(headers -> headers.setBasicAuth("user", "password"))
 			.exchange()
 			.expectStatus().isBadRequest();
+	}
+
+	@Test
+	public void requestWhenCustomAccessDeniedHandlerInLambdaThenCustomAccessDeniedHandlerUsed()
+			throws Exception {
+		SecurityWebFilterChain securityWebFilter = this.http
+				.httpBasic(withDefaults())
+				.authorizeExchange(exchanges ->
+						exchanges
+								.anyExchange().hasRole("ADMIN")
+				)
+				.exceptionHandling(exceptionHandling ->
+					exceptionHandling
+						.accessDeniedHandler(httpStatusServerAccessDeniedHandler(HttpStatus.BAD_REQUEST))
+				)
+				.build();
+
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+
+		client
+				.get()
+				.uri("/admin")
+				.headers(headers -> headers.setBasicAuth("user", "password"))
+				.exchange()
+				.expectStatus().isBadRequest();
 	}
 
 	private ServerAuthenticationEntryPoint redirectServerAuthenticationEntryPoint(String location) {

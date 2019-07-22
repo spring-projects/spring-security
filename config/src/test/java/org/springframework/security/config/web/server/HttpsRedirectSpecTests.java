@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * Tests for {@link HttpsRedirectSpecTests}
@@ -72,8 +73,35 @@ public class HttpsRedirectSpecTests {
 	}
 
 	@Test
+	public void getWhenInsecureAndRedirectConfiguredInLambdaThenRespondsWithRedirectToSecure() {
+		this.spring.register(RedirectToHttpsInLambdaConfig.class).autowire();
+
+		this.client.get()
+				.uri("http://localhost")
+				.exchange()
+				.expectStatus().isFound()
+				.expectHeader().valueEquals(HttpHeaders.LOCATION, "https://localhost");
+	}
+
+	@Test
 	public void getWhenInsecureAndPathRequiresTransportSecurityThenRedirects() {
 		this.spring.register(SometimesRedirectToHttpsConfig.class).autowire();
+
+		this.client.get()
+				.uri("http://localhost:8080")
+				.exchange()
+				.expectStatus().isNotFound();
+
+		this.client.get()
+				.uri("http://localhost:8080/secure")
+				.exchange()
+				.expectStatus().isFound()
+				.expectHeader().valueEquals(HttpHeaders.LOCATION, "https://localhost:8443/secure");
+	}
+
+	@Test
+	public void getWhenInsecureAndPathRequiresTransportSecurityInLambdaThenRedirects() {
+		this.spring.register(SometimesRedirectToHttpsInLambdaConfig.class).autowire();
 
 		this.client.get()
 				.uri("http://localhost:8080")
@@ -101,6 +129,20 @@ public class HttpsRedirectSpecTests {
 				.expectHeader().valueEquals(HttpHeaders.LOCATION, "https://localhost:4443");
 	}
 
+	@Test
+	public void getWhenInsecureAndUsingCustomPortMapperInLambdaThenRespondsWithRedirectToSecurePort() {
+		this.spring.register(RedirectToHttpsViaCustomPortsInLambdaConfig.class).autowire();
+
+		PortMapper portMapper = this.spring.getContext().getBean(PortMapper.class);
+		when(portMapper.lookupHttpsPort(4080)).thenReturn(4443);
+
+		this.client.get()
+				.uri("http://localhost:4080")
+				.exchange()
+				.expectStatus().isFound()
+				.expectHeader().valueEquals(HttpHeaders.LOCATION, "https://localhost:4443");
+	}
+
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class RedirectToHttpConfig {
@@ -109,6 +151,21 @@ public class HttpsRedirectSpecTests {
 			// @formatter:off
 			http
 				.redirectToHttps();
+			// @formatter:on
+
+			return http.build();
+		}
+	}
+
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class RedirectToHttpsInLambdaConfig {
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.redirectToHttps(withDefaults());
 			// @formatter:on
 
 			return http.build();
@@ -130,6 +187,24 @@ public class HttpsRedirectSpecTests {
 		}
 	}
 
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class SometimesRedirectToHttpsInLambdaConfig {
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.redirectToHttps(redirectToHttps ->
+					redirectToHttps
+						.httpsRedirectWhen(new PathPatternParserServerWebExchangeMatcher("/secure"))
+				);
+			// @formatter:on
+
+			return http.build();
+		}
+	}
+
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class RedirectToHttpsViaCustomPortsConfig {
@@ -139,6 +214,28 @@ public class HttpsRedirectSpecTests {
 			http
 				.redirectToHttps()
 					.portMapper(portMapper());
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		public PortMapper portMapper() {
+			return mock(PortMapper.class);
+		}
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class RedirectToHttpsViaCustomPortsInLambdaConfig {
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.redirectToHttps(redirectToHttps ->
+					redirectToHttps
+						.portMapper(portMapper())
+				);
 			// @formatter:on
 
 			return http.build();

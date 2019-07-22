@@ -121,14 +121,17 @@ The first is a `SecurityWebFilterChain` that configures the app as a resource se
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-    http
-        .authorizeExchange()
-            .anyExchange().authenticated()
-            .and()
-        .oauth2ResourceServer()
-            .jwt();
-    return http.build();
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	http
+		.authorizeExchange(exchanges ->
+			exchanges
+				.anyExchange().authenticated()
+		)
+		.oauth2ResourceServer(oauth2ResourceServer ->
+			oauth2ResourceServer
+				.jwt(withDefaults())
+		);
+	return http.build();
 }
 ----
 
@@ -139,14 +142,17 @@ Replacing this is as simple as exposing the bean within the application:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 	http
-		.authorizeExchange()
-			.pathMatchers("/message/**").hasAuthority("SCOPE_message:read")
-			.anyExchange().authenticated()
-			.and()
-		.oauth2ResourceServer()
-			.jwt();
+		.authorizeExchange(exchanges ->
+			exchanges
+				.pathMatchers("/message/**").hasAuthority("SCOPE_message:read")
+				.anyExchange().authenticated()
+		)
+		.oauth2ResourceServer(oauth2ResourceServer ->
+			oauth2ResourceServer
+				.jwt(withDefaults())
+		);
 	return http.build();
 }
 ----
@@ -177,15 +183,20 @@ An authorization server's JWK Set Uri can be configured <<webflux-oauth2-resourc
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-    http
-        .authorizeExchange()
-            .anyExchange().authenticated()
-            .and()
-        .oauth2ResourceServer()
-            .jwt()
-                .jwkSetUri("https://idp.example.com/.well-known/jwks.json");
-    return http.build();
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	http
+		.authorizeExchange(exchanges ->
+			exchanges
+				.anyExchange().authenticated()
+		)
+		.oauth2ResourceServer(oauth2ResourceServer ->
+			oauth2ResourceServer
+				.jwt(jwt ->
+					jwt
+						.jwkSetUri("https://idp.example.com/.well-known/jwks.json")
+				)
+		);
+	return http.build();
 }
 ----
 
@@ -199,14 +210,19 @@ More powerful than `jwkSetUri()` is `decoder()`, which will completely replace a
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-    http
-        .authorizeExchange()
-            .anyExchange().authenticated()
-            .and()
-        .oauth2ResourceServer()
-            .jwt()
-                .decoder(myCustomDecoder());
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	http
+		.authorizeExchange(exchanges ->
+			exchanges
+				.anyExchange().authenticated()
+		)
+		.oauth2ResourceServer(oauth2ResourceServer ->
+			oauth2ResourceServer
+				.jwt(jwt ->
+					jwt
+						.decoder(myCustomDecoder())
+				)
+		);
     return http.build();
 }
 ----
@@ -240,15 +256,18 @@ This means that to protect an endpoint or method with a scope derived from a JWT
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-    http
-        .authorizeExchange()
-            .mvcMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
-            .mvcMatchers("/messages/**").hasAuthority("SCOPE_messages")
-            .anyExchange().authenticated()
-            .and()
-        .oauth2ResourceServer()
-            .jwt();
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	http
+		.authorizeExchange(exchanges ->
+			exchanges
+				.mvcMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
+				.mvcMatchers("/messages/**").hasAuthority("SCOPE_messages")
+				.anyExchange().authenticated()
+		)
+		.oauth2ResourceServer(oauth2ResourceServer ->
+			oauth2ResourceServer
+				.jwt(withDefaults())
+		);
     return http.build();
 }
 ----
@@ -273,15 +292,20 @@ To this end, the DSL exposes `jwtAuthenticationConverter()`:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-    http
-        .authorizeExchange()
-            .anyExchange().authenticated()
-            .and()
-        .oauth2ResourceServer()
-            .jwt()
-                .jwtAuthenticationConverter(grantedAuthoritiesExtractor());
-    return http.build();
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	http
+		.authorizeExchange(exchanges ->
+			exchanges
+				.anyExchange().authenticated()
+		)
+		.oauth2ResourceServer(oauth2ResourceServer ->
+			oauth2ResourceServer
+				.jwt(jwt ->
+					jwt
+						.jwtAuthenticationConverter(grantedAuthoritiesExtractor())
+				)
+		);
+	return http.build();
 }
 
 Converter<Jwt, Mono<AbstractAuthenticationToken>> grantedAuthoritiesExtractor() {
