@@ -86,13 +86,9 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClientArgumentResolver} using the provided parameters.
 	 *
-	 * @deprecated Use {@link #OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientManager)} instead.
-	 * 				See {@link DefaultOAuth2AuthorizedClientManager} and {@link OAuth2AuthorizedClientProviderBuilder}.
-	 *
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientRepository the repository of authorized clients
 	 */
-	@Deprecated
 	public OAuth2AuthorizedClientArgumentResolver(ClientRegistrationRepository clientRegistrationRepository,
 													OAuth2AuthorizedClientRepository authorizedClientRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
