@@ -67,52 +67,39 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");
 
 		String clientRegistrationId = authorizeRequest.getClientRegistrationId();
+		OAuth2AuthorizedClient authorizedClient = authorizeRequest.getAuthorizedClient();
 		Authentication principal = authorizeRequest.getPrincipal();
 		HttpServletRequest servletRequest = authorizeRequest.getServletRequest();
 		HttpServletResponse servletResponse = authorizeRequest.getServletResponse();
 
-		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
-		Assert.notNull(clientRegistration, "Could not find ClientRegistration with id '" + clientRegistrationId + "'");
-
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
-				clientRegistrationId, principal, servletRequest);
+		OAuth2AuthorizationContext.Builder contextBuilder;
 		if (authorizedClient != null) {
-			OAuth2ReauthorizeRequest reauthorizeRequest = new OAuth2ReauthorizeRequest(
-					authorizedClient, principal, servletRequest, servletResponse);
-			return reauthorize(reauthorizeRequest);
+			contextBuilder = OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient);
+		} else {
+			ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
+			Assert.notNull(clientRegistration, "Could not find ClientRegistration with id '" + clientRegistrationId + "'");
+			authorizedClient = this.authorizedClientRepository.loadAuthorizedClient(
+					clientRegistrationId, principal, servletRequest);
+			if (authorizedClient != null) {
+				contextBuilder = OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient);
+			} else {
+				contextBuilder = OAuth2AuthorizationContext.withClientRegistration(clientRegistration);
+			}
 		}
+		OAuth2AuthorizationContext authorizationContext = contextBuilder
+				.principal(principal)
+				.attributes(this.contextAttributesMapper.apply(authorizeRequest))
+				.build();
 
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
-						.principal(principal)
-						.attributes(this.contextAttributesMapper.apply(authorizeRequest))
-						.build();
 		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
 		if (authorizedClient != null) {
 			this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, servletRequest, servletResponse);
-		}
-
-		return authorizedClient;
-	}
-
-	@Override
-	public OAuth2AuthorizedClient reauthorize(OAuth2ReauthorizeRequest reauthorizeRequest) {
-		Assert.notNull(reauthorizeRequest, "reauthorizeRequest cannot be null");
-
-		OAuth2AuthorizedClient authorizedClient = reauthorizeRequest.getAuthorizedClient();
-		Authentication principal = reauthorizeRequest.getPrincipal();
-		HttpServletRequest servletRequest = reauthorizeRequest.getServletRequest();
-		HttpServletResponse servletResponse = reauthorizeRequest.getServletResponse();
-
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
-						.principal(principal)
-						.attributes(this.contextAttributesMapper.apply(reauthorizeRequest))
-						.build();
-		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
-		if (reauthorizedClient != null) {
-			this.authorizedClientRepository.saveAuthorizedClient(reauthorizedClient, principal, servletRequest, servletResponse);
-			return reauthorizedClient;
+		} else {
+			// In the case of re-authorization, the returned `authorizedClient` may be null if re-authorization is not supported.
+			// For these cases, return the provided `authorizationContext.authorizedClient`.
+			if (authorizationContext.getAuthorizedClient() != null) {
+				return authorizationContext.getAuthorizedClient();
+			}
 		}
 
 		return authorizedClient;

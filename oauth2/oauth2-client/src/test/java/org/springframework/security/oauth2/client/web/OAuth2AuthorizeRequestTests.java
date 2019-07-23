@@ -20,8 +20,11 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
+import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,14 +37,24 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class OAuth2AuthorizeRequestTests {
 	private ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 	private Authentication principal = new TestingAuthenticationToken("principal", "password");
+	private OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+			this.clientRegistration, this.principal.getName(),
+			TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken());
 	private MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 	private MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
 	@Test
 	public void constructorWhenClientRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizeRequest(null, this.principal, this.servletRequest, this.servletResponse))
+		assertThatThrownBy(() -> new OAuth2AuthorizeRequest((String) null, this.principal, this.servletRequest, this.servletResponse))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("clientRegistrationId cannot be empty");
+	}
+
+	@Test
+	public void constructorWhenAuthorizedClientIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> new OAuth2AuthorizeRequest((OAuth2AuthorizedClient) null, this.principal, this.servletRequest, this.servletResponse))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("authorizedClient cannot be null");
 	}
 
 	@Test
@@ -66,11 +79,24 @@ public class OAuth2AuthorizeRequestTests {
 	}
 
 	@Test
-	public void constructorWhenAllValuesProvidedThenAllValuesAreSet() {
+	public void constructorClientRegistrationIdWhenAllValuesProvidedThenAllValuesAreSet() {
 		OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
 				this.clientRegistration.getRegistrationId(), this.principal, this.servletRequest, this.servletResponse);
 
 		assertThat(authorizeRequest.getClientRegistrationId()).isEqualTo(this.clientRegistration.getRegistrationId());
+		assertThat(authorizeRequest.getAuthorizedClient()).isNull();
+		assertThat(authorizeRequest.getPrincipal()).isEqualTo(this.principal);
+		assertThat(authorizeRequest.getServletRequest()).isEqualTo(this.servletRequest);
+		assertThat(authorizeRequest.getServletResponse()).isEqualTo(this.servletResponse);
+	}
+
+	@Test
+	public void constructorAuthorizedClientWhenAllValuesProvidedThenAllValuesAreSet() {
+		OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
+				this.authorizedClient, this.principal, this.servletRequest, this.servletResponse);
+
+		assertThat(authorizeRequest.getClientRegistrationId()).isEqualTo(this.authorizedClient.getClientRegistration().getRegistrationId());
+		assertThat(authorizeRequest.getAuthorizedClient()).isEqualTo(this.authorizedClient);
 		assertThat(authorizeRequest.getPrincipal()).isEqualTo(this.principal);
 		assertThat(authorizeRequest.getServletRequest()).isEqualTo(this.servletRequest);
 		assertThat(authorizeRequest.getServletResponse()).isEqualTo(this.servletResponse);

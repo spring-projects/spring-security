@@ -200,19 +200,12 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 				eq(reauthorizedClient), eq(this.principal), eq(this.request), eq(this.response));
 	}
 
-	@Test
-	public void reauthorizeWhenRequestIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientManager.reauthorize(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("reauthorizeRequest cannot be null");
-	}
-
 	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenUnsupportedProviderThenNotReauthorized() {
-		OAuth2ReauthorizeRequest reauthorizeRequest = new OAuth2ReauthorizeRequest(
+		OAuth2AuthorizeRequest reauthorizeRequest = new OAuth2AuthorizeRequest(
 				this.authorizedClient, this.principal, this.request, this.response);
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.reauthorize(reauthorizeRequest);
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest);
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(reauthorizeRequest));
@@ -236,9 +229,9 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(reauthorizedClient);
 
-		OAuth2ReauthorizeRequest reauthorizeRequest = new OAuth2ReauthorizeRequest(
+		OAuth2AuthorizeRequest reauthorizeRequest = new OAuth2AuthorizeRequest(
 				this.authorizedClient, this.principal, this.request, this.response);
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.reauthorize(reauthorizeRequest);
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest);
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 		verify(this.contextAttributesMapper).apply(eq(reauthorizeRequest));
@@ -268,9 +261,9 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 
 		this.request.addParameter(OAuth2ParameterNames.SCOPE, "read write");
 
-		OAuth2ReauthorizeRequest reauthorizeRequest = new OAuth2ReauthorizeRequest(
+		OAuth2AuthorizeRequest reauthorizeRequest = new OAuth2AuthorizeRequest(
 				this.authorizedClient, this.principal, this.request, this.response);
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.reauthorize(reauthorizeRequest);
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest);
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
 

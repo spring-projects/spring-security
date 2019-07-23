@@ -15,7 +15,9 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
 
@@ -33,10 +35,19 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class OAuth2AuthorizeRequest {
 	private final String clientRegistrationId;
+	private final OAuth2AuthorizedClient authorizedClient;
 	private final Authentication principal;
 	private final HttpServletRequest servletRequest;
 	private final HttpServletResponse servletResponse;
 
+	/**
+	 * Constructs an {@code OAuth2AuthorizeRequest} using the provided parameters.
+	 *
+	 * @param clientRegistrationId the identifier for the {@link ClientRegistration client registration}
+	 * @param principal the {@code Principal} (to be) associated to the authorized client
+	 * @param servletRequest the {@code HttpServletRequest}
+	 * @param servletResponse the {@code HttpServletResponse}
+	 */
 	public OAuth2AuthorizeRequest(String clientRegistrationId, Authentication principal,
 									HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
@@ -44,6 +55,28 @@ public class OAuth2AuthorizeRequest {
 		Assert.notNull(servletRequest, "servletRequest cannot be null");
 		Assert.notNull(servletResponse, "servletResponse cannot be null");
 		this.clientRegistrationId = clientRegistrationId;
+		this.authorizedClient = null;
+		this.principal = principal;
+		this.servletRequest = servletRequest;
+		this.servletResponse = servletResponse;
+	}
+
+	/**
+	 * Constructs an {@code OAuth2AuthorizeRequest} using the provided parameters.
+	 *
+	 * @param authorizedClient the {@link OAuth2AuthorizedClient authorized client}
+	 * @param principal the {@code Principal} associated to the authorized client
+	 * @param servletRequest the {@code HttpServletRequest}
+	 * @param servletResponse the {@code HttpServletResponse}
+	 */
+	public OAuth2AuthorizeRequest(OAuth2AuthorizedClient authorizedClient, Authentication principal,
+									HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
+		Assert.notNull(principal, "principal cannot be null");
+		Assert.notNull(servletRequest, "servletRequest cannot be null");
+		Assert.notNull(servletResponse, "servletResponse cannot be null");
+		this.clientRegistrationId = authorizedClient.getClientRegistration().getRegistrationId();
+		this.authorizedClient = authorizedClient;
 		this.principal = principal;
 		this.servletRequest = servletRequest;
 		this.servletResponse = servletResponse;
@@ -56,6 +89,16 @@ public class OAuth2AuthorizeRequest {
 	 */
 	public String getClientRegistrationId() {
 		return this.clientRegistrationId;
+	}
+
+	/**
+	 * Returns the {@link OAuth2AuthorizedClient authorized client} or {@code null} if it was not provided.
+	 *
+	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if it was not provided
+	 */
+	@Nullable
+	public OAuth2AuthorizedClient getAuthorizedClient() {
+		return this.authorizedClient;
 	}
 
 	/**

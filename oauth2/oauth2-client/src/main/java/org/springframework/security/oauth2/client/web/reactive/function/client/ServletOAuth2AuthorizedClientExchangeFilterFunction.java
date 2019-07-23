@@ -38,7 +38,6 @@ import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedCli
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.OAuth2ReauthorizeRequest;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -443,9 +442,9 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		}
 		HttpServletRequest servletRequest = getRequest(attrs);
 		HttpServletResponse servletResponse = getResponse(attrs);
-		OAuth2ReauthorizeRequest reauthorizeRequest = new OAuth2ReauthorizeRequest(
+		OAuth2AuthorizeRequest reauthorizeRequest = new OAuth2AuthorizeRequest(
 				authorizedClient, authentication, servletRequest, servletResponse);
-		return Mono.fromSupplier(() -> this.authorizedClientManager.reauthorize(reauthorizeRequest));
+		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(reauthorizeRequest));
 	}
 
 	private ClientRequest bearer(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {

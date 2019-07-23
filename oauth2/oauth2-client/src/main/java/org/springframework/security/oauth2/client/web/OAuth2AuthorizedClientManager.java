@@ -48,22 +48,16 @@ public interface OAuth2AuthorizedClientManager {
 	 * e.g. the associated {@link OAuth2AuthorizedClientProvider}(s) does not support
 	 * the {@link ClientRegistration#getAuthorizationGrantType() authorization grant} type configured for the client.
 	 *
+	 * <p>
+	 * In the case of re-authorization, implementations must return the provided {@link OAuth2AuthorizeRequest#getAuthorizedClient() authorized client}
+	 * if re-authorization is not supported for the client OR is not required,
+	 * e.g. a {@link OAuth2AuthorizedClient#getRefreshToken() refresh token} is not available OR
+	 * the {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
+	 *
 	 * @param authorizeRequest the authorize request
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization is not supported for the specified client
 	 */
 	@Nullable
 	OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest);
-
-	/**
-	 * Attempt to re-authorize (if required) the provided {@link OAuth2ReauthorizeRequest#getAuthorizedClient() authorized client}.
-	 * Implementations must return the provided authorized client if re-authorization is not supported
-	 * for the {@link OAuth2AuthorizedClient#getClientRegistration() client} OR is not required,
-	 * e.g. a {@link OAuth2AuthorizedClient#getRefreshToken() refresh token} is not available OR
-	 * the {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
-	 *
-	 * @param reauthorizeRequest the re-authorize request
-	 * @return the re-authorized {@link OAuth2AuthorizedClient} or the provided {@link OAuth2ReauthorizeRequest#getAuthorizedClient() authorized client} if not re-authorized
-	 */
-	OAuth2AuthorizedClient reauthorize(OAuth2ReauthorizeRequest reauthorizeRequest);
 
 }
