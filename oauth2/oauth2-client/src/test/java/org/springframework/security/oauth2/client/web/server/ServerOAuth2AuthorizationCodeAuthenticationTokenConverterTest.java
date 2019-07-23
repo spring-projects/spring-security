@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -96,7 +97,7 @@ public class ServerOAuth2AuthorizationCodeAuthenticationTokenConverterTest {
 
 	@Test
 	public void applyWhenAttributesMissingThenOAuth2AuthorizationException() {
-		this.authorizationRequest.attributes(Collections.emptyMap());
+		this.authorizationRequest.attributes(Map::clear);
 		when(this.authorizationRequestRepository.removeAuthorizationRequest(any())).thenReturn(Mono.just(this.authorizationRequest.build()));
 
 		assertThatThrownBy(() -> applyConverter())

@@ -126,7 +126,7 @@ public class OAuth2AuthorizationRequestTests {
 					.redirectUri(REDIRECT_URI)
 					.scopes(SCOPES)
 					.state(STATE)
-					.additionalParameters(null)
+					.additionalParameters((Map) null)
 					.build())
 				.doesNotThrowAnyException();
 	}

@@ -24,9 +24,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.security.oauth2.client.endpoint.PkceParameterBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
@@ -34,10 +36,11 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import java.util.function.BiConsumer;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Rob Winch
@@ -55,6 +58,13 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	@Before
 	public void setup() {
 		this.resolver = new DefaultServerOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository);
+	}
+
+	@Test
+	public void setAuthorizationRequestBuilderWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.resolver.setAuthorizationRequestBuilder(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("authorizationRequestBuilder cannot be null");
 	}
 
 	@Test
@@ -120,7 +130,46 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 				"response_type=code&client_id=client-id&" +
 				"scope=read:user&state=.*?&" +
 				"redirect_uri=/login/oauth2/code/registration-id&" +
-				"code_challenge_method=S256&" +
-				"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
+				"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" +
+				"code_challenge_method=S256");
 	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void resolveWhenAuthorizationRequestBuilderSetThenUsed() {
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(
+				Mono.just(this.registration));
+		ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/oauth2/authorization/id"));
+
+		BiConsumer authorizationRequestBuilder = mock(BiConsumer.class);
+		this.resolver.setAuthorizationRequestBuilder(authorizationRequestBuilder);
+
+		this.resolver.resolve(exchange).block();
+
+		verify(authorizationRequestBuilder).accept(any(), any());
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestAndPkceEnabledForConfidentialClientThenPkceParametersAdded() {
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(
+				Mono.just(this.registration));
+		ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/oauth2/authorization/id"));
+
+		BiConsumer<OAuth2AuthorizationRequest.Builder, ClientRegistration> pkceParameterBuilder = new PkceParameterBuilder();
+		BiConsumer<OAuth2AuthorizationRequest.Builder, ClientRegistration> authorizationRequestBuilder = (builder, registration) -> {
+			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.registration.getAuthorizationGrantType()) &&
+					!ClientAuthenticationMethod.NONE.equals(this.registration.getClientAuthenticationMethod())) {
+				// Add PKCE parameters for confidential clients
+				pkceParameterBuilder.accept(builder, this.registration);
+			}
+		};
+		this.resolver.setAuthorizationRequestBuilder(authorizationRequestBuilder);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(exchange).block();
+		assertThat(authorizationRequest.getAdditionalParameters()).containsKey(PkceParameterNames.CODE_CHALLENGE);
+		assertThat(authorizationRequest.getAdditionalParameters())
+				.contains(entry(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256"));
+		assertThat(authorizationRequest.getAttributes()).containsKey(PkceParameterNames.CODE_VERIFIER);
+	}
+
 }

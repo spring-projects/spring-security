@@ -20,13 +20,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
+import org.springframework.security.oauth2.client.endpoint.PkceParameterBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.Assert;
@@ -37,12 +37,10 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * The default implementation of {@link ServerOAuth2AuthorizationRequestResolver}.
@@ -53,6 +51,10 @@ import java.util.Map;
  *
  * @author Rob Winch
  * @since 5.1
+ * @see ServerOAuth2AuthorizationRequestResolver
+ * @see OAuth2AuthorizationRequestRedirectWebFilter
+ * @see OAuth2AuthorizationRequest
+ * @see PkceParameterBuilder
  */
 public class DefaultServerOAuth2AuthorizationRequestResolver
 		implements ServerOAuth2AuthorizationRequestResolver {
@@ -75,7 +77,9 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 
-	private final StringKeyGenerator codeVerifierGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+	private final BiConsumer<OAuth2AuthorizationRequest.Builder, ClientRegistration> pkceParameterBuilder = new PkceParameterBuilder();
+
+	private BiConsumer<OAuth2AuthorizationRequest.Builder, ClientRegistration> authorizationRequestBuilder;
 
 	/**
 	 * Creates a new instance
@@ -117,6 +121,18 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 			.map(clientRegistration -> authorizationRequest(exchange, clientRegistration));
 	}
 
+	/**
+	 * Sets the {@link BiConsumer} that is ultimately supplied with the {@link OAuth2AuthorizationRequest.Builder} instance.
+	 * This provides the ability for the {@code BiConsumer} to mutate the {@link OAuth2AuthorizationRequest} before it is built.
+	 *
+	 * @since 5.2
+	 * @param authorizationRequestBuilder the {@link BiConsumer} that is supplied the {@code OAuth2AuthorizationRequest.Builder} instance
+	 */
+	public void setAuthorizationRequestBuilder(BiConsumer<OAuth2AuthorizationRequest.Builder, ClientRegistration> authorizationRequestBuilder) {
+		Assert.notNull(authorizationRequestBuilder, "authorizationRequestBuilder cannot be null");
+		this.authorizationRequestBuilder = authorizationRequestBuilder;
+	}
+
 	private Mono<ClientRegistration> findByRegistrationId(ServerWebExchange exchange, String clientRegistration) {
 		return this.clientRegistrationRepository.findByRegistrationId(clientRegistration)
 				.switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
@@ -124,19 +140,10 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 
 	private OAuth2AuthorizationRequest authorizationRequest(ServerWebExchange exchange,
 			ClientRegistration clientRegistration) {
-		String redirectUriStr = expandRedirectUri(exchange.getRequest(), clientRegistration);
-
-		Map<String, Object> attributes = new HashMap<>();
-		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
 
 		OAuth2AuthorizationRequest.Builder builder;
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
 			builder = OAuth2AuthorizationRequest.authorizationCode();
-			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
-				Map<String, Object> additionalParameters = new HashMap<>();
-				addPkceParameters(attributes, additionalParameters);
-				builder.additionalParameters(additionalParameters);
-			}
 		}
 		else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
 			builder = OAuth2AuthorizationRequest.implicit();
@@ -146,13 +153,28 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 					"Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
 							+ ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 		}
-		return builder
+
+		String redirectUriStr = expandRedirectUri(exchange.getRequest(), clientRegistration);
+
+		builder
 				.clientId(clientRegistration.getClientId())
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
+				.redirectUri(redirectUriStr)
+				.scopes(clientRegistration.getScopes())
 				.state(this.stateGenerator.generateKey())
-				.attributes(attributes)
-				.build();
+				.attributes(attrs -> attrs.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
+
+		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType()) &&
+				ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
+			// Add PKCE parameters for public clients
+			this.pkceParameterBuilder.accept(builder, clientRegistration);
+		}
+
+		if (this.authorizationRequestBuilder != null) {
+			this.authorizationRequestBuilder.accept(builder, clientRegistration);
+		}
+
+		return builder.build();
 	}
 
 	/**
@@ -205,35 +227,5 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUriTemplate())
 				.buildAndExpand(uriVariables)
 				.toUriString();
-	}
-
-	/**
-	 * Creates and adds additional PKCE parameters for use in the OAuth 2.0 Authorization and Access Token Requests
-	 *
-	 * @param attributes where {@link PkceParameterNames#CODE_VERIFIER} is stored for the token request
-	 * @param additionalParameters where {@link PkceParameterNames#CODE_CHALLENGE} and, usually,
-	 * {@link PkceParameterNames#CODE_CHALLENGE_METHOD} are added to be used in the authorization request.
-	 *
-	 * @since 5.2
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-1.1">1.1.  Protocol Flow</a>
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.1">4.1.  Client Creates a Code Verifier</a>
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.2">4.2.  Client Creates the Code Challenge</a>
-	 */
-	private void addPkceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
-		String codeVerifier = this.codeVerifierGenerator.generateKey();
-		attributes.put(PkceParameterNames.CODE_VERIFIER, codeVerifier);
-		try {
-			String codeChallenge = createCodeChallenge(codeVerifier);
-			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, codeChallenge);
-			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
-		} catch (NoSuchAlgorithmException e) {
-			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, codeVerifier);
-		}
-	}
-
-	private String createCodeChallenge(String codeVerifier) throws NoSuchAlgorithmException {
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-		byte[] digest = md.digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));
-		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
 }

@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.web;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.oauth2.client.endpoint.PkceParameterBuilder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
@@ -29,9 +30,12 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.entry;
+import java.util.function.BiConsumer;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link DefaultOAuth2AuthorizationRequestResolver}.
@@ -75,6 +79,13 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	public void constructorWhenAuthorizationRequestBaseUriIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new DefaultOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository, null))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setAuthorizationRequestBuilderWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.resolver.setAuthorizationRequestBuilder(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("authorizationRequestBuilder cannot be null");
 	}
 
 	@Test
@@ -374,8 +385,48 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 						"response_type=code&client_id=pkce-client-id&" +
 						"scope=read:user&state=.{15,}&" +
 						"redirect_uri=http://localhost/login/oauth2/code/pkce-client-registration-id&" +
-						"code_challenge_method=S256&" +
-						"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
+						"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" +
+						"code_challenge_method=S256");
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void resolveWhenAuthorizationRequestBuilderSetThenUsed() {
+		ClientRegistration clientRegistration = this.registration2;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+
+		BiConsumer authorizationRequestBuilder = mock(BiConsumer.class);
+		this.resolver.setAuthorizationRequestBuilder(authorizationRequestBuilder);
+
+		this.resolver.resolve(request);
+
+		verify(authorizationRequestBuilder).accept(any(), any());
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestAndPkceEnabledForConfidentialClientThenPkceParametersAdded() {
+		ClientRegistration clientRegistration = this.registration1;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+
+		BiConsumer<OAuth2AuthorizationRequest.Builder, ClientRegistration> pkceParameterBuilder = new PkceParameterBuilder();
+		BiConsumer<OAuth2AuthorizationRequest.Builder, ClientRegistration> authorizationRequestBuilder = (builder, registration) -> {
+			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType()) &&
+					!ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
+				// Add PKCE parameters for confidential clients
+				pkceParameterBuilder.accept(builder, clientRegistration);
+			}
+		};
+		this.resolver.setAuthorizationRequestBuilder(authorizationRequestBuilder);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getAdditionalParameters()).containsKey(PkceParameterNames.CODE_CHALLENGE);
+		assertThat(authorizationRequest.getAdditionalParameters())
+				.contains(entry(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256"));
+		assertThat(authorizationRequest.getAttributes()).containsKey(PkceParameterNames.CODE_VERIFIER);
 	}
 
 	private static ClientRegistration.Builder fineRedirectUriTemplateClientRegistration() {

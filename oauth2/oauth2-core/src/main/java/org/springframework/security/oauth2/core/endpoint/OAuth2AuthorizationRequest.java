@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -310,7 +311,24 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 * @return the {@link Builder}
 		 */
 		public Builder additionalParameters(Map<String, Object> additionalParameters) {
-			this.additionalParameters = additionalParameters;
+			if (CollectionUtils.isEmpty(additionalParameters)) {
+				return this;
+			}
+			return additionalParameters(params -> params.putAll(additionalParameters));
+		}
+
+		/**
+		 * Supplies the {@link Consumer} with a mutable {@code Map} of the additional parameter(s).
+		 *
+		 * @since 5.2
+		 * @param parametersConsumer the {@link Consumer} of the additional parameters
+		 * @return the {@link Builder}
+		 */
+		public Builder additionalParameters(Consumer<Map<String, Object>> parametersConsumer) {
+			if (this.additionalParameters == null) {
+				this.additionalParameters = new LinkedHashMap<>();
+			}
+			parametersConsumer.accept(this.additionalParameters);
 			return this;
 		}
 
@@ -322,7 +340,24 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 * @return the {@link Builder}
 		 */
 		public Builder attributes(Map<String, Object> attributes) {
-			this.attributes = attributes;
+			if (CollectionUtils.isEmpty(attributes)) {
+				return this;
+			}
+			return attributes(attrs -> attrs.putAll(attributes));
+		}
+
+		/**
+		 * Supplies the {@link Consumer} with a mutable {@code Map} of the attributes.
+		 *
+		 * @since 5.2
+		 * @param attributesConsumer the {@link Consumer} of the attributes
+		 * @return the {@link Builder}
+		 */
+		public Builder attributes(Consumer<Map<String, Object>> attributesConsumer) {
+			if (this.attributes == null) {
+				this.attributes = new LinkedHashMap<>();
+			}
+			attributesConsumer.accept(this.attributes);
 			return this;
 		}
 
@@ -366,13 +401,13 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 					Collections.emptySet() : new LinkedHashSet<>(this.scopes));
 			authorizationRequest.additionalParameters = Collections.unmodifiableMap(
 				CollectionUtils.isEmpty(this.additionalParameters) ?
-					Collections.emptyMap() : new LinkedHashMap<>(this.additionalParameters));
+					Collections.emptyMap() : this.additionalParameters);
 			authorizationRequest.authorizationRequestUri =
 					StringUtils.hasText(this.authorizationRequestUri) ?
 						this.authorizationRequestUri : this.buildAuthorizationRequestUri();
 			authorizationRequest.attributes = Collections.unmodifiableMap(
 					CollectionUtils.isEmpty(this.attributes) ?
-							Collections.emptyMap() : new LinkedHashMap<>(this.attributes));
+							Collections.emptyMap() : this.attributes);
 
 			return authorizationRequest;
 		}
