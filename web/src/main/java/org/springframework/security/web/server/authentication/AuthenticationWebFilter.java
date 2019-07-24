@@ -102,7 +102,7 @@ public class AuthenticationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return this.requiresAuthenticationMatcher.matches(exchange)
+		return this.requiresAuthentication(exchange)
 			.filter( matchResult -> matchResult.isMatch())
 			.flatMap( matchResult -> this.authenticationConverter.convert(exchange))
 			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
@@ -129,6 +129,10 @@ public class AuthenticationWebFilter implements WebFilter {
 			.then(this.authenticationSuccessHandler
 				.onAuthenticationSuccess(webFilterExchange, authentication))
 			.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
+	}
+
+	protected Mono<ServerWebExchangeMatcher.MatchResult> requiresAuthentication(ServerWebExchange exchange) {
+		return this.requiresAuthenticationMatcher.matches(exchange);
 	}
 
 	/**
