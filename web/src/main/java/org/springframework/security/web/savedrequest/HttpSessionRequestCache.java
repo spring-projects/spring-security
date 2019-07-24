@@ -37,7 +37,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @since 3.0
  */
 public class HttpSessionRequestCache implements RequestCache {
-	static final String SAVED_REQUEST = "SPRING_SECURITY_SAVED_REQUEST";
+	public static final String SAVED_REQUEST = "SPRING_SECURITY_SAVED_REQUEST";
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private PortResolver portResolver = new PortResolverImpl();
