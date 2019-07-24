@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,9 +113,8 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	 *
 	 * @param realmName the HTTP Basic realm to use
 	 * @return {@link HttpBasicConfigurer} for additional customization
-	 * @throws Exception
 	 */
-	public HttpBasicConfigurer<B> realmName(String realmName) throws Exception {
+	public HttpBasicConfigurer<B> realmName(String realmName) {
 		this.basicAuthEntryPoint.setRealmName(realmName);
 		this.basicAuthEntryPoint.afterPropertiesSet();
 		return this;

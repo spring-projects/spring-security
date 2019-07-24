@@ -51,7 +51,7 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.hasText(realmName, "realmName must be specified");
 	}
 

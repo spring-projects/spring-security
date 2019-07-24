@@ -53,7 +53,7 @@ You can easily do this with the following Java Configuration:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
 		.headers(headers ->
@@ -80,7 +80,7 @@ If necessary, you can disable all of the HTTP Security response headers with the
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
 		.headers(headers ->
@@ -114,7 +114,7 @@ You can also disable cache control using the following Java Configuration:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
 		.headers(headers ->
@@ -155,7 +155,7 @@ However, if need to disable the header, the following may be used:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
 		.headers(headers ->
@@ -202,7 +202,7 @@ You can customize HSTS headers with Java Configuration:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
 		.headers(headers ->
@@ -250,7 +250,7 @@ You can customize X-Frame-Options with Java Configuration using the following:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
 		.headers(headers ->
@@ -286,7 +286,7 @@ However, we can customize with Java Configuration with the following:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
 		.headers(headers ->
@@ -368,7 +368,7 @@ You can enable the CSP header using Java configuration as shown below:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
 		.headers(headers ->
@@ -387,7 +387,7 @@ To enable the CSP _'report-only'_ header, provide the following Java configurati
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
 		.headers(headers ->
@@ -438,7 +438,7 @@ You can enable the Referrer-Policy header using Java configuration as shown belo
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
 		.headers(headers ->
@@ -476,7 +476,7 @@ You can enable the Feature-Policy header using Java configuration as shown below
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
 		.headers(headers ->

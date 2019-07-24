@@ -136,10 +136,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @param contentTypeOptionsCustomizer the {@link Customizer} to provide more options for
 	 * the {@link ContentTypeOptionsConfig}
 	 * @return the {@link HeadersConfigurer} for additional customizations
-	 * @throws Exception
 	 */
-	public HeadersConfigurer<H> contentTypeOptions(Customizer<ContentTypeOptionsConfig> contentTypeOptionsCustomizer)
-			throws Exception {
+	public HeadersConfigurer<H> contentTypeOptions(Customizer<ContentTypeOptionsConfig> contentTypeOptionsCustomizer) {
 		contentTypeOptionsCustomizer.customize(contentTypeOptions.enable());
 		return HeadersConfigurer.this;
 	}
@@ -209,9 +207,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @param xssCustomizer the {@link Customizer} to provide more options for
 	 * the {@link XXssConfig}
 	 * @return the {@link HeadersConfigurer} for additional customizations
-	 * @throws Exception
 	 */
-	public HeadersConfigurer<H> xssProtection(Customizer<XXssConfig> xssCustomizer) throws Exception {
+	public HeadersConfigurer<H> xssProtection(Customizer<XXssConfig> xssCustomizer) {
 		xssCustomizer.customize(xssProtection.enable());
 		return HeadersConfigurer.this;
 	}
@@ -322,13 +319,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @param cacheControlCustomizer the {@link Customizer} to provide more options for
 	 * the {@link CacheControlConfig}
 	 * @return the {@link HeadersConfigurer} for additional customizations
-	 * @throws Exception
 	 */
-	public HeadersConfigurer<H> cacheControl(Customizer<CacheControlConfig> cacheControlCustomizer) throws Exception {
+	public HeadersConfigurer<H> cacheControl(Customizer<CacheControlConfig> cacheControlCustomizer) {
 		cacheControlCustomizer.customize(cacheControl.enable());
 		return HeadersConfigurer.this;
 	}
-
 
 	public final class CacheControlConfig {
 		private CacheControlHeadersWriter writer;
@@ -389,9 +384,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @param hstsCustomizer the {@link Customizer} to provide more options for
 	 * the {@link HstsConfig}
 	 * @return the {@link HeadersConfigurer} for additional customizations
-	 * @throws Exception
 	 */
-	public HeadersConfigurer<H> httpStrictTransportSecurity(Customizer<HstsConfig> hstsCustomizer) throws Exception {
+	public HeadersConfigurer<H> httpStrictTransportSecurity(Customizer<HstsConfig> hstsCustomizer) {
 		hstsCustomizer.customize(hsts.enable());
 		return HeadersConfigurer.this;
 	}
@@ -523,9 +517,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @param frameOptionsCustomizer the {@link Customizer} to provide more options for
 	 * the {@link FrameOptionsConfig}
 	 * @return the {@link HeadersConfigurer} for additional customizations
-	 * @throws Exception
 	 */
-	public HeadersConfigurer<H> frameOptions(Customizer<FrameOptionsConfig> frameOptionsCustomizer) throws Exception {
+	public HeadersConfigurer<H> frameOptions(Customizer<FrameOptionsConfig> frameOptionsCustomizer) {
 		frameOptionsCustomizer.customize(frameOptions.enable());
 		return HeadersConfigurer.this;
 	}
@@ -613,9 +606,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @param hpkpCustomizer the {@link Customizer} to provide more options for
 	 * the {@link HpkpConfig}
 	 * @return the {@link HeadersConfigurer} for additional customizations
-	 * @throws Exception
 	 */
-	public HeadersConfigurer<H> httpPublicKeyPinning(Customizer<HpkpConfig> hpkpCustomizer) throws Exception {
+	public HeadersConfigurer<H> httpPublicKeyPinning(Customizer<HpkpConfig> hpkpCustomizer) {
 		hpkpCustomizer.customize(hpkp.enable());
 		return HeadersConfigurer.this;
 	}
@@ -840,10 +832,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @param contentSecurityCustomizer the {@link Customizer} to provide more options for
 	 * the {@link ContentSecurityPolicyConfig}
 	 * @return the {@link HeadersConfigurer} for additional customizations
-	 * @throws Exception
 	 */
-	public HeadersConfigurer<H> contentSecurityPolicy(Customizer<ContentSecurityPolicyConfig> contentSecurityCustomizer)
-			throws Exception {
+	public HeadersConfigurer<H> contentSecurityPolicy(Customizer<ContentSecurityPolicyConfig> contentSecurityCustomizer) {
 		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter();
 		contentSecurityCustomizer.customize(this.contentSecurityPolicy);
 
@@ -1026,9 +1016,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * @param referrerPolicyCustomizer the {@link Customizer} to provide more options for
 	 * the {@link ReferrerPolicyConfig}
 	 * @return the {@link HeadersConfigurer} for additional customizations
-	 * @throws Exception
 	 */
-	public HeadersConfigurer<H> referrerPolicy(Customizer<ReferrerPolicyConfig> referrerPolicyCustomizer) throws Exception {
+	public HeadersConfigurer<H> referrerPolicy(Customizer<ReferrerPolicyConfig> referrerPolicyCustomizer) {
 		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter();
 		referrerPolicyCustomizer.customize(this.referrerPolicy);
 		return HeadersConfigurer.this;

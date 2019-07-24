@@ -188,9 +188,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	 * @param jwtCustomizer the {@link Customizer} to provide more options for
 	 * the {@link JwtConfigurer}
 	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
-	 * @throws Exception
 	 */
-	public OAuth2ResourceServerConfigurer<H> jwt(Customizer<JwtConfigurer> jwtCustomizer) throws Exception {
+	public OAuth2ResourceServerConfigurer<H> jwt(Customizer<JwtConfigurer> jwtCustomizer) {
 		if ( this.jwtConfigurer == null ) {
 			this.jwtConfigurer = new JwtConfigurer(this.context);
 		}
@@ -212,10 +211,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	 * @param opaqueTokenCustomizer the {@link Customizer} to provide more options for
 	 * the {@link OpaqueTokenConfigurer}
 	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
-	 * @throws Exception
 	 */
-	public OAuth2ResourceServerConfigurer<H> opaqueToken(Customizer<OpaqueTokenConfigurer> opaqueTokenCustomizer)
-			throws Exception {
+	public OAuth2ResourceServerConfigurer<H> opaqueToken(Customizer<OpaqueTokenConfigurer> opaqueTokenCustomizer) {
 		if (this.opaqueTokenConfigurer == null) {
 			this.opaqueTokenConfigurer = new OpaqueTokenConfigurer(this.context);
 		}

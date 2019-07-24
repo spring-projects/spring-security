@@ -121,7 +121,7 @@ The first is a `SecurityWebFilterChain` that configures the app as a resource se
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		.authorizeExchange(exchanges ->
 			exchanges
@@ -142,7 +142,7 @@ Replacing this is as simple as exposing the bean within the application:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		.authorizeExchange(exchanges ->
 			exchanges
@@ -183,7 +183,7 @@ An authorization server's JWK Set Uri can be configured <<webflux-oauth2-resourc
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		.authorizeExchange(exchanges ->
 			exchanges
@@ -210,7 +210,7 @@ More powerful than `jwkSetUri()` is `decoder()`, which will completely replace a
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		.authorizeExchange(exchanges ->
 			exchanges
@@ -256,7 +256,7 @@ This means that to protect an endpoint or method with a scope derived from a JWT
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		.authorizeExchange(exchanges ->
 			exchanges
@@ -292,7 +292,7 @@ To this end, the DSL exposes `jwtAuthenticationConverter()`:
 [source,java]
 ----
 @Bean
-SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		.authorizeExchange(exchanges ->
 			exchanges

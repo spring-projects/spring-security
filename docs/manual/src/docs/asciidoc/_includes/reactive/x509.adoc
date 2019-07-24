@@ -7,7 +7,7 @@ Below is an example of a reactive x509 security configuration:
 [source,java]
 ----
 @Bean
-public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
+public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 	http
 		.x509(withDefaults())
 		.authorizeExchange(exchanges ->
@@ -25,7 +25,7 @@ The next example demonstrates how these defaults can be overridden.
 [source,java]
 ----
 @Bean
-public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
+public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 	SubjectDnX509PrincipalExtractor principalExtractor =
 	        new SubjectDnX509PrincipalExtractor();
 

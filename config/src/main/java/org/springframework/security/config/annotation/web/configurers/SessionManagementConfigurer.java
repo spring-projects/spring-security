@@ -257,8 +257,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * the {@link SessionFixationConfigurer}
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
-	public SessionManagementConfigurer<H> sessionFixation(Customizer<SessionFixationConfigurer> sessionFixationCustomizer)
-			throws Exception {
+	public SessionManagementConfigurer<H> sessionFixation(Customizer<SessionFixationConfigurer> sessionFixationCustomizer) {
 		sessionFixationCustomizer.customize(new SessionFixationConfigurer());
 		return this;
 	}
@@ -282,8 +281,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * the {@link ConcurrencyControlConfigurer}
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
-	public SessionManagementConfigurer<H> sessionConcurrency(Customizer<ConcurrencyControlConfigurer> sessionConcurrencyCustomizer)
-			throws Exception {
+	public SessionManagementConfigurer<H> sessionConcurrency(Customizer<ConcurrencyControlConfigurer> sessionConcurrencyCustomizer) {
 		sessionConcurrencyCustomizer.customize(new ConcurrencyControlConfigurer());
 		return this;
 	}

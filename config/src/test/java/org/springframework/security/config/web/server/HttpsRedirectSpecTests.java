@@ -162,7 +162,7 @@ public class HttpsRedirectSpecTests {
 	@EnableWebFluxSecurity
 	static class RedirectToHttpsInLambdaConfig {
 		@Bean
-		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.redirectToHttps(withDefaults());
@@ -192,7 +192,7 @@ public class HttpsRedirectSpecTests {
 	@EnableWebFluxSecurity
 	static class SometimesRedirectToHttpsInLambdaConfig {
 		@Bean
-		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.redirectToHttps(redirectToHttps ->
@@ -229,7 +229,7 @@ public class HttpsRedirectSpecTests {
 	@EnableWebFluxSecurity
 	static class RedirectToHttpsViaCustomPortsInLambdaConfig {
 		@Bean
-		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.redirectToHttps(redirectToHttps ->

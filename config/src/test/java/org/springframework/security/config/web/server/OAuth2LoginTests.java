@@ -324,7 +324,7 @@ public class OAuth2LoginTests {
 		ServerAuthenticationSuccessHandler successHandler = mock(ServerAuthenticationSuccessHandler.class);
 
 		@Bean
-		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) throws Exception {
+		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			http
 				.authorizeExchange(exchanges ->
 					exchanges
