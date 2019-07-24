@@ -118,7 +118,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * X-Content-Type-Options: nosniff
 	 * </pre>
 	 *
-	 * @return the ContentTypeOptionsConfig for additional customizations
+	 * @return the {@link ContentTypeOptionsConfig} for additional customizations
 	 */
 	public ContentTypeOptionsConfig contentTypeOptions() {
 		return contentTypeOptions.enable();
@@ -191,7 +191,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * >X-XSS-Protection header</a>
 	 * </p>
 	 *
-	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @return the {@link XXssConfig} for additional customizations
 	 */
 	public XXssConfig xssProtection() {
 		return xssProtection.enable();
@@ -304,7 +304,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * <li>Expires: 0</li>
 	 * </ul>
 	 *
-	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @return the {@link CacheControlConfig} for additional customizations
 	 */
 	public CacheControlConfig cacheControl() {
 		return cacheControl.enable();
@@ -375,7 +375,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * href="https://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security
 	 * (HSTS)</a>.
 	 *
-	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @return the {@link HstsConfig} for additional customizations
 	 */
 	public HstsConfig httpStrictTransportSecurity() {
 		return hsts.enable();
@@ -511,7 +511,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	/**
 	 * Allows customizing the {@link XFrameOptionsHeaderWriter}.
 	 *
-	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @return the {@link FrameOptionsConfig} for additional customizations
 	 */
 	public FrameOptionsConfig frameOptions() {
 		return frameOptions.enable();
@@ -598,7 +598,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * Allows customizing the {@link HpkpHeaderWriter} which provides support for <a
 	 * href="https://tools.ietf.org/html/rfc7469">HTTP Public Key Pinning (HPKP)</a>.
 	 *
-	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @return the {@link HpkpConfig} for additional customizations
 	 *
 	 * @since 4.1
 	 */
@@ -808,7 +808,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 *
 	 * @see ContentSecurityPolicyHeaderWriter
 	 * @since 4.1
-	 * @return the ContentSecurityPolicyConfig for additional configuration
+	 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policyDirectives is null or empty
 	 */
 	public ContentSecurityPolicyConfig contentSecurityPolicy(String policyDirectives) {
@@ -979,7 +979,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 *
 	 * @see ReferrerPolicyHeaderWriter
 	 * @since 4.2
-	 * @return the ReferrerPolicyConfig for additional configuration
+	 * @return the {@link ReferrerPolicyConfig} for additional configuration
 	 */
 	public ReferrerPolicyConfig referrerPolicy() {
 		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter();
@@ -1001,7 +1001,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 *
 	 * @see ReferrerPolicyHeaderWriter
 	 * @since 4.2
-	 * @return the ReferrerPolicyConfig for additional configuration
+	 * @return the {@link ReferrerPolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policy is null or empty
 	 */
 	public ReferrerPolicyConfig referrerPolicy(ReferrerPolicy policy) {
@@ -1071,7 +1071,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 *
 	 * @see FeaturePolicyHeaderWriter
 	 * @since 5.1
-	 * @return the {@link FeaturePolicyHeaderWriter} for additional configuration
+	 * @return the {@link FeaturePolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
 	 */
 	public FeaturePolicyConfig featurePolicy(String policyDirectives) {
