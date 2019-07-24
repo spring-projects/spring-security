@@ -188,7 +188,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </p>
 	 *
 	 * @author Michael Vitz
-	 * @since 5.1
+	 * @since 5.2
 	 *
 	 * @param sessionAuthenticationStrategy the {@link SessionAuthenticationStrategy} to use
 	 * @return the {@link CsrfConfigurer} for further customizations
@@ -316,7 +316,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link CsrfAuthenticationStrategy} is created.
 	 *
 	 * @author Michael Vitz
-	 * @since 5.1
+	 * @since 5.2
 	 *
 	 * @return the {@link SessionAuthenticationStrategy}
 	 */
