@@ -42,7 +42,7 @@ public class WebfluxX509Application {
 	}
 
 	@Bean
-	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
+	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		// @formatter:off
 		http
 			.x509(withDefaults())

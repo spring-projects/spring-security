@@ -17,8 +17,7 @@
 package org.springframework.security.config;
 
 /**
- * Callback interface that accepts a single input argument and returns no result,
- * with the ability to throw a (checked) exception.
+ * Callback interface that accepts a single input argument and returns no result.
  *
  * @author Eleftheria Stein
  * @param <T> the type of the input to the operation
@@ -31,9 +30,8 @@ public interface Customizer<T> {
 	 * Performs the customizations on the input argument.
 	 *
 	 * @param t the input argument
-	 * @throws Exception if any error occurs
 	 */
-	void customize(T t) throws Exception;
+	void customize(T t);
 
 	/**
 	 * Returns a {@link Customizer} that does not alter the input argument.

@@ -157,10 +157,8 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 * @param attributeExchangeCustomizer the {@link Customizer} to provide more options for
 	 * the {@link AttributeExchangeConfigurer}
 	 * @return a {@link OpenIDLoginConfigurer} for further customizations
-	 * @throws Exception
 	 */
-	public OpenIDLoginConfigurer<H> attributeExchange(Customizer<AttributeExchangeConfigurer> attributeExchangeCustomizer)
-			throws Exception {
+	public OpenIDLoginConfigurer<H> attributeExchange(Customizer<AttributeExchangeConfigurer> attributeExchangeCustomizer) {
 		AttributeExchangeConfigurer attributeExchangeConfigurer = new AttributeExchangeConfigurer(".*");
 		attributeExchangeCustomizer.customize(attributeExchangeConfigurer);
 		this.attributeExchangeConfigurers.add(attributeExchangeConfigurer);
@@ -458,9 +456,8 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 		 * @param attributeCustomizer the {@link Customizer} to provide more options for
 		 * the {@link AttributeConfigurer}
 		 * @return a {@link AttributeExchangeConfigurer} for further customizations
-		 * @throws Exception
 		 */
-		public AttributeExchangeConfigurer attribute(Customizer<AttributeConfigurer> attributeCustomizer) throws Exception {
+		public AttributeExchangeConfigurer attribute(Customizer<AttributeConfigurer> attributeCustomizer) {
 			AttributeConfigurer attributeConfigurer = new AttributeConfigurer();
 			attributeCustomizer.customize(attributeConfigurer);
 			this.attributeConfigurers.add(attributeConfigurer);

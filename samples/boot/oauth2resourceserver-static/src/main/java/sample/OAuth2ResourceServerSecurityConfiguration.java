@@ -53,7 +53,7 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 	}
 
 	@Bean
-	JwtDecoder jwtDecoder() throws Exception {
+	JwtDecoder jwtDecoder() {
 		return NimbusJwtDecoder.withPublicKey(this.key).build();
 	}
 }

@@ -414,7 +414,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 * 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 * 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 * 	    http
 	 * 	        // ...
 	 * 	        .redirectToHttps(redirectToHttps ->
@@ -429,9 +429,8 @@ public class ServerHttpSecurity {
 	 * @param httpsRedirectCustomizer the {@link Customizer} to provide more options for
 	 * the {@link HttpsRedirectSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity redirectToHttps(Customizer<HttpsRedirectSpec> httpsRedirectCustomizer) throws Exception {
+	public ServerHttpSecurity redirectToHttps(Customizer<HttpsRedirectSpec> httpsRedirectCustomizer)  {
 		this.httpsRedirectSpec = new HttpsRedirectSpec();
 		httpsRedirectCustomizer.customize(this.httpsRedirectSpec);
 		return this;
@@ -485,7 +484,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .csrf(csrf ->
@@ -500,7 +499,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .csrf(csrf ->
@@ -519,9 +518,8 @@ public class ServerHttpSecurity {
 	 * @param csrfCustomizer the {@link Customizer} to provide more options for
 	 * the {@link CsrfSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity csrf(Customizer<CsrfSpec> csrfCustomizer) throws Exception {
+	public ServerHttpSecurity csrf(Customizer<CsrfSpec> csrfCustomizer) {
 		if (this.csrf == null) {
 			this.csrf = new CsrfSpec();
 		}
@@ -550,9 +548,8 @@ public class ServerHttpSecurity {
 	 * @param corsCustomizer the {@link Customizer} to provide more options for
 	 * the {@link CorsSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity cors(Customizer<CorsSpec> corsCustomizer) throws Exception {
+	public ServerHttpSecurity cors(Customizer<CorsSpec> corsCustomizer) {
 		if (this.cors == null) {
 			this.cors = new CorsSpec();
 		}
@@ -589,7 +586,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .anonymous(anonymous ->
@@ -604,9 +601,8 @@ public class ServerHttpSecurity {
 	 * @param anonymousCustomizer the {@link Customizer} to provide more options for
 	 * the {@link AnonymousSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity anonymous(Customizer<AnonymousSpec> anonymousCustomizer) throws Exception {
+	public ServerHttpSecurity anonymous(Customizer<AnonymousSpec> anonymousCustomizer) {
 		if (this.anonymous == null) {
 			this.anonymous = new AnonymousSpec();
 		}
@@ -706,7 +702,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .httpBasic(httpBasic ->
@@ -723,9 +719,8 @@ public class ServerHttpSecurity {
 	 * @param httpBasicCustomizer the {@link Customizer} to provide more options for
 	 * the {@link HttpBasicSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity httpBasic(Customizer<HttpBasicSpec> httpBasicCustomizer) throws Exception {
+	public ServerHttpSecurity httpBasic(Customizer<HttpBasicSpec> httpBasicCustomizer) {
 		if (this.httpBasic == null) {
 			this.httpBasic = new HttpBasicSpec();
 		}
@@ -768,7 +763,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .formLogin(formLogin ->
@@ -789,9 +784,8 @@ public class ServerHttpSecurity {
 	 * @param formLoginCustomizer the {@link Customizer} to provide more options for
 	 * the {@link FormLoginSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity formLogin(Customizer<FormLoginSpec> formLoginCustomizer) throws Exception {
+	public ServerHttpSecurity formLogin(Customizer<FormLoginSpec> formLoginCustomizer) {
 		if (this.formLogin == null) {
 			this.formLogin = new FormLoginSpec();
 		}
@@ -833,7 +827,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          .x509(x509 ->
 	 *              x509
@@ -851,9 +845,8 @@ public class ServerHttpSecurity {
 	 * @param x509Customizer the {@link Customizer} to provide more options for
 	 * the {@link X509Spec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity x509(Customizer<X509Spec> x509Customizer) throws Exception {
+	public ServerHttpSecurity x509(Customizer<X509Spec> x509Customizer) {
 		if (this.x509 == null) {
 			this.x509 = new X509Spec();
 		}
@@ -949,7 +942,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .oauth2Login(oauth2Login ->
@@ -964,9 +957,8 @@ public class ServerHttpSecurity {
 	 * @param oauth2LoginCustomizer the {@link Customizer} to provide more options for
 	 * the {@link OAuth2LoginSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity oauth2Login(Customizer<OAuth2LoginSpec> oauth2LoginCustomizer) throws Exception {
+	public ServerHttpSecurity oauth2Login(Customizer<OAuth2LoginSpec> oauth2LoginCustomizer) {
 		if (this.oauth2Login == null) {
 			this.oauth2Login = new OAuth2LoginSpec();
 		}
@@ -1272,7 +1264,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .oauth2Client(oauth2Client ->
@@ -1287,9 +1279,8 @@ public class ServerHttpSecurity {
 	 * @param oauth2ClientCustomizer the {@link Customizer} to provide more options for
 	 * the {@link OAuth2ClientSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity oauth2Client(Customizer<OAuth2ClientSpec> oauth2ClientCustomizer) throws Exception {
+	public ServerHttpSecurity oauth2Client(Customizer<OAuth2ClientSpec> oauth2ClientCustomizer) {
 		if (this.client == null) {
 			this.client = new OAuth2ClientSpec();
 		}
@@ -1452,7 +1443,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .oauth2ResourceServer(oauth2ResourceServer ->
@@ -1469,10 +1460,8 @@ public class ServerHttpSecurity {
 	 * @param oauth2ResourceServerCustomizer the {@link Customizer} to provide more options for
 	 * the {@link OAuth2ResourceServerSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity oauth2ResourceServer(Customizer<OAuth2ResourceServerSpec> oauth2ResourceServerCustomizer)
-			throws Exception {
+	public ServerHttpSecurity oauth2ResourceServer(Customizer<OAuth2ResourceServerSpec> oauth2ResourceServerCustomizer) {
 		if (this.resourceServer == null) {
 			this.resourceServer = new OAuth2ResourceServerSpec();
 		}
@@ -1569,9 +1558,8 @@ public class ServerHttpSecurity {
 		 * @param jwtCustomizer the {@link Customizer} to provide more options for
 		 * the {@link JwtSpec}
 		 * @return the {@link OAuth2ResourceServerSpec} to customize
-		 * @throws Exception
 		 */
-		public OAuth2ResourceServerSpec jwt(Customizer<JwtSpec> jwtCustomizer) throws Exception {
+		public OAuth2ResourceServerSpec jwt(Customizer<JwtSpec> jwtCustomizer) {
 			if (this.jwt == null) {
 				this.jwt = new JwtSpec();
 			}
@@ -1597,9 +1585,8 @@ public class ServerHttpSecurity {
 		 * @param opaqueTokenCustomizer the {@link Customizer} to provide more options for
 		 * the {@link OpaqueTokenSpec}
 		 * @return the {@link OAuth2ResourceServerSpec} to customize
-		 * @throws Exception
 		 */
-		public OAuth2ResourceServerSpec opaqueToken(Customizer<OpaqueTokenSpec> opaqueTokenCustomizer) throws Exception {
+		public OAuth2ResourceServerSpec opaqueToken(Customizer<OpaqueTokenSpec> opaqueTokenCustomizer) {
 			if (this.opaqueToken == null) {
 				this.opaqueToken = new OpaqueTokenSpec();
 			}
@@ -1947,7 +1934,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .headers(headers ->
@@ -1970,9 +1957,8 @@ public class ServerHttpSecurity {
 	 * @param headerCustomizer the {@link Customizer} to provide more options for
 	 * the {@link HeaderSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity headers(Customizer<HeaderSpec> headerCustomizer) throws Exception {
+	public ServerHttpSecurity headers(Customizer<HeaderSpec> headerCustomizer) {
 		if (this.headers == null) {
 			this.headers = new HeaderSpec();
 		}
@@ -2011,7 +1997,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .exceptionHandling(exceptionHandling ->
@@ -2026,10 +2012,8 @@ public class ServerHttpSecurity {
 	 * @param exceptionHandlingCustomizer the {@link Customizer} to provide more options for
 	 * the {@link ExceptionHandlingSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity exceptionHandling(Customizer<ExceptionHandlingSpec> exceptionHandlingCustomizer)
-			throws Exception {
+	public ServerHttpSecurity exceptionHandling(Customizer<ExceptionHandlingSpec> exceptionHandlingCustomizer) {
 		if (this.exceptionHandling == null) {
 			this.exceptionHandling = new ExceptionHandlingSpec();
 		}
@@ -2080,7 +2064,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .authorizeExchange(exchanges ->
@@ -2109,10 +2093,8 @@ public class ServerHttpSecurity {
 	 * @param authorizeExchangeCustomizer the {@link Customizer} to provide more options for
 	 * the {@link AuthorizeExchangeSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity authorizeExchange(Customizer<AuthorizeExchangeSpec> authorizeExchangeCustomizer)
-			throws Exception {
+	public ServerHttpSecurity authorizeExchange(Customizer<AuthorizeExchangeSpec> authorizeExchangeCustomizer) {
 		if (this.authorizeExchange == null) {
 			this.authorizeExchange = new AuthorizeExchangeSpec();
 		}
@@ -2152,7 +2134,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .logout(logout ->
@@ -2171,9 +2153,8 @@ public class ServerHttpSecurity {
 	 * @param logoutCustomizer the {@link Customizer} to provide more options for
 	 * the {@link LogoutSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity logout(Customizer<LogoutSpec> logoutCustomizer) throws Exception {
+	public ServerHttpSecurity logout(Customizer<LogoutSpec> logoutCustomizer) {
 		if (this.logout == null) {
 			this.logout = new LogoutSpec();
 		}
@@ -2209,7 +2190,7 @@ public class ServerHttpSecurity {
 	 *
 	 * <pre class="code">
 	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
 	 *          .requestCache(requestCache ->
@@ -2224,9 +2205,8 @@ public class ServerHttpSecurity {
 	 * @param requestCacheCustomizer the {@link Customizer} to provide more options for
 	 * the {@link RequestCacheSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
-	 * @throws Exception
 	 */
-	public ServerHttpSecurity requestCache(Customizer<RequestCacheSpec> requestCacheCustomizer) throws Exception {
+	public ServerHttpSecurity requestCache(Customizer<RequestCacheSpec> requestCacheCustomizer) {
 		requestCacheCustomizer.customize(this.requestCache);
 		return this;
 	}
@@ -3113,9 +3093,8 @@ public class ServerHttpSecurity {
 		 * @param cacheCustomizer the {@link Customizer} to provide more options for
 		 * the {@link CacheSpec}
 		 * @return the {@link HeaderSpec} to customize
-		 * @throws Exception
 		 */
-		public HeaderSpec cache(Customizer<CacheSpec> cacheCustomizer) throws Exception {
+		public HeaderSpec cache(Customizer<CacheSpec> cacheCustomizer) {
 			cacheCustomizer.customize(new CacheSpec());
 			return this;
 		}
@@ -3134,10 +3113,8 @@ public class ServerHttpSecurity {
 		 * @param contentTypeOptionsCustomizer the {@link Customizer} to provide more options for
 		 * the {@link ContentTypeOptionsSpec}
 		 * @return the {@link HeaderSpec} to customize
-		 * @throws Exception
 		 */
-		public HeaderSpec contentTypeOptions(Customizer<ContentTypeOptionsSpec> contentTypeOptionsCustomizer)
-				throws Exception {
+		public HeaderSpec contentTypeOptions(Customizer<ContentTypeOptionsSpec> contentTypeOptionsCustomizer) {
 			contentTypeOptionsCustomizer.customize(new ContentTypeOptionsSpec());
 			return this;
 		}
@@ -3156,9 +3133,8 @@ public class ServerHttpSecurity {
 		 * @param frameOptionsCustomizer the {@link Customizer} to provide more options for
 		 * the {@link FrameOptionsSpec}
 		 * @return the {@link HeaderSpec} to customize
-		 * @throws Exception
 		 */
-		public HeaderSpec frameOptions(Customizer<FrameOptionsSpec> frameOptionsCustomizer) throws Exception {
+		public HeaderSpec frameOptions(Customizer<FrameOptionsSpec> frameOptionsCustomizer) {
 			frameOptionsCustomizer.customize(new FrameOptionsSpec());
 			return this;
 		}
@@ -3177,9 +3153,8 @@ public class ServerHttpSecurity {
 		 * @param hstsCustomizer the {@link Customizer} to provide more options for
 		 * the {@link HstsSpec}
 		 * @return the {@link HeaderSpec} to customize
-		 * @throws Exception
 		 */
-		public HeaderSpec hsts(Customizer<HstsSpec> hstsCustomizer) throws Exception {
+		public HeaderSpec hsts(Customizer<HstsSpec> hstsCustomizer) {
 			hstsCustomizer.customize(new HstsSpec());
 			return this;
 		}
@@ -3204,9 +3179,8 @@ public class ServerHttpSecurity {
 		 * @param xssProtectionCustomizer the {@link Customizer} to provide more options for
 		 * the {@link XssProtectionSpec}
 		 * @return the {@link HeaderSpec} to customize
-		 * @throws Exception
 		 */
-		public HeaderSpec xssProtection(Customizer<XssProtectionSpec> xssProtectionCustomizer) throws Exception {
+		public HeaderSpec xssProtection(Customizer<XssProtectionSpec> xssProtectionCustomizer) {
 			xssProtectionCustomizer.customize(new XssProtectionSpec());
 			return this;
 		}
@@ -3226,10 +3200,8 @@ public class ServerHttpSecurity {
 		 * @param contentSecurityPolicyCustomizer the {@link Customizer} to provide more options for
 		 * the {@link ContentSecurityPolicySpec}
 		 * @return the {@link HeaderSpec} to customize
-		 * @throws Exception
 		 */
-		public HeaderSpec contentSecurityPolicy(Customizer<ContentSecurityPolicySpec> contentSecurityPolicyCustomizer)
-				throws Exception {
+		public HeaderSpec contentSecurityPolicy(Customizer<ContentSecurityPolicySpec> contentSecurityPolicyCustomizer) {
 			contentSecurityPolicyCustomizer.customize(new ContentSecurityPolicySpec());
 			return this;
 		}
@@ -3266,10 +3238,8 @@ public class ServerHttpSecurity {
 		 * @param referrerPolicyCustomizer the {@link Customizer} to provide more options for
 		 * the {@link ReferrerPolicySpec}
 		 * @return the {@link HeaderSpec} to customize
-		 * @throws Exception
 		 */
-		public HeaderSpec referrerPolicy(Customizer<ReferrerPolicySpec> referrerPolicyCustomizer)
-				throws Exception {
+		public HeaderSpec referrerPolicy(Customizer<ReferrerPolicySpec> referrerPolicyCustomizer) {
 			referrerPolicyCustomizer.customize(new ReferrerPolicySpec());
 			return this;
 		}

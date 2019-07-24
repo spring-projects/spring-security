@@ -208,10 +208,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	 * @param authorizationEndpointCustomizer the {@link Customizer} to provide more options for
 	 * the {@link AuthorizationEndpointConfig}
 	 * @return the {@link OAuth2LoginConfigurer} for further customizations
-	 * @throws Exception
 	 */
-	public OAuth2LoginConfigurer<B> authorizationEndpoint(Customizer<AuthorizationEndpointConfig> authorizationEndpointCustomizer)
-			throws Exception {
+	public OAuth2LoginConfigurer<B> authorizationEndpoint(Customizer<AuthorizationEndpointConfig> authorizationEndpointCustomizer) {
 		authorizationEndpointCustomizer.customize(this.authorizationEndpointConfig);
 		return this;
 	}
@@ -291,8 +289,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	 * @return the {@link OAuth2LoginConfigurer} for further customizations
 	 * @throws Exception
 	 */
-	public OAuth2LoginConfigurer<B> tokenEndpoint(Customizer<TokenEndpointConfig> tokenEndpointCustomizer)
-			throws Exception {
+	public OAuth2LoginConfigurer<B> tokenEndpoint(Customizer<TokenEndpointConfig> tokenEndpointCustomizer) {
 		tokenEndpointCustomizer.customize(this.tokenEndpointConfig);
 		return this;
 	}
@@ -345,10 +342,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	 * @param redirectionEndpointCustomizer the {@link Customizer} to provide more options for
 	 * the {@link RedirectionEndpointConfig}
 	 * @return the {@link OAuth2LoginConfigurer} for further customizations
-	 * @throws Exception
 	 */
-	public OAuth2LoginConfigurer<B> redirectionEndpoint(Customizer<RedirectionEndpointConfig> redirectionEndpointCustomizer)
-			throws Exception {
+	public OAuth2LoginConfigurer<B> redirectionEndpoint(Customizer<RedirectionEndpointConfig> redirectionEndpointCustomizer) {
 		redirectionEndpointCustomizer.customize(this.redirectionEndpointConfig);
 		return this;
 	}
@@ -399,10 +394,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	 * @param userInfoEndpointCustomizer the {@link Customizer} to provide more options for
 	 * the {@link UserInfoEndpointConfig}
 	 * @return the {@link OAuth2LoginConfigurer} for further customizations
-	 * @throws Exception
 	 */
-	public OAuth2LoginConfigurer<B> userInfoEndpoint(Customizer<UserInfoEndpointConfig> userInfoEndpointCustomizer)
-			throws Exception {
+	public OAuth2LoginConfigurer<B> userInfoEndpoint(Customizer<UserInfoEndpointConfig> userInfoEndpointCustomizer) {
 		userInfoEndpointCustomizer.customize(this.userInfoEndpointConfig);
 		return this;
 	}
