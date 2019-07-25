@@ -185,7 +185,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(expiredUser));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				this.user, this.user.getPassword());
+				expiredUser, expiredUser.getPassword());
 
 		this.manager.authenticate(token).block();
 	}
@@ -202,7 +202,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(lockedUser));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				this.user, this.user.getPassword());
+				lockedUser, lockedUser.getPassword());
 
 		this.manager.authenticate(token).block();
 	}
@@ -219,7 +219,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(disabledUser));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				this.user, this.user.getPassword());
+				disabledUser, disabledUser.getPassword());
 
 		this.manager.authenticate(token).block();
 	}
