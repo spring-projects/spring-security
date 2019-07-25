@@ -33,6 +33,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 
 /**
+ * A base {@link ReactiveAuthenticationManager} that allows subclasses to override and work with
+ * {@link UserDetails} objects.
+ *
+ * <p>
+ * Upon successful validation, a <code>UsernamePasswordAuthenticationToken</code> will be
+ * created and returned to the caller. The token will include as its principal either a
+ * <code>String</code> representation of the username, or the {@link UserDetails} that was
+ * returned from the authentication repository.
+ *
  * @author Eddú Meléndez
  * @since 5.2
  */
