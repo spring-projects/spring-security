@@ -52,7 +52,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 
 	/**
 	 * Collect error details from the provided parameters and format according to
-	 * RFC 6750, specifically {@code error}, {@code error_description}, {@code error_uri}, and {@scope scope}.
+	 * RFC 6750, specifically {@code error}, {@code error_description}, {@code error_uri}, and {@code scope}.
 	 *
 	 * @param request that resulted in an <code>AuthenticationException</code>
 	 * @param response so that the user agent can begin authentication

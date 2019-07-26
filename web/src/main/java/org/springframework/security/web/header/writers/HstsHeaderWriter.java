@@ -238,7 +238,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	 *
 	 * @param preload true to include preload, else false
      * @since 5.2.0
-     * @autor Ankur Pathak
+     * @author Ankur Pathak
 	 */
 	public void setPreload(boolean preload) {
 		this.preload = preload;
