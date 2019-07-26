@@ -50,6 +50,7 @@ import java.util.Map;
  *
  * @author Joe Grandja
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 5.1
  * @see OAuth2AuthorizationRequestResolver
  * @see OAuth2AuthorizationRequestRedirectFilter
@@ -147,7 +148,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	private String resolveRegistrationId(HttpServletRequest request) {
 		if (this.authorizationRequestMatcher.matches(request)) {
 			return this.authorizationRequestMatcher
-					.extractUriTemplateVariables(request).get(REGISTRATION_ID_URI_VARIABLE_NAME);
+					.matcher(request).getVariables().get(REGISTRATION_ID_URI_VARIABLE_NAME);
 		}
 		return null;
 	}

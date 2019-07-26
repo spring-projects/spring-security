@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import org.springframework.util.Assert;
  * Expression-based {@code FilterInvocationSecurityMetadataSource}.
  *
  * @author Luke Taylor
+ * @author Eddú Meléndez
  * @since 3.0
  */
 public final class ExpressionBasedFilterInvocationSecurityMetadataSource
@@ -111,7 +112,7 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 
 		@Override
 		Map<String, String> extractVariables(HttpServletRequest request) {
-			return this.matcher.extractUriTemplateVariables(request);
+			return this.matcher.matcher(request).getVariables();
 		}
 	}
 
