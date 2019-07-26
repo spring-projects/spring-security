@@ -167,8 +167,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 	 * from an implementation-specific location.
 	 *
 	 * @param username The username to retrieve
-	 * @return the user information (never <code>null</code> - instead an exception should
-	 * the thrown)
+	 * @return the user information. If authentication fails, a Mono error is returned.
 	 */
 	protected abstract Mono<UserDetails> retrieveUser(String username);
 
