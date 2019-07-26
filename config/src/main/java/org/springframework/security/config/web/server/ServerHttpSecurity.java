@@ -2223,7 +2223,7 @@ public class ServerHttpSecurity {
 
 	/**
 	 * Builds the {@link SecurityWebFilterChain}
-	 * @return the {@link SecurityWebFilterChain
+	 * @return the {@link SecurityWebFilterChain}
 	 */
 	public SecurityWebFilterChain build() {
 		if (this.built != null) {
