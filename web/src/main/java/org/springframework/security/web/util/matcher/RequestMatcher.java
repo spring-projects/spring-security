@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,16 @@
  */
 package org.springframework.security.web.util.matcher;
 
+import java.util.Collections;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
  * Simple strategy to match an <tt>HttpServletRequest</tt>.
  *
  * @author Luke Taylor
+ * @author Eddú Meléndez
  * @since 3.0.2
  */
 public interface RequestMatcher {
@@ -32,5 +36,62 @@ public interface RequestMatcher {
 	 * @return true if the request matches, false otherwise
 	 */
 	boolean matches(HttpServletRequest request);
+
+	/**
+	 * @since 5.2
+	 */
+	default MatchResult matcher(HttpServletRequest request) {
+		boolean match = matches(request);
+		return new MatchResult(match, Collections.emptyMap());
+	}
+
+	/**
+	 * The result of matching
+	 */
+	class MatchResult {
+		private final boolean match;
+		private final Map<String, String> variables;
+
+		MatchResult(boolean match, Map<String, String> variables) {
+			this.match = match;
+			this.variables = variables;
+		}
+
+		public boolean isMatch() {
+			return this.match;
+		}
+
+		public Map<String, String> getVariables() {
+			return this.variables;
+		}
+
+		/**
+		 * Creates an instance of {@link MatchResult} that is a match with no variables
+		 *
+		 * @return
+		 */
+		public static MatchResult match() {
+			return new MatchResult(true, Collections.emptyMap());
+		}
+
+		/**
+		 * Creates an instance of {@link MatchResult} that is a match with the specified variables
+		 *
+		 * @param variables
+		 * @return
+		 */
+		public static MatchResult match(Map<String, String> variables) {
+			return new MatchResult(true, variables);
+		}
+
+		/**
+		 * Creates an instance of {@link MatchResult} that is not a match.
+		 *
+		 * @return
+		 */
+		public static MatchResult notMatch() {
+			return new MatchResult(false, Collections.emptyMap());
+		}
+	}
 
 }

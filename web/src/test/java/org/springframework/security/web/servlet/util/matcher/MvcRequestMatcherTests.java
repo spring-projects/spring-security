@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
+ * @author Eddú Meléndez
  */
 @RunWith(MockitoJUnitRunner.class)
 public class MvcRequestMatcherTests {
@@ -73,6 +74,8 @@ public class MvcRequestMatcherTests {
 
 		assertThat(this.matcher.extractUriTemplateVariables(this.request))
 				.containsEntry("p", "path");
+		assertThat(this.matcher.matcher(this.request).getVariables())
+				.containsEntry("p", "path");
 	}
 
 	@Test
@@ -85,6 +88,7 @@ public class MvcRequestMatcherTests {
 				.thenReturn(this.result);
 
 		assertThat(this.matcher.extractUriTemplateVariables(this.request)).isEmpty();
+		assertThat(this.matcher.matcher(this.request).getVariables()).isEmpty();
 	}
 
 	@Test
@@ -94,6 +98,8 @@ public class MvcRequestMatcherTests {
 
 		assertThat(this.matcher.extractUriTemplateVariables(this.request))
 				.containsEntry("p", "path");
+		assertThat(this.matcher.matcher(this.request).getVariables())
+				.containsEntry("p", "path");
 	}
 
 	@Test
@@ -102,6 +108,7 @@ public class MvcRequestMatcherTests {
 		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(null);
 
 		assertThat(this.matcher.extractUriTemplateVariables(this.request)).isEmpty();
+		assertThat(this.matcher.matcher(this.request).getVariables()).isEmpty();
 	}
 
 	@Test
