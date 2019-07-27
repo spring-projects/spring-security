@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2012-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.firewall;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -23,6 +25,7 @@ import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author Rob Winch
+ * @author Eddú Meléndez
  */
 public class StrictHttpFirewallTests {
 	public String[] unnormalizedPaths = { "/..", "/./path/", "/path/path/.", "/path/path//.", "./path/../path//.",
@@ -372,5 +375,43 @@ public class StrictHttpFirewallTests {
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
 
 		this.firewall.getFirewalledRequest(request);
+	}
+
+	@Test
+	public void getFirewalledRequestWhenTrustedDomainThenNoException() {
+		String host = "example.org";
+		this.request.addHeader("Host", host);
+		this.firewall.setAllowedHostnames(Arrays.asList(host));
+
+		try {
+			this.firewall.getFirewalledRequest(this.request);
+		} catch (RequestRejectedException fail) {
+			fail("Host " + host + " was rejected");
+		}
+	}
+
+	@Test
+	public void getFirewalledRequestWhenUntrustedDomainThenException() {
+		String host = "example.org";
+		this.request.addHeader("Host", host);
+		this.firewall.setAllowedHostnames(Arrays.asList("myexample.org"));
+
+		try {
+			this.firewall.getFirewalledRequest(this.request);
+			fail("Host " + host + " was accepted");
+		} catch (RequestRejectedException expected) {
+		}
+	}
+
+	@Test
+	public void getFirewalledRequestWhenDefaultsThenNoException() {
+		String host = "example.org";
+		this.request.addHeader("Host", host);
+
+		try {
+			this.firewall.getFirewalledRequest(this.request);
+		} catch (RequestRejectedException fail) {
+			fail("Host " + host + " was rejected");
+		}
 	}
 }
