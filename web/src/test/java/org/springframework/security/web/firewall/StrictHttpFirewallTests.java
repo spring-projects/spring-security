@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  * @author Rob Winch
+ * @author Eddú Meléndez
  */
 public class StrictHttpFirewallTests {
 	public String[] unnormalizedPaths = { "/..", "/./path/", "/path/path/.", "/path/path//.", "./path/../path//.",
@@ -523,5 +524,21 @@ public class StrictHttpFirewallTests {
 		request.setPathInfo("/a/b//c");
 		this.firewall.getDecodedUrlBlacklist().removeAll(Arrays.asList("//"));
 		assertThatCode(() -> this.firewall.getFirewalledRequest(request)).doesNotThrowAnyException();
+	}
+
+	@Test
+	public void getFirewalledRequestWhenTrustedDomainThenNoException() {
+		this.request.addHeader("Host", "example.org");
+		this.firewall.setAllowedHostnames(hostname -> hostname.equals("example.org"));
+
+		assertThatCode(() -> this.firewall.getFirewalledRequest(this.request)).doesNotThrowAnyException();
+	}
+
+	@Test(expected = RequestRejectedException.class)
+	public void getFirewalledRequestWhenUntrustedDomainThenException() {
+		this.request.addHeader("Host", "example.org");
+		this.firewall.setAllowedHostnames(hostname -> hostname.equals("myexample.org"));
+
+		this.firewall.getFirewalledRequest(this.request);
 	}
 }
