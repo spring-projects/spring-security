@@ -228,6 +228,11 @@ class DummyRequest extends HttpServletRequestWrapper {
 	public void setQueryString(String queryString) {
 		this.queryString = queryString;
 	}
+
+	@Override
+	public String getServerName() {
+		return null;
+	}
 }
 
 final class UnsupportedOperationExceptionInvocationHandler implements InvocationHandler {
