@@ -25,12 +25,16 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -60,13 +64,55 @@ public class OAuth2ResourceServerControllerTests {
 		mockMvc.perform(get("/message").with(jwt(jwt -> jwt.claim("scope", "message:read"))))
 				.andExpect(content().string(is("secret message")));
 
-		mockMvc.perform(get("/message").with(jwt().authorities(new SimpleGrantedAuthority(("SCOPE_message:read")))))
-			.andExpect(content().string(is("secret message")));
+		mockMvc.perform(get("/message")
+				.with(jwt().authorities(new SimpleGrantedAuthority(("SCOPE_message:read")))))
+				.andExpect(content().string(is("secret message")));
 	}
 
 	@Test
 	public void messageCanNotBeReadWithoutScopeMessageReadAuthority() throws Exception {
 		mockMvc.perform(get("/message").with(jwt()))
 				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void messageCanNotBeCreatedWithoutAnyScope() throws Exception {
+		Jwt jwt = Jwt.withTokenValue("token")
+				.header("alg", "none")
+				.claim("scope", "")
+				.build();
+		when(jwtDecoder.decode(anyString())).thenReturn(jwt);
+		mockMvc.perform(post("/message")
+				.content("Hello message")
+				.header("Authorization", "Bearer " + jwt.getTokenValue()))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void messageCanNotBeCreatedWithScopeMessageReadAuthority() throws Exception {
+		Jwt jwt = Jwt.withTokenValue("token")
+				.header("alg", "none")
+				.claim("scope", "message:read")
+				.build();
+		when(jwtDecoder.decode(anyString())).thenReturn(jwt);
+		mockMvc.perform(post("/message")
+				.content("Hello message")
+				.header("Authorization", "Bearer " + jwt.getTokenValue()))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void messageCanBeCreatedWithScopeMessageWriteAuthority()
+			throws Exception {
+		Jwt jwt = Jwt.withTokenValue("token")
+				.header("alg", "none")
+				.claim("scope", "message:write")
+				.build();
+		when(jwtDecoder.decode(anyString())).thenReturn(jwt);
+		mockMvc.perform(post("/message")
+				.content("Hello message")
+				.header("Authorization", "Bearer " + jwt.getTokenValue()))
+				.andExpect(status().isOk())
+				.andExpect(content().string(is("Message was created. Content: Hello message")));
 	}
 }

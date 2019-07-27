@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package sample;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -34,5 +36,10 @@ public class OAuth2ResourceServerController {
 	@GetMapping("/message")
 	public String message() {
 		return "secret message";
+	}
+
+	@PostMapping("/message")
+	public String createMessage(@RequestBody String message) {
+		return String.format("Message was created. Content: %s", message);
 	}
 }
