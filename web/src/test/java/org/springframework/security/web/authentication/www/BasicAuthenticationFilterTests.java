@@ -177,6 +177,24 @@ public class BasicAuthenticationFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenSchemeMixedCaseThenCaseInsensitiveMatchWorks() throws Exception {
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"BaSiC " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
+
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+				.isEqualTo("rod");
+	}
+
+	@Test
 	public void testOtherAuthorizationSchemeIsIgnored() throws Exception {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();

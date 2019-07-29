@@ -30,6 +30,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Converts from a HttpServletRequest to
@@ -83,7 +84,7 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 		}
 
 		header = header.trim();
-		if (!header.startsWith(AUTHENTICATION_SCHEME_BASIC) && !header.startsWith(AUTHENTICATION_SCHEME_BASIC.toLowerCase())) {
+		if (!StringUtils.startsWithIgnoreCase(header, AUTHENTICATION_SCHEME_BASIC)) {
 			return null;
 		}
 

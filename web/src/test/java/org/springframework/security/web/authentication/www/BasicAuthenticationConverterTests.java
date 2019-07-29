@@ -62,6 +62,18 @@ public class BasicAuthenticationConverterTests {
 	}
 
 	@Test
+	public void requestWhenAuthorizationSchemeInMixedCaseThenAuthenticates() {
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "BaSiC " + new String(Base64.encodeBase64(token.getBytes())));
+		UsernamePasswordAuthenticationToken authentication = converter.convert(request);
+
+		verify(authenticationDetailsSource).buildDetails(any());
+		assertThat(authentication).isNotNull();
+		assertThat(authentication.getName()).isEqualTo("rod");
+	}
+
+	@Test
 	public void testWhenUnsupportedAuthorizationHeaderThenIgnored() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer someOtherToken");
