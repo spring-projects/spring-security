@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 5.1
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -171,4 +172,56 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 
 		verifyZeroInteractions(this.postAuthenticationChecks);
 	}
+
+	@Test(expected = AccountExpiredException.class)
+	public void authenticateWhenAccountExpiredThenException() {
+		this.manager.setPasswordEncoder(this.encoder);
+
+		UserDetails expiredUser = User.withUsername("user")
+				.password("password")
+				.roles("USER")
+				.accountExpired(true)
+				.build();
+		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(expiredUser));
+
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				expiredUser, expiredUser.getPassword());
+
+		this.manager.authenticate(token).block();
+	}
+
+	@Test(expected = LockedException.class)
+	public void authenticateWhenAccountLockedThenException() {
+		this.manager.setPasswordEncoder(this.encoder);
+
+		UserDetails lockedUser = User.withUsername("user")
+				.password("password")
+				.roles("USER")
+				.accountLocked(true)
+				.build();
+		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(lockedUser));
+
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				lockedUser, lockedUser.getPassword());
+
+		this.manager.authenticate(token).block();
+	}
+
+	@Test(expected = DisabledException.class)
+	public void authenticateWhenAccountDisabledThenException() {
+		this.manager.setPasswordEncoder(this.encoder);
+
+		UserDetails disabledUser = User.withUsername("user")
+				.password("password")
+				.roles("USER")
+				.disabled(true)
+				.build();
+		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(disabledUser));
+
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				disabledUser, disabledUser.getPassword());
+
+		this.manager.authenticate(token).block();
+	}
+
 }
