@@ -23,8 +23,12 @@ import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 import javax.crypto.SecretKey;
 
 import com.nimbusds.jose.JWSAlgorithm;
@@ -209,7 +213,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 */
 	public static final class JwkSetUriJwtDecoderBuilder {
 		private String jwkSetUri;
-		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
+		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 		private RestOperations restOperations = new RestTemplate();
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
@@ -218,15 +222,30 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		/**
-		 * Use the given signing
-		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithm</a>.
+		 * Append the given signing
+		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithm</a>
+		 * to the set of algorithms to use.
 		 *
 		 * @param signatureAlgorithm the algorithm to use
 		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
 		 */
 		public JwkSetUriJwtDecoderBuilder jwsAlgorithm(SignatureAlgorithm signatureAlgorithm) {
 			Assert.notNull(signatureAlgorithm, "signatureAlgorithm cannot be null");
-			this.jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
+			this.signatureAlgorithms.add(signatureAlgorithm);
+			return this;
+		}
+
+		/**
+		 * Configure the list of
+		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithms</a>
+		 * to use with the given {@link Consumer}.
+		 *
+		 * @param signatureAlgorithmsConsumer a {@link Consumer} for further configuring the algorithm list
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
+		 */
+		public JwkSetUriJwtDecoderBuilder jwsAlgorithms(Consumer<Set<SignatureAlgorithm>> signatureAlgorithmsConsumer) {
+			Assert.notNull(signatureAlgorithmsConsumer, "signatureAlgorithmsConsumer cannot be null");
+			signatureAlgorithmsConsumer.accept(this.signatureAlgorithms);
 			return this;
 		}
 
@@ -245,13 +264,27 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return this;
 		}
 
+		JWSKeySelector<SecurityContext> jwsKeySelector(JWKSource<SecurityContext> jwkSource) {
+			if (this.signatureAlgorithms.isEmpty()) {
+				return new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
+			} else if (this.signatureAlgorithms.size() == 1) {
+				JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(this.signatureAlgorithms.iterator().next().getName());
+				return new JWSVerificationKeySelector<>(jwsAlgorithm, jwkSource);
+			} else {
+				Map<JWSAlgorithm, JWSKeySelector<SecurityContext>> jwsKeySelectors = new HashMap<>();
+				for (SignatureAlgorithm signatureAlgorithm : this.signatureAlgorithms) {
+					JWSAlgorithm jwsAlg = JWSAlgorithm.parse(signatureAlgorithm.getName());
+					jwsKeySelectors.put(jwsAlg, new JWSVerificationKeySelector<>(jwsAlg, jwkSource));
+				}
+				return new JWSAlgorithmMapJWSKeySelector<>(jwsKeySelectors);
+			}
+		}
+
 		JWTProcessor<SecurityContext> processor() {
 			ResourceRetriever jwkSetRetriever = new RestOperationsResourceRetriever(this.restOperations);
 			JWKSource<SecurityContext> jwkSource = new RemoteJWKSet<>(toURL(this.jwkSetUri), jwkSetRetriever);
-			JWSKeySelector<SecurityContext> jwsKeySelector =
-					new JWSVerificationKeySelector<>(this.jwsAlgorithm, jwkSource);
 			ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
-			jwtProcessor.setJWSKeySelector(jwsKeySelector);
+			jwtProcessor.setJWSKeySelector(jwsKeySelector(jwkSource));
 
 			// Spring Security validates the claim set independent from Nimbus
 			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> { });

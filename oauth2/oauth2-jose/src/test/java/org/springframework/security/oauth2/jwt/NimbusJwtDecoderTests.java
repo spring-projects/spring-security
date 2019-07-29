@@ -39,7 +39,10 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -355,6 +358,46 @@ public class NimbusJwtDecoderTests {
 		assertThat(decoder.decode(signedJwt.serialize()))
 				.extracting(Jwt::getSubject)
 				.isEqualTo("test-subject");
+	}
+
+	@Test
+	public void jwsKeySelectorWhenNoAlgorithmThenReturnsRS256Selector() {
+		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		JWSKeySelector<SecurityContext> jwsKeySelector =
+				withJwkSetUri(JWK_SET_URI).jwsKeySelector(jwkSource);
+		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
+		JWSVerificationKeySelector<?> jwsVerificationKeySelector =
+				(JWSVerificationKeySelector<?>) jwsKeySelector;
+		assertThat(jwsVerificationKeySelector.getExpectedJWSAlgorithm())
+				.isEqualTo(JWSAlgorithm.RS256);
+	}
+
+	@Test
+	public void jwsKeySelectorWhenOneAlgorithmThenReturnsSingleSelector() {
+		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		JWSKeySelector<SecurityContext> jwsKeySelector =
+				withJwkSetUri(JWK_SET_URI).jwsAlgorithm(SignatureAlgorithm.RS512)
+						.jwsKeySelector(jwkSource);
+		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
+		JWSVerificationKeySelector<?> jwsVerificationKeySelector =
+				(JWSVerificationKeySelector<?>) jwsKeySelector;
+		assertThat(jwsVerificationKeySelector.getExpectedJWSAlgorithm())
+				.isEqualTo(JWSAlgorithm.RS512);
+	}
+
+	@Test
+	public void jwsKeySelectorWhenMultipleAlgorithmThenReturnsCompositeSelector() {
+		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		JWSKeySelector<SecurityContext> jwsKeySelector =
+				withJwkSetUri(JWK_SET_URI)
+						.jwsAlgorithm(SignatureAlgorithm.RS256)
+						.jwsAlgorithm(SignatureAlgorithm.RS512)
+						.jwsKeySelector(jwkSource);
+		assertThat(jwsKeySelector instanceof JWSAlgorithmMapJWSKeySelector);
+		JWSAlgorithmMapJWSKeySelector<?> jwsAlgorithmMapKeySelector =
+				(JWSAlgorithmMapJWSKeySelector<?>) jwsKeySelector;
+		assertThat(jwsAlgorithmMapKeySelector.getExpectedJWSAlgorithms())
+				.containsExactlyInAnyOrder(JWSAlgorithm.RS256, JWSAlgorithm.RS512);
 	}
 
 	private RSAPublicKey key() throws InvalidKeySpecException {
