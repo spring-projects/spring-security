@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Rob Winch
  * @since 4.1.1
- * @deprecated
+ * @deprecated use {@link RequestMatcher.MatchResult} from {@link RequestMatcher#matcher(HttpServletRequest)}
  */
 public interface RequestVariablesExtractor {
 
