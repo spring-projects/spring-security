@@ -234,8 +234,8 @@ public class DefaultSavedRequest implements SavedRequest {
 			return false;
 		}
 
-		if (!propertyEquals("serverPort", Integer.valueOf(this.serverPort),
-				Integer.valueOf(portResolver.getServerPort(request)))) {
+		if (!propertyEquals("serverPort", this.serverPort,
+				portResolver.getServerPort(request))) {
 			return false;
 		}
 

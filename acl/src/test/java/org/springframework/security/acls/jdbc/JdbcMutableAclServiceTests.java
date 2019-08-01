@@ -78,11 +78,11 @@ public class JdbcMutableAclServiceTests extends
 	// ================================================================================================
 
 	private final ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS,
-			Long.valueOf(100));
+			100L);
 	private final ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS,
-			Long.valueOf(101));
+			101L);
 	private final ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS,
-			Long.valueOf(102));
+			102L);
 
 	@Autowired
 	private JdbcMutableAclService jdbcMutableAclService;
@@ -361,7 +361,7 @@ public class JdbcMutableAclServiceTests extends
 	public void createAclForADuplicateDomainObject() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		ObjectIdentity duplicateOid = new ObjectIdentityImpl(TARGET_CLASS,
-				Long.valueOf(100));
+				100L);
 		jdbcMutableAclService.createAcl(duplicateOid);
 		// Try to add the same object second time
 		try {
@@ -428,7 +428,7 @@ public class JdbcMutableAclServiceTests extends
 
 		// Check the cache
 		assertThat(aclCache.getFromCache(getChildOid())).isNull();
-		assertThat(aclCache.getFromCache(Long.valueOf(102))).isNull();
+		assertThat(aclCache.getFromCache(102L)).isNull();
 	}
 
 	/** SEC-1107 */
@@ -436,11 +436,11 @@ public class JdbcMutableAclServiceTests extends
 	@Transactional
 	public void identityWithIntegerIdIsSupportedByCreateAcl() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(auth);
-		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(101));
+		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 101);
 		jdbcMutableAclService.createAcl(oid);
 
 		assertThat(jdbcMutableAclService.readAclById(new ObjectIdentityImpl(
-				TARGET_CLASS, Long.valueOf(101)))).isNotNull();
+				TARGET_CLASS, 101L))).isNotNull();
 	}
 
 	/**
@@ -454,8 +454,8 @@ public class JdbcMutableAclServiceTests extends
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
-		ObjectIdentity parentOid = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(104));
-		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(105));
+		ObjectIdentity parentOid = new ObjectIdentityImpl(TARGET_CLASS, 104L);
+		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 105L);
 
 		MutableAcl parent = jdbcMutableAclService.createAcl(parentOid);
 		MutableAcl child = jdbcMutableAclService.createAcl(childOid);
@@ -491,11 +491,11 @@ public class JdbcMutableAclServiceTests extends
 				"ROLE_IGNORED");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		ObjectIdentityImpl rootObject = new ObjectIdentityImpl(TARGET_CLASS,
-				Long.valueOf(1));
+				1L);
 
 		MutableAcl parent = jdbcMutableAclService.createAcl(rootObject);
 		MutableAcl child = jdbcMutableAclService.createAcl(new ObjectIdentityImpl(
-				TARGET_CLASS, Long.valueOf(2)));
+				TARGET_CLASS, 2L));
 		child.setParent(parent);
 		jdbcMutableAclService.updateAcl(child);
 
@@ -507,7 +507,7 @@ public class JdbcMutableAclServiceTests extends
 		jdbcMutableAclService.updateAcl(parent);
 
 		child = (MutableAcl) jdbcMutableAclService.readAclById(new ObjectIdentityImpl(
-				TARGET_CLASS, Long.valueOf(2)));
+				TARGET_CLASS, 2L));
 
 		parent = (MutableAcl) child.getParentAcl();
 
@@ -528,7 +528,7 @@ public class JdbcMutableAclServiceTests extends
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS,
-				Long.valueOf(110));
+				110L);
 		MutableAcl topParent = jdbcMutableAclService.createAcl(topParentOid);
 
 		// Add an ACE permission entry

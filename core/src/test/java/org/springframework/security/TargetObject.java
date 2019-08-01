@@ -29,7 +29,7 @@ public class TargetObject implements ITargetObject {
 	// ========================================================================================================
 
 	public Integer computeHashCode(String input) {
-		return Integer.valueOf(input.hashCode());
+		return input.hashCode();
 	}
 
 	public int countLength(String input) {

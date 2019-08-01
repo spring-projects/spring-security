@@ -152,7 +152,7 @@ public class ConcurrentSessionControlAuthenticationStrategy implements
 		if (exceptionIfMaximumExceeded || (sessions == null)) {
 			throw new SessionAuthenticationException(messages.getMessage(
 					"ConcurrentSessionControlAuthenticationStrategy.exceededAllowed",
-					new Object[] { Integer.valueOf(allowableSessions) },
+					new Object[] {allowableSessions},
 					"Maximum sessions of {0} for this principal exceeded"));
 		}
 

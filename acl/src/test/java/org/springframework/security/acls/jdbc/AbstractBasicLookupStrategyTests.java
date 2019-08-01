@@ -129,10 +129,10 @@ public abstract class AbstractBasicLookupStrategyTests {
 
 	@Test
 	public void testAclsRetrievalWithDefaultBatchSize() throws Exception {
-		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
-		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
+		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
+		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, 101L);
 		// Deliberately use an integer for the child, to reproduce bug report in SEC-819
-		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(102));
+		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102);
 
 		Map<ObjectIdentity, Acl> map = this.strategy
 			.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
@@ -141,9 +141,9 @@ public abstract class AbstractBasicLookupStrategyTests {
 
 	@Test
 	public void testAclsRetrievalFromCacheOnly() throws Exception {
-		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(100));
-		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
-		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(102));
+		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, 100);
+		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, 101L);
+		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102L);
 
 		// Objects were put in cache
 		strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
@@ -158,9 +158,9 @@ public abstract class AbstractBasicLookupStrategyTests {
 
 	@Test
 	public void testAclsRetrievalWithCustomBatchSize() throws Exception {
-		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
-		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(101));
-		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(102));
+		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
+		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, 101);
+		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102L);
 
 		// Set a batch size to allow multiple database queries in order to retrieve all
 		// acls
@@ -242,10 +242,10 @@ public abstract class AbstractBasicLookupStrategyTests {
 		String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (6,2,103,1,1,1);";
 		getJdbcTemplate().execute(query);
 
-		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(100));
-		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(101));
-		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(102));
-		ObjectIdentity middleParent2Oid = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(103));
+		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
+		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, 101L);
+		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102L);
+		ObjectIdentity middleParent2Oid = new ObjectIdentityImpl(TARGET_CLASS, 103L);
 
 		// Retrieve the child
 		Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(Arrays.asList(childOid), null);
@@ -274,10 +274,10 @@ public abstract class AbstractBasicLookupStrategyTests {
 			+ "INSERT INTO acl_entry(ID,ACL_OBJECT_IDENTITY,ACE_ORDER,SID,MASK,GRANTING,AUDIT_SUCCESS,AUDIT_FAILURE) VALUES (7,6,0,1,1,1,0,0)";
 		getJdbcTemplate().execute(query);
 
-		ObjectIdentity grandParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(104));
-		ObjectIdentity parent1Oid = new ObjectIdentityImpl(TARGET_CLASS, new Long(105));
-		ObjectIdentity parent2Oid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(106));
-		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(107));
+		ObjectIdentity grandParentOid = new ObjectIdentityImpl(TARGET_CLASS, 104L);
+		ObjectIdentity parent1Oid = new ObjectIdentityImpl(TARGET_CLASS, 105L);
+		ObjectIdentity parent2Oid = new ObjectIdentityImpl(TARGET_CLASS, 106);
+		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 107);
 
 		// First lookup only child, thus populating the cache with grandParent,
 		// parent1
@@ -317,7 +317,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 
 		getJdbcTemplate().execute(query);
 
-		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, new Long(104));
+		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 104L);
 
 		strategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
 	}

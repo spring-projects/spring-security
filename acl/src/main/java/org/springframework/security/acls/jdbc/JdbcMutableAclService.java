@@ -249,14 +249,14 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 			boolean allowCreate) {
 
 		List<Long> sidIds = jdbcOperations.queryForList(selectSidPrimaryKey, new Object[] {
-				Boolean.valueOf(sidIsPrincipal), sidName }, Long.class);
+				sidIsPrincipal, sidName }, Long.class);
 
 		if (!sidIds.isEmpty()) {
 			return sidIds.get(0);
 		}
 
 		if (allowCreate) {
-			jdbcOperations.update(insertSid, Boolean.valueOf(sidIsPrincipal), sidName);
+			jdbcOperations.update(insertSid, sidIsPrincipal, sidName);
 			Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(),
 					"Transaction must be running");
 			return jdbcOperations.queryForObject(sidIdentityQuery, Long.class);
@@ -410,7 +410,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 
 		Long ownerSid = createOrRetrieveSidPrimaryKey(acl.getOwner(), true);
 		int count = jdbcOperations.update(updateObjectIdentity, parentId, ownerSid,
-				Boolean.valueOf(acl.isEntriesInheriting()), acl.getId());
+				acl.isEntriesInheriting(), acl.getId());
 
 		if (count != 1) {
 			throw new NotFoundException("Unable to locate ACL to update");

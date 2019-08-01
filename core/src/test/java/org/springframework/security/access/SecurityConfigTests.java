@@ -76,7 +76,7 @@ public class SecurityConfigTests {
 		MockConfigAttribute mock2 = new MockConfigAttribute("NOT_EQUAL");
 		assertThat(security1).isNotEqualTo(mock2);
 
-		Integer int1 = Integer.valueOf(987);
+		Integer int1 = 987;
 		assertThat(security1).isNotEqualTo(int1);
 	}
 

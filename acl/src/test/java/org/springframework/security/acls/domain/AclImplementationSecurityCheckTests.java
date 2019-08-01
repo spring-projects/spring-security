@@ -57,12 +57,12 @@ public class AclImplementationSecurityCheckTests {
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
-		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
 						"ROLE_AUDITING"), new SimpleGrantedAuthority("ROLE_GENERAL"));
 
-		Acl acl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy,
+		Acl acl = new AclImpl(identity, 1L, aclAuthorizationStrategy,
 				new ConsoleAuditLogger());
 
 		aclAuthorizationStrategy.securityCheck(acl,
@@ -76,7 +76,7 @@ public class AclImplementationSecurityCheckTests {
 		AclAuthorizationStrategy aclAuthorizationStrategy2 = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_ONE"), new SimpleGrantedAuthority(
 						"ROLE_TWO"), new SimpleGrantedAuthority("ROLE_THREE"));
-		Acl acl2 = new AclImpl(identity, new Long(1), aclAuthorizationStrategy2,
+		Acl acl2 = new AclImpl(identity, 1L, aclAuthorizationStrategy2,
 				new ConsoleAuditLogger());
 		// Check access in case the principal has no authorization rights
 		try {
@@ -110,7 +110,7 @@ public class AclImplementationSecurityCheckTests {
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
-		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		// Authorization strategy will require a different role for each access
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
@@ -118,7 +118,7 @@ public class AclImplementationSecurityCheckTests {
 
 		// Let's give the principal the ADMINISTRATION permission, without
 		// granting access
-		MutableAcl aclFirstDeny = new AclImpl(identity, new Long(1),
+		MutableAcl aclFirstDeny = new AclImpl(identity, 1L,
 				aclAuthorizationStrategy, new ConsoleAuditLogger());
 		aclFirstDeny.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth),
 				false);
@@ -160,7 +160,7 @@ public class AclImplementationSecurityCheckTests {
 
 		// Create another ACL and give the principal the ADMINISTRATION
 		// permission, with granting access
-		MutableAcl aclFirstAllow = new AclImpl(identity, new Long(1),
+		MutableAcl aclFirstAllow = new AclImpl(identity, 1L,
 				aclAuthorizationStrategy, new ConsoleAuditLogger());
 		aclFirstAllow.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth),
 				true);
@@ -184,7 +184,7 @@ public class AclImplementationSecurityCheckTests {
 		}
 
 		// Create an ACL with no ACE
-		MutableAcl aclNoACE = new AclImpl(identity, new Long(1),
+		MutableAcl aclNoACE = new AclImpl(identity, 1L,
 				aclAuthorizationStrategy, new ConsoleAuditLogger());
 		try {
 			aclAuthorizationStrategy.securityCheck(aclNoACE,

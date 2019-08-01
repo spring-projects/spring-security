@@ -101,7 +101,7 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 
 	@Test
 	public void testReadObjectIdentityUsingLongTypeWithConversionServiceEnabled() {
-		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		Map<ObjectIdentity, Acl> foundAcls = uuidEnabledStrategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
 		Assert.assertEquals(1, foundAcls.size());
 		Assert.assertNotNull(foundAcls.get(oid));

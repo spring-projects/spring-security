@@ -55,7 +55,7 @@ public class ContactManagerTests {
 
 	void assertContainsContact(long id, List<Contact> contacts) {
 		for (Contact contact : contacts) {
-			if (contact.getId().equals(Long.valueOf(id))) {
+			if (contact.getId().equals(id)) {
 				return;
 			}
 		}
@@ -65,7 +65,7 @@ public class ContactManagerTests {
 
 	void assertDoestNotContainContact(long id, List<Contact> contacts) {
 		for (Contact contact : contacts) {
-			if (contact.getId().equals(Long.valueOf(id))) {
+			if (contact.getId().equals(id)) {
 				fail("List of contact should NOT (but did) contain: " + id);
 			}
 		}
@@ -148,7 +148,7 @@ public class ContactManagerTests {
 
 		assertDoestNotContainContact(5, contacts);
 
-		Contact c1 = contactManager.getById(new Long(4));
+		Contact c1 = contactManager.getById(4L);
 
 		contactManager.deletePermission(c1, new PrincipalSid("bob"),
 				BasePermission.ADMINISTRATION);

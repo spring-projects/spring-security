@@ -83,18 +83,18 @@ public class DocumentDaoImpl extends JdbcDaoSupport implements DocumentDao {
 				new Object[] { id }, new RowMapper<Directory>() {
 					public Directory mapRow(ResultSet rs, int rowNumber)
 							throws SQLException {
-						Long parentDirectoryId = new Long(rs
-								.getLong("parent_directory_id"));
+						Long parentDirectoryId = rs
+								.getLong("parent_directory_id");
 						Directory parentDirectory = Directory.ROOT_DIRECTORY;
 						if (parentDirectoryId != null
-								&& !parentDirectoryId.equals(new Long(-1))) {
+								&& !parentDirectoryId.equals(-1L)) {
 							// Need to go and lookup the parent, so do that first
 							parentDirectory = getDirectoryWithImmediateParentPopulated(parentDirectoryId);
 						}
 						Directory directory = new Directory(rs
 								.getString("directory_name"), parentDirectory);
 						FieldUtils.setProtectedFieldValue("id", directory,
-								new Long(rs.getLong("id")));
+								rs.getLong("id"));
 						return directory;
 					}
 				});
@@ -108,8 +108,8 @@ public class DocumentDaoImpl extends JdbcDaoSupport implements DocumentDao {
 					SELECT_FROM_DIRECTORY_NULL, new RowMapper<Directory>() {
 						public Directory mapRow(ResultSet rs, int rowNumber)
 								throws SQLException {
-							return getDirectoryWithImmediateParentPopulated(new Long(rs
-									.getLong("id")));
+							return getDirectoryWithImmediateParentPopulated(rs
+									.getLong("id"));
 						}
 					});
 			return directories.toArray(new AbstractElement[] {});
@@ -119,22 +119,22 @@ public class DocumentDaoImpl extends JdbcDaoSupport implements DocumentDao {
 				new RowMapper<AbstractElement>() {
 					public Directory mapRow(ResultSet rs, int rowNumber)
 							throws SQLException {
-						return getDirectoryWithImmediateParentPopulated(new Long(rs
-								.getLong("id")));
+						return getDirectoryWithImmediateParentPopulated(rs
+								.getLong("id"));
 					}
 				});
 		List<File> files = getJdbcTemplate().query(SELECT_FROM_FILE,
 				new Object[] { directory.getId() }, new RowMapper<File>() {
 					public File mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						Long parentDirectoryId = new Long(rs
-								.getLong("parent_directory_id"));
+						Long parentDirectoryId = rs
+								.getLong("parent_directory_id");
 						Directory parentDirectory = null;
 						if (parentDirectoryId != null) {
 							parentDirectory = getDirectoryWithImmediateParentPopulated(parentDirectoryId);
 						}
 						File file = new File(rs.getString("file_name"), parentDirectory);
 						FieldUtils.setProtectedFieldValue("id", file,
-								new Long(rs.getLong("id")));
+								rs.getLong("id"));
 						return file;
 					}
 				});

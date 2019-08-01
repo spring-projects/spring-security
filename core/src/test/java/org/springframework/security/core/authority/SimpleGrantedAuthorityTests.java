@@ -42,7 +42,7 @@ public class SimpleGrantedAuthorityTests {
 
 		assertThat(auth1.equals(mock(GrantedAuthority.class))).isFalse();
 
-		assertThat(auth1.equals(Integer.valueOf(222))).isFalse();
+		assertThat(auth1.equals(222)).isFalse();
 	}
 
 	@Test

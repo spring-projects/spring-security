@@ -442,8 +442,8 @@ class HttpConfigurationBuilder {
 
 			if (sessionFixationProtectionRequired) {
 				sessionFixationStrategy.addPropertyValue("migrateSessionAttributes",
-						Boolean.valueOf(sessionFixationAttribute
-								.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
+						sessionFixationAttribute
+								.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION));
 			}
 		}
 

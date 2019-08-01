@@ -71,12 +71,12 @@ public class EhCacheBasedAclCacheTests {
 				new ConsoleAuditLogger()), new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_USER")));
 
-		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(100));
+		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
 						"ROLE_AUDITING"), new SimpleGrantedAuthority("ROLE_GENERAL"));
 
-		acl = new AclImpl(identity, Long.valueOf(1), aclAuthorizationStrategy,
+		acl = new AclImpl(identity, 1L, aclAuthorizationStrategy,
 				new ConsoleAuditLogger());
 	}
 
@@ -188,11 +188,11 @@ public class EhCacheBasedAclCacheTests {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS,
-				Long.valueOf(2));
+				2L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
 						"ROLE_AUDITING"), new SimpleGrantedAuthority("ROLE_GENERAL"));
-		MutableAcl parentAcl = new AclImpl(identityParent, Long.valueOf(2),
+		MutableAcl parentAcl = new AclImpl(identityParent, 2L,
 				aclAuthorizationStrategy, new ConsoleAuditLogger());
 		acl.setParent(parentAcl);
 

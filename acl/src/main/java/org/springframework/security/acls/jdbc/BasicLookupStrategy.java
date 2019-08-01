@@ -593,15 +593,15 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 				if (parentId != 0) {
 					// See if it's already in the "acls"
-					if (acls.containsKey(new Long(parentId))) {
+					if (acls.containsKey(parentId)) {
 						continue; // skip this while iteration
 					}
 
 					// Now try to find it in the cache
-					MutableAcl cached = aclCache.getFromCache(new Long(parentId));
+					MutableAcl cached = aclCache.getFromCache(parentId);
 
 					if ((cached == null) || !cached.isSidLoaded(sids)) {
-						parentIdsToLookup.add(new Long(parentId));
+						parentIdsToLookup.add(parentId);
 					}
 					else {
 						// Pop into the acls map, so our convert method doesn't
@@ -627,7 +627,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		 */
 		private void convertCurrentResultIntoObject(Map<Serializable, Acl> acls,
 				ResultSet rs) throws SQLException {
-			Long id = new Long(rs.getLong("acl_id"));
+			Long id = rs.getLong("acl_id");
 
 			// If we already have an ACL for this ID, just create the ACE
 			Acl acl = acls.get(id);
@@ -645,7 +645,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 				long parentAclId = rs.getLong("parent_object");
 
 				if (parentAclId != 0) {
-					parentAcl = new StubAclParent(Long.valueOf(parentAclId));
+					parentAcl = new StubAclParent(parentAclId);
 				}
 
 				boolean entriesInheriting = rs.getBoolean("entries_inheriting");
@@ -662,7 +662,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 			// It is permissible to have no ACEs in an ACL (which is detected by a null
 			// ACE_SID)
 			if (rs.getString("ace_sid") != null) {
-				Long aceId = new Long(rs.getLong("ace_id"));
+				Long aceId = rs.getLong("ace_id");
 				Sid recipient = createSid(rs.getBoolean("ace_principal"),
 						rs.getString("ace_sid"));
 

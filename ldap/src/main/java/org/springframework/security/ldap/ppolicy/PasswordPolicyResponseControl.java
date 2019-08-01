@@ -310,7 +310,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 			}
 
 			private void setInChoice(boolean inChoice) {
-				this.inChoice = Boolean.valueOf(inChoice);
+				this.inChoice = inChoice;
 			}
 		}
 	}
