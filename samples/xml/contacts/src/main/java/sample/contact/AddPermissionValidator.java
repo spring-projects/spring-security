@@ -44,7 +44,7 @@ public class AddPermissionValidator implements Validator {
 				"Recipient is required. *");
 
 		if (addPermission.getPermission() != null) {
-			int permission = addPermission.getPermission().intValue();
+			int permission = addPermission.getPermission();
 
 			if ((permission != BasePermission.ADMINISTRATION.getMask())
 					&& (permission != BasePermission.READ.getMask())

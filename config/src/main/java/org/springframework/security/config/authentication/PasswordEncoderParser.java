@@ -66,7 +66,7 @@ public class PasswordEncoderParser {
 		boolean useBase64 = false;
 
 		if (StringUtils.hasText(element.getAttribute(ATT_BASE_64))) {
-			useBase64 = Boolean.valueOf(element.getAttribute(ATT_BASE_64)).booleanValue();
+			useBase64 = Boolean.valueOf(element.getAttribute(ATT_BASE_64));
 		}
 
 		String ref = element.getAttribute(ATT_REF);

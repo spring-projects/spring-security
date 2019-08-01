@@ -417,7 +417,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean
 			// Extract expiry time from nonce
 
 			try {
-				this.nonceExpiryTime = new Long(nonceTokens[0]).longValue();
+				this.nonceExpiryTime = new Long(nonceTokens[0]);
 			}
 			catch (NumberFormatException nfe) {
 				throw new BadCredentialsException(DigestAuthenticationFilter.this.messages

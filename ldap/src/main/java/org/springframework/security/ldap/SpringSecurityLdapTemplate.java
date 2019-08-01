@@ -119,7 +119,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
 		Boolean matches = (Boolean) executeReadOnly(new LdapCompareCallback());
 
-		return matches.booleanValue();
+		return matches;
 	}
 
 	/**

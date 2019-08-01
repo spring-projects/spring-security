@@ -52,7 +52,7 @@ public class ELRequestMatcher implements RequestMatcher {
 
 	public boolean matches(HttpServletRequest request) {
 		EvaluationContext context = createELContext(request);
-		return expression.getValue(context, Boolean.class).booleanValue();
+		return expression.getValue(context, Boolean.class);
 	}
 
 	/**
