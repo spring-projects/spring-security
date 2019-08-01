@@ -105,7 +105,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 
 		long creationTime;
 		try {
-			creationTime = Long.decode(tokens[0]).longValue();
+			creationTime = Long.decode(tokens[0]);
 		}
 		catch (NumberFormatException nfe) {
 			throw new IllegalArgumentException("Expected number but found " + tokens[0]);
@@ -144,7 +144,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	private String computeServerSecretApplicableAt(long time) {
-		return serverSecret + ":" + new Long(time % serverInteger.intValue()).intValue();
+		return serverSecret + ":" + new Long(time % serverInteger).intValue();
 	}
 
 	/**

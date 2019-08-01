@@ -196,7 +196,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 			if (httpsPort != null) {
 				// Overwrite scheme and port in the redirect URL
 				urlBuilder.setScheme("https");
-				urlBuilder.setPort(httpsPort.intValue());
+				urlBuilder.setPort(httpsPort);
 			}
 			else {
 				logger.warn("Unable to redirect to HTTPS as no port mapping found for HTTP port "
@@ -221,7 +221,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 			RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
 			urlBuilder.setScheme("https");
 			urlBuilder.setServerName(request.getServerName());
-			urlBuilder.setPort(httpsPort.intValue());
+			urlBuilder.setPort(httpsPort);
 			urlBuilder.setContextPath(request.getContextPath());
 			urlBuilder.setServletPath(request.getServletPath());
 			urlBuilder.setPathInfo(request.getPathInfo());

@@ -127,8 +127,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 
 	List<Permission> resolvePermission(Object permission) {
 		if (permission instanceof Integer) {
-			return Arrays.asList(permissionFactory.buildFromMask(((Integer) permission)
-					.intValue()));
+			return Arrays.asList(permissionFactory.buildFromMask((Integer) permission));
 		}
 
 		if (permission instanceof Permission) {

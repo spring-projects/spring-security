@@ -67,7 +67,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 		Integer redirectPort = getMappedPort(currentPort);
 
 		if (redirectPort != null) {
-			boolean includePort = redirectPort.intValue() != standardPort;
+			boolean includePort = redirectPort != standardPort;
 
 			redirectUrl = scheme + request.getServerName()
 					+ ((includePort) ? (":" + redirectPort) : "") + redirectUrl;

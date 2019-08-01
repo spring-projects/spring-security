@@ -146,10 +146,9 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 						"Unknown ACE class");
 				AccessControlEntryImpl entry = (AccessControlEntryImpl) entry_;
 
-				stmt.setLong(1, ((Long) acl.getId()).longValue());
+				stmt.setLong(1, (Long) acl.getId());
 				stmt.setInt(2, i);
-				stmt.setLong(3, createOrRetrieveSidPrimaryKey(entry.getSid(), true)
-						.longValue());
+				stmt.setLong(3, createOrRetrieveSidPrimaryKey(entry.getSid(), true));
 				stmt.setInt(4, entry.getPermission().getMask());
 				stmt.setBoolean(5, entry.isGranting());
 				stmt.setBoolean(6, entry.isAuditSuccess());

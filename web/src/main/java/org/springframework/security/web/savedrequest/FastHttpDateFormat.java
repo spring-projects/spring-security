@@ -183,7 +183,7 @@ public class FastHttpDateFormat {
 		}
 
 		if (cachedDate != null) {
-			return cachedDate.longValue();
+			return cachedDate;
 		}
 
 		Long date;
@@ -206,7 +206,7 @@ public class FastHttpDateFormat {
 			return (-1L);
 		}
 		else {
-			return date.longValue();
+			return date;
 		}
 	}
 

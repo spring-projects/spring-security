@@ -63,7 +63,7 @@ public class PortResolverImpl implements PortResolver {
 
 		if (portLookup != null) {
 			// IE 6 bug
-			serverPort = portLookup.intValue();
+			serverPort = portLookup;
 		}
 
 		return serverPort;
