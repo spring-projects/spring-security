@@ -13,10 +13,6 @@ dependencies {
 	compile 'com.google.appengine:appengine-tools-sdk:1.4.2'
 }
 
-dependencies{
-	compile "emma:emma:2.0.5312"
-}
-
 // Trang
 dependencies {
 	compile 'com.thaiopensource:trang:20091111',
