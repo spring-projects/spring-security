@@ -78,7 +78,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 	public AuthenticationFilter(AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver,
 			AuthenticationConverter authenticationConverter) {
-		Assert.notNull(authenticationManagerResolver, "authenticationResolverManager cannot be null");
+		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 
 		this.authenticationManagerResolver = authenticationManagerResolver;
@@ -86,7 +86,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	public RequestMatcher getRequestMatcher() {
-		return requestMatcher;
+		return this.requestMatcher;
 	}
 
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
@@ -95,7 +95,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	public AuthenticationConverter getAuthenticationConverter() {
-		return authenticationConverter;
+		return this.authenticationConverter;
 	}
 
 	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
@@ -104,7 +104,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	public AuthenticationSuccessHandler getSuccessHandler() {
-		return successHandler;
+		return this.successHandler;
 	}
 
 	public void setSuccessHandler(AuthenticationSuccessHandler successHandler) {
@@ -113,7 +113,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	public AuthenticationFailureHandler getFailureHandler() {
-		return failureHandler;
+		return this.failureHandler;
 	}
 
 	public void setFailureHandler(AuthenticationFailureHandler failureHandler) {
@@ -122,7 +122,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	public AuthenticationManagerResolver<HttpServletRequest> getAuthenticationManagerResolver() {
-		return authenticationManagerResolver;
+		return this.authenticationManagerResolver;
 	}
 
 	public void setAuthenticationManagerResolver(
@@ -134,7 +134,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		if (!requestMatcher.matches(request)) {
+		if (!this.requestMatcher.matches(request)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -155,7 +155,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 	private void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException failed) throws IOException, ServletException {
 		SecurityContextHolder.clearContext();
-		failureHandler.onAuthenticationFailure(request, response, failed);
+		this.failureHandler.onAuthenticationFailure(request, response, failed);
 	}
 
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
@@ -163,18 +163,17 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authentication);
 		SecurityContextHolder.setContext(context);
-
-		successHandler.onAuthenticationSuccess(request, response, chain, authentication);
+		this.successHandler.onAuthenticationSuccess(request, response, chain, authentication);
 	}
 
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
-		Authentication authentication = authenticationConverter.convert(request);
+		Authentication authentication = this.authenticationConverter.convert(request);
 		if (authentication == null) {
 			return null;
 		}
 
-		AuthenticationManager authenticationManager = authenticationManagerResolver.resolve(request);
+		AuthenticationManager authenticationManager = this.authenticationManagerResolver.resolve(request);
 		Authentication authenticationResult = authenticationManager.authenticate(authentication);
 		if (authenticationResult == null) {
 			throw new ServletException("AuthenticationManager should not return null Authentication object.");
