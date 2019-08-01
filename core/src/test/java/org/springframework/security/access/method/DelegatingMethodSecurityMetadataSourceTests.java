@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.util.SimpleMethodInvocation;
 
@@ -38,7 +38,7 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 	public void returnsEmptyListIfDelegateReturnsNull() throws Exception {
 		List sources = new ArrayList();
 		MethodSecurityMetadataSource delegate = mock(MethodSecurityMetadataSource.class);
-		when(delegate.getAttributes(Matchers.<Method> any(), Matchers.any(Class.class)))
+		when(delegate.getAttributes(ArgumentMatchers.<Method> any(), ArgumentMatchers.any(Class.class)))
 				.thenReturn(null);
 		sources.add(delegate);
 		mds = new DelegatingMethodSecurityMetadataSource(sources);
