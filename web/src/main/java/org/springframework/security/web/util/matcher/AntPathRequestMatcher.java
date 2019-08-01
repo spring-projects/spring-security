@@ -182,6 +182,7 @@ public final class AntPathRequestMatcher
 	}
 
 	@Override
+	@Deprecated
 	public Map<String, String> extractUriTemplateVariables(HttpServletRequest request) {
 		return matcher(request).getVariables();
 	}
@@ -264,7 +265,7 @@ public final class AntPathRequestMatcher
 		return null;
 	}
 
-	private static interface Matcher {
+	private interface Matcher {
 		boolean matches(String path);
 
 		Map<String, String> extractUriTemplateVariables(String path);

@@ -92,6 +92,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 	 * extractUriTemplateVariables(javax.servlet.http.HttpServletRequest)
 	 */
 	@Override
+	@Deprecated
 	public Map<String, String> extractUriTemplateVariables(HttpServletRequest request) {
 		return matcher(request).getVariables();
 	}
@@ -146,7 +147,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		return sb.toString();
 	}
 
-	private class DefaultMatcher implements RequestMatcher, RequestVariablesExtractor {
+	private class DefaultMatcher implements RequestMatcher {
 
 		private final UrlPathHelper pathHelper = new UrlPathHelper();
 
@@ -160,12 +161,6 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 
 		private boolean matches(String lookupPath) {
 			return this.pathMatcher.match(MvcRequestMatcher.this.pattern, lookupPath);
-		}
-
-		@Override
-		public Map<String, String> extractUriTemplateVariables(
-				HttpServletRequest request) {
-			return matcher(request).getVariables();
 		}
 
 		@Override
