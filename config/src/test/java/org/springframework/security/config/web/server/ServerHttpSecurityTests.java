@@ -109,7 +109,8 @@ public class ServerHttpSecurityTests {
 			.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
 			.returnResult(String.class);
 
-		assertThat(result.getResponseCookies()).isEmpty();
+		assertThat(result.getResponseCookies()).hasSize(1);
+		assertThat(result.getResponseCookies().getFirst("REDIRECT_URI")).isNotNull();
 		// there is no need to try and load the SecurityContext by default
 		securityContext.assertWasNotSubscribed();
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.security.web.server.savedrequest.CookieServerRequestCache;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
-import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -40,7 +40,7 @@ public class RedirectServerAuthenticationSuccessHandler
 
 	private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
-	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
+	private ServerRequestCache requestCache = new CookieServerRequestCache();
 
 	/**
 	 * Creates a new instance with location of "/"
@@ -57,7 +57,7 @@ public class RedirectServerAuthenticationSuccessHandler
 	}
 
 	/**
-	 * Sets the {@link ServerRequestCache} used to redirect to. Default is {@link WebSessionServerRequestCache}.
+	 * Sets the {@link ServerRequestCache} used to redirect to. Default is {@link CookieServerRequestCache}.
 	 * @param requestCache the cache to use
 	 */
 	public void setRequestCache(ServerRequestCache requestCache) {

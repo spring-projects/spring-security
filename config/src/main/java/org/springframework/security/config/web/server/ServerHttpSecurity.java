@@ -152,7 +152,7 @@ import org.springframework.security.web.server.header.XXssProtectionServerHttpHe
 import org.springframework.security.web.server.savedrequest.NoOpServerRequestCache;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.savedrequest.ServerRequestCacheWebFilter;
-import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
+import org.springframework.security.web.server.savedrequest.CookieServerRequestCache;
 import org.springframework.security.web.server.transport.HttpsRedirectWebFilter;
 import org.springframework.security.web.server.ui.LoginPageGeneratingWebFilter;
 import org.springframework.security.web.server.ui.LogoutPageGeneratingWebFilter;
@@ -2824,7 +2824,7 @@ public class ServerHttpSecurity {
 	 * @see #requestCache()
 	 */
 	public class RequestCacheSpec {
-		private ServerRequestCache requestCache = new WebSessionServerRequestCache();
+		private ServerRequestCache requestCache = new CookieServerRequestCache();
 
 		/**
 		 * Configures the cache used

@@ -24,8 +24,8 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
+import org.springframework.security.web.server.savedrequest.CookieServerRequestCache;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
-import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -69,7 +69,7 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 	private final ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
 	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new WebSessionOAuth2ServerAuthorizationRequestRepository();
-	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
+	private ServerRequestCache requestCache = new CookieServerRequestCache();
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided parameters.
