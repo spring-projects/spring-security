@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	 *
 	 * @param cpuCost
 	 *            cpu cost of the algorithm (as defined in scrypt this is N).
-	 *            must be power of 2 greater than 1. Default is currently 16,348
+	 *            must be power of 2 greater than 1. Default is currently 16,384
 	 *            or 2^14)
 	 * @param memoryCost
 	 *            memory cost of the algorithm (as defined in scrypt this is r)
