@@ -68,7 +68,7 @@ public final class AdminPermissionController implements MessageSourceAware {
 	 */
 	@RequestMapping(value = "/secure/adminPermission.htm", method = RequestMethod.GET)
 	public ModelAndView displayAdminPage(@RequestParam("contactId") int contactId) {
-		Contact contact = contactManager.getById(Long.valueOf(contactId));
+		Contact contact = contactManager.getById((long) contactId);
 		Acl acl = aclService.readAclById(new ObjectIdentityImpl(contact));
 
 		Map<String, Object> model = new HashMap<>();
@@ -161,11 +161,11 @@ public final class AdminPermissionController implements MessageSourceAware {
 
 	private Map<Integer, String> listPermissions() {
 		Map<Integer, String> map = new LinkedHashMap<>();
-		map.put(Integer.valueOf(BasePermission.ADMINISTRATION.getMask()),
+		map.put(BasePermission.ADMINISTRATION.getMask(),
 				messages.getMessage("select.administer", "Administer"));
-		map.put(Integer.valueOf(BasePermission.READ.getMask()),
+		map.put(BasePermission.READ.getMask(),
 				messages.getMessage("select.read", "Read"));
-		map.put(Integer.valueOf(BasePermission.DELETE.getMask()),
+		map.put(BasePermission.DELETE.getMask(),
 				messages.getMessage("select.delete", "Delete"));
 
 		return map;

@@ -92,10 +92,10 @@ public class IndexController {
 		Authentication user = SecurityContextHolder.getContext().getAuthentication();
 
 		for (Contact contact : myContactsList) {
-			hasDelete.put(contact, Boolean.valueOf(permissionEvaluator.hasPermission(
-					user, contact, HAS_DELETE)));
-			hasAdmin.put(contact, Boolean.valueOf(permissionEvaluator.hasPermission(user,
-					contact, HAS_ADMIN)));
+			hasDelete.put(contact, permissionEvaluator.hasPermission(
+					user, contact, HAS_DELETE));
+			hasAdmin.put(contact, permissionEvaluator.hasPermission(user,
+					contact, HAS_ADMIN));
 		}
 
 		Map<String, Object> model = new HashMap<>();

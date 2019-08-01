@@ -131,14 +131,14 @@ public class LdapUserServiceBeanDefinitionParser extends
 				BeanDefinition bd = registry
 						.getBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR);
 				bd.getPropertyValues().addPropertyValue("defaultNameRequired",
-						Boolean.valueOf(defaultNameRequired));
+						defaultNameRequired);
 			}
 			return;
 		}
 
 		BeanDefinitionBuilder bdb = BeanDefinitionBuilder
 				.rootBeanDefinition(ContextSourceSettingPostProcessor.class);
-		bdb.addPropertyValue("defaultNameRequired", Boolean.valueOf(defaultNameRequired));
+		bdb.addPropertyValue("defaultNameRequired", defaultNameRequired);
 		registry.registerBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR,
 				bdb.getBeanDefinition());
 	}

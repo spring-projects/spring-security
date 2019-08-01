@@ -36,14 +36,14 @@ public class PortMapperImplTests {
 	@Test
 	public void testDefaultMappingsAreKnown() throws Exception {
 		PortMapperImpl portMapper = new PortMapperImpl();
-		assertThat(portMapper.lookupHttpPort(Integer.valueOf(443))).isEqualTo(
+		assertThat(portMapper.lookupHttpPort(443)).isEqualTo(
 				Integer.valueOf(80));
 		assertThat(Integer.valueOf(8080)).isEqualTo(
-				portMapper.lookupHttpPort(Integer.valueOf(8443)));
+				portMapper.lookupHttpPort(8443));
 		assertThat(Integer.valueOf(443)).isEqualTo(
-				portMapper.lookupHttpsPort(Integer.valueOf(80)));
+				portMapper.lookupHttpsPort(80));
 		assertThat(Integer.valueOf(8443)).isEqualTo(
-				portMapper.lookupHttpsPort(Integer.valueOf(8080)));
+				portMapper.lookupHttpsPort(8080));
 	}
 
 	@Test
@@ -107,9 +107,9 @@ public class PortMapperImplTests {
 
 		portMapper.setPortMappings(map);
 
-		assertThat(portMapper.lookupHttpPort(Integer.valueOf(442))).isEqualTo(
+		assertThat(portMapper.lookupHttpPort(442)).isEqualTo(
 				Integer.valueOf(79));
 		assertThat(Integer.valueOf(442)).isEqualTo(
-				portMapper.lookupHttpsPort(Integer.valueOf(79)));
+				portMapper.lookupHttpsPort(79));
 	}
 }

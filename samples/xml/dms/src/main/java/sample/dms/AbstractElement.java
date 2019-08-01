@@ -40,7 +40,7 @@ public abstract class AbstractElement {
 	protected AbstractElement() {
 		this.name = "/";
 		this.parent = null;
-		this.id = Long.valueOf(-1);
+		this.id = -1L;
 	}
 
 	/**

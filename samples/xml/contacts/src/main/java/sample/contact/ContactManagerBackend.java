@@ -84,7 +84,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements
 
 	public void create(Contact contact) {
 		// Create the Contact itself
-		contact.setId(Long.valueOf(counter++));
+		contact.setId((long) counter++);
 		contactDao.create(contact);
 
 		// Grant the current principal administrative permission to the contact

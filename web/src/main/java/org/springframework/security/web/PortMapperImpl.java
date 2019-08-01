@@ -42,8 +42,8 @@ public class PortMapperImpl implements PortMapper {
 
 	public PortMapperImpl() {
 		this.httpsPortMappings = new HashMap<>();
-		this.httpsPortMappings.put(Integer.valueOf(80), Integer.valueOf(443));
-		this.httpsPortMappings.put(Integer.valueOf(8080), Integer.valueOf(8443));
+		this.httpsPortMappings.put(80, 443);
+		this.httpsPortMappings.put(8080, 8443);
 	}
 
 	// ~ Methods

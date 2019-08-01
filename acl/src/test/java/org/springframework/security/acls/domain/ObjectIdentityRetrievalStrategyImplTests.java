@@ -33,7 +33,7 @@ public class ObjectIdentityRetrievalStrategyImplTests {
 	@Test
 	public void testObjectIdentityCreation() throws Exception {
 		MockIdDomainObject domain = new MockIdDomainObject();
-		domain.setId(Integer.valueOf(1));
+		domain.setId(1);
 
 		ObjectIdentityRetrievalStrategy retStrategy = new ObjectIdentityRetrievalStrategyImpl();
 		ObjectIdentity identity = retStrategy.getObjectIdentity(domain);
