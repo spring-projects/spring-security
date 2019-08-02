@@ -132,13 +132,18 @@ public class SessionRegistryImpl implements SessionRegistry,
 		sessionIds.put(sessionId,
 				new SessionInformation(principal, sessionId, new Date()));
 
-		Set<String> sessionsUsedByPrincipal = principals.computeIfAbsent(principal, key -> new CopyOnWriteArraySet<>());
-		sessionsUsedByPrincipal.add(sessionId);
+		principals.compute(principal, (key, sessionsUsedByPrincipal) -> {
+			if (sessionsUsedByPrincipal == null) {
+				sessionsUsedByPrincipal = new CopyOnWriteArraySet<>();
+			}
+			sessionsUsedByPrincipal.add(sessionId);
 
-		if (logger.isTraceEnabled()) {
-			logger.trace("Sessions used by '" + principal + "' : "
-					+ sessionsUsedByPrincipal);
-		}
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sessions used by '" + principal + "' : "
+						+ sessionsUsedByPrincipal);
+			}
+			return sessionsUsedByPrincipal;
+		});
 	}
 
 	public void removeSessionInformation(String sessionId) {
@@ -157,32 +162,29 @@ public class SessionRegistryImpl implements SessionRegistry,
 
 		sessionIds.remove(sessionId);
 
-		Set<String> sessionsUsedByPrincipal = principals.get(info.getPrincipal());
-
-		if (sessionsUsedByPrincipal == null) {
-			return;
-		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Removing session " + sessionId
-					+ " from principal's set of registered sessions");
-		}
-
-		sessionsUsedByPrincipal.remove(sessionId);
-
-		if (sessionsUsedByPrincipal.isEmpty()) {
-			// No need to keep object in principals Map anymore
+		principals.computeIfPresent(info.getPrincipal(), (key, sessionsUsedByPrincipal) -> {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Removing principal " + info.getPrincipal()
-						+ " from registry");
+				logger.debug("Removing session " + sessionId
+						+ " from principal's set of registered sessions");
 			}
-			principals.remove(info.getPrincipal());
-		}
 
-		if (logger.isTraceEnabled()) {
-			logger.trace("Sessions used by '" + info.getPrincipal() + "' : "
-					+ sessionsUsedByPrincipal);
-		}
+			sessionsUsedByPrincipal.remove(sessionId);
+
+			if (sessionsUsedByPrincipal.isEmpty()) {
+				// No need to keep object in principals Map anymore
+				if (logger.isDebugEnabled()) {
+					logger.debug("Removing principal " + info.getPrincipal()
+							+ " from registry");
+				}
+				sessionsUsedByPrincipal = null;
+			}
+
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sessions used by '" + info.getPrincipal() + "' : "
+						+ sessionsUsedByPrincipal);
+			}
+			return sessionsUsedByPrincipal;
+		});
 	}
 
 }
