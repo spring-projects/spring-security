@@ -17,7 +17,7 @@ package org.springframework.security.web.authentication.www;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -47,7 +46,7 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
-	private String credentialsCharset = StandardCharsets.UTF_8.name();
+	private Charset credentialsCharset = StandardCharsets.UTF_8;
 
 	public BasicAuthenticationConverter() {
 		this(new WebAuthenticationDetailsSource());
@@ -58,16 +57,16 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 		this.authenticationDetailsSource = authenticationDetailsSource;
 	}
 
-	public String getCredentialsCharset() {
-		return credentialsCharset;
+	public Charset getCredentialsCharset() {
+		return this.credentialsCharset;
 	}
 
-	public void setCredentialsCharset(String credentialsCharset) {
+	public void setCredentialsCharset(Charset credentialsCharset) {
 		this.credentialsCharset = credentialsCharset;
 	}
 
 	public AuthenticationDetailsSource<HttpServletRequest, ?> getAuthenticationDetailsSource() {
-		return authenticationDetailsSource;
+		return this.authenticationDetailsSource;
 	}
 
 	public void setAuthenticationDetailsSource(
@@ -88,34 +87,29 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 			return null;
 		}
 
-		byte[] base64Token = header.substring(6).getBytes();
+		byte[] base64Token = header.substring(6).getBytes(StandardCharsets.UTF_8);
 		byte[] decoded;
 		try {
 			decoded = Base64.getDecoder().decode(base64Token);
-		} catch (IllegalArgumentException e) {
-			throw new BadCredentialsException("Failed to decode basic authentication token");
+		}
+		catch (IllegalArgumentException e) {
+			throw new BadCredentialsException(
+					"Failed to decode basic authentication token");
 		}
 
-		String token;
-		try {
-			token = new String(decoded, getCredentialsCharset(request));
-		} catch (UnsupportedEncodingException e) {
-			throw new InternalAuthenticationServiceException(e.getMessage(), e);
-		}
+		String token = new String(decoded, getCredentialsCharset(request));
 
-		String[] tokens = token.split(":");
-		if (tokens.length != 2) {
+		int delim = token.indexOf(":");
+
+		if (delim == -1) {
 			throw new BadCredentialsException("Invalid basic authentication token");
 		}
-
-		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(tokens[0],
-				tokens[1]);
-		authentication.setDetails(authenticationDetailsSource.buildDetails(request));
-
-		return authentication;
+		UsernamePasswordAuthenticationToken result  = new UsernamePasswordAuthenticationToken(token.substring(0, delim), token.substring(delim + 1));
+		result.setDetails(this.authenticationDetailsSource.buildDetails(request));
+		return result;
 	}
 
-	protected String getCredentialsCharset(HttpServletRequest request) {
+	protected Charset getCredentialsCharset(HttpServletRequest request) {
 		return getCredentialsCharset();
 	}
 

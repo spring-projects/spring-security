@@ -99,4 +99,16 @@ public class BasicAuthenticationConverterTests {
 		converter.convert(request);
 	}
 
+	@Test
+	public void convertWhenEmptyPassword() {
+		String token = "rod:";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		UsernamePasswordAuthenticationToken authentication = converter.convert(request);
+
+		verify(authenticationDetailsSource).buildDetails(any());
+		assertThat(authentication).isNotNull();
+		assertThat(authentication.getName()).isEqualTo("rod");
+		assertThat(authentication.getCredentials()).isEqualTo("");
+	}
 }
