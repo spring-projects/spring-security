@@ -166,7 +166,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		this.successHandler.onAuthenticationSuccess(request, response, chain, authentication);
 	}
 
-	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+	protected Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
 		Authentication authentication = this.authenticationConverter.convert(request);
 		if (authentication == null) {
