@@ -1081,7 +1081,7 @@ public BCryptPasswordEncoder passwordEncoder() {
 == Multiple HttpSecurity
 
 We can configure multiple HttpSecurity instances just as we can have multiple `<http>` blocks.
-The key is to extend the `WebSecurityConfigurationAdapter` multiple times.
+The key is to extend the `WebSecurityConfigurerAdapter` multiple times.
 For example, the following is an example of having a different configuration for URL's that start with `/api/`.
 
 [source,java]
