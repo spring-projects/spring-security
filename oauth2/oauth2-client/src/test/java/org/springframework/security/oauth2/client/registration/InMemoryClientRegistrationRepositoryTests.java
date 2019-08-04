@@ -50,12 +50,6 @@ public class InMemoryClientRegistrationRepositoryTests {
 		new InMemoryClientRegistrationRepository(registrations);
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void constructorListClientRegistrationWhenDuplicateIdThenIllegalArgumentException() {
-		List<ClientRegistration> registrations = Arrays.asList(this.registration, this.registration);
-		new InMemoryClientRegistrationRepository(registrations);
-	}
-
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorMapClientRegistrationWhenNullThenIllegalArgumentException() {
 		new InMemoryClientRegistrationRepository((Map<String, ClientRegistration>) null);
@@ -65,6 +59,12 @@ public class InMemoryClientRegistrationRepositoryTests {
 	public void constructorMapClientRegistrationWhenEmptyMapThenRepositoryIsEmpty() {
 		InMemoryClientRegistrationRepository clients = new InMemoryClientRegistrationRepository(new HashMap<>());
 		assertThat(clients).isEmpty();
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void constructorListClientRegistrationWhenDuplicateIdThenIllegalArgumentException() {
+		List<ClientRegistration> registrations = Arrays.asList(this.registration, this.registration);
+		new InMemoryClientRegistrationRepository(registrations);
 	}
 
 	@Test

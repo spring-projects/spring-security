@@ -229,6 +229,16 @@ public class OidcIdTokenValidatorTests {
 				.allMatch(msg -> msg.contains(IdTokenClaimNames.EXP));
 	}
 
+	@Test
+	public void validateFormatError() {
+		this.claims.remove(IdTokenClaimNames.SUB);
+		this.claims.remove(IdTokenClaimNames.AUD);
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.equals("The ID Token contains invalid claims: {sub=null, aud=null}"));
+	}
+
 	private Collection<OAuth2Error> validateIdToken() {
 		Jwt idToken = new Jwt("token123", this.issuedAt, this.expiresAt, this.headers, this.claims);
 		OidcIdTokenValidator validator = new OidcIdTokenValidator(this.registration.build());

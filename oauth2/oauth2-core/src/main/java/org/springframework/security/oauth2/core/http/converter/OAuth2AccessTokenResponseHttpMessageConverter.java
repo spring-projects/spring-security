@@ -37,14 +37,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.HashMap;
 
 /**
  * A {@link HttpMessageConverter} for an {@link OAuth2AccessTokenResponse OAuth 2.0 Access Token Response}.
@@ -132,12 +131,13 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 	 * OAuth 2.0 Access Token Response parameters to an {@link OAuth2AccessTokenResponse}.
 	 */
 	private static class OAuth2AccessTokenResponseConverter implements Converter<Map<String, String>, OAuth2AccessTokenResponse> {
-		private static final Set<String> TOKEN_RESPONSE_PARAMETER_NAMES = Stream.of(
+		private static final Set<String> TOKEN_RESPONSE_PARAMETER_NAMES = new HashSet<>(Arrays.asList(
 				OAuth2ParameterNames.ACCESS_TOKEN,
 				OAuth2ParameterNames.TOKEN_TYPE,
 				OAuth2ParameterNames.EXPIRES_IN,
 				OAuth2ParameterNames.REFRESH_TOKEN,
-				OAuth2ParameterNames.SCOPE).collect(Collectors.toSet());
+				OAuth2ParameterNames.SCOPE
+		));
 
 		@Override
 		public OAuth2AccessTokenResponse convert(Map<String, String> tokenResponseParameters) {
@@ -159,15 +159,17 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 			Set<String> scopes = Collections.emptySet();
 			if (tokenResponseParameters.containsKey(OAuth2ParameterNames.SCOPE)) {
 				String scope = tokenResponseParameters.get(OAuth2ParameterNames.SCOPE);
-				scopes = Arrays.stream(StringUtils.delimitedListToStringArray(scope, " ")).collect(Collectors.toSet());
+				scopes = new HashSet<>(Arrays.asList(StringUtils.delimitedListToStringArray(scope, " ")));
 			}
 
 			String refreshToken = tokenResponseParameters.get(OAuth2ParameterNames.REFRESH_TOKEN);
 
 			Map<String, Object> additionalParameters = new LinkedHashMap<>();
-			tokenResponseParameters.entrySet().stream()
-					.filter(e -> !TOKEN_RESPONSE_PARAMETER_NAMES.contains(e.getKey()))
-					.forEach(e -> additionalParameters.put(e.getKey(), e.getValue()));
+			for (Map.Entry<String, String> entry : tokenResponseParameters.entrySet()) {
+				if (!TOKEN_RESPONSE_PARAMETER_NAMES.contains(entry.getKey())) {
+					additionalParameters.put(entry.getKey(), entry.getValue());
+				}
+			}
 
 			return OAuth2AccessTokenResponse.withToken(accessToken)
 					.tokenType(accessTokenType)
@@ -205,8 +207,9 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 				parameters.put(OAuth2ParameterNames.REFRESH_TOKEN, tokenResponse.getRefreshToken().getTokenValue());
 			}
 			if (!CollectionUtils.isEmpty(tokenResponse.getAdditionalParameters())) {
-				tokenResponse.getAdditionalParameters().entrySet().stream()
-						.forEach(e -> parameters.put(e.getKey(), e.getValue().toString()));
+				for (Map.Entry<String, Object> entry : tokenResponse.getAdditionalParameters().entrySet()) {
+					parameters.put(entry.getKey(), entry.getValue().toString());
+				}
 			}
 
 			return parameters;

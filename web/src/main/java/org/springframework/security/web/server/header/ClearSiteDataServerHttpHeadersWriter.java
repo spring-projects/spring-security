@@ -20,9 +20,6 @@ import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
  * <p>Writes the {@code Clear-Site-Data} response header when the request is secure.</p>
  *
@@ -81,9 +78,12 @@ public final class ClearSiteDataServerHttpHeadersWriter implements ServerHttpHea
 	}
 
 	private String transformToHeaderValue(Directive... directives) {
-		return Stream.of(directives)
-				.map(Directive::getHeaderValue)
-				.collect(Collectors.joining(", "));
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < directives.length - 1; i++) {
+			sb.append(directives[i].headerValue).append(", ");
+		}
+		sb.append(directives[directives.length - 1].headerValue);
+		return sb.toString();
 	}
 
 	private boolean isSecure(ServerWebExchange exchange) {

@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import reactor.core.publisher.Mono;
 
@@ -50,10 +48,12 @@ public class DelegatingServerLogoutHandler implements ServerLogoutHandler {
 
 	@Override
 	public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {
-		return Mono.when(this.delegates.stream()
-				.filter(Objects::nonNull)
-				.map(delegate -> delegate.logout(exchange, authentication))
-				.collect(Collectors.toList())
-		);
+		List<Mono<Void>> results = new ArrayList<>();
+		for (ServerLogoutHandler delegate : delegates) {
+			if (delegate != null) {
+				results.add(delegate.logout(exchange, authentication));
+			}
+		}
+		return Mono.when(results);
 	}
 }

@@ -20,16 +20,15 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
+import java.util.Collections;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
+import java.util.SortedSet;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 
 /**
  * The default implementation of an {@link OAuth2User}.
@@ -43,8 +42,8 @@ import java.util.stream.Collectors;
  * and returning it from {@link #getName()}.
  *
  * @author Joe Grandja
- * @since 5.0
  * @see OAuth2User
+ * @since 5.0
  */
 public class DefaultOAuth2User implements OAuth2User, Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
@@ -55,8 +54,8 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	/**
 	 * Constructs a {@code DefaultOAuth2User} using the provided parameters.
 	 *
-	 * @param authorities the authorities granted to the user
-	 * @param attributes the attributes about the user
+	 * @param authorities      the authorities granted to the user
+	 * @param attributes       the attributes about the user
 	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from {@link #getAttributes()}
 	 */
 	public DefaultOAuth2User(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey) {
@@ -88,7 +87,7 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 
 	private Set<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
 		SortedSet<GrantedAuthority> sortedAuthorities =
-			new TreeSet<>(Comparator.comparing(GrantedAuthority::getAuthority));
+				new TreeSet<>(Comparator.comparing(GrantedAuthority::getAuthority));
 		sortedAuthorities.addAll(authorities);
 		return sortedAuthorities;
 	}
@@ -127,9 +126,9 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 		sb.append("Name: [");
 		sb.append(this.getName());
 		sb.append("], Granted Authorities: [");
-		sb.append(this.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(", ")));
+		sb.append(getAuthorities());
 		sb.append("], User Attributes: [");
-		sb.append(this.getAttributes().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(", ")));
+		sb.append(getAttributes());
 		sb.append("]");
 		return sb.toString();
 	}

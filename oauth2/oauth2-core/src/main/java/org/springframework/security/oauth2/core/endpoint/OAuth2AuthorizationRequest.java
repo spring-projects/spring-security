@@ -26,13 +26,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A representation of an OAuth 2.0 Authorization Request
@@ -275,8 +273,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 */
 		public Builder scope(String... scope) {
 			if (scope != null && scope.length > 0) {
-				return this.scopes(Arrays.stream(scope).collect(
-					Collectors.toCollection(LinkedHashSet::new)));
+				return this.scopes(toLinkedHashSet(scope));
 			}
 			return this;
 		}
@@ -400,6 +397,12 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 					.encode(StandardCharsets.UTF_8)
 					.build()
 					.toUriString();
+		}
+
+		private LinkedHashSet<String> toLinkedHashSet(String... scope) {
+			LinkedHashSet<String> result = new LinkedHashSet<>();
+			Collections.addAll(result, scope);
+			return result;
 		}
 	}
 }

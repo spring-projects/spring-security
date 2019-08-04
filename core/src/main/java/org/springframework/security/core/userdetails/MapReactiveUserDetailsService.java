@@ -19,8 +19,7 @@ package org.springframework.security.core.userdetails;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
@@ -56,7 +55,10 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	 */
 	public MapReactiveUserDetailsService(Collection<UserDetails> users) {
 		Assert.notEmpty(users, "users cannot be null or empty");
-		this.users = users.stream().collect(Collectors.toConcurrentMap( u -> getKey(u.getUsername()), Function.identity()));
+		this.users = new ConcurrentHashMap<>();
+		for (UserDetails user : users) {
+			this.users.put(getKey(user.getUsername()), user);
+		}
 	}
 
 	@Override

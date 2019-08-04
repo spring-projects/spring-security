@@ -22,7 +22,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
@@ -153,9 +153,11 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	private Map<String, Object> convertClaimsSet(TokenIntrospectionSuccessResponse response) {
 		Map<String, Object> claims = response.toJSONObject();
 		if (response.getAudience() != null) {
-			List<String> audience = response.getAudience().stream()
-					.map(Audience::getValue).collect(Collectors.toList());
-			claims.put(AUDIENCE, Collections.unmodifiableList(audience));
+			List<String> audiences = new ArrayList<>();
+			for (Audience audience : response.getAudience()) {
+				audiences.add(audience.getValue());
+			}
+			claims.put(AUDIENCE, Collections.unmodifiableList(audiences));
 		}
 		if (response.getClientID() != null) {
 			claims.put(CLIENT_ID, response.getClientID().getValue());

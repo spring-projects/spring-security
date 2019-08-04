@@ -15,8 +15,6 @@
  */
 package org.springframework.security.oauth2.jose.jws;
 
-import java.util.stream.Stream;
-
 /**
  * An enumeration of the cryptographic algorithms defined by the JSON Web Algorithms (JWA) specification
  * and used by JSON Web Signature (JWS) to digitally sign the contents of the JWS Protected Header and JWS Payload.
@@ -89,10 +87,12 @@ public enum SignatureAlgorithm implements JwsAlgorithm {
 	 * @return the resolved {@code SignatureAlgorithm}, or {@code null} if not found
 	 */
 	public static SignatureAlgorithm from(String name) {
-		return Stream.of(values())
-				.filter(algorithm -> algorithm.getName().equals(name))
-				.findFirst()
-				.orElse(null);
+		for (SignatureAlgorithm value : values()) {
+			if (value.getName().equals(name)) {
+				return value;
+			}
+		}
+		return null;
 	}
 
 	/**

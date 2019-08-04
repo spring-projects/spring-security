@@ -32,7 +32,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * An {@link OAuth2TokenValidator} responsible for
@@ -137,11 +136,8 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	private static OAuth2Error invalidIdToken(Map<String, Object> invalidClaims) {
-		String claimsDetail = invalidClaims.entrySet().stream()
-				.map(it -> it.getKey() + " (" + it.getValue() + ")")
-				.collect(Collectors.joining(", "));
 		return new OAuth2Error("invalid_id_token",
-				"The ID Token contains invalid claims: " + claimsDetail,
+				"The ID Token contains invalid claims: " + invalidClaims,
 				"https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation");
 	}
 

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * An implementation of an {@link OAuth2AuthorizedClientProvider} that simply delegates
@@ -64,10 +63,12 @@ public final class DelegatingOAuth2AuthorizedClientProvider implements OAuth2Aut
 	@Nullable
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
-		return this.authorizedClientProviders.stream()
-				.map(authorizedClientProvider -> authorizedClientProvider.authorize(context))
-				.filter(Objects::nonNull)
-				.findFirst()
-				.orElse(null);
+		for (OAuth2AuthorizedClientProvider authorizedClientProvider : authorizedClientProviders) {
+			OAuth2AuthorizedClient oauth2AuthorizedClient = authorizedClientProvider.authorize(context);
+			if (oauth2AuthorizedClient != null) {
+				return oauth2AuthorizedClient;
+			}
+		}
+		return null;
 	}
 }
