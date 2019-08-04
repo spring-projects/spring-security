@@ -22,7 +22,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * A {@link ReactiveAuthorizationManager} that determines if the current user is
@@ -109,9 +108,14 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 			Assert.notNull(role, "role cannot be null");
 		}
 
-		return hasAnyAuthority(Stream.of(roles)
-				.map(r -> "ROLE_" + r)
-				.toArray(String[]::new)
-		);
+		return hasAnyAuthority(toNamedRolesArray(roles));
+	}
+
+	private static String[] toNamedRolesArray(String... roles) {
+		String[] result = new String[roles.length];
+		for (int i=0; i < roles.length; i++) {
+			result[i] = "ROLE_" + roles[i];
+		}
+		return result;
 	}
 }

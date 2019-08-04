@@ -23,9 +23,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 /**
  * @author Joe Grandja
@@ -64,10 +63,13 @@ final class ObjectToListStringConverter implements ConditionalGenericConverter {
 			}
 		}
 		if (source instanceof Collection) {
-			return ((Collection<?>) source).stream()
-					.filter(Objects::nonNull)
-					.map(Objects::toString)
-					.collect(Collectors.toList());
+			Collection<String> results = new ArrayList<>();
+			for (Object object : ((Collection<?>) source)) {
+				if (object != null) {
+					results.add(object.toString());
+				}
+			}
+			return results;
 		}
 		return Collections.singletonList(source.toString());
 	}

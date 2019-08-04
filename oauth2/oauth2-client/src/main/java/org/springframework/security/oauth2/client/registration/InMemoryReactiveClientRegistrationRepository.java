@@ -19,8 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.util.Assert;
 
@@ -61,10 +60,8 @@ public final class InMemoryReactiveClientRegistrationRepository
 	 */
 	public InMemoryReactiveClientRegistrationRepository(List<ClientRegistration> registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be null or empty");
-		this.clientIdToClientRegistration = registrations.stream()
-				.collect(Collectors.toConcurrentMap(ClientRegistration::getRegistrationId, Function.identity()));
+		this.clientIdToClientRegistration = toConcurrentMap(registrations);
 	}
-
 
 	@Override
 	public Mono<ClientRegistration> findByRegistrationId(String registrationId) {
@@ -79,5 +76,13 @@ public final class InMemoryReactiveClientRegistrationRepository
 	@Override
 	public Iterator<ClientRegistration> iterator() {
 		return this.clientIdToClientRegistration.values().iterator();
+	}
+
+	private ConcurrentHashMap<String, ClientRegistration> toConcurrentMap(List<ClientRegistration> registrations) {
+		ConcurrentHashMap<String, ClientRegistration> result = new ConcurrentHashMap<>();
+		for (ClientRegistration registration : registrations) {
+			result.put(registration.getRegistrationId(), registration);
+		}
+		return result;
 	}
 }

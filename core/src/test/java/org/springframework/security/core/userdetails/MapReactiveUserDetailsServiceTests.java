@@ -47,6 +47,13 @@ public class MapReactiveUserDetailsServiceTests {
 	}
 
 	@Test
+	public void constructorCaseIntensiveKey() {
+		UserDetails userDetails = User.withUsername("USER").password("password").roles("USER").build();
+		MapReactiveUserDetailsService userDetailsService = new MapReactiveUserDetailsService(userDetails);
+		assertThat(userDetailsService.findByUsername("user").block()).isEqualTo(userDetails);
+	}
+
+	@Test
 	public void findByUsernameWhenFoundThenReturns() {
 		assertThat((users.findByUsername(USER_DETAILS.getUsername()).block())).isEqualTo(USER_DETAILS);
 	}

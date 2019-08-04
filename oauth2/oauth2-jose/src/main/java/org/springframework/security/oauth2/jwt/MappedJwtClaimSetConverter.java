@@ -29,7 +29,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Converts a JWT claim set, claim by claim. Can be configured with custom converters
@@ -161,17 +160,22 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 	}
 
 	private Map<String, Object> removeClaims(Map<String, Object> claims) {
-		return claims.entrySet().stream()
-				.filter(e -> e.getValue() != null)
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		Map<String, Object> result = new HashMap<>();
+		for (Map.Entry<String, Object> entry : claims.entrySet()) {
+			if (entry.getValue() != null) {
+				result.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return result;
 	}
 
 	private Map<String, Object> addClaims(Map<String, Object> claims) {
 		Map<String, Object> result = new HashMap<>(claims);
-		this.claimTypeConverters.entrySet().stream()
-				.filter(e -> !claims.containsKey(e.getKey()))
-				.filter(e -> e.getValue().convert(null) != null)
-				.forEach(e -> result.put(e.getKey(), e.getValue().convert(null)));
+		for (Map.Entry<String, Converter<Object, ?>> entry : claimTypeConverters.entrySet()) {
+			if (!claims.containsKey(entry.getKey()) && entry.getValue().convert(null) != null) {
+				result.put(entry.getKey(), entry.getValue().convert(null));
+			}
+		}
 		return result;
 	}
 }

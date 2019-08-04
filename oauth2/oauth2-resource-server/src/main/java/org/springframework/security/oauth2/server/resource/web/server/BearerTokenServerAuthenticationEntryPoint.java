@@ -32,7 +32,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * An {@link AuthenticationEntryPoint} implementation used to commence authentication of protected resource requests
@@ -42,10 +41,10 @@ import java.util.stream.Collectors;
  * {@code WWW-Authenticate} HTTP header.
  *
  * @author Rob Winch
- * @since 5.1
  * @see BearerTokenError
  * @see <a href="https://tools.ietf.org/html/rfc6750#section-3" target="_blank">RFC 6750 Section 3: The WWW-Authenticate
  * Response Header Field</a>
+ * @since 5.1
  */
 public final class BearerTokenServerAuthenticationEntryPoint implements
 		ServerAuthenticationEntryPoint {
@@ -111,13 +110,21 @@ public final class BearerTokenServerAuthenticationEntryPoint implements
 	}
 
 	private static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
-		String wwwAuthenticate = "Bearer";
+		StringBuilder wwwAuthenticate = new StringBuilder();
+		wwwAuthenticate.append("Bearer");
+
 		if (!parameters.isEmpty()) {
-			wwwAuthenticate += parameters.entrySet().stream()
-					.map(attribute -> attribute.getKey() + "=\"" + attribute.getValue() + "\"")
-					.collect(Collectors.joining(", ", " ", ""));
+			wwwAuthenticate.append(" ");
+			int i = 0;
+			for (Map.Entry<String, String> entry : parameters.entrySet()) {
+				wwwAuthenticate.append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"");
+				if (i != parameters.size() - 1) {
+					wwwAuthenticate.append(", ");
+				}
+				i++;
+			}
 		}
 
-		return wwwAuthenticate;
+		return wwwAuthenticate.toString();
 	}
 }

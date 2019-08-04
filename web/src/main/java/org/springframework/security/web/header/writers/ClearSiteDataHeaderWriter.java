@@ -16,9 +16,6 @@
 
 package org.springframework.security.web.header.writers;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -69,7 +66,7 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 	public ClearSiteDataHeaderWriter(String ...sources) {
 		Assert.notEmpty(sources, "sources cannot be empty or null");
 		this.requestMatcher = new SecureRequestMatcher();
-		this.headerValue = Stream.of(sources).map(this::quote).collect(Collectors.joining(", "));
+		this.headerValue = joinQuotes(sources);
 	}
 
 	@Override
@@ -82,6 +79,15 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 			logger.debug("Not injecting Clear-Site-Data header since it did not match the "
 						+ "requestMatcher " + this.requestMatcher);
 		}
+	}
+
+	private String joinQuotes(String ...sources) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < sources.length-1; i++) {
+			sb.append(quote(sources[i])).append(", ");
+		}
+		sb.append(quote(sources[sources.length-1]));
+		return sb.toString();
 	}
 
 	private static final class SecureRequestMatcher implements RequestMatcher {

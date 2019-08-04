@@ -22,12 +22,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
-import java.util.stream.Collector;
-
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toConcurrentMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) in-memory.
@@ -62,9 +57,19 @@ public final class InMemoryClientRegistrationRepository implements ClientRegistr
 
 	private static Map<String, ClientRegistration> createRegistrationsMap(List<ClientRegistration> registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be empty");
-		Collector<ClientRegistration, ?, ConcurrentMap<String, ClientRegistration>> collector =
-				toConcurrentMap(ClientRegistration::getRegistrationId, Function.identity());
-		return registrations.stream().collect(collectingAndThen(collector, Collections::unmodifiableMap));
+		return toUnmodifiableConcurrentMap(registrations);
+	}
+
+	private static Map<String, ClientRegistration> toUnmodifiableConcurrentMap(List<ClientRegistration> registrations) {
+		ConcurrentHashMap<String, ClientRegistration> result = new ConcurrentHashMap<>();
+		for (ClientRegistration registration : registrations) {
+			if (result.containsKey(registration.getRegistrationId())) {
+				throw new IllegalStateException(String.format("Duplicate key %s",
+						registration.getRegistrationId()));
+			}
+			result.put(registration.getRegistrationId(), registration);
+		}
+		return Collections.unmodifiableMap(result);
 	}
 
 	/**

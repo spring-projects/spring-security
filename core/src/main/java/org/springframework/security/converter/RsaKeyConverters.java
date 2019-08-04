@@ -16,8 +16,8 @@
 
 package org.springframework.security.converter;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -25,8 +25,8 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.List;
+import java.util.Base64;
 import java.util.stream.Collectors;
 
 import org.springframework.core.convert.converter.Converter;
@@ -66,10 +66,13 @@ public class RsaKeyConverters {
 			Assert.isTrue(!lines.isEmpty() && lines.get(0).startsWith(PKCS8_PEM_HEADER),
 					"Key is not in PEM-encoded PKCS#8 format, " +
 							"please check that the header begins with -----" + PKCS8_PEM_HEADER + "-----");
-			String base64Encoded = lines.stream()
-					.filter(RsaKeyConverters::isNotPkcs8Wrapper)
-					.collect(Collectors.joining());
-			byte[] pkcs8 = Base64.getDecoder().decode(base64Encoded);
+			StringBuilder base64Encoded = new StringBuilder();
+			for (String line : lines) {
+				if (RsaKeyConverters.isNotPkcs8Wrapper(line)) {
+					base64Encoded.append(line);
+				}
+			}
+			byte[] pkcs8 = Base64.getDecoder().decode(base64Encoded.toString());
 
 			try {
 				return (RSAPrivateKey) keyFactory.generatePrivate(
@@ -97,10 +100,13 @@ public class RsaKeyConverters {
 			Assert.isTrue(!lines.isEmpty() && lines.get(0).startsWith(X509_PEM_HEADER),
 					"Key is not in PEM-encoded X.509 format, " +
 							"please check that the header begins with -----" + X509_PEM_HEADER + "-----");
-			String base64Encoded = lines.stream()
-					.filter(RsaKeyConverters::isNotX509Wrapper)
-					.collect(Collectors.joining());
-			byte[] x509 = Base64.getDecoder().decode(base64Encoded);
+			StringBuilder base64Encoded = new StringBuilder();
+			for (String line : lines) {
+				if (RsaKeyConverters.isNotX509Wrapper(line)) {
+					base64Encoded.append(line);
+				}
+			}
+			byte[] x509 = Base64.getDecoder().decode(base64Encoded.toString());
 
 			try {
 				return (RSAPublicKey) keyFactory.generatePublic(
