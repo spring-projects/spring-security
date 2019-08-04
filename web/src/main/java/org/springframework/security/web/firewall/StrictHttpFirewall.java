@@ -16,8 +16,6 @@
 
 package org.springframework.security.web.firewall;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
@@ -238,6 +238,14 @@ public class StrictHttpFirewall implements HttpFirewall {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Determines which hostnames should be allowed. The default is to allow any hostname.
+	 * </p>
+	 *
+	 * @param allowedHostnames the predicate for testing hostnames
+	 * @since 5.0.17
+	 */
 	public void setAllowedHostnames(Predicate<String> allowedHostnames) {
 		if (allowedHostnames == null) {
 			throw new IllegalArgumentException("allowedHostnames cannot be null");
