@@ -237,6 +237,14 @@ public class StrictHttpFirewall implements HttpFirewall {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Determines which hostnames should be allowed. The default is to allow any hostname.
+	 * </p>
+	 *
+	 * @param allowedHostnames the set of allowed hostnames
+	 * @since 4.2.17
+	 */
 	public void setAllowedHostnames(Collection<String> allowedHostnames) {
 		if (allowedHostnames == null) {
 			throw new IllegalArgumentException("allowedHostnames cannot be null");
