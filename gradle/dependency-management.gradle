@@ -7,7 +7,7 @@ if (!project.hasProperty('springVersion')) {
 }
 
 if (!project.hasProperty('springDataVersion')) {
-	ext.springDataVersion = 'Moore-RC1'
+	ext.springDataVersion = 'Moore-RC2'
 }
 
 dependencyManagement {
