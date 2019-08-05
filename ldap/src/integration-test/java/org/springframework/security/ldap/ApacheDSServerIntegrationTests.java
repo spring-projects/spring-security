@@ -114,19 +114,8 @@ public final class ApacheDSServerIntegrationTests {
 	 */
 
 	private static int getAvailablePort() throws IOException {
-		ServerSocket serverSocket = null;
-		try {
-			serverSocket = new ServerSocket(0);
+		try (ServerSocket serverSocket = new ServerSocket(0)) {
 			return serverSocket.getLocalPort();
-		}
-		finally {
-			if (serverSocket != null) {
-				try {
-					serverSocket.close();
-				}
-				catch (IOException e) {
-				}
-			}
 		}
 	}
 }

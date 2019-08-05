@@ -99,17 +99,8 @@ public class LdapServerBeanDefinitionParserTests {
 	}
 
 	private int getDefaultPort() throws IOException {
-		ServerSocket server = null;
-		try {
-			server = new ServerSocket(0);
+		try (ServerSocket server = new ServerSocket(0)) {
 			return server.getLocalPort();
-		}
-		finally {
-			try {
-				server.close();
-			}
-			catch (IOException e) {
-			}
 		}
 	}
 }
