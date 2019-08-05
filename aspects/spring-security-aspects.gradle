@@ -1,11 +1,21 @@
 apply plugin: 'io.spring.convention.spring-module'
-apply plugin: 'aspectj'
+apply plugin: 'io.freefair.aspectj'
 
 dependencies {
+	compile "org.aspectj:aspectjrt"
 	compile project(':spring-security-core')
 	compile 'org.springframework:spring-beans'
 	compile 'org.springframework:spring-context'
 	compile 'org.springframework:spring-core'
 
 	testCompile 'org.springframework:spring-aop'
+	testAspect sourceSets.main.output
 }
+
+sourceSets.main.aspectj.srcDir "src/main/java"
+sourceSets.main.java.srcDirs = files()
+
+sourceSets.test.aspectj.srcDir "src/test/java"
+sourceSets.test.java.srcDirs = files()
+
+compileAspectj.ajcOptions.outxmlfile = "META-INF/aop.xml"
