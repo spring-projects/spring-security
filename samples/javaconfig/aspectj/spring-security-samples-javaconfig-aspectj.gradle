@@ -1,5 +1,5 @@
 apply plugin: 'io.spring.convention.spring-sample'
-apply plugin: 'aspectj'
+apply plugin: 'io.freefair.aspectj.post-compile-weaving'
 
 repositories {
 	mavenCentral()
@@ -9,7 +9,7 @@ dependencies {
 	compile project(':spring-security-config')
 	compile project(':spring-security-core')
 
-	aspectpath project(':spring-security-aspects')
+	aspect project(':spring-security-aspects')
 
 	runtime project(':spring-security-aspects')
 }

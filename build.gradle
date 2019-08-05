@@ -3,6 +3,7 @@ buildscript {
 		classpath 'io.spring.gradle:spring-build-conventions:0.0.23.RELEASE'
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
 		classpath 'io.spring.nohttp:nohttp-gradle:0.0.2.RELEASE'
+		classpath "io.freefair.gradle:aspectj-plugin:3.8.4"
 	}
 	repositories {
 		maven { url 'https://repo.spring.io/plugins-snapshot' }
