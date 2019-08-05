@@ -38,21 +38,13 @@ public class JavaVersionTests {
 
 	private void assertClassVersion(Class<?> clazz) throws Exception {
 		String classResourceName = clazz.getName().replaceAll("\\.", "/") + ".class";
-		InputStream input = Thread.currentThread().getContextClassLoader()
-				.getResourceAsStream(classResourceName);
-		try {
+		try (InputStream input = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream(classResourceName)) {
 			DataInputStream data = new DataInputStream(input);
 			data.readInt();
 			data.readShort(); // minor
 			int major = data.readShort();
 			assertThat(major).isEqualTo(JDK8_CLASS_VERSION);
-		}
-		finally {
-			try {
-				input.close();
-			}
-			catch (Exception e) {
-			}
 		}
 	}
 }
