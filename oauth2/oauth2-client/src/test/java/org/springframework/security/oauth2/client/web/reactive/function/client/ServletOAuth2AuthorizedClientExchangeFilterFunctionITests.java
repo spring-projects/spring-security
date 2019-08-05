@@ -19,7 +19,6 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpHeaders;
@@ -42,7 +41,6 @@ import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.blockhound.BlockHound;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -69,18 +67,6 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 	private Authentication authentication;
 	private MockHttpServletRequest request;
 	private MockHttpServletResponse response;
-
-	@BeforeClass
-	public static void setUpBlockingChecks() {
-		// IMPORTANT:
-		// Before enabling BlockHound, we need to white-list `java.lang.Class.getPackage()`.
-		// When the JVM loads `java.lang.Package.getSystemPackage()`, it attempts to
-		// `java.lang.Package.loadManifest()` which is blocking I/O and triggers BlockHound to error.
-		// NOTE: This is an issue with JDK 8. It's been tested on JDK 10 and works fine w/o this white-list.
-		BlockHound.builder()
-				.allowBlockingCallsInside(Class.class.getName(), "getPackage")
-				.install();
-	}
 
 	@Before
 	public void setUp() throws Exception {

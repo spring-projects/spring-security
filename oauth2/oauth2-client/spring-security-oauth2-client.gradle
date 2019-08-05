@@ -17,7 +17,6 @@ dependencies {
 	testCompile 'com.fasterxml.jackson.core:jackson-databind'
 	testCompile 'io.projectreactor.netty:reactor-netty'
 	testCompile 'io.projectreactor:reactor-test'
-	testCompile 'io.projectreactor.tools:blockhound'
 
 	provided 'javax.servlet:javax.servlet-api'
 }

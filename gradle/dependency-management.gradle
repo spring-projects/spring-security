@@ -70,7 +70,6 @@ dependencyManagement {
 		dependency 'commons-lang:commons-lang:2.6'
 		dependency 'commons-logging:commons-logging:1.2'
 		dependency 'dom4j:dom4j:1.6.1'
-		dependency 'io.projectreactor.tools:blockhound:1.0.0.M4'
 		dependency 'javax.activation:activation:1.1.1'
 		dependency 'javax.annotation:jsr250-api:1.0'
 		dependency 'javax.inject:javax.inject:1'
