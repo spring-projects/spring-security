@@ -17,7 +17,6 @@ package org.springframework.security.acls.jdbc;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,7 +32,6 @@ import javax.sql.DataSource;
 import org.springframework.core.convert.ConversionException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.security.acls.domain.AccessControlEntryImpl;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
@@ -248,14 +246,12 @@ public class BasicLookupStrategy implements LookupStrategy {
 		String sql = computeRepeatingSql(lookupPrimaryKeysWhereClause, findNow.size());
 
 		Set<Long> parentsToLookup = jdbcTemplate.query(sql,
-				new PreparedStatementSetter() {
-					public void setValues(PreparedStatement ps) throws SQLException {
-						int i = 0;
+				ps -> {
+					int i = 0;
 
-						for (Long toFind : findNow) {
-							i++;
-							ps.setLong(i, toFind);
-						}
+					for (Long toFind : findNow) {
+						i++;
+						ps.setLong(i, toFind);
 					}
 				}, new ProcessResultSet(acls, sids));
 
@@ -383,22 +379,20 @@ public class BasicLookupStrategy implements LookupStrategy {
 				objectIdentities.size());
 
 		Set<Long> parentsToLookup = jdbcTemplate.query(sql,
-				new PreparedStatementSetter() {
-					public void setValues(PreparedStatement ps) throws SQLException {
-						int i = 0;
-						for (ObjectIdentity oid : objectIdentities) {
-							// Determine prepared statement values for this iteration
-							String type = oid.getType();
+				ps -> {
+					int i = 0;
+					for (ObjectIdentity oid : objectIdentities) {
+						// Determine prepared statement values for this iteration
+						String type = oid.getType();
 
-							// No need to check for nulls, as guaranteed non-null by
-							// ObjectIdentity.getIdentifier() interface contract
-							String identifier = oid.getIdentifier().toString();
+						// No need to check for nulls, as guaranteed non-null by
+						// ObjectIdentity.getIdentifier() interface contract
+						String identifier = oid.getIdentifier().toString();
 
-							// Inject values
-							ps.setString((2 * i) + 1, identifier);
-							ps.setString((2 * i) + 2, type);
-							i++;
-						}
+						// Inject values
+						ps.setString((2 * i) + 1, identifier);
+						ps.setString((2 * i) + 2, type);
+						i++;
 					}
 				}, new ProcessResultSet(acls, sids));
 

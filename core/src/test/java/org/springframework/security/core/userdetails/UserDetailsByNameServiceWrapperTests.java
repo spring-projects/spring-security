@@ -48,14 +48,12 @@ public class UserDetailsByNameServiceWrapperTests  {
 		UserDetailsByNameServiceWrapper svc = new UserDetailsByNameServiceWrapper();
 		final User user = new User("dummy", "dummy", true, true, true, true,
 				AuthorityUtils.NO_AUTHORITIES);
-		svc.setUserDetailsService(new UserDetailsService() {
-			public UserDetails loadUserByUsername(String name) {
-				if (user != null && user.getUsername().equals(name)) {
-					return user;
-				}
-				else {
-					return null;
-				}
+		svc.setUserDetailsService(name -> {
+			if (user != null && user.getUsername().equals(name)) {
+				return user;
+			}
+			else {
+				return null;
 			}
 		});
 		svc.afterPropertiesSet();

@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.core.task.SyncTaskExecutor;
@@ -59,11 +58,9 @@ public class DelegatingSecurityContextRunnableTests {
 	@Before
 	public void setUp() throws Exception {
 		originalSecurityContext = SecurityContextHolder.createEmptyContext();
-		doAnswer(new Answer<Object>() {
-			public Object answer(InvocationOnMock invocation) throws Throwable {
-				assertThat(SecurityContextHolder.getContext()).isEqualTo(securityContext);
-				return null;
-			}
+		doAnswer((Answer<Object>) invocation -> {
+			assertThat(SecurityContextHolder.getContext()).isEqualTo(securityContext);
+			return null;
 		}).when(delegate).run();
 
 		executor = Executors.newFixedThreadPool(1);

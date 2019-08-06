@@ -147,20 +147,18 @@ public class ServletApiController {
 	@RequestMapping("/async")
 	public void asynch(HttpServletRequest request, HttpServletResponse response) {
 		final AsyncContext async = request.startAsync();
-		async.start(new Runnable() {
-			public void run() {
-				Authentication authentication = SecurityContextHolder.getContext()
-						.getAuthentication();
-				try {
-					final HttpServletResponse asyncResponse = (HttpServletResponse) async
-							.getResponse();
-					asyncResponse.setStatus(HttpServletResponse.SC_OK);
-					asyncResponse.getWriter().write(String.valueOf(authentication));
-					async.complete();
-				}
-				catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+		async.start(() -> {
+			Authentication authentication = SecurityContextHolder.getContext()
+					.getAuthentication();
+			try {
+				final HttpServletResponse asyncResponse = (HttpServletResponse) async
+						.getResponse();
+				asyncResponse.setStatus(HttpServletResponse.SC_OK);
+				asyncResponse.getWriter().write(String.valueOf(authentication));
+				async.complete();
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		});
 	}

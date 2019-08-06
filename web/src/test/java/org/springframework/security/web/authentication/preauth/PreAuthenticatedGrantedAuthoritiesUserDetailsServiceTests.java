@@ -67,11 +67,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
 		PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
 		PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(
 				userName, "dummy");
-		token.setDetails(new GrantedAuthoritiesContainer() {
-			public Collection<? extends GrantedAuthority> getGrantedAuthorities() {
-				return gas;
-			}
-		});
+		token.setDetails((GrantedAuthoritiesContainer) () -> gas);
 		UserDetails ud = svc.loadUserDetails(token);
 		assertThat(ud.isAccountNonExpired()).isTrue();
 		assertThat(ud.isAccountNonLocked()).isTrue();

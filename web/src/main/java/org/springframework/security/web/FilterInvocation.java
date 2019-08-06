@@ -16,13 +16,11 @@
 
 package org.springframework.security.web;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -48,11 +46,8 @@ import org.springframework.security.web.util.UrlUtils;
 public class FilterInvocation {
 	// ~ Static fields
 	// ==================================================================================================
-	static final FilterChain DUMMY_CHAIN = new FilterChain() {
-		public void doFilter(ServletRequest req, ServletResponse res)
-				throws IOException, ServletException {
-			throw new UnsupportedOperationException("Dummy filter chain");
-		}
+	static final FilterChain DUMMY_CHAIN = (req, res) -> {
+		throw new UnsupportedOperationException("Dummy filter chain");
 	};
 
 	// ~ Instance fields

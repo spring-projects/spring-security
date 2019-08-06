@@ -91,11 +91,9 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 			chain.doFilter(request, response);
 			return;
 		}
-		final PrivilegedExceptionAction<Object> continueChain = new PrivilegedExceptionAction<Object>() {
-			public Object run() throws IOException, ServletException {
-				chain.doFilter(request, response);
-				return null;
-			}
+		final PrivilegedExceptionAction<Object> continueChain = () -> {
+			chain.doFilter(request, response);
+			return null;
 		};
 
 		if (logger.isDebugEnabled()) {

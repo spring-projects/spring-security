@@ -25,14 +25,12 @@ import java.util.ListIterator;
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import javax.naming.ldap.ExtendedRequest;
 import javax.naming.ldap.ExtendedResponse;
 import javax.naming.ldap.LdapContext;
@@ -112,18 +110,15 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	private final LdapTemplate template;
 
 	/** Default context mapper used to create a set of roles from a list of attributes */
-	private AttributesMapper roleMapper = new AttributesMapper() {
+	private AttributesMapper roleMapper = attributes -> {
+		Attribute roleAttr = attributes.get(groupRoleAttributeName);
 
-		public Object mapFromAttributes(Attributes attributes) throws NamingException {
-			Attribute roleAttr = attributes.get(groupRoleAttributeName);
+		NamingEnumeration<?> ne = roleAttr.getAll();
+		// assert ne.hasMore();
+		Object group = ne.next();
+		String role = group.toString();
 
-			NamingEnumeration<?> ne = roleAttr.getAll();
-			// assert ne.hasMore();
-			Object group = ne.next();
-			String role = group.toString();
-
-			return new SimpleGrantedAuthority(rolePrefix + role.toUpperCase());
-		}
+		return new SimpleGrantedAuthority(rolePrefix + role.toUpperCase());
 	};
 
 	private String[] attributesToRetrieve;
@@ -147,16 +142,14 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 	private DirContextAdapter loadUserAsContext(final DistinguishedName dn,
 			final String username) {
-		return (DirContextAdapter) template.executeReadOnly(new ContextExecutor() {
-			public Object executeWithContext(DirContext ctx) throws NamingException {
-				try {
-					Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
-					return new DirContextAdapter(attrs, LdapUtils.getFullDn(dn, ctx));
-				}
-				catch (NameNotFoundException notFound) {
-					throw new UsernameNotFoundException(
-							"User " + username + " not found", notFound);
-				}
+		return (DirContextAdapter) template.executeReadOnly((ContextExecutor) ctx -> {
+			try {
+				Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
+				return new DirContextAdapter(attrs, LdapUtils.getFullDn(dn, ctx));
+			}
+			catch (NameNotFoundException notFound) {
+				throw new UsernameNotFoundException(
+						"User " + username + " not found", notFound);
 			}
 		});
 	}
@@ -217,16 +210,13 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	@SuppressWarnings("unchecked")
 	List<GrantedAuthority> getUserAuthorities(final DistinguishedName dn,
 			final String username) {
-		SearchExecutor se = new SearchExecutor() {
-			public NamingEnumeration<SearchResult> executeSearch(DirContext ctx)
-					throws NamingException {
-				DistinguishedName fullDn = LdapUtils.getFullDn(dn, ctx);
-				SearchControls ctrls = new SearchControls();
-				ctrls.setReturningAttributes(new String[] { groupRoleAttributeName });
+		SearchExecutor se = ctx -> {
+			DistinguishedName fullDn = LdapUtils.getFullDn(dn, ctx);
+			SearchControls ctrls = new SearchControls();
+			ctrls.setReturningAttributes(new String[] { groupRoleAttributeName });
 
-				return ctx.search(groupSearchBase, groupSearchFilter, new String[] {
-						fullDn.toUrl(), username }, ctrls);
-			}
+			return ctx.search(groupSearchBase, groupSearchFilter, new String[] {
+					fullDn.toUrl(), username }, ctrls);
 		};
 
 		AttributesMapperCallbackHandler roleCollector = new AttributesMapperCallbackHandler(
@@ -339,19 +329,17 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 	private void modifyAuthorities(final DistinguishedName userDn,
 			final Collection<? extends GrantedAuthority> authorities, final int modType) {
-		template.executeReadWrite(new ContextExecutor() {
-			public Object executeWithContext(DirContext ctx) throws NamingException {
-				for (GrantedAuthority authority : authorities) {
-					String group = convertAuthorityToGroup(authority);
-					DistinguishedName fullDn = LdapUtils.getFullDn(userDn, ctx);
-					ModificationItem addGroup = new ModificationItem(modType,
-							new BasicAttribute(groupMemberAttributeName, fullDn.toUrl()));
+		template.executeReadWrite((ContextExecutor) ctx -> {
+			for (GrantedAuthority authority : authorities) {
+				String group = convertAuthorityToGroup(authority);
+				DistinguishedName fullDn = LdapUtils.getFullDn(userDn, ctx);
+				ModificationItem addGroup = new ModificationItem(modType,
+						new BasicAttribute(groupMemberAttributeName, fullDn.toUrl()));
 
-					ctx.modifyAttributes(buildGroupDn(group),
-							new ModificationItem[] { addGroup });
-				}
-				return null;
+				ctx.modifyAttributes(buildGroupDn(group),
+						new ModificationItem[] { addGroup });
 			}
+			return null;
 		});
 	}
 

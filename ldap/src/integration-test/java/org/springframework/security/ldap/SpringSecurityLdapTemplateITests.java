@@ -85,11 +85,8 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 	@Test
 	public void namingExceptionIsTranslatedCorrectly() {
 		try {
-			template.executeReadOnly(new ContextExecutor() {
-				public Object executeWithContext(DirContext dirContext)
-						throws NamingException {
-					throw new NamingException();
-				}
+			template.executeReadOnly((ContextExecutor) dirContext -> {
+				throw new NamingException();
 			});
 			fail("Expected UncategorizedLdapException on NamingException");
 		}

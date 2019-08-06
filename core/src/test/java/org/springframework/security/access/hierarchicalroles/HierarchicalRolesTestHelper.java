@@ -75,11 +75,7 @@ public abstract class HierarchicalRolesTestHelper {
 
 		for (final String role : roles) {
 			// Use non SimpleGrantedAuthority (SEC-863)
-			authorities.add(new GrantedAuthority() {
-				public String getAuthority() {
-					return role;
-				}
-			});
+			authorities.add((GrantedAuthority) () -> role);
 		}
 
 		return authorities;

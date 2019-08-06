@@ -65,6 +65,7 @@ public abstract class ServerWebExchangeMatchers {
 	 * Matches any exchange
 	 * @return the matcher to use
 	 */
+	@SuppressWarnings("Convert2Lambda")
 	public static ServerWebExchangeMatcher anyExchange() {
 		// we don't use a lambda to ensure a unique equals and hashcode
 		// which otherwise can cause problems with adding multiple entries to an ordered LinkedHashMap

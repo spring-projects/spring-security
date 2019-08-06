@@ -21,7 +21,6 @@ import static org.mockito.Mockito.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -55,15 +54,13 @@ public class FilterChainProxyTests {
 	public void setup() throws Exception {
 		matcher = mock(RequestMatcher.class);
 		filter = mock(Filter.class);
-		doAnswer(new Answer<Object>() {
-			public Object answer(InvocationOnMock inv) throws Throwable {
-				Object[] args = inv.getArguments();
-				FilterChain fc = (FilterChain) args[2];
-				HttpServletRequestWrapper extraWrapper = new HttpServletRequestWrapper(
-						(HttpServletRequest) args[0]);
-				fc.doFilter(extraWrapper, (HttpServletResponse) args[1]);
-				return null;
-			}
+		doAnswer((Answer<Object>) inv -> {
+			Object[] args = inv.getArguments();
+			FilterChain fc = (FilterChain) args[2];
+			HttpServletRequestWrapper extraWrapper = new HttpServletRequestWrapper(
+					(HttpServletRequest) args[0]);
+			fc.doFilter(extraWrapper, (HttpServletResponse) args[1]);
+			return null;
 		}).when(filter).doFilter(any(),
 				any(), any());
 		fcp = new FilterChainProxy(new DefaultSecurityFilterChain(matcher,
@@ -187,12 +184,10 @@ public class FilterChainProxyTests {
 	@Test
 	public void doFilterClearsSecurityContextHolder() throws Exception {
 		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
-		doAnswer(new Answer<Object>() {
-			public Object answer(InvocationOnMock inv) throws Throwable {
-				SecurityContextHolder.getContext().setAuthentication(
-						new TestingAuthenticationToken("username", "password"));
-				return null;
-			}
+		doAnswer((Answer<Object>) inv -> {
+			SecurityContextHolder.getContext().setAuthentication(
+					new TestingAuthenticationToken("username", "password"));
+			return null;
 		}).when(filter).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(FilterChain.class));
 
@@ -204,12 +199,10 @@ public class FilterChainProxyTests {
 	@Test
 	public void doFilterClearsSecurityContextHolderWithException() throws Exception {
 		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
-		doAnswer(new Answer<Object>() {
-			public Object answer(InvocationOnMock inv) throws Throwable {
-				SecurityContextHolder.getContext().setAuthentication(
-						new TestingAuthenticationToken("username", "password"));
-				throw new ServletException("oops");
-			}
+		doAnswer((Answer<Object>) inv -> {
+			SecurityContextHolder.getContext().setAuthentication(
+					new TestingAuthenticationToken("username", "password"));
+			throw new ServletException("oops");
 		}).when(filter).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(FilterChain.class));
 
@@ -228,23 +221,19 @@ public class FilterChainProxyTests {
 	public void doFilterClearsSecurityContextHolderOnceOnForwards() throws Exception {
 		final FilterChain innerChain = mock(FilterChain.class);
 		when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
-		doAnswer(new Answer<Object>() {
-			public Object answer(InvocationOnMock inv) throws Throwable {
-				TestingAuthenticationToken expected = new TestingAuthenticationToken(
-						"username", "password");
-				SecurityContextHolder.getContext().setAuthentication(expected);
-				doAnswer(new Answer<Object>() {
-					public Object answer(InvocationOnMock inv) throws Throwable {
-						innerChain.doFilter(request, response);
-						return null;
-					}
-				}).when(filter).doFilter(any(HttpServletRequest.class),
-						any(HttpServletResponse.class), any(FilterChain.class));
-
-				fcp.doFilter(request, response, innerChain);
-				assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(expected);
+		doAnswer((Answer<Object>) inv -> {
+			TestingAuthenticationToken expected = new TestingAuthenticationToken(
+					"username", "password");
+			SecurityContextHolder.getContext().setAuthentication(expected);
+			doAnswer((Answer<Object>) inv1 -> {
+				innerChain.doFilter(request, response);
 				return null;
-			}
+			}).when(filter).doFilter(any(HttpServletRequest.class),
+					any(HttpServletResponse.class), any(FilterChain.class));
+
+			fcp.doFilter(request, response, innerChain);
+			assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(expected);
+			return null;
 		}).when(filter).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class), any(FilterChain.class));
 

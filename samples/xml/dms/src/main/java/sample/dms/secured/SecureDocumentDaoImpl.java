@@ -15,10 +15,6 @@
  */
 package sample.dms.secured;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -49,11 +45,7 @@ public class SecureDocumentDaoImpl extends DocumentDaoImpl implements SecureDocu
 
 	public String[] getUsers() {
 		return getJdbcTemplate().query(SELECT_FROM_USERS,
-				new RowMapper<String>() {
-					public String mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						return rs.getString("USERNAME");
-					}
-				}).toArray(new String[] {});
+				(rs, rowNumber) -> rs.getString("USERNAME")).toArray(new String[] {});
 	}
 
 	public void create(AbstractElement element) {

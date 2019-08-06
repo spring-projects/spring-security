@@ -17,7 +17,6 @@ package org.springframework.security.web.authentication.preauth.j2ee;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.security.Principal;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,12 +59,7 @@ public class J2eePreAuthenticatedProcessingFilterTests {
 			}
 		};
 		req.setRemoteUser(aUserName);
-		req.setUserPrincipal(new Principal() {
-
-			public String getName() {
-				return aUserName;
-			}
-		});
+		req.setUserPrincipal(() -> aUserName);
 		return req;
 	}
 

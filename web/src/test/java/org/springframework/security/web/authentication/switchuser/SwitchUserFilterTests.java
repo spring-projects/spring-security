@@ -439,14 +439,10 @@ public class SwitchUserFilterTests {
 
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setUserDetailsService(new MockUserDetailsService());
-		filter.setSwitchUserAuthorityChanger(new SwitchUserAuthorityChanger() {
-			public Collection<GrantedAuthority> modifyGrantedAuthorities(
-					UserDetails targetUser, Authentication currentAuthentication,
-					Collection<? extends GrantedAuthority> authoritiesToBeGranted) {
-				List<GrantedAuthority> auths = new ArrayList<>();
-				auths.add(new SimpleGrantedAuthority("ROLE_NEW"));
-				return auths;
-			}
+		filter.setSwitchUserAuthorityChanger((targetUser, currentAuthentication, authoritiesToBeGranted) -> {
+			List<GrantedAuthority> auths = new ArrayList<>();
+			auths.add(new SimpleGrantedAuthority("ROLE_NEW"));
+			return auths;
 		});
 
 		Authentication result = filter.attemptSwitchUser(request);

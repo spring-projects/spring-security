@@ -18,9 +18,7 @@ package org.springframework.security.taglibs.authz;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -146,11 +144,8 @@ public abstract class AbstractAuthorizeTag {
 	protected EvaluationContext createExpressionEvaluationContext(
 			SecurityExpressionHandler<FilterInvocation> handler) {
 		FilterInvocation f = new FilterInvocation(getRequest(), getResponse(),
-				new FilterChain() {
-					public void doFilter(ServletRequest request, ServletResponse response)
-							throws IOException, ServletException {
-						throw new UnsupportedOperationException();
-					}
+				(request, response) -> {
+					throw new UnsupportedOperationException();
 				});
 
 		return handler.createEvaluationContext(SecurityContextHolder.getContext()

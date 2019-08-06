@@ -134,15 +134,13 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	public DirContextOperations retrieveEntry(final String dn,
 			final String[] attributesToRetrieve) {
 
-		return (DirContextOperations) executeReadOnly(new ContextExecutor() {
-			public Object executeWithContext(DirContext ctx) throws NamingException {
-				Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
+		return (DirContextOperations) executeReadOnly((ContextExecutor) ctx -> {
+			Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
 
-				// Object object = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
+			// Object object = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
 
-				return new DirContextAdapter(attrs, new DistinguishedName(dn),
-						new DistinguishedName(ctx.getNameInNamespace()));
-			}
+			return new DirContextAdapter(attrs, new DistinguishedName(dn),
+					new DistinguishedName(ctx.getNameInNamespace()));
 		});
 	}
 
@@ -205,32 +203,30 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
 		final HashSet<Map<String, List<String>>> set = new HashSet<>();
 
-		ContextMapper roleMapper = new ContextMapper() {
-			public Object mapFromContext(Object ctx) {
-				DirContextAdapter adapter = (DirContextAdapter) ctx;
-				Map<String, List<String>> record = new HashMap<>();
-				if (attributeNames == null || attributeNames.length == 0) {
-					try {
-						for (NamingEnumeration ae = adapter.getAttributes().getAll(); ae
-								.hasMore();) {
-							Attribute attr = (Attribute) ae.next();
-							extractStringAttributeValues(adapter, record, attr.getID());
-						}
-					}
-					catch (NamingException x) {
-						org.springframework.ldap.support.LdapUtils
-								.convertLdapException(x);
+		ContextMapper roleMapper = ctx -> {
+			DirContextAdapter adapter = (DirContextAdapter) ctx;
+			Map<String, List<String>> record = new HashMap<>();
+			if (attributeNames == null || attributeNames.length == 0) {
+				try {
+					for (NamingEnumeration ae = adapter.getAttributes().getAll(); ae
+							.hasMore();) {
+						Attribute attr = (Attribute) ae.next();
+						extractStringAttributeValues(adapter, record, attr.getID());
 					}
 				}
-				else {
-					for (String attributeName : attributeNames) {
-						extractStringAttributeValues(adapter, record, attributeName);
-					}
+				catch (NamingException x) {
+					org.springframework.ldap.support.LdapUtils
+							.convertLdapException(x);
 				}
-				record.put(DN_KEY, Arrays.asList(getAdapterDN(adapter)));
-				set.add(record);
-				return null;
 			}
+			else {
+				for (String attributeName : attributeNames) {
+					extractStringAttributeValues(adapter, record, attributeName);
+				}
+			}
+			record.put(DN_KEY, Arrays.asList(getAdapterDN(adapter)));
+			set.add(record);
+			return null;
 		};
 
 		SearchControls ctls = new SearchControls();
@@ -313,12 +309,8 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	public DirContextOperations searchForSingleEntry(final String base,
 			final String filter, final Object[] params) {
 
-		return (DirContextOperations) executeReadOnly(new ContextExecutor() {
-			public Object executeWithContext(DirContext ctx) throws NamingException {
-				return searchForSingleEntryInternal(ctx, searchControls, base, filter,
-						params);
-			}
-		});
+		return (DirContextOperations) executeReadOnly((ContextExecutor) ctx -> searchForSingleEntryInternal(ctx, searchControls, base, filter,
+				params));
 	}
 
 	/**

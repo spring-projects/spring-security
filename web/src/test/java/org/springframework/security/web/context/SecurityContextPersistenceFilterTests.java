@@ -20,7 +20,6 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
@@ -91,13 +90,10 @@ public class SecurityContextPersistenceFilterTests {
 
 		when(repo.loadContext(any(HttpRequestResponseHolder.class))).thenReturn(scBefore);
 
-		final FilterChain chain = new FilterChain() {
-			public void doFilter(ServletRequest request, ServletResponse response)
-					throws IOException, ServletException {
-				assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(beforeAuth);
-				// Change the context here
-				SecurityContextHolder.setContext(scExpectedAfter);
-			}
+		final FilterChain chain = (request1, response1) -> {
+			assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(beforeAuth);
+			// Change the context here
+			SecurityContextHolder.setContext(scExpectedAfter);
 		};
 
 		filter.doFilter(request, response, chain);

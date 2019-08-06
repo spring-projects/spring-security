@@ -126,17 +126,13 @@ public class PreAuthenticatedAuthenticationProviderTests {
 
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> getPreAuthenticatedUserDetailsService(
 			final UserDetails aUserDetails) {
-		return new AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken>() {
-
-			public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token)
-					throws UsernameNotFoundException {
-				if (aUserDetails != null
-						&& aUserDetails.getUsername().equals(token.getName())) {
-					return aUserDetails;
-				}
-
-				throw new UsernameNotFoundException("notfound");
+		return token -> {
+			if (aUserDetails != null
+					&& aUserDetails.getUsername().equals(token.getName())) {
+				return aUserDetails;
 			}
+
+			throw new UsernameNotFoundException("notfound");
 		};
 	}
 
