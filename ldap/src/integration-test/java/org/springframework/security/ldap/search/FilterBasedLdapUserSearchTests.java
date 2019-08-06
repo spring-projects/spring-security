@@ -21,22 +21,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 import javax.naming.ldap.LdapName;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.ldap.AbstractLdapIntegrationTests;
+import org.springframework.security.ldap.ApacheDsContainerConfig;
+import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Tests for FilterBasedLdapUserSearch.
  *
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
-public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests {
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ApacheDsContainerConfig.class)
+public class FilterBasedLdapUserSearchTests {
+
+	@Autowired
+	private DefaultSpringSecurityContextSource contextSource;
 
 	@Test
 	public void basicSearchSucceeds() throws Exception {
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
-				"(uid={0})", getContextSource());
+				"(uid={0})", this.contextSource);
 		locator.setSearchSubtree(false);
 		locator.setSearchTimeLimit(0);
 		locator.setDerefLinkFlag(false);
@@ -50,7 +62,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 	@Test
 	public void searchForNameWithCommaSucceeds() throws Exception {
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
-				"(uid={0})", getContextSource());
+				"(uid={0})", this.contextSource);
 		locator.setSearchSubtree(false);
 
 		DirContextOperations jerry = locator.searchForUser("jerry");
@@ -65,7 +77,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch(
 				"ou=people",
 				"(&(cn=*)(!(|(uid={0})(uid=rod)(uid=jerry)(uid=slashguy)(uid=javadude)(uid=groovydude)(uid=closuredude)(uid=scaladude))))",
-				getContextSource());
+				this.contextSource);
 
 		// Search for bob, get back ben...
 		DirContextOperations ben = locator.searchForUser("bob");
@@ -75,14 +87,14 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 	@Test(expected = IncorrectResultSizeDataAccessException.class)
 	public void searchFailsOnMultipleMatches() {
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
-				"(cn=*)", getContextSource());
+				"(cn=*)", this.contextSource);
 		locator.searchForUser("Ignored");
 	}
 
 	@Test(expected = UsernameNotFoundException.class)
 	public void searchForInvalidUserFails() {
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
-				"(uid={0})", getContextSource());
+				"(uid={0})", this.contextSource);
 		locator.searchForUser("Joe");
 	}
 
@@ -90,7 +102,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 	public void subTreeSearchSucceeds() throws Exception {
 		// Don't set the searchBase, so search from the root.
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("", "(cn={0})",
-				getContextSource());
+				this.contextSource);
 		locator.setSearchSubtree(true);
 
 		DirContextOperations ben = locator.searchForUser("Ben Alex");
@@ -102,7 +114,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
 	@Test
 	public void searchWithDifferentSearchBaseIsSuccessful() throws Exception {
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch(
-				"ou=otherpeople", "(cn={0})", getContextSource());
+				"ou=otherpeople", "(cn={0})", this.contextSource);
 		DirContextOperations joe = locator.searchForUser("Joe Smeth");
 		assertThat(joe.getStringAttribute("cn")).isEqualTo("Joe Smeth");
 	}

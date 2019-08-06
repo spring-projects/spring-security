@@ -17,6 +17,9 @@
 package org.springframework.security.ldap.authentication;
 
 import org.junit.*;
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,10 +27,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.security.ldap.ApacheDsContainerConfig;
+import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -35,11 +41,16 @@ import static org.assertj.core.api.Assertions.*;
  * Tests for {@link PasswordComparisonAuthenticator}.
  *
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
-public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegrationTests {
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ApacheDsContainerConfig.class)
+public class PasswordComparisonAuthenticatorTests {
 	// ~ Instance fields
 	// ================================================================================================
 
+	@Autowired
+	private DefaultSpringSecurityContextSource contextSource;
 	private PasswordComparisonAuthenticator authenticator;
 	private Authentication bob;
 	private Authentication ben;
@@ -49,7 +60,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
 	@Before
 	public void setUp() throws Exception {
-		authenticator = new PasswordComparisonAuthenticator(getContextSource());
+		authenticator = new PasswordComparisonAuthenticator(this.contextSource);
 		authenticator.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
 		authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
 		bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
@@ -65,7 +76,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
 	@Test
 	public void testFailedSearchGivesUserNotFoundException() throws Exception {
-		authenticator = new PasswordComparisonAuthenticator(getContextSource());
+		authenticator = new PasswordComparisonAuthenticator(this.contextSource);
 		assertThat(authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available").isEmpty();
 		authenticator.setUserSearch(new MockUserSearch(null));
 		authenticator.afterPropertiesSet();
@@ -140,7 +151,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
 	@Test
 	public void testWithUserSearch() {
-		authenticator = new PasswordComparisonAuthenticator(getContextSource());
+		authenticator = new PasswordComparisonAuthenticator(this.contextSource);
 		authenticator.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
 		assertThat(authenticator.getUserDns("Bob")).withFailMessage("User DN matches shouldn't be available").isEmpty();
 

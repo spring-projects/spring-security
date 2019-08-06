@@ -26,16 +26,6 @@ dependencies {
 }
 
 integrationTest {
-	include('**/ApacheDSServerIntegrationTests.class',
-		'**/ApacheDSEmbeddedLdifTests.class',
-		'**/LdapUserDetailsManagerModifyPasswordTests.class')
 //	  exclude('**/OpenLDAPIntegrationTestSuite.class')
 	maxParallelForks = 1
 }
-
-// Runs a server for running the integration tests against (from an IDE, for example)
-task(ldapServer, dependsOn: 'integrationTestClasses', type: JavaExec) {
-	classpath = sourceSets.integrationTest.runtimeClasspath
-	main = 'org.springframework.security.ldap.ApacheDSServerIntegrationTests'
-}
-

@@ -29,17 +29,27 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.junit.*;
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.UncategorizedLdapException;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
-public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTests {
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ApacheDsContainerConfig.class)
+public class SpringSecurityLdapTemplateITests {
 	// ~ Instance fields
 	// ================================================================================================
 
+	@Autowired
+	private DefaultSpringSecurityContextSource contextSource;
 	private SpringSecurityLdapTemplate template;
 
 	// ~ Methods
@@ -47,7 +57,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 
 	@Before
 	public void setUp() throws Exception {
-		template = new SpringSecurityLdapTemplate(getContextSource());
+		template = new SpringSecurityLdapTemplate(this.contextSource);
 	}
 
 	@Test
@@ -187,8 +197,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 	public void nonSpringLdapSearchCodeTestMethod() throws Exception {
 		java.util.Hashtable<String, String> env = new java.util.Hashtable<>();
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, "ldap://localhost:"
-				+ ApacheDSServerIntegrationTests.getServerPort());
+		env.put(Context.PROVIDER_URL, this.contextSource.getUrls()[0]);
 		env.put(Context.SECURITY_PRINCIPAL, "");
 		env.put(Context.SECURITY_CREDENTIALS, "");
 

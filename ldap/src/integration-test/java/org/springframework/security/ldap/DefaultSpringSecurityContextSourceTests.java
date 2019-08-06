@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,24 @@ import java.util.List;
 import javax.naming.directory.DirContext;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.AuthenticationException;
 import org.springframework.ldap.core.support.AbstractContextSource;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
-public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegrationTests {
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ApacheDsContainerConfig.class)
+public class DefaultSpringSecurityContextSourceTests {
+
+	@Autowired
+	private DefaultSpringSecurityContextSource contextSource;
 
 	@Test
 	public void instantiationSucceedsWithExpectedProperties() {
@@ -76,7 +87,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 			throws Exception {
 		DirContext ctx = null;
 		try {
-			ctx = getContextSource().getContext(
+			ctx = this.contextSource.getContext(
 					"uid=Bob,ou=people,dc=springframework,dc=org", "bobspassword");
 		}
 		catch (Exception e) {
@@ -86,7 +97,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 		ctx.close();
 		// com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
 		// Now get it gain, with wrong password. Should fail.
-		ctx = getContextSource().getContext(
+		ctx = this.contextSource.getContext(
 				"uid=Bob,ou=people,dc=springframework,dc=org", "wrongpassword");
 		ctx.close();
 	}
@@ -94,8 +105,8 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 	@Test
 	public void serverUrlWithSpacesIsSupported() throws Exception {
 		DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
-				"ldap://127.0.0.1:" + ApacheDSServerIntegrationTests.getServerPort()
-						+ "/ou=space%20cadets,dc=springframework,dc=org");
+				this.contextSource.getUrls()[0]
+						+ "ou=space%20cadets,dc=springframework,dc=org");
 		contextSource.afterPropertiesSet();
 		contextSource.getContext(
 				"uid=space cadet,ou=space cadets,dc=springframework,dc=org",
