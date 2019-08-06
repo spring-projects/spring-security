@@ -41,8 +41,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import javax.servlet.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientCredentials;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
