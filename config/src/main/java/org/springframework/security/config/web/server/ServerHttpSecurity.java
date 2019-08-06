@@ -629,7 +629,7 @@ public class ServerHttpSecurity {
 					return Mono.error(exception);
 				}
 			});
-			authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
+			authenticationFilter.setSecurityContextRepository(ServerHttpSecurity.this.securityContextRepository);
 
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
 					MediaType.TEXT_HTML);
