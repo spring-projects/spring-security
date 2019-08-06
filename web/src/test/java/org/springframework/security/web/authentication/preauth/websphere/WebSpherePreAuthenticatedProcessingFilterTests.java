@@ -21,7 +21,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.*;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -56,12 +55,7 @@ public class WebSpherePreAuthenticatedProcessingFilterTests {
 
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		when(am.authenticate(any(Authentication.class))).thenAnswer(
-				new Answer<Authentication>() {
-					public Authentication answer(InvocationOnMock invocation)
-							throws Throwable {
-						return (Authentication) invocation.getArguments()[0];
-					}
-				});
+				(Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
 
 		filter.setAuthenticationManager(am);
 		WebSpherePreAuthenticatedWebAuthenticationDetailsSource ads = new WebSpherePreAuthenticatedWebAuthenticationDetailsSource(

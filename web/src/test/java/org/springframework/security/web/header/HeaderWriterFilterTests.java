@@ -15,16 +15,11 @@
  */
 package org.springframework.security.web.header;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -100,17 +95,13 @@ public class HeaderWriterFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		filter.doFilter(request, response, new FilterChain() {
-			@Override
-			public void doFilter(ServletRequest request, ServletResponse response)
-					throws IOException, ServletException {
-				verifyZeroInteractions(HeaderWriterFilterTests.this.writer1);
+		filter.doFilter(request, response, (request1, response1) -> {
+			verifyZeroInteractions(HeaderWriterFilterTests.this.writer1);
 
-				response.flushBuffer();
+			response1.flushBuffer();
 
-				verify(HeaderWriterFilterTests.this.writer1).writeHeaders(
-						any(HttpServletRequest.class), any(HttpServletResponse.class));
-			}
+			verify(HeaderWriterFilterTests.this.writer1).writeHeaders(
+					any(HttpServletRequest.class), any(HttpServletResponse.class));
 		});
 
 		verifyNoMoreInteractions(this.writer1);
@@ -146,14 +137,8 @@ public class HeaderWriterFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		filter.doFilter(request, response, new FilterChain() {
-			@Override
-			public void doFilter(ServletRequest request, ServletResponse response)
-					throws IOException, ServletException {
-				verify(HeaderWriterFilterTests.this.writer1).writeHeaders(
-						any(HttpServletRequest.class), any(HttpServletResponse.class));
-			}
-		});
+		filter.doFilter(request, response, (request1, response1) -> verify(HeaderWriterFilterTests.this.writer1).writeHeaders(
+				any(HttpServletRequest.class), any(HttpServletResponse.class)));
 
 		verifyNoMoreInteractions(this.writer1);
 	}

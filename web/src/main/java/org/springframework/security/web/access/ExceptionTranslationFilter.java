@@ -27,7 +27,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.ThrowableAnalyzer;
-import org.springframework.security.web.util.ThrowableCauseExtractor;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -241,12 +240,10 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 		protected void initExtractorMap() {
 			super.initExtractorMap();
 
-			registerExtractor(ServletException.class, new ThrowableCauseExtractor() {
-				public Throwable extractCause(Throwable throwable) {
-					ThrowableAnalyzer.verifyThrowableHierarchy(throwable,
-							ServletException.class);
-					return ((ServletException) throwable).getRootCause();
-				}
+			registerExtractor(ServletException.class, throwable -> {
+				ThrowableAnalyzer.verifyThrowableHierarchy(throwable,
+						ServletException.class);
+				return ((ServletException) throwable).getRootCause();
 			});
 		}
 

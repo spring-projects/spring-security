@@ -99,9 +99,7 @@ public final class WebSecurity extends
 
 	private SecurityExpressionHandler<FilterInvocation> expressionHandler = defaultWebSecurityExpressionHandler;
 
-	private Runnable postBuildAction = new Runnable() {
-		public void run() {
-		}
+	private Runnable postBuildAction = () -> {
 	};
 
 	/**

@@ -16,8 +16,6 @@
 
 package org.springframework.security.core.userdetails.jdbc;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +25,6 @@ import org.springframework.context.ApplicationContextException;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
@@ -225,17 +222,12 @@ public class JdbcDaoImpl extends JdbcDaoSupport
 	 */
 	protected List<UserDetails> loadUsersByUsername(String username) {
 		return getJdbcTemplate().query(this.usersByUsernameQuery,
-				new String[] { username }, new RowMapper<UserDetails>() {
-					@Override
-					public UserDetails mapRow(ResultSet rs, int rowNum)
-							throws SQLException {
-						String username = rs.getString(1);
-						String password = rs.getString(2);
-						boolean enabled = rs.getBoolean(3);
-						return new User(username, password, enabled, true, true, true,
-								AuthorityUtils.NO_AUTHORITIES);
-					}
-
+				new String[] { username }, (rs, rowNum) -> {
+					String username1 = rs.getString(1);
+					String password = rs.getString(2);
+					boolean enabled = rs.getBoolean(3);
+					return new User(username1, password, enabled, true, true, true,
+							AuthorityUtils.NO_AUTHORITIES);
 				});
 	}
 
@@ -246,14 +238,10 @@ public class JdbcDaoImpl extends JdbcDaoSupport
 	 */
 	protected List<GrantedAuthority> loadUserAuthorities(String username) {
 		return getJdbcTemplate().query(this.authoritiesByUsernameQuery,
-				new String[] { username }, new RowMapper<GrantedAuthority>() {
-					@Override
-					public GrantedAuthority mapRow(ResultSet rs, int rowNum)
-							throws SQLException {
-						String roleName = JdbcDaoImpl.this.rolePrefix + rs.getString(2);
+				new String[] { username }, (rs, rowNum) -> {
+					String roleName = JdbcDaoImpl.this.rolePrefix + rs.getString(2);
 
-						return new SimpleGrantedAuthority(roleName);
-					}
+					return new SimpleGrantedAuthority(roleName);
 				});
 	}
 
@@ -265,14 +253,10 @@ public class JdbcDaoImpl extends JdbcDaoSupport
 	 */
 	protected List<GrantedAuthority> loadGroupAuthorities(String username) {
 		return getJdbcTemplate().query(this.groupAuthoritiesByUsernameQuery,
-				new String[] { username }, new RowMapper<GrantedAuthority>() {
-					@Override
-					public GrantedAuthority mapRow(ResultSet rs, int rowNum)
-							throws SQLException {
-						String roleName = getRolePrefix() + rs.getString(3);
+				new String[] { username }, (rs, rowNum) -> {
+					String roleName = getRolePrefix() + rs.getString(3);
 
-						return new SimpleGrantedAuthority(roleName);
-					}
+					return new SimpleGrantedAuthority(roleName);
 				});
 	}
 

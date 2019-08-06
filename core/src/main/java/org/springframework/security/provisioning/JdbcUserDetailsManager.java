@@ -32,16 +32,12 @@ import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.util.Assert;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -176,20 +172,17 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	public void createUser(final UserDetails user) {
 		validateUserDetails(user);
 
-		getJdbcTemplate().update(createUserSql, new PreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setString(1, user.getUsername());
-				ps.setString(2, user.getPassword());
-				ps.setBoolean(3, user.isEnabled());
+		getJdbcTemplate().update(createUserSql, ps -> {
+			ps.setString(1, user.getUsername());
+			ps.setString(2, user.getPassword());
+			ps.setBoolean(3, user.isEnabled());
 
-				int paramCount = ps.getParameterMetaData().getParameterCount();
-				if (paramCount > 3) {
-					//NOTE: acc_locked, acc_expired and creds_expired are also to be inserted
-					ps.setBoolean(4, !user.isAccountNonLocked());
-					ps.setBoolean(5, !user.isAccountNonExpired());
-					ps.setBoolean(6, !user.isCredentialsNonExpired());
-				}
+			int paramCount = ps.getParameterMetaData().getParameterCount();
+			if (paramCount > 3) {
+				//NOTE: acc_locked, acc_expired and creds_expired are also to be inserted
+				ps.setBoolean(4, !user.isAccountNonLocked());
+				ps.setBoolean(5, !user.isAccountNonExpired());
+				ps.setBoolean(6, !user.isCredentialsNonExpired());
 			}
 		});
 
@@ -201,25 +194,22 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	public void updateUser(final UserDetails user) {
 		validateUserDetails(user);
 
-		getJdbcTemplate().update(updateUserSql, new PreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setString(1, user.getPassword());
-				ps.setBoolean(2, user.isEnabled());
+		getJdbcTemplate().update(updateUserSql, ps -> {
+			ps.setString(1, user.getPassword());
+			ps.setBoolean(2, user.isEnabled());
 
-				int paramCount = ps.getParameterMetaData().getParameterCount();
-				if (paramCount == 3) {
-					ps.setString(3, user.getUsername());
-				} else {
-					//NOTE: acc_locked, acc_expired and creds_expired are also updated
-					ps.setBoolean(3, !user.isAccountNonLocked());
-					ps.setBoolean(4, !user.isAccountNonExpired());
-					ps.setBoolean(5, !user.isCredentialsNonExpired());
+			int paramCount = ps.getParameterMetaData().getParameterCount();
+			if (paramCount == 3) {
+				ps.setString(3, user.getUsername());
+			} else {
+				//NOTE: acc_locked, acc_expired and creds_expired are also updated
+				ps.setBoolean(3, !user.isAccountNonLocked());
+				ps.setBoolean(4, !user.isAccountNonExpired());
+				ps.setBoolean(5, !user.isCredentialsNonExpired());
 
-					ps.setString(6, user.getUsername());
-				}
-
+				ps.setString(6, user.getUsername());
 			}
+
 		});
 
 		if (getEnableAuthorities()) {
@@ -337,11 +327,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		for (GrantedAuthority a : authorities) {
 			final String authority = a.getAuthority();
 			getJdbcTemplate().update(insertGroupAuthoritySql,
-					new PreparedStatementSetter() {
-						public void setValues(PreparedStatement ps) throws SQLException {
-							ps.setInt(1, groupId);
-							ps.setString(2, authority);
-						}
+					ps -> {
+						ps.setInt(1, groupId);
+						ps.setString(2, authority);
 					});
 		}
 	}
@@ -351,11 +339,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.hasText(groupName, "groupName should have text");
 
 		final int id = findGroupId(groupName);
-		PreparedStatementSetter groupIdPSS = new PreparedStatementSetter() {
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, id);
-			}
-		};
+		PreparedStatementSetter groupIdPSS = ps -> ps.setInt(1, id);
 		getJdbcTemplate().update(deleteGroupMembersSql, groupIdPSS);
 		getJdbcTemplate().update(deleteGroupAuthoritiesSql, groupIdPSS);
 		getJdbcTemplate().update(deleteGroupSql, groupIdPSS);
@@ -375,11 +359,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.hasText(groupName, "groupName should have text");
 
 		final int id = findGroupId(groupName);
-		getJdbcTemplate().update(insertGroupMemberSql, new PreparedStatementSetter() {
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, id);
-				ps.setString(2, username);
-			}
+		getJdbcTemplate().update(insertGroupMemberSql, ps -> {
+			ps.setInt(1, id);
+			ps.setString(2, username);
 		});
 
 		userCache.removeUserFromCache(username);
@@ -392,11 +374,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 		final int id = findGroupId(groupName);
 
-		getJdbcTemplate().update(deleteGroupMemberSql, new PreparedStatementSetter() {
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, id);
-				ps.setString(2, username);
-			}
+		getJdbcTemplate().update(deleteGroupMemberSql, ps -> {
+			ps.setInt(1, id);
+			ps.setString(2, username);
 		});
 
 		userCache.removeUserFromCache(username);
@@ -407,13 +387,10 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.hasText(groupName, "groupName should have text");
 
 		return getJdbcTemplate().query(groupAuthoritiesSql, new String[] { groupName },
-				new RowMapper<GrantedAuthority>() {
-					public GrantedAuthority mapRow(ResultSet rs, int rowNum)
-							throws SQLException {
-						String roleName = getRolePrefix() + rs.getString(3);
+				(rs, rowNum) -> {
+					String roleName = getRolePrefix() + rs.getString(3);
 
-						return new SimpleGrantedAuthority(roleName);
-					}
+					return new SimpleGrantedAuthority(roleName);
 				});
 	}
 
@@ -425,12 +402,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 		final int id = findGroupId(groupName);
 
-		getJdbcTemplate().update(deleteGroupAuthoritySql, new PreparedStatementSetter() {
-
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, id);
-				ps.setString(2, authority.getAuthority());
-			}
+		getJdbcTemplate().update(deleteGroupAuthoritySql, ps -> {
+			ps.setInt(1, id);
+			ps.setString(2, authority.getAuthority());
 		});
 	}
 
@@ -440,11 +414,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		Assert.notNull(authority, "authority cannot be null");
 
 		final int id = findGroupId(groupName);
-		getJdbcTemplate().update(insertGroupAuthoritySql, new PreparedStatementSetter() {
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, id);
-				ps.setString(2, authority.getAuthority());
-			}
+		getJdbcTemplate().update(insertGroupAuthoritySql, ps -> {
+			ps.setInt(1, id);
+			ps.setString(2, authority.getAuthority());
 		});
 	}
 

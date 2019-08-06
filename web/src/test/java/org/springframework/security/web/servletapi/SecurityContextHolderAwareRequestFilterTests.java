@@ -317,11 +317,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		SecurityContextHolder.setContext(context);
 		AsyncContext asyncContext = mock(AsyncContext.class);
 		when(this.request.getAsyncContext()).thenReturn(asyncContext);
-		Runnable runnable = new Runnable() {
-
-			@Override
-			public void run() {
-			}
+		Runnable runnable = () -> {
 		};
 
 		wrappedRequest().getAsyncContext().start(runnable);
@@ -346,11 +342,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		SecurityContextHolder.setContext(context);
 		AsyncContext asyncContext = mock(AsyncContext.class);
 		when(this.request.startAsync()).thenReturn(asyncContext);
-		Runnable runnable = new Runnable() {
-
-			@Override
-			public void run() {
-			}
+		Runnable runnable = () -> {
 		};
 
 		wrappedRequest().startAsync().start(runnable);
@@ -376,11 +368,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		AsyncContext asyncContext = mock(AsyncContext.class);
 		when(this.request.startAsync(this.request, this.response))
 				.thenReturn(asyncContext);
-		Runnable runnable = new Runnable() {
-
-			@Override
-			public void run() {
-			}
+		Runnable runnable = () -> {
 		};
 
 		wrappedRequest().startAsync(this.request, this.response).start(runnable);

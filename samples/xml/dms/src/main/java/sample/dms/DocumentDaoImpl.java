@@ -15,11 +15,8 @@
  */
 package sample.dms;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -80,23 +77,20 @@ public class DocumentDaoImpl extends JdbcDaoSupport implements DocumentDao {
 	/** Executes recursive SQL as needed to build a full Directory hierarchy of objects */
 	private Directory getDirectoryWithImmediateParentPopulated(final Long id) {
 		return getJdbcTemplate().queryForObject(SELECT_FROM_DIRECTORY_SINGLE,
-				new Object[] { id }, new RowMapper<Directory>() {
-					public Directory mapRow(ResultSet rs, int rowNumber)
-							throws SQLException {
-						Long parentDirectoryId = rs
-								.getLong("parent_directory_id");
-						Directory parentDirectory = Directory.ROOT_DIRECTORY;
-						if (parentDirectoryId != null
-								&& !parentDirectoryId.equals(-1L)) {
-							// Need to go and lookup the parent, so do that first
-							parentDirectory = getDirectoryWithImmediateParentPopulated(parentDirectoryId);
-						}
-						Directory directory = new Directory(rs
-								.getString("directory_name"), parentDirectory);
-						FieldUtils.setProtectedFieldValue("id", directory,
-								rs.getLong("id"));
-						return directory;
+				new Object[] { id }, (rs, rowNumber) -> {
+					Long parentDirectoryId = rs
+							.getLong("parent_directory_id");
+					Directory parentDirectory = Directory.ROOT_DIRECTORY;
+					if (parentDirectoryId != null
+							&& !parentDirectoryId.equals(-1L)) {
+						// Need to go and lookup the parent, so do that first
+						parentDirectory = getDirectoryWithImmediateParentPopulated(parentDirectoryId);
 					}
+					Directory directory = new Directory(rs
+							.getString("directory_name"), parentDirectory);
+					FieldUtils.setProtectedFieldValue("id", directory,
+							rs.getLong("id"));
+					return directory;
 				});
 	}
 
@@ -105,38 +99,26 @@ public class DocumentDaoImpl extends JdbcDaoSupport implements DocumentDao {
 				"Directory required (the ID can be null to refer to root)");
 		if (directory.getId() == null) {
 			List<Directory> directories = getJdbcTemplate().query(
-					SELECT_FROM_DIRECTORY_NULL, new RowMapper<Directory>() {
-						public Directory mapRow(ResultSet rs, int rowNumber)
-								throws SQLException {
-							return getDirectoryWithImmediateParentPopulated(rs
-									.getLong("id"));
-						}
-					});
+					SELECT_FROM_DIRECTORY_NULL, (rs, rowNumber) -> getDirectoryWithImmediateParentPopulated(rs
+							.getLong("id")));
 			return directories.toArray(new AbstractElement[] {});
 		}
 		List<AbstractElement> directories = getJdbcTemplate().query(
 				SELECT_FROM_DIRECTORY, new Object[] { directory.getId() },
-				new RowMapper<AbstractElement>() {
-					public Directory mapRow(ResultSet rs, int rowNumber)
-							throws SQLException {
-						return getDirectoryWithImmediateParentPopulated(rs
-								.getLong("id"));
-					}
-				});
+				(rs, rowNumber) -> getDirectoryWithImmediateParentPopulated(rs
+						.getLong("id")));
 		List<File> files = getJdbcTemplate().query(SELECT_FROM_FILE,
-				new Object[] { directory.getId() }, new RowMapper<File>() {
-					public File mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						Long parentDirectoryId = rs
-								.getLong("parent_directory_id");
-						Directory parentDirectory = null;
-						if (parentDirectoryId != null) {
-							parentDirectory = getDirectoryWithImmediateParentPopulated(parentDirectoryId);
-						}
-						File file = new File(rs.getString("file_name"), parentDirectory);
-						FieldUtils.setProtectedFieldValue("id", file,
-								rs.getLong("id"));
-						return file;
+				new Object[] { directory.getId() }, (rs, rowNumber) -> {
+					Long parentDirectoryId = rs
+							.getLong("parent_directory_id");
+					Directory parentDirectory = null;
+					if (parentDirectoryId != null) {
+						parentDirectory = getDirectoryWithImmediateParentPopulated(parentDirectoryId);
 					}
+					File file = new File(rs.getString("file_name"), parentDirectory);
+					FieldUtils.setProtectedFieldValue("id", file,
+							rs.getLong("id"));
+					return file;
 				});
 		// Add the File elements after the Directory elements
 		directories.addAll(files);

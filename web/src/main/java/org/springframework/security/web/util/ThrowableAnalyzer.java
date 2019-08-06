@@ -40,22 +40,16 @@ public class ThrowableAnalyzer {
 	 *
 	 * @see Throwable#getCause()
 	 */
-	public static final ThrowableCauseExtractor DEFAULT_EXTRACTOR = new ThrowableCauseExtractor() {
-		public Throwable extractCause(Throwable throwable) {
-			return throwable.getCause();
-		}
-	};
+	public static final ThrowableCauseExtractor DEFAULT_EXTRACTOR = throwable -> throwable.getCause();
 
 	/**
 	 * Default extractor for {@link InvocationTargetException} instances.
 	 *
 	 * @see InvocationTargetException#getTargetException()
 	 */
-	public static final ThrowableCauseExtractor INVOCATIONTARGET_EXTRACTOR = new ThrowableCauseExtractor() {
-		public Throwable extractCause(Throwable throwable) {
-			verifyThrowableHierarchy(throwable, InvocationTargetException.class);
-			return ((InvocationTargetException) throwable).getTargetException();
-		}
+	public static final ThrowableCauseExtractor INVOCATIONTARGET_EXTRACTOR = throwable -> {
+		verifyThrowableHierarchy(throwable, InvocationTargetException.class);
+		return ((InvocationTargetException) throwable).getTargetException();
 	};
 
 	/**
@@ -64,21 +58,16 @@ public class ThrowableAnalyzer {
 	 * greater by this comparator.<br>
 	 * For hierarchically unrelated classes their fully qualified name will be compared.
 	 */
-	private static final Comparator<Class<? extends Throwable>> CLASS_HIERARCHY_COMPARATOR = new Comparator<Class<? extends Throwable>>() {
-
-		public int compare(Class<? extends Throwable> class1,
-				Class<? extends Throwable> class2) {
-			if (class1.isAssignableFrom(class2)) {
-				return 1;
-			}
-			else if (class2.isAssignableFrom(class1)) {
-				return -1;
-			}
-			else {
-				return class1.getName().compareTo(class2.getName());
-			}
+	private static final Comparator<Class<? extends Throwable>> CLASS_HIERARCHY_COMPARATOR = (class1, class2) -> {
+		if (class1.isAssignableFrom(class2)) {
+			return 1;
 		}
-
+		else if (class2.isAssignableFrom(class1)) {
+			return -1;
+		}
+		else {
+			return class1.getName().compareTo(class2.getName());
+		}
 	};
 
 	/**

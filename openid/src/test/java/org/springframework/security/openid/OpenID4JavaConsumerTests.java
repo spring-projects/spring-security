@@ -176,11 +176,7 @@ public class OpenID4JavaConsumerTests {
 				new NullAxFetchListFactory());
 		VerificationResult vr = mock(VerificationResult.class);
 		DiscoveryInformation di = mock(DiscoveryInformation.class);
-		Identifier id = new Identifier() {
-			public String getIdentifier() {
-				return "id";
-			}
-		};
+		Identifier id = (Identifier) () -> "id";
 		Message msg = mock(Message.class);
 
 		when(

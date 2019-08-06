@@ -36,12 +36,10 @@ import java.util.Map;
  * @author Rob Winch
  */
 public final class SimpDestinationMessageMatcher implements MessageMatcher<Object> {
-	public static final MessageMatcher<Object> NULL_DESTINATION_MATCHER = new MessageMatcher<Object>() {
-		public boolean matches(Message<? extends Object> message) {
-			String destination = SimpMessageHeaderAccessor.getDestination(message
-					.getHeaders());
-			return destination == null;
-		}
+	public static final MessageMatcher<Object> NULL_DESTINATION_MATCHER = message -> {
+		String destination = SimpMessageHeaderAccessor.getDestination(message
+				.getHeaders());
+		return destination == null;
 	};
 
 	private final PathMatcher matcher;

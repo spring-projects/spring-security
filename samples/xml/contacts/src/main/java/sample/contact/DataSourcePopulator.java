@@ -34,8 +34,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
@@ -166,12 +164,10 @@ public class DataSourcePopulator implements InitializingBean {
 		for (int i = 1; i < createEntities; i++) {
 			final ObjectIdentity objectIdentity = new ObjectIdentityImpl(Contact.class,
 					(long) i);
-			tt.execute(new TransactionCallback<Object>() {
-				public Object doInTransaction(TransactionStatus arg0) {
-					mutableAclService.createAcl(objectIdentity);
+			tt.execute(arg0 -> {
+				mutableAclService.createAcl(objectIdentity);
 
-					return null;
-				}
+				return null;
 			});
 		}
 
@@ -273,12 +269,10 @@ public class DataSourcePopulator implements InitializingBean {
 	}
 
 	private void updateAclInTransaction(final MutableAcl acl) {
-		tt.execute(new TransactionCallback<Object>() {
-			public Object doInTransaction(TransactionStatus arg0) {
-				mutableAclService.updateAcl(acl);
+		tt.execute(arg0 -> {
+			mutableAclService.updateAcl(acl);
 
-				return null;
-			}
+			return null;
 		});
 	}
 }

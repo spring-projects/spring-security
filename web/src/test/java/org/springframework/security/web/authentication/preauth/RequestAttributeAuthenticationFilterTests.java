@@ -21,7 +21,6 @@ import static org.mockito.Mockito.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -29,8 +28,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
-import org.springframework.security.web.authentication.preauth.RequestAttributeAuthenticationFilter;
 
 /**
  *
@@ -159,12 +156,7 @@ public class RequestAttributeAuthenticationFilterTests {
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		when(am.authenticate(any(Authentication.class)))
-				.thenAnswer(new Answer<Authentication>() {
-					public Authentication answer(InvocationOnMock invocation)
-							throws Throwable {
-						return (Authentication) invocation.getArguments()[0];
-					}
-				});
+				.thenAnswer((Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
 
 		return am;
 	}

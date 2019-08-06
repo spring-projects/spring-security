@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.*;
 import javax.servlet.ServletException;
 
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -161,12 +160,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		when(am.authenticate(any(Authentication.class))).thenAnswer(
-				new Answer<Authentication>() {
-					public Authentication answer(InvocationOnMock invocation)
-							throws Throwable {
-						return (Authentication) invocation.getArguments()[0];
-					}
-				});
+				(Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
 
 		return am;
 	}

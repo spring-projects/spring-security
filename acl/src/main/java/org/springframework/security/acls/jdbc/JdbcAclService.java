@@ -16,8 +16,6 @@
 package org.springframework.security.acls.jdbc;
 
 import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AclService;
@@ -95,14 +92,11 @@ public class JdbcAclService implements AclService {
 	public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
 		Object[] args = { parentIdentity.getIdentifier().toString(), parentIdentity.getType() };
 		List<ObjectIdentity> objects = jdbcOperations.query(findChildrenSql, args,
-				new RowMapper<ObjectIdentity>() {
-					public ObjectIdentity mapRow(ResultSet rs, int rowNum)
-							throws SQLException {
-						String javaType = rs.getString("class");
-						Serializable identifier = (Serializable) rs.getObject("obj_id");
-						identifier = aclClassIdUtils.identifierFrom(identifier, rs);
-						return new ObjectIdentityImpl(javaType, identifier);
-					}
+				(rs, rowNum) -> {
+					String javaType = rs.getString("class");
+					Serializable identifier = (Serializable) rs.getObject("obj_id");
+					identifier = aclClassIdUtils.identifierFrom(identifier, rs);
+					return new ObjectIdentityImpl(javaType, identifier);
 				});
 
 		if (objects.size() == 0) {

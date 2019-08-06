@@ -21,7 +21,6 @@ import static org.mockito.Mockito.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -152,12 +151,7 @@ public class RequestHeaderAuthenticationFilterTests {
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		when(am.authenticate(any(Authentication.class))).thenAnswer(
-				new Answer<Authentication>() {
-					public Authentication answer(InvocationOnMock invocation)
-							throws Throwable {
-						return (Authentication) invocation.getArguments()[0];
-					}
-				});
+				(Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
 
 		return am;
 	}

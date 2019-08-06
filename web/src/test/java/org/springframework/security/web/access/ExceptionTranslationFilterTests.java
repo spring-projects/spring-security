@@ -44,7 +44,6 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -324,11 +323,5 @@ public class ExceptionTranslationFilterTests {
 		verifyZeroInteractions(mockEntryPoint);
 	}
 
-	private AuthenticationEntryPoint mockEntryPoint = new AuthenticationEntryPoint() {
-		public void commence(HttpServletRequest request, HttpServletResponse response,
-				AuthenticationException authException) throws IOException,
-				ServletException {
-			response.sendRedirect(request.getContextPath() + "/login.jsp");
-		}
-	};
+	private AuthenticationEntryPoint mockEntryPoint = (request, response, authException) -> response.sendRedirect(request.getContextPath() + "/login.jsp");
 }

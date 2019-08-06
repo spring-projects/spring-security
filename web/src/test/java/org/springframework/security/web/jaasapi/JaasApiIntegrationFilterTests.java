@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.security.AccessController;
-import java.security.Principal;
 import java.util.HashMap;
 
 import javax.security.auth.Subject;
@@ -84,33 +83,24 @@ public class JaasApiIntegrationFilterTests {
 		this.response = new MockHttpServletResponse();
 
 		authenticatedSubject = new Subject();
-		authenticatedSubject.getPrincipals().add(new Principal() {
-
-			public String getName() {
-				return "principal";
-			}
-		});
+		authenticatedSubject.getPrincipals().add(() -> "principal");
 		authenticatedSubject.getPrivateCredentials().add("password");
 		authenticatedSubject.getPublicCredentials().add("username");
-		callbackHandler = new CallbackHandler() {
-
-			public void handle(Callback[] callbacks)
-					throws IOException, UnsupportedCallbackException {
-				for (Callback callback : callbacks) {
-					if (callback instanceof NameCallback) {
-						((NameCallback) callback).setName("user");
-					}
-					else if (callback instanceof PasswordCallback) {
-						((PasswordCallback) callback).setPassword(
-								"password".toCharArray());
-					}
-					else if (callback instanceof TextInputCallback) {
-						// ignore
-					}
-					else {
-						throw new UnsupportedCallbackException(callback,
-								"Unrecognized Callback " + callback);
-					}
+		callbackHandler = callbacks -> {
+			for (Callback callback : callbacks) {
+				if (callback instanceof NameCallback) {
+					((NameCallback) callback).setName("user");
+				}
+				else if (callback instanceof PasswordCallback) {
+					((PasswordCallback) callback).setPassword(
+							"password".toCharArray());
+				}
+				else if (callback instanceof TextInputCallback) {
+					// ignore
+				}
+				else {
+					throw new UnsupportedCallbackException(callback,
+							"Unrecognized Callback " + callback);
 				}
 			}
 		};

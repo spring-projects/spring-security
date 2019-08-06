@@ -320,12 +320,10 @@ public abstract class WebSecurityConfigurerAdapter implements
 
 	public void init(final WebSecurity web) throws Exception {
 		final HttpSecurity http = getHttp();
-		web.addSecurityFilterChainBuilder(http).postBuildAction(new Runnable() {
-			public void run() {
-				FilterSecurityInterceptor securityInterceptor = http
-						.getSharedObject(FilterSecurityInterceptor.class);
-				web.securityInterceptor(securityInterceptor);
-			}
+		web.addSecurityFilterChainBuilder(http).postBuildAction(() -> {
+			FilterSecurityInterceptor securityInterceptor = http
+					.getSharedObject(FilterSecurityInterceptor.class);
+			web.securityInterceptor(securityInterceptor);
 		});
 	}
 

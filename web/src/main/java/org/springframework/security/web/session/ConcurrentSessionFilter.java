@@ -96,17 +96,12 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 				() -> expiredUrl + " isn't a valid redirect URL");
 		this.expiredUrl = expiredUrl;
 		this.sessionRegistry = sessionRegistry;
-		this.sessionInformationExpiredStrategy = new SessionInformationExpiredStrategy() {
+		this.sessionInformationExpiredStrategy = event -> {
+			HttpServletRequest request = event.getRequest();
+			HttpServletResponse response = event.getResponse();
+			SessionInformation info = event.getSessionInformation();
 
-			@Override
-			public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException, ServletException {
-				HttpServletRequest request = event.getRequest();
-				HttpServletResponse response = event.getResponse();
-				SessionInformation info = event.getSessionInformation();
-
-				redirectStrategy.sendRedirect(request, response, determineExpiredUrl(request, info));
-			}
-
+			redirectStrategy.sendRedirect(request, response, determineExpiredUrl(request, info));
 		};
 	}
 

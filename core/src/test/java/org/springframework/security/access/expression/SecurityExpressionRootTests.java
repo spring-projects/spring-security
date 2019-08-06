@@ -19,15 +19,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
@@ -66,12 +63,7 @@ public class SecurityExpressionRootTests {
 
 	@Test
 	public void roleHierarchySupportIsCorrectlyUsedInEvaluatingRoles() throws Exception {
-		root.setRoleHierarchy(new RoleHierarchy() {
-			public Collection<GrantedAuthority> getReachableGrantedAuthorities(
-					Collection<? extends GrantedAuthority> authorities) {
-				return AuthorityUtils.createAuthorityList("ROLE_C");
-			}
-		});
+		root.setRoleHierarchy(authorities -> AuthorityUtils.createAuthorityList("ROLE_C"));
 
 		assertThat(root.hasRole("C")).isTrue();
 		assertThat(root.hasAuthority("ROLE_C")).isTrue();

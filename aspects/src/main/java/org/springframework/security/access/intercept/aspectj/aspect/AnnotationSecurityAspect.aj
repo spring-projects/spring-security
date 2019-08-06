@@ -72,11 +72,7 @@ public aspect AnnotationSecurityAspect implements InitializingBean {
 						return proceed();
 				}
 
-				AspectJCallback callback = new AspectJCallback() {
-						public Object proceedWithObject() {
-								return proceed();
-						}
-				};
+				AspectJCallback callback = () -> proceed();
 
 				return this.securityInterceptor.invoke(thisJoinPoint, callback);
 		}
