@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 /**
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 5.0
  */
 public interface CsrfToken extends Serializable {
@@ -44,5 +45,15 @@ public interface CsrfToken extends Serializable {
 	 * @return the token value
 	 */
 	String getToken();
+
+	/**
+	 *
+	 * @param token
+	 * @return
+	 * @since 5.2
+	 */
+	default boolean matches(String token) {
+		return getToken().equals(token);
+	}
 
 }

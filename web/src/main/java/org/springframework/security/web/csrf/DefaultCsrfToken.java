@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,16 @@
  */
 package org.springframework.security.web.csrf;
 
+import java.security.MessageDigest;
+
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 
 /**
  * A CSRF token that is used to protect against CSRF attacks.
  *
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 3.2
  */
 @SuppressWarnings("serial")
@@ -73,5 +77,17 @@ public final class DefaultCsrfToken implements CsrfToken {
 	 */
 	public String getToken() {
 		return this.token;
+	}
+
+	@Override
+	public boolean matches(String token) {
+		return MessageDigest.isEqual(bytesUtf8(this.token), bytesUtf8(token));
+	}
+
+	private static byte[] bytesUtf8(String s) {
+		if (s == null) {
+			return null;
+		}
+		return Utf8.encode(s);
 	}
 }
