@@ -19,21 +19,33 @@ package org.springframework.security.ldap.userdetails;
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.*;
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.ldap.AbstractLdapIntegrationTests;
+import org.springframework.security.ldap.ApacheDsContainerConfig;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
 
 /**
  *
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ApacheDsContainerConfig.class)
 @SuppressWarnings({ "deprecation" })
-public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegrationTests {
+public class DefaultLdapAuthoritiesPopulatorTests {
+
+	@Autowired
+	private ContextSource contextSource;
 	private DefaultLdapAuthoritiesPopulator populator;
 
 	// ~ Methods
@@ -41,14 +53,14 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
 	@Before
 	public void setUp() throws Exception {
-		populator = new DefaultLdapAuthoritiesPopulator(getContextSource(), "ou=groups");
+		populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, "ou=groups");
 		populator.setIgnorePartialResultException(false);
 	}
 
 	@Test
 	public void defaultRoleIsAssignedWhenSet() {
 		populator.setDefaultRole("ROLE_USER");
-		assertThat(populator.getContextSource()).isSameAs(getContextSource());
+		assertThat(populator.getContextSource()).isSameAs(this.contextSource);
 
 		DirContextAdapter ctx = new DirContextAdapter(
 				new DistinguishedName("cn=notfound"));
@@ -61,7 +73,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
 	@Test
 	public void nullSearchBaseIsAccepted() throws Exception {
-		populator = new DefaultLdapAuthoritiesPopulator(getContextSource(), null);
+		populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, null);
 		populator.setDefaultRole("ROLE_USER");
 
 		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(
@@ -143,7 +155,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
 	@Test
 	public void extraRolesAreAdded() throws Exception {
-		populator = new DefaultLdapAuthoritiesPopulator(getContextSource(), null) {
+		populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, null) {
 			@Override
 			protected Set<GrantedAuthority> getAdditionalRoles(DirContextOperations user,
 					String username) {
