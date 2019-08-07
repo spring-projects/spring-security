@@ -15,6 +15,13 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -70,13 +77,6 @@ import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * An {@link AbstractHttpConfigurer} for OAuth 2.0 Login,
@@ -135,18 +135,12 @@ import java.util.Map;
 public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> extends
 	AbstractAuthenticationFilterConfigurer<B, OAuth2LoginConfigurer<B>, OAuth2LoginAuthenticationFilter> {
 
-	private final ApplicationContext context;
 	private final AuthorizationEndpointConfig authorizationEndpointConfig = new AuthorizationEndpointConfig();
 	private final TokenEndpointConfig tokenEndpointConfig = new TokenEndpointConfig();
 	private final RedirectionEndpointConfig redirectionEndpointConfig = new RedirectionEndpointConfig();
 	private final UserInfoEndpointConfig userInfoEndpointConfig = new UserInfoEndpointConfig();
 	private String loginPage;
 	private String loginProcessingUrl = OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
-
-	public OAuth2LoginConfigurer(ApplicationContext context) {
-		Assert.notNull(context, "context cannot be null");
-		this.context = context;
-	}
 
 	/**
 	 * Sets the repository of client registrations.
@@ -652,9 +646,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	}
 
 	private <T> T getBeanOrNull(ResolvableType type) {
-		String[] names =  this.context.getBeanNamesForType(type);
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		if (context == null) {
+			return null;
+		}
+		String[] names =  context.getBeanNamesForType(type);
 		if (names.length == 1) {
-			return (T) this.context.getBean(names[0]);
+			return (T) context.getBean(names[0]);
 		}
 		return null;
 	}
