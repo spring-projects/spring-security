@@ -23,6 +23,8 @@ dependencies {
 	testCompile project(':spring-security-test')
 	testCompile 'org.slf4j:jcl-over-slf4j'
 	testCompile 'org.slf4j:slf4j-api'
+
+    integrationTestCompile 'javax.annotation:javax.annotation-api'
 }
 
 integrationTest {
