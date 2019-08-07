@@ -76,7 +76,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 					.httpOnly(this.cookieHttpOnly)
 					.maxAge(tokenValue.map(val -> -1).orElse(0))
 					.path(Optional.ofNullable(this.cookiePath).orElseGet(() -> getRequestContext(exchange.getRequest())))
-					.secure(Optional.ofNullable(exchange.getRequest().getSslInfo()).map(sslInfo -> true).orElse(false))
+					.secure(Optional.ofNullable(exchange.getRequest().getSslInfo()).isPresent())
 					.build();
 
 			exchange.getResponse().addCookie(cookie);
