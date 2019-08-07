@@ -17,14 +17,11 @@ package org.springframework.security.ldap.userdetails;
 
 import javax.annotation.PreDestroy;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.ContextSource;
@@ -33,9 +30,9 @@ import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.server.UnboundIdContainer;
-import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -46,28 +43,20 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  *
  * @author Josh Cummings
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SecurityTestExecutionListeners
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes=LdapUserDetailsManagerModifyPasswordTests.UnboundIdContainerConfiguration.class)
 public class LdapUserDetailsManagerModifyPasswordTests {
 
-	ConfigurableApplicationContext context;
-
 	LdapUserDetailsManager userDetailsManager;
+
+	@Autowired
 	ContextSource contextSource;
 
 	@Before
 	public void setup() {
-		this.context = new AnnotationConfigApplicationContext(ContainerConfiguration.class, LdapConfiguration.class);
-		this.contextSource = this.context.getBean(ContextSource.class);
-
 		this.userDetailsManager = new LdapUserDetailsManager(this.contextSource);
 		this.userDetailsManager.setUsePasswordModifyExtensionOperation(true);
 		this.userDetailsManager.setUsernameMapper(new DefaultLdapUsernameToDnMapper("ou=people", "uid"));
-	}
-
-	@After
-	public void teardown() {
-		this.context.close();
 	}
 
 	@Test
@@ -91,25 +80,20 @@ public class LdapUserDetailsManagerModifyPasswordTests {
 	}
 
 	@Configuration
-	static class LdapConfiguration {
-		@Autowired UnboundIdContainer container;
-
-		@Bean
-		ContextSource contextSource() throws Exception {
-			return new DefaultSpringSecurityContextSource("ldap://127.0.0.1:"
-					+ this.container.getPort() + "/dc=springframework,dc=org");
-		}
-	}
-
-	@Configuration
-	static class ContainerConfiguration {
-		UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
+	static class UnboundIdContainerConfiguration {
+		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath:test-server.ldif");
 
 		@Bean
 		UnboundIdContainer ldapContainer() {
 			this.container.setPort(0);
 			return this.container;
+		}
+
+		@Bean
+		ContextSource contextSource(UnboundIdContainer container) {
+			return new DefaultSpringSecurityContextSource("ldap://127.0.0.1:"
+					+ container.getPort() + "/dc=springframework,dc=org");
 		}
 
 		@PreDestroy
