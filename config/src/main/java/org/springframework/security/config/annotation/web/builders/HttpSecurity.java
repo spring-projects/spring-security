@@ -2044,7 +2044,7 @@ public final class HttpSecurity extends
 	 * @throws Exception
 	 */
 	public HttpSecurity oauth2Login(Customizer<OAuth2LoginConfigurer<HttpSecurity>> oauth2LoginCustomizer) throws Exception {
-		oauth2LoginCustomizer.customize(getOrApply(new OAuth2LoginConfigurer<>()));
+		oauth2LoginCustomizer.customize(getOrApply(new OAuth2LoginConfigurer<>(getContext())));
 		return HttpSecurity.this;
 	}
 

@@ -271,6 +271,32 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
 	}
 
+	@Test
+	public void oauth2LoginCustomWithUserServiceBeanRegistration() throws Exception {
+		// setup application context
+		loadConfig(OAuth2LoginConfigCustomUserServiceBeanRegistration.class);
+
+		// setup authorization request
+		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
+		this.authorizationRequestRepository.saveAuthorizationRequest(
+				authorizationRequest, this.request, this.response);
+
+		// setup authentication parameters
+		this.request.setParameter("code", "code123");
+		this.request.setParameter("state", authorizationRequest.getState());
+
+		// perform test
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+
+		// assertions
+		Authentication authentication = this.securityContextRepository
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+				.getAuthentication();
+		assertThat(authentication.getAuthorities()).hasSize(2);
+		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
+	}
+
 	// gh-5488
 	@Test
 	public void oauth2LoginConfigLoginProcessingUrl() throws Exception {
@@ -657,6 +683,53 @@ public class OAuth2LoginConfigurerTests {
 		@Bean
 		GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
 			return createGrantedAuthoritiesMapper();
+		}
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginConfigCustomUserServiceBeanRegistration extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.securityContext()
+					.securityContextRepository(securityContextRepository())
+					.and()
+				.oauth2Login()
+					.tokenEndpoint()
+						.accessTokenResponseClient(createOauth2AccessTokenResponseClient());
+		}
+
+		@Bean
+		ClientRegistrationRepository clientRegistrationRepository() {
+			return new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION);
+		}
+
+		@Bean
+		GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
+			return createGrantedAuthoritiesMapper();
+		}
+
+		@Bean
+		SecurityContextRepository securityContextRepository() {
+			return new HttpSessionSecurityContextRepository();
+		}
+
+		@Bean
+		HttpSessionOAuth2AuthorizationRequestRepository oauth2AuthorizationRequestRepository() {
+			return new HttpSessionOAuth2AuthorizationRequestRepository();
+		}
+
+		@Bean
+		OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
+			return createOauth2UserService();
+		}
+
+		@Bean
+		OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+			return createOidcUserService();
 		}
 	}
 

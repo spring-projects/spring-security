@@ -135,12 +135,18 @@ import java.util.Map;
 public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> extends
 	AbstractAuthenticationFilterConfigurer<B, OAuth2LoginConfigurer<B>, OAuth2LoginAuthenticationFilter> {
 
+	private final ApplicationContext context;
 	private final AuthorizationEndpointConfig authorizationEndpointConfig = new AuthorizationEndpointConfig();
 	private final TokenEndpointConfig tokenEndpointConfig = new TokenEndpointConfig();
 	private final RedirectionEndpointConfig redirectionEndpointConfig = new RedirectionEndpointConfig();
 	private final UserInfoEndpointConfig userInfoEndpointConfig = new UserInfoEndpointConfig();
 	private String loginPage;
 	private String loginProcessingUrl = OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
+
+	public OAuth2LoginConfigurer(ApplicationContext context) {
+		Assert.notNull(context, "context cannot be null");
+		this.context = context;
+	}
 
 	/**
 	 * Sets the repository of client registrations.
@@ -506,18 +512,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
 		}
 
-		OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = this.userInfoEndpointConfig.userService;
-		if (oauth2UserService == null) {
-			if (!this.userInfoEndpointConfig.customUserTypes.isEmpty()) {
-				List<OAuth2UserService<OAuth2UserRequest, OAuth2User>> userServices = new ArrayList<>();
-				userServices.add(new CustomUserTypesOAuth2UserService(this.userInfoEndpointConfig.customUserTypes));
-				userServices.add(new DefaultOAuth2UserService());
-				oauth2UserService = new DelegatingOAuth2UserService<>(userServices);
-			} else {
-				oauth2UserService = new DefaultOAuth2UserService();
-			}
-		}
-
+		OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = getOAuth2UserService();
 		OAuth2LoginAuthenticationProvider oauth2LoginAuthenticationProvider =
 			new OAuth2LoginAuthenticationProvider(accessTokenResponseClient, oauth2UserService);
 		GrantedAuthoritiesMapper userAuthoritiesMapper = this.getGrantedAuthoritiesMapper();
@@ -530,11 +525,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 
 		if (oidcAuthenticationProviderEnabled) {
-			OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = this.userInfoEndpointConfig.oidcUserService;
-			if (oidcUserService == null) {
-				oidcUserService = new OidcUserService();
-			}
-
+			OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService = getOidcUserService();
 			OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider =
 				new OidcAuthorizationCodeAuthenticationProvider(accessTokenResponseClient, oidcUserService);
 			JwtDecoderFactory<ClientRegistration> jwtDecoderFactory = this.getJwtDecoderFactoryBean();
@@ -625,6 +616,47 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 						this.getBuilder().getSharedObject(ApplicationContext.class),
 						GrantedAuthoritiesMapper.class);
 		return (!grantedAuthoritiesMapperMap.isEmpty() ? grantedAuthoritiesMapperMap.values().iterator().next() : null);
+	}
+
+	private OAuth2UserService<OidcUserRequest, OidcUser> getOidcUserService() {
+		if (this.userInfoEndpointConfig.oidcUserService != null) {
+			return this.userInfoEndpointConfig.oidcUserService;
+		}
+		ResolvableType type = ResolvableType.forClassWithGenerics(OAuth2UserService.class, OidcUserRequest.class, OidcUser.class);
+		OAuth2UserService<OidcUserRequest, OidcUser> bean = getBeanOrNull(type);
+		if (bean == null) {
+			return new OidcUserService();
+		}
+
+		return bean;
+	}
+
+	private OAuth2UserService<OAuth2UserRequest, OAuth2User> getOAuth2UserService() {
+		if (this.userInfoEndpointConfig.userService != null) {
+			return this.userInfoEndpointConfig.userService;
+		}
+		ResolvableType type = ResolvableType.forClassWithGenerics(OAuth2UserService.class, OAuth2UserRequest.class, OAuth2User.class);
+		OAuth2UserService<OAuth2UserRequest, OAuth2User> bean = getBeanOrNull(type);
+		if (bean == null) {
+			if (!this.userInfoEndpointConfig.customUserTypes.isEmpty()) {
+				List<OAuth2UserService<OAuth2UserRequest, OAuth2User>> userServices = new ArrayList<>();
+				userServices.add(new CustomUserTypesOAuth2UserService(this.userInfoEndpointConfig.customUserTypes));
+				userServices.add(new DefaultOAuth2UserService());
+				return new DelegatingOAuth2UserService<>(userServices);
+			} else {
+				return new DefaultOAuth2UserService();
+			}
+		}
+
+		return bean;
+	}
+
+	private <T> T getBeanOrNull(ResolvableType type) {
+		String[] names =  this.context.getBeanNamesForType(type);
+		if (names.length == 1) {
+			return (T) this.context.getBean(names[0]);
+		}
+		return null;
 	}
 
 	private void initDefaultLoginFilter(B http) {
