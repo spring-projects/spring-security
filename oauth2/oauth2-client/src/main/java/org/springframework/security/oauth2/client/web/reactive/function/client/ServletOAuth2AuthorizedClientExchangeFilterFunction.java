@@ -255,12 +255,10 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	 * @return the {@link Consumer} to populate the attributes
 	 */
 	public Consumer<WebClient.RequestHeadersSpec<?>> defaultRequest() {
-		return spec -> {
-			spec.attributes(attrs -> {
-				populateDefaultRequestResponse(attrs);
-				populateDefaultAuthentication(attrs);
-			});
-		};
+		return spec -> spec.attributes(attrs -> {
+			populateDefaultRequestResponse(attrs);
+			populateDefaultAuthentication(attrs);
+		});
 	}
 
 	/**
