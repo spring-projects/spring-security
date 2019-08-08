@@ -47,7 +47,7 @@ public enum OpenIDAuthenticationStatus {
 	// ~ Constructors
 	// ===================================================================================================
 
-	private OpenIDAuthenticationStatus(String name) {
+	OpenIDAuthenticationStatus(String name) {
 		this.name = name;
 	}
 

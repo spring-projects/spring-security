@@ -65,7 +65,7 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 		private BytesKeyGenerator ivGenerator;
 		private String name;
 
-		private CipherAlgorithm(String name, BytesKeyGenerator ivGenerator) {
+		CipherAlgorithm(String name, BytesKeyGenerator ivGenerator) {
 			this.name = name;
 			this.ivGenerator = ivGenerator;
 		}

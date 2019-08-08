@@ -409,7 +409,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @author Rob Winch
 	 * @since 3.2
 	 */
-	private static enum BuildState {
+	private enum BuildState {
 		/**
 		 * This is the state before the {@link Builder#build()} is invoked
 		 */

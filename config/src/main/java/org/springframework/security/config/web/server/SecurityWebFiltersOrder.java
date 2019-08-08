@@ -72,11 +72,11 @@ public enum SecurityWebFiltersOrder {
 
 	private final int order;
 
-	private SecurityWebFiltersOrder() {
+	SecurityWebFiltersOrder() {
 		this.order = ordinal() * INTERVAL;
 	}
 
-	private SecurityWebFiltersOrder(int order) {
+	SecurityWebFiltersOrder(int order) {
 		this.order = order;
 	}
 

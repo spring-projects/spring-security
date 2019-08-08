@@ -58,11 +58,11 @@ enum SecurityFilters {
 	private static final int INTERVAL = 100;
 	private final int order;
 
-	private SecurityFilters() {
+	SecurityFilters() {
 		order = ordinal() * INTERVAL;
 	}
 
-	private SecurityFilters(int order) {
+	SecurityFilters(int order) {
 		this.order = order;
 	}
 
