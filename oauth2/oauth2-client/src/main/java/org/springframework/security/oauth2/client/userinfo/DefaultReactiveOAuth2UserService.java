@@ -117,16 +117,14 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 			}
 			Mono<Map<String, Object>> userAttributes = requestHeadersSpec
 					.retrieve()
-					.onStatus(s -> s != HttpStatus.OK, response -> {
-						return parse(response).map(userInfoErrorResponse -> {
-							String description = userInfoErrorResponse.getErrorObject().getDescription();
-							OAuth2Error oauth2Error = new OAuth2Error(
-									INVALID_USER_INFO_RESPONSE_ERROR_CODE, description,
-									null);
-							throw new OAuth2AuthenticationException(oauth2Error,
-									oauth2Error.toString());
-						});
-					})
+					.onStatus(s -> s != HttpStatus.OK, response -> parse(response).map(userInfoErrorResponse -> {
+						String description = userInfoErrorResponse.getErrorObject().getDescription();
+						OAuth2Error oauth2Error = new OAuth2Error(
+								INVALID_USER_INFO_RESPONSE_ERROR_CODE, description,
+								null);
+						throw new OAuth2AuthenticationException(oauth2Error,
+								oauth2Error.toString());
+					}))
 					.bodyToMono(typeReference);
 
 			return userAttributes.map(attrs -> {

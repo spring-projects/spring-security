@@ -1184,9 +1184,7 @@ public class ServerHttpSecurity {
 				return Collections.emptyMap();
 			}
 			Map<String, String> result = new HashMap<>();
-			registrations.iterator().forEachRemaining(r -> {
-				result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName());
-			});
+			registrations.iterator().forEachRemaining(r -> result.put("/oauth2/authorization/" + r.getRegistrationId(), r.getClientName()));
 			return result;
 		}
 

@@ -62,9 +62,7 @@ public final class CookieClearingLogoutHandler implements LogoutHandler {
 		List<Function<HttpServletRequest, Cookie>> cookieList = new ArrayList<>();
 		for (Cookie cookie : cookiesToClear) {
 			Assert.isTrue(cookie.getMaxAge() == 0, "Cookie maxAge must be 0");
-			Function<HttpServletRequest, Cookie> f = (request) -> {
-				return cookie;
-			};
+			Function<HttpServletRequest, Cookie> f = (request) -> cookie;
 			cookieList.add(f);
 		}
 		this.cookiesToClear = cookieList;
