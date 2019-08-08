@@ -92,9 +92,9 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 	private ListItem items;
 
 	private interface Item {
-		final int INTEGER_ITEM = 0;
-		final int STRING_ITEM = 1;
-		final int LIST_ITEM = 2;
+		int INTEGER_ITEM = 0;
+		int STRING_ITEM = 1;
+		int LIST_ITEM = 2;
 
 		int compareTo(Item item);
 

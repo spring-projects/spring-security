@@ -20,6 +20,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public interface TestService {
 
 	@PreAuthorize("someMethod.py")
-	public void someMethod();
+	void someMethod();
 
 }

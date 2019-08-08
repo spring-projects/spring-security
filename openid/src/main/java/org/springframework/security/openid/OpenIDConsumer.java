@@ -36,10 +36,10 @@ public interface OpenIDConsumer {
 	 * @return String URI to redirect user to for authentication
 	 * @throws OpenIDConsumerException if anything bad happens
 	 */
-	public String beginConsumption(HttpServletRequest req, String claimedIdentity,
-			String returnToUrl, String realm) throws OpenIDConsumerException;
+	String beginConsumption(HttpServletRequest req, String claimedIdentity,
+							String returnToUrl, String realm) throws OpenIDConsumerException;
 
-	public OpenIDAuthenticationToken endConsumption(HttpServletRequest req)
+	OpenIDAuthenticationToken endConsumption(HttpServletRequest req)
 			throws OpenIDConsumerException;
 
 }

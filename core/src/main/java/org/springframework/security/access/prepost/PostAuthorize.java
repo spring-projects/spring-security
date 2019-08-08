@@ -38,5 +38,5 @@ public @interface PostAuthorize {
 	 * @return the Spring-EL expression to be evaluated after invoking the protected
 	 * method
 	 */
-	public String value();
+	String value();
 }

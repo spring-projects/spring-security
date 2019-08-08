@@ -29,5 +29,5 @@ import org.springframework.security.access.SecurityMetadataSource;
  * @author Ben Alex
  */
 public interface MethodSecurityMetadataSource extends SecurityMetadataSource {
-	public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass);
+	Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass);
 }

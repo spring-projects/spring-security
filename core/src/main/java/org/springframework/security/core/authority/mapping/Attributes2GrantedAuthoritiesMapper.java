@@ -37,6 +37,6 @@ public interface Attributes2GrantedAuthoritiesMapper {
 	 * @param attributes the attributes to be mapped
 	 * @return the collection of authorities created from the attributes
 	 */
-	public Collection<? extends GrantedAuthority> getGrantedAuthorities(
+	Collection<? extends GrantedAuthority> getGrantedAuthorities(
 			Collection<String> attributes);
 }

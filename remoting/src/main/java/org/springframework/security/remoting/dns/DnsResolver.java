@@ -33,7 +33,7 @@ public interface DnsResolver {
 	 * @throws DnsEntryNotFoundException No record found
 	 * @throws DnsLookupException Unknown DNS error
 	 */
-	public String resolveIpAddress(String hostname) throws DnsEntryNotFoundException,
+	String resolveIpAddress(String hostname) throws DnsEntryNotFoundException,
 			DnsLookupException;
 
 	/**
@@ -65,7 +65,7 @@ public interface DnsResolver {
 	 * @throws DnsEntryNotFoundException No record found
 	 * @throws DnsLookupException Unknown DNS error
 	 */
-	public String resolveServiceEntry(String serviceType, String domain)
+	String resolveServiceEntry(String serviceType, String domain)
 			throws DnsEntryNotFoundException, DnsLookupException;
 
 	/**
@@ -80,7 +80,7 @@ public interface DnsResolver {
 	 * @see #resolveServiceEntry(String, String)
 	 * @see #resolveIpAddress(String)
 	 */
-	public String resolveServiceIpAddress(String serviceType, String domain)
+	String resolveServiceIpAddress(String serviceType, String domain)
 			throws DnsEntryNotFoundException, DnsLookupException;
 
 }

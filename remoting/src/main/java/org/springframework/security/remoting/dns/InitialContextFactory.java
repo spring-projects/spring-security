@@ -34,6 +34,6 @@ public interface InitialContextFactory {
 	 * Must return a DirContext which can be used for DNS queries
 	 * @return JNDI DirContext
 	 */
-	public DirContext getCtx();
+	DirContext getCtx();
 
 }

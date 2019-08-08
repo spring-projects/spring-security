@@ -763,14 +763,11 @@ These will be passed to the `AccessDecisionManager` for it to make the actual de
 ----
 public interface BankService {
 
-@Secured("IS_AUTHENTICATED_ANONYMOUSLY")
-public Account readAccount(Long id);
+@Secured("IS_AUTHENTICATED_ANONYMOUSLY") Account readAccount(Long id);
 
-@Secured("IS_AUTHENTICATED_ANONYMOUSLY")
-public Account[] findAccounts();
+@Secured("IS_AUTHENTICATED_ANONYMOUSLY") Account[] findAccounts();
 
-@Secured("ROLE_TELLER")
-public Account post(Account account, double amount);
+@Secured("ROLE_TELLER") Account post(Account account, double amount);
 }
 ----
 
@@ -795,14 +792,11 @@ and the equivalent Java code would be
 ----
 public interface BankService {
 
-@PreAuthorize("isAnonymous()")
-public Account readAccount(Long id);
+@PreAuthorize("isAnonymous()") Account readAccount(Long id);
 
-@PreAuthorize("isAnonymous()")
-public Account[] findAccounts();
+@PreAuthorize("isAnonymous()") Account[] findAccounts();
 
-@PreAuthorize("hasAuthority('ROLE_TELLER')")
-public Account post(Account account, double amount);
+@PreAuthorize("hasAuthority('ROLE_TELLER')") Account post(Account account, double amount);
 }
 ----
 
