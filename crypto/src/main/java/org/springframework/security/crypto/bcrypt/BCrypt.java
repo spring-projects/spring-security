@@ -733,11 +733,7 @@ public class BCrypt {
 	public static String hashpw(String password, String salt) {
 		byte passwordb[];
 
-		try {
-			passwordb = password.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException uee) {
-			throw new AssertionError("UTF-8 is not supported");
-		}
+		passwordb = password.getBytes(StandardCharsets.UTF_8);
 
 		return hashpw(passwordb, salt);
 	}

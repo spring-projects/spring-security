@@ -18,6 +18,7 @@ package org.springframework.security.test.web.servlet.request;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -638,12 +639,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		private static String md5Hex(String a2) {
-			try {
-				return DigestUtils.md5DigestAsHex(a2.getBytes("UTF-8"));
-			}
-			catch (UnsupportedEncodingException e) {
-				throw new RuntimeException(e);
-			}
+			return DigestUtils.md5DigestAsHex(a2.getBytes(StandardCharsets.UTF_8));
 		}
 	}
 
@@ -985,12 +981,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private HttpBasicRequestPostProcessor(String username, String password) {
 			byte[] toEncode;
-			try {
-				toEncode = (username + ":" + password).getBytes("UTF-8");
-			}
-			catch (UnsupportedEncodingException e) {
-				throw new RuntimeException(e);
-			}
+			toEncode = (username + ":" + password).getBytes(StandardCharsets.UTF_8);
 			this.headerValue = "Basic " + new String(Base64.getEncoder().encode(toEncode));
 		}
 
