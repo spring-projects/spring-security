@@ -139,7 +139,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 			webSecurity.debug(debugEnabled);
 		}
 
-		Collections.sort(webSecurityConfigurers, AnnotationAwareOrderComparator.INSTANCE);
+		webSecurityConfigurers.sort(AnnotationAwareOrderComparator.INSTANCE);
 
 		Integer previousOrder = null;
 		Object previousConfig = null;

@@ -134,7 +134,7 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 		private boolean addObjectPostProcessor(
 				ObjectPostProcessor<? extends Object> objectPostProcessor) {
 			boolean result = this.postProcessors.add(objectPostProcessor);
-			Collections.sort(postProcessors, AnnotationAwareOrderComparator.INSTANCE);
+			postProcessors.sort(AnnotationAwareOrderComparator.INSTANCE);
 			return result;
 		}
 	}
