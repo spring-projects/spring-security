@@ -2327,7 +2327,7 @@ public final class HttpSecurity extends
 
 	@Override
 	protected DefaultSecurityFilterChain performBuild() throws Exception {
-		Collections.sort(filters, comparator);
+		filters.sort(comparator);
 		return new DefaultSecurityFilterChain(requestMatcher, filters);
 	}
 

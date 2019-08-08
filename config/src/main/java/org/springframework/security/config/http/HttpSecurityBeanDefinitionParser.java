@@ -164,7 +164,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		unorderedFilterChain.addAll(authBldr.getFilters());
 		unorderedFilterChain.addAll(buildCustomFilterList(element, pc));
 
-		Collections.sort(unorderedFilterChain, new OrderComparator());
+		unorderedFilterChain.sort(new OrderComparator());
 		checkFilterChainOrder(unorderedFilterChain, pc, pc.extractSource(element));
 
 		// The list of filter beans
