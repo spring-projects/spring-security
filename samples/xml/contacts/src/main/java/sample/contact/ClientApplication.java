@@ -77,10 +77,7 @@ public class ClientApplication {
 				System.out
 						.println("This client proxy factory does not have a setUsername(String) method");
 			}
-			catch (IllegalAccessException ignored) {
-				ignored.printStackTrace();
-			}
-			catch (InvocationTargetException ignored) {
+			catch (IllegalAccessException | InvocationTargetException ignored) {
 				ignored.printStackTrace();
 			}
 
@@ -98,9 +95,7 @@ public class ClientApplication {
 				System.out
 						.println("This client proxy factory does not have a setPassword(String) method");
 			}
-			catch (IllegalAccessException ignored) {
-			}
-			catch (InvocationTargetException ignored) {
+			catch (IllegalAccessException | InvocationTargetException ignored) {
 			}
 
 			System.out.println("Calling ContactManager '" + beanName + "'");
