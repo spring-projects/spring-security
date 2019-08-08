@@ -47,9 +47,7 @@ class UnmodifiableListDeserializer extends JsonDeserializer<List> {
 		if (node != null) {
 			if (node instanceof ArrayNode) {
 				ArrayNode arrayNode = (ArrayNode) node;
-				Iterator<JsonNode> nodeIterator = arrayNode.iterator();
-				while (nodeIterator.hasNext()) {
-					JsonNode elementNode = nodeIterator.next();
+				for (JsonNode elementNode : arrayNode) {
 					result.add(mapper.readValue(elementNode.traverse(mapper), Object.class));
 				}
 			} else {
