@@ -26,7 +26,7 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-final class DigestAuthUtils {
+public final class DigestAuthUtils {
 
 	private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
