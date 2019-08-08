@@ -84,7 +84,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 			}
 		}
 
-		setUrls(urls.toArray(new String[urls.size()]));
+		setUrls(urls.toArray(new String[0]));
 		setBase(this.rootDn);
 		setPooled(true);
 		setAuthenticationStrategy(new SimpleDirContextAuthenticationStrategy() {

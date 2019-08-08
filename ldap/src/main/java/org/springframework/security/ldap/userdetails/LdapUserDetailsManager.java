@@ -271,7 +271,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 			}
 		}
 
-		template.modifyAttributes(dn, mods.toArray(new ModificationItem[mods.size()]));
+		template.modifyAttributes(dn, mods.toArray(new ModificationItem[0]));
 
 		// template.rebind(dn, ctx, null);
 		// Remove the old authorities and replace them with the new one

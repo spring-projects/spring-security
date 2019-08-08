@@ -56,7 +56,7 @@ public class Person extends LdapUserDetailsImpl {
 	}
 
 	public String[] getCn() {
-		return cn.toArray(new String[cn.size()]);
+		return cn.toArray(new String[0]);
 	}
 
 	public String getDescription() {

@@ -48,6 +48,6 @@ class ReactiveMethodSecuritySelector extends
 		List<String> result = new ArrayList<>();
 		result.add(AutoProxyRegistrar.class.getName());
 		result.add(ReactiveMethodSecurityConfiguration.class.getName());
-		return result.toArray(new String[result.size()]);
+		return result.toArray(new String[0]);
 	}
 }

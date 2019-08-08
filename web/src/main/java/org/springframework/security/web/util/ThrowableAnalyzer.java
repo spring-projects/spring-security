@@ -138,7 +138,7 @@ public class ThrowableAnalyzer {
 	@SuppressWarnings("unchecked")
 	final Class<? extends Throwable>[] getRegisteredTypes() {
 		Set<Class<? extends Throwable>> typeList = this.extractorMap.keySet();
-		return typeList.toArray(new Class[typeList.size()]);
+		return typeList.toArray(new Class[0]);
 	}
 
 	/**
@@ -171,7 +171,7 @@ public class ThrowableAnalyzer {
 			currentThrowable = extractCause(currentThrowable);
 		}
 
-		return chain.toArray(new Throwable[chain.size()]);
+		return chain.toArray(new Throwable[0]);
 	}
 
 	/**
