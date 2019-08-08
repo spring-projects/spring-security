@@ -186,6 +186,10 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		this.port = port;
 	}
 
+	public int getPort() {
+		return this.port;
+	}
+
 	/**
 	 * If set to {@code true} will enable LDAP over SSL (LDAPs). If set to {@code true}
 	 * {@link ApacheDSContainer#setCertificatePassord(String)} must be set as well.
