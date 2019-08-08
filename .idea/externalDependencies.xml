@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalDependencies">
+    <plugin id="CheckStyle-IDEA" />
+    <plugin id="org.jetbrains.plugins.gradle" />
+  </component>
+</project>

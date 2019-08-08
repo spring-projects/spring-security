@@ -8,7 +8,7 @@ target/
 .project
 .DS_Store
 .settings/
-.idea/
+.idea/*
 out/
 bin/
 intellij/
@@ -24,3 +24,6 @@ atlassian-ide-plugin.xml
 .checkstyle
 s101plugin.state
 .attach_pid*
+
+!.idea/checkstyle-idea.xml
+!.idea/externalDependencies.xml
