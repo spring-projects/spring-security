@@ -75,7 +75,7 @@ public class RedirectUrlBuilder {
 
 		// Append the port number if it's not standard for the scheme
 		if (port != (scheme.equals("http") ? 80 : 443)) {
-			sb.append(":").append(Integer.toString(port));
+			sb.append(":").append(port);
 		}
 
 		if (contextPath != null) {

@@ -127,7 +127,7 @@ public class FilterChainPerformanceTests {
 					HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 					SecurityContextHolder.getContext());
 			SecurityContextHolder.clearContext();
-			sw.start(Integer.toString(nAuthorities) + " authorities");
+			sw.start(nAuthorities + " authorities");
 			runWithStack(minimalStack);
 			System.out.println(sw.shortSummary());
 			sw.stop();

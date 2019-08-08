@@ -83,7 +83,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		long creationTime = new Date().getTime();
 		String serverSecret = computeServerSecretApplicableAt(creationTime);
 		String pseudoRandomNumber = generatePseudoRandomNumber();
-		String content = Long.toString(creationTime) + ":" + pseudoRandomNumber + ":"
+		String content = creationTime + ":" + pseudoRandomNumber + ":"
 				+ extendedInformation;
 
 		// Compute key
@@ -126,7 +126,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		String sha1Hex = tokens[tokens.length - 1];
 
 		// Verification
-		String content = Long.toString(creationTime) + ":" + pseudoRandomNumber + ":"
+		String content = creationTime + ":" + pseudoRandomNumber + ":"
 				+ extendedInfo.toString();
 		String expectedSha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
 		Assert.isTrue(expectedSha512Hex.equals(sha1Hex), "Key verification failure");
