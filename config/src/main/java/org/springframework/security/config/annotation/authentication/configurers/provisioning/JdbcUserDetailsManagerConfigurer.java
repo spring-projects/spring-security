@@ -191,7 +191,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 
 	protected DatabasePopulator getDatabasePopulator() {
 		ResourceDatabasePopulator dbp = new ResourceDatabasePopulator();
-		dbp.setScripts(initScripts.toArray(new Resource[initScripts.size()]));
+		dbp.setScripts(initScripts.toArray(new Resource[0]));
 		return dbp;
 	}
 

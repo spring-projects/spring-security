@@ -330,7 +330,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends
 	private LogoutFilter createLogoutFilter(H http) throws Exception {
 		logoutHandlers.add(contextLogoutHandler);
 		LogoutHandler[] handlers = logoutHandlers
-				.toArray(new LogoutHandler[logoutHandlers.size()]);
+				.toArray(new LogoutHandler[0]);
 		LogoutFilter result = new LogoutFilter(getLogoutSuccessHandler(), handlers);
 		result.setLogoutRequestMatcher(getLogoutRequestMatcher(http));
 		result = postProcess(result);

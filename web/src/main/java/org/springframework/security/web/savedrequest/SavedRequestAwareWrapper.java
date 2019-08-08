@@ -248,6 +248,6 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 			}
 		}
 
-		return combinedParams.toArray(new String[combinedParams.size()]);
+		return combinedParams.toArray(new String[0]);
 	}
 }

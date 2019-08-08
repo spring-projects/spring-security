@@ -201,7 +201,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 				.searchForMultipleAttributeValues(getGroupSearchBase(),
 						getGroupSearchFilter(), new String[] { userDn, username },
 						getAttributeNames()
-								.toArray(new String[getAttributeNames().size()]));
+								.toArray(new String[0]));
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Roles from search: " + userRoles);
