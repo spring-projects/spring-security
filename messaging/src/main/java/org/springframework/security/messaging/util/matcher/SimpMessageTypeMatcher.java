@@ -45,7 +45,7 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 	}
 
 	@Override
-	public boolean matches(Message<? extends Object> message) {
+	public boolean matches(Message<?> message) {
 		MessageHeaders headers = message.getHeaders();
 		SimpMessageType messageType = SimpMessageHeaderAccessor.getMessageType(headers);
 

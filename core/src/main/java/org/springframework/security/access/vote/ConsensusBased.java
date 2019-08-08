@@ -38,7 +38,7 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 
 	private boolean allowIfEqualGrantedDeniedDecisions = true;
 
-	public ConsensusBased(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
+	public ConsensusBased(List<AccessDecisionVoter<?>> decisionVoters) {
 		super(decisionVoters);
 	}
 

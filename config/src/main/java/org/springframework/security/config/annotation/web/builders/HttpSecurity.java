@@ -138,11 +138,11 @@ public final class HttpSecurity extends
 	@SuppressWarnings("unchecked")
 	public HttpSecurity(ObjectPostProcessor<Object> objectPostProcessor,
 			AuthenticationManagerBuilder authenticationBuilder,
-			Map<Class<? extends Object>, Object> sharedObjects) {
+			Map<Class<?>, Object> sharedObjects) {
 		super(objectPostProcessor);
 		Assert.notNull(authenticationBuilder, "authenticationBuilder cannot be null");
 		setSharedObject(AuthenticationManagerBuilder.class, authenticationBuilder);
-		for (Map.Entry<Class<? extends Object>, Object> entry : sharedObjects
+		for (Map.Entry<Class<?>, Object> entry : sharedObjects
 				.entrySet()) {
 			setSharedObject((Class<Object>) entry.getKey(), entry.getValue());
 		}

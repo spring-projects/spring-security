@@ -58,7 +58,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers = new LinkedHashMap<>();
 	private final List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<>();
 
-	private final Map<Class<? extends Object>, Object> sharedObjects = new HashMap<>();
+	private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
 
 	private final boolean allowConfigurersOfSameType;
 
@@ -174,7 +174,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * Gets the shared objects
 	 * @return the shared Objects
 	 */
-	public Map<Class<? extends Object>, Object> getSharedObjects() {
+	public Map<Class<?>, Object> getSharedObjects() {
 		return Collections.unmodifiableMap(this.sharedObjects);
 	}
 

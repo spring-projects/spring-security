@@ -183,8 +183,8 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	final List<AccessDecisionVoter<? extends Object>> getDecisionVoters(H http) {
-		List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<>();
+	final List<AccessDecisionVoter<?>> getDecisionVoters(H http) {
+		List<AccessDecisionVoter<?>> decisionVoters = new ArrayList<>();
 		WebExpressionVoter expressionVoter = new WebExpressionVoter();
 		expressionVoter.setExpressionHandler(getExpressionHandler(http));
 		decisionVoters.add(expressionVoter);

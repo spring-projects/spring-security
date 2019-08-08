@@ -201,7 +201,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 		AuthenticationManager authenticationManager = authenticationManager();
 		authenticationBuilder.parentAuthenticationManager(authenticationManager);
 		authenticationBuilder.authenticationEventPublisher(eventPublisher);
-		Map<Class<? extends Object>, Object> sharedObjects = createSharedObjects();
+		Map<Class<?>, Object> sharedObjects = createSharedObjects();
 
 		http = new HttpSecurity(objectPostProcessor, authenticationBuilder,
 				sharedObjects);
@@ -412,8 +412,8 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 *
 	 * @return the shared Objects
 	 */
-	private Map<Class<? extends Object>, Object> createSharedObjects() {
-		Map<Class<? extends Object>, Object> sharedObjects = new HashMap<>();
+	private Map<Class<?>, Object> createSharedObjects() {
+		Map<Class<?>, Object> sharedObjects = new HashMap<>();
 		sharedObjects.putAll(localConfigureAuthenticationBldr.getSharedObjects());
 		sharedObjects.put(UserDetailsService.class, userDetailsService());
 		sharedObjects.put(ApplicationContext.class, context);

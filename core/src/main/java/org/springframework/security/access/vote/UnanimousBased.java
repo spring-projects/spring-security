@@ -32,7 +32,7 @@ import org.springframework.security.core.Authentication;
  */
 public class UnanimousBased extends AbstractAccessDecisionManager {
 
-	public UnanimousBased(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
+	public UnanimousBased(List<AccessDecisionVoter<?>> decisionVoters) {
 		super(decisionVoters);
 	}
 
