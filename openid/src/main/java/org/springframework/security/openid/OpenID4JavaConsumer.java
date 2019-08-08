@@ -116,11 +116,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 				authReq.addExtension(fetchRequest);
 			}
 		}
-		catch (MessageException e) {
-			throw new OpenIDConsumerException(
-					"Error processing ConsumerManager authentication", e);
-		}
-		catch (ConsumerException e) {
+		catch (MessageException | ConsumerException e) {
 			throw new OpenIDConsumerException(
 					"Error processing ConsumerManager authentication", e);
 		}
@@ -164,13 +160,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 			verification = consumerManager.verify(receivingURL.toString(), openidResp,
 					discovered);
 		}
-		catch (MessageException e) {
-			throw new OpenIDConsumerException("Error verifying openid response", e);
-		}
-		catch (DiscoveryException e) {
-			throw new OpenIDConsumerException("Error verifying openid response", e);
-		}
-		catch (AssociationException e) {
+		catch (MessageException | AssociationException | DiscoveryException e) {
 			throw new OpenIDConsumerException("Error verifying openid response", e);
 		}
 

@@ -111,11 +111,7 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 			try {
 				event = constructor.newInstance(authentication, exception);
 			}
-			catch (IllegalAccessException ignored) {
-			}
-			catch (InstantiationException ignored) {
-			}
-			catch (InvocationTargetException ignored) {
+			catch (IllegalAccessException | InvocationTargetException | InstantiationException ignored) {
 			}
 		}
 

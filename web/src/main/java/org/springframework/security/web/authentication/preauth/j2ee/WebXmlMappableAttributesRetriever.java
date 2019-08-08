@@ -114,19 +114,9 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 			doc = db.parse(aStream);
 			return doc;
 		}
-		catch (FactoryConfigurationError e) {
+		catch (FactoryConfigurationError | IOException | SAXException | ParserConfigurationException e) {
 			throw new RuntimeException("Unable to parse document object", e);
-		}
-		catch (ParserConfigurationException e) {
-			throw new RuntimeException("Unable to parse document object", e);
-		}
-		catch (SAXException e) {
-			throw new RuntimeException("Unable to parse document object", e);
-		}
-		catch (IOException e) {
-			throw new RuntimeException("Unable to parse document object", e);
-		}
-		finally {
+		} finally {
 			try {
 				aStream.close();
 			}
