@@ -21,25 +21,27 @@ import java.util.Map;
 import reactor.core.publisher.Mono;
 
 /**
- * A reactive client to an
- * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection Endpoint</a>.
+ * A contract for introspecting and verifying an OAuth 2.0 token.
  *
- * Basically, this client is handy when a resource server authenticates opaque OAuth 2.0 tokens.
- * It's also nice when a resource server simply can't decode tokens - whether the tokens are opaque or not -
- * and would prefer to delegate that task to an authorization server.
+ * A typical implementation of this interface will make a request to an
+ * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection Endpoint</a>
+ * to verify the token and return its attributes, indicating a successful verification.
+ *
+ * Another sensible implementation of this interface would be to query a backing store
+ * of tokens, for example a distributed cache.
  *
  * @author Josh Cummings
  * @since 5.2
  */
-public interface ReactiveOAuth2TokenIntrospectionClient {
+public interface ReactiveOpaqueTokenIntrospector {
 
 	/**
-	 * Request that the configured
-	 * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection Endpoint</a>
-	 * introspect the given token and return its associated attributes.
+	 * Introspect and verify the given token, returning its attributes.
+	 *
+	 * Returning a {@link Map} is indicative that the token is valid.
 	 *
 	 * @param token the token to introspect
-	 * @return the token's attributes, including whether or not the token is active
+	 * @return the token's attributes
 	 */
 	Mono<Map<String, Object>> introspect(String token);
 }

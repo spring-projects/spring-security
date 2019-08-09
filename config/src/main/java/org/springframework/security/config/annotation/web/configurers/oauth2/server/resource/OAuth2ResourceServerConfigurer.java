@@ -38,8 +38,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
-import org.springframework.security.oauth2.server.resource.introspection.NimbusOAuth2TokenIntrospectionClient;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2TokenIntrospectionClient;
+import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -339,7 +339,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		private String introspectionUri;
 		private String clientId;
 		private String clientSecret;
-		private Supplier<OAuth2TokenIntrospectionClient> introspectionClient;
+		private Supplier<OpaqueTokenIntrospector> introspector;
 
 		OpaqueTokenConfigurer(ApplicationContext context) {
 			this.context = context;
@@ -354,8 +354,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		public OpaqueTokenConfigurer introspectionUri(String introspectionUri) {
 			Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 			this.introspectionUri = introspectionUri;
-			this.introspectionClient = () ->
-					new NimbusOAuth2TokenIntrospectionClient(this.introspectionUri, this.clientId, this.clientSecret);
+			this.introspector = () ->
+					new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId, this.clientSecret);
 			return this;
 		}
 
@@ -364,22 +364,22 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			Assert.notNull(clientSecret, "clientSecret cannot be null");
 			this.clientId = clientId;
 			this.clientSecret = clientSecret;
-			this.introspectionClient = () ->
-					new NimbusOAuth2TokenIntrospectionClient(this.introspectionUri, this.clientId, this.clientSecret);
+			this.introspector = () ->
+					new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId, this.clientSecret);
 			return this;
 		}
 
-		public OpaqueTokenConfigurer introspectionClient(OAuth2TokenIntrospectionClient introspectionClient) {
-			Assert.notNull(introspectionClient, "introspectionClient cannot be null");
-			this.introspectionClient = () -> introspectionClient;
+		public OpaqueTokenConfigurer introspector(OpaqueTokenIntrospector introspector) {
+			Assert.notNull(introspector, "introspector cannot be null");
+			this.introspector = () -> introspector;
 			return this;
 		}
 
-		OAuth2TokenIntrospectionClient getIntrospectionClient() {
-			if (this.introspectionClient != null) {
-				return this.introspectionClient.get();
+		OpaqueTokenIntrospector getIntrospector() {
+			if (this.introspector != null) {
+				return this.introspector.get();
 			}
-			return this.context.getBean(OAuth2TokenIntrospectionClient.class);
+			return this.context.getBean(OpaqueTokenIntrospector.class);
 		}
 
 		AuthenticationManager getAuthenticationManager(H http) {
@@ -387,9 +387,9 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 				return this.authenticationManager;
 			}
 
-			OAuth2TokenIntrospectionClient introspectionClient = getIntrospectionClient();
+			OpaqueTokenIntrospector introspector = getIntrospector();
 			OAuth2IntrospectionAuthenticationProvider provider =
-					new OAuth2IntrospectionAuthenticationProvider(introspectionClient);
+					new OAuth2IntrospectionAuthenticationProvider(introspector);
 			http.authenticationProvider(provider);
 
 			return http.getSharedObject(AuthenticationManager.class);

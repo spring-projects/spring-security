@@ -46,12 +46,14 @@ import static org.springframework.security.oauth2.server.resource.introspection.
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SCOPE;
 
 /**
- * A Nimbus implementation of {@link ReactiveOAuth2TokenIntrospectionClient}
+ * A Nimbus implementation of {@link ReactiveOpaqueTokenIntrospector} that verifies and introspects
+ * a token using the configured
+ * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection Endpoint</a>.
  *
  * @author Josh Cummings
  * @since 5.2
  */
-public class NimbusReactiveOAuth2TokenIntrospectionClient implements ReactiveOAuth2TokenIntrospectionClient {
+public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
 	private URI introspectionUri;
 	private WebClient webClient;
 
@@ -62,7 +64,7 @@ public class NimbusReactiveOAuth2TokenIntrospectionClient implements ReactiveOAu
 	 * @param clientId The client id authorized to introspect
 	 * @param clientSecret The client secret for the authorized client
 	 */
-	public NimbusReactiveOAuth2TokenIntrospectionClient(String introspectionUri, String clientId, String clientSecret) {
+	public NimbusReactiveOpaqueTokenIntrospector(String introspectionUri, String clientId, String clientSecret) {
 		Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
 		Assert.hasText(clientId, "clientId cannot be empty");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
@@ -79,7 +81,7 @@ public class NimbusReactiveOAuth2TokenIntrospectionClient implements ReactiveOAu
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param webClient The client for performing the introspection request
 	 */
-	public NimbusReactiveOAuth2TokenIntrospectionClient(String introspectionUri, WebClient webClient) {
+	public NimbusReactiveOpaqueTokenIntrospector(String introspectionUri, WebClient webClient) {
 		Assert.hasText(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(webClient, "webClient cannot be null");
 

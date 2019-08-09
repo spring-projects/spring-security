@@ -29,7 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
-import org.springframework.security.oauth2.server.resource.introspection.ReactiveOAuth2TokenIntrospectionClient;
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +55,7 @@ public class OAuth2IntrospectionReactiveAuthenticationManagerTests {
 	public void authenticateWhenActiveTokenThenOk() throws Exception {
 		Map<String, Object> claims = active();
 		claims.put("extension_field", "twenty-seven");
-		ReactiveOAuth2TokenIntrospectionClient introspectionClient = mock(ReactiveOAuth2TokenIntrospectionClient.class);
+		ReactiveOpaqueTokenIntrospector introspectionClient = mock(ReactiveOpaqueTokenIntrospector.class);
 		when(introspectionClient.introspect(any())).thenReturn(Mono.just(claims));
 		OAuth2IntrospectionReactiveAuthenticationManager provider =
 				new OAuth2IntrospectionReactiveAuthenticationManager(introspectionClient);
@@ -87,7 +87,7 @@ public class OAuth2IntrospectionReactiveAuthenticationManagerTests {
 	public void authenticateWhenMissingScopeAttributeThenNoAuthorities() {
 		Map<String, Object> claims = active();
 		claims.remove(SCOPE);
-		ReactiveOAuth2TokenIntrospectionClient introspectionClient = mock(ReactiveOAuth2TokenIntrospectionClient.class);
+		ReactiveOpaqueTokenIntrospector introspectionClient = mock(ReactiveOpaqueTokenIntrospector.class);
 		when(introspectionClient.introspect(any())).thenReturn(Mono.just(claims));
 		OAuth2IntrospectionReactiveAuthenticationManager provider =
 				new OAuth2IntrospectionReactiveAuthenticationManager(introspectionClient);
@@ -106,7 +106,7 @@ public class OAuth2IntrospectionReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenIntrospectionEndpointThrowsExceptionThenInvalidToken() {
-		ReactiveOAuth2TokenIntrospectionClient introspectionClient = mock(ReactiveOAuth2TokenIntrospectionClient.class);
+		ReactiveOpaqueTokenIntrospector introspectionClient = mock(ReactiveOpaqueTokenIntrospector.class);
 		when(introspectionClient.introspect(any()))
 				.thenReturn(Mono.error(new OAuth2IntrospectionException("with \"invalid\" chars")));
 		OAuth2IntrospectionReactiveAuthenticationManager provider =
