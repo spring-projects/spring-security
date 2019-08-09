@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configuration;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.Filter;
