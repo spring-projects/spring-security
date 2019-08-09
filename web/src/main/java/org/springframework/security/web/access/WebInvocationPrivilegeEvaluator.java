@@ -52,6 +52,5 @@ public interface WebInvocationPrivilegeEvaluator {
 	 * be used in evaluation whether access should be granted.
 	 * @return true if access is allowed, false if denied
 	 */
-	boolean isAllowed(String contextPath, String uri, String method,
-					  Authentication authentication);
+	boolean isAllowed(String contextPath, String uri, String method, Authentication authentication);
 }
