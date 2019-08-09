@@ -847,7 +847,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 		static class CustomExpressionRoot extends WebSecurityExpressionRoot {
 
-			public CustomExpressionRoot(Authentication a, FilterInvocation fi) {
+			CustomExpressionRoot(Authentication a, FilterInvocation fi) {
 				super(a, fi);
 			}
 

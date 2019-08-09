@@ -40,7 +40,7 @@ final class AutowiredWebSecurityConfigurersIgnoreParents {
 
 	private final ConfigurableListableBeanFactory beanFactory;
 
-	public AutowiredWebSecurityConfigurersIgnoreParents(
+	AutowiredWebSecurityConfigurersIgnoreParents(
 			ConfigurableListableBeanFactory beanFactory) {
 		Assert.notNull(beanFactory, "beanFactory cannot be null");
 		this.beanFactory = beanFactory;

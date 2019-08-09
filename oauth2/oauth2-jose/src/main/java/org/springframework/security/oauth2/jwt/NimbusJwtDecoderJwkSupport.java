@@ -108,7 +108,7 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	 *
 	 * @param claimSetConverter the {@link Converter} to use
 	 */
-	public final void setClaimSetConverter(Converter<Map<String, Object>, Map<String, Object>> claimSetConverter) {
+	public void setClaimSetConverter(Converter<Map<String, Object>, Map<String, Object>> claimSetConverter) {
 		Assert.notNull(claimSetConverter, "claimSetConverter cannot be null");
 		this.claimSetConverter = claimSetConverter;
 		this.delegate.setClaimSetConverter(claimSetConverter);
@@ -120,7 +120,7 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 	 * @since 5.1
 	 * @param restOperations the {@link RestOperations} used when requesting the JSON Web Key (JWK) Set
 	 */
-	public final void setRestOperations(RestOperations restOperations) {
+	public void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");
 		this.jwtDecoderBuilder = this.jwtDecoderBuilder.restOperations(restOperations);
 		this.delegate = makeDelegate();

@@ -126,7 +126,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 
 		private final int keyLength;
 
-		public PredictableRandomBytesKeyGenerator(int keyLength) {
+		PredictableRandomBytesKeyGenerator(int keyLength) {
 			this.random = new Random(1);
 			this.keyLength = keyLength;
 		}

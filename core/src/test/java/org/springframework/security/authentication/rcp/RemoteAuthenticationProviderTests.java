@@ -119,7 +119,7 @@ public class RemoteAuthenticationProviderTests {
 	private class MockRemoteAuthenticationManager implements RemoteAuthenticationManager {
 		private boolean grantAccess;
 
-		public MockRemoteAuthenticationManager(boolean grantAccess) {
+		MockRemoteAuthenticationManager(boolean grantAccess) {
 			this.grantAccess = grantAccess;
 		}
 

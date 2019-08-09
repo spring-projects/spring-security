@@ -559,7 +559,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		private final Map<Serializable, Acl> acls;
 		private final List<Sid> sids;
 
-		public ProcessResultSet(Map<Serializable, Acl> acls, List<Sid> sids) {
+		ProcessResultSet(Map<Serializable, Acl> acls, List<Sid> sids) {
 			Assert.notNull(acls, "ACLs cannot be null");
 			this.acls = acls;
 			this.sids = sids; // can be null
@@ -683,7 +683,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 	private static class StubAclParent implements Acl {
 		private final Long id;
 
-		public StubAclParent(Long id) {
+		StubAclParent(Long id) {
 			this.id = id;
 		}
 

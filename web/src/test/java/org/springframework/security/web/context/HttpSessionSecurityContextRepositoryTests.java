@@ -676,7 +676,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	@Transient
 	private static class SomeTransientAuthentication extends AbstractAuthenticationToken {
-		public SomeTransientAuthentication() {
+		SomeTransientAuthentication() {
 			super(null);
 		}
 
@@ -703,7 +703,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	@TestTransientAuthentication
 	private static class SomeOtherTransientAuthentication extends AbstractAuthenticationToken {
-		public SomeOtherTransientAuthentication() {
+		SomeOtherTransientAuthentication() {
 			super(null);
 		}
 

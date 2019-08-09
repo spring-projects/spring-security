@@ -62,7 +62,7 @@ public class DelegatingSecurityContextSupportTests extends
 
 	private static class ConcreteDelegatingSecurityContextSupport extends
 			AbstractDelegatingSecurityContextSupport {
-		public ConcreteDelegatingSecurityContextSupport(SecurityContext securityContext) {
+		ConcreteDelegatingSecurityContextSupport(SecurityContext securityContext) {
 			super(securityContext);
 		}
 	}

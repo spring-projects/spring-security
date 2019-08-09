@@ -59,7 +59,7 @@ class RememberMeAuthenticationTokenMixin {
 	 * @param authorities the authorities granted to the principal
 	 */
 	@JsonCreator
-	public RememberMeAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash,
+	RememberMeAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash,
 												@JsonProperty("principal") Object principal,
 												@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
 	}

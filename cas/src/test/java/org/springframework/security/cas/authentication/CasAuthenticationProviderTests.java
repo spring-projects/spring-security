@@ -414,7 +414,7 @@ public class CasAuthenticationProviderTests {
 	private class MockTicketValidator implements TicketValidator {
 		private boolean returnTicket;
 
-		public MockTicketValidator(boolean returnTicket) {
+		MockTicketValidator(boolean returnTicket) {
 			this.returnTicket = returnTicket;
 		}
 

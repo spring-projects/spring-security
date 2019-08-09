@@ -265,7 +265,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 			this.property = property;
 		}
 
-		public CopyUserPrincipal(CopyUserPrincipal toCopy) {
+		CopyUserPrincipal(CopyUserPrincipal toCopy) {
 			this.property = toCopy.property;
 		}
 

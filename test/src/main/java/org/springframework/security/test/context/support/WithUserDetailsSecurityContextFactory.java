@@ -49,7 +49,7 @@ final class WithUserDetailsSecurityContextFactory implements
 	private BeanFactory beans;
 
 	@Autowired
-	public WithUserDetailsSecurityContextFactory(BeanFactory beans) {
+	WithUserDetailsSecurityContextFactory(BeanFactory beans) {
 		this.beans = beans;
 	}
 

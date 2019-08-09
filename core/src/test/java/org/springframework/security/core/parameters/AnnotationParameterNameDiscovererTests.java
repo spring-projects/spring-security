@@ -148,10 +148,10 @@ public class AnnotationParameterNameDiscovererTests {
 	}
 
 	static class Impl {
-		public Impl(Long dataSourceId) {
+		Impl(Long dataSourceId) {
 		}
 
-		public Impl(@P("id") String dataSourceId) {
+		Impl(@P("id") String dataSourceId) {
 		}
 
 		String findMessageByTo(@P("to") String to) {

@@ -183,7 +183,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	final List<AccessDecisionVoter<?>> getDecisionVoters(H http) {
+	List<AccessDecisionVoter<?>> getDecisionVoters(H http) {
 		List<AccessDecisionVoter<?>> decisionVoters = new ArrayList<>();
 		WebExpressionVoter expressionVoter = new WebExpressionVoter();
 		expressionVoter.setExpressionHandler(getExpressionHandler(http));
@@ -192,7 +192,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	}
 
 	@Override
-	final ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource(
+	ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource(
 			H http) {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = REGISTRY
 				.createRequestMap();

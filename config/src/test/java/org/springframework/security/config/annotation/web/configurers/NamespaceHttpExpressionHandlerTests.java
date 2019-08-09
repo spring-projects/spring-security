@@ -73,7 +73,7 @@ public class NamespaceHttpExpressionHandlerTests {
 	@EnableWebMvc
 	@EnableWebSecurity
 	private static class ExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
-		public ExpressionHandlerConfig() {}
+		ExpressionHandlerConfig() {}
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {

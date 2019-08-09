@@ -57,7 +57,7 @@ class OAuth2AuthorizedClientResolver {
 
 	private String defaultClientRegistrationId;
 
-	public OAuth2AuthorizedClientResolver(
+	OAuth2AuthorizedClientResolver(
 			ReactiveClientRegistrationRepository clientRegistrationRepository,
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
@@ -176,7 +176,7 @@ class OAuth2AuthorizedClientResolver {
 		private final Authentication authentication;
 		private final ServerWebExchange exchange;
 
-		public Request(String clientRegistrationId, Authentication authentication,
+		Request(String clientRegistrationId, Authentication authentication,
 				ServerWebExchange exchange) {
 			this.clientRegistrationId = clientRegistrationId;
 			this.authentication = authentication;

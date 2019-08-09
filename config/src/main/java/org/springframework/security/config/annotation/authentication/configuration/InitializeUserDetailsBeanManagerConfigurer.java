@@ -43,7 +43,7 @@ class InitializeUserDetailsBeanManagerConfigurer
 	/**
 	 * @param context
 	 */
-	public InitializeUserDetailsBeanManagerConfigurer(ApplicationContext context) {
+	InitializeUserDetailsBeanManagerConfigurer(ApplicationContext context) {
 		this.context = context;
 	}
 

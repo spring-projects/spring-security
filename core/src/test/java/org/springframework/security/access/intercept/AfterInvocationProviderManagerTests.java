@@ -179,8 +179,7 @@ public class AfterInvocationProviderManagerTests {
 
 		private Object forceReturnObject;
 
-		public MockAfterInvocationProvider(Object forceReturnObject, Class secureObject,
-				ConfigAttribute configAttribute) {
+		MockAfterInvocationProvider(Object forceReturnObject, Class secureObject, ConfigAttribute configAttribute) {
 			this.forceReturnObject = forceReturnObject;
 			this.secureObject = secureObject;
 			this.configAttribute = configAttribute;

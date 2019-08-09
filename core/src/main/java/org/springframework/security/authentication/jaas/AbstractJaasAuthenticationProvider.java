@@ -402,7 +402,7 @@ public abstract class AbstractJaasAuthenticationProvider
 	private class InternalCallbackHandler implements CallbackHandler {
 		private final Authentication authentication;
 
-		public InternalCallbackHandler(Authentication authentication) {
+		InternalCallbackHandler(Authentication authentication) {
 			this.authentication = authentication;
 		}
 

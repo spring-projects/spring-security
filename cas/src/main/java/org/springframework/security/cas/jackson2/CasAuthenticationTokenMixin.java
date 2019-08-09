@@ -69,7 +69,7 @@ class CasAuthenticationTokenMixin {
 	 * principal and how to obtain a proxy ticket for the user.
 	 */
 	@JsonCreator
-	public CasAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash, @JsonProperty("principal") Object principal,
+	CasAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash, @JsonProperty("principal") Object principal,
 										@JsonProperty("credentials") Object credentials,
 										@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
 										@JsonProperty("userDetails") UserDetails userDetails, @JsonProperty("assertion") Assertion assertion) {

@@ -65,7 +65,7 @@ public final class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
 	 *
 	 * @param anonymousAuthorizedClientRepository the repository used for requests that are unauthenticated (or anonymous)
 	 */
-	public final void setAnonymousAuthorizedClientRepository(
+	public void setAnonymousAuthorizedClientRepository(
 			ServerOAuth2AuthorizedClientRepository anonymousAuthorizedClientRepository) {
 		Assert.notNull(anonymousAuthorizedClientRepository, "anonymousAuthorizedClientRepository cannot be null");
 		this.anonymousAuthorizedClientRepository = anonymousAuthorizedClientRepository;

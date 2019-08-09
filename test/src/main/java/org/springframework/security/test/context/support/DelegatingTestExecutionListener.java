@@ -30,7 +30,7 @@ class DelegatingTestExecutionListener
 
 	private final TestExecutionListener delegate;
 
-	public DelegatingTestExecutionListener(TestExecutionListener delegate) {
+	DelegatingTestExecutionListener(TestExecutionListener delegate) {
 		Assert.notNull(delegate, "delegate cannot be null");
 		this.delegate = delegate;
 	}

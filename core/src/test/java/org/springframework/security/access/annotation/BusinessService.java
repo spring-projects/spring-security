@@ -35,31 +35,31 @@ public interface BusinessService extends Serializable {
 	@Secured({ "ROLE_ADMIN" })
 	@RolesAllowed({ "ROLE_ADMIN" })
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public void someAdminMethod();
+	void someAdminMethod();
 
 	@Secured({ "ROLE_USER", "ROLE_ADMIN" })
 	@RolesAllowed({ "ROLE_USER", "ROLE_ADMIN" })
-	public void someUserAndAdminMethod();
+	void someUserAndAdminMethod();
 
 	@Secured({ "ROLE_USER" })
 	@RolesAllowed({ "ROLE_USER" })
-	public void someUserMethod1();
+	void someUserMethod1();
 
 	@Secured({ "ROLE_USER" })
 	@RolesAllowed({ "ROLE_USER" })
-	public void someUserMethod2();
+	void someUserMethod2();
 
 	@RolesAllowed({ "USER" })
-	public void rolesAllowedUser();
+	void rolesAllowedUser();
 
-	public int someOther(String s);
+	int someOther(String s);
 
-	public int someOther(int input);
+	int someOther(int input);
 
-	public List<?> methodReturningAList(List<?> someList);
+	List<?> methodReturningAList(List<?> someList);
 
-	public Object[] methodReturningAnArray(Object[] someArray);
+	Object[] methodReturningAnArray(Object[] someArray);
 
-	public List<?> methodReturningAList(String userName, String extraParam);
+	List<?> methodReturningAList(String userName, String extraParam);
 
 }

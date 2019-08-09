@@ -139,7 +139,7 @@ public class DefaultAuthenticationEventPublisherTests {
 
 	private static final class MockAuthenticationException extends
 			AuthenticationException {
-		public MockAuthenticationException(String msg) {
+		MockAuthenticationException(String msg) {
 			super(msg);
 		}
 	}

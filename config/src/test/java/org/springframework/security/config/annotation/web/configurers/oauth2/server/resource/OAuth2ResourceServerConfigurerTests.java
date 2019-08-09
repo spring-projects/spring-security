@@ -2133,7 +2133,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		private class MockWebServerPropertySource extends PropertySource {
 
-			public MockWebServerPropertySource() {
+			MockWebServerPropertySource() {
 				super("mockwebserver");
 			}
 
@@ -2178,7 +2178,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		private String token;
 
-		public BearerTokenRequestPostProcessor(String token) {
+		BearerTokenRequestPostProcessor(String token) {
 			this.token = token;
 		}
 

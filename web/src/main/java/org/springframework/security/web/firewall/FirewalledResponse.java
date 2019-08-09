@@ -31,7 +31,7 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 	private static final String LOCATION_HEADER = "Location";
 	private static final String SET_COOKIE_HEADER = "Set-Cookie";
 
-	public FirewalledResponse(HttpServletResponse response) {
+	FirewalledResponse(HttpServletResponse response) {
 		super(response);
 	}
 

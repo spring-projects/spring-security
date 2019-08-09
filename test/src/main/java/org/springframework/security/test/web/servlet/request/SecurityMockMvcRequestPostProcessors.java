@@ -826,7 +826,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			implements RequestPostProcessor {
 		private final RequestPostProcessor delegate;
 
-		public UserDetailsRequestPostProcessor(UserDetails user) {
+		UserDetailsRequestPostProcessor(UserDetails user) {
 			Authentication token = new UsernamePasswordAuthenticationToken(user,
 					user.getPassword(), user.getAuthorities());
 

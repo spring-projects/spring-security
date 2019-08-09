@@ -47,7 +47,7 @@ class DefaultCsrfServerTokenMixin {
 	 * @param token         the CSRF token value
 	 */
 	@JsonCreator
-	public DefaultCsrfServerTokenMixin(@JsonProperty("headerName") String headerName,
+	DefaultCsrfServerTokenMixin(@JsonProperty("headerName") String headerName,
 										@JsonProperty("parameterName") String parameterName, @JsonProperty("token") String token) {
 	}
 }

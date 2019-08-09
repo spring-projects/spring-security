@@ -437,7 +437,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		private boolean grantAccess;
 
-		public MockAuthenticationFilter(boolean grantAccess) {
+		MockAuthenticationFilter(boolean grantAccess) {
 			this();
 			setRememberMeServices(new NullRememberMeServices());
 			this.grantAccess = grantAccess;
@@ -465,7 +465,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		private boolean expectToProceed;
 
-		public MockFilterChain(boolean expectToProceed) {
+		MockFilterChain(boolean expectToProceed) {
 			this.expectToProceed = expectToProceed;
 		}
 

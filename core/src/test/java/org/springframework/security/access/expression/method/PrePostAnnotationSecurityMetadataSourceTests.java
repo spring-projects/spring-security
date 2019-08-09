@@ -203,19 +203,19 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	// ~ Inner Classes
 	// ==================================================================================================
 
-	public static interface ReturnVoid {
-		public void doSomething(List<?> param);
+	public interface ReturnVoid {
+		void doSomething(List<?> param);
 	}
 
-	public static interface ReturnAList {
-		public List<?> doSomething(List<?> param);
+	public interface ReturnAList {
+		List<?> doSomething(List<?> param);
 	}
 
 	@PreAuthorize("interfaceAuthzExpression")
-	public static interface ReturnAnotherList {
+	public interface ReturnAnotherList {
 		@PreAuthorize("interfaceMethodAuthzExpression")
 		@PreFilter(filterTarget = "param", value = "interfacePreFilterExpression")
-		public List<?> doSomething(List<?> param);
+		List<?> doSomething(List<?> param);
 	}
 
 	@PreAuthorize("someExpression")
@@ -275,8 +275,8 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	}
 
 	@CustomAnnotation
-	public static interface ReturnVoid2 {
-		public void doSomething(List<?> param);
+	public interface ReturnVoid2 {
+		void doSomething(List<?> param);
 	}
 
 	@CustomAnnotation

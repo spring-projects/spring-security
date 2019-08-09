@@ -92,7 +92,7 @@ public class SecurityConfigTests {
 	private class MockConfigAttribute implements ConfigAttribute {
 		private String attribute;
 
-		public MockConfigAttribute(String configuration) {
+		MockConfigAttribute(String configuration) {
 			this.attribute = configuration;
 		}
 

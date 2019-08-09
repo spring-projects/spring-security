@@ -314,7 +314,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 	static class CustomSecurityContext implements SecurityContext {
 		private Authentication authentication;
-		public CustomSecurityContext(Authentication authentication) {
+		CustomSecurityContext(Authentication authentication) {
 			this.authentication = authentication;
 		}
 		@Override

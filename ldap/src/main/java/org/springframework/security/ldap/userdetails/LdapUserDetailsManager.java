@@ -493,7 +493,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 		private final ByteArrayOutputStream value = new ByteArrayOutputStream();
 
-		public PasswordModifyRequest(String userIdentity, String oldPassword, String newPassword) {
+		PasswordModifyRequest(String userIdentity, String oldPassword, String newPassword) {
 			ByteArrayOutputStream elements = new ByteArrayOutputStream();
 
 			if (userIdentity != null) {

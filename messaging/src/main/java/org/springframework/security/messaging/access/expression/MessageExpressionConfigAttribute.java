@@ -44,7 +44,7 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 	 * @param authorizeExpression the {@link Expression} to use. Cannot be null
 	 * @param matcher the {@link MessageMatcher} used to match the messages.
 	 */
-	public MessageExpressionConfigAttribute(Expression authorizeExpression, MessageMatcher<?> matcher) {
+	MessageExpressionConfigAttribute(Expression authorizeExpression, MessageMatcher<?> matcher) {
 		Assert.notNull(authorizeExpression, "authorizeExpression cannot be null");
 		Assert.notNull(matcher, "matcher cannot be null");
 		this.authorizeExpression = authorizeExpression;

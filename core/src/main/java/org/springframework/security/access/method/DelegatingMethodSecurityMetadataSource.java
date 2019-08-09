@@ -116,7 +116,7 @@ public final class DelegatingMethodSecurityMetadataSource extends
 		private final Method method;
 		private final Class<?> targetClass;
 
-		public DefaultCacheKey(Method method, Class<?> targetClass) {
+		DefaultCacheKey(Method method, Class<?> targetClass) {
 			this.method = method;
 			this.targetClass = targetClass;
 		}

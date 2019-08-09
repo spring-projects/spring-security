@@ -258,7 +258,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	private class SaveContextPrintWriter extends PrintWriter {
 		private final PrintWriter delegate;
 
-		public SaveContextPrintWriter(PrintWriter delegate) {
+		SaveContextPrintWriter(PrintWriter delegate) {
 			super(delegate);
 			this.delegate = delegate;
 		}
@@ -498,7 +498,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	private class SaveContextServletOutputStream extends ServletOutputStream {
 		private final ServletOutputStream delegate;
 
-		public SaveContextServletOutputStream(ServletOutputStream delegate) {
+		SaveContextServletOutputStream(ServletOutputStream delegate) {
 			this.delegate = delegate;
 		}
 

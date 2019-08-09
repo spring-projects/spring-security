@@ -138,7 +138,7 @@ final class AuthenticationConfigBuilder {
 
 	private String openIDLoginPage;
 
-	public AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
+	AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
 			ParserContext pc, SessionCreationPolicy sessionPolicy,
 			BeanReference requestCache, BeanReference authenticationManager,
 			BeanReference sessionStrategy, BeanReference portMapper,

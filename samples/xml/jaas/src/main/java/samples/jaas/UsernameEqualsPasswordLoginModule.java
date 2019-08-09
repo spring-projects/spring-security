@@ -94,7 +94,7 @@ public class UsernameEqualsPasswordLoginModule implements LoginModule {
 	private static class UsernamePrincipal implements Principal, Serializable {
 		private final String username;
 
-		public UsernamePrincipal(String username) {
+		UsernamePrincipal(String username) {
 			this.username = username;
 		}
 

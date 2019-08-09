@@ -55,7 +55,7 @@ class AssertionImplMixin {
 	 * @param attributes the key/value pairs for this attribute.
 	 */
 	@JsonCreator
-	public AssertionImplMixin(@JsonProperty("principal") AttributePrincipal principal,
+	AssertionImplMixin(@JsonProperty("principal") AttributePrincipal principal,
 								@JsonProperty("validFromDate") Date validFromDate, @JsonProperty("validUntilDate") Date validUntilDate,
 								@JsonProperty("authenticationDate") Date authenticationDate, @JsonProperty("attributes") Map<String, Object> attributes){
 	}

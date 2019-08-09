@@ -33,7 +33,7 @@ class MutableUser implements MutableUserDetails {
 	private String password;
 	private final UserDetails delegate;
 
-	public MutableUser(UserDetails user) {
+	MutableUser(UserDetails user) {
 		this.delegate = user;
 		this.password = user.getPassword();
 	}

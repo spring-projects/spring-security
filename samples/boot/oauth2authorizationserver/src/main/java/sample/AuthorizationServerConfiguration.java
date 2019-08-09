@@ -191,7 +191,7 @@ class UserConfig extends WebSecurityConfigurerAdapter {
 class IntrospectEndpoint {
 	TokenStore tokenStore;
 
-	public IntrospectEndpoint(TokenStore tokenStore) {
+	IntrospectEndpoint(TokenStore tokenStore) {
 		this.tokenStore = tokenStore;
 	}
 
@@ -226,7 +226,7 @@ class IntrospectEndpoint {
 class JwkSetEndpoint {
 	KeyPair keyPair;
 
-	public JwkSetEndpoint(KeyPair keyPair) {
+	JwkSetEndpoint(KeyPair keyPair) {
 		this.keyPair = keyPair;
 	}
 

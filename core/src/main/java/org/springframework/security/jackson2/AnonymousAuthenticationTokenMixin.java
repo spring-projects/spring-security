@@ -53,7 +53,7 @@ class AnonymousAuthenticationTokenMixin {
 	 * @param authorities the authorities granted to the principal
 	 */
 	@JsonCreator
-	public AnonymousAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash, @JsonProperty("principal") Object principal,
+	AnonymousAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash, @JsonProperty("principal") Object principal,
 												@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
 	}
 }

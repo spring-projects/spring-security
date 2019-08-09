@@ -205,7 +205,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 		static class SessionRequestWrapper extends HttpServletRequestWrapper {
 			HttpSession session = new MockHttpSession();
 
-			public SessionRequestWrapper(HttpServletRequest request) {
+			SessionRequestWrapper(HttpServletRequest request) {
 				super(request);
 			}
 

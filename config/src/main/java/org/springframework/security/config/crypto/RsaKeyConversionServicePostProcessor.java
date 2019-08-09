@@ -133,7 +133,7 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 	private static class ConverterPropertyEditorAdapter<T> extends PropertyEditorSupport {
 		private final Converter<String, T> converter;
 
-		public ConverterPropertyEditorAdapter(Converter<String, T> converter) {
+		ConverterPropertyEditorAdapter(Converter<String, T> converter) {
 			this.converter = converter;
 		}
 

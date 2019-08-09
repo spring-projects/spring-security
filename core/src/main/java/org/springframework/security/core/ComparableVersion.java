@@ -117,7 +117,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 			this.value = BigInteger_ZERO;
 		}
 
-		public IntegerItem(String str) {
+		IntegerItem(String str) {
 			this.value = new BigInteger(str);
 		}
 
@@ -184,7 +184,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		private String value;
 
-		public StringItem(String value, boolean followedByDigit) {
+		StringItem(String value, boolean followedByDigit) {
 			if (followedByDigit && value.length() == 1) {
 				// a1 = alpha-1, b1 = beta-1, m1 = milestone-1
 				switch (value.charAt(0)) {
@@ -341,7 +341,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 	}
 
-	public ComparableVersion(String version) {
+	ComparableVersion(String version) {
 		parseVersion(version);
 	}
 

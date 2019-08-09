@@ -51,7 +51,7 @@ final class HtmlUnitWebTestClient {
 
 	private final WebTestClient webTestClient;
 
-	public HtmlUnitWebTestClient(WebClient webClient, WebTestClient webTestClient) {
+	HtmlUnitWebTestClient(WebClient webClient, WebTestClient webTestClient) {
 		Assert.notNull(webClient, "WebClient must not be null");
 		Assert.notNull(webTestClient, "WebTestClient must not be null");
 		this.webClient = webClient;

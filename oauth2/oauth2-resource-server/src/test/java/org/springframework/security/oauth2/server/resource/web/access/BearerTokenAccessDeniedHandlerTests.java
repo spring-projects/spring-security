@@ -117,7 +117,7 @@ public class BearerTokenAccessDeniedHandlerTests {
 		}
 
 		static class TestingOAuth2Token extends AbstractOAuth2Token {
-			public TestingOAuth2Token(String tokenValue) {
+			TestingOAuth2Token(String tokenValue) {
 				super(tokenValue);
 			}
 		}

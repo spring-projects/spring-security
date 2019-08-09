@@ -151,7 +151,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 
 	static class EnvExposingDefaultSpringSecurityContextSource extends
 			DefaultSpringSecurityContextSource {
-		public EnvExposingDefaultSpringSecurityContextSource(String providerUrl) {
+		EnvExposingDefaultSpringSecurityContextSource(String providerUrl) {
 			super(providerUrl);
 		}
 

@@ -193,7 +193,7 @@ public class AuthenticationConfiguration {
 		private static final Log logger = LogFactory
 				.getLog(EnableGlobalAuthenticationAutowiredConfigurer.class);
 
-		public EnableGlobalAuthenticationAutowiredConfigurer(ApplicationContext context) {
+		EnableGlobalAuthenticationAutowiredConfigurer(ApplicationContext context) {
 			this.context = context;
 		}
 

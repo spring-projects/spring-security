@@ -99,7 +99,7 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 			extends AbstractVariableEvaluationContextPostProcessor {
 		private final AntPathRequestMatcher matcher;
 
-		public AntPathMatcherEvaluationContextPostProcessor(
+		AntPathMatcherEvaluationContextPostProcessor(
 				AntPathRequestMatcher matcher) {
 			this.matcher = matcher;
 		}
@@ -114,7 +114,7 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 			extends AbstractVariableEvaluationContextPostProcessor {
 		private final RequestMatcher matcher;
 
-		public RequestVariablesExtractorEvaluationContextPostProcessor(
+		RequestVariablesExtractorEvaluationContextPostProcessor(
 				RequestMatcher matcher) {
 			this.matcher = matcher;
 		}

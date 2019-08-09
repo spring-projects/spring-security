@@ -34,14 +34,14 @@ final class SecureRandomBytesKeyGenerator implements BytesKeyGenerator {
 	/**
 	 * Creates a secure random key generator using the defaults.
 	 */
-	public SecureRandomBytesKeyGenerator() {
+	SecureRandomBytesKeyGenerator() {
 		this(DEFAULT_KEY_LENGTH);
 	}
 
 	/**
 	 * Creates a secure random key generator with a custom key length.
 	 */
-	public SecureRandomBytesKeyGenerator(int keyLength) {
+	SecureRandomBytesKeyGenerator(int keyLength) {
 		this.random = new SecureRandom();
 		this.keyLength = keyLength;
 	}
