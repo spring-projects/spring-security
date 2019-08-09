@@ -972,6 +972,8 @@ public class ServerHttpSecurity {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
+		private ServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
+
 		private ServerAuthenticationConverter authenticationConverter;
 
 		private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
@@ -990,6 +992,19 @@ public class ServerHttpSecurity {
 		 */
 		public OAuth2LoginSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		/**
+		 * The {@link ServerSecurityContextRepository} used to save the {@code Authentication}. Defaults to
+		 * {@link WebSessionServerSecurityContextRepository}.
+		 *
+		 * @since 5.2
+		 * @param securityContextRepository the repository to use
+		 * @return the {@link OAuth2LoginSpec} to continue configuring
+		 */
+		public OAuth2LoginSpec securityContextRepository(ServerSecurityContextRepository securityContextRepository) {
+			this.securityContextRepository = securityContextRepository;
 			return this;
 		}
 
@@ -1138,7 +1153,7 @@ public class ServerHttpSecurity {
 
 			authenticationFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
 			authenticationFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
-			authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
+			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
 					MediaType.TEXT_HTML);
