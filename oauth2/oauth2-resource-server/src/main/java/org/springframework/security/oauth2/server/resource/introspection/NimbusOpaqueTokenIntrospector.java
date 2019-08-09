@@ -52,13 +52,15 @@ import static org.springframework.security.oauth2.server.resource.introspection.
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SCOPE;
 
 /**
- * A Nimbus implementation of {@link OAuth2TokenIntrospectionClient}.
+ * A Nimbus implementation of {@link OpaqueTokenIntrospector} that verifies and introspects
+ * a token using the configured
+ * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection Endpoint</a>.
  *
  * @author Josh Cummings
  * @author MD Sayem Ahmed
  * @since 5.2
  */
-public class NimbusOAuth2TokenIntrospectionClient implements OAuth2TokenIntrospectionClient {
+public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	private Converter<String, RequestEntity<?>> requestEntityConverter;
 	private RestOperations restOperations;
 
@@ -69,7 +71,7 @@ public class NimbusOAuth2TokenIntrospectionClient implements OAuth2TokenIntrospe
 	 * @param clientId The client id authorized to introspect
 	 * @param clientSecret The client's secret
 	 */
-	public NimbusOAuth2TokenIntrospectionClient(String introspectionUri, String clientId, String clientSecret) {
+	public NimbusOpaqueTokenIntrospector(String introspectionUri, String clientId, String clientSecret) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(clientId, "clientId cannot be null");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
@@ -89,7 +91,7 @@ public class NimbusOAuth2TokenIntrospectionClient implements OAuth2TokenIntrospe
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param restOperations The client for performing the introspection request
 	 */
-	public NimbusOAuth2TokenIntrospectionClient(String introspectionUri, RestOperations restOperations) {
+	public NimbusOpaqueTokenIntrospector(String introspectionUri, RestOperations restOperations) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(restOperations, "restOperations cannot be null");
 

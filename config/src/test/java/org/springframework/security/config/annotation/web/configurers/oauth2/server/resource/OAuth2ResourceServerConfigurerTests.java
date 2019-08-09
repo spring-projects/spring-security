@@ -92,8 +92,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.introspection.NimbusOAuth2TokenIntrospectionClient;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2TokenIntrospectionClient;
+import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
@@ -1182,38 +1182,38 @@ public class OAuth2ResourceServerConfigurerTests {
 		OAuth2ResourceServerConfigurer.OpaqueTokenConfigurer opaqueTokenConfigurer =
 				new OAuth2ResourceServerConfigurer(context).opaqueToken();
 
-		OAuth2TokenIntrospectionClient client = mock(OAuth2TokenIntrospectionClient.class);
+		OpaqueTokenIntrospector client = mock(OpaqueTokenIntrospector.class);
 
 		opaqueTokenConfigurer.introspectionUri(INTROSPECTION_URI);
 		opaqueTokenConfigurer.introspectionClientCredentials(CLIENT_ID, CLIENT_SECRET);
-		opaqueTokenConfigurer.introspectionClient(client);
+		opaqueTokenConfigurer.introspector(client);
 
-		assertThat(opaqueTokenConfigurer.getIntrospectionClient()).isEqualTo(client);
+		assertThat(opaqueTokenConfigurer.getIntrospector()).isEqualTo(client);
 
 		opaqueTokenConfigurer =
 				new OAuth2ResourceServerConfigurer(context).opaqueToken();
 
-		opaqueTokenConfigurer.introspectionClient(client);
+		opaqueTokenConfigurer.introspector(client);
 		opaqueTokenConfigurer.introspectionUri(INTROSPECTION_URI);
 		opaqueTokenConfigurer.introspectionClientCredentials(CLIENT_ID, CLIENT_SECRET);
 
-		assertThat(opaqueTokenConfigurer.getIntrospectionClient())
-				.isInstanceOf(NimbusOAuth2TokenIntrospectionClient.class);
+		assertThat(opaqueTokenConfigurer.getIntrospector())
+				.isInstanceOf(NimbusOpaqueTokenIntrospector.class);
 
 	}
 
 	@Test
 	public void getIntrospectionClientWhenDslAndBeanWiredThenDslTakesPrecedence() {
 		GenericApplicationContext context = new GenericApplicationContext();
-		registerMockBean(context, "introspectionClientOne", OAuth2TokenIntrospectionClient.class);
-		registerMockBean(context, "introspectionClientTwo", OAuth2TokenIntrospectionClient.class);
+		registerMockBean(context, "introspectionClientOne", OpaqueTokenIntrospector.class);
+		registerMockBean(context, "introspectionClientTwo", OpaqueTokenIntrospector.class);
 
 		OAuth2ResourceServerConfigurer.OpaqueTokenConfigurer opaqueToken =
 				new OAuth2ResourceServerConfigurer(context).opaqueToken();
 		opaqueToken.introspectionUri(INTROSPECTION_URI);
 		opaqueToken.introspectionClientCredentials(CLIENT_ID, CLIENT_SECRET);
 
-		assertThat(opaqueToken.getIntrospectionClient()).isNotNull();
+		assertThat(opaqueToken.getIntrospector()).isNotNull();
 	}
 
 	// -- In combination with other authentication providers
@@ -1327,7 +1327,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		oauth2ResourceServer
 			.opaqueToken()
 				.authenticationManager(authenticationManager)
-				.introspectionClient(mock(OAuth2TokenIntrospectionClient.class));
+				.introspector(mock(OpaqueTokenIntrospector.class));
 		assertThat(oauth2ResourceServer.getAuthenticationManager(http)).isSameAs(authenticationManager);
 		verify(http, never()).authenticationProvider(any(AuthenticationProvider.class));
 	}
@@ -2164,8 +2164,8 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 
 		@Bean
-		NimbusOAuth2TokenIntrospectionClient tokenIntrospectionClient() {
-			return new NimbusOAuth2TokenIntrospectionClient("https://example.org/introspect", this.rest);
+		NimbusOpaqueTokenIntrospector tokenIntrospectionClient() {
+			return new NimbusOpaqueTokenIntrospector("https://example.org/introspect", this.rest);
 		}
 	}
 

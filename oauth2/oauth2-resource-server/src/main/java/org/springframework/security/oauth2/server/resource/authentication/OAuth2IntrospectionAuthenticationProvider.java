@@ -34,7 +34,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2TokenIntrospectionClient;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.util.Assert;
@@ -69,14 +69,14 @@ public final class OAuth2IntrospectionAuthenticationProvider implements Authenti
 	private static final BearerTokenError DEFAULT_INVALID_TOKEN =
 			invalidToken("An error occurred while attempting to introspect the token: Invalid token");
 
-	private OAuth2TokenIntrospectionClient introspectionClient;
+	private OpaqueTokenIntrospector introspectionClient;
 
 	/**
 	 * Creates a {@code OAuth2IntrospectionAuthenticationProvider} with the provided parameters
 	 *
-	 * @param introspectionClient The {@link OAuth2TokenIntrospectionClient} to use
+	 * @param introspectionClient The {@link OpaqueTokenIntrospector} to use
 	 */
-	public OAuth2IntrospectionAuthenticationProvider(OAuth2TokenIntrospectionClient introspectionClient) {
+	public OAuth2IntrospectionAuthenticationProvider(OpaqueTokenIntrospector introspectionClient) {
 		Assert.notNull(introspectionClient, "introspectionClient cannot be null");
 		this.introspectionClient = introspectionClient;
 	}

@@ -35,7 +35,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
-import org.springframework.security.oauth2.server.resource.introspection.ReactiveOAuth2TokenIntrospectionClient;
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.util.Assert;
@@ -70,14 +70,14 @@ public class OAuth2IntrospectionReactiveAuthenticationManager implements Reactiv
 	private static final BearerTokenError DEFAULT_INVALID_TOKEN =
 			invalidToken("An error occurred while attempting to introspect the token: Invalid token");
 
-	private ReactiveOAuth2TokenIntrospectionClient introspectionClient;
+	private ReactiveOpaqueTokenIntrospector introspectionClient;
 
 	/**
 	 * Creates a {@code OAuth2IntrospectionReactiveAuthenticationManager} with the provided parameters
 	 *
-	 * @param introspectionClient The {@link ReactiveOAuth2TokenIntrospectionClient} to use
+	 * @param introspectionClient The {@link ReactiveOpaqueTokenIntrospector} to use
 	 */
-	public OAuth2IntrospectionReactiveAuthenticationManager(ReactiveOAuth2TokenIntrospectionClient introspectionClient) {
+	public OAuth2IntrospectionReactiveAuthenticationManager(ReactiveOpaqueTokenIntrospector introspectionClient) {
 		Assert.notNull(introspectionClient, "introspectionClient cannot be null");
 		this.introspectionClient = introspectionClient;
 	}

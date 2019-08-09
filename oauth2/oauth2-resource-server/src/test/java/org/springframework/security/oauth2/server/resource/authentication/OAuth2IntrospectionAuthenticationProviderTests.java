@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2TokenIntrospectionClient;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +56,7 @@ public class OAuth2IntrospectionAuthenticationProviderTests {
 	public void authenticateWhenActiveTokenThenOk() throws Exception {
 		Map<String, Object> claims = active();
 		claims.put("extension_field", "twenty-seven");
-		OAuth2TokenIntrospectionClient introspectionClient = mock(OAuth2TokenIntrospectionClient.class);
+		OpaqueTokenIntrospector introspectionClient = mock(OpaqueTokenIntrospector.class);
 		when(introspectionClient.introspect(any())).thenReturn(claims);
 		OAuth2IntrospectionAuthenticationProvider provider =
 				new OAuth2IntrospectionAuthenticationProvider(introspectionClient);
@@ -88,7 +88,7 @@ public class OAuth2IntrospectionAuthenticationProviderTests {
 	public void authenticateWhenMissingScopeAttributeThenNoAuthorities() {
 		Map<String, Object> claims = active();
 		claims.remove(SCOPE);
-		OAuth2TokenIntrospectionClient introspectionClient = mock(OAuth2TokenIntrospectionClient.class);
+		OpaqueTokenIntrospector introspectionClient = mock(OpaqueTokenIntrospector.class);
 		when(introspectionClient.introspect(any())).thenReturn(claims);
 		OAuth2IntrospectionAuthenticationProvider provider =
 				new OAuth2IntrospectionAuthenticationProvider(introspectionClient);
@@ -107,7 +107,7 @@ public class OAuth2IntrospectionAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenIntrospectionEndpointThrowsExceptionThenInvalidToken() {
-		OAuth2TokenIntrospectionClient introspectionClient = mock(OAuth2TokenIntrospectionClient.class);
+		OpaqueTokenIntrospector introspectionClient = mock(OpaqueTokenIntrospector.class);
 		when(introspectionClient.introspect(any())).thenThrow(new OAuth2IntrospectionException("with \"invalid\" chars"));
 		OAuth2IntrospectionAuthenticationProvider provider =
 				new OAuth2IntrospectionAuthenticationProvider(introspectionClient);
