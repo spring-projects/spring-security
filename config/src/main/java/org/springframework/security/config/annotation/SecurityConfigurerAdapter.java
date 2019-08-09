@@ -16,7 +16,6 @@
 package org.springframework.security.config.annotation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.core.GenericTypeResolver;
