@@ -426,6 +426,9 @@ public class OAuth2LoginTests {
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		when(converter.convert(any())).thenReturn(Mono.just(token));
 
+		ServerSecurityContextRepository securityContextRepository = config.securityContextRepository;
+		when(securityContextRepository.save(any(), any())).thenReturn(Mono.empty());
+
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken(accessToken.getTokenValue())
@@ -447,6 +450,7 @@ public class OAuth2LoginTests {
 
 		verify(config.jwtDecoderFactory).createDecoder(any());
 		verify(tokenResponseClient).getTokenResponse(any());
+		verify(securityContextRepository).save(any(), any());
 	}
 
 	@Configuration
@@ -461,6 +465,8 @@ public class OAuth2LoginTests {
 
 		ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = spy(new JwtDecoderFactory());
 
+		ServerSecurityContextRepository securityContextRepository = mock(ServerSecurityContextRepository.class);
+
 		@Bean
 		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
@@ -470,7 +476,8 @@ public class OAuth2LoginTests {
 					.and()
 				.oauth2Login()
 					.authenticationConverter(authenticationConverter)
-					.authenticationManager(authenticationManager());
+					.authenticationManager(authenticationManager())
+					.securityContextRepository(securityContextRepository);
 			return http.build();
 			// @formatter:on
 		}
