@@ -78,13 +78,13 @@ public class AnnotationParameterNameDiscovererTests {
 
 	@Test
 	public void getParameterNamesConstructor() throws Exception {
-		assertThat(discoverer.getParameterNames(Impl.class.getConstructor(String.class)))
+		assertThat(discoverer.getParameterNames(Impl.class.getDeclaredConstructor(String.class)))
 				.isEqualTo(new String[] { "id" });
 	}
 
 	@Test
 	public void getParameterNamesConstructorNoAnnotation() throws Exception {
-		assertThat(discoverer.getParameterNames(Impl.class.getConstructor(Long.class)))
+		assertThat(discoverer.getParameterNames(Impl.class.getDeclaredConstructor(Long.class)))
 				.isNull();
 	}
 
