@@ -123,6 +123,11 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		UserDetails userDetails = getUserDetailsService().loadUserByUsername(
 				cookieTokens[0]);
 
+		if (userDetails == null) {
+			throw new InvalidCookieException("Cookie token[0] contained username '"
+					+ cookieTokens[0] + "' that does not exist.");
+		}
+
 		// Check signature of token matches remaining details.
 		// Must do this after user lookup, as we need the DAO-derived password.
 		// If efficiency was a major issue, just add in a UserCache implementation,
