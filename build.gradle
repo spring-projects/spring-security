@@ -30,4 +30,8 @@ subprojects {
 	plugins.withType(JavaPlugin) {
 		project.sourceCompatibility='1.8'
 	}
+
+	tasks.withType(JavaCompile) {
+		options.encoding = "latin1"
+	}
 }
