@@ -71,7 +71,7 @@ try {
 				checkout scm
 				sh "git clean -dfx"
 				try {
-					withEnv(["JAVA_HOME=${ tool 'openjdk9' }"]) {
+					withEnv(["JAVA_HOME=${ tool 'jdk9' }"]) {
 						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
 					}
 				} catch(Exception e) {
@@ -87,7 +87,7 @@ try {
 				checkout scm
 				sh "git clean -dfx"
 				try {
-					withEnv(["JAVA_HOME=${ tool 'openjdk10' }"]) {
+					withEnv(["JAVA_HOME=${ tool 'jdk10' }"]) {
 						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
 					}
 				} catch(Exception e) {
@@ -103,7 +103,7 @@ try {
 				checkout scm
 				sh "git clean -dfx"
 				try {
-					withEnv(["JAVA_HOME=${ tool 'openjdk11' }"]) {
+					withEnv(["JAVA_HOME=${ tool 'jdk11' }"]) {
 						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
 					}
 				} catch(Exception e) {
