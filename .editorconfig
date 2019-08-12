@@ -14,3 +14,9 @@ indent_style = tab
 indent_size = 4
 charset = latin1
 continuation_indent_size = 8
+
+ij_smart_tabs = false
+ij_java_align_multiline_parameters = false
+
+[*.gradle]
+indent_style = tab
