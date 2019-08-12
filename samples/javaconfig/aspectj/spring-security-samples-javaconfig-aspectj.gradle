@@ -13,3 +13,8 @@ dependencies {
 
 	runtime project(':spring-security-aspects')
 }
+
+aspectj {
+	version = aspectjVersion
+}
+
