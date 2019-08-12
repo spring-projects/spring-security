@@ -39,7 +39,7 @@ import com.fasterxml.jackson.annotation.*;
 abstract class SavedCookieMixin {
 
 	@JsonCreator
-	public SavedCookieMixin(@JsonProperty("name") String name, @JsonProperty("value") String value,
+	SavedCookieMixin(@JsonProperty("name") String name, @JsonProperty("value") String value,
 							@JsonProperty("comment") String comment, @JsonProperty("domain") String domain,
 							@JsonProperty("maxAge") int maxAge, @JsonProperty("path") String path,
 							@JsonProperty("secure") boolean secure, @JsonProperty("version") int version) {

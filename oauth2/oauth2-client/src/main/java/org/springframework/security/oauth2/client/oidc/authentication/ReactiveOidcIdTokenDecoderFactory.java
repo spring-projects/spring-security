@@ -194,7 +194,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	 *
 	 * @param jwtValidatorFactory the factory that provides an {@link OAuth2TokenValidator}
 	 */
-	public final void setJwtValidatorFactory(Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory) {
+	public void setJwtValidatorFactory(Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory) {
 		Assert.notNull(jwtValidatorFactory, "jwtValidatorFactory cannot be null");
 		this.jwtValidatorFactory = jwtValidatorFactory;
 	}
@@ -207,7 +207,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	 * @param jwsAlgorithmResolver the resolver that provides the expected {@link JwsAlgorithm JWS algorithm}
 	 *                             for a specific {@link ClientRegistration client}
 	 */
-	public final void setJwsAlgorithmResolver(Function<ClientRegistration, JwsAlgorithm> jwsAlgorithmResolver) {
+	public void setJwsAlgorithmResolver(Function<ClientRegistration, JwsAlgorithm> jwsAlgorithmResolver) {
 		Assert.notNull(jwsAlgorithmResolver, "jwsAlgorithmResolver cannot be null");
 		this.jwsAlgorithmResolver = jwsAlgorithmResolver;
 	}
@@ -219,7 +219,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	 * @param claimTypeConverterFactory the factory that provides a {@link Converter} used for type conversion
 	 *                                  of claim values for a specific {@link ClientRegistration client}
 	 */
-	public final void setClaimTypeConverterFactory(Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
+	public void setClaimTypeConverterFactory(Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
 	}

@@ -51,7 +51,7 @@ class AttributePrincipalImplMixin {
 	 * @param proxyRetriever the ProxyRetriever implementation to call back to the CAS server.
 	 */
 	@JsonCreator
-	public AttributePrincipalImplMixin(@JsonProperty("name") String name, @JsonProperty("attributes") Map<String, Object> attributes,
+	AttributePrincipalImplMixin(@JsonProperty("name") String name, @JsonProperty("attributes") Map<String, Object> attributes,
 										@JsonProperty("proxyGrantingTicket") String proxyGrantingTicket,
 										@JsonProperty("proxyRetriever") ProxyRetriever proxyRetriever) {
 	}

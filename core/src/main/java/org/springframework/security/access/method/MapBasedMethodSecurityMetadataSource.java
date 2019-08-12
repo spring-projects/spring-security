@@ -287,7 +287,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 		private final Method method;
 		private final Class<?> registeredJavaType;
 
-		public RegisteredMethod(Method method, Class<?> registeredJavaType) {
+		RegisteredMethod(Method method, Class<?> registeredJavaType) {
 			Assert.notNull(method, "Method required");
 			Assert.notNull(registeredJavaType, "Registered Java Type required");
 			this.method = method;

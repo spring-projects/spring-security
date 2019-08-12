@@ -143,7 +143,7 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	 * Set the {@link BearerTokenResolver} to use. Defaults to {@link DefaultBearerTokenResolver}.
 	 * @param bearerTokenResolver the {@code BearerTokenResolver} to use
 	 */
-	public final void setBearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
+	public void setBearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
 		Assert.notNull(bearerTokenResolver, "bearerTokenResolver cannot be null");
 		this.bearerTokenResolver = bearerTokenResolver;
 	}
@@ -152,7 +152,7 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	 * Set the {@link AuthenticationEntryPoint} to use. Defaults to {@link BearerTokenAuthenticationEntryPoint}.
 	 * @param authenticationEntryPoint the {@code AuthenticationEntryPoint} to use
 	 */
-	public final void setAuthenticationEntryPoint(final AuthenticationEntryPoint authenticationEntryPoint) {
+	public void setAuthenticationEntryPoint(final AuthenticationEntryPoint authenticationEntryPoint) {
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
@@ -162,7 +162,7 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	 * @param authenticationFailureHandler the {@code AuthenticationFailureHandler} to use
 	 * @since 5.2
 	 */
-	public final void setAuthenticationFailureHandler(final AuthenticationFailureHandler authenticationFailureHandler) {
+	public void setAuthenticationFailureHandler(final AuthenticationFailureHandler authenticationFailureHandler) {
 		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
 		this.authenticationFailureHandler = authenticationFailureHandler;
 	}

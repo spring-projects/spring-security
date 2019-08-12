@@ -156,8 +156,7 @@ public class AbstractAuthenticationTokenTests {
 		private Object credentials;
 		private Object principal;
 
-		public MockAuthenticationImpl(Object principal, Object credentials,
-				List<GrantedAuthority> authorities) {
+		MockAuthenticationImpl(Object principal, Object credentials, List<GrantedAuthority> authorities) {
 			super(authorities);
 			this.principal = principal;
 			this.credentials = credentials;

@@ -170,7 +170,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 			extends SecurityContextHolderAwareRequestWrapper {
 		private final HttpServletResponse response;
 
-		public Servlet3SecurityContextHolderAwareRequestWrapper(
+		Servlet3SecurityContextHolderAwareRequestWrapper(
 				HttpServletRequest request, String rolePrefix,
 				HttpServletResponse response) {
 			super(request, HttpServlet3RequestFactory.this.trustResolver, rolePrefix);
@@ -265,7 +265,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	private static class SecurityContextAsyncContext implements AsyncContext {
 		private final AsyncContext asyncContext;
 
-		public SecurityContextAsyncContext(AsyncContext asyncContext) {
+		SecurityContextAsyncContext(AsyncContext asyncContext) {
 			this.asyncContext = asyncContext;
 		}
 

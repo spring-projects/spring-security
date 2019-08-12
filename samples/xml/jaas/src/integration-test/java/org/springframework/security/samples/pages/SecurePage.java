@@ -32,7 +32,7 @@ public class SecurePage {
 	public static LoginPage to(WebDriver driver, int port) {
 		driver.get("http://localhost:" + port + "/secure");
 		return PageFactory.initElements(driver, LoginPage.class);
-	};
+	}
 
 	private final WebDriver webDriver;
 

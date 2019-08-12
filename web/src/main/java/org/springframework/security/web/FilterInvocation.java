@@ -158,7 +158,7 @@ class DummyRequest extends HttpServletRequestWrapper {
 	private String queryString;
 	private String method;
 
-	public DummyRequest() {
+	DummyRequest() {
 		super(UNSUPPORTED_REQUEST);
 	}
 

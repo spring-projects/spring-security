@@ -61,24 +61,24 @@ public final class DelegatingSecurityContextScheduledExecutorService extends
 		this(delegate, null);
 	}
 
-	public final ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+	public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
 		command = wrap(command);
 		return getDelegate().schedule(command, delay, unit);
 	}
 
-	public final <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay,
+	public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay,
 			TimeUnit unit) {
 		callable = wrap(callable);
 		return getDelegate().schedule(callable, delay, unit);
 	}
 
-	public final ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
+	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
 			long initialDelay, long period, TimeUnit unit) {
 		command = wrap(command);
 		return getDelegate().scheduleAtFixedRate(command, initialDelay, period, unit);
 	}
 
-	public final ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
+	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
 			long initialDelay, long delay, TimeUnit unit) {
 		command = wrap(command);
 		return getDelegate().scheduleWithFixedDelay(command, initialDelay, delay, unit);

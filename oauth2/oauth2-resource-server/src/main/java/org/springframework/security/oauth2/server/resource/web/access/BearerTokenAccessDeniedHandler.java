@@ -85,7 +85,7 @@ public final class BearerTokenAccessDeniedHandler implements AccessDeniedHandler
 	 *
 	 * @param realmName
 	 */
-	public final void setRealmName(String realmName) {
+	public void setRealmName(String realmName) {
 		this.realmName = realmName;
 	}
 

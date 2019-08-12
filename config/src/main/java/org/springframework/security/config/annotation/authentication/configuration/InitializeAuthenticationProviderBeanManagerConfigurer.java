@@ -42,7 +42,7 @@ class InitializeAuthenticationProviderBeanManagerConfigurer
 	/**
 	 * @param context the ApplicationContext to look up beans.
 	 */
-	public InitializeAuthenticationProviderBeanManagerConfigurer(
+	InitializeAuthenticationProviderBeanManagerConfigurer(
 			ApplicationContext context) {
 		this.context = context;
 	}

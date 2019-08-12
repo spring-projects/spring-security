@@ -68,7 +68,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 	private final PointcutParser parser;
 	private final Set<String> processedBeans = new HashSet<>();
 
-	public ProtectPointcutPostProcessor(
+	ProtectPointcutPostProcessor(
 			MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource) {
 		Assert.notNull(mapBasedMethodSecurityMetadataSource,
 				"MapBasedMethodSecurityMetadataSource to populate is required");

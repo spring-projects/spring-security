@@ -168,7 +168,7 @@ public class RememberMeAuthenticationFilterTests {
 	private class MockRememberMeServices implements RememberMeServices {
 		private Authentication authToReturn;
 
-		public MockRememberMeServices(Authentication authToReturn) {
+		MockRememberMeServices(Authentication authToReturn) {
 			this.authToReturn = authToReturn;
 		}
 

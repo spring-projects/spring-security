@@ -80,7 +80,7 @@ public class XFrameOptionsServerHttpHeadersWriter implements ServerHttpHeadersWr
 		 * origin of the content and the frame are the same, this MUST be
 		 * treated as "DENY".
 		 */
-		SAMEORIGIN;
+		SAMEORIGIN
 	}
 
 	private static ServerHttpHeadersWriter createDelegate(Mode mode) {

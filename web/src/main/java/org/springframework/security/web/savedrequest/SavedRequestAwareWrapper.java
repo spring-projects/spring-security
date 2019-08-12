@@ -77,7 +77,7 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 	// ~ Constructors
 	// ===================================================================================================
 
-	public SavedRequestAwareWrapper(SavedRequest saved, HttpServletRequest request) {
+	SavedRequestAwareWrapper(SavedRequest saved, HttpServletRequest request) {
 		super(request);
 		savedRequest = saved;
 

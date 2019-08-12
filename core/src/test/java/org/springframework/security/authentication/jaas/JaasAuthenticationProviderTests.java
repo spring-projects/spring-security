@@ -290,7 +290,7 @@ public class JaasAuthenticationProviderTests {
 	private static class MockLoginContext extends LoginContext {
 		boolean loggedOut = false;
 
-		public MockLoginContext(String loginModule) throws LoginException {
+		MockLoginContext(String loginModule) throws LoginException {
 			super(loginModule);
 		}
 

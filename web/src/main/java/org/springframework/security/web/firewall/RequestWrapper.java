@@ -48,7 +48,7 @@ final class RequestWrapper extends FirewalledRequest {
 	private final String strippedPathInfo;
 	private boolean stripPaths = true;
 
-	public RequestWrapper(HttpServletRequest request) {
+	RequestWrapper(HttpServletRequest request) {
 		super(request);
 		strippedServletPath = strip(request.getServletPath());
 		String pathInfo = strip(request.getPathInfo());
@@ -144,7 +144,7 @@ final class RequestWrapper extends FirewalledRequest {
 		 * @param path the {@code path} that will be used to obtain the delegate
 		 * {@link RequestDispatcher} from the original {@link HttpServletRequest}.
 		 */
-		public FirewalledRequestAwareRequestDispatcher(String path) {
+		FirewalledRequestAwareRequestDispatcher(String path) {
 			this.path = path;
 		}
 

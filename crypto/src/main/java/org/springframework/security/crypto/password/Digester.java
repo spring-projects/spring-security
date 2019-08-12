@@ -38,7 +38,7 @@ final class Digester {
 	 * @param algorithm the digest algorithm; for example, "SHA-1" or "SHA-256".
 	 * @param iterations the number of times to apply the digest algorithm to the input
 	 */
-	public Digester(String algorithm, int iterations) {
+	Digester(String algorithm, int iterations) {
 		// eagerly validate the algorithm
 		createDigest(algorithm);
 		this.algorithm = algorithm;
@@ -53,7 +53,7 @@ final class Digester {
 		return value;
 	}
 
-	final void setIterations(int iterations) {
+	void setIterations(int iterations) {
 		if (iterations <= 0) {
 			throw new IllegalArgumentException("Iterations value must be greater than zero");
 		}

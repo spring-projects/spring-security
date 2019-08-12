@@ -27,17 +27,17 @@ public interface ContactDao {
 	// ~ Methods
 	// ========================================================================================================
 
-	public void create(Contact contact);
+	void create(Contact contact);
 
-	public void delete(Long contactId);
+	void delete(Long contactId);
 
-	public List<Contact> findAll();
+	List<Contact> findAll();
 
-	public List<String> findAllPrincipals();
+	List<String> findAllPrincipals();
 
-	public List<String> findAllRoles();
+	List<String> findAllRoles();
 
-	public Contact getById(Long id);
+	Contact getById(Long id);
 
-	public void update(Contact contact);
+	void update(Contact contact);
 }

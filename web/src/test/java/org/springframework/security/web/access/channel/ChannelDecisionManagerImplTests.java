@@ -204,7 +204,7 @@ public class ChannelDecisionManagerImplTests {
 		private String configAttribute;
 		private boolean failIfCalled;
 
-		public MockChannelProcessor(String configAttribute, boolean failIfCalled) {
+		MockChannelProcessor(String configAttribute, boolean failIfCalled) {
 			this.configAttribute = configAttribute;
 			this.failIfCalled = failIfCalled;
 		}

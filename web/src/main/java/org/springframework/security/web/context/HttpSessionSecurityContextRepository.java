@@ -269,7 +269,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 			HttpServletRequestWrapper {
 		private final SaveContextOnUpdateOrErrorResponseWrapper response;
 
-		public SaveToSessionRequestWrapper(HttpServletRequest request,
+		SaveToSessionRequestWrapper(HttpServletRequest request,
 				SaveContextOnUpdateOrErrorResponseWrapper response) {
 			super(request);
 			this.response = response;

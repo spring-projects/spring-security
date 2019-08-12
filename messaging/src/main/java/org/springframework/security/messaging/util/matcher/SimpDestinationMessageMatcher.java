@@ -120,7 +120,7 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 		this.pattern = pattern;
 	}
 
-	public boolean matches(Message<? extends Object> message) {
+	public boolean matches(Message<?> message) {
 		if (!messageTypeMatcher.matches(message)) {
 			return false;
 		}
@@ -131,7 +131,7 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	}
 
 
-	public Map<String, String> extractPathVariables(Message<? extends Object> message){
+	public Map<String, String> extractPathVariables(Message<?> message){
 		final String destination = SimpMessageHeaderAccessor.getDestination(message
 				.getHeaders());
 		return destination != null ? matcher.extractUriTemplateVariables(pattern, destination)

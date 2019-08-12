@@ -42,7 +42,7 @@ final class MockWebResponseBuilder {
 	private final FluxExchangeResult<String> exchangeResult;
 
 
-	public MockWebResponseBuilder(long startTime, WebRequest webRequest, FluxExchangeResult<String> exchangeResult) {
+	MockWebResponseBuilder(long startTime, WebRequest webRequest, FluxExchangeResult<String> exchangeResult) {
 		Assert.notNull(webRequest, "WebRequest must not be null");
 		Assert.notNull(exchangeResult, "FluxExchangeResult must not be null");
 		this.startTime = startTime;

@@ -28,7 +28,7 @@ final class HexEncodingTextEncryptor implements TextEncryptor {
 
 	private final BytesEncryptor encryptor;
 
-	public HexEncodingTextEncryptor(BytesEncryptor encryptor) {
+	HexEncodingTextEncryptor(BytesEncryptor encryptor) {
 		this.encryptor = encryptor;
 	}
 

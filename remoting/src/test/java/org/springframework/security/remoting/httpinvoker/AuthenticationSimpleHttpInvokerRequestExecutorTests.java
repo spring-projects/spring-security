@@ -105,7 +105,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 
 		private Map<String, String> requestProperties = new HashMap<>();
 
-		public MockHttpURLConnection(URL u) {
+		MockHttpURLConnection(URL u) {
 			super(u);
 		}
 

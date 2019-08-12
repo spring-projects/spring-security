@@ -13,7 +13,6 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 package org.springframework.security.crypto.bcrypt;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -486,7 +485,7 @@ public class BCrypt {
 	 * @param lr	an array containing the two 32-bit half blocks
 	 * @param off	the position in the array of the blocks
 	 */
-	private final void encipher(int lr[], int off) {
+	private void encipher(int lr[], int off) {
 		int i, n, l = lr[off], r = lr[off + 1];
 
 		l ^= P[0];
@@ -733,11 +732,7 @@ public class BCrypt {
 	public static String hashpw(String password, String salt) {
 		byte passwordb[];
 
-		try {
-			passwordb = password.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException uee) {
-			throw new AssertionError("UTF-8 is not supported");
-		}
+		passwordb = password.getBytes(StandardCharsets.UTF_8);
 
 		return hashpw(passwordb, salt);
 	}

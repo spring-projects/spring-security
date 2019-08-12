@@ -169,7 +169,7 @@ public class ChannelProcessingFilterTests {
 		private String supportAttribute;
 		private boolean commitAResponse;
 
-		public MockChannelDecisionManager(boolean commitAResponse, String supportAttribute) {
+		MockChannelDecisionManager(boolean commitAResponse, String supportAttribute) {
 			this.commitAResponse = commitAResponse;
 			this.supportAttribute = supportAttribute;
 		}
@@ -197,7 +197,7 @@ public class ChannelProcessingFilterTests {
 		private String servletPath;
 		private boolean provideIterator;
 
-		public MockFilterInvocationDefinitionMap(String servletPath,
+		MockFilterInvocationDefinitionMap(String servletPath,
 				boolean provideIterator, String... toReturn) {
 			this.servletPath = servletPath;
 			this.toReturn = SecurityConfig.createList(toReturn);

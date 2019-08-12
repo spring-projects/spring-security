@@ -41,7 +41,7 @@ public class SecurityConfigurerAdapterTests {
 	static class OrderedObjectPostProcessor implements ObjectPostProcessor<String>, Ordered {
 		private final int order;
 
-		public OrderedObjectPostProcessor(int order) {
+		OrderedObjectPostProcessor(int order) {
 			this.order = order;
 		}
 

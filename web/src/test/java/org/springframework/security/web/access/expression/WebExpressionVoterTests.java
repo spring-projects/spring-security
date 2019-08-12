@@ -101,7 +101,7 @@ public class WebExpressionVoterTests {
 
 	private static class FilterInvocationChild extends FilterInvocation {
 
-		public FilterInvocationChild(ServletRequest request, ServletResponse response,
+		FilterInvocationChild(ServletRequest request, ServletResponse response,
 				FilterChain chain) {
 			super(request, response, chain);
 		}

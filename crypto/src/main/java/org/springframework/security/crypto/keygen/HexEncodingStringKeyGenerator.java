@@ -26,7 +26,7 @@ final class HexEncodingStringKeyGenerator implements StringKeyGenerator {
 
 	private final BytesKeyGenerator keyGenerator;
 
-	public HexEncodingStringKeyGenerator(BytesKeyGenerator keyGenerator) {
+	HexEncodingStringKeyGenerator(BytesKeyGenerator keyGenerator) {
 		this.keyGenerator = keyGenerator;
 	}
 

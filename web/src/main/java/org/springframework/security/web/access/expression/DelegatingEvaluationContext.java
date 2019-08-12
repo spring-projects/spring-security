@@ -38,7 +38,7 @@ import org.springframework.expression.TypedValue;
 class DelegatingEvaluationContext implements EvaluationContext {
 	private final EvaluationContext delegate;
 
-	public DelegatingEvaluationContext(EvaluationContext delegate) {
+	DelegatingEvaluationContext(EvaluationContext delegate) {
 		this.delegate = delegate;
 	}
 

@@ -48,7 +48,7 @@ public class J2eePreAuthenticatedProcessingFilterTests {
 						getRequest("testUser", new String[] {})));
 	}
 
-	private final HttpServletRequest getRequest(final String aUserName,
+	private HttpServletRequest getRequest(final String aUserName,
 			final String[] aRoles) {
 		MockHttpServletRequest req = new MockHttpServletRequest() {
 

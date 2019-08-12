@@ -3658,7 +3658,7 @@ public class ServerHttpSecurity {
 		private final WebFilter webFilter;
 		private final int order;
 
-		public OrderedWebFilter(WebFilter webFilter, int order) {
+		OrderedWebFilter(WebFilter webFilter, int order) {
 			this.webFilter = webFilter;
 			this.order = order;
 		}

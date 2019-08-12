@@ -111,7 +111,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 
 		private String mode;
 
-		private XFrameOptionsMode(String mode) {
+		XFrameOptionsMode(String mode) {
 			this.mode = mode;
 		}
 

@@ -468,7 +468,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	static class MockNamingEnumeration implements NamingEnumeration<SearchResult> {
 		private SearchResult sr;
 
-		public MockNamingEnumeration(SearchResult sr) {
+		MockNamingEnumeration(SearchResult sr) {
 			this.sr = sr;
 		}
 

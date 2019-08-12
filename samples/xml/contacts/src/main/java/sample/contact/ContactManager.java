@@ -31,27 +31,27 @@ public interface ContactManager {
 	// ~ Methods
 	// ========================================================================================================
 	@PreAuthorize("hasPermission(#contact, admin)")
-	public void addPermission(Contact contact, Sid recipient, Permission permission);
+	void addPermission(Contact contact, Sid recipient, Permission permission);
 
 	@PreAuthorize("hasPermission(#contact, admin)")
-	public void deletePermission(Contact contact, Sid recipient, Permission permission);
+	void deletePermission(Contact contact, Sid recipient, Permission permission);
 
 	@PreAuthorize("hasRole('ROLE_USER')")
-	public void create(Contact contact);
+	void create(Contact contact);
 
 	@PreAuthorize("hasPermission(#contact, 'delete') or hasPermission(#contact, admin)")
-	public void delete(Contact contact);
+	void delete(Contact contact);
 
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@PostFilter("hasPermission(filterObject, 'read') or hasPermission(filterObject, admin)")
-	public List<Contact> getAll();
+	List<Contact> getAll();
 
 	@PreAuthorize("hasRole('ROLE_USER')")
-	public List<String> getAllRecipients();
+	List<String> getAllRecipients();
 
 	@PreAuthorize("hasPermission(#id, 'sample.contact.Contact', read) or "
 			+ "hasPermission(#id, 'sample.contact.Contact', admin)")
-	public Contact getById(Long id);
+	Contact getById(Long id);
 
-	public Contact getRandomContact();
+	Contact getRandomContact();
 }

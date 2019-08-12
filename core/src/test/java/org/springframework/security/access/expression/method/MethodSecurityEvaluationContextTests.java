@@ -58,7 +58,7 @@ public class MethodSecurityEvaluationContextTests {
 	private static class  NotNullVariableMethodSecurityEvaluationContext
 			extends MethodSecurityEvaluationContext {
 
-		public NotNullVariableMethodSecurityEvaluationContext(Authentication auth, MethodInvocation mi,
+		NotNullVariableMethodSecurityEvaluationContext(Authentication auth, MethodInvocation mi,
 				ParameterNameDiscoverer parameterNameDiscoverer) {
 			super(auth, mi, parameterNameDiscoverer);
 		}

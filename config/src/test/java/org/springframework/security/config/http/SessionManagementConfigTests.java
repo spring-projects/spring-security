@@ -610,7 +610,7 @@ public class SessionManagementConfigTests {
 	private static class EncodeUrlDenyingHttpServletResponseWrapper
 			extends HttpServletResponseWrapper {
 
-		public EncodeUrlDenyingHttpServletResponseWrapper(HttpServletResponse response) {
+		EncodeUrlDenyingHttpServletResponseWrapper(HttpServletResponse response) {
 			super(response);
 		}
 

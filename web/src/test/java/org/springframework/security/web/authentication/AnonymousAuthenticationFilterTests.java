@@ -120,7 +120,7 @@ public class AnonymousAuthenticationFilterTests {
 	private class MockFilterChain implements FilterChain {
 		private boolean expectToProceed;
 
-		public MockFilterChain(boolean expectToProceed) {
+		MockFilterChain(boolean expectToProceed) {
 			this.expectToProceed = expectToProceed;
 		}
 

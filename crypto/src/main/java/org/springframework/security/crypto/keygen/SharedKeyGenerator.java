@@ -26,7 +26,7 @@ final class SharedKeyGenerator implements BytesKeyGenerator {
 
 	private byte[] sharedKey;
 
-	public SharedKeyGenerator(byte[] sharedKey) {
+	SharedKeyGenerator(byte[] sharedKey) {
 		this.sharedKey = sharedKey;
 	}
 

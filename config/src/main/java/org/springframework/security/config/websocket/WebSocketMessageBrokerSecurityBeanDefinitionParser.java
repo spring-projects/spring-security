@@ -243,8 +243,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 		private final boolean sameOriginDisabled;
 
-		public MessageSecurityPostProcessor(String inboundSecurityInterceptorId,
-				boolean sameOriginDisabled) {
+		MessageSecurityPostProcessor(String inboundSecurityInterceptorId, boolean sameOriginDisabled) {
 			this.inboundSecurityInterceptorId = inboundSecurityInterceptorId;
 			this.sameOriginDisabled = sameOriginDisabled;
 		}

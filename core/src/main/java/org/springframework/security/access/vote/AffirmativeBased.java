@@ -30,7 +30,7 @@ import org.springframework.security.core.Authentication;
  */
 public class AffirmativeBased extends AbstractAccessDecisionManager {
 
-	public AffirmativeBased(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
+	public AffirmativeBased(List<AccessDecisionVoter<?>> decisionVoters) {
 		super(decisionVoters);
 	}
 

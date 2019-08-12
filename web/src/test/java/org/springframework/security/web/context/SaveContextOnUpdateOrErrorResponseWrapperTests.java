@@ -180,7 +180,7 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
 			SaveContextOnUpdateOrErrorResponseWrapper {
 		private SecurityContext securityContext;
 
-		public SaveContextOnUpdateOrErrorResponseWrapperStub(
+		SaveContextOnUpdateOrErrorResponseWrapperStub(
 				HttpServletResponse response, boolean disableUrlRewriting) {
 			super(response, disableUrlRewriting);
 		}

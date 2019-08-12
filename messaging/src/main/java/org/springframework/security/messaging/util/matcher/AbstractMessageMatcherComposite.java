@@ -38,7 +38,7 @@ abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 	 *
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
-	public AbstractMessageMatcherComposite(List<MessageMatcher<T>> messageMatchers) {
+	AbstractMessageMatcherComposite(List<MessageMatcher<T>> messageMatchers) {
 		notEmpty(messageMatchers, "messageMatchers must contain a value");
 		if (messageMatchers.contains(null)) {
 			throw new IllegalArgumentException(
@@ -54,7 +54,7 @@ abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	@SafeVarargs
-	public AbstractMessageMatcherComposite(MessageMatcher<T>... messageMatchers) {
+	AbstractMessageMatcherComposite(MessageMatcher<T>... messageMatchers) {
 		this(asList(messageMatchers));
 	}
 

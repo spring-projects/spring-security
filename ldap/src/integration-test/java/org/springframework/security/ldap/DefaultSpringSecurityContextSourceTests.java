@@ -162,7 +162,7 @@ public class DefaultSpringSecurityContextSourceTests {
 
 	static class EnvExposingDefaultSpringSecurityContextSource extends
 			DefaultSpringSecurityContextSource {
-		public EnvExposingDefaultSpringSecurityContextSource(String providerUrl) {
+		EnvExposingDefaultSpringSecurityContextSource(String providerUrl) {
 			super(providerUrl);
 		}
 

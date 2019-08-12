@@ -107,7 +107,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	 *
 	 * @param realmName
 	 */
-	public final void setRealmName(String realmName) {
+	public void setRealmName(String realmName) {
 		this.realmName = realmName;
 	}
 

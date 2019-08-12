@@ -631,7 +631,7 @@ public class CsrfConfigTests {
 	static class CsrfReturnedResultMatcher implements ResultMatcher {
 		ExceptionalFunction<MvcResult, String> token;
 
-		public CsrfReturnedResultMatcher(ExceptionalFunction<MvcResult, String> token) {
+		CsrfReturnedResultMatcher(ExceptionalFunction<MvcResult, String> token) {
 			this.token = token;
 		}
 

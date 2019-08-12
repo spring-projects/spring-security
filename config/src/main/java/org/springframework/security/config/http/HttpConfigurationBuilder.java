@@ -152,7 +152,7 @@ class HttpConfigurationBuilder {
 	private BeanDefinition invalidSession;
 	private boolean addAllAuth;
 
-	public HttpConfigurationBuilder(Element element, boolean addAllAuth,
+	HttpConfigurationBuilder(Element element, boolean addAllAuth,
 			ParserContext pc, BeanReference portMapper, BeanReference portResolver,
 			BeanReference authenticationManager) {
 		this.httpElt = element;

@@ -37,7 +37,7 @@ public interface MessageMatcher<T> {
 	 */
 	MessageMatcher<Object> ANY_MESSAGE = new MessageMatcher<Object>() {
 		@Override
-		public boolean matches(Message<? extends Object> message) {
+		public boolean matches(Message<?> message) {
 			return true;
 		}
 

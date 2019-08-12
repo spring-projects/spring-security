@@ -258,10 +258,10 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		public final String property = "property";
 	}
 
-	static class CopyUserPrincipal {
+	public static class CopyUserPrincipal {
 		public final String property;
 
-		CopyUserPrincipal(String property) {
+		public CopyUserPrincipal(String property) {
 			this.property = property;
 		}
 

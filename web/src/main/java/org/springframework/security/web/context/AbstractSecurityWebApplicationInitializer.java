@@ -210,8 +210,8 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * @param filterName
 	 * @param filter
 	 */
-	private final void registerFilter(ServletContext servletContext,
-			boolean insertBeforeOtherFilters, String filterName, Filter filter) {
+	private void registerFilter(ServletContext servletContext,
+								boolean insertBeforeOtherFilters, String filterName, Filter filter) {
 		Dynamic registration = servletContext.addFilter(filterName, filter);
 		if (registration == null) {
 			throw new IllegalStateException(

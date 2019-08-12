@@ -415,7 +415,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	private class CasAuthenticationFailureHandler implements AuthenticationFailureHandler {
 		private final AuthenticationFailureHandler serviceTicketFailureHandler;
 
-		public CasAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
+		CasAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
 			Assert.notNull(failureHandler, "failureHandler");
 			this.serviceTicketFailureHandler = failureHandler;
 		}

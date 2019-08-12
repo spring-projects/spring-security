@@ -152,7 +152,7 @@ public final class SecurityJackson2Modules {
 	 */
 	static class WhitelistTypeResolverBuilder extends ObjectMapper.DefaultTypeResolverBuilder {
 
-		public WhitelistTypeResolverBuilder(ObjectMapper.DefaultTyping defaultTyping) {
+		WhitelistTypeResolverBuilder(ObjectMapper.DefaultTyping defaultTyping) {
 			super(defaultTyping);
 		}
 

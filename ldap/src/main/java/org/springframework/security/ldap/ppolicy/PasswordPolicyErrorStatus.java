@@ -55,7 +55,7 @@ public enum PasswordPolicyErrorStatus {
 	private final String errorCode;
 	private final String defaultMessage;
 
-	private PasswordPolicyErrorStatus(String errorCode, String defaultMessage) {
+	PasswordPolicyErrorStatus(String errorCode, String defaultMessage) {
 		this.errorCode = errorCode;
 		this.defaultMessage = defaultMessage;
 	}

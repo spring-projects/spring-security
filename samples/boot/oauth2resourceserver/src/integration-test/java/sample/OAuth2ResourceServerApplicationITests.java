@@ -107,7 +107,7 @@ public class OAuth2ResourceServerApplicationITests {
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
 		private String token;
 
-		public BearerTokenRequestPostProcessor(String token) {
+		BearerTokenRequestPostProcessor(String token) {
 			this.token = token;
 		}
 

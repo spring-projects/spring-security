@@ -34,6 +34,5 @@ interface HttpServletRequestFactory {
 	 * @param response the original {@link HttpServletResponse}. Cannot be null.
 	 * @return a non-null HttpServletRequest
 	 */
-	public HttpServletRequest create(HttpServletRequest request,
-			HttpServletResponse response);
+	HttpServletRequest create(HttpServletRequest request, HttpServletResponse response);
 }

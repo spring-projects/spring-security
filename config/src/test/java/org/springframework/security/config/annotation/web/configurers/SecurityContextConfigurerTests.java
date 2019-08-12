@@ -129,7 +129,7 @@ public class SecurityContextConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	static class SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig extends WebSecurityConfigurerAdapter {
-		public SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig() {
+		SecurityContextRepositoryDefaultsSecurityContextRepositoryConfig() {
 			super(true);
 		}
 

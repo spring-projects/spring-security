@@ -400,7 +400,7 @@ public class CsrfFilterTests {
 		this.filter.setAccessDeniedHandler(null);
 	}
 
-	private static final CsrfTokenAssert assertToken(Object token) {
+	private static CsrfTokenAssert assertToken(Object token) {
 		return new CsrfTokenAssert((CsrfToken) token);
 	}
 

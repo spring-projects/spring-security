@@ -23,7 +23,7 @@ class ELRequestMatcherContext {
 
 	private final HttpServletRequest request;
 
-	public ELRequestMatcherContext(HttpServletRequest request) {
+	ELRequestMatcherContext(HttpServletRequest request) {
 		this.request = request;
 	}
 

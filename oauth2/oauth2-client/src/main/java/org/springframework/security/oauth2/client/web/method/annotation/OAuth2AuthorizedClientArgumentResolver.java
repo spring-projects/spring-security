@@ -177,7 +177,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	 * @param clientCredentialsTokenResponseClient the client used when requesting an access token credential at the Token Endpoint for the {@code client_credentials} grant
 	 */
 	@Deprecated
-	public final void setClientCredentialsTokenResponseClient(
+	public void setClientCredentialsTokenResponseClient(
 			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
 		Assert.notNull(clientCredentialsTokenResponseClient, "clientCredentialsTokenResponseClient cannot be null");
 		Assert.state(this.defaultAuthorizedClientManager, "The client cannot be set when the constructor used is \"OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientManager)\". " +

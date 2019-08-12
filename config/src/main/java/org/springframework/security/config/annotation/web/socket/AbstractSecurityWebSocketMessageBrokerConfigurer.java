@@ -159,7 +159,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends
 		MessageExpressionVoter<Object> voter = new MessageExpressionVoter<>();
 		voter.setExpressionHandler(getMessageExpressionHandler());
 
-		List<AccessDecisionVoter<? extends Object>> voters = new ArrayList<>();
+		List<AccessDecisionVoter<?>> voters = new ArrayList<>();
 		voters.add(voter);
 
 		AffirmativeBased manager = new AffirmativeBased(voters);

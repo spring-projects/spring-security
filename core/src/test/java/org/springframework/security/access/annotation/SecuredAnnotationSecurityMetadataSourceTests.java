@@ -218,7 +218,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	// Inner classes
 	class Department extends Entity {
 
-		public Department(String name) {
+		Department(String name) {
 			super(name);
 		}
 	}
@@ -285,15 +285,15 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	public @interface AnnotatedAnnotation {
 	}
 
-	public static interface ReturnVoid {
+	public interface ReturnVoid {
 
-		public void doSomething(List<?> param);
+		void doSomething(List<?> param);
 	}
 
 	@AnnotatedAnnotation
-	public static interface ReturnVoid2 {
+	public interface ReturnVoid2 {
 
-		public void doSomething(List<?> param);
+		void doSomething(List<?> param);
 	}
 
 	@AnnotatedAnnotation
