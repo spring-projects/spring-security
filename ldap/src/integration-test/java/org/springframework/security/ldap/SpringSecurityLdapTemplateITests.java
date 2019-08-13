@@ -40,7 +40,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author Luke Taylor
- * @author Eddú Meléndez
+ * @author EddÃº MelÃ©ndez
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
