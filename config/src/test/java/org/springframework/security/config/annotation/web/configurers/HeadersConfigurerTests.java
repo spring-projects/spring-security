@@ -46,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @author Tim Ysewyn
  * @author Joe Grandja
- * @author Eddú Meléndez
+ * @author EddÃº MelÃ©ndez
  * @author Vedran Pavic
  * @author Eleftheria Stein
  */

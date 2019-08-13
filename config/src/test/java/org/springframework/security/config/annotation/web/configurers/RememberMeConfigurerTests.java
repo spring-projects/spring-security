@@ -64,7 +64,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Tests for {@link RememberMeConfigurer}
  *
  * @author Rob Winch
- * @author Eddú Meléndez
+ * @author EddÃº MelÃ©ndez
  * @author Eleftheria Stein
  */
 public class RememberMeConfigurerTests {

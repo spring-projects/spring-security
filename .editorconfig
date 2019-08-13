@@ -12,5 +12,5 @@ max_line_length = 120
 [*.{java,xml}]
 indent_style = tab
 indent_size = 4
-charset = latin1
+charset = utf-8
 continuation_indent_size = 8
