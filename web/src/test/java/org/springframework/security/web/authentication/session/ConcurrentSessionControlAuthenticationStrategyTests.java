@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,6 +132,25 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 		strategy.onAuthentication(authentication, request, response);
 
 		assertThat(sessionInformation.isExpired()).isTrue();
+	}
+
+	@Test
+	public void onAuthenticationWhenMaxSessionsExceededByTwoThenTwoSessionsExpired() {
+		SessionInformation oldestSessionInfo = new SessionInformation(
+				authentication.getPrincipal(), "unique1", new Date(1374766134214L));
+		SessionInformation secondOldestSessionInfo = new SessionInformation(
+				authentication.getPrincipal(), "unique2", new Date(1374766134215L));
+		when(sessionRegistry.getAllSessions(any(), anyBoolean())).thenReturn(
+				Arrays.<SessionInformation> asList(oldestSessionInfo,
+						secondOldestSessionInfo,
+						sessionInformation));
+		strategy.setMaximumSessions(2);
+
+		strategy.onAuthentication(authentication, request, response);
+
+		assertThat(oldestSessionInfo.isExpired()).isTrue();
+		assertThat(secondOldestSessionInfo.isExpired()).isTrue();
+		assertThat(sessionInformation.isExpired()).isFalse();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
