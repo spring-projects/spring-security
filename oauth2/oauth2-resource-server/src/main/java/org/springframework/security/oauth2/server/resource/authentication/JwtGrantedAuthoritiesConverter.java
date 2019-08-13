@@ -25,6 +25,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -40,6 +41,8 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	private static final Collection<String> WELL_KNOWN_AUTHORITIES_CLAIM_NAMES =
 			Arrays.asList("scope", "scp");
 
+	private String authorityPrefix = DEFAULT_AUTHORITY_PREFIX;
+
 	/**
 	 * Extract {@link GrantedAuthority}s from the given {@link Jwt}.
 	 *
@@ -50,9 +53,21 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	public Collection<GrantedAuthority> convert(Jwt jwt) {
 		Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 		for (String authority : getAuthorities(jwt)) {
-			grantedAuthorities.add(new SimpleGrantedAuthority(DEFAULT_AUTHORITY_PREFIX + authority));
+			grantedAuthorities.add(new SimpleGrantedAuthority(this.authorityPrefix + authority));
 		}
 		return grantedAuthorities;
+	}
+
+	/**
+	 * Sets the prefix to use for {@link GrantedAuthority authorities} mapped by this converter.
+	 * Defaults to {@link JwtGrantedAuthoritiesConverter#DEFAULT_AUTHORITY_PREFIX}.
+	 *
+	 * @param authorityPrefix The authority prefix
+	 * @since 5.2
+	 */
+	public void setAuthorityPrefix(String authorityPrefix) {
+		Assert.hasText(authorityPrefix, "authorityPrefix cannot be empty");
+		this.authorityPrefix = authorityPrefix;
 	}
 
 	private String getAuthoritiesClaimName(Jwt jwt) {
