@@ -53,6 +53,8 @@ public abstract class BeanIds {
 			+ "methodSecurityMetadataSourceAdvisor";
 	public static final String EMBEDDED_APACHE_DS = PREFIX
 			+ "apacheDirectoryServerContainer";
+	public static final String EMBEDDED_UNBOUNDID = PREFIX
+			+ "unboundidServerContainer";
 	public static final String CONTEXT_SOURCE = PREFIX + "securityContextSource";
 
 	public static final String DEBUG_FILTER = PREFIX + "debugFilter";

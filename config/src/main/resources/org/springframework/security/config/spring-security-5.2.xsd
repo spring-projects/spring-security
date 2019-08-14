@@ -222,6 +222,19 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="mode">
+         <xs:annotation>
+            <xs:documentation>Explicitly specifies which embedded ldap server should use. Values are 'apacheds' and
+                'unboundid'. By default, it will depends if the library is available in the classpath.
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="apacheds"/>
+               <xs:enumeration value="unboundid"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="ldap-server-ref-attribute">
       <xs:attribute name="server-ref" use="required" type="xs:token">
