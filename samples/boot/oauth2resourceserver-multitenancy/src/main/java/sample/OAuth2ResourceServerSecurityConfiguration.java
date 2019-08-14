@@ -17,6 +17,7 @@ package sample;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -32,8 +33,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
-
-import static org.springframework.security.web.authentication.MultiTenantAuthenticationManagerResolver.resolveFromPath;
 
 /**
  * @author Josh Cummings
@@ -68,7 +67,13 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 		Map<String, AuthenticationManager> authenticationManagers = new HashMap<>();
 		authenticationManagers.put("tenantOne", jwt());
 		authenticationManagers.put("tenantTwo", opaque());
-		return resolveFromPath(authenticationManagers::get);
+		return request -> {
+			String[] pathParts = request.getRequestURI().split("/");
+			String tenantId = pathParts.length > 0 ? pathParts[1] : null;
+			return Optional.ofNullable(tenantId)
+					.map(authenticationManagers::get)
+					.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
+		};
 	}
 
 	AuthenticationManager jwt() {
