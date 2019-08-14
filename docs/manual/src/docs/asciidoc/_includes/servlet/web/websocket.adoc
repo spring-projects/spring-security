@@ -28,7 +28,7 @@ public class WebSocketSecurityConfig
 
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
         messages
-                .simpDestMatchers("/user/*").authenticated() // <3>
+                .simpDestMatchers("/user/**").authenticated() // <3>
     }
 }
 ----
