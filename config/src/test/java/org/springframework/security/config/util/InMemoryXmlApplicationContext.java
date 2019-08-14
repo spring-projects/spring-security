@@ -38,7 +38,7 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
 			+ "http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd\n"
 			+ "http://www.springframework.org/schema/websocket https://www.springframework.org/schema/websocket/spring-websocket.xsd\n"
 			+ "http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-2.5.xsd\n"
-			+ "http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-";
+			+ "http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-";
 	static final String BEANS_CLOSE = "</b:beans>\n";
 
 	static final String SPRING_SECURITY_VERSION = "5.2";

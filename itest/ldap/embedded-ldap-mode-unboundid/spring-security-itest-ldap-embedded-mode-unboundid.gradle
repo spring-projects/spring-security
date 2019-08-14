@@ -1,0 +1,13 @@
+apply plugin: 'io.spring.convention.spring-test'
+
+dependencies {
+    compile project(':spring-security-core')
+    compile 'org.springframework:spring-beans'
+    compile 'org.springframework:spring-context'
+    compile 'org.springframework:spring-core'
+    compile 'org.springframework:spring-tx'
+    compile project(':spring-security-config')
+    compile project(':spring-security-ldap')
+
+    testCompile "com.unboundid:unboundid-ldapsdk"
+}

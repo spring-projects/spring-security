@@ -1,0 +1,9 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:s="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
+
+	<s:ldap-server mode="apacheds" ldif="classpath:users.ldif"/>
+
+</beans>

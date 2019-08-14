@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.ldap;
+package org.springframework.security;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.ldap.server.ApacheDSContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,9 +29,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Eddú Meléndez
  */
-public class LdapServerBeanDefinitionParserTest {
+public class LdapServerBeanDefinitionParserTests {
 
-	private InMemoryXmlApplicationContext context;
+	private ClassPathXmlApplicationContext context;
+
+	@Before
+	public void setup() {
+		this.context = new ClassPathXmlApplicationContext("applicationContext-security.xml");
+	}
 
 	@After
 	public void closeAppContext() {
@@ -42,15 +48,6 @@ public class LdapServerBeanDefinitionParserTest {
 
 	@Test
 	public void apacheDirectoryServerIsStartedByDefault() {
-		this.context = new InMemoryXmlApplicationContext("<ldap-user-service user-search-filter='(uid={0})'/><ldap-server/>", "5.2", null);
-		String[] beanNames = this.context.getBeanNamesForType(ApacheDSContainer.class);
-		assertThat(beanNames).hasSize(1);
-		assertThat(beanNames[0]).isEqualTo(BeanIds.EMBEDDED_APACHE_DS);
-	}
-
-	@Test
-	public void apacheDirectoryServerIsStartedWhenIsSet() {
-		this.context = new InMemoryXmlApplicationContext("<ldap-user-service user-search-filter='(uid={0})' /><ldap-server mode='apacheds'/>", "5.2", null);
 		String[] beanNames = this.context.getBeanNamesForType(ApacheDSContainer.class);
 		assertThat(beanNames).hasSize(1);
 		assertThat(beanNames[0]).isEqualTo(BeanIds.EMBEDDED_APACHE_DS);
