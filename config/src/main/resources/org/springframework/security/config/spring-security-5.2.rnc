@@ -84,7 +84,7 @@ ldap-server.attlist &=
 	## Optional root suffix for the embedded LDAP server. Default is "dc=springframework,dc=org"
 	attribute root { xsd:string }?
 ldap-server.attlist &=
-	## Explicitly specifies which embedded ldap server should use. Values are `apacheds` and `unboundid`. By default, it will depends if the library is available in the classpath.
+	## Explicitly specifies which embedded ldap server should use. Values are 'apacheds' and 'unboundid'. By default, it will depends if the library is available in the classpath.
 	attribute mode { "apacheds" | "unboundid" }?
 
 ldap-server-ref-attribute =
