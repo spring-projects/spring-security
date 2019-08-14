@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.ldap.server.ApacheDSContainer;
-import org.springframework.security.ldap.server.UnboundIdContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,11 +56,4 @@ public class LdapServerBeanDefinitionParserTest {
 		assertThat(beanNames[0]).isEqualTo(BeanIds.EMBEDDED_APACHE_DS);
 	}
 
-	@Test
-	public void unboundidIsStartedWhenModeIsSet() {
-		this.context = new InMemoryXmlApplicationContext("<ldap-user-service user-search-filter='(uid={0})' /><ldap-server mode='unboundid'/>", "5.2", null);
-		String[] beanNames = this.context.getBeanNamesForType(UnboundIdContainer.class);
-		assertThat(beanNames).hasSize(1);
-		assertThat(beanNames[0]).isEqualTo(BeanIds.EMBEDDED_UNBOUNDID);
-	}
 }
