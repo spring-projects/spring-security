@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -47,6 +48,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 
 /**
@@ -262,6 +264,21 @@ public class RequestCacheConfigurerTests {
 
 		this.mvc.perform(formLogin(session))
 				.andExpect(redirectedUrl("/"));
+	}
+
+	// SEC-7060
+	@Test
+	public void postWhenRequestIsMultipartThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+
+		MockMultipartFile aFile = new MockMultipartFile("aFile", "A_FILE".getBytes());
+
+		MockHttpSession session = (MockHttpSession)
+				this.mvc.perform(multipart("/upload")
+						.file(aFile))
+						.andReturn().getRequest().getSession();
+
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
 	@EnableWebSecurity
