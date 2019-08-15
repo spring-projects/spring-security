@@ -172,8 +172,8 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 			contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 		}
 
-		MediaTypeRequestMatcher jsonRequest = new MediaTypeRequestMatcher(contentNegotiationStrategy, mediaType);
-		jsonRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-		return new NegatedRequestMatcher(jsonRequest);
+		MediaTypeRequestMatcher mediaRequest = new MediaTypeRequestMatcher(contentNegotiationStrategy, mediaType);
+		mediaRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+		return new NegatedRequestMatcher(mediaRequest);
 	}
 }
