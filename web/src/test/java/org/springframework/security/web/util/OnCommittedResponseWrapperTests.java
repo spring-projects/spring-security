@@ -1101,6 +1101,17 @@ public class OnCommittedResponseWrapperTests {
 		assertThat(committed).isTrue();
 	}
 
+	// gh-7261
+	@Test
+	public void contentLengthLongOutputStreamWriteStringCommits() throws IOException {
+		String body = "something";
+		response.setContentLengthLong(body.length());
+
+		response.getOutputStream().print(body);
+
+		assertThat(committed).isTrue();
+	}
+
 	@Test
 	public void addHeaderContentLengthPrintWriterWriteStringCommits() throws Exception {
 		int expected = 1234;
