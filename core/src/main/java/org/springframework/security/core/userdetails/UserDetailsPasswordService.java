@@ -28,7 +28,7 @@ public interface UserDetailsPasswordService {
 	 * persistent user repository (database, LDAP etc).
 	 *
 	 * @param user the user to modify the password for
-	 * @param newPassword the password to change to, 
+	 * @param newPassword the password to change to,
 	 * encoded by the configured {@code PasswordEncoder}
 	 * @return the updated UserDetails with the new password
 	 */
