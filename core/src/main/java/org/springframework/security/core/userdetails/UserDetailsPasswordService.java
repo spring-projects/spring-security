@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,11 @@ public interface UserDetailsPasswordService {
 
 	/**
 	 * Modify the specified user's password. This should change the user's password in the
-	 * persistent user repository (datbase, LDAP etc).
+	 * persistent user repository (database, LDAP etc).
 	 *
 	 * @param user the user to modify the password for
-	 * @param newPassword the password to change to
+	 * @param newPassword the password to change to, 
+	 * encoded by the configured {@code PasswordEncoder}
 	 * @return the updated UserDetails with the new password
 	 */
 	UserDetails updatePassword(UserDetails user, String newPassword);
