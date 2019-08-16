@@ -15,6 +15,16 @@
  */
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -36,16 +46,6 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import javax.crypto.spec.SecretKeySpec;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withJwkSetUri;
 import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withSecretKey;
@@ -150,7 +150,7 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 				);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			return withJwkSetUri(jwkSetUri).jwsAlgorithm(jwsAlgorithm).build();
+			return withJwkSetUri(jwkSetUri).jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm).build();
 		} else if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
 			// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
 			//
