@@ -16,12 +16,19 @@
 package org.springframework.security.test.web.servlet.setup;
 
 import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurerAdapter;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.io.IOException;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.testSecurityContext;
 
@@ -34,12 +41,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
  * @since 4.0
  */
 final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
-	private Filter springSecurityFilterChain;
+	private final DelegateFilter delegateFilter;
 
 	/**
 	 * Creates a new instance
 	 */
 	SecurityMockMvcConfigurer() {
+		this.delegateFilter = new DelegateFilter();
 	}
 
 	/**
@@ -47,30 +55,101 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 	 * @param springSecurityFilterChain the {@link javax.servlet.Filter} to use
 	 */
 	SecurityMockMvcConfigurer(Filter springSecurityFilterChain) {
-		this.springSecurityFilterChain = springSecurityFilterChain;
+		this.delegateFilter = new DelegateFilter(springSecurityFilterChain);
+	}
+
+	@Override
+	public void afterConfigurerAdded(ConfigurableMockMvcBuilder<?> builder) {
+		builder.addFilters(this.delegateFilter);
 	}
 
 	@Override
 	public RequestPostProcessor beforeMockMvcCreated(
 			ConfigurableMockMvcBuilder<?> builder, WebApplicationContext context) {
 		String securityBeanId = BeanIds.SPRING_SECURITY_FILTER_CHAIN;
-		if (this.springSecurityFilterChain == null
+		if (getSpringSecurityFilterChain() == null
 				&& context.containsBean(securityBeanId)) {
-			this.springSecurityFilterChain = context.getBean(securityBeanId,
-					Filter.class);
+			setSpringSecurityFitlerChain(context.getBean(securityBeanId,
+					Filter.class));
 		}
 
-		if (this.springSecurityFilterChain == null) {
+		if (getSpringSecurityFilterChain() == null) {
 			throw new IllegalStateException(
 					"springSecurityFilterChain cannot be null. Ensure a Bean with the name "
 							+ securityBeanId
 							+ " implementing Filter is present or inject the Filter to be used.");
 		}
 
-		builder.addFilters(this.springSecurityFilterChain);
+		// This is used by other test support to obtain the FilterChainProxy
 		context.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN,
-				this.springSecurityFilterChain);
+				getSpringSecurityFilterChain());
 
 		return testSecurityContext();
+	}
+
+	private void setSpringSecurityFitlerChain(Filter filter) {
+		this.delegateFilter.setDelegate(filter);
+	}
+
+	private Filter getSpringSecurityFilterChain() {
+		return this.delegateFilter.delegate;
+	}
+
+	/**
+	 * Allows adding in {@link #afterConfigurerAdded(ConfigurableMockMvcBuilder)} to preserve Filter order and then
+	 * lazily set the delegate in {@link #beforeMockMvcCreated(ConfigurableMockMvcBuilder, WebApplicationContext)}.
+	 *
+	 * {@link org.springframework.web.filter.DelegatingFilterProxy} is not used because it is not easy to lazily set
+	 * the delegate or get the delegate which is necessary for the test infrastructure.
+	 */
+	static class DelegateFilter implements Filter {
+
+		private Filter delegate;
+
+		DelegateFilter() {
+		}
+
+		DelegateFilter(Filter delegate) {
+			this.delegate = delegate;
+		}
+
+		void setDelegate(Filter delegate) {
+			this.delegate = delegate;
+		}
+
+		Filter getDelegate() {
+			return this.delegate;
+		}
+
+		@Override
+		public void init(FilterConfig filterConfig) throws ServletException {
+			this.delegate.init(filterConfig);
+		}
+
+		@Override
+		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+				throws IOException, ServletException {
+			this.delegate.doFilter(request, response, chain);
+		}
+
+		@Override
+		public void destroy() {
+			this.delegate.destroy();
+		}
+
+		@Override
+		public int hashCode() {
+			return this.delegate.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return this.delegate.equals(obj);
+		}
+
+		@Override
+		public String toString() {
+			return this.delegate.toString();
+		}
 	}
 }

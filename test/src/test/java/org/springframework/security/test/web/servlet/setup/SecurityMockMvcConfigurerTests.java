@@ -15,19 +15,22 @@
  */
 package org.springframework.security.test.web.servlet.setup;
 
-import javax.servlet.Filter;
-import javax.servlet.ServletContext;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.Filter;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -56,9 +59,10 @@ public class SecurityMockMvcConfigurerTests {
 		returnFilterBean();
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer(this.filter);
 
+		configurer.afterConfigurerAdded(this.builder);
 		configurer.beforeMockMvcCreated(this.builder, this.context);
 
-		verify(this.builder).addFilters(this.filter);
+		assertFilterAdded(this.filter);
 		verify(this.servletContext).setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN,
 				this.filter);
 	}
@@ -68,25 +72,35 @@ public class SecurityMockMvcConfigurerTests {
 		returnFilterBean();
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer();
 
+		configurer.afterConfigurerAdded(this.builder);
 		configurer.beforeMockMvcCreated(this.builder, this.context);
 
-		verify(this.builder).addFilters(this.beanFilter);
+		assertFilterAdded(this.beanFilter);
 	}
 
 	@Test
 	public void beforeMockMvcCreatedNoBean() throws Exception {
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer(this.filter);
 
+		configurer.afterConfigurerAdded(this.builder);
 		configurer.beforeMockMvcCreated(this.builder, this.context);
 
-		verify(this.builder).addFilters(this.filter);
+		assertFilterAdded(this.filter);
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void beforeMockMvcCreatedNoFilter() throws Exception {
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer();
 
+		configurer.afterConfigurerAdded(this.builder);
 		configurer.beforeMockMvcCreated(this.builder, this.context);
+	}
+
+	private void assertFilterAdded(Filter filter) throws IOException, ServletException {
+		ArgumentCaptor<SecurityMockMvcConfigurer.DelegateFilter> filterArg = ArgumentCaptor.forClass(
+				SecurityMockMvcConfigurer.DelegateFilter.class);
+		verify(this.builder).addFilters(filterArg.capture());
+		assertThat(filterArg.getValue().getDelegate()).isEqualTo(filter);
 	}
 
 	private void returnFilterBean() {
