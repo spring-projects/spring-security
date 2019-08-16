@@ -52,6 +52,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
@@ -221,12 +222,12 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 * Use the given signing
 		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithm</a>.
 		 *
-		 * @param signatureAlgorithm the algorithm to use
+		 * @param jwsAlgorithm the algorithm to use
 		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
 		 */
-		public JwkSetUriJwtDecoderBuilder jwsAlgorithm(SignatureAlgorithm signatureAlgorithm) {
-			Assert.notNull(signatureAlgorithm, "signatureAlgorithm cannot be null");
-			this.jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
+		public JwkSetUriJwtDecoderBuilder jwsAlgorithm(JwsAlgorithm jwsAlgorithm) {
+			Assert.notNull(jwsAlgorithm, "jwsAlgorithm cannot be null");
+			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm.getName());
 			return this;
 		}
 

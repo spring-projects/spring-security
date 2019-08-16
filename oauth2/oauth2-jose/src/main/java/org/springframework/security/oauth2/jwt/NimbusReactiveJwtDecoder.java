@@ -245,12 +245,12 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		 * Use the given signing
 		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithm</a>.
 		 *
-		 * @param signatureAlgorithm the algorithm to use
+		 * @param jwsAlgorithm the algorithm to use
 		 * @return a {@link JwkSetUriReactiveJwtDecoderBuilder} for further configurations
 		 */
-		public JwkSetUriReactiveJwtDecoderBuilder jwsAlgorithm(SignatureAlgorithm signatureAlgorithm) {
-			Assert.notNull(signatureAlgorithm, "sig cannot be null");
-			this.jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
+		public JwkSetUriReactiveJwtDecoderBuilder jwsAlgorithm(JwsAlgorithm jwsAlgorithm) {
+			Assert.notNull(jwsAlgorithm, "jwsAlgorithm cannot be null");
+			this.jwsAlgorithm = JWSAlgorithm.parse(jwsAlgorithm.getName());
 			return this;
 		}
 
