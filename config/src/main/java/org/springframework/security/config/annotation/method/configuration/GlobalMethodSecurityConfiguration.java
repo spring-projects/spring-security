@@ -242,9 +242,10 @@ public class GlobalMethodSecurityConfiguration
 	 */
 	protected AccessDecisionManager accessDecisionManager() {
 		List<AccessDecisionVoter<?>> decisionVoters = new ArrayList<>();
-		ExpressionBasedPreInvocationAdvice expressionAdvice = new ExpressionBasedPreInvocationAdvice();
-		expressionAdvice.setExpressionHandler(getExpressionHandler());
 		if (prePostEnabled()) {
+			ExpressionBasedPreInvocationAdvice expressionAdvice =
+					new ExpressionBasedPreInvocationAdvice();
+			expressionAdvice.setExpressionHandler(getExpressionHandler());
 			decisionVoters
 					.add(new PreInvocationAuthorizationAdviceVoter(expressionAdvice));
 		}
