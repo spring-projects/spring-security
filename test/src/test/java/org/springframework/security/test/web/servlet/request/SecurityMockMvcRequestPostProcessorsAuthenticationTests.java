@@ -44,7 +44,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(WebTestUtils.class)
-@PowerMockIgnore("javax.security.auth.*")
+@PowerMockIgnore({"javax.security.auth.*", "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*"})
 public class SecurityMockMvcRequestPostProcessorsAuthenticationTests {
 	@Captor
 	private ArgumentCaptor<SecurityContext> contextCaptor;
