@@ -268,7 +268,7 @@ public class ServerHttpSecurity {
 
 	private ReactiveAuthenticationManager authenticationManager;
 
-	private ServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
+	private ServerSecurityContextRepository securityContextRepository;
 
 	private ServerAuthenticationEntryPoint authenticationEntryPoint;
 
@@ -346,7 +346,7 @@ public class ServerHttpSecurity {
 	}
 
 	/**
-	 * The strategy used with {@code ReactorContextWebFilter}. It does not impact how the {@code SecurityContext} is
+	 * The strategy used with {@code ReactorContextWebFilter}. It does impact how the {@code SecurityContext} is
 	 * saved which is configured on a per {@link AuthenticationWebFilter} basis.
 	 * @param securityContextRepository the repository to use
 	 * @return the {@link ServerHttpSecurity} to continue configuring
@@ -971,7 +971,7 @@ public class ServerHttpSecurity {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
-		private ServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
+		private ServerSecurityContextRepository securityContextRepository;
 
 		private ServerAuthenticationConverter authenticationConverter;
 
@@ -2254,9 +2254,7 @@ public class ServerHttpSecurity {
 			this.headers.configure(this);
 		}
 		WebFilter securityContextRepositoryWebFilter = securityContextRepositoryWebFilter();
-		if (securityContextRepositoryWebFilter != null) {
-			this.webFilters.add(securityContextRepositoryWebFilter);
-		}
+		this.webFilters.add(securityContextRepositoryWebFilter);
 		if (this.httpsRedirectSpec != null) {
 			this.httpsRedirectSpec.configure(this);
 		}
@@ -2273,18 +2271,42 @@ public class ServerHttpSecurity {
 			if (this.httpBasic.authenticationManager == null) {
 				this.httpBasic.authenticationManager(this.authenticationManager);
 			}
+			if (this.httpBasic.securityContextRepository != null) {
+				this.httpBasic.securityContextRepository(this.httpBasic.securityContextRepository);
+			}
+			else if (this.securityContextRepository != null) {
+				this.httpBasic.securityContextRepository(this.securityContextRepository);
+			}
+			else {
+				this.httpBasic.securityContextRepository(NoOpServerSecurityContextRepository.getInstance());
+			}
 			this.httpBasic.configure(this);
 		}
 		if (this.formLogin != null) {
 			if (this.formLogin.authenticationManager == null) {
 				this.formLogin.authenticationManager(this.authenticationManager);
 			}
-			if (this.securityContextRepository != null) {
+			if (this.formLogin.securityContextRepository != null) {
+				this.formLogin.securityContextRepository(this.formLogin.securityContextRepository);
+			}
+			else if (this.securityContextRepository != null) {
 				this.formLogin.securityContextRepository(this.securityContextRepository);
+			}
+			else {
+				this.formLogin.securityContextRepository(new WebSessionServerSecurityContextRepository());
 			}
 			this.formLogin.configure(this);
 		}
 		if (this.oauth2Login != null) {
+			if (this.oauth2Login.securityContextRepository != null) {
+				this.oauth2Login.securityContextRepository(this.oauth2Login.securityContextRepository);
+			}
+			else if (this.securityContextRepository != null) {
+				this.oauth2Login.securityContextRepository(this.securityContextRepository);
+			}
+			else {
+				this.oauth2Login.securityContextRepository(new WebSessionServerSecurityContextRepository());
+			}
 			this.oauth2Login.configure(this);
 		}
 		if (this.resourceServer != null) {
@@ -2379,10 +2401,8 @@ public class ServerHttpSecurity {
 	}
 
 	private WebFilter securityContextRepositoryWebFilter() {
-		ServerSecurityContextRepository repository = this.securityContextRepository;
-		if (repository == null) {
-			return null;
-		}
+		ServerSecurityContextRepository repository = this.securityContextRepository == null ?
+				new WebSessionServerSecurityContextRepository() : this.securityContextRepository;
 		WebFilter result = new ReactorContextWebFilter(repository);
 		return new OrderedWebFilter(result, SecurityWebFiltersOrder.REACTOR_CONTEXT.getOrder());
 	}
@@ -2774,7 +2794,7 @@ public class ServerHttpSecurity {
 	public class HttpBasicSpec {
 		private ReactiveAuthenticationManager authenticationManager;
 
-		private ServerSecurityContextRepository securityContextRepository = NoOpServerSecurityContextRepository.getInstance();
+		private ServerSecurityContextRepository securityContextRepository;
 
 		private ServerAuthenticationEntryPoint entryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
@@ -2846,9 +2866,7 @@ public class ServerHttpSecurity {
 				this.authenticationManager);
 			authenticationFilter.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
 			authenticationFilter.setAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
-			if (this.securityContextRepository != null) {
-				authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
-			}
+			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 		}
 
@@ -2869,7 +2887,7 @@ public class ServerHttpSecurity {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
-		private ServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
+		private ServerSecurityContextRepository securityContextRepository;
 
 		private ServerAuthenticationEntryPoint authenticationEntryPoint;
 
@@ -2966,7 +2984,7 @@ public class ServerHttpSecurity {
 
 		/**
 		 * The {@link ServerSecurityContextRepository} used to save the {@code Authentication}. Defaults to
-		 * {@link NoOpServerSecurityContextRepository}. For the {@code SecurityContext} to be loaded on subsequent
+		 * {@link WebSessionServerSecurityContextRepository}. For the {@code SecurityContext} to be loaded on subsequent
 		 * requests the {@link ReactorContextWebFilter} must be configured to be able to load the value (they are not
 		 * implicitly linked).
 		 *

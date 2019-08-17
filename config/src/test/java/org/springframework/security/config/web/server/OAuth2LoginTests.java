@@ -428,6 +428,7 @@ public class OAuth2LoginTests {
 
 		ServerSecurityContextRepository securityContextRepository = config.securityContextRepository;
 		when(securityContextRepository.save(any(), any())).thenReturn(Mono.empty());
+		when(securityContextRepository.load(any())).thenReturn(authentication(token));
 
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
