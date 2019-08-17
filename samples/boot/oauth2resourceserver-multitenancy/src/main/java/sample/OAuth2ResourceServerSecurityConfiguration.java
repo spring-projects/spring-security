@@ -40,11 +40,17 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 @EnableWebSecurity
 public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+	@Value("${tenantOne.jwk-set-uri}")
 	String jwkSetUri;
 
-	@Value("${spring.security.oauth2.resourceserver.opaque.introspection-uri}")
+	@Value("${tenantTwo.introspection-uri}")
 	String introspectionUri;
+
+	@Value("${tenantTwo.introspection-client-id}")
+	String introspectionClientId;
+
+	@Value("${tenantTwo.introspection-client-secret}")
+	String introspectionClientSecret;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -83,7 +89,8 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 
 	AuthenticationManager opaque() {
 		OpaqueTokenIntrospector introspectionClient =
-				new NimbusOpaqueTokenIntrospector(this.introspectionUri, "client", "secret");
+				new NimbusOpaqueTokenIntrospector(this.introspectionUri,
+						this.introspectionClientId, this.introspectionClientSecret);
 		return new OAuth2IntrospectionAuthenticationProvider(introspectionClient)::authenticate;
 	}
 }

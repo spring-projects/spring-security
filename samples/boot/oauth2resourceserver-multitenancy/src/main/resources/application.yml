@@ -1,8 +1,4 @@
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${mockwebserver.url}/.well-known/jwks.json
-        opaque:
-          introspection-uri: ${mockwebserver.url}/introspect
+tenantOne.jwk-set-uri: ${mockwebserver.url}/.well-known/jwks.json
+tenantTwo.introspection-uri: ${mockwebserver.url}/introspect
+tenantTwo.introspection-client-id: client
+tenantTwo.introspection-client-secret: secret

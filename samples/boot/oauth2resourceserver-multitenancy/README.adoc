@@ -128,33 +128,20 @@ _In order to use this sample, your Authorization Server must support JWTs that e
 To change the sample to point at your Authorization Server, simply find these properties in the `application.yml`:
 
 ```yaml
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${mockwebserver.url}/.well-known/jwks.json
-        opaque:
-          introspection-uri: ${mockwebserver.url}/introspect
-          introspection-client-id: client
-          introspection-client-secret: secret
-
+tenantOne.jwk-set-uri: ${mockwebserver.url}/.well-known/jwks.json
+tenantTwo.introspection-uri: ${mockwebserver.url}/introspect
+tenantTwo.introspection-client-id: client
+tenantTwo.introspection-client-secret: secret
 ```
 
 And change the properties to your Authorization Server's JWK set endpoint and
 introspection endpoint, including its client id and secret
 
 ```yaml
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: https://dev-123456.oktapreview.com/oauth2/default/v1/keys
-        opaque:
-          introspection-uri: https://dev-123456.oktapreview.com/oauth2/default/v1/introspect
-          introspection-client-id: client
-          introspection-client-secret: secret
+tenantOne.jwk-set-uri: https://dev-123456.oktapreview.com/oauth2/default/v1/keys
+tenantTwo.introspection-uri: https://dev-123456.oktapreview.com/oauth2/default/v1/introspect
+tenantTwo.introspection-client-id: client
+tenantTwo.introspection-client-secret: secret
 ```
 
 And then you can run the app the same as before:
