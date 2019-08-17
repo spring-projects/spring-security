@@ -75,6 +75,7 @@ import org.springframework.security.web.server.authentication.HttpBasicServerAut
 
 /**
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -117,7 +118,6 @@ public class ServerHttpSecurityTests {
 	public void basic() {
 		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
 
-		this.http.securityContextRepository(new WebSessionServerSecurityContextRepository());
 		this.http.httpBasic();
 		this.http.authenticationManager(this.authenticationManager);
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
@@ -135,6 +135,30 @@ public class ServerHttpSecurityTests {
 			.returnResult();
 
 		assertThat(result.getResponseCookies().getFirst("SESSION")).isNull();
+	}
+
+	@Test
+	public void basicWithGlobalWebSessionServerSecurityContextRepository() {
+		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
+
+		this.http.securityContextRepository(new WebSessionServerSecurityContextRepository());
+		this.http.httpBasic();
+		this.http.authenticationManager(this.authenticationManager);
+		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
+		authorize.anyExchange().authenticated();
+
+		WebTestClient client = buildClient();
+
+		EntityExchangeResult<String> result = client.get()
+				.uri("/")
+				.headers(headers -> headers.setBasicAuth("rob", "rob"))
+				.exchange()
+				.expectStatus().isOk()
+				.expectHeader().valueMatches(HttpHeaders.CACHE_CONTROL, ".+")
+				.expectBody(String.class).consumeWith(b -> assertThat(b.getResponseBody()).isEqualTo("ok"))
+				.returnResult();
+
+		assertThat(result.getResponseCookies().getFirst("SESSION")).isNotNull();
 	}
 
 	@Test
@@ -256,7 +280,6 @@ public class ServerHttpSecurityTests {
 	public void basicWithAnonymous() {
 		given(this.authenticationManager.authenticate(any())).willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
 
-		this.http.securityContextRepository(new WebSessionServerSecurityContextRepository());
 		this.http.httpBasic().and().anonymous();
 		this.http.authenticationManager(this.authenticationManager);
 		ServerHttpSecurity.AuthorizeExchangeSpec authorize = this.http.authorizeExchange();
