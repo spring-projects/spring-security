@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -111,6 +112,21 @@ public abstract class WebTestUtils {
 		CsrfFilter filter = findFilter(request, CsrfFilter.class);
 		if (filter != null) {
 			ReflectionTestUtils.setField(filter, "tokenRepository", repository);
+		}
+	}
+
+	/**
+	 * Sets the {@link RequestMatcher} for the specified {@link HttpServletRequest}.
+	 *
+	 * @param request the {@link RequestMatcher} to obtain the
+	 * {@link RequestMatcher}
+	 * @param requestMatcher the {@link RequestMatcher} to set
+	 */
+	public static void setCsrfRequestMatcher(HttpServletRequest request,
+			RequestMatcher requestMatcher) {
+		CsrfFilter filter = findFilter(request, CsrfFilter.class);
+		if (filter != null) {
+			filter.setRequireCsrfProtectionMatcher(requestMatcher);
 		}
 	}
 

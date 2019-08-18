@@ -1043,6 +1043,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			WebTestUtils.setCsrfRequestMatcher(request, r -> false);
 			JwtAuthenticationToken token = new JwtAuthenticationToken(this.jwt, this.authorities);
 			return new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
 		}
