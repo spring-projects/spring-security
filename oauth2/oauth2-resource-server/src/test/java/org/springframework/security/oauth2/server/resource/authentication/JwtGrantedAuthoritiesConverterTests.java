@@ -140,6 +140,43 @@ public class JwtGrantedAuthoritiesConverterTests {
 	}
 
 	@Test
+	public void convertWhenTokenHasEmptyScopeAndEmptyScpAttributeThenTranslatesToNoAuthorities() {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("scp", Collections.emptyList());
+		claims.put("scope", Collections.emptyList());
+		Jwt jwt = this.jwt(claims);
+
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
+
+		assertThat(authorities).isEmpty();
+	}
+
+	@Test
+	public void convertWhenTokenHasNoScopeAndNoScpAttributeThenTranslatesToNoAuthorities() {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("roles", Arrays.asList("message:read", "message:write"));
+		Jwt jwt = this.jwt(claims);
+
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
+
+		assertThat(authorities).isEmpty();
+	}
+
+	@Test
+	public void convertWhenTokenHasUnsupportedTypeForScopeThenTranslatesToNoAuthorities() {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("scope", new String[] {"message:read", "message:write"});
+		Jwt jwt = this.jwt(claims);
+
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
+
+		assertThat(authorities).isEmpty();
+	}
+
+	@Test
 	public void convertWhenTokenHasCustomClaimNameThenCustomClaimNameAttributeIsTranslatedToAuthorities() {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("roles", Arrays.asList("message:read", "message:write"));
