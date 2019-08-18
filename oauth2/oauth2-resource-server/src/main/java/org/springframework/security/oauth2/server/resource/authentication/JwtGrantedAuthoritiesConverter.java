@@ -43,6 +43,8 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 
 	private String authorityPrefix = DEFAULT_AUTHORITY_PREFIX;
 
+	private String authoritiesClaimName;
+
 	/**
 	 * Extract {@link GrantedAuthority}s from the given {@link Jwt}.
 	 *
@@ -70,7 +72,24 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 		this.authorityPrefix = authorityPrefix;
 	}
 
+	/**
+	 * Sets the name of token claim to use for mapping {@link GrantedAuthority authorities} by this converter.
+	 * Defaults to {@link JwtGrantedAuthoritiesConverter#WELL_KNOWN_AUTHORITIES_CLAIM_NAMES}.
+	 *
+	 * @param authoritiesClaimName The token claim name to map authorities
+	 * @since 5.2
+	 */
+	public void setAuthoritiesClaimName(String authoritiesClaimName) {
+		Assert.hasText(authoritiesClaimName, "authoritiesClaimName cannot be empty");
+		this.authoritiesClaimName = authoritiesClaimName;
+	}
+
 	private String getAuthoritiesClaimName(Jwt jwt) {
+
+		if (this.authoritiesClaimName != null) {
+			return this.authoritiesClaimName;
+		}
+
 		for (String claimName : WELL_KNOWN_AUTHORITIES_CLAIM_NAMES) {
 			if (jwt.containsClaim(claimName)) {
 				return claimName;

@@ -139,6 +139,49 @@ public class JwtGrantedAuthoritiesConverterTests {
 		assertThat(authorities).isEmpty();
 	}
 
+	@Test
+	public void convertWhenTokenHasCustomClaimNameThenCustomClaimNameAttributeIsTranslatedToAuthorities() {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("roles", Arrays.asList("message:read", "message:write"));
+		claims.put("scope", "missive:read missive:write");
+		Jwt jwt = this.jwt(claims);
+
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
+		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
+
+		assertThat(authorities).containsExactly(
+				new SimpleGrantedAuthority("SCOPE_message:read"),
+				new SimpleGrantedAuthority("SCOPE_message:write"));
+	}
+
+	@Test
+	public void convertWhenTokenHasEmptyCustomClaimNameThenCustomClaimNameAttributeIsTranslatedToNoAuthorities() {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("roles", Collections.emptyList());
+		claims.put("scope", "missive:read missive:write");
+		Jwt jwt = this.jwt(claims);
+
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
+		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
+
+		assertThat(authorities).isEmpty();
+	}
+
+	@Test
+	public void convertWhenTokenHasNoCustomClaimNameThenCustomClaimNameAttributeIsTranslatedToNoAuthorities() {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("scope", "missive:read missive:write");
+		Jwt jwt = this.jwt(claims);
+
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
+		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
+
+		assertThat(authorities).isEmpty();
+	}
+
 	private Jwt jwt(Map<String, Object> claims) {
 		Map<String, Object> headers = new HashMap<>();
 		headers.put("alg", JwsAlgorithms.RS256);
