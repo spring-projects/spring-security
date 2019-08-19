@@ -158,7 +158,7 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 [[webflux-oauth2-login-public-client]]
 == Login With Public Client
 
-If your client is running on a untrusted host where you are unable to keep a secret (e.g. a desktop client, an insecure server environment, etc.), you can use Spring Security's PKCE support for public clients. https://tools.ietf.org/html/rfc7636[PKCE] utilizes the Authorization Code Flow to obtain access tokens without the need for a client secret. Spring Security will use PKCE automatically when the following conditions are true in your `ClientRegistration`:
+If your client is running on a untrusted host where you are unable to keep a secret (e.g. a desktop client, an insecure server environment, etc.) and your identity provider supports it, you can use Spring Security's PKCE support for public clients. https://tools.ietf.org/html/rfc7636[PKCE] utilizes the Authorization Code Flow to obtain access tokens without the need for a client secret. Spring Security will use PKCE automatically when the following conditions are true in your `ClientRegistration`:
 
 . `clientSecret` is empty
 . `clientAuthenticationMethod` is set to `ClientAuthenticationMethod.NONE`

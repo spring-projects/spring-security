@@ -402,6 +402,7 @@ The following additional resources describe advanced configuration options:
 
 * <<oauth2login-advanced-login-page, OAuth 2.0 Login Page>>
 * <<oauth2login-advanced-redirection-endpoint, Redirection Endpoint>>
+* <<oauth2login-advanced-public-client, Public Client>>
 * <<oauth2login-advanced-userinfo-endpoint, UserInfo Endpoint:>>
 ** <<oauth2login-advanced-map-authorities, Mapping User Authorities>>
 ** <<oauth2login-advanced-custom-user, Configuring a Custom OAuth2User>>
