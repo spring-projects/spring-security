@@ -17,6 +17,7 @@
 package sample;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -35,7 +36,8 @@ public class SecurityConfig {
 		http
 			.authorizeExchange(exchanges ->
 				exchanges
-					.pathMatchers("/message/**").hasAuthority("SCOPE_message:read")
+					.pathMatchers(HttpMethod.GET, "/message/**").hasAuthority("SCOPE_message:read")
+					.pathMatchers(HttpMethod.POST, "/message/**").hasAuthority("SCOPE_message:write")
 					.anyExchange().authenticated()
 			)
 			.oauth2ResourceServer(oauth2ResourceServer ->
