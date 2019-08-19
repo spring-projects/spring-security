@@ -90,7 +90,7 @@ public final class ClientRegistration {
 <2> `clientId`: The client identifier.
 <3> `clientSecret`: The client secret.
 <4> `clientAuthenticationMethod`: The method used to authenticate the Client with the Provider.
-The supported values are *basic* and *post*.
+The supported values are *basic*, *none* and *post*.
 <5> `authorizationGrantType`: The OAuth 2.0 Authorization Framework defines four https://tools.ietf.org/html/rfc6749#section-1.3[Authorization Grant] types.
  The supported values are authorization_code, implicit, and client_credentials.
 <6> `redirectUriTemplate`: The client's registered redirect URI that the _Authorization Server_ redirects the end-user's user-agent
