@@ -71,7 +71,7 @@ expirationTime:   The date and time when the nonce expires, expressed in millise
 key:              A private key to prevent modification of the nonce token
 ----
 
-The `DigestAuthenticatonEntryPoint` has a property specifying the `key` used for generating the nonce tokens, along with a `nonceValiditySeconds` property for determining the expiration time (default 300, which equals five minutes).
+The `DigestAuthenticationEntryPoint` has a property specifying the `key` used for generating the nonce tokens, along with a `nonceValiditySeconds` property for determining the expiration time (default 300, which equals five minutes).
 Whist ever the nonce is valid, the digest is computed by concatenating various strings including the username, password, nonce, URI being requested, a client-generated nonce (merely a random value which the user agent generates each request), the realm name etc, then performing an MD5 hash.
 Both the server and user agent perform this digest computation, resulting in different hash codes if they disagree on an included value (eg password).
 In Spring Security implementation, if the server-generated nonce has merely expired (but the digest was otherwise valid), the `DigestAuthenticationEntryPoint` will send a `"stale=true"` header.
