@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client.web.server;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -45,7 +44,7 @@ public interface ServerOAuth2AuthorizedClientManager {
 	/**
 	 * Attempt to authorize or re-authorize (if required) the {@link ClientRegistration client}
 	 * identified by the provided {@link ServerOAuth2AuthorizeRequest#getClientRegistrationId() clientRegistrationId}.
-	 * Implementations must return {@code null} if authorization is not supported for the specified client,
+	 * Implementations must return an empty {@code Mono} if authorization is not supported for the specified client,
 	 * e.g. the associated {@link ReactiveOAuth2AuthorizedClientProvider}(s) does not support
 	 * the {@link ClientRegistration#getAuthorizationGrantType() authorization grant} type configured for the client.
 	 *
@@ -56,9 +55,8 @@ public interface ServerOAuth2AuthorizedClientManager {
 	 * the {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
 	 *
 	 * @param authorizeRequest the authorize request
-	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization is not supported for the specified client
+	 * @return the {@link OAuth2AuthorizedClient} or an empty {@code Mono} if authorization is not supported for the specified client
 	 */
-	@Nullable
 	Mono<OAuth2AuthorizedClient> authorize(ServerOAuth2AuthorizeRequest authorizeRequest);
 
 }

@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClientCredentialsTokenResponseClient;
@@ -44,16 +43,15 @@ public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider imple
 
 	/**
 	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided {@code context}.
-	 * Returns {@code null} if authorization (or re-authorization) is not supported,
+	 * Returns an empty {@code Mono} if authorization (or re-authorization) is not supported,
 	 * e.g. the client's {@link ClientRegistration#getAuthorizationGrantType() authorization grant type}
 	 * is not {@link AuthorizationGrantType#CLIENT_CREDENTIALS client_credentials} OR
 	 * the {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
 	 *
 	 * @param context the context that holds authorization-specific state for the client
-	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization (or re-authorization) is not supported
+	 * @return the {@link OAuth2AuthorizedClient} or an empty {@code Mono} if authorization (or re-authorization) is not supported
 	 */
 	@Override
-	@Nullable
 	public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 

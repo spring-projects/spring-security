@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client.web.server;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -60,7 +59,6 @@ public final class DefaultServerOAuth2AuthorizedClientManager implements ServerO
 		this.authorizedClientRepository = authorizedClientRepository;
 	}
 
-	@Nullable
 	@Override
 	public Mono<OAuth2AuthorizedClient> authorize(ServerOAuth2AuthorizeRequest authorizeRequest) {
 		Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");

@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import reactor.core.publisher.Mono;
@@ -34,13 +33,12 @@ public interface ReactiveOAuth2AuthorizedClientProvider {
 
 	/**
 	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided context.
-	 * Implementations must return {@code null} if authorization is not supported for the specified client,
+	 * Implementations must return an empty {@code Mono} if authorization is not supported for the specified client,
 	 * e.g. the provider doesn't support the {@link ClientRegistration#getAuthorizationGrantType() authorization grant} type configured for the client.
 	 *
 	 * @param context the context that holds authorization-specific state for the client
-	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization is not supported for the specified client
+	 * @return the {@link OAuth2AuthorizedClient} or an empty {@code Mono} if authorization is not supported for the specified client
 	 */
-	@Nullable
 	Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizationContext context);
 
 }

@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client;
 
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,7 +31,7 @@ import java.util.List;
  * Each provider is given a chance to
  * {@link ReactiveOAuth2AuthorizedClientProvider#authorize(OAuth2AuthorizationContext) authorize}
  * the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided context
- * with the first {@code non-null} {@link OAuth2AuthorizedClient} being returned.
+ * with the first available {@link OAuth2AuthorizedClient} being returned.
  *
  * @author Joe Grandja
  * @since 5.2
@@ -62,7 +61,6 @@ public final class DelegatingReactiveOAuth2AuthorizedClientProvider implements R
 	}
 
 	@Override
-	@Nullable
 	public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		return Flux.fromIterable(this.authorizedClientProviders)
