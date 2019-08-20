@@ -40,8 +40,6 @@ import org.springframework.web.reactive.result.method.HandlerMethodArgumentResol
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
-
 /**
  * An implementation of a {@link HandlerMethodArgumentResolver} that is capable
  * of resolving a method parameter to an argument value of type {@link OAuth2AuthorizedClient}.
@@ -134,12 +132,11 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 				.switchIfEmpty(clientRegistrationId(defaultedAuthentication))
 				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException("The clientRegistrationId could not be resolved. Please provide one")));
 
-		Mono<Optional<ServerWebExchange>> defaultedExchange = Mono.justOrEmpty(exchange)
-				.switchIfEmpty(currentServerWebExchange()).map(Optional::of)
-				.defaultIfEmpty(Optional.empty());
+		Mono<ServerWebExchange> defaultedExchange = Mono.justOrEmpty(exchange)
+				.switchIfEmpty(currentServerWebExchange());
 
 		return Mono.zip(defaultedRegistrationId, defaultedAuthentication, defaultedExchange)
-				.map(t3 -> new ServerOAuth2AuthorizeRequest(t3.getT1(), t3.getT2(), t3.getT3().orElse(null)));
+				.map(t3 -> new ServerOAuth2AuthorizeRequest(t3.getT1(), t3.getT2(), t3.getT3()));
 	}
 
 	private Mono<Authentication> currentAuthentication() {
