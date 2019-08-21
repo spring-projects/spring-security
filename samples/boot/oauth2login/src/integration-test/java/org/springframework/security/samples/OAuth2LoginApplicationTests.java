@@ -67,7 +67,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -331,10 +330,14 @@ public class OAuth2LoginApplicationTests {
 	}
 
 	private HtmlAnchor getClientAnchorElement(HtmlPage page, ClientRegistration clientRegistration) {
-		Optional<HtmlAnchor> clientAnchorElement = page.getAnchors().stream()
-				.filter(e -> e.asText().equals(clientRegistration.getClientName())).findFirst();
-
-		return (clientAnchorElement.orElse(null));
+		HtmlAnchor result = null;
+		for (HtmlAnchor anchor: page.getAnchors()) {
+			if (anchor.asText().equals(clientRegistration.getClientName())) {
+				result = anchor;
+				break;
+			}
+		}
+		return result;
 	}
 
 	private WebResponse followLinkDisableRedirects(HtmlAnchor anchorElement) throws Exception {

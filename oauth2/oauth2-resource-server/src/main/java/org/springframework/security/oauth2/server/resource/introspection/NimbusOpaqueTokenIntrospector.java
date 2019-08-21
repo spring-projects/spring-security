@@ -22,7 +22,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
@@ -124,16 +123,22 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	 */
 	@Override
 	public Map<String, Object> introspect(String token) {
-		TokenIntrospectionSuccessResponse response = Optional.of(token)
-				.map(this.requestEntityConverter::convert)
-				.map(this::makeRequest)
-				.map(this::adaptToNimbusResponse)
-				.map(this::parseNimbusResponse)
-				.map(this::castToNimbusSuccess)
-				// relying solely on the authorization server to validate this token (not checking 'exp', for example)
-				.filter(TokenIntrospectionSuccessResponse::isActive)
-				.orElseThrow(() -> new OAuth2IntrospectionException("Provided token [" + token + "] isn't active"));
-		return convertClaimsSet(response);
+		RequestEntity<?> requestEntity = this.requestEntityConverter.convert(token);
+		if (requestEntity == null) {
+			throw new OAuth2IntrospectionException("Provided token [" + token + "] isn't active");
+		}
+
+		ResponseEntity<String> responseEntity = makeRequest(requestEntity);
+		HTTPResponse httpResponse = adaptToNimbusResponse(responseEntity);
+		TokenIntrospectionResponse introspectionResponse = parseNimbusResponse(httpResponse);
+		TokenIntrospectionSuccessResponse introspectionSuccessResponse = castToNimbusSuccess(introspectionResponse);
+
+		// relying solely on the authorization server to validate this token (not checking 'exp', for example)
+		if (!introspectionSuccessResponse.isActive()) {
+			throw new OAuth2IntrospectionException("Provided token [" + token + "] isn't active");
+		}
+
+		return convertClaimsSet(introspectionSuccessResponse);
 	}
 
 	/**

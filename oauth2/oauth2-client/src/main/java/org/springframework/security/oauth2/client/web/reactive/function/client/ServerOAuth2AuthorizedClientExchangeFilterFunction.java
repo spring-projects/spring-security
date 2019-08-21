@@ -45,7 +45,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors.oauth2AccessTokenResponse;
@@ -291,8 +290,10 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		return next.exchange(refreshRequest)
 				.flatMap(refreshResponse -> refreshResponse.body(oauth2AccessTokenResponse()))
 				.map(accessTokenResponse -> {
-					OAuth2RefreshToken refreshToken = Optional.ofNullable(accessTokenResponse.getRefreshToken())
-							.orElse(authorizedClient.getRefreshToken());
+					OAuth2RefreshToken refreshToken = accessTokenResponse.getRefreshToken();
+					if (refreshToken == null) {
+						refreshToken = authorizedClient.getRefreshToken();
+					}
 					return new OAuth2AuthorizedClient(authorizedClient.getClientRegistration(), authorizedClient.getPrincipalName(), accessTokenResponse.getAccessToken(), refreshToken);
 				})
 				.flatMap(result -> this.authorizedClientRepository.saveAuthorizedClient(result, authentication, exchange)

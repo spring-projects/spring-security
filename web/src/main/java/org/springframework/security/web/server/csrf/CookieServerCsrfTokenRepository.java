@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.server.csrf;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpCookie;
@@ -69,14 +68,17 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	@Override
 	public Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token) {
 		return Mono.fromRunnable(() -> {
-			Optional<String> tokenValue = Optional.ofNullable(token).map(CsrfToken::getToken);
+			String tokenValue = token != null ? token.getToken() : "";
+			int maxAge = !tokenValue.isEmpty() ? -1 : 0;
+			String path = this.cookiePath != null ? this.cookiePath : getRequestContext(exchange.getRequest());
+			boolean secure = exchange.getRequest().getSslInfo() != null;
 
-			ResponseCookie cookie = ResponseCookie.from(this.cookieName, tokenValue.orElse(""))
+			ResponseCookie cookie = ResponseCookie.from(this.cookieName, tokenValue)
 					.domain(this.cookieDomain)
 					.httpOnly(this.cookieHttpOnly)
-					.maxAge(tokenValue.map(val -> -1).orElse(0))
-					.path(Optional.ofNullable(this.cookiePath).orElseGet(() -> getRequestContext(exchange.getRequest())))
-					.secure(Optional.ofNullable(exchange.getRequest().getSslInfo()).map(sslInfo -> true).orElse(false))
+					.maxAge(maxAge)
+					.path(path)
+					.secure(secure)
 					.build();
 
 			exchange.getResponse().addCookie(cookie);
