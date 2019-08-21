@@ -28,6 +28,7 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -56,6 +57,8 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 	private static final String ATT_REF = "ref";
 
 	private static final String ATT_ERASE_CREDENTIALS = "erase-credentials";
+
+	private static final String AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME = "authenticationEventPublisher";
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
@@ -86,11 +89,16 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 		if ("false".equals(element.getAttribute(ATT_ERASE_CREDENTIALS))) {
 			providerManagerBldr.addPropertyValue("eraseCredentialsAfterAuthentication", false);
 		}
-		// Add the default event publisher
-		BeanDefinition publisher = new RootBeanDefinition(DefaultAuthenticationEventPublisher.class);
-		String pubId = pc.getReaderContext().generateBeanName(publisher);
-		pc.registerBeanComponent(new BeanComponentDefinition(publisher, pubId));
-		providerManagerBldr.addPropertyReference("authenticationEventPublisher", pubId);
+
+		if (!pc.getRegistry().containsBeanDefinition(AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME)) {
+			// Add the default event publisher to the context
+			GenericBeanDefinition publisher = new GenericBeanDefinition();
+			publisher.setBeanClass(DefaultAuthenticationEventPublisher.class);
+			pc.getRegistry().registerBeanDefinition(AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME, publisher);
+		}
+
+		providerManagerBldr.addPropertyReference("authenticationEventPublisher",
+				AUTHENTICATION_EVENT_PUBLISHER_BEAN_NAME);
 		pc.registerBeanComponent(new BeanComponentDefinition(providerManagerBldr.getBeanDefinition(), id));
 		if (StringUtils.hasText(alias)) {
 			pc.getRegistry().registerAlias(id, alias);
