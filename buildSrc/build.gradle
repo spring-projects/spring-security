@@ -1,11 +1,16 @@
-apply plugin: 'java'
+apply plugin: "java-gradle-plugin"
 
 repositories {
 	mavenCentral()
 }
 
-dependencies {
-	compile gradleApi()
+gradlePlugin {
+	plugins {
+		trang {
+			id = "trang"
+			implementationClass = "trang.TrangPlugin"
+		}
+	}
 }
 
 // GAE
