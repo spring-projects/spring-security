@@ -61,7 +61,7 @@ public class DefaultFilterChainValidatorTests {
 	private FilterSecurityInterceptor fsi;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		AnonymousAuthenticationFilter aaf = new AnonymousAuthenticationFilter("anonymous");
 		fsi = new FilterSecurityInterceptor();
 		fsi.setAccessDecisionManager(accessDecisionManager);

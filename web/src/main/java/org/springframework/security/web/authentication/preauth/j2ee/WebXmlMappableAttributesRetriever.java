@@ -130,8 +130,7 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 	 * We do not need to resolve external entities, so just return an empty String.
 	 */
 	private static final class MyEntityResolver implements EntityResolver {
-		public InputSource resolveEntity(String publicId, String systemId)
-				throws SAXException, IOException {
+		public InputSource resolveEntity(String publicId, String systemId) {
 			return new InputSource(new StringReader(""));
 		}
 	}

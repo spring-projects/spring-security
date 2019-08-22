@@ -40,7 +40,7 @@ public class SessionRegistryImplTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		sessionRegistry = new SessionRegistryImpl();
 	}
 
@@ -70,7 +70,7 @@ public class SessionRegistryImplTests {
 	}
 
 	@Test
-	public void testMultiplePrincipals() throws Exception {
+	public void testMultiplePrincipals() {
 		Object principal1 = "principal_1";
 		Object principal2 = "principal_2";
 		String sessionId1 = "1234567890";
@@ -125,7 +125,7 @@ public class SessionRegistryImplTests {
 	}
 
 	@Test
-	public void testTwoSessionsOnePrincipalExpiring() throws Exception {
+	public void testTwoSessionsOnePrincipalExpiring() {
 		Object principal = "Some principal object";
 		String sessionId1 = "1234567890";
 		String sessionId2 = "9876543210";
@@ -151,7 +151,7 @@ public class SessionRegistryImplTests {
 	}
 
 	@Test
-	public void testTwoSessionsOnePrincipalHandling() throws Exception {
+	public void testTwoSessionsOnePrincipalHandling() {
 		Object principal = "Some principal object";
 		String sessionId1 = "1234567890";
 		String sessionId2 = "9876543210";

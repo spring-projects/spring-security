@@ -85,7 +85,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 		successHandler.setDefaultTargetUrl("/logged_in.jsp");
 		failureHandler = new SimpleUrlAuthenticationFailureHandler();
@@ -94,12 +94,12 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
 
 	@Test
-	public void testDefaultProcessesFilterUrlMatchesWithPathParameter() throws Exception {
+	public void testDefaultProcessesFilterUrlMatchesWithPathParameter() {
 		MockHttpServletRequest request = createMockAuthenticationRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockAuthenticationFilter filter = new MockAuthenticationFilter();
@@ -143,7 +143,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	@Test
-	public void testGettersSetters() throws Exception {
+	public void testGettersSetters() {
 		AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
 		filter.setFilterProcessesUrl("/p");
@@ -216,7 +216,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	@Test
-	public void testStartupDetectsInvalidAuthenticationManager() throws Exception {
+	public void testStartupDetectsInvalidAuthenticationManager() {
 		AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
 		filter.setAuthenticationFailureHandler(failureHandler);
 		successHandler.setDefaultTargetUrl("/");
@@ -234,7 +234,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	@Test
-	public void testStartupDetectsInvalidFilterProcessesUrl() throws Exception {
+	public void testStartupDetectsInvalidFilterProcessesUrl() {
 		AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
 		filter.setAuthenticationFailureHandler(failureHandler);
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
@@ -469,8 +469,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 			this.expectToProceed = expectToProceed;
 		}
 
-		public void doFilter(ServletRequest request, ServletResponse response)
-				throws IOException, ServletException {
+		public void doFilter(ServletRequest request, ServletResponse response) {
 			if (expectToProceed) {
 
 			}

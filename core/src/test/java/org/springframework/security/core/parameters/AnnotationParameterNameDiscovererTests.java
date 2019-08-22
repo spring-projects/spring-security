@@ -89,7 +89,7 @@ public class AnnotationParameterNameDiscovererTests {
 	}
 
 	@Test
-	public void getParameterNamesClassAnnotationOnInterface() throws Exception {
+	public void getParameterNamesClassAnnotationOnInterface() {
 		assertThat(
 				discoverer.getParameterNames(ReflectionUtils.findMethod(DaoImpl.class,
 						"findMessageByTo", String.class))).isEqualTo(
@@ -101,7 +101,7 @@ public class AnnotationParameterNameDiscovererTests {
 	}
 
 	@Test
-	public void getParameterNamesClassAnnotationOnImpl() throws Exception {
+	public void getParameterNamesClassAnnotationOnImpl() {
 		assertThat(
 				discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class,
 						"findMessageByToAndFrom", String.class, String.class)))
@@ -113,7 +113,7 @@ public class AnnotationParameterNameDiscovererTests {
 	}
 
 	@Test
-	public void getParameterNamesClassAnnotationOnBaseClass() throws Exception {
+	public void getParameterNamesClassAnnotationOnBaseClass() {
 		assertThat(
 				discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class,
 						"findMessageByIdNoAnnotation", String.class))).isNull();

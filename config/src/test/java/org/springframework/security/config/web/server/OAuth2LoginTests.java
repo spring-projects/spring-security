@@ -523,7 +523,7 @@ public class OAuth2LoginTests {
 
 
 	@Test
-	public void logoutWhenUsingOidcLogoutHandlerThenRedirects() throws Exception {
+	public void logoutWhenUsingOidcLogoutHandlerThenRedirects() {
 		this.spring.register(OAuth2LoginConfigWithOidcLogoutSuccessHandler.class).autowire();
 
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(

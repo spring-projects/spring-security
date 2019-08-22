@@ -51,7 +51,7 @@ public class HelloWebfluxApplicationTests {
 	}
 
 	@Test
-	public void basicWhenNoCredentialsThenUnauthorized() throws Exception {
+	public void basicWhenNoCredentialsThenUnauthorized() {
 		this.rest
 			.get()
 			.uri("/")
@@ -60,7 +60,7 @@ public class HelloWebfluxApplicationTests {
 	}
 
 	@Test
-	public void basicWhenValidCredentialsThenOk() throws Exception {
+	public void basicWhenValidCredentialsThenOk() {
 		this.rest
 			.get()
 			.uri("/")
@@ -71,7 +71,7 @@ public class HelloWebfluxApplicationTests {
 	}
 
 	@Test
-	public void basicWhenInvalidCredentialsThenUnauthorized() throws Exception {
+	public void basicWhenInvalidCredentialsThenUnauthorized() {
 		this.rest
 			.get()
 			.uri("/")
@@ -82,7 +82,7 @@ public class HelloWebfluxApplicationTests {
 	}
 
 	@Test
-	public void mockSupportWhenMutateWithMockUserThenOk() throws Exception {
+	public void mockSupportWhenMutateWithMockUserThenOk() {
 		this.rest
 			.mutateWith(mockUser())
 			.get()
@@ -94,7 +94,7 @@ public class HelloWebfluxApplicationTests {
 
 	@Test
 	@WithMockUser
-	public void mockSupportWhenWithMockUserThenOk() throws Exception {
+	public void mockSupportWhenWithMockUserThenOk() {
 		this.rest
 			.get()
 			.uri("/")

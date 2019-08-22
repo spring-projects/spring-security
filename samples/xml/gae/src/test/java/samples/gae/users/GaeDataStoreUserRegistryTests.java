@@ -35,12 +35,12 @@ public class GaeDataStoreUserRegistryTests {
 			new LocalDatastoreServiceTestConfig());
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		helper.setUp();
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		helper.tearDown();
 	}
 

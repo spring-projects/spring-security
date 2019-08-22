@@ -442,7 +442,7 @@ public class NimbusJwtDecoderTests {
 	private static class MockJwtProcessor extends DefaultJWTProcessor<SecurityContext> {
 		@Override
 		public JWTClaimsSet process(SignedJWT signedJWT, SecurityContext context)
-				throws BadJOSEException, JOSEException {
+				throws BadJOSEException {
 
 			try {
 				return signedJWT.getJWTClaimsSet();

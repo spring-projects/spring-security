@@ -104,7 +104,7 @@ public class WebSecurityTests {
 	@EnableWebMvc
 	static class MvcMatcherConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			// @formatter:off
 			web
 				.ignoring()
@@ -180,7 +180,7 @@ public class WebSecurityTests {
 	@EnableWebMvc
 	static class MvcMatcherServletPathConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			// @formatter:off
 			web
 				.ignoring()

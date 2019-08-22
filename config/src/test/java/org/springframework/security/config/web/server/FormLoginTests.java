@@ -98,7 +98,7 @@ public class FormLoginTests {
 	}
 
 	@Test
-	public void formLoginWhenDefaultsInLambdaThenCreatesDefaultLoginPage() throws Exception {
+	public void formLoginWhenDefaultsInLambdaThenCreatesDefaultLoginPage() {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.authorizeExchange(exchanges ->
 				exchanges
@@ -173,7 +173,7 @@ public class FormLoginTests {
 	}
 
 	@Test
-	public void formLoginWhenCustomLoginPageInLambdaThenUsed() throws Exception {
+	public void formLoginWhenCustomLoginPageInLambdaThenUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.authorizeExchange(exchanges ->
 				exchanges

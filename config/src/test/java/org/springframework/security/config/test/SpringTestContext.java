@@ -62,7 +62,7 @@ public class SpringTestContext implements Closeable {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		try {
 			this.context.close();
 		} catch(Exception e) {}
@@ -104,8 +104,7 @@ public class SpringTestContext implements Closeable {
 		return addFilter(new OncePerRequestFilter() {
 			@Override
 			protected void doFilterInternal(HttpServletRequest request,
-				HttpServletResponse response, FilterChain filterChain)
-				throws ServletException, IOException {
+				HttpServletResponse response, FilterChain filterChain) {
 				response.setStatus(HttpServletResponse.SC_OK);
 			}
 		});

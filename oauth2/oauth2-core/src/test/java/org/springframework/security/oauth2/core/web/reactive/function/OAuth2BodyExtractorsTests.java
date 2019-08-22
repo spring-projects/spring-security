@@ -97,7 +97,7 @@ public class OAuth2BodyExtractorsTests {
 	}
 
 	@Test
-	public void oauth2AccessTokenResponseWhenValidThenCreated() throws Exception {
+	public void oauth2AccessTokenResponseWhenValidThenCreated() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
 				.oauth2AccessTokenResponse();
 
@@ -124,7 +124,7 @@ public class OAuth2BodyExtractorsTests {
 
 	@Test
 	// gh-6087
-	public void oauth2AccessTokenResponseWhenMultipleAttributeTypesThenCreated() throws Exception {
+	public void oauth2AccessTokenResponseWhenMultipleAttributeTypesThenCreated() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
 				.oauth2AccessTokenResponse();
 

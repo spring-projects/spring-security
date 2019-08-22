@@ -105,7 +105,7 @@ public class RequestCacheTests {
 	}
 
 	@Test
-	public void requestWhenCustomRequestCacheInLambdaThenCustomCacheUsed() throws Exception {
+	public void requestWhenCustomRequestCacheInLambdaThenCustomCacheUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.authorizeExchange(authorizeExchange ->
 				authorizeExchange

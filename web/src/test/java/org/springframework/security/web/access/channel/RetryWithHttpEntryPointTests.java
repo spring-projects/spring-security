@@ -42,7 +42,7 @@ public class RetryWithHttpEntryPointTests {
 	// ~ Methods
 	// ========================================================================================================
 	@Test
-	public void testDetectsMissingPortMapper() throws Exception {
+	public void testDetectsMissingPortMapper() {
 		RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
 
 		try {
@@ -54,7 +54,7 @@ public class RetryWithHttpEntryPointTests {
 	}
 
 	@Test
-	public void testDetectsMissingPortResolver() throws Exception {
+	public void testDetectsMissingPortResolver() {
 		RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
 
 		try {

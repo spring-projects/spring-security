@@ -30,7 +30,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 public class GoogleAccountsAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 	public void commence(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException authException) throws IOException, ServletException {
+			AuthenticationException authException) throws IOException {
 		UserService userService = UserServiceFactory.getUserService();
 
 		response.sendRedirect(userService.createLoginURL(request.getRequestURI()));

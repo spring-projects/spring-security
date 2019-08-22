@@ -37,7 +37,7 @@ import java.util.List;
 public class AclEntryAfterInvocationProviderTests {
 
 	@Test(expected = IllegalArgumentException.class)
-	public void rejectsMissingPermissions() throws Exception {
+	public void rejectsMissingPermissions() {
 		try {
 			new AclEntryAfterInvocationProvider(mock(AclService.class), null);
 			fail("Exception expected");
@@ -72,7 +72,7 @@ public class AclEntryAfterInvocationProviderTests {
 	}
 
 	@Test
-	public void accessIsGrantedIfNoAttributesDefined() throws Exception {
+	public void accessIsGrantedIfNoAttributesDefined() {
 		AclEntryAfterInvocationProvider provider = new AclEntryAfterInvocationProvider(
 				mock(AclService.class), Arrays.asList(mock(Permission.class)));
 		Object returned = new Object();
@@ -85,7 +85,7 @@ public class AclEntryAfterInvocationProviderTests {
 	}
 
 	@Test
-	public void accessIsGrantedIfObjectTypeNotSupported() throws Exception {
+	public void accessIsGrantedIfObjectTypeNotSupported() {
 		AclEntryAfterInvocationProvider provider = new AclEntryAfterInvocationProvider(
 				mock(AclService.class), Arrays.asList(mock(Permission.class)));
 		provider.setProcessDomainObjectClass(String.class);
@@ -131,7 +131,7 @@ public class AclEntryAfterInvocationProviderTests {
 	}
 
 	@Test
-	public void nullReturnObjectIsIgnored() throws Exception {
+	public void nullReturnObjectIsIgnored() {
 		AclService service = mock(AclService.class);
 		AclEntryAfterInvocationProvider provider = new AclEntryAfterInvocationProvider(
 				service, Arrays.asList(mock(Permission.class)));

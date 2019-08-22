@@ -26,7 +26,7 @@ import org.junit.Test;
 public class UrlUtilsTests {
 
 	@Test
-	public void absoluteUrlsAreMatchedAsAbsolute() throws Exception {
+	public void absoluteUrlsAreMatchedAsAbsolute() {
 		assertThat(UrlUtils.isAbsoluteUrl("https://something/")).isTrue();
 		assertThat(UrlUtils.isAbsoluteUrl("http1://something/")).isTrue();
 		assertThat(UrlUtils.isAbsoluteUrl("HTTP://something/")).isTrue();

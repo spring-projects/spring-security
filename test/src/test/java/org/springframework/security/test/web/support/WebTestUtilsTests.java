@@ -207,7 +207,7 @@ public class WebTestUtilsTests {
 
 		// @formatter:off
 		@Override
-		public void configure(HttpSecurity http) throws Exception {
+		public void configure(HttpSecurity http) {
 			http
 				.antMatcher("/willnotmatchthis");
 		}

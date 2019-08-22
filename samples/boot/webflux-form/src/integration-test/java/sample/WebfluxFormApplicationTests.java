@@ -47,7 +47,7 @@ public class WebfluxFormApplicationTests {
 	}
 
 	@Test
-	public void loginWhenInvalidUsernameThenError() throws Exception {
+	public void loginWhenInvalidUsernameThenError() {
 		LoginPage login = IndexPage.to(this.driver, this.port, LoginPage.class);
 		login.assertAt();
 
@@ -60,7 +60,7 @@ public class WebfluxFormApplicationTests {
 	}
 
 	@Test
-	public void loginAndLogout() throws Exception {
+	public void loginAndLogout() {
 		LoginPage login = IndexPage.to(this.driver, this.port, LoginPage.class);
 		login.assertAt();
 

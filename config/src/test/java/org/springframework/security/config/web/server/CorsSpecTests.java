@@ -75,7 +75,7 @@ public class CorsSpecTests {
 	}
 
 	@Test
-	public void corsWhenEnabledInLambdaThenAccessControlAllowOriginAndSecurityHeaders() throws Exception {
+	public void corsWhenEnabledInLambdaThenAccessControlAllowOriginAndSecurityHeaders() {
 		this.http.cors(cors -> cors.configurationSource(this.source));
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");

@@ -228,7 +228,7 @@ public class AuthenticationManagerBuilder
 	}
 
 	@Override
-	protected ProviderManager performBuild() throws Exception {
+	protected ProviderManager performBuild() {
 		if (!isConfigured()) {
 			logger.debug("No authenticationProviders and no parentAuthenticationManager defined. Returning null.");
 			return null;

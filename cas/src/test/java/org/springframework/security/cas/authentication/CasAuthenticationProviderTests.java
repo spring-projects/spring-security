@@ -418,8 +418,7 @@ public class CasAuthenticationProviderTests {
 			this.returnTicket = returnTicket;
 		}
 
-		public Assertion validate(final String ticket, final String service)
-				throws TicketValidationException {
+		public Assertion validate(final String ticket, final String service) {
 			if (returnTicket) {
 				return new AssertionImpl("rod");
 			}

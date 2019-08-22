@@ -156,7 +156,7 @@ public class AuthenticationTagTests {
 			return lastMessage;
 		}
 
-		protected void writeMessage(String msg) throws JspException {
+		protected void writeMessage(String msg) {
 			lastMessage = msg;
 		}
 	}

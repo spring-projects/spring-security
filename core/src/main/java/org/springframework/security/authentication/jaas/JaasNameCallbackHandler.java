@@ -49,11 +49,8 @@ public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandle
 	 * @param callback
 	 * @param authentication
 	 *
-	 * @throws IOException
-	 * @throws UnsupportedCallbackException
 	 */
-	public void handle(Callback callback, Authentication authentication)
-			throws IOException, UnsupportedCallbackException {
+	public void handle(Callback callback, Authentication authentication) {
 		if (callback instanceof NameCallback) {
 			NameCallback ncb = (NameCallback) callback;
 			String username;

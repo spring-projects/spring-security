@@ -173,12 +173,12 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Hooks.onLastOperator(REQUEST_CONTEXT_OPERATOR_KEY, Operators.lift((s, sub) -> createRequestContextSubscriber(sub)));
 	}
 
 	@Override
-	public void destroy() throws Exception {
+	public void destroy() {
 		Hooks.resetOnLastOperator(REQUEST_CONTEXT_OPERATOR_KEY);
 	}
 

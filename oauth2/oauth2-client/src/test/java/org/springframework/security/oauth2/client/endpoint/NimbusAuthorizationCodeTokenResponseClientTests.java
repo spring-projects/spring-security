@@ -57,7 +57,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	public ExpectedException exception = ExpectedException.none();
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		this.clientRegistrationBuilder = clientRegistration()
 				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC);
 		this.authorizationRequest = request().build();
@@ -107,7 +107,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenRedirectUriMalformedThenThrowIllegalArgumentException() throws Exception {
+	public void getTokenResponseWhenRedirectUriMalformedThenThrowIllegalArgumentException() {
 		this.exception.expect(IllegalArgumentException.class);
 
 		String redirectUri = "http:\\example.com";
@@ -121,7 +121,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenTokenUriMalformedThenThrowIllegalArgumentException() throws Exception {
+	public void getTokenResponseWhenTokenUriMalformedThenThrowIllegalArgumentException() {
 		this.exception.expect(IllegalArgumentException.class);
 
 		String tokenUri = "http:\\provider.com\\oauth2\\token";
@@ -166,7 +166,7 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenTokenUriInvalidThenThrowOAuth2AuthorizationException() throws Exception {
+	public void getTokenResponseWhenTokenUriInvalidThenThrowOAuth2AuthorizationException() {
 		this.exception.expect(OAuth2AuthorizationException.class);
 
 		String tokenUri = "https://invalid-provider.com/oauth2/token";

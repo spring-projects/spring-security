@@ -38,7 +38,7 @@ public class NullUserCacheTests {
 	}
 
 	@Test
-	public void testCacheOperation() throws Exception {
+	public void testCacheOperation() {
 		NullUserCache cache = new NullUserCache();
 		cache.putUserInCache(getUser());
 		assertThat(cache.getUserFromCache(null)).isNull();

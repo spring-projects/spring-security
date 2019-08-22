@@ -51,7 +51,7 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements
 	/**
 	 * Check whether all properties have been set to correct values.
 	 */
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.isTrue(
 				!(isConvertAttributeToUpperCase() && isConvertAttributeToLowerCase()),
 				"Either convertAttributeToUpperCase or convertAttributeToLowerCase can be set to true, but not both");

@@ -858,22 +858,22 @@ public class MiscHttpConfigTests {
 		}
 
 		@Override
-		public boolean login() throws LoginException {
+		public boolean login() {
 			return this.subject.getPrincipals().add(() -> "user");
 		}
 
 		@Override
-		public boolean commit() throws LoginException {
+		public boolean commit() {
 			return true;
 		}
 
 		@Override
-		public boolean abort() throws LoginException {
+		public boolean abort() {
 			return true;
 		}
 
 		@Override
-		public boolean logout() throws LoginException {
+		public boolean logout() {
 			return true;
 		}
 	}

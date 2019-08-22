@@ -30,5 +30,5 @@ import javax.servlet.ServletException;
 public interface SessionInformationExpiredStrategy {
 
 	void onExpiredSessionDetected(SessionInformationExpiredEvent event)
-			throws IOException, ServletException;
+			throws IOException;
 }

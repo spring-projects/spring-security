@@ -48,5 +48,5 @@ public interface ChannelEntryPoint {
 	 *
 	 */
 	void commence(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException;
+			throws IOException;
 }

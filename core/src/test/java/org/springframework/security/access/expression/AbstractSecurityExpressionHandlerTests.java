@@ -35,7 +35,7 @@ public class AbstractSecurityExpressionHandlerTests {
 	private AbstractSecurityExpressionHandler<Object> handler;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		handler = new AbstractSecurityExpressionHandler<Object>() {
 			@Override
 			protected SecurityExpressionOperations createSecurityExpressionRoot(
@@ -47,7 +47,7 @@ public class AbstractSecurityExpressionHandlerTests {
 	}
 
 	@Test
-	public void beanNamesAreCorrectlyResolved() throws Exception {
+	public void beanNamesAreCorrectlyResolved() {
 		handler.setApplicationContext(new AnnotationConfigApplicationContext(
 				TestConfiguration.class));
 

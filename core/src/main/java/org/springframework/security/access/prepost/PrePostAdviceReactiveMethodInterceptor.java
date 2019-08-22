@@ -69,8 +69,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 	}
 
 	@Override
-	public Object invoke(final MethodInvocation invocation)
-		throws Throwable {
+	public Object invoke(final MethodInvocation invocation) {
 		Method method = invocation.getMethod();
 		Class<?> returnType = method.getReturnType();
 		if (!Publisher.class.isAssignableFrom(returnType)) {

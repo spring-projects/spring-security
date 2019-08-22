@@ -79,7 +79,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	 * The redirect will not be performed if the response has already been committed.
 	 */
 	protected void handle(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException, ServletException {
+			Authentication authentication) throws IOException {
 		String targetUrl = determineTargetUrl(request, response, authentication);
 
 		if (response.isCommitted()) {

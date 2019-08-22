@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
 	@RequestMapping(value = "/secure/file?with?special?chars.htm", method = RequestMethod.GET)
-	public String sec1255TestUrl() throws IOException {
+	public String sec1255TestUrl() {
 		return "I'm file?with?special?chars.htm";
 	}
 

@@ -57,7 +57,7 @@ public class MvcRequestMatcherTests {
 	MvcRequestMatcher matcher;
 
 	@Before
-	public void setup() throws Exception {
+	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.request.setMethod("GET");
 		this.request.setServletPath("/path");
@@ -125,7 +125,7 @@ public class MvcRequestMatcherTests {
 	}
 
 	@Test
-	public void matchesServletPathFalse() throws Exception {
+	public void matchesServletPathFalse() {
 		this.matcher.setServletPath("/spring");
 		this.request.setServletPath("/");
 
@@ -179,7 +179,7 @@ public class MvcRequestMatcherTests {
 	}
 
 	@Test
-	public void matchesMethodAndPathFalseMethod() throws Exception {
+	public void matchesMethodAndPathFalseMethod() {
 		this.matcher.setMethod(HttpMethod.POST);
 
 		assertThat(this.matcher.matches(this.request)).isFalse();
@@ -191,10 +191,9 @@ public class MvcRequestMatcherTests {
 	 * Malicious users can specify any HTTP Method to create a stacktrace and try to
 	 * expose useful information about the system. We should ensure we ignore invalid HTTP
 	 * methods.
-	 * @throws Exception if an error occurs
 	 */
 	@Test
-	public void matchesInvalidMethodOnRequest() throws Exception {
+	public void matchesInvalidMethodOnRequest() {
 		this.matcher.setMethod(HttpMethod.GET);
 		this.request.setMethod("invalid");
 
@@ -213,7 +212,7 @@ public class MvcRequestMatcherTests {
 	}
 
 	@Test
-	public void matchesGetMatchableHandlerMappingNull() throws Exception {
+	public void matchesGetMatchableHandlerMappingNull() {
 		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 

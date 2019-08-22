@@ -132,7 +132,7 @@ public class JdbcMutableAclServiceTests extends
 	}
 
 	@AfterTransaction
-	public void clearContextAndData() throws Exception {
+	public void clearContextAndData() {
 		SecurityContextHolder.clearContext();
 		jdbcTemplate.execute("drop table acl_entry");
 		jdbcTemplate.execute("drop table acl_object_identity");
@@ -285,7 +285,7 @@ public class JdbcMutableAclServiceTests extends
 	 */
 	@Test
 	@Transactional
-	public void deleteAclAlsoDeletesChildren() throws Exception {
+	public void deleteAclAlsoDeletesChildren() {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		jdbcMutableAclService.createAcl(getTopParentOid());
@@ -323,7 +323,7 @@ public class JdbcMutableAclServiceTests extends
 	}
 
 	@Test
-	public void constructorRejectsNullParameters() throws Exception {
+	public void constructorRejectsNullParameters() {
 		try {
 			new JdbcMutableAclService(null, lookupStrategy, aclCache);
 			fail("It should have thrown IllegalArgumentException");
@@ -347,7 +347,7 @@ public class JdbcMutableAclServiceTests extends
 	}
 
 	@Test
-	public void createAclRejectsNullParameter() throws Exception {
+	public void createAclRejectsNullParameter() {
 		try {
 			jdbcMutableAclService.createAcl(null);
 			fail("It should have thrown IllegalArgumentException");
@@ -358,7 +358,7 @@ public class JdbcMutableAclServiceTests extends
 
 	@Test
 	@Transactional
-	public void createAclForADuplicateDomainObject() throws Exception {
+	public void createAclForADuplicateDomainObject() {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		ObjectIdentity duplicateOid = new ObjectIdentityImpl(TARGET_CLASS,
 				100L);
@@ -374,7 +374,7 @@ public class JdbcMutableAclServiceTests extends
 
 	@Test
 	@Transactional
-	public void deleteAclRejectsNullParameters() throws Exception {
+	public void deleteAclRejectsNullParameters() {
 		try {
 			jdbcMutableAclService.deleteAcl(null, true);
 			fail("It should have thrown IllegalArgumentException");
@@ -385,7 +385,7 @@ public class JdbcMutableAclServiceTests extends
 
 	@Test
 	@Transactional
-	public void deleteAclWithChildrenThrowsException() throws Exception {
+	public void deleteAclWithChildrenThrowsException() {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		MutableAcl parent = jdbcMutableAclService.createAcl(getTopParentOid());
 		MutableAcl child = jdbcMutableAclService.createAcl(getMiddleParentOid());
@@ -411,7 +411,7 @@ public class JdbcMutableAclServiceTests extends
 
 	@Test
 	@Transactional
-	public void deleteAclRemovesRowsFromDatabase() throws Exception {
+	public void deleteAclRemovesRowsFromDatabase() {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		MutableAcl child = jdbcMutableAclService.createAcl(getChildOid());
 		child.insertAce(0, BasePermission.DELETE, new PrincipalSid(auth), false);
@@ -434,7 +434,7 @@ public class JdbcMutableAclServiceTests extends
 	/** SEC-1107 */
 	@Test
 	@Transactional
-	public void identityWithIntegerIdIsSupportedByCreateAcl() throws Exception {
+	public void identityWithIntegerIdIsSupportedByCreateAcl() {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 101);
 		jdbcMutableAclService.createAcl(oid);
@@ -448,7 +448,7 @@ public class JdbcMutableAclServiceTests extends
 	 */
 	@Test
 	@Transactional
-	public void childrenAreClearedFromCacheWhenParentIsUpdated() throws Exception {
+	public void childrenAreClearedFromCacheWhenParentIsUpdated() {
 		Authentication auth = new TestingAuthenticationToken("ben", "ignored",
 				"ROLE_ADMINISTRATOR");
 		auth.setAuthenticated(true);
@@ -486,7 +486,7 @@ public class JdbcMutableAclServiceTests extends
 	 */
 	@Test
 	@Transactional
-	public void childrenAreClearedFromCacheWhenParentisUpdated2() throws Exception {
+	public void childrenAreClearedFromCacheWhenParentisUpdated2() {
 		Authentication auth = new TestingAuthenticationToken("system", "secret",
 				"ROLE_IGNORED");
 		SecurityContextHolder.getContext().setAuthentication(auth);

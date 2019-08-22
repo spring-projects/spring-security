@@ -53,7 +53,7 @@ public class IpAddressMatcherTests {
 	}
 
 	@Test
-	public void ipv4SubnetMatchesCorrectly() throws Exception {
+	public void ipv4SubnetMatchesCorrectly() {
 		IpAddressMatcher matcher = new IpAddressMatcher("192.168.1.0/24");
 		assertThat(matcher.matches(ipv4Request)).isTrue();
 		matcher = new IpAddressMatcher("192.168.1.128/25");
@@ -63,7 +63,7 @@ public class IpAddressMatcherTests {
 	}
 
 	@Test
-	public void ipv6RangeMatches() throws Exception {
+	public void ipv6RangeMatches() {
 		IpAddressMatcher matcher = new IpAddressMatcher("2001:DB8::/48");
 
 		assertThat(matcher.matches("2001:DB8:0:0:0:0:0:0")).isTrue();
@@ -74,7 +74,7 @@ public class IpAddressMatcherTests {
 
 	// SEC-1733
 	@Test
-	public void zeroMaskMatchesAnything() throws Exception {
+	public void zeroMaskMatchesAnything() {
 		IpAddressMatcher matcher = new IpAddressMatcher("0.0.0.0/0");
 
 		assertThat(matcher.matches("123.4.5.6")).isTrue();

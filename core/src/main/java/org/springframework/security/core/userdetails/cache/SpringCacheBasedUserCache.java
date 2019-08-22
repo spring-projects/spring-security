@@ -43,7 +43,7 @@ public class SpringCacheBasedUserCache implements UserCache {
 	// ~ Constructors
 	// ===================================================================================================
 
-	public SpringCacheBasedUserCache(Cache cache) throws Exception {
+	public SpringCacheBasedUserCache(Cache cache) {
 		Assert.notNull(cache, "cache mandatory");
 		this.cache = cache;
 	}

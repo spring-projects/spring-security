@@ -57,7 +57,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 	private ConcurrentSessionControlAuthenticationStrategy strategy;
 
 	@Before
-	public void setup() throws Exception {
+	public void setup() {
 		authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		request = new MockHttpServletRequest();
 		response = new MockHttpServletResponse();

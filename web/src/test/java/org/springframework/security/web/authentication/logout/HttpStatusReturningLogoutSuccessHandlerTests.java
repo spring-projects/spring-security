@@ -64,7 +64,7 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 	}
 
 	@Test
-	public void testThatSettNullHttpStatusThrowsException() throws Exception {
+	public void testThatSettNullHttpStatusThrowsException() {
 
 		try {
 			new HttpStatusReturningLogoutSuccessHandler(null);

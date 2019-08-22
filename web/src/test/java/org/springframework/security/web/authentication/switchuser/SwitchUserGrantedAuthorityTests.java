@@ -28,20 +28,18 @@ import org.springframework.security.web.authentication.switchuser.SwitchUserGran
 public class SwitchUserGrantedAuthorityTests {
 
 	/**
-	 * @throws Exception
 	 */
 	@Test
-	public void authorityWithNullRoleFailsAssertion() throws Exception {
+	public void authorityWithNullRoleFailsAssertion() {
 		assertThatThrownBy(() -> new SwitchUserGrantedAuthority(null, null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("role cannot be null");
 	}
 
 	/**
-	 * @throws Exception
 	 */
 	@Test
-	public void authorityWithNullSourceFailsAssertion() throws Exception {
+	public void authorityWithNullSourceFailsAssertion() {
 		assertThatThrownBy(() -> new SwitchUserGrantedAuthority("role", null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("source cannot be null");

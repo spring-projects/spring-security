@@ -150,7 +150,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-			throws AuthenticationException, IOException, ServletException {
+			throws AuthenticationException {
 
 		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
 		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(params)) {

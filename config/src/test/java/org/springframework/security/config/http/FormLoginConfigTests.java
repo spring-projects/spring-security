@@ -227,7 +227,7 @@ public class FormLoginConfigTests {
 		public void onAuthenticationFailure(
 				HttpServletRequest request,
 				HttpServletResponse response,
-				AuthenticationException exception) throws IOException, ServletException {
+				AuthenticationException exception) {
 
 			response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 		}
@@ -236,7 +236,7 @@ public class FormLoginConfigTests {
 		public void onAuthenticationSuccess(
 				HttpServletRequest request,
 				HttpServletResponse response,
-				Authentication authentication) throws IOException, ServletException {
+				Authentication authentication) {
 
 			response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 		}

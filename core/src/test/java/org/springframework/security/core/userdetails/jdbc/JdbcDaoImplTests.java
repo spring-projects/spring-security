@@ -42,7 +42,7 @@ public class JdbcDaoImplTests {
 	// ~ Methods
 	// ========================================================================================================
 
-	private JdbcDaoImpl makePopulatedJdbcDao() throws Exception {
+	private JdbcDaoImpl makePopulatedJdbcDao() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 		dao.setDataSource(PopulatedDatabase.getDataSource());
 		dao.afterPropertiesSet();
@@ -50,7 +50,7 @@ public class JdbcDaoImplTests {
 		return dao;
 	}
 
-	private JdbcDaoImpl makePopulatedJdbcDaoWithRolePrefix() throws Exception {
+	private JdbcDaoImpl makePopulatedJdbcDaoWithRolePrefix() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 		dao.setDataSource(PopulatedDatabase.getDataSource());
 		dao.setRolePrefix("ARBITRARY_PREFIX_");
@@ -168,7 +168,7 @@ public class JdbcDaoImplTests {
 	}
 
 	@Test
-	public void testStartupFailsIfDataSourceNotSet() throws Exception {
+	public void testStartupFailsIfDataSourceNotSet() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 
 		try {
@@ -181,7 +181,7 @@ public class JdbcDaoImplTests {
 	}
 
 	@Test
-	public void testStartupFailsIfUserMapSetToNull() throws Exception {
+	public void testStartupFailsIfUserMapSetToNull() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 
 		try {
@@ -195,14 +195,14 @@ public class JdbcDaoImplTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void setMessageSourceWhenNullThenThrowsException() throws Exception {
+	public void setMessageSourceWhenNullThenThrowsException() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 
 		dao.setMessageSource(null);
 	}
 
 	@Test
-	public void setMessageSourceWhenNotNullThenCanGet() throws Exception {
+	public void setMessageSourceWhenNotNullThenCanGet() {
 		MessageSource source = mock(MessageSource.class);
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 		dao.setMessageSource(source);

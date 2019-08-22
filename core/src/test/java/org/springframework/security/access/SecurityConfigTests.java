@@ -55,7 +55,7 @@ public class SecurityConfigTests {
 	}
 
 	@Test
-	public void testObjectEquals() throws Exception {
+	public void testObjectEquals() {
 		SecurityConfig security1 = new SecurityConfig("TEST");
 		SecurityConfig security2 = new SecurityConfig("TEST");
 		assertThat(security2).isEqualTo(security1);

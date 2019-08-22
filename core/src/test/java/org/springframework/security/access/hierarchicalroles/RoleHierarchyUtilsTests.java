@@ -31,7 +31,7 @@ public class RoleHierarchyUtilsTests {
 	private static final String EOL = System.lineSeparator();
 
 	@Test
-	public void roleHierarchyFromMapWhenMapValidThenConvertsCorrectly() throws Exception {
+	public void roleHierarchyFromMapWhenMapValidThenConvertsCorrectly() {
 		// @formatter:off
 		String expectedRoleHierarchy = "ROLE_A > ROLE_B" + EOL +
 				"ROLE_A > ROLE_C" + EOL +
@@ -50,17 +50,17 @@ public class RoleHierarchyUtilsTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void roleHierarchyFromMapWhenMapNullThenThrowsIllegalArgumentException() throws Exception {
+	public void roleHierarchyFromMapWhenMapNullThenThrowsIllegalArgumentException() {
 		RoleHierarchyUtils.roleHierarchyFromMap(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void roleHierarchyFromMapWhenMapEmptyThenThrowsIllegalArgumentException() throws Exception {
+	public void roleHierarchyFromMapWhenMapEmptyThenThrowsIllegalArgumentException() {
 		RoleHierarchyUtils.roleHierarchyFromMap(Collections.<String, List<String>>emptyMap());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void roleHierarchyFromMapWhenRoleNullThenThrowsIllegalArgumentException() throws Exception {
+	public void roleHierarchyFromMapWhenRoleNullThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put(null, asList("ROLE_B", "ROLE_C"));
 
@@ -68,7 +68,7 @@ public class RoleHierarchyUtilsTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void roleHierarchyFromMapWhenRoleEmptyThenThrowsIllegalArgumentException() throws Exception {
+	public void roleHierarchyFromMapWhenRoleEmptyThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("", asList("ROLE_B", "ROLE_C"));
 
@@ -76,7 +76,7 @@ public class RoleHierarchyUtilsTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void roleHierarchyFromMapWhenImpliedRolesNullThenThrowsIllegalArgumentException() throws Exception {
+	public void roleHierarchyFromMapWhenImpliedRolesNullThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("ROLE_A", null);
 
@@ -84,7 +84,7 @@ public class RoleHierarchyUtilsTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void roleHierarchyFromMapWhenImpliedRolesEmptyThenThrowsIllegalArgumentException() throws Exception {
+	public void roleHierarchyFromMapWhenImpliedRolesEmptyThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("ROLE_A", Collections.<String>emptyList());
 

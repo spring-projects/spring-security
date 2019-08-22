@@ -93,7 +93,7 @@ public class MockWebServerPropertySource extends PropertySource<MockWebServer> i
 	private void intializeMockWebServer(MockWebServer mockWebServer) {
 		Dispatcher dispatcher = new Dispatcher() {
 			@Override
-			public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+			public MockResponse dispatch(RecordedRequest request) {
 				if ("/.well-known/jwks.json".equals(request.getPath())) {
 					return JWKS_RESPONSE;
 				}

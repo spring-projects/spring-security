@@ -251,7 +251,7 @@ public class GlobalMethodSecurityConfigurationTests {
 	}
 
 	@Test
-	public void multiPermissionEvaluatorConfig() throws Exception {
+	public void multiPermissionEvaluatorConfig() {
 		this.spring.register(MultiPermissionEvaluatorConfig.class).autowire();
 
 		// no exception

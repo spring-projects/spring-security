@@ -72,7 +72,7 @@ public class AuthenticationFilterTests {
 	}
 
 	@After
-	public void clearContext() throws Exception {
+	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 

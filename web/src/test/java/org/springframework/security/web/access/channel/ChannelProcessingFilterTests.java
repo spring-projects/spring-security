@@ -43,7 +43,7 @@ public class ChannelProcessingFilterTests {
 	// ========================================================================================================
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsMissingChannelDecisionManager() throws Exception {
+	public void testDetectsMissingChannelDecisionManager() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 
 		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap(
@@ -54,15 +54,14 @@ public class ChannelProcessingFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsMissingFilterInvocationSecurityMetadataSource()
-			throws Exception {
+	public void testDetectsMissingFilterInvocationSecurityMetadataSource() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "MOCK"));
 		filter.afterPropertiesSet();
 	}
 
 	@Test
-	public void testDetectsSupportedConfigAttribute() throws Exception {
+	public void testDetectsSupportedConfigAttribute() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false,
 				"SUPPORTS_MOCK_ONLY"));
@@ -76,7 +75,7 @@ public class ChannelProcessingFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsUnsupportedConfigAttribute() throws Exception {
+	public void testDetectsUnsupportedConfigAttribute() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false,
 				"SUPPORTS_MOCK_ONLY"));
@@ -148,7 +147,7 @@ public class ChannelProcessingFilterTests {
 	}
 
 	@Test
-	public void testGetterSetters() throws Exception {
+	public void testGetterSetters() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
 		filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "MOCK"));
 		assertThat(filter.getChannelDecisionManager() != null).isTrue();
@@ -175,7 +174,7 @@ public class ChannelProcessingFilterTests {
 		}
 
 		public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
-				throws IOException, ServletException {
+				throws IOException {
 			if (commitAResponse) {
 				invocation.getHttpResponse().sendRedirect("/redirected");
 			}

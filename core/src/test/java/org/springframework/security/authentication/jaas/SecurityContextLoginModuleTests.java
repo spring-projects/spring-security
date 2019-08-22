@@ -52,14 +52,14 @@ public class SecurityContextLoginModuleTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		this.module = new SecurityContextLoginModule();
 		this.module.initialize(this.subject, null, null, null);
 		SecurityContextHolder.clearContext();
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 		this.module = null;
 	}
@@ -75,7 +75,7 @@ public class SecurityContextLoginModuleTests {
 	}
 
 	@Test
-	public void testLoginException() throws Exception {
+	public void testLoginException() {
 		try {
 			this.module.login();
 			fail("LoginException expected, there is no Authentication in the SecurityContext");
@@ -112,7 +112,7 @@ public class SecurityContextLoginModuleTests {
 	}
 
 	@Test
-	public void testNullAuthenticationInSecurityContext() throws Exception {
+	public void testNullAuthenticationInSecurityContext() {
 		try {
 			SecurityContextHolder.getContext().setAuthentication(null);
 			this.module.login();

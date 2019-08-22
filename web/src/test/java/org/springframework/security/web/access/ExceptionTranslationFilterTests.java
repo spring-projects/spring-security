@@ -61,7 +61,7 @@ public class ExceptionTranslationFilterTests {
 
 	@After
 	@Before
-	public void clearContext() throws Exception {
+	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
@@ -257,12 +257,12 @@ public class ExceptionTranslationFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void startupDetectsMissingAuthenticationEntryPoint() throws Exception {
+	public void startupDetectsMissingAuthenticationEntryPoint() {
 		new ExceptionTranslationFilter(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void startupDetectsMissingRequestCache() throws Exception {
+	public void startupDetectsMissingRequestCache() {
 		new ExceptionTranslationFilter(mockEntryPoint, null);
 	}
 
@@ -305,7 +305,7 @@ public class ExceptionTranslationFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenResponseCommittedThenRethrowsException() throws Exception {
+	public void doFilterWhenResponseCommittedThenRethrowsException() {
 		this.mockEntryPoint = mock(AuthenticationEntryPoint.class);
 		FilterChain chain = (request, response) -> {
 			HttpServletResponse httpResponse = (HttpServletResponse) response;

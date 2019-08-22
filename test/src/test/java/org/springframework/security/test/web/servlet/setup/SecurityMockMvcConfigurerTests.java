@@ -89,14 +89,14 @@ public class SecurityMockMvcConfigurerTests {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void beforeMockMvcCreatedNoFilter() throws Exception {
+	public void beforeMockMvcCreatedNoFilter() {
 		SecurityMockMvcConfigurer configurer = new SecurityMockMvcConfigurer();
 
 		configurer.afterConfigurerAdded(this.builder);
 		configurer.beforeMockMvcCreated(this.builder, this.context);
 	}
 
-	private void assertFilterAdded(Filter filter) throws IOException, ServletException {
+	private void assertFilterAdded(Filter filter) {
 		ArgumentCaptor<SecurityMockMvcConfigurer.DelegateFilter> filterArg = ArgumentCaptor.forClass(
 				SecurityMockMvcConfigurer.DelegateFilter.class);
 		verify(this.builder).addFilters(filterArg.capture());

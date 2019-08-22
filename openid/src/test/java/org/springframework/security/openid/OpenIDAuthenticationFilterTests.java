@@ -42,7 +42,7 @@ public class OpenIDAuthenticationFilterTests {
 	private static final String DEFAULT_TARGET_URL = FILTER_PROCESS_URL;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		filter = new OpenIDAuthenticationFilter();
 		filter.setConsumer(new MockOpenIDConsumer(REDIRECT_URL));
 		SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
@@ -65,8 +65,7 @@ public class OpenIDAuthenticationFilterTests {
 
 		filter.setConsumer(new MockOpenIDConsumer() {
 			public String beginConsumption(HttpServletRequest req,
-					String claimedIdentity, String returnToUrl, String realm)
-					throws OpenIDConsumerException {
+					String claimedIdentity, String returnToUrl, String realm) {
 				assertThat(claimedIdentity).isEqualTo(CLAIMED_IDENTITY_URL);
 				assertThat(returnToUrl).isEqualTo(DEFAULT_TARGET_URL);
 				assertThat(realm).isEqualTo("http://localhost:8080/");

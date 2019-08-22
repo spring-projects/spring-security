@@ -41,12 +41,12 @@ public class NegatedServerWebExchangeMatcherTests {
 	NegatedServerWebExchangeMatcher matcher;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		matcher = new NegatedServerWebExchangeMatcher(matcher1);
 	}
 
 	@Test
-	public void matchesWhenFalseThenTrue() throws Exception {
+	public void matchesWhenFalseThenTrue() {
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
 		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
@@ -58,7 +58,7 @@ public class NegatedServerWebExchangeMatcherTests {
 	}
 
 	@Test
-	public void matchesWhenTrueThenFalse() throws Exception {
+	public void matchesWhenTrueThenFalse() {
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
 
 		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();

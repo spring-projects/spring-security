@@ -59,7 +59,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(contactDao, "contactDao required");
 		Assert.notNull(mutableAclService, "mutableAclService required");
 	}

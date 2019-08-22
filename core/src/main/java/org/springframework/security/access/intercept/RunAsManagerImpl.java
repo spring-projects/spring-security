@@ -63,7 +63,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(
 				key,
 				"A Key is required and should match that configured for the RunAsImplAuthenticationProvider");

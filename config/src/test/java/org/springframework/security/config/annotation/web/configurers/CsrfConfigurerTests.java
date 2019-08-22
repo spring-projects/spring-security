@@ -183,7 +183,7 @@ public class CsrfConfigurerTests {
 	static class CsrfAppliedDefaultConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 	}
 

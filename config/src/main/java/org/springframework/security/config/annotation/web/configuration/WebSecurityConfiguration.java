@@ -108,11 +108,10 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	 * Creates the {@link WebInvocationPrivilegeEvaluator} that is necessary for the JSP
 	 * tag support.
 	 * @return the {@link WebInvocationPrivilegeEvaluator}
-	 * @throws Exception
 	 */
 	@Bean
 	@DependsOn(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
-	public WebInvocationPrivilegeEvaluator privilegeEvaluator() throws Exception {
+	public WebInvocationPrivilegeEvaluator privilegeEvaluator() {
 		return webSecurity.getPrivilegeEvaluator();
 	}
 

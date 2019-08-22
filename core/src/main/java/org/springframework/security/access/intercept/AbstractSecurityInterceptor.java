@@ -125,7 +125,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean,
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(getSecureObjectClass(),
 				"Subclass must provide a non-null response to getSecureObjectClass()");
 		Assert.notNull(this.messages, "A message source must be set");

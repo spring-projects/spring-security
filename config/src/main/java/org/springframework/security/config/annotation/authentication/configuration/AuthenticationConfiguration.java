@@ -128,7 +128,7 @@ public class AuthenticationConfiguration {
 
 	@Autowired(required = false)
 	public void setGlobalAuthenticationConfigurers(
-			List<GlobalAuthenticationConfigurerAdapter> configurers) throws Exception {
+			List<GlobalAuthenticationConfigurerAdapter> configurers) {
 		configurers.sort(AnnotationAwareOrderComparator.INSTANCE);
 		this.globalAuthConfigurers = configurers;
 	}

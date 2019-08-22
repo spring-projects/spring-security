@@ -59,8 +59,7 @@ public class ExceptionHandlingSpecTests {
 	}
 
 	@Test
-	public void requestWhenExceptionHandlingWithDefaultsInLambdaThenDefaultAuthenticationEntryPointUsed()
-			throws Exception {
+	public void requestWhenExceptionHandlingWithDefaultsInLambdaThenDefaultAuthenticationEntryPointUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.authorizeExchange(exchanges ->
 				exchanges
@@ -106,7 +105,7 @@ public class ExceptionHandlingSpecTests {
 	}
 
 	@Test
-	public void requestWhenCustomAuthenticationEntryPointInLambdaThenCustomAuthenticationEntryPointUsed() throws Exception {
+	public void requestWhenCustomAuthenticationEntryPointInLambdaThenCustomAuthenticationEntryPointUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
 				.authorizeExchange(exchanges ->
 					exchanges
@@ -155,8 +154,7 @@ public class ExceptionHandlingSpecTests {
 	}
 
 	@Test
-	public void requestWhenExceptionHandlingWithDefaultsInLambdaThenDefaultAccessDeniedHandlerUsed()
-			throws Exception {
+	public void requestWhenExceptionHandlingWithDefaultsInLambdaThenDefaultAccessDeniedHandlerUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
 				.httpBasic(withDefaults())
 				.authorizeExchange(exchanges ->
@@ -204,8 +202,7 @@ public class ExceptionHandlingSpecTests {
 	}
 
 	@Test
-	public void requestWhenCustomAccessDeniedHandlerInLambdaThenCustomAccessDeniedHandlerUsed()
-			throws Exception {
+	public void requestWhenCustomAccessDeniedHandlerInLambdaThenCustomAccessDeniedHandlerUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
 				.httpBasic(withDefaults())
 				.authorizeExchange(exchanges ->

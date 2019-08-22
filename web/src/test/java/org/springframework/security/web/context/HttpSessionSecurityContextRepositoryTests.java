@@ -102,7 +102,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void sessionIsntCreatedIfContextDoesntChange() throws Exception {
+	public void sessionIsntCreatedIfContextDoesntChange() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -115,7 +115,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void sessionIsntCreatedIfAllowSessionCreationIsFalse() throws Exception {
+	public void sessionIsntCreatedIfAllowSessionCreationIsFalse() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		repo.setAllowSessionCreation(false);
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -130,8 +130,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void existingContextIsSuccessFullyLoadedFromSessionAndSavedBack()
-			throws Exception {
+	public void existingContextIsSuccessFullyLoadedFromSessionAndSavedBack() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -152,8 +151,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	// SEC-1528
 	@Test
-	public void saveContextCallsSetAttributeIfContextIsModifiedDirectlyDuringRequest()
-			throws Exception {
+	public void saveContextCallsSetAttributeIfContextIsModifiedDirectlyDuringRequest() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		// Set up an existing authenticated context, mocking that it is in the session
@@ -177,7 +175,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void nonSecurityContextInSessionIsIgnored() throws Exception {
+	public void nonSecurityContextInSessionIsIgnored() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		SecurityContextHolder.getContext().setAuthentication(testToken);
@@ -192,7 +190,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void sessionIsCreatedAndContextStoredWhenContextChanges() throws Exception {
+	public void sessionIsCreatedAndContextStoredWhenContextChanges() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -404,8 +402,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void noSessionIsCreatedIfSessionWasInvalidatedDuringTheRequest()
-			throws Exception {
+	public void noSessionIsCreatedIfSessionWasInvalidatedDuringTheRequest() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.getSession();
@@ -422,7 +419,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	// SEC-1315
 	@Test
-	public void noSessionIsCreatedIfAnonymousTokenIsUsed() throws Exception {
+	public void noSessionIsCreatedIfAnonymousTokenIsUsed() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -439,8 +436,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	// SEC-1587
 	@Test
-	public void contextIsRemovedFromSessionIfCurrentContextIsAnonymous()
-			throws Exception {
+	public void contextIsRemovedFromSessionIfCurrentContextIsAnonymous() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
@@ -458,7 +454,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void contextIsRemovedFromSessionIfCurrentContextIsEmpty() throws Exception {
+	public void contextIsRemovedFromSessionIfCurrentContextIsEmpty() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -476,8 +472,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	// SEC-1735
 	@Test
-	public void contextIsNotRemovedFromSessionIfContextBeforeExecutionDefault()
-			throws Exception {
+	public void contextIsNotRemovedFromSessionIfContextBeforeExecutionDefault() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
@@ -497,7 +492,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	// SEC-3070
 	@Test
-	public void logoutInvalidateSessionFalseFails() throws Exception {
+	public void logoutInvalidateSessionFalseFails() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
@@ -517,8 +512,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	@Test
 	@SuppressWarnings("deprecation")
-	public void sessionDisableUrlRewritingPreventsSessionIdBeingWrittenToUrl()
-			throws Exception {
+	public void sessionDisableUrlRewritingPreventsSessionIdBeingWrittenToUrl() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		final String sessionId = ";jsessionid=id";

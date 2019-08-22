@@ -97,7 +97,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 
 	// gh-5168
 	@Test
-	public void decodeWhenExpClaimNullThenDoesNotThrowException() throws Exception {
+	public void decodeWhenExpClaimNullThenDoesNotThrowException() {
 		NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL);
 		jwtDecoder.setRestOperations(mockJwkSetResponse(JWK_SET));
 		jwtDecoder.setClaimSetConverter(map -> {

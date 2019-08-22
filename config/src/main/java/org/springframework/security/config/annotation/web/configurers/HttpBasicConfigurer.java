@@ -91,10 +91,9 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 
 	/**
 	 * Creates a new instance
-	 * @throws Exception
 	 * @see HttpSecurity#httpBasic()
 	 */
-	public HttpBasicConfigurer() throws Exception {
+	public HttpBasicConfigurer() {
 		realmName(DEFAULT_REALM);
 
 		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
@@ -150,7 +149,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	}
 
 	@Override
-	public void init(B http) throws Exception {
+	public void init(B http) {
 		registerDefaults(http);
 	}
 
@@ -204,7 +203,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	}
 
 	@Override
-	public void configure(B http) throws Exception {
+	public void configure(B http) {
 		AuthenticationManager authenticationManager = http
 				.getSharedObject(AuthenticationManager.class);
 		BasicAuthenticationFilter basicAuthenticationFilter = new BasicAuthenticationFilter(

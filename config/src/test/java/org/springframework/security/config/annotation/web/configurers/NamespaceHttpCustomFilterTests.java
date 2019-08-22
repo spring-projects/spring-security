@@ -101,7 +101,7 @@ public class NamespaceHttpCustomFilterTests {
 			super(true);
 		}
 
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 			http
 				// this works so long as the CustomFilter extends one of the standard filters
 				// if not, use addFilterBefore or addFilterAfter
@@ -123,7 +123,7 @@ public class NamespaceHttpCustomFilterTests {
 			super(true);
 		}
 
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 			http
 				.addFilterAt(new OtherCustomFilter(), UsernamePasswordAuthenticationFilter.class);
 		}
@@ -141,8 +141,7 @@ public class NamespaceHttpCustomFilterTests {
 			super(true);
 		}
 
-		protected AuthenticationManager authenticationManager()
-				throws Exception {
+		protected AuthenticationManager authenticationManager() {
 			return new CustomAuthenticationManager();
 		}
 

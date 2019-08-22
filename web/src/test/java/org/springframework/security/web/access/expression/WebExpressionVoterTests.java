@@ -46,7 +46,7 @@ public class WebExpressionVoterTests {
 	private Authentication user = new TestingAuthenticationToken("user", "pass", "X");
 
 	@Test
-	public void supportsWebConfigAttributeAndFilterInvocation() throws Exception {
+	public void supportsWebConfigAttributeAndFilterInvocation() {
 		WebExpressionVoter voter = new WebExpressionVoter();
 		assertThat(voter.supports(new WebExpressionConfigAttribute(mock(Expression.class),
 				mock(EvaluationContextPostProcessor.class)))).isTrue();

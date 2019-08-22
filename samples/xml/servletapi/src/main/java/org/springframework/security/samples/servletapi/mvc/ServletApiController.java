@@ -102,12 +102,10 @@ public class ServletApiController {
 	 * @param loginForm
 	 * @param result
 	 * @return
-	 * @throws ServletException
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String login(HttpServletRequest request, HttpServletResponse response,
-			@ModelAttribute LoginForm loginForm, BindingResult result)
-			throws ServletException {
+			@ModelAttribute LoginForm loginForm, BindingResult result) {
 		try {
 			request.login(loginForm.getUsername(), loginForm.getPassword());
 		}

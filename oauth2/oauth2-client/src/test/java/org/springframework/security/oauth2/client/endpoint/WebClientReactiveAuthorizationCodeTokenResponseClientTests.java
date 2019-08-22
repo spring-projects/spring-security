@@ -170,7 +170,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 //	}
 //
 	@Test
-	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() throws Exception {
+	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
 		String accessTokenErrorResponse = "{\n" +
 				"   \"error\": \"unauthorized_client\"\n" +
 				"}\n";
@@ -184,7 +184,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 
 	// gh-5594
 	@Test
-	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() throws Exception {
+	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() {
 		String accessTokenErrorResponse = "{}";
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
 
@@ -194,7 +194,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() throws Exception {
+	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
 		String accessTokenSuccessResponse = "{\n" +
 				"	\"access_token\": \"access-token-1234\",\n" +
 				"   \"token_type\": \"not-bearer\",\n" +
@@ -209,7 +209,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseIncludesScopeThenReturnAccessTokenResponseUsingResponseScope() throws Exception {
+	public void getTokenResponseWhenSuccessResponseIncludesScopeThenReturnAccessTokenResponseUsingResponseScope() {
 		String accessTokenSuccessResponse = "{\n" +
 				"	\"access_token\": \"access-token-1234\",\n" +
 				"   \"token_type\": \"bearer\",\n" +
@@ -226,7 +226,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenReturnAccessTokenResponseUsingRequestedScope() throws Exception {
+	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenReturnAccessTokenResponseUsingRequestedScope() {
 		String accessTokenSuccessResponse = "{\n" +
 				"	\"access_token\": \"access-token-1234\",\n" +
 				"   \"token_type\": \"bearer\",\n" +

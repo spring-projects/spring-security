@@ -95,12 +95,12 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 	}
 
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		http.setSharedObject(RequestCache.class, getRequestCache(http));
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		RequestCache requestCache = getRequestCache(http);
 		RequestCacheAwareFilter requestCacheFilter = new RequestCacheAwareFilter(
 				requestCache);

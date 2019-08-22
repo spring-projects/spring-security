@@ -48,7 +48,7 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(this.messages, "A message source must be set");
 	}
 

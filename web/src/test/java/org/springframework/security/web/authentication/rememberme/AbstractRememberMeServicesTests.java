@@ -86,7 +86,7 @@ public class AbstractRememberMeServicesTests {
 	}
 
 	@Test
-	public void cookieShouldBeCorrectlyEncodedAndDecoded() throws Exception {
+	public void cookieShouldBeCorrectlyEncodedAndDecoded() {
 		String[] cookie = new String[] { "name:with:colon", "cookie", "tokens", "blah" };
 		MockRememberMeServices services = new MockRememberMeServices(uds);
 
@@ -99,7 +99,7 @@ public class AbstractRememberMeServicesTests {
 	}
 
 	@Test
-	public void cookieWithOpenIDidentifierAsNameIsEncodedAndDecoded() throws Exception {
+	public void cookieWithOpenIDidentifierAsNameIsEncodedAndDecoded() {
 		String[] cookie = new String[] { "https://id.openid.zz", "cookie", "tokens",
 			"blah" };
 		MockRememberMeServices services = new MockRememberMeServices(uds);
@@ -153,7 +153,7 @@ public class AbstractRememberMeServicesTests {
 	}
 
 	@Test
-	public void autoLoginShouldFailIfCookieIsNotBase64() throws Exception {
+	public void autoLoginShouldFailIfCookieIsNotBase64() {
 		MockRememberMeServices services = new MockRememberMeServices(uds);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -167,7 +167,7 @@ public class AbstractRememberMeServicesTests {
 	}
 
 	@Test
-	public void autoLoginShouldFailIfCookieIsEmpty() throws Exception {
+	public void autoLoginShouldFailIfCookieIsEmpty() {
 		MockRememberMeServices services = new MockRememberMeServices(uds);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -246,7 +246,7 @@ public class AbstractRememberMeServicesTests {
 	}
 
 	@Test
-	public void logoutShouldCancelCookie() throws Exception {
+	public void logoutShouldCancelCookie() {
 		MockRememberMeServices services = new MockRememberMeServices(uds);
 		services.setCookieDomain("spring.io");
 
@@ -347,7 +347,7 @@ public class AbstractRememberMeServicesTests {
 	}
 
 	@Test
-	public void setCookieSetsSecureFlagIfConfigured() throws Exception {
+	public void setCookieSetsSecureFlagIfConfigured() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		request.setContextPath("contextpath");
@@ -366,7 +366,7 @@ public class AbstractRememberMeServicesTests {
 	}
 
 	@Test
-	public void setCookieSetsIsHttpOnlyFlagByDefault() throws Exception {
+	public void setCookieSetsIsHttpOnlyFlagByDefault() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		request.setContextPath("contextpath");

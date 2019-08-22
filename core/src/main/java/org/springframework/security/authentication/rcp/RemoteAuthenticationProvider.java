@@ -60,7 +60,7 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider,
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(this.remoteAuthenticationManager,
 				"remoteAuthenticationManager is mandatory");
 	}

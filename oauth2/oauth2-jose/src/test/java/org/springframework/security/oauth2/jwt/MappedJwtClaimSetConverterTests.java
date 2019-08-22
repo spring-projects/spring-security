@@ -89,7 +89,7 @@ public class MappedJwtClaimSetConverterTests {
 	}
 
 	@Test
-	public void convertWhenUsingDefaultsThenCoercesAllAttributesInJwtSpec() throws Exception {
+	public void convertWhenUsingDefaultsThenCoercesAllAttributesInJwtSpec() {
 		MappedJwtClaimSetConverter converter =
 				MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
 
@@ -114,7 +114,7 @@ public class MappedJwtClaimSetConverterTests {
 	}
 
 	@Test
-	public void convertWhenUsingCustomConverterThenAllOtherDefaultsAreStillUsed() throws Exception {
+	public void convertWhenUsingCustomConverterThenAllOtherDefaultsAreStillUsed() {
 		Converter<Object, String> claimConverter = mock(Converter.class);
 		MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
 				.withDefaults(Collections.singletonMap(JwtClaimNames.SUB, claimConverter));

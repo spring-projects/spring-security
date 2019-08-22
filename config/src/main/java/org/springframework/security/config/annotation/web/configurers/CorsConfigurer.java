@@ -60,7 +60,7 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
 
 		CorsFilter corsFilter = getCorsFilter(context);

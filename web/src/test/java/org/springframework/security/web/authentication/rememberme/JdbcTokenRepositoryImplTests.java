@@ -68,7 +68,7 @@ public class JdbcTokenRepositoryImplTests {
 	}
 
 	@AfterClass
-	public static void clearDataSource() throws Exception {
+	public static void clearDataSource() {
 		dataSource.destroy();
 		dataSource = null;
 	}

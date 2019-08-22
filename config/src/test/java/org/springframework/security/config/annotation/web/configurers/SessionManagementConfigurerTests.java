@@ -476,7 +476,7 @@ public class SessionManagementConfigurerTests {
 		static AuthenticationTrustResolver TR;
 
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 			// @formatter:off
 			http
 				.setSharedObject(AuthenticationTrustResolver.class, TR);

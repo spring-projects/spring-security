@@ -41,8 +41,7 @@ public class RunAsManagerImplTests {
 	}
 
 	@Test
-	public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting()
-			throws Exception {
+	public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting() {
 		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
 				"Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
@@ -56,7 +55,7 @@ public class RunAsManagerImplTests {
 	}
 
 	@Test
-	public void testRespectsRolePrefix() throws Exception {
+	public void testRespectsRolePrefix() {
 		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
 				"Test", "Password", AuthorityUtils.createAuthorityList("ONE", "TWO"));
 
@@ -83,7 +82,7 @@ public class RunAsManagerImplTests {
 	}
 
 	@Test
-	public void testReturnsAdditionalGrantedAuthorities() throws Exception {
+	public void testReturnsAdditionalGrantedAuthorities() {
 		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
 				"Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
@@ -133,7 +132,7 @@ public class RunAsManagerImplTests {
 	}
 
 	@Test
-	public void testSupports() throws Exception {
+	public void testSupports() {
 		RunAsManager runAs = new RunAsManagerImpl();
 		assertThat(runAs.supports(new SecurityConfig("RUN_AS_SOMETHING"))).isTrue();
 		assertThat(!runAs.supports(new SecurityConfig("ROLE_WHICH_IS_IGNORED"))).isTrue();

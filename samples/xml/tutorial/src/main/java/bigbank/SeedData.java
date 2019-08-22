@@ -21,7 +21,7 @@ import org.springframework.util.Assert;
 public class SeedData implements InitializingBean {
 	private BankDao bankDao;
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(bankDao, "bankDao cannot be null");
 		bankDao.createOrUpdateAccount(new Account("rod"));
 		bankDao.createOrUpdateAccount(new Account("dianne"));

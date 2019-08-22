@@ -37,11 +37,11 @@ public class TestLoginModule implements LoginModule {
 	// ~ Methods
 	// ========================================================================================================
 
-	public boolean abort() throws LoginException {
+	public boolean abort() {
 		return true;
 	}
 
-	public boolean commit() throws LoginException {
+	public boolean commit() {
 		return true;
 	}
 
@@ -82,7 +82,7 @@ public class TestLoginModule implements LoginModule {
 		return true;
 	}
 
-	public boolean logout() throws LoginException {
+	public boolean logout() {
 		return true;
 	}
 }

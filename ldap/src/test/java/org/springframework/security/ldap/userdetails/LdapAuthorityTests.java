@@ -44,7 +44,7 @@ public class LdapAuthorityTests {
 	}
 
 	@Test
-	public void testGetDn() throws Exception {
+	public void testGetDn() {
 		assertThat(authority.getDn()).isEqualTo(DN);
 		assertThat(authority.getAttributeValues(SpringSecurityLdapTemplate.DN_KEY)).isNotNull();
 		assertThat(authority.getAttributeValues(SpringSecurityLdapTemplate.DN_KEY)).hasSize(1);
@@ -52,7 +52,7 @@ public class LdapAuthorityTests {
 	}
 
 	@Test
-	public void testGetAttributes() throws Exception {
+	public void testGetAttributes() {
 		assertThat(authority.getAttributes()).isNotNull();
 		assertThat(authority.getAttributeValues("mail")).isNotNull();
 		assertThat(authority.getAttributeValues("mail")).hasSize(2);
@@ -62,7 +62,7 @@ public class LdapAuthorityTests {
 	}
 
 	@Test
-	public void testGetAuthority() throws Exception {
+	public void testGetAuthority() {
 		assertThat(authority.getAuthority()).isNotNull();
 		assertThat(authority.getAuthority()).isEqualTo("testRole");
 	}

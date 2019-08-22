@@ -27,7 +27,7 @@ class ConcereteSecurityConfigurerAdapter extends
 	private List<Object> list = new ArrayList<>();
 
 	@Override
-	public void configure(SecurityBuilder<Object> builder) throws Exception {
+	public void configure(SecurityBuilder<Object> builder) {
 		list = postProcess(list);
 	}
 

@@ -679,7 +679,7 @@ public class OAuth2ResourceServerSpecTests {
 	@EnableWebFluxSecurity
 	static class CustomAuthenticationManagerResolverConfig {
 		@Bean
-		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.authorizeExchange()

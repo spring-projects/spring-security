@@ -29,6 +29,6 @@ import java.io.IOException;
 public interface InvalidSessionStrategy {
 
 	void onInvalidSessionDetected(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException;
+			throws IOException;
 
 }

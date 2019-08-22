@@ -59,8 +59,7 @@ public final class BearerTokenAccessDeniedHandler implements AccessDeniedHandler
 	@Override
 	public void handle(
 			HttpServletRequest request, HttpServletResponse response,
-			AccessDeniedException accessDeniedException)
-			throws IOException, ServletException {
+			AccessDeniedException accessDeniedException) {
 
 		Map<String, String> parameters = new LinkedHashMap<>();
 

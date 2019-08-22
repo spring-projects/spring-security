@@ -55,17 +55,17 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
-	public void supportsParameterNoAnnotation() throws Exception {
+	public void supportsParameterNoAnnotation() {
 		assertThat(resolver.supportsParameter(showUserNoAnnotation())).isFalse();
 	}
 
 	@Test
-	public void supportsParameterAnnotation() throws Exception {
+	public void supportsParameterAnnotation() {
 		assertThat(resolver.supportsParameter(showUserAnnotationObject())).isTrue();
 	}
 
 	@Test
-	public void supportsParameterCustomAnnotation() throws Exception {
+	public void supportsParameterCustomAnnotation() {
 		assertThat(resolver.supportsParameter(showUserCustomAnnotation())).isTrue();
 	}
 

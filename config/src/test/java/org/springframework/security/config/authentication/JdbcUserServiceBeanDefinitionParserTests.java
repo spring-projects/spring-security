@@ -61,7 +61,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void beanNameIsCorrect() throws Exception {
+	public void beanNameIsCorrect() {
 		assertThat(JdbcUserDetailsManager.class.getName()).isEqualTo(
 				new JdbcUserServiceBeanDefinitionParser()
 						.getBeanClassName(mock(Element.class)));

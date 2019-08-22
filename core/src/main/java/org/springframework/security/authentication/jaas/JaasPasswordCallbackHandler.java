@@ -49,11 +49,8 @@ public class JaasPasswordCallbackHandler implements JaasAuthenticationCallbackHa
 	 * @param callback
 	 * @param auth
 	 *
-	 * @throws IOException
-	 * @throws UnsupportedCallbackException
 	 */
-	public void handle(Callback callback, Authentication auth) throws IOException,
-			UnsupportedCallbackException {
+	public void handle(Callback callback, Authentication auth) {
 		if (callback instanceof PasswordCallback) {
 			PasswordCallback pc = (PasswordCallback) callback;
 			pc.setPassword(auth.getCredentials().toString().toCharArray());

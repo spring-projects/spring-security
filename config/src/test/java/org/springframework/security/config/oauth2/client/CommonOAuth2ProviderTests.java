@@ -34,7 +34,7 @@ public class CommonOAuth2ProviderTests {
 	private static final String DEFAULT_REDIRECT_URL = "{baseUrl}/{action}/oauth2/code/{registrationId}";
 
 	@Test
-	public void getBuilderWhenGoogleShouldHaveGoogleSettings() throws Exception {
+	public void getBuilderWhenGoogleShouldHaveGoogleSettings() {
 		ClientRegistration registration = build(CommonOAuth2Provider.GOOGLE);
 		ProviderDetails providerDetails = registration.getProviderDetails();
 		assertThat(providerDetails.getAuthorizationUri())
@@ -58,7 +58,7 @@ public class CommonOAuth2ProviderTests {
 	}
 
 	@Test
-	public void getBuilderWhenGitHubShouldHaveGitHubSettings() throws Exception {
+	public void getBuilderWhenGitHubShouldHaveGitHubSettings() {
 		ClientRegistration registration = build(CommonOAuth2Provider.GITHUB);
 		ProviderDetails providerDetails = registration.getProviderDetails();
 		assertThat(providerDetails.getAuthorizationUri())
@@ -81,7 +81,7 @@ public class CommonOAuth2ProviderTests {
 	}
 
 	@Test
-	public void getBuilderWhenFacebookShouldHaveFacebookSettings() throws Exception {
+	public void getBuilderWhenFacebookShouldHaveFacebookSettings() {
 		ClientRegistration registration = build(CommonOAuth2Provider.FACEBOOK);
 		ProviderDetails providerDetails = registration.getProviderDetails();
 		assertThat(providerDetails.getAuthorizationUri())
@@ -104,7 +104,7 @@ public class CommonOAuth2ProviderTests {
 	}
 
 	@Test
-	public void getBuilderWhenOktaShouldHaveOktaSettings() throws Exception {
+	public void getBuilderWhenOktaShouldHaveOktaSettings() {
 		ClientRegistration registration = builder(CommonOAuth2Provider.OKTA)
 			.authorizationUri("https://example.com/auth")
 			.tokenUri("https://example.com/token")

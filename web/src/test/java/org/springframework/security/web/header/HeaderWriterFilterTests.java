@@ -54,13 +54,13 @@ public class HeaderWriterFilterTests {
 	private HeaderWriter writer2;
 
 	@Test(expected = IllegalArgumentException.class)
-	public void noHeadersConfigured() throws Exception {
+	public void noHeadersConfigured() {
 		List<HeaderWriter> headerWriters = new ArrayList<>();
 		new HeaderWriterFilter(headerWriters);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorNullWriters() throws Exception {
+	public void constructorNullWriters() {
 		new HeaderWriterFilter(null);
 	}
 

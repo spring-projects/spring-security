@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.fail;
 public class BasicAuthenticationEntryPointTests {
 
 	@Test
-	public void testDetectsMissingRealmName() throws Exception {
+	public void testDetectsMissingRealmName() {
 		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 
 		try {

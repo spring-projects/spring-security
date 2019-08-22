@@ -31,7 +31,7 @@ public class PythonInterpreterBasedSecurityTests {
 	private TestService service;
 
 	@Test
-	public void serviceMethod() throws Exception {
+	public void serviceMethod() {
 		SecurityContextHolder.getContext().setAuthentication(
 				new UsernamePasswordAuthenticationToken("bob", "bobspassword"));
 

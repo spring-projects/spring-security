@@ -57,7 +57,7 @@ public class HttpSecurityHeadersTests {
 	MockMvc mockMvc;
 
 	@Before
-	public void setup() throws Exception {
+	public void setup() {
 		mockMvc = MockMvcBuilders
 				.webAppContextSetup(wac)
 				.addFilters(springSecurityFilterChain)
@@ -86,7 +86,7 @@ public class HttpSecurityHeadersTests {
 	@EnableWebSecurity
 	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 	}
 

@@ -67,14 +67,14 @@ public class FirewalledResponseTests {
 	}
 
 	@Test
-	public void addHeaderWhenValidThenDelegateInvoked() throws Exception {
+	public void addHeaderWhenValidThenDelegateInvoked() {
 		fwResponse.addHeader("foo", "bar");
 
 		verify(response).addHeader("foo", "bar");
 	}
 
 	@Test
-	public void addHeaderWhenNullValueThenDelegateInvoked() throws Exception {
+	public void addHeaderWhenNullValueThenDelegateInvoked() {
 		fwResponse.addHeader("foo", null);
 
 		verify(response).addHeader("foo", null);

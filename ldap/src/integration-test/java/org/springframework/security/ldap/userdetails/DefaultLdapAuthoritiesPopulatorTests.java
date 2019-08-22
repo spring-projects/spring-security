@@ -52,7 +52,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, "ou=groups");
 		populator.setIgnorePartialResultException(false);
 	}
@@ -72,7 +72,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 	}
 
 	@Test
-	public void nullSearchBaseIsAccepted() throws Exception {
+	public void nullSearchBaseIsAccepted() {
 		populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, null);
 		populator.setDefaultRole("ROLE_USER");
 
@@ -154,7 +154,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 	}
 
 	@Test
-	public void extraRolesAreAdded() throws Exception {
+	public void extraRolesAreAdded() {
 		populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, null) {
 			@Override
 			protected Set<GrantedAuthority> getAdditionalRoles(DirContextOperations user,

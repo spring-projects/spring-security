@@ -63,7 +63,7 @@ public class HttpStatusReturningLogoutSuccessHandler implements LogoutSuccessHan
 	 * . Sets the status on the {@link HttpServletResponse}.
 	 */
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException, ServletException {
+			Authentication authentication) throws IOException {
 		response.setStatus(this.httpStatusToReturn.value());
 		response.getWriter().flush();
 	}

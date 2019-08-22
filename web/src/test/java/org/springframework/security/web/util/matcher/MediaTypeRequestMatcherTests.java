@@ -115,35 +115,35 @@ public class MediaTypeRequestMatcherTests {
 	}
 
 	@Test
-	public void matchWhenAcceptHeaderAsteriskThenAll() throws Exception {
+	public void matchWhenAcceptHeaderAsteriskThenAll() {
 		request.addHeader("Accept", "*/*");
 		matcher = new MediaTypeRequestMatcher(MediaType.ALL);
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test
-	public void matchWhenAcceptHeaderAsteriskThenAnyone() throws Exception {
+	public void matchWhenAcceptHeaderAsteriskThenAnyone() {
 		request.addHeader("Accept", "*/*");
 		matcher = new MediaTypeRequestMatcher(MediaType.TEXT_HTML);
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test
-	public void matchWhenAcceptHeaderAsteriskThenAllInCollection() throws Exception {
+	public void matchWhenAcceptHeaderAsteriskThenAllInCollection() {
 		request.addHeader("Accept", "*/*");
 		matcher = new MediaTypeRequestMatcher(Collections.singleton(MediaType.ALL));
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test
-	public void matchWhenAcceptHeaderAsteriskThenAnyoneInCollection() throws Exception {
+	public void matchWhenAcceptHeaderAsteriskThenAnyoneInCollection() {
 		request.addHeader("Accept", "*/*");
 		matcher = new MediaTypeRequestMatcher(Collections.singleton(MediaType.TEXT_HTML));
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test
-	public void matchWhenNoAcceptHeaderThenAll() throws Exception {
+	public void matchWhenNoAcceptHeaderThenAll() {
 		request.removeHeader("Accept");
 		// if not set Accept, it is match all
 		matcher = new MediaTypeRequestMatcher(MediaType.ALL);
@@ -151,35 +151,35 @@ public class MediaTypeRequestMatcherTests {
 	}
 
 	@Test
-	public void matchWhenNoAcceptHeaderThenAnyone() throws Exception {
+	public void matchWhenNoAcceptHeaderThenAnyone() {
 		request.removeHeader("Accept");
 		matcher = new MediaTypeRequestMatcher(MediaType.TEXT_HTML);
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test
-	public void matchWhenSingleAcceptHeaderThenOne() throws Exception {
+	public void matchWhenSingleAcceptHeaderThenOne() {
 		request.addHeader("Accept", "text/html");
 		matcher = new MediaTypeRequestMatcher(MediaType.TEXT_HTML);
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test
-	public void matchWhenSingleAcceptHeaderThenOneWithCollection() throws Exception {
+	public void matchWhenSingleAcceptHeaderThenOneWithCollection() {
 		request.addHeader("Accept", "text/html");
 		matcher = new MediaTypeRequestMatcher(Collections.singleton(MediaType.TEXT_HTML));
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test
-	public void matchWhenMultipleAcceptHeaderThenMatchMultiple() throws Exception {
+	public void matchWhenMultipleAcceptHeaderThenMatchMultiple() {
 		request.addHeader("Accept", "text/html, application/xhtml+xml, application/xml;q=0.9");
 		matcher = new MediaTypeRequestMatcher(MediaType.TEXT_HTML, MediaType.APPLICATION_XHTML_XML, MediaType.APPLICATION_XML);
 		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test
-	public void matchWhenMultipleAcceptHeaderThenAnyoneInCollection() throws Exception {
+	public void matchWhenMultipleAcceptHeaderThenAnyoneInCollection() {
 		request.addHeader("Accept", "text/html, application/xhtml+xml, application/xml;q=0.9");
 		matcher = new MediaTypeRequestMatcher(Arrays.asList(MediaType.APPLICATION_XHTML_XML));
 		assertThat(matcher.matches(request)).isTrue();

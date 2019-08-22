@@ -39,7 +39,7 @@ public class HelloWebfluxMethodApplicationITests {
 
 
 	@Test
-	public void messageWhenNotAuthenticated() throws Exception {
+	public void messageWhenNotAuthenticated() {
 		this.rest
 				.get()
 				.uri("/message")
@@ -48,7 +48,7 @@ public class HelloWebfluxMethodApplicationITests {
 	}
 
 	@Test
-	public void messageWhenUserThenForbidden() throws Exception {
+	public void messageWhenUserThenForbidden() {
 		this.rest
 				.get()
 				.uri("/message")
@@ -58,7 +58,7 @@ public class HelloWebfluxMethodApplicationITests {
 	}
 
 	@Test
-	public void messageWhenAdminThenOk() throws Exception {
+	public void messageWhenAdminThenOk() {
 		this.rest
 				.get()
 				.uri("/message")

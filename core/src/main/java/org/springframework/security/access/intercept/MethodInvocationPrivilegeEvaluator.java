@@ -57,7 +57,7 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(securityInterceptor, "SecurityInterceptor required");
 	}
 

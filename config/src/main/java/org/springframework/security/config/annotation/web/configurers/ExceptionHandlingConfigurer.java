@@ -188,7 +188,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		AuthenticationEntryPoint entryPoint = getAuthenticationEntryPoint(http);
 		ExceptionTranslationFilter exceptionTranslationFilter = new ExceptionTranslationFilter(
 				entryPoint, getRequestCache(http));

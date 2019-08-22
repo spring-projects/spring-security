@@ -61,8 +61,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	@Override
 	public void commence(
 			HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException authException)
-			throws IOException, ServletException {
+			AuthenticationException authException) {
 
 		HttpStatus status = HttpStatus.UNAUTHORIZED;
 

@@ -43,7 +43,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 	// ~ Methods
 	// ========================================================================================================
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
 
@@ -109,7 +109,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 			super(u);
 		}
 
-		public void connect() throws IOException {
+		public void connect() {
 			throw new UnsupportedOperationException("mock not implemented");
 		}
 

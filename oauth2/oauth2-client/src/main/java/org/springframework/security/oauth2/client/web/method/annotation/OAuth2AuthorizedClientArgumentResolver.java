@@ -126,7 +126,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	public Object resolveArgument(MethodParameter parameter,
 									@Nullable ModelAndViewContainer mavContainer,
 									NativeWebRequest webRequest,
-									@Nullable WebDataBinderFactory binderFactory) throws Exception {
+									@Nullable WebDataBinderFactory binderFactory) {
 
 		String clientRegistrationId = this.resolveClientRegistrationId(parameter);
 		if (StringUtils.isEmpty(clientRegistrationId)) {

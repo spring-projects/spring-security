@@ -372,14 +372,14 @@ public class DigestAuthenticationFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void startupDetectsMissingAuthenticationEntryPoint() throws Exception {
+	public void startupDetectsMissingAuthenticationEntryPoint() {
 		DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
 		filter.setUserDetailsService(mock(UserDetailsService.class));
 		filter.afterPropertiesSet();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void startupDetectsMissingUserDetailsService() throws Exception {
+	public void startupDetectsMissingUserDetailsService() {
 		DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
 		filter.setAuthenticationEntryPoint(new DigestAuthenticationEntryPoint());
 		filter.afterPropertiesSet();

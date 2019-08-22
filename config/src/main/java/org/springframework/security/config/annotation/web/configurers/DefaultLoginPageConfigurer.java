@@ -73,7 +73,7 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> 
 	private DefaultLogoutPageGeneratingFilter logoutPageGeneratingFilter = new DefaultLogoutPageGeneratingFilter();
 
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		Function<HttpServletRequest, Map<String, String>> hiddenInputs = request -> {
 			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 			if (token == null) {
@@ -89,7 +89,7 @@ public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> 
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		AuthenticationEntryPoint authenticationEntryPoint = null;
 		ExceptionHandlingConfigurer<?> exceptionConf = http
 				.getConfigurer(ExceptionHandlingConfigurer.class);

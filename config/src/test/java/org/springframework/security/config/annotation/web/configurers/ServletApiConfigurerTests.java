@@ -223,7 +223,7 @@ public class ServletApiConfigurerTests {
 		static AuthenticationTrustResolver TR = spy(AuthenticationTrustResolver.class);
 
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 			// @formatter:off
 			http
 				.setSharedObject(AuthenticationTrustResolver.class, TR);

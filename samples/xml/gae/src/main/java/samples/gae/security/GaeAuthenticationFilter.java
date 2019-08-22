@@ -120,7 +120,7 @@ public class GaeAuthenticationFilter extends GenericFilterBean {
 	}
 
 	@Override
-	public void afterPropertiesSet() throws ServletException {
+	public void afterPropertiesSet() {
 		Assert.notNull(authenticationManager, "AuthenticationManager must be set");
 	}
 

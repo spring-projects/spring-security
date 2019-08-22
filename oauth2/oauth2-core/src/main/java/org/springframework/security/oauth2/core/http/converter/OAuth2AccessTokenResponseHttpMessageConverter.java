@@ -79,7 +79,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 
 	@Override
 	protected OAuth2AccessTokenResponse readInternal(Class<? extends OAuth2AccessTokenResponse> clazz, HttpInputMessage inputMessage)
-			throws IOException, HttpMessageNotReadableException {
+			throws HttpMessageNotReadableException {
 
 		try {
 			@SuppressWarnings("unchecked")
@@ -94,7 +94,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 
 	@Override
 	protected void writeInternal(OAuth2AccessTokenResponse tokenResponse, HttpOutputMessage outputMessage)
-			throws IOException, HttpMessageNotWritableException {
+			throws HttpMessageNotWritableException {
 
 		try {
 			Map<String, String> tokenResponseParameters = this.tokenResponseParametersConverter.convert(tokenResponse);

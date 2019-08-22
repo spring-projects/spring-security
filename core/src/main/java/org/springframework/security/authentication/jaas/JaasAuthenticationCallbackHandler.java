@@ -60,9 +60,6 @@ public interface JaasAuthenticationCallbackHandler {
 	 * @param callback
 	 * @param auth The Authentication object currently being authenticated.
 	 *
-	 * @throws IOException
-	 * @throws UnsupportedCallbackException
 	 */
-	void handle(Callback callback, Authentication auth) throws IOException,
-			UnsupportedCallbackException;
+	void handle(Callback callback, Authentication auth);
 }

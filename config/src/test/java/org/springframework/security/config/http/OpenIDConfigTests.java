@@ -104,8 +104,7 @@ public class OpenIDConfigTests {
 	}
 
 	@Test
-	public void configureWhenOpenIDAndFormLoginBothConfigureLoginPagesThenWiringException()
-			throws Exception {
+	public void configureWhenOpenIDAndFormLoginBothConfigureLoginPagesThenWiringException() {
 
 		assertThatCode(() -> this.spring.configLocations(this.xml("WithFormLoginAndOpenIDLoginPages")).autowire())
 				.isInstanceOf(BeanDefinitionParsingException.class);

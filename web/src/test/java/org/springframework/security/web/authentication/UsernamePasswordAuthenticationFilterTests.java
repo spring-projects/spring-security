@@ -40,7 +40,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	// ========================================================================================================
 
 	@Test
-	public void testNormalOperation() throws Exception {
+	public void testNormalOperation() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(
 				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY,
@@ -60,7 +60,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testNullPasswordHandledGracefully() throws Exception {
+	public void testNullPasswordHandledGracefully() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(
 				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY,
@@ -73,7 +73,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testNullUsernameHandledGracefully() throws Exception {
+	public void testNullUsernameHandledGracefully() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(
 				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY,
@@ -86,7 +86,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testUsingDifferentParameterNamesWorksAsExpected() throws ServletException {
+	public void testUsingDifferentParameterNamesWorksAsExpected() {
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		filter.setUsernameParameter("x");
@@ -103,7 +103,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testSpacesAreTrimmedCorrectlyFromUsername() throws Exception {
+	public void testSpacesAreTrimmedCorrectlyFromUsername() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(
 				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY,
@@ -144,7 +144,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	 * SEC-571
 	 */
 	@Test
-	public void noSessionIsCreatedIfAllowSessionCreationIsFalse() throws Exception {
+	public void noSessionIsCreatedIfAllowSessionCreationIsFalse() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("POST");
 

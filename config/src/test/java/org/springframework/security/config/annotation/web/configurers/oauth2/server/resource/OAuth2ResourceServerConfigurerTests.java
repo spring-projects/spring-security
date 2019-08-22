@@ -1170,7 +1170,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
-	public void configureWhenOnlyIntrospectionUrlThenException() throws Exception {
+	public void configureWhenOnlyIntrospectionUrlThenException() {
 		assertThatCode(() -> this.spring.register(OpaqueTokenHalfConfiguredConfig.class).autowire())
 				.isInstanceOf(BeanCreationException.class);
 	}

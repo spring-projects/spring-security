@@ -192,7 +192,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 			implements SessionInformationExpiredStrategy {
 		@Override
 		public void onExpiredSessionDetected(SessionInformationExpiredEvent event)
-				throws IOException, ServletException {
+				throws IOException {
 			HttpServletResponse response = event.getResponse();
 			response.getWriter().print(
 					"This session has been expired (possibly due to multiple concurrent "

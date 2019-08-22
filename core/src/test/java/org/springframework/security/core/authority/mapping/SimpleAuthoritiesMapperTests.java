@@ -81,7 +81,7 @@ public class SimpleAuthoritiesMapperTests {
 	}
 
 	@Test
-	public void defaultAuthorityIsAssignedIfSet() throws Exception {
+	public void defaultAuthorityIsAssignedIfSet() {
 		SimpleAuthorityMapper mapper = new SimpleAuthorityMapper();
 		mapper.setDefaultAuthority("ROLE_USER");
 		Set<String> mapped = AuthorityUtils.authorityListToSet(mapper

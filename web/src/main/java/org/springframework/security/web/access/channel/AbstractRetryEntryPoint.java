@@ -58,7 +58,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	// ========================================================================================================
 
 	public void commence(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+			throws IOException {
 		String queryString = request.getQueryString();
 		String redirectUrl = request.getRequestURI()
 				+ ((queryString == null) ? "" : ("?" + queryString));

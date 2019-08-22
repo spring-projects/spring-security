@@ -171,7 +171,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 
 	// @formatter:off
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
 		authenticationProvider.setPreAuthenticatedUserDetailsService(getAuthenticationUserDetailsService(http));
 
@@ -182,7 +182,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 	// @formatter:on
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		X509AuthenticationFilter filter = getFilter(http
 				.getSharedObject(AuthenticationManager.class));
 		http.addFilter(filter);

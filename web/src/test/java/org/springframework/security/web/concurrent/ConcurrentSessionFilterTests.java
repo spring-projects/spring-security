@@ -134,7 +134,7 @@ public class ConcurrentSessionFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void detectsMissingSessionRegistry() throws Exception {
+	public void detectsMissingSessionRegistry() {
 		new ConcurrentSessionFilter(null);
 	}
 

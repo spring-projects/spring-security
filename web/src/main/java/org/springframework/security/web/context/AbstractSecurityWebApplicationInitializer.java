@@ -109,7 +109,7 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * @see org.springframework.web.WebApplicationInitializer#onStartup(javax.servlet.
 	 * ServletContext)
 	 */
-	public final void onStartup(ServletContext servletContext) throws ServletException {
+	public final void onStartup(ServletContext servletContext) {
 		beforeSpringSecurityFilterChain(servletContext);
 		if (this.configurationClasses != null) {
 			AnnotationConfigWebApplicationContext rootAppContext = new AnnotationConfigWebApplicationContext();

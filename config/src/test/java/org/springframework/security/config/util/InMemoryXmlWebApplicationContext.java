@@ -52,7 +52,7 @@ public class InMemoryXmlWebApplicationContext extends AbstractRefreshableWebAppl
 	}
 
 	@Override
-	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
+	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException {
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
 		reader.loadBeanDefinitions(new Resource[] { inMemoryXml });
 	}

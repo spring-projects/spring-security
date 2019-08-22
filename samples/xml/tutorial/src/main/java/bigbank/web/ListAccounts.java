@@ -34,7 +34,7 @@ public class ListAccounts implements Controller {
 	}
 
 	public ModelAndView handleRequest(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+			HttpServletResponse response) {
 		// Security check (this is unnecessary if Spring Security is performing the
 		// authorization)
 		// if (request.getUserPrincipal() == null) {

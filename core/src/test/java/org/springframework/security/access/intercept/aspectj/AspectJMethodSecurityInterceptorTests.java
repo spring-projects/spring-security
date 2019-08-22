@@ -66,7 +66,7 @@ public class AspectJMethodSecurityInterceptorTests {
 	// ========================================================================================================
 
 	@Before
-	public final void setUp() throws Exception {
+	public final void setUp() {
 		MockitoAnnotations.initMocks(this);
 		SecurityContextHolder.clearContext();
 		token = new TestingAuthenticationToken("Test", "Password");
@@ -109,7 +109,7 @@ public class AspectJMethodSecurityInterceptorTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void callbackIsNotInvokedWhenPermissionDenied() throws Exception {
+	public void callbackIsNotInvokedWhenPermissionDenied() {
 		doThrow(new AccessDeniedException("denied")).when(adm).decide(
 				any(), any(), any());
 
@@ -124,7 +124,7 @@ public class AspectJMethodSecurityInterceptorTests {
 	}
 
 	@Test
-	public void adapterHoldsCorrectData() throws Exception {
+	public void adapterHoldsCorrectData() {
 		TargetObject to = new TargetObject();
 		Method m = ClassUtils.getMethodIfAvailable(TargetObject.class, "countLength",
 				new Class[] { String.class });
@@ -139,7 +139,7 @@ public class AspectJMethodSecurityInterceptorTests {
 	}
 
 	@Test
-	public void afterInvocationManagerIsNotInvokedIfExceptionIsRaised() throws Throwable {
+	public void afterInvocationManagerIsNotInvokedIfExceptionIsRaised() {
 		token.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(token);
 
@@ -161,8 +161,7 @@ public class AspectJMethodSecurityInterceptorTests {
 	// SEC-1967
 	@Test
 	@SuppressWarnings("unchecked")
-	public void invokeWithAspectJCallbackRunAsReplacementCleansAfterException()
-			throws Exception {
+	public void invokeWithAspectJCallbackRunAsReplacementCleansAfterException() {
 		SecurityContext ctx = SecurityContextHolder.getContext();
 		ctx.setAuthentication(token);
 		token.setAuthenticated(true);

@@ -116,8 +116,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	private String extractUser() throws IOException, ServletException {
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain() {
 			@Override
-			public void doFilter(ServletRequest request, ServletResponse response)
-					throws IOException, ServletException {
+			public void doFilter(ServletRequest request, ServletResponse response) {
 				Authentication authentication = SecurityContextHolder.getContext()
 						.getAuthentication();
 				username = authentication == null ? null : authentication.getName();

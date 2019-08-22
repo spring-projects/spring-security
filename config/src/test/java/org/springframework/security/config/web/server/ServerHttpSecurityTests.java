@@ -240,7 +240,7 @@ public class ServerHttpSecurityTests {
 	}
 
 	@Test
-	public void getWhenAnonymousConfiguredThenAuthenticationIsAnonymous() throws Exception {
+	public void getWhenAnonymousConfiguredThenAuthenticationIsAnonymous() {
 		SecurityWebFilterChain securityFilterChain = this.http.anonymous(withDefaults()).build();
 		WebTestClient client = WebTestClientBuilder.bindToControllerAndWebFilters(AnonymousAuthenticationWebFilterTests.HttpMeController.class,
 				securityFilterChain).build();
@@ -300,7 +300,7 @@ public class ServerHttpSecurityTests {
 	}
 
 	@Test
-	public void requestWhenBasicWithRealmNameInLambdaThenRealmNameUsed() throws Exception {
+	public void requestWhenBasicWithRealmNameInLambdaThenRealmNameUsed() {
 		this.http.securityContextRepository(new WebSessionServerSecurityContextRepository());
 		HttpBasicServerAuthenticationEntryPoint authenticationEntryPoint = new HttpBasicServerAuthenticationEntryPoint();
 		authenticationEntryPoint.setRealm("myrealm");
@@ -344,7 +344,7 @@ public class ServerHttpSecurityTests {
 	}
 
 	@Test
-	public void requestWhenBasicWithAuthenticationManagerInLambdaThenAuthenticationManagerUsed() throws Exception {
+	public void requestWhenBasicWithAuthenticationManagerInLambdaThenAuthenticationManagerUsed() {
 		ReactiveAuthenticationManager customAuthenticationManager = mock(ReactiveAuthenticationManager.class);
 		given(customAuthenticationManager.authenticate(any()))
 				.willReturn(Mono.just(new TestingAuthenticationToken("rob", "rob", "ROLE_USER", "ROLE_ADMIN")));
@@ -386,7 +386,7 @@ public class ServerHttpSecurityTests {
 	}
 
 	@Test
-	public void x509WhenCustomizedThenAddsX509Filter() throws Exception {
+	public void x509WhenCustomizedThenAddsX509Filter() {
 		X509PrincipalExtractor mockExtractor = mock(X509PrincipalExtractor.class);
 		ReactiveAuthenticationManager mockAuthenticationManager = mock(ReactiveAuthenticationManager.class);
 
@@ -413,7 +413,7 @@ public class ServerHttpSecurityTests {
 	}
 
 	@Test
-	public void x509WhenDefaultsThenAddsX509Filter() throws Exception {
+	public void x509WhenDefaultsThenAddsX509Filter() {
 		this.http.x509(withDefaults());
 
 		SecurityWebFilterChain securityWebFilterChain = this.http.build();
@@ -423,7 +423,7 @@ public class ServerHttpSecurityTests {
 	}
 
 	@Test
-	public void postWhenCsrfDisabledThenPermitted() throws Exception {
+	public void postWhenCsrfDisabledThenPermitted() {
 		SecurityWebFilterChain securityFilterChain = this.http.csrf(csrf -> csrf.disable()).build();
 		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
@@ -435,7 +435,7 @@ public class ServerHttpSecurityTests {
 	}
 
 	@Test
-	public void postWhenCustomCsrfTokenRepositoryThenUsed() throws Exception {
+	public void postWhenCustomCsrfTokenRepositoryThenUsed() {
 		ServerCsrfTokenRepository customServerCsrfTokenRepository = mock(ServerCsrfTokenRepository.class);
 		when(customServerCsrfTokenRepository.loadToken(any(ServerWebExchange.class))).thenReturn(Mono.empty());
 		SecurityWebFilterChain securityFilterChain = this.http

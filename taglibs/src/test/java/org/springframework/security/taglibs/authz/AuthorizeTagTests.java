@@ -62,7 +62,7 @@ public class AuthorizeTagTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		SecurityContextHolder.getContext().setAuthentication(currentUser);
 		StaticWebApplicationContext ctx = new StaticWebApplicationContext();
 
@@ -82,7 +82,7 @@ public class AuthorizeTagTests {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
 

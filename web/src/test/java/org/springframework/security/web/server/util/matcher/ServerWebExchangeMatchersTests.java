@@ -37,27 +37,27 @@ public class ServerWebExchangeMatchersTests {
 		.from(MockServerHttpRequest.get("/").build());
 
 	@Test
-	public void pathMatchersWhenSingleAndSamePatternThenMatches() throws Exception {
+	public void pathMatchersWhenSingleAndSamePatternThenMatches() {
 		assertThat(pathMatchers("/").matches(exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
-	public void pathMatchersWhenSingleAndSamePatternAndMethodThenMatches() throws Exception {
+	public void pathMatchersWhenSingleAndSamePatternAndMethodThenMatches() {
 		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/").matches(exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
-	public void pathMatchersWhenSingleAndSamePatternAndDiffMethodThenDoesNotMatch() throws Exception {
+	public void pathMatchersWhenSingleAndSamePatternAndDiffMethodThenDoesNotMatch() {
 		assertThat(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, "/").matches(exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
-	public void pathMatchersWhenSingleAndDifferentPatternThenDoesNotMatch() throws Exception {
+	public void pathMatchersWhenSingleAndDifferentPatternThenDoesNotMatch() {
 		assertThat(pathMatchers("/foobar").matches(exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
-	public void pathMatchersWhenMultiThenMatches() throws Exception {
+	public void pathMatchersWhenMultiThenMatches() {
 		assertThat(pathMatchers("/foobar", "/").matches(exchange).block().isMatch()).isTrue();
 	}
 

@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LdapUserDetailsMapperTests {
 
 	@Test
-	public void testMultipleRoleAttributeValuesAreMappedToAuthorities() throws Exception {
+	public void testMultipleRoleAttributeValuesAreMappedToAuthorities() {
 		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 		mapper.setConvertToUpperCase(false);
 		mapper.setRolePrefix("");
@@ -58,7 +58,7 @@ public class LdapUserDetailsMapperTests {
 	 * SEC-303. Non-retrieved role attribute causes NullPointerException
 	 */
 	@Test
-	public void testNonRetrievedRoleAttributeIsIgnored() throws Exception {
+	public void testNonRetrievedRoleAttributeIsIgnored() {
 		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 
 		mapper.setRoleAttributes(new String[] { "userRole", "nonRetrievedAttribute" });
@@ -78,7 +78,7 @@ public class LdapUserDetailsMapperTests {
 	}
 
 	@Test
-	public void testPasswordAttributeIsMappedCorrectly() throws Exception {
+	public void testPasswordAttributeIsMappedCorrectly() {
 		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 
 		mapper.setPasswordAttributeName("myappsPassword");
