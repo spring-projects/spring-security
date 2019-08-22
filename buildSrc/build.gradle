@@ -13,15 +13,9 @@ gradlePlugin {
 	}
 }
 
-// GAE
 dependencies {
-	compile 'com.google.appengine:appengine-tools-sdk:1.4.2'
-}
-
-// Trang
-dependencies {
-	compile 'com.thaiopensource:trang:20091111',
-			'net.sourceforge.saxon:saxon:9.1.0.8'
+	compile 'com.thaiopensource:trang:20091111'
+	compile 'net.sourceforge.saxon:saxon:9.1.0.8'
 }
 
 task ide(type: Copy)  {
