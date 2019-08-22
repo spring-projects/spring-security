@@ -15,12 +15,20 @@
  */
 package org.springframework.security.config.annotation.web.configuration;
 
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.test.SpringTestRule;
@@ -40,6 +48,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientCredentials;
@@ -60,6 +69,19 @@ public class OAuth2ClientConfigurationTests {
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	private MockWebServer server;
+
+	@Before
+	public void setup() throws Exception {
+		this.server = new MockWebServer();
+		this.server.start();
+	}
+
+	@After
+	public void cleanup() throws Exception {
+		this.server.shutdown();
+	}
 
 	@Test
 	public void requestWhenAuthorizedClientFoundThenMethodArgumentResolved() throws Exception {
@@ -158,6 +180,76 @@ public class OAuth2ClientConfigurationTests {
 		@Bean
 		public OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient() {
 			return ACCESS_TOKEN_RESPONSE_CLIENT;
+		}
+	}
+
+	@Test
+	public void requestWhenAccessTokenResponseClientNotFoundThenClientCredentialsConfiguredWithDefaults() throws Exception {
+		String clientRegistrationId = "client1";
+		String principalName = "user1";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
+
+		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
+		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
+
+		ClientRegistration clientRegistration = clientCredentials()
+				.registrationId(clientRegistrationId)
+				.tokenUri(this.server.url("/oauth2/token").toString())
+				.build();
+		when(clientRegistrationRepository.findByRegistrationId(clientRegistrationId)).thenReturn(clientRegistration);
+
+		NoOAuth2AccessTokenResponseClientConfig.CLIENT_REGISTRATION_REPOSITORY = clientRegistrationRepository;
+		NoOAuth2AccessTokenResponseClientConfig.AUTHORIZED_CLIENT_REPOSITORY = authorizedClientRepository;
+		this.spring.register(NoOAuth2AccessTokenResponseClientConfig.class).autowire();
+
+		String accessTokenSuccessResponse = "{\n" +
+				"	\"access_token\": \"access-token-1234\",\n" +
+				"   \"token_type\": \"bearer\",\n" +
+				"   \"expires_in\": \"300\"\n" +
+				"}\n";
+		this.server.enqueue(new MockResponse()
+				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.setBody(accessTokenSuccessResponse));
+
+		this.mockMvc.perform(get("/authorized-client").with(authentication(authentication)))
+				.andExpect(status().isOk())
+				.andExpect(content().string("resolved"));
+
+		RecordedRequest recordedRequest = this.server.takeRequest();
+		assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
+
+		String formParameters = recordedRequest.getBody().readUtf8();
+		assertThat(formParameters).contains("grant_type=client_credentials");
+		assertThat(formParameters).contains("scope=read%3Auser");
+	}
+
+	@EnableWebMvc
+	@EnableWebSecurity
+	static class NoOAuth2AccessTokenResponseClientConfig extends WebSecurityConfigurerAdapter {
+		static ClientRegistrationRepository CLIENT_REGISTRATION_REPOSITORY;
+		static OAuth2AuthorizedClientRepository AUTHORIZED_CLIENT_REPOSITORY;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+		}
+
+		@RestController
+		public class Controller {
+
+			@GetMapping("/authorized-client")
+			public String authorizedClient(@RegisteredOAuth2AuthorizedClient("client1") OAuth2AuthorizedClient authorizedClient) {
+				return authorizedClient != null ? "resolved" : "not-resolved";
+			}
+		}
+
+		@Bean
+		public ClientRegistrationRepository clientRegistrationRepository() {
+			return CLIENT_REGISTRATION_REPOSITORY;
+		}
+
+		@Bean
+		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return AUTHORIZED_CLIENT_REPOSITORY;
 		}
 	}
 
