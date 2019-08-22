@@ -20,11 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
+import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
@@ -63,7 +66,16 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 		@Override
 		public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
 			if (this.authorizedClientRepository != null && this.clientRegistrationRepository != null) {
-				configurer.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(this.clientRegistrationRepository, getAuthorizedClientRepository()));
+				ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+						ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+								.authorizationCode()
+								.refreshToken()
+								.clientCredentials()
+								.build();
+				DefaultServerOAuth2AuthorizedClientManager authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
+						this.clientRegistrationRepository, getAuthorizedClientRepository());
+				authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+				configurer.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager));
 			}
 		}
 

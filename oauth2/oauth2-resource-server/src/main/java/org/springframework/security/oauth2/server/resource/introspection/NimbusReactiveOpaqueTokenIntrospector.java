@@ -28,6 +28,8 @@ import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Audience;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
@@ -116,8 +118,10 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		HTTPResponse response = new HTTPResponse(responseEntity.rawStatusCode());
 		response.setHeader(HttpHeaders.CONTENT_TYPE, responseEntity.headers().contentType().get().toString());
 		if (response.getStatusCode() != HTTPResponse.SC_OK) {
-			throw new OAuth2IntrospectionException(
-					"Introspection endpoint responded with " + response.getStatusCode());
+			return responseEntity.bodyToFlux(DataBuffer.class)
+				.map(DataBufferUtils::release)
+				.then(Mono.error(new OAuth2IntrospectionException(
+					"Introspection endpoint responded with " + response.getStatusCode())));
 		}
 		return responseEntity.bodyToMono(String.class)
 				.doOnNext(response::setContent)
