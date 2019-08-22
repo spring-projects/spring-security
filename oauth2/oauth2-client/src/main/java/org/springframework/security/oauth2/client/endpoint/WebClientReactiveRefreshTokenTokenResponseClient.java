@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.endpoint;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -66,7 +67,8 @@ public final class WebClientReactiveRefreshTokenTokenResponseClient implements R
 					.body(tokenRequestBody(refreshTokenGrantRequest))
 					.exchange()
 					.flatMap(response -> {
-						if (!response.statusCode().is2xxSuccessful()) {
+						HttpStatus status = HttpStatus.resolve(response.rawStatusCode());
+						if (status == null || !status.is2xxSuccessful()) {
 							OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
 									"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: " +
 											"HTTP Status Code " + response.rawStatusCode(), null);
