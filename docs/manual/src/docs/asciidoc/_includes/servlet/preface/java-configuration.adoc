@@ -25,10 +25,10 @@ import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
 
 @EnableWebSecurity
-public class WebSecurityConfig implements WebMvcConfigurer {
+public class WebSecurityConfig {
 
 	@Bean
-	public UserDetailsService userDetailsService() throws Exception {
+	public UserDetailsService userDetailsService() {
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 		manager.createUser(User.withDefaultPasswordEncoder().username("user").password("password").roles("USER").build());
 		return manager;
@@ -131,7 +131,10 @@ public class MvcWebApplicationInitializer extends
 == HttpSecurity
 
 Thus far our <<jc-hello-wsca,WebSecurityConfig>> only contains information about how to authenticate our users.
-How does Spring Security know that we want to require all users to be authenticated? How does Spring Security know we want to support form based authentication? The reason for this is that the `WebSecurityConfigurerAdapter` provides a default configuration in the `configure(HttpSecurity http)` method that looks like:
+How does Spring Security know that we want to require all users to be authenticated?
+How does Spring Security know we want to support form based authentication?
+Actually, there is an configuration class that is being invoked behind the scenes called `WebSecurityConfigurerAdapter`.
+It has a method called `configure` with the following default implementation:
 
 [source,java]
 ----
@@ -168,9 +171,17 @@ You will notice that this configuration is quite similar the XML Namespace confi
 You might be wondering where the login form came from when you were prompted to log in, since we made no mention of any HTML files or JSPs.
 Since Spring Security's default configuration does not explicitly set a URL for the login page, Spring Security generates one automatically, based on the features that are enabled and using standard values for the URL which processes the submitted login, the default target URL the user will be sent to after logging in and so on.
 
-While the automatically generated log in page is convenient to get up and running quickly, most applications will want to provide their own log in page.
-To do so we can update our configuration as seen below:
+While the automatically generated log in page is convenient to get up and running quickly, most applications will want to provide their own login page.
+When we want to change the default configuration, we can customize the `WebSecurityConfigurerAdapter` that we mentioned earlier by extending it like so:
 
+[source,java]
+----
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+	// ...
+}
+----
+
+And then override the `configure` method as seen below:
 
 [source,java]
 ----
