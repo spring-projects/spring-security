@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.web.session;
 
 import java.io.IOException;
 
+import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -61,6 +62,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @author Eddú Meléndez
  * @author Marten Deinum
+ * @author Onur Kagan Ozcan
  */
 public class ConcurrentSessionFilter extends GenericFilterBean {
 
@@ -170,6 +172,16 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	}
 
 	public void setLogoutHandlers(LogoutHandler[] handlers) {
+		this.handlers = new CompositeLogoutHandler(handlers);
+	}
+
+	/**
+	 * Set list of {@link LogoutHandler}
+	 *
+	 * @param handlers list of {@link LogoutHandler}
+	 * @since 5.2.0
+	 */
+	public void setLogoutHandlers(List<LogoutHandler> handlers) {
 		this.handlers = new CompositeLogoutHandler(handlers);
 	}
 

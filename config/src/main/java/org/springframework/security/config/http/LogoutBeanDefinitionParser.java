@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
@@ -32,6 +33,7 @@ import org.w3c.dom.Element;
 /**
  * @author Luke Taylor
  * @author Ben Alex
+ * @author Onur Kagan Ozcan
  */
 class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 	static final String ATT_LOGOUT_SUCCESS_URL = "logout-success-url";
@@ -119,6 +121,8 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 			cookieDeleter.getConstructorArgumentValues().addGenericArgumentValue(names);
 			logoutHandlers.add(cookieDeleter);
 		}
+
+		logoutHandlers.add(new RootBeanDefinition(LogoutSuccessEventPublishingLogoutHandler.class));
 
 		builder.addConstructorArgValue(logoutHandlers);
 

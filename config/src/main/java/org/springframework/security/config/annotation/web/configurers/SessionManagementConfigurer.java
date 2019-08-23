@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
@@ -54,6 +55,7 @@ import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Allows configuring session management.
@@ -88,6 +90,7 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * @author Rob Winch
+ * @author Onur Kagan Ozcan
  * @since 3.2
  * @see SessionManagementFilter
  * @see ConcurrentSessionFilter
@@ -512,21 +515,30 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 		http.addFilter(sessionManagementFilter);
 		if (isConcurrentSessionControlEnabled()) {
-			ConcurrentSessionFilter concurrentSessionFilter = createConccurencyFilter(http);
+			ConcurrentSessionFilter concurrentSessionFilter = createConcurrencyFilter(http);
 
 			concurrentSessionFilter = postProcess(concurrentSessionFilter);
 			http.addFilter(concurrentSessionFilter);
 		}
 	}
 
-	private ConcurrentSessionFilter createConccurencyFilter(H http) {
+	private ConcurrentSessionFilter createConcurrencyFilter(H http) {
 		SessionInformationExpiredStrategy expireStrategy = getExpiredSessionStrategy();
 		SessionRegistry sessionRegistry = getSessionRegistry(http);
+		ConcurrentSessionFilter concurrentSessionFilter;
 		if (expireStrategy == null) {
-			return new ConcurrentSessionFilter(sessionRegistry);
+			concurrentSessionFilter = new ConcurrentSessionFilter(sessionRegistry);
+		} else {
+			concurrentSessionFilter = new ConcurrentSessionFilter(sessionRegistry, expireStrategy);
 		}
-
-		return new ConcurrentSessionFilter(sessionRegistry, expireStrategy);
+		LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
+		if (logoutConfigurer != null) {
+			List<LogoutHandler> logoutHandlers = logoutConfigurer.getLogoutHandlers();
+			if (!CollectionUtils.isEmpty(logoutHandlers)) {
+				concurrentSessionFilter.setLogoutHandlers(logoutHandlers);
+			}
+		}
+		return concurrentSessionFilter;
 	}
 
 	/**

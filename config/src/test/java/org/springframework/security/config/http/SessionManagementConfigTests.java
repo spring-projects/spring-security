@@ -41,7 +41,10 @@ import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
@@ -71,6 +74,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Luke Taylor
  * @author Rob Winch
  * @author Josh Cummings
+ * @author Onur Kagan Ozcan
  */
 public class SessionManagementConfigTests {
 	private static final String CONFIG_LOCATION_PREFIX =
@@ -453,6 +457,32 @@ public class SessionManagementConfigTests {
 					return request;
 				}))
 				.andExpect(redirectedUrl("/timeoutUrl"));
+	}
+
+	/**
+	 * SEC-2680
+	 */
+	@Test
+	public void checkConcurrencyAndLogoutFilterHasSameSizeAndHasLogoutSuccessEventPublishingLogoutHandler() {
+
+		this.spring.configLocations(this.xml("ConcurrencyControlLogoutAndRememberMeHandlers")).autowire();
+
+		ConcurrentSessionFilter concurrentSessionFilter = getFilter(ConcurrentSessionFilter.class);
+		LogoutFilter logoutFilter = getFilter(LogoutFilter.class);
+
+		LogoutHandler csfLogoutHandler = getFieldValue(concurrentSessionFilter, "handlers");
+		LogoutHandler lfLogoutHandler = getFieldValue(logoutFilter, "handler");
+
+		assertThat(csfLogoutHandler).isInstanceOf(CompositeLogoutHandler.class);
+		assertThat(lfLogoutHandler).isInstanceOf(CompositeLogoutHandler.class);
+
+		List<LogoutHandler> csfLogoutHandlers = getFieldValue(csfLogoutHandler, "logoutHandlers");
+		List<LogoutHandler> lfLogoutHandlers = getFieldValue(lfLogoutHandler, "logoutHandlers");
+
+		assertThat(csfLogoutHandlers).hasSameSizeAs(lfLogoutHandlers);
+
+		assertThat(csfLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
+		assertThat(lfLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
 	}
 
 	static class TeapotSessionAuthenticationStrategy implements SessionAuthenticationStrategy {

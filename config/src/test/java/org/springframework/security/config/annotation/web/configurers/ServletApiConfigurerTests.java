@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.List;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +35,19 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -59,6 +68,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Rob Winch
  * @author Eleftheria Stein
+ * @author Onur Kagan Ozcan
  */
 public class ServletApiConfigurerTests {
 	@Rule
@@ -287,4 +297,56 @@ public class ServletApiConfigurerTests {
 			}
 		}
 	}
+
+	@Test
+	public void checkSecurityContextAwareAndLogoutFilterHasSameSizeAndHasLogoutSuccessEventPublishingLogoutHandler() {
+		this.spring.register(ServletApiWithLogoutConfig.class);
+
+		SecurityContextHolderAwareRequestFilter scaFilter = getFilter(SecurityContextHolderAwareRequestFilter.class);
+		LogoutFilter logoutFilter = getFilter(LogoutFilter.class);
+
+		LogoutHandler lfLogoutHandler = getFieldValue(logoutFilter, "handler");
+		assertThat(lfLogoutHandler).isInstanceOf(CompositeLogoutHandler.class);
+
+		List<LogoutHandler> scaLogoutHandlers = getFieldValue(scaFilter, "logoutHandlers");
+		List<LogoutHandler> lfLogoutHandlers = getFieldValue(lfLogoutHandler, "logoutHandlers");
+
+		assertThat(scaLogoutHandlers).hasSameSizeAs(lfLogoutHandlers);
+
+		assertThat(scaLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
+		assertThat(lfLogoutHandlers).hasAtLeastOneElementOfType(LogoutSuccessEventPublishingLogoutHandler.class);
+	}
+
+	@EnableWebSecurity
+	static class ServletApiWithLogoutConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.servletApi().and()
+				.logout();
+			// @formatter:on
+		}
+	}
+
+	private <T extends Filter> T getFilter(Class<T> filterClass) {
+		return (T) getFilters().stream()
+				.filter(filterClass::isInstance)
+				.findFirst()
+				.orElse(null);
+	}
+
+	private List<Filter> getFilters() {
+		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		return proxy.getFilters("/");
+	}
+
+	private <T> T getFieldValue(Object target, String fieldName) {
+		try {
+			return (T) FieldUtils.getFieldValue(target, fieldName);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }
