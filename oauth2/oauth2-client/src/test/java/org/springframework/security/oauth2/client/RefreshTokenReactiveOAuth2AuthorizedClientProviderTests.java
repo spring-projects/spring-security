@@ -90,6 +90,13 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
+	public void setClockWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.authorizedClientProvider.setClock(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("clock cannot be null");
+	}
+
+	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(null).block())
 				.isInstanceOf(IllegalArgumentException.class)

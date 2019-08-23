@@ -20,7 +20,9 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentia
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.util.Assert;
 
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,6 +130,7 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	public class RefreshTokenGrantBuilder implements Builder {
 		private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
 		private Duration clockSkew;
+		private Clock clock;
 
 		private RefreshTokenGrantBuilder() {
 		}
@@ -145,13 +148,24 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		/**
 		 * Sets the maximum acceptable clock skew, which is used when checking the access token expiry.
-		 * An access token is considered expired if it's before {@code Instant.now() - clockSkew}.
+		 * An access token is considered expired if it's before {@code Instant.now(this.clock) - clockSkew}.
 		 *
 		 * @param clockSkew the maximum acceptable clock skew
 		 * @return the {@link RefreshTokenGrantBuilder}
 		 */
 		public RefreshTokenGrantBuilder clockSkew(Duration clockSkew) {
 			this.clockSkew = clockSkew;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access token expiry.
+		 *
+		 * @param clock the clock
+		 * @return the {@link RefreshTokenGrantBuilder}
+		 */
+		public RefreshTokenGrantBuilder clock(Clock clock) {
+			this.clock = clock;
 			return this;
 		}
 
@@ -168,6 +182,9 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 			}
 			if (this.clockSkew != null) {
 				authorizedClientProvider.setClockSkew(this.clockSkew);
+			}
+			if (this.clock != null) {
+				authorizedClientProvider.setClock(this.clock);
 			}
 			return authorizedClientProvider;
 		}
@@ -202,6 +219,7 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	public class ClientCredentialsGrantBuilder implements Builder {
 		private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
 		private Duration clockSkew;
+		private Clock clock;
 
 		private ClientCredentialsGrantBuilder() {
 		}
@@ -219,13 +237,24 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		/**
 		 * Sets the maximum acceptable clock skew, which is used when checking the access token expiry.
-		 * An access token is considered expired if it's before {@code Instant.now() - clockSkew}.
+		 * An access token is considered expired if it's before {@code Instant.now(this.clock) - clockSkew}.
 		 *
 		 * @param clockSkew the maximum acceptable clock skew
 		 * @return the {@link ClientCredentialsGrantBuilder}
 		 */
 		public ClientCredentialsGrantBuilder clockSkew(Duration clockSkew) {
 			this.clockSkew = clockSkew;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access token expiry.
+		 *
+		 * @param clock the clock
+		 * @return the {@link ClientCredentialsGrantBuilder}
+		 */
+		public ClientCredentialsGrantBuilder clock(Clock clock) {
+			this.clock = clock;
 			return this;
 		}
 
@@ -242,6 +271,9 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 			}
 			if (this.clockSkew != null) {
 				authorizedClientProvider.setClockSkew(this.clockSkew);
+			}
+			if (this.clock != null) {
+				authorizedClientProvider.setClock(this.clock);
 			}
 			return authorizedClientProvider;
 		}

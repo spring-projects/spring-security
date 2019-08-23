@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -40,6 +41,7 @@ public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider imple
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient =
 			new WebClientReactiveClientCredentialsTokenResponseClient();
 	private Duration clockSkew = Duration.ofSeconds(60);
+	private Clock clock = Clock.systemUTC();
 
 	/**
 	 * Attempt to authorize (or re-authorize) the {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided {@code context}.
@@ -80,7 +82,7 @@ public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider imple
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {
-		return token.getExpiresAt().isBefore(Instant.now().minus(this.clockSkew));
+		return token.getExpiresAt().isBefore(Instant.now(this.clock).minus(this.clockSkew));
 	}
 
 	/**
@@ -96,7 +98,7 @@ public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider imple
 	/**
 	 * Sets the maximum acceptable clock skew, which is used when checking the
 	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} expiry. The default is 60 seconds.
-	 * An access token is considered expired if it's before {@code Instant.now() - clockSkew}.
+	 * An access token is considered expired if it's before {@code Instant.now(this.clock) - clockSkew}.
 	 *
 	 * @param clockSkew the maximum acceptable clock skew
 	 */
@@ -104,5 +106,15 @@ public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider imple
 		Assert.notNull(clockSkew, "clockSkew cannot be null");
 		Assert.isTrue(clockSkew.getSeconds() >= 0, "clockSkew must be >= 0");
 		this.clockSkew = clockSkew;
+	}
+
+	/**
+	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access token expiry.
+	 *
+	 * @param clock the clock
+	 */
+	public void setClock(Clock clock) {
+		Assert.notNull(clock, "clock cannot be null");
+		this.clock = clock;
 	}
 }
