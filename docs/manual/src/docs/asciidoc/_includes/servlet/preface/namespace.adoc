@@ -133,7 +133,7 @@ With the default configuration, this is typically a comma-separated list of role
 The prefix "ROLE_" is a marker which indicates that a simple comparison with the user's authorities should be made.
 In other words, a normal role-based check should be used.
 Access-control in Spring Security is not limited to the use of simple roles (hence the use of the prefix to differentiate between different types of security attributes).
-We'll see later how the interpretation can vary footnote:[The interpretation of the comma-separated values in the `access` attribute depends on the implementation of the pass:specialcharacters,macros[<<ns-access-manager,AccessDecisionManager>>] which is used.].
+We'll see later how the interpretation can vary footnote:[The interpretation of the comma-separated values in the `access` attribute depends on the implementation of the <<ns-access-manager,AccessDecisionManager>> which is used.].
 In Spring Security 3.0, the attribute can also be populated with an pass:specialcharacters,macros[<<el-access,EL expression>>].
 
 
