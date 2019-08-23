@@ -322,7 +322,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			@Override
 			public Resource retrieveResource(URL url) throws IOException {
 				HttpHeaders headers = new HttpHeaders();
-				headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON_UTF8, APPLICATION_JWK_SET_JSON));
+				headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON));
 
 				ResponseEntity<String> response;
 				try {
