@@ -22,6 +22,7 @@ import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -310,6 +311,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		private static class RestOperationsResourceRetriever implements ResourceRetriever {
+			private static final MediaType APPLICATION_JWK_SET_JSON = new MediaType("application", "jwk-set+json");
 			private final RestOperations restOperations;
 
 			RestOperationsResourceRetriever(RestOperations restOperations) {
@@ -320,7 +322,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			@Override
 			public Resource retrieveResource(URL url) throws IOException {
 				HttpHeaders headers = new HttpHeaders();
-				headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
+				headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON));
 
 				ResponseEntity<String> response;
 				try {

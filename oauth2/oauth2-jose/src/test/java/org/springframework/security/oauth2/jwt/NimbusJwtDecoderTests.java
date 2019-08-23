@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import javax.crypto.SecretKey;
 
@@ -54,8 +55,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.mockito.ArgumentCaptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -72,6 +75,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withPublicKey;
@@ -96,6 +100,8 @@ public class NimbusJwtDecoderTests {
 	private static final String RS512_SIGNED_JWT = "eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJ0ZXN0LXN1YmplY3QiLCJleHAiOjE5NzQzMjYxMTl9.LKAx-60EBfD7jC1jb1eKcjO4uLvf3ssISV-8tN-qp7gAjSvKvj4YA9-V2mIb6jcS1X_xGmNy6EIimZXpWaBR3nJmeu-jpe85u4WaW2Ztr8ecAi-dTO7ZozwdtljKuBKKvj4u1nF70zyCNl15AozSG0W1ASrjUuWrJtfyDG6WoZ8VfNMuhtU-xUYUFvscmeZKUYQcJ1KS-oV5tHeF8aNiwQoiPC_9KXCOZtNEJFdq6-uzFdHxvOP2yex5Gbmg5hXonauIFXG2ZPPGdXzm-5xkhBpgM8U7A_6wb3So8wBvLYYm2245QUump63AJRAy8tQpwt4n9MvQxQgS3z9R-NK92A";
 	private static final String RS256_SIGNED_JWT = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0LXN1YmplY3QiLCJleHAiOjE5NzQzMjYzMzl9.CT-H2OWEqmSs1NWmnta5ealLFvM8OlbQTjGhfRcKLNxrTrzsOkqBJl-AN3k16BQU7mS32o744TiiZ29NcDlxPsr1MqTlN86-dobPiuNIDLp3A1bOVdXMcVFuMYkrNv0yW0tGS9OjEqsCCuZDkZ1by6AhsHLbGwRY-6AQdcRouZygGpOQu1hNun5j8q5DpSTY4AXKARIFlF-O3OpVbPJ0ebr3Ki-i3U9p_55H0e4-wx2bqcApWlqgofl1I8NKWacbhZgn81iibup2W7E0CzCzh71u1Mcy3xk1sYePx-dwcxJnHmxJReBBWjJZEAeCrkbnn_OCuo2fA-EQyNJtlN5F2w";
 	private static final String VERIFY_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq4yKxb6SNePdDmQi9xFCrP6QvHosErQzryknQTTTffs0t3cy3Er3lIceuhZ7yQNSCDfPFqG8GoyoKhuChRiA5D+J2ab7bqTa1QJKfnCyERoscftgN2fXPHjHoiKbpGV2tMVw8mXl//tePOAiKbMJaBUnlAvJgkk1rVm08dSwpLC1sr2M19euf9jwnRGkMRZuhp9iCPgECRke5T8Ixpv0uQjSmGHnWUKTFlbj8sM83suROR1Ue64JSGScANc5vk3huJ/J97qTC+K2oKj6L8d9O8dpc4obijEOJwpydNvTYDgbiivYeSB00KS9jlBkQ5B2QqLvLVEygDl3dp59nGx6YQIDAQAB";
+
+	private static final MediaType APPLICATION_JWK_SET_JSON = new MediaType("application", "jwk-set+json");
 
 	private static KeyFactory kf;
 
@@ -398,6 +404,23 @@ public class NimbusJwtDecoderTests {
 				(JWSAlgorithmMapJWSKeySelector<?>) jwsKeySelector;
 		assertThat(jwsAlgorithmMapKeySelector.getExpectedJWSAlgorithms())
 				.containsExactlyInAnyOrder(JWSAlgorithm.RS256, JWSAlgorithm.RS512);
+	}
+
+	// gh-7290
+	@Test
+	public void decodeWhenJwkSetRequestedThenAcceptHeaderJsonAndJwkSetJson() {
+		RestOperations restOperations = mock(RestOperations.class);
+		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+				.thenReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+		JWTProcessor<SecurityContext> processor = withJwkSetUri("https://issuer/.well-known/jwks.json")
+				.restOperations(restOperations)
+				.processor();
+		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(processor);
+		jwtDecoder.decode(SIGNED_JWT);
+		ArgumentCaptor<RequestEntity> requestEntityCaptor = ArgumentCaptor.forClass(RequestEntity.class);
+		verify(restOperations).exchange(requestEntityCaptor.capture(), eq(String.class));
+		List<MediaType> acceptHeader = requestEntityCaptor.getValue().getHeaders().getAccept();
+		assertThat(acceptHeader).contains(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON);
 	}
 
 	private RSAPublicKey key() throws InvalidKeySpecException {
