@@ -258,7 +258,7 @@ Or you might work for a company that has a legacy proprietary authentication sys
 In situations like this it's quite easy to get Spring Security to work, and still provide authorization capabilities.
 All you need to do is write a filter (or equivalent) that reads the third-party user information from a location, build a Spring Security-specific `Authentication` object, and put it into the `SecurityContextHolder`.
 In this case you also need to think about things which are normally taken care of automatically by the built-in authentication infrastructure.
-For example, you might need to pre-emptively create an HTTP session to <<tech-intro-sec-context-persistence,cache the context between requests>>, before you write the response to the client footnote:[It isn't possible to create a session once the response has been committed.
+For example, you might need to pre-emptively create an HTTP session to <<tech-intro-sec-context-persistence,cache the context between requests>>, before you write the response to the client footnote:[It isn't possible to create a session once the response has been committed.].
 
 If you're wondering how the `AuthenticationManager` is implemented in a real world example, we'll look at that in the <<core-services-authentication-manager,core services chapter>>.
 
