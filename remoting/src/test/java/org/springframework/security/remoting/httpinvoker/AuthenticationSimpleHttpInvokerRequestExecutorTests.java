@@ -18,7 +18,6 @@ package org.springframework.security.remoting.httpinvoker;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;

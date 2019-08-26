@@ -23,7 +23,6 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.SessionTrackingMode;
 
 import org.springframework.context.ApplicationContext;

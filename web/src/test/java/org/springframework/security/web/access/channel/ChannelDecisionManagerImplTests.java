@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 
 import org.junit.Test;
 

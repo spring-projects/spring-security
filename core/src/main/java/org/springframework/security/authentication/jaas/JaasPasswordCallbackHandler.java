@@ -18,11 +18,8 @@ package org.springframework.security.authentication.jaas;
 
 import org.springframework.security.core.Authentication;
 
-import java.io.IOException;
-
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
  * The most basic Callbacks to be handled when using a LoginContext from JAAS, are the

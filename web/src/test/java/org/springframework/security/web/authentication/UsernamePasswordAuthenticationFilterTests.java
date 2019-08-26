@@ -19,8 +19,6 @@ package org.springframework.security.web.authentication;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
 
-import javax.servlet.ServletException;
-
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;

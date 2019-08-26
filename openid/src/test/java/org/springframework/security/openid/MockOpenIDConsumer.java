@@ -17,7 +17,6 @@ package org.springframework.security.openid;
 
 import org.springframework.security.openid.OpenIDAuthenticationToken;
 import org.springframework.security.openid.OpenIDConsumer;
-import org.springframework.security.openid.OpenIDConsumerException;
 
 import javax.servlet.http.HttpServletRequest;
 

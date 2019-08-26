@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.Map;
 import javax.crypto.SecretKey;
 
-import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;

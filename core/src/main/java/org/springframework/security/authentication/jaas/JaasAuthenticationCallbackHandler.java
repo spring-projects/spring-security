@@ -18,10 +18,7 @@ package org.springframework.security.authentication.jaas;
 
 import org.springframework.security.core.Authentication;
 
-import java.io.IOException;
-
 import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
  * The JaasAuthenticationCallbackHandler is similar to the

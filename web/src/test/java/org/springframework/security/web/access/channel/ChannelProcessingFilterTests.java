@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.Collection;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;

@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
-import org.jasig.cas.client.validation.TicketValidationException;
 import org.jasig.cas.client.validation.TicketValidator;
 import org.junit.*;
 import org.springframework.mock.web.MockHttpServletRequest;
