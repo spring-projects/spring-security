@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,23 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.net.URI;
-import java.util.Collections;
 import java.util.Map;
 
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.util.Assert;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withJwkSetUri;
 
 /**
  * Allows creating a {@link ReactiveJwtDecoder} from an
- * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">OpenID Provider Configuration</a>.
+ * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">OpenID Provider Configuration</a> or
+ * <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server Metadata Request</a> based on provided
+ * issuer and method invoked.
  *
  * @author Josh Cummings
  * @since 5.1
  */
 public final class ReactiveJwtDecoders {
-	private static final String OIDC_METADATA_PATH = "/.well-known/openid-configuration";
-	private static final String OAUTH_METADATA_PATH = "/.well-known/oauth-authorization-server";
-	private static final RestTemplate rest = new RestTemplate();
-	private static final ParameterizedTypeReference<Map<String, Object>> typeReference =
-			new ParameterizedTypeReference<Map<String, Object>>() {};
 
 	/**
 	 * Creates a {@link ReactiveJwtDecoder} using the provided
@@ -57,7 +46,7 @@ public final class ReactiveJwtDecoders {
 	 */
 	public static ReactiveJwtDecoder fromOidcIssuerLocation(String oidcIssuerLocation) {
 		Assert.hasText(oidcIssuerLocation, "oidcIssuerLocation cannot be empty");
-		Map<String, Object> configuration = getConfiguration(oidcIssuerLocation, oidc(URI.create(oidcIssuerLocation)));
+		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
 		return withProviderConfiguration(configuration, oidcIssuerLocation);
 	}
 
@@ -90,60 +79,27 @@ public final class ReactiveJwtDecoders {
 	 * Note that the second endpoint is the equivalent of calling
 	 * {@link ReactiveJwtDecoders#fromOidcIssuerLocation(String)}
 	 *
-	 * @param issuer
+	 * @param issuer the <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
 	 * @return a {@link ReactiveJwtDecoder} that was initialized by one of the described endpoints
 	 */
 	public static ReactiveJwtDecoder fromIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
-		URI uri = URI.create(issuer);
-		Map<String, Object> configuration = getConfiguration(issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
+		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForIssuerLocation(issuer);
 		return withProviderConfiguration(configuration, issuer);
 	}
 
-	private static URI oidc(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(issuer.getPath() + OIDC_METADATA_PATH).build(Collections.emptyMap());
-	}
-
-	private static URI oidcRfc8414(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OIDC_METADATA_PATH + issuer.getPath()).build(Collections.emptyMap());
-	}
-
-	private static URI oauth(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OAUTH_METADATA_PATH + issuer.getPath()).build(Collections.emptyMap());
-	}
-
-	private static Map<String, Object> getConfiguration(String issuer, URI... uris) {
-		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " +
-				"\"" + issuer + "\"";
-		for (URI uri : uris) {
-			try {
-				RequestEntity<Void> request = RequestEntity.get(uri).build();
-				ResponseEntity<Map<String, Object>> response = rest.exchange(request, typeReference);
-				return response.getBody();
-			} catch (RuntimeException e) {
-				if (!(e instanceof HttpClientErrorException &&
-						((HttpClientErrorException) e).getStatusCode().is4xxClientError())) {
-					throw new IllegalArgumentException(errorMessage, e);
-				}
-				// else try another endpoint
-			}
-		}
-		throw new IllegalArgumentException(errorMessage);
-	}
-
+	/**
+	 * Build {@link ReactiveJwtDecoder} from
+	 * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID Provider
+	 * Configuration Response</a> and <a href="https://tools.ietf.org/html/rfc8414#section-3.2">Authorization Server Metadata
+	 * Response</a>.
+	 *
+	 * @param configuration the configuration values
+	 * @param issuer the <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @return {@link ReactiveJwtDecoder}
+	 */
 	private static ReactiveJwtDecoder withProviderConfiguration(Map<String, Object> configuration, String issuer) {
-		String metadataIssuer = "(unavailable)";
-		if (configuration.containsKey("issuer")) {
-			metadataIssuer = configuration.get("issuer").toString();
-		}
-		if (!issuer.equals(metadataIssuer)) {
-			throw new IllegalStateException("The Issuer \"" + metadataIssuer + "\" provided in the configuration did not "
-					+ "match the requested issuer \"" + issuer + "\"");
-		}
-
+		JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
 		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
 		NimbusReactiveJwtDecoder jwtDecoder = withJwkSetUri(configuration.get("jwks_uri").toString()).build();
 		jwtDecoder.setJwtValidator(jwtValidator);
