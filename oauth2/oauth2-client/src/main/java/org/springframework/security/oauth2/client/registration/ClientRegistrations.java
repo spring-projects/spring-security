@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -141,8 +140,11 @@ public final class ClientRegistrations {
 		Map<String, Object> configuration = getConfiguration(issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
 		AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
 		ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer);
-		return Optional.ofNullable((String) configuration.get("userinfo_endpoint"))
-				.map(builder::userInfoUri).orElse(builder);
+		String userinfoEndpoint = (String) configuration.get("userinfo_endpoint");
+		if (userinfoEndpoint != null) {
+			builder.userInfoUri(userinfoEndpoint);
+		}
+		return builder;
 	}
 
 	private static URI oidc(URI issuer) {

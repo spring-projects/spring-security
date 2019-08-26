@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -2665,10 +2664,10 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			Optional.ofNullable(this.csrfTokenRepository).ifPresent(serverCsrfTokenRepository -> {
-				this.filter.setCsrfTokenRepository(serverCsrfTokenRepository);
-				http.logout().addLogoutHandler(new CsrfServerLogoutHandler(serverCsrfTokenRepository));
-			});
+			if (this.csrfTokenRepository != null) {
+				this.filter.setCsrfTokenRepository(this.csrfTokenRepository);
+				http.logout().addLogoutHandler(new CsrfServerLogoutHandler(this.csrfTokenRepository));
+			}
 			http.addFilterAt(this.filter, SecurityWebFiltersOrder.CSRF);
 		}
 
@@ -3607,19 +3606,21 @@ public class ServerHttpSecurity {
 			return and();
 		}
 
-		private Optional<ServerLogoutHandler> createLogoutHandler() {
+		private ServerLogoutHandler createLogoutHandler() {
 			if (this.logoutHandlers.isEmpty()) {
-				return Optional.empty();
+				return null;
+			} else if (this.logoutHandlers.size() == 1) {
+				return this.logoutHandlers.get(0);
+			} else {
+				return new DelegatingServerLogoutHandler(this.logoutHandlers);
 			}
-			else if (this.logoutHandlers.size() == 1) {
-				return Optional.of(this.logoutHandlers.get(0));
-			}
-
-			return Optional.of(new DelegatingServerLogoutHandler(this.logoutHandlers));
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			createLogoutHandler().ifPresent(this.logoutWebFilter::setLogoutHandler);
+			ServerLogoutHandler logoutHandler = createLogoutHandler();
+			if (logoutHandler != null) {
+				this.logoutWebFilter.setLogoutHandler(logoutHandler);
+			}
 			http.addFilterAt(this.logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
 		}
 
