@@ -132,7 +132,7 @@ class OAuth2AuthorizedClientResolver {
 				}
 				return Mono.error(() -> new ClientAuthorizationRequiredException(clientRegistrationId));
 			});
-}
+	}
 
 	private Mono<? extends OAuth2AuthorizedClient> clientCredentials(
 			ClientRegistration clientRegistration, Authentication authentication, ServerWebExchange exchange) {
