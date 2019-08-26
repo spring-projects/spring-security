@@ -79,6 +79,8 @@ final class OAuth2ClientConfiguration {
 				if (this.accessTokenResponseClient != null) {
 					authorizedClientProviderBuilder.clientCredentials(configurer ->
 									configurer.accessTokenResponseClient(this.accessTokenResponseClient));
+				} else {
+					authorizedClientProviderBuilder.clientCredentials();
 				}
 				OAuth2AuthorizedClientProvider authorizedClientProvider = authorizedClientProviderBuilder.build();
 
