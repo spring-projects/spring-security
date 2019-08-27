@@ -69,6 +69,10 @@ public class TokenBasedRememberMeServicesTests {
 				new UsernameNotFoundException(""));
 	}
 
+	void udsWillReturnNull() {
+		when(uds.loadUserByUsername(any(String.class))).thenReturn(null);
+	}
+
 	private long determineExpiryTimeFromBased64EncodedToken(String validToken) {
 		String cookieAsPlainText = new String(Base64.decodeBase64(validToken.getBytes()));
 		String[] cookieTokens = StringUtils.delimitedListToStringArray(cookieAsPlainText,
@@ -228,6 +232,21 @@ public class TokenBasedRememberMeServicesTests {
 				.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(returnedCookie).isNotNull();
 		assertThat(returnedCookie.getMaxAge()).isZero();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void autoLoginClearsCookieIfUserServiceMisconfigured() {
+		udsWillReturnNull();
+		Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
+				generateCorrectCookieContentForToken(
+						System.currentTimeMillis() + 1000000, "someone", "password",
+						"key"));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setCookies(cookie);
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		services.autoLogin(request, response);
 	}
 
 	@Test

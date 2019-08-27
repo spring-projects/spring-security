@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -123,10 +124,9 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		UserDetails userDetails = getUserDetailsService().loadUserByUsername(
 				cookieTokens[0]);
 
-		if (userDetails == null) {
-			throw new InvalidCookieException("Cookie token[0] contained username '"
-					+ cookieTokens[0] + "' that does not exist.");
-		}
+		Assert.notNull(userDetails, () -> "UserDetailsService " + getUserDetailsService()
+				+ " returned null for username " + cookieTokens[0] + ". "
+				+ "This is an interface contract violation");
 
 		// Check signature of token matches remaining details.
 		// Must do this after user lookup, as we need the DAO-derived password.
