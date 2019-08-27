@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.web.server;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -31,10 +32,13 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,7 +76,7 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 		this.authorizedClientProvider = mock(ReactiveOAuth2AuthorizedClientProvider.class);
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.empty());
 		this.contextAttributesMapper = mock(Function.class);
-		when(this.contextAttributesMapper.apply(any())).thenReturn(Collections.emptyMap());
+		when(this.contextAttributesMapper.apply(any())).thenReturn(Mono.just(Collections.emptyMap()));
 		this.authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		this.authorizedClientManager.setAuthorizedClientProvider(this.authorizedClientProvider);
@@ -210,21 +214,33 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 	}
 
 	@Test
-	public void authorizeWhenRequestParameterUsernamePasswordThenMappedToContext() {
+	public void authorizeWhenRequestFormParameterUsernamePasswordThenMappedToContext() {
 		when(this.clientRegistrationRepository.findByRegistrationId(
 				eq(this.clientRegistration.getRegistrationId()))).thenReturn(Mono.just(this.clientRegistration));
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.just(this.authorizedClient));
 
-		// Override the mock with the default
-		this.authorizedClientManager.setContextAttributesMapper(
-				new DefaultServerOAuth2AuthorizedClientManager.DefaultContextAttributesMapper());
+		// Set custom contextAttributesMapper capable of mapping the form parameters
+		this.authorizedClientManager.setContextAttributesMapper(authorizeRequest ->
+			Mono.just(authorizeRequest.getServerWebExchange())
+					.flatMap(ServerWebExchange::getFormData)
+					.map(formData -> {
+						Map<String, Object> contextAttributes = new HashMap<>();
+						String username = formData.getFirst(OAuth2ParameterNames.USERNAME);
+						String password = formData.getFirst(OAuth2ParameterNames.PASSWORD);
+						if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+							contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
+							contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
+						}
+						return contextAttributes;
+					})
+		);
 
 		this.serverWebExchange = MockServerWebExchange.builder(
 				MockServerHttpRequest
-						.get("/")
-						.queryParam(OAuth2ParameterNames.USERNAME, "username")
-						.queryParam(OAuth2ParameterNames.PASSWORD, "password"))
+						.post("/")
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+						.body("username=username&password=password"))
 				.build();
 
 		ServerOAuth2AuthorizeRequest authorizeRequest = new ServerOAuth2AuthorizeRequest(
