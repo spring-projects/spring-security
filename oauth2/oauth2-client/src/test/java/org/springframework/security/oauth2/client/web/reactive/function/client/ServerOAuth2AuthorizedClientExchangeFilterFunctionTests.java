@@ -27,6 +27,7 @@ import org.springframework.core.codec.ByteBufferEncoder;
 import org.springframework.core.codec.CharSequenceEncoder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.codec.EncoderHttpMessageWriter;
 import org.springframework.http.codec.FormHttpMessageWriter;
 import org.springframework.http.codec.HttpMessageWriter;
@@ -41,6 +42,7 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
@@ -61,6 +63,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.server.ServerWebExchange;
@@ -124,6 +127,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 			Instant.now(),
 			Instant.now().plus(Duration.ofDays(1)));
 
+	private DefaultServerOAuth2AuthorizedClientManager authorizedClientManager;
+
 	@Before
 	public void setup() {
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
@@ -133,9 +138,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 						.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
 						.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
 						.build();
-		DefaultServerOAuth2AuthorizedClientManager authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
+		this.authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
-		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+		this.authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
 	}
 
@@ -423,11 +428,27 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		when(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId()))).thenReturn(Mono.just(registration));
 		when(this.authorizedClientRepository.loadAuthorizedClient(eq(registration.getRegistrationId()), eq(authentication), any())).thenReturn(Mono.empty());
 
+		// Set custom contextAttributesMapper capable of mapping the form parameters
+		this.authorizedClientManager.setContextAttributesMapper(authorizeRequest ->
+				Mono.just(authorizeRequest.getServerWebExchange())
+						.flatMap(ServerWebExchange::getFormData)
+						.map(formData -> {
+							Map<String, Object> contextAttributes = new HashMap<>();
+							String username = formData.getFirst(OAuth2ParameterNames.USERNAME);
+							String password = formData.getFirst(OAuth2ParameterNames.PASSWORD);
+							if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+								contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
+								contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
+							}
+							return contextAttributes;
+						})
+		);
+
 		this.serverWebExchange = MockServerWebExchange.builder(
 				MockServerHttpRequest
-						.get("/")
-						.queryParam(OAuth2ParameterNames.USERNAME, "username")
-						.queryParam(OAuth2ParameterNames.PASSWORD, "password"))
+						.post("/")
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+						.body("username=username&password=password"))
 				.build();
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
