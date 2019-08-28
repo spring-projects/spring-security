@@ -21,7 +21,9 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRe
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.util.Assert;
 
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -278,6 +280,8 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 */
 	public class PasswordGrantBuilder implements Builder {
 		private OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient;
+		private Duration clockSkew;
+		private Clock clock;
 
 		private PasswordGrantBuilder() {
 		}
@@ -294,6 +298,29 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 		}
 
 		/**
+		 * Sets the maximum acceptable clock skew, which is used when checking the access token expiry.
+		 * An access token is considered expired if it's before {@code Instant.now(this.clock) - clockSkew}.
+		 *
+		 * @param clockSkew the maximum acceptable clock skew
+		 * @return the {@link PasswordGrantBuilder}
+		 */
+		public PasswordGrantBuilder clockSkew(Duration clockSkew) {
+			this.clockSkew = clockSkew;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the access token expiry.
+		 *
+		 * @param clock the clock
+		 * @return the {@link PasswordGrantBuilder}
+		 */
+		public PasswordGrantBuilder clock(Clock clock) {
+			this.clock = clock;
+			return this;
+		}
+
+		/**
 		 * Builds an instance of {@link PasswordOAuth2AuthorizedClientProvider}.
 		 *
 		 * @return the {@link PasswordOAuth2AuthorizedClientProvider}
@@ -303,6 +330,12 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 			PasswordOAuth2AuthorizedClientProvider authorizedClientProvider = new PasswordOAuth2AuthorizedClientProvider();
 			if (this.accessTokenResponseClient != null) {
 				authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
+			}
+			if (this.clockSkew != null) {
+				authorizedClientProvider.setClockSkew(this.clockSkew);
+			}
+			if (this.clock != null) {
+				authorizedClientProvider.setClock(this.clock);
 			}
 			return authorizedClientProvider;
 		}

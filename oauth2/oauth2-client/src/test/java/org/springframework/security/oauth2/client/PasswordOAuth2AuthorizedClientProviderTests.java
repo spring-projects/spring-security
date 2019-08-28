@@ -23,9 +23,13 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResp
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
+
+import java.time.Duration;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,6 +65,27 @@ public class PasswordOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
+	public void setClockSkewWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.authorizedClientProvider.setClockSkew(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("clockSkew cannot be null");
+	}
+
+	@Test
+	public void setClockSkewWhenNegativeSecondsThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(-1)))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("clockSkew must be >= 0");
+	}
+
+	@Test
+	public void setClockWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.authorizedClientProvider.setClock(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("clock cannot be null");
+	}
+
+	@Test
 	public void authorizeWhenContextIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> this.authorizedClientProvider.authorize(null))
 				.isInstanceOf(IllegalArgumentException.class)
@@ -73,18 +98,6 @@ public class PasswordOAuth2AuthorizedClientProviderTests {
 
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
-						.principal(this.principal)
-						.build();
-		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
-	}
-
-	@Test
-	public void authorizeWhenPasswordAndAuthorizedThenUnableToAuthorize() {
-		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.clientRegistration, this.principal.getName(), TestOAuth2AccessTokens.scopes("read"));
-
-		OAuth2AuthorizationContext authorizationContext =
-				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
 						.principal(this.principal)
 						.build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
@@ -128,5 +141,50 @@ public class PasswordOAuth2AuthorizedClientProviderTests {
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+	}
+
+	@Test
+	public void authorizeWhenPasswordAndAuthorizedWithoutRefreshTokenAndTokenExpiredThenReauthorize() {
+		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
+		Instant expiresAt = issuedAt.plus(Duration.ofMinutes(60));
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(
+				OAuth2AccessToken.TokenType.BEARER, "access-token-expired", issuedAt, expiresAt);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.clientRegistration, this.principal.getName(), accessToken);	// without refresh token
+
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+
+		OAuth2AuthorizationContext authorizationContext =
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
+						.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
+						.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
+						.principal(this.principal)
+						.build();
+		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
+
+		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
+		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
+		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+
+	}
+
+	@Test
+	public void authorizeWhenPasswordAndAuthorizedWithRefreshTokenAndTokenExpiredThenNotReauthorize() {
+		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
+		Instant expiresAt = issuedAt.plus(Duration.ofMinutes(60));
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(
+				OAuth2AccessToken.TokenType.BEARER, "access-token-expired", issuedAt, expiresAt);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.clientRegistration, this.principal.getName(),
+				accessToken, TestOAuth2RefreshTokens.refreshToken());	// with refresh token
+
+		OAuth2AuthorizationContext authorizationContext =
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
+						.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
+						.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
+						.principal(this.principal)
+						.build();
+		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
 	}
 }
