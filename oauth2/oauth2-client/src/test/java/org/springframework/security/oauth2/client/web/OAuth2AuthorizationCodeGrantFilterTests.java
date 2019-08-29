@@ -50,6 +50,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -362,13 +364,72 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		assertThat(authorizedClients.values().iterator().next()).isSameAs(authorizedClient);
 	}
 
+	@Test
+	public void doFilterWhenAuthorizationResponseSuccessThenRequestParameterCombinations() throws Exception {
+		// exact match
+		assertThat(isValidRedirect("http://localhost", "http://localhost")).isTrue();
+		assertThat(isValidRedirect("http://localhost/callback", "http://localhost/callback")).isTrue();
+		assertThat(isValidRedirect("http://localhost?key=FOO", "http://localhost?key=FOO")).isTrue();
+
+		// additional param
+		assertThat(isValidRedirect("http://localhost", "http://localhost?extra")).isTrue();
+		assertThat(isValidRedirect("http://localhost?key=FOO", "http://localhost?key=FOO&extra")).isTrue();
+		assertThat(isValidRedirect("http://localhost?key=FOO",  "http://localhost?key=FOO&extra=EXTRA")).isTrue();
+		assertThat(isValidRedirect("http://localhost?key=FOO",  "http://localhost?key=FOO&key=EXTRA")).isTrue();
+
+		// multi parameter
+		assertThat(isValidRedirect("http://localhost?key=FOO&key=BAR", "http://localhost?key=FOO&key=BAR")).isTrue();
+		assertThat(isValidRedirect("http://localhost?key=FOO&key=BAR", "http://localhost?key=FOO&key=BAR&key=EXTRA")).isTrue();
+		assertThat(isValidRedirect("http://localhost?key=FOO&key=BAR", "http://localhost?key=FOO&key=BAR&extra=EXTRA")).isTrue();
+
+
+		// wrong parameter
+		assertThat(isValidRedirect("http://localhost?key=FOO", "http://localhost?key=WRONG")).isFalse();
+		assertThat(isValidRedirect("http://localhost?key=FOO", "http://localhost?extra=EXTRA&key=FOO")).isFalse();
+		assertThat(isValidRedirect("http://localhost?key=FOO", "http://localhost?key=BAR&key=FOO")).isFalse();
+		assertThat(isValidRedirect("http://localhost?key=FOO", "http://localhost?key=FOOABC")).isFalse();
+		assertThat(isValidRedirect("http://localhost?key=FOO", "http://localhost")).isFalse();
+
+		assertThat(isValidRedirect("http://localhost?key=FOO&key=BAR", "http://localhost?key=BAR&key=FOO")).isFalse();
+		assertThat(isValidRedirect("http://localhost?key=FOO&key=BAR", "http://localhost?key=BAZ&key=FOO&key=BAR")).isFalse();
+		assertThat(isValidRedirect("http://localhost?key=FOO&key=BAR", "http://localhost?extra=EXTRA&key=FOO&key=BAR")).isFalse();
+	}
+
+	private boolean isValidRedirect(String redirectUrl, String requestUrl) throws Exception {
+		UriComponents redirect = UriComponentsBuilder.fromUriString(redirectUrl).build();
+		UriComponents request = UriComponentsBuilder.fromUriString(requestUrl).build();
+
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", request.getPath());
+		mockRequest.setServletPath(request.getPath());
+		mockRequest.addParameter(OAuth2ParameterNames.CODE, "code");
+		mockRequest.addParameter(OAuth2ParameterNames.STATE, "state");
+		mockRequest.setQueryString(request.getQuery());
+
+		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+
+		this.setUpAuthorizationRequest(mockRequest, mockResponse, redirect.toUriString(), this.registration1);
+		this.setUpAuthenticationResult(this.registration1);
+
+		this.filter.doFilter(mockRequest, mockResponse, filterChain);
+
+		String redirected = mockResponse.getRedirectedUrl();
+		return requestUrl.equals(redirected);
+	}
+
 	private void setUpAuthorizationRequest(HttpServletRequest request, HttpServletResponse response,
 											ClientRegistration registration) {
+		String redirectUri = request.getRequestURL().toString();
+		setUpAuthorizationRequest(request, response, redirectUri, registration);
+	}
+
+	private void setUpAuthorizationRequest(HttpServletRequest request, HttpServletResponse response,
+			String redirectUri, ClientRegistration registration) {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OAuth2ParameterNames.REGISTRATION_ID, registration.getRegistrationId());
 		OAuth2AuthorizationRequest authorizationRequest = request()
 				.additionalParameters(additionalParameters)
-				.redirectUri(request.getRequestURL().toString()).build();
+				.redirectUri(redirectUri).build();
 		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
 	}
 

@@ -41,6 +41,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.FilterChain;
@@ -48,6 +49,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A {@code Filter} for the OAuth 2.0 Authorization Code Grant,
@@ -77,6 +82,7 @@ import java.io.IOException;
  * </ul>
  *
  * @author Joe Grandja
+ * @author Tadaya Tsuyukubo
  * @since 5.1
  * @see OAuth2AuthorizationCodeAuthenticationToken
  * @see OAuth2AuthorizationCodeAuthenticationProvider
@@ -145,14 +151,104 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		if (authorizationRequest == null) {
 			return false;
 		}
-		String requestUrl = UrlUtils.buildFullRequestUrl(request.getScheme(), request.getServerName(),
-				request.getServerPort(), request.getRequestURI(), null);
 		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
-		if (requestUrl.equals(authorizationRequest.getRedirectUri()) &&
-				OAuth2AuthorizationResponseUtils.isAuthorizationResponse(params)) {
+
+		if (OAuth2AuthorizationResponseUtils.isAuthorizationResponse(params) &&
+				isValidRedirectUrl(request, authorizationRequest.getRedirectUri())) {
 			return true;
 		}
 		return false;
+	}
+
+	private boolean isValidRedirectUrl(HttpServletRequest httpServletRequest, String redirectUrl) {
+		UriComponents request = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(httpServletRequest))
+				.replaceQueryParam(OAuth2ParameterNames.CODE)
+				.replaceQueryParam(OAuth2ParameterNames.STATE)
+				.build();
+
+		UriComponents redirect = UriComponentsBuilder.fromUriString(redirectUrl).build();
+
+		// Simple check first
+		if (request.toUriString().equals(redirectUrl)) {
+			return true;
+		}
+
+		// Compare each part of url one by one
+
+		if (!Objects.equals(request.getScheme(), redirect.getScheme())) {
+			return false;
+		}
+
+		if (!Objects.equals(request.getUserInfo(), redirect.getUserInfo())) {
+			return false;
+		}
+
+		if (!Objects.equals(request.getHost(), redirect.getHost())) {
+			return false;
+		}
+
+		if (!Objects.equals(request.getPort(), redirect.getPort())) {
+			return false;
+		}
+
+		if (!Objects.equals(request.getPath(), redirect.getPath())) {
+			return false;
+		}
+
+		if (redirect.getQuery() == null) {
+			return true;  // no need to check request query params
+		}
+
+		// Compare request param/values are in exact order specified in redirect url.
+		// Request(Authorization Response) can have additional parameters appended which is allowed by spec.
+		// Since urls are hierarchical, UriComponents uses HierarchicalUriComponents which keeps the exact
+		// order of parameters.
+		MultiValueMap<String, String> requestParamMap = request.getQueryParams();
+		MultiValueMap<String, String> redirectParamMap = redirect.getQueryParams();
+
+		return containsRedirectUriParamsInOrder(requestParamMap, redirectParamMap);
+
+	}
+
+	private boolean containsRedirectUriParamsInOrder(MultiValueMap<String, String> requestMap, MultiValueMap<String, String> redirectMap) {
+		Iterator<Map.Entry<String, List<String>>> requestIterator = requestMap.entrySet().iterator();
+		Iterator<Map.Entry<String, List<String>>> redirectIterator = redirectMap.entrySet().iterator();
+
+		while (requestIterator.hasNext() && redirectIterator.hasNext()) {
+			Map.Entry<String, List<String>> requestEntry = requestIterator.next();
+			Map.Entry<String, List<String>> redirectEntry = redirectIterator.next();
+
+			String requestParam = requestEntry.getKey();
+			String redirectParam = redirectEntry.getKey();
+
+			if (!requestParam.equals(redirectParam)) {
+				return false;  // param doesn't match
+			}
+
+			List<String> requestValues = requestEntry.getValue();
+			List<String> redirectValues = redirectEntry.getValue();
+
+			if (requestValues.size() < redirectValues.size()) {
+				return false;  // request param values don't have ones specified in redirect param
+			}
+			// request may have additional param values; thus, iterate over redirect values
+			for (int i = 0; i < redirectValues.size(); i++) {
+				String requestValue = requestValues.get(i);
+				String redirectValue = redirectValues.get(i);
+
+				if (!requestValue.equals(redirectValue)) {
+					return false;  // request param value doesn't match
+				}
+			}
+		}
+
+		// request may have additional params which is ok by spec
+
+		if (redirectIterator.hasNext()) {
+			return false;  // request has less params than redirect params
+		}
+
+		return true;
 	}
 
 	private void processAuthorizationResponse(HttpServletRequest request, HttpServletResponse response)
@@ -166,7 +262,8 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 
 		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
 		String redirectUri = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
-				.replaceQuery(null)
+				.replaceQueryParam(OAuth2ParameterNames.CODE)
+				.replaceQueryParam(OAuth2ParameterNames.STATE)
 				.build()
 				.toUriString();
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(params, redirectUri);
