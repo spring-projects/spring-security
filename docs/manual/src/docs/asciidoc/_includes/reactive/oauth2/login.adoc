@@ -42,6 +42,9 @@ TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registra
 The *_registrationId_* is a unique identifier for the <<jc-oauth2login-client-registration,ClientRegistration>>.
 For our example, the `registrationId` is `google`.
 
+IMPORTANT: If the OAuth Client is running behind a proxy server, it is recommended to check <<appendix-proxy-server, Proxy Server Configuration>> to ensure the application is correctly configured.
+Also, see the supported <<oauth2Client-auth-code-redirect-uri, `URI` template variables>> for `redirect-uri`.
+
 [[webflux-oauth2-login-sample-config]]
 === Configure `application.yml`
 

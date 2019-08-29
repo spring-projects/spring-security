@@ -42,6 +42,9 @@ In the "Set a redirect URI" sub-section, ensure that the *Authorized redirect UR
 TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
 The *_registrationId_* is a unique identifier for the <<oauth2Client-client-registration,ClientRegistration>>.
 
+IMPORTANT: If the OAuth Client is running behind a proxy server, it is recommended to check <<appendix-proxy-server, Proxy Server Configuration>> to ensure the application is correctly configured.
+Also, see the supported <<oauth2Client-auth-code-redirect-uri, `URI` template variables>> for `redirect-uri`.
+
 
 [[oauth2login-sample-application-config]]
 ==== Configure application.yml

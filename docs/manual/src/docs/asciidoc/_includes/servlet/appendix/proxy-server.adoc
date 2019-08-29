@@ -9,3 +9,6 @@ To fix this you can use https://tools.ietf.org/html/rfc7239[RFC 7239] to specify
 To make the application aware of this, you need to either configure your application server aware of the X-Forwarded headers.
 For example Tomcat uses the https://tomcat.apache.org/tomcat-8.0-doc/api/org/apache/catalina/valves/RemoteIpValve.html[RemoteIpValve] and Jetty uses https://download.eclipse.org/jetty/stable-9/apidocs/org/eclipse/jetty/server/ForwardedRequestCustomizer.html[ForwardedRequestCustomizer].
 Alternatively, Spring 4.3+ users can leverage https://github.com/spring-projects/spring-framework/blob/v4.3.3.RELEASE/spring-web/src/main/java/org/springframework/web/filter/ForwardedHeaderFilter.java[ForwardedHeaderFilter].
+
+Spring Boot users may use the `server.use-forward-headers` property to configure the application.
+See the https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#howto-use-tomcat-behind-a-proxy-server[Spring Boot documentation] for further details.

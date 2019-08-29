@@ -43,6 +43,9 @@ In the "Set a redirect URI" sub-section, ensure that the *Authorized redirect UR
 TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
  The *_registrationId_* is a unique identifier for the `ClientRegistration`.
 
+IMPORTANT: If the application is running behind a proxy server, it is recommended to check https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#appendix-proxy-server[Proxy Server Configuration] to ensure the application is correctly configured.
+Also, see the supported https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#oauth2Client-auth-code-redirect-uri[`URI` template variables] for `redirect-uri`.
+
 [[google-application-config]]
 === Configure application.yml
 
@@ -106,6 +109,9 @@ and have granted access to the OAuth application on the _Authorize application_ 
 
 TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
  The *_registrationId_* is a unique identifier for the `ClientRegistration`.
+
+IMPORTANT: If the application is running behind a proxy server, it is recommended to check https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#appendix-proxy-server[Proxy Server Configuration] to ensure the application is correctly configured.
+Also, see the supported https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#oauth2Client-auth-code-redirect-uri[`URI` template variables] for `redirect-uri`.
 
 [[github-application-config]]
 === Configure application.yml
@@ -182,6 +188,9 @@ and have granted access to the application on the _Authorize application_ page.
 TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
  The *_registrationId_* is a unique identifier for the `ClientRegistration`.
 
+IMPORTANT: If the application is running behind a proxy server, it is recommended to check https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#appendix-proxy-server[Proxy Server Configuration] to ensure the application is correctly configured.
+Also, see the supported https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#oauth2Client-auth-code-redirect-uri[`URI` template variables] for `redirect-uri`.
+
 [[facebook-application-config]]
 === Configure application.yml
 
@@ -254,6 +263,9 @@ and have granted access to the application on the _Authorize application_ page.
 
 TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
  The *_registrationId_* is a unique identifier for the `ClientRegistration`.
+
+IMPORTANT: If the application is running behind a proxy server, it is recommended to check https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#appendix-proxy-server[Proxy Server Configuration] to ensure the application is correctly configured.
+Also, see the supported https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#oauth2Client-auth-code-redirect-uri[`URI` template variables] for `redirect-uri`.
 
 [[okta-assign-application-people]]
 === Assign Application to People

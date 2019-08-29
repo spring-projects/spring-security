@@ -430,6 +430,7 @@ If the client is running in an untrusted environment (eg. native application or 
 . `client-secret` is omitted (or empty)
 . `client-authentication-method` is set to "none" (`ClientAuthenticationMethod.NONE`)
 
+[[oauth2Client-auth-code-redirect-uri]]
 The `DefaultOAuth2AuthorizationRequestResolver` also supports `URI` template variables for the `redirect-uri` using `UriComponentsBuilder`.
 
 The following configuration uses all the supported `URI` template variables:
