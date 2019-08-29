@@ -99,6 +99,8 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 	private final RequestCache requestCache = new HttpSessionRequestCache();
+	private OAuth2AuthorizationCodeGrantFinalRedirectStrategy finalRedirectStrategy =
+			new DefaultOAuth2AuthorizationCodeGrantFinalRedirectStrategy(this.redirectStrategy, this.requestCache);
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationCodeGrantFilter} using the provided parameters.
@@ -126,6 +128,17 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
+	}
+
+	/**
+	 * Sets the final redirect strategy.
+	 *
+	 * @param finalRedirectStrategy the final redirect strategy
+	 * @since 5.2
+	 */
+	public final void setFinalRedirectStrategy(OAuth2AuthorizationCodeGrantFinalRedirectStrategy finalRedirectStrategy) {
+		Assert.notNull(finalRedirectStrategy, "finalRedirectStrategy cannot be null");
+		this.finalRedirectStrategy = finalRedirectStrategy;
 	}
 
 	@Override
@@ -206,13 +219,6 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, currentAuthentication, request, response);
 
-		String redirectUrl = authorizationResponse.getRedirectUri();
-		SavedRequest savedRequest = this.requestCache.getRequest(request, response);
-		if (savedRequest != null) {
-			redirectUrl = savedRequest.getRedirectUrl();
-			this.requestCache.removeRequest(request, response);
-		}
-
-		this.redirectStrategy.sendRedirect(request, response, redirectUrl);
+		this.finalRedirectStrategy.sendRedirect(request, response, authorizationRequest, authorizationResponse);
 	}
 }
