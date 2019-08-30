@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 			.queryParam(OAuth2ParameterNames.STATE, "state"));
 
 	@Test
-	public void loadAuthorizatioNRequestWhenNullExchangeThenIllegalArgumentException() {
+	public void loadAuthorizationRequestWhenNullExchangeThenIllegalArgumentException() {
 		this.exchange = null;
 		assertThatThrownBy(() -> this.repository.loadAuthorizationRequest(this.exchange))
 			.isInstanceOf(IllegalArgumentException.class);
@@ -104,36 +104,6 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 		StepVerifier.create(saveAndLoad)
 				.expectNext(this.authorizationRequest)
 				.verifyComplete();
-	}
-
-	@Test
-	public void multipleSavedAuthorizationRequestAndRedisCookie() {
-		String oldState = "state0";
-		MockServerHttpRequest oldRequest = MockServerHttpRequest.get("/")
-				.queryParam(OAuth2ParameterNames.STATE, oldState).build();
-
-		OAuth2AuthorizationRequest oldAuthorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
-				.authorizationUri("https://example.com/oauth2/authorize")
-				.clientId("client-id")
-				.redirectUri("http://localhost/client-1")
-				.state(oldState)
-				.build();
-
-		Map<String, Object> sessionAttrs = spy(new HashMap<>());
-		WebSession session = mock(WebSession.class);
-		when(session.getAttributes()).thenReturn(sessionAttrs);
-		WebSessionManager sessionManager = e -> Mono.just(session);
-
-		this.exchange = new DefaultServerWebExchange(this.exchange.getRequest(), new MockServerHttpResponse(), sessionManager,
-				ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
-		ServerWebExchange oldExchange = new DefaultServerWebExchange(oldRequest, new MockServerHttpResponse(), sessionManager,
-				ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
-
-		Mono<Void> saveAndSave = this.repository.saveAuthorizationRequest(oldAuthorizationRequest, oldExchange)
-				.then(this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange));
-
-		StepVerifier.create(saveAndSave).verifyComplete();
-		verify(sessionAttrs, times(2)).put(any(), any());
 	}
 
 	@Test
@@ -267,6 +237,44 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 		StepVerifier.create(this.repository.loadAuthorizationRequest(oldExchange))
 				.expectNext(oldAuthorizationRequest)
 				.verifyComplete();
+	}
+
+	// gh-7327
+	@Test
+	public void removeAuthorizationRequestWhenMultipleThenRemovedAndSessionAttributeUpdated() {
+		String oldState = "state0";
+		MockServerHttpRequest oldRequest = MockServerHttpRequest.get("/")
+				.queryParam(OAuth2ParameterNames.STATE, oldState).build();
+
+		OAuth2AuthorizationRequest oldAuthorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri("https://example.com/oauth2/authorize")
+				.clientId("client-id")
+				.redirectUri("http://localhost/client-1")
+				.state(oldState)
+				.build();
+
+		Map<String, Object> sessionAttrs = spy(new HashMap<>());
+		WebSession session = mock(WebSession.class);
+		when(session.getAttributes()).thenReturn(sessionAttrs);
+		WebSessionManager sessionManager = e -> Mono.just(session);
+
+		this.exchange = new DefaultServerWebExchange(this.exchange.getRequest(), new MockServerHttpResponse(), sessionManager,
+				ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
+		ServerWebExchange oldExchange = new DefaultServerWebExchange(oldRequest, new MockServerHttpResponse(), sessionManager,
+				ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
+
+		Mono<OAuth2AuthorizationRequest> saveAndSaveAndRemove = this.repository.saveAuthorizationRequest(oldAuthorizationRequest, oldExchange)
+				.then(this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange))
+				.then(this.repository.removeAuthorizationRequest(this.exchange));
+
+		StepVerifier.create(saveAndSaveAndRemove)
+				.expectNext(this.authorizationRequest)
+				.verifyComplete();
+
+		StepVerifier.create(this.repository.loadAuthorizationRequest(this.exchange))
+				.verifyComplete();
+
+		verify(sessionAttrs, times(3)).put(any(), any());
 	}
 
 	private void assertSessionStartedIs(boolean expected) {

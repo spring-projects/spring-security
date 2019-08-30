@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,6 +85,9 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 				OAuth2AuthorizationRequest removedValue = stateToAuthzRequest.remove(state);
 				if (stateToAuthzRequest.isEmpty()) {
 					sessionAttrs.remove(this.sessionAttributeName);
+				} else if (removedValue != null) {
+					// gh-7327 Overwrite the existing Map to ensure the state is saved for distributed sessions
+					sessionAttrs.put(this.sessionAttributeName, stateToAuthzRequest);
 				}
 				if (removedValue == null) {
 					sink.complete();
