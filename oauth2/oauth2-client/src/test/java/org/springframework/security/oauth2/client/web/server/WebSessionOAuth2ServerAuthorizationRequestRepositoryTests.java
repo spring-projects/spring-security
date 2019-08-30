@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 			.queryParam(OAuth2ParameterNames.STATE, "state"));
 
 	@Test
-	public void loadAuthorizatioNRequestWhenNullExchangeThenIllegalArgumentException() {
+	public void loadAuthorizationRequestWhenNullExchangeThenIllegalArgumentException() {
 		this.exchange = null;
 		assertThatThrownBy(() -> this.repository.loadAuthorizationRequest(this.exchange))
 			.isInstanceOf(IllegalArgumentException.class);
@@ -107,7 +107,7 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 	}
 
 	@Test
-	public void multipleSavedAuthorizationRequestAndRedisCookie() {
+	public void saveAndRemoveShouldPutSessionAttributesToSupportDistributedSession() {
 		String oldState = "state0";
 		MockServerHttpRequest oldRequest = MockServerHttpRequest.get("/")
 				.queryParam(OAuth2ParameterNames.STATE, oldState).build();
@@ -129,11 +129,12 @@ public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 		ServerWebExchange oldExchange = new DefaultServerWebExchange(oldRequest, new MockServerHttpResponse(), sessionManager,
 				ServerCodecConfigurer.create(), new AcceptHeaderLocaleContextResolver());
 
-		Mono<Void> saveAndSave = this.repository.saveAuthorizationRequest(oldAuthorizationRequest, oldExchange)
-				.then(this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange));
+		Mono<Void> saveAndSaveAndRemove = this.repository.saveAuthorizationRequest(oldAuthorizationRequest, oldExchange)
+				.then(this.repository.saveAuthorizationRequest(this.authorizationRequest, this.exchange))
+				.then(this.repository.removeAuthorizationRequest(this.exchange).then());
 
-		StepVerifier.create(saveAndSave).verifyComplete();
-		verify(sessionAttrs, times(2)).put(any(), any());
+		StepVerifier.create(saveAndSaveAndRemove).verifyComplete();
+		verify(sessionAttrs, times(3)).put(any(), any());
 	}
 
 	@Test
