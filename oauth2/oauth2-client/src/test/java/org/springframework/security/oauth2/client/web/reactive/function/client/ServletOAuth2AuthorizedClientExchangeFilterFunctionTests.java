@@ -61,7 +61,10 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.CoreSubscriber;
+import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
 
 import java.net.URI;
 import java.time.Duration;
@@ -74,6 +77,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -124,9 +128,10 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	}
 
 	@After
-	public void cleanup() {
+	public void cleanup() throws Exception {
 		SecurityContextHolder.clearContext();
 		RequestContextHolder.resetRequestAttributes();
+		this.function.destroy();
 	}
 
 	@Test
@@ -634,6 +639,90 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(request.url().toASCIIString()).isEqualTo("https://example.com");
 		assertThat(request.method()).isEqualTo(HttpMethod.GET);
 		assertThat(getBody(request)).isEmpty();
+	}
+
+	// gh-7228
+	@Test
+	public void afterPropertiesSetWhenHooksInitAndOutsideWebSecurityContextThenShouldNotThrowException() throws Exception {
+		this.function.afterPropertiesSet();			// Hooks.onLastOperator() initialized
+		assertThatCode(() -> Mono.subscriberContext().block())
+				.as("RequestContext Hook brakes application outside of web/security context")
+				.doesNotThrowAnyException();
+	}
+
+	@Test
+	public void createRequestContextSubscriberIfNecessaryWhenOutsideWebSecurityContextThenReturnOriginalSubscriber() throws Exception {
+		BaseSubscriber<Object> originalSubscriber = new BaseSubscriber<Object>() {};
+		CoreSubscriber<Object> resultSubscriber = this.function.createRequestContextSubscriberIfNecessary(originalSubscriber);
+		assertThat(resultSubscriber).isSameAs(originalSubscriber);
+	}
+
+	// gh-7228
+	@Test
+	public void createRequestContextSubscriberWhenRequestResponseProvidedThenCreateWithParentContext() throws Exception {
+		testRequestContextSubscriber(new MockHttpServletRequest(), new MockHttpServletResponse(), null);
+	}
+
+	// gh-7228
+	@Test
+	public void createRequestContextSubscriberWhenAuthenticationProvidedThenCreateWithParentContext() throws Exception {
+		testRequestContextSubscriber(null, null, this.authentication);
+	}
+
+	@Test
+	public void createRequestContextSubscriberWhenParentContextHasDataHolderThenShouldReuseParentContext() throws Exception {
+		RequestContextDataHolder testValue = new RequestContextDataHolder(null, null, null);
+		final Context parentContext = Context.of(RequestContextSubscriber.REQUEST_CONTEXT_DATA_HOLDER, testValue);
+		BaseSubscriber<Object> parent = new BaseSubscriber<Object>() {
+			@Override
+			public Context currentContext() {
+				return parentContext;
+			}
+		};
+
+		RequestContextSubscriber<Object> requestContextSubscriber =
+				new RequestContextSubscriber<>(parent, null, null, authentication);
+
+		Context resultContext = requestContextSubscriber.currentContext();
+
+		assertThat(resultContext)
+				.describedAs("parent context was replaced")
+				.isSameAs(parentContext);
+	}
+
+	private void testRequestContextSubscriber(MockHttpServletRequest servletRequest,
+											MockHttpServletResponse servletResponse,
+											Authentication authentication) {
+		String testKey = "test_key";
+		String testValue = "test_value";
+
+		BaseSubscriber<Object> parent = new BaseSubscriber<Object>() {
+			@Override
+			public Context currentContext() {
+				return Context.of(testKey, testValue);
+			}
+		};
+
+		RequestContextSubscriber<Object> requestContextSubscriber =
+				new RequestContextSubscriber<>(parent, servletRequest, servletResponse, authentication);
+
+		Context resultContext = requestContextSubscriber.currentContext();
+
+		assertThat(resultContext)
+				.describedAs("result context is null")
+				.isNotNull();
+
+		assertThat(resultContext.getOrEmpty(testKey))
+				.describedAs("context is replaced")
+				.hasValue(testValue);
+
+		Object dataHolder = resultContext.getOrDefault(RequestContextSubscriber.REQUEST_CONTEXT_DATA_HOLDER, null);
+		assertThat(dataHolder)
+				.describedAs("context is not populated with REQUEST_CONTEXT_DATA_HOLDER")
+				.isNotNull()
+				.hasFieldOrPropertyWithValue("request", servletRequest)
+				.hasFieldOrPropertyWithValue("response", servletResponse)
+				.hasFieldOrPropertyWithValue("authentication", authentication);
 	}
 
 	private static String getBody(ClientRequest request) {
