@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.client.authentication;
 
 import java.util.Collections;
 
+import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,6 +33,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -113,7 +115,10 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationSuccessResponseThenExchangedForAccessToken() {
-		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().refreshToken("refresh").build();
+		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse()
+				.refreshToken("refresh")
+				.additionalParameters(Maps.newHashMap("foo", "FOO"))
+				.build();
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
@@ -131,5 +136,6 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 		assertThat(authenticationResult.getAuthorizationExchange()).isEqualTo(authorizationExchange);
 		assertThat(authenticationResult.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
 		assertThat(authenticationResult.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
+		assertThat(authenticationResult.getAdditionalParameters()).containsExactly(entry("foo", "FOO"));
 	}
 }

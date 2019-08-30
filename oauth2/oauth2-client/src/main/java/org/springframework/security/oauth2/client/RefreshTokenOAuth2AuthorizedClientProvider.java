@@ -90,7 +90,8 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 				this.accessTokenResponseClient.getTokenResponse(refreshTokenGrantRequest);
 
 		return new OAuth2AuthorizedClient(context.getAuthorizedClient().getClientRegistration(),
-				context.getPrincipal().getName(), tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+				context.getPrincipal().getName(), tokenResponse.getAccessToken(), tokenResponse.getRefreshToken(),
+				tokenResponse.getAdditionalParameters());
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {

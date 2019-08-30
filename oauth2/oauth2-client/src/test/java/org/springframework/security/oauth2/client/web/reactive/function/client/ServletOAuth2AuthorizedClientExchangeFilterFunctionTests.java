@@ -77,6 +77,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -279,7 +280,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				accessTokenExpiresAt);
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, refreshToken);
+				"principalName", this.accessToken, refreshToken, Collections.emptyMap());
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
@@ -337,7 +338,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				accessTokenExpiresAt);
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, refreshToken);
+				"principalName", this.accessToken, refreshToken, Collections.emptyMap());
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
@@ -369,7 +370,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void filterWhenClientCredentialsTokenNotExpiredThenUseCurrentToken() {
 		this.registration = TestClientRegistrations.clientCredentials().build();
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, null);
+				"principalName", this.accessToken, null, Collections.emptyMap());
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
@@ -411,7 +412,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				accessTokenExpiresAt);
 
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, null);
+				"principalName", this.accessToken, null, Collections.emptyMap());
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
@@ -451,7 +452,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				this.accessToken.getTokenValue(), issuedAt, accessTokenExpiresAt);
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", issuedAt);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, refreshToken);
+				"principalName", this.accessToken, refreshToken, Collections.emptyMap());
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))
@@ -501,7 +502,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void filterWhenNotExpiredThenShouldRefreshFalse() {
 		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
-				"principalName", this.accessToken, refreshToken);
+				"principalName", this.accessToken, refreshToken, Collections.emptyMap());
 
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.attributes(oauth2AuthorizedClient(authorizedClient))

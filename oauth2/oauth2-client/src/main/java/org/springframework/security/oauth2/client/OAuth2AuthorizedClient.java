@@ -23,6 +23,8 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * A representation of an OAuth 2.0 &quot;Authorized Client&quot;.
@@ -46,6 +48,7 @@ public class OAuth2AuthorizedClient implements Serializable {
 	private final String principalName;
 	private final OAuth2AccessToken accessToken;
 	private final OAuth2RefreshToken refreshToken;
+	private final Map<String, Object> additionalParameters;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClient} using the provided parameters.
@@ -55,7 +58,7 @@ public class OAuth2AuthorizedClient implements Serializable {
 	 * @param accessToken the access token credential granted
 	 */
 	public OAuth2AuthorizedClient(ClientRegistration clientRegistration, String principalName, OAuth2AccessToken accessToken) {
-		this(clientRegistration, principalName, accessToken, null);
+		this(clientRegistration, principalName, accessToken, null, Collections.emptyMap());
 	}
 
 	/**
@@ -65,16 +68,20 @@ public class OAuth2AuthorizedClient implements Serializable {
 	 * @param principalName the name of the End-User {@code Principal} (Resource Owner)
 	 * @param accessToken the access token credential granted
 	 * @param refreshToken the refresh token credential granted
+	 * @param additionalParameters the additional parameters granted
 	 */
 	public OAuth2AuthorizedClient(ClientRegistration clientRegistration, String principalName,
-									OAuth2AccessToken accessToken, @Nullable OAuth2RefreshToken refreshToken) {
+									OAuth2AccessToken accessToken, @Nullable OAuth2RefreshToken refreshToken,
+									Map<String, Object> additionalParameters) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		Assert.notNull(accessToken, "accessToken cannot be null");
+		Assert.notNull(accessToken, "additionalParameters cannot be null");
 		this.clientRegistration = clientRegistration;
 		this.principalName = principalName;
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
+		this.additionalParameters = additionalParameters;
 	}
 
 	/**
@@ -112,5 +119,15 @@ public class OAuth2AuthorizedClient implements Serializable {
 	 */
 	public @Nullable OAuth2RefreshToken getRefreshToken() {
 		return this.refreshToken;
+	}
+
+	/**
+	 * Returns the additional parameters granted.
+	 *
+	 * @since 5.2
+	 * @return the additional parameters
+	 */
+	public Map<String, Object> getAdditionalParameters() {
+		return this.additionalParameters;
 	}
 }

@@ -82,7 +82,8 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 		OAuth2AccessTokenResponse tokenResponse =
 				this.accessTokenResponseClient.getTokenResponse(clientCredentialsGrantRequest);
 
-		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(), tokenResponse.getAccessToken());
+		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(), tokenResponse.getAccessToken(),
+				null, tokenResponse.getAdditionalParameters());
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {

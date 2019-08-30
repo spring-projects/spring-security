@@ -78,7 +78,8 @@ public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider imple
 		return Mono.just(new OAuth2ClientCredentialsGrantRequest(clientRegistration))
 				.flatMap(this.accessTokenResponseClient::getTokenResponse)
 				.map(tokenResponse -> new OAuth2AuthorizedClient(
-						clientRegistration, context.getPrincipal().getName(), tokenResponse.getAccessToken()));
+						clientRegistration, context.getPrincipal().getName(), tokenResponse.getAccessToken(),
+						null, tokenResponse.getAdditionalParameters()));
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {

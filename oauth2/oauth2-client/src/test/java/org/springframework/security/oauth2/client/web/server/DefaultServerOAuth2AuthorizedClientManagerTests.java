@@ -80,7 +80,7 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.principal = new TestingAuthenticationToken("principal", "password");
 		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration, this.principal.getName(),
-				TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken(), Collections.emptyMap());
 		this.serverWebExchange = MockServerWebExchange.builder(MockServerHttpRequest.get("/")).build();
 		this.authorizationContextCaptor = ArgumentCaptor.forClass(OAuth2AuthorizationContext.class);
 	}
@@ -188,7 +188,7 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(
 				this.clientRegistration, this.principal.getName(),
-				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken(), Collections.emptyMap());
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.just(reauthorizedClient));
 
@@ -234,7 +234,7 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 	public void reauthorizeWhenSupportedProviderThenReauthorized() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(
 				this.clientRegistration, this.principal.getName(),
-				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken(), Collections.emptyMap());
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.just(reauthorizedClient));
 
@@ -260,7 +260,7 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 	public void reauthorizeWhenRequestScopeParameterThenMappedToContext() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(
 				this.clientRegistration, this.principal.getName(),
-				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken(), Collections.emptyMap());
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.just(reauthorizedClient));
 

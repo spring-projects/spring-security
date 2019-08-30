@@ -34,6 +34,7 @@ import org.springframework.web.client.RestOperations;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -96,7 +97,8 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 				TestClientRegistrations.clientRegistration().build(),
 				this.principal.getName(),
 				expiredAccessToken(),
-				TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2RefreshTokens.refreshToken(),
+				Collections.emptyMap());
 
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
@@ -151,7 +153,8 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 				clientRegistration,
 				this.principal.getName(),
 				expiredAccessToken(),
-				TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2RefreshTokens.refreshToken(),
+				Collections.emptyMap());
 
 		OAuth2AuthorizationContext refreshTokenContext =
 				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)

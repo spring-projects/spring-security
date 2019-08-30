@@ -26,6 +26,8 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 
+import java.util.Collections;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -39,7 +41,7 @@ public class OAuth2AuthorizeRequestTests {
 	private Authentication principal = new TestingAuthenticationToken("principal", "password");
 	private OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 			this.clientRegistration, this.principal.getName(),
-			TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken());
+			TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken(), Collections.emptyMap());
 	private MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 	private MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 

@@ -43,6 +43,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 
 /**
  * An implementation of an {@link AbstractAuthenticationProcessingFilter} for OAuth 2.0 Login.
@@ -196,7 +197,8 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			authenticationResult.getClientRegistration(),
 			oauth2Authentication.getName(),
 			authenticationResult.getAccessToken(),
-			authenticationResult.getRefreshToken());
+			authenticationResult.getRefreshToken(),
+			Collections.emptyMap());
 
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, oauth2Authentication, request, response);
 

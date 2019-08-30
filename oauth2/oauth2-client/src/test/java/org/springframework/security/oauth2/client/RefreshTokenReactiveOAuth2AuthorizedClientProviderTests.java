@@ -34,6 +34,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,7 +66,7 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 		OAuth2AccessToken expiredAccessToken = new OAuth2AccessToken(
 				OAuth2AccessToken.TokenType.BEARER, "access-token-1234", issuedAt, expiresAt);
 		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration, this.principal.getName(),
-				expiredAccessToken, TestOAuth2RefreshTokens.refreshToken());
+				expiredAccessToken, TestOAuth2RefreshTokens.refreshToken(), Collections.emptyMap());
 	}
 
 	@Test
@@ -127,7 +128,8 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	@Test
 	public void authorizeWhenAuthorizedAndAccessTokenNotExpiredThenNotReauthorize() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
-				this.principal.getName(), TestOAuth2AccessTokens.noScopes(), this.authorizedClient.getRefreshToken());
+				this.principal.getName(), TestOAuth2AccessTokens.noScopes(), this.authorizedClient.getRefreshToken(),
+				Collections.emptyMap());
 
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)

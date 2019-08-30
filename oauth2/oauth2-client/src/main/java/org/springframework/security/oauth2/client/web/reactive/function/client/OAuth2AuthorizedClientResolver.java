@@ -142,7 +142,7 @@ class OAuth2AuthorizedClientResolver {
 
 	private Mono<OAuth2AuthorizedClient> clientCredentialsResponse(ClientRegistration clientRegistration, Authentication authentication, ServerWebExchange exchange, OAuth2AccessTokenResponse tokenResponse) {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				clientRegistration, authentication.getName(), tokenResponse.getAccessToken());
+				clientRegistration, authentication.getName(), tokenResponse.getAccessToken(), null, tokenResponse.getAdditionalParameters());
 		return this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, authentication, exchange)
 				.thenReturn(authorizedClient);
 	}

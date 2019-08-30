@@ -26,6 +26,8 @@ import org.springframework.security.web.server.authentication.AuthenticationWebF
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+
 /**
  * A specialized {@link AuthenticationWebFilter} that converts from an {@link OAuth2LoginAuthenticationToken} to an
  * {@link OAuth2AuthenticationToken} and saves the {@link OAuth2AuthorizedClient}
@@ -59,7 +61,8 @@ public class OAuth2LoginAuthenticationWebFilter extends AuthenticationWebFilter 
 				authenticationResult.getClientRegistration(),
 				authenticationResult.getName(),
 				authenticationResult.getAccessToken(),
-				authenticationResult.getRefreshToken());
+				authenticationResult.getRefreshToken(),
+				Collections.emptyMap());
 		OAuth2AuthenticationToken result =  new OAuth2AuthenticationToken(
 				authenticationResult.getPrincipal(),
 				authenticationResult.getAuthorities(),

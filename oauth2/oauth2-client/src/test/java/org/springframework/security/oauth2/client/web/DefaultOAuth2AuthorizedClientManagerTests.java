@@ -32,6 +32,7 @@ import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
+import java.util.Collections;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +71,8 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
 		this.principal = new TestingAuthenticationToken("principal", "password");
 		this.authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration, this.principal.getName(),
-				TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2AccessTokens.scopes("read", "write"), TestOAuth2RefreshTokens.refreshToken(),
+				Collections.emptyMap());
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.authorizationContextCaptor = ArgumentCaptor.forClass(OAuth2AuthorizationContext.class);
@@ -178,7 +180,7 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(
 				this.clientRegistration, this.principal.getName(),
-				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken(), Collections.emptyMap());
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(reauthorizedClient);
 
@@ -224,7 +226,7 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 	public void reauthorizeWhenSupportedProviderThenReauthorized() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(
 				this.clientRegistration, this.principal.getName(),
-				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken(), Collections.emptyMap());
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(reauthorizedClient);
 
@@ -250,7 +252,7 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 	public void reauthorizeWhenRequestScopeParameterThenMappedToContext() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(
 				this.clientRegistration, this.principal.getName(),
-				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2AccessTokens.noScopes(), TestOAuth2RefreshTokens.refreshToken(), Collections.emptyMap());
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(reauthorizedClient);
 

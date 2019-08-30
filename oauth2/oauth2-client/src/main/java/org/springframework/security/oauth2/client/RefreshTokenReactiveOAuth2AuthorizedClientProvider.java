@@ -89,7 +89,7 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider implements
 		return Mono.just(refreshTokenGrantRequest)
 				.flatMap(this.accessTokenResponseClient::getTokenResponse)
 				.map(tokenResponse -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
-						tokenResponse.getAccessToken(), tokenResponse.getRefreshToken()));
+						tokenResponse.getAccessToken(), tokenResponse.getRefreshToken(), tokenResponse.getAdditionalParameters()));
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {

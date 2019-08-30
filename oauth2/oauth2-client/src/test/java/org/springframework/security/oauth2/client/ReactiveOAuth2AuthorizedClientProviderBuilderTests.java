@@ -34,6 +34,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -103,7 +104,8 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 				this.clientRegistrationBuilder.build(),
 				this.principal.getName(),
 				expiredAccessToken(),
-				TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2RefreshTokens.refreshToken(),
+				Collections.emptyMap());
 
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
@@ -180,7 +182,8 @@ public class ReactiveOAuth2AuthorizedClientProviderBuilderTests {
 				this.clientRegistrationBuilder.build(),
 				this.principal.getName(),
 				expiredAccessToken(),
-				TestOAuth2RefreshTokens.refreshToken());
+				TestOAuth2RefreshTokens.refreshToken(),
+				Collections.emptyMap());
 
 		OAuth2AuthorizationContext refreshTokenContext =
 				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)

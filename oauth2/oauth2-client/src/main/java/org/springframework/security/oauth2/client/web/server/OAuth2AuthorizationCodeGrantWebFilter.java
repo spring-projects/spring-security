@@ -155,7 +155,8 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 				authenticationResult.getClientRegistration(),
 				authenticationResult.getName(),
 				authenticationResult.getAccessToken(),
-				authenticationResult.getRefreshToken());
+				authenticationResult.getRefreshToken(),
+				authenticationResult.getAdditionalParameters());
 		return this.authenticationSuccessHandler
 					.onAuthenticationSuccess(webFilterExchange, authentication)
 					.then(ReactiveSecurityContextHolder.getContext()

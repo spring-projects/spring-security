@@ -73,7 +73,8 @@ public class OAuth2AuthorizationCodeAuthenticationProvider implements Authentica
 				authorizationCodeAuthentication.getClientRegistration(),
 				authorizationCodeAuthentication.getAuthorizationExchange(),
 				accessTokenResponse.getAccessToken(),
-				accessTokenResponse.getRefreshToken());
+				accessTokenResponse.getRefreshToken(),
+				accessTokenResponse.getAdditionalParameters());
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;
