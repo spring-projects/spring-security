@@ -17,6 +17,8 @@ package org.springframework.security.oauth2.client.oidc.authentication;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
+import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -24,13 +26,12 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -47,13 +48,20 @@ public class OidcIdTokenValidatorTests {
 	private Instant issuedAt = Instant.now();
 	private Instant expiresAt = this.issuedAt.plusSeconds(3600);
 	private Duration clockSkew = Duration.ofSeconds(60);
-
+	private StringKeyGenerator randomKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+	private String nonce = this.randomKeyGenerator.generateKey();
 	@Before
 	public void setup() {
 		this.headers.put("alg", JwsAlgorithms.RS256);
 		this.claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
 		this.claims.put(IdTokenClaimNames.SUB, "rob");
 		this.claims.put(IdTokenClaimNames.AUD, Collections.singletonList("client-id"));
+		try {
+			this.claims.put(IdTokenClaimNames.NONCE, createHash(nonce));
+		} catch (NoSuchAlgorithmException e) {
+			// MH: Sanity check, please
+			e.printStackTrace();
+		}
 	}
 
 	@Test
@@ -101,6 +109,15 @@ public class OidcIdTokenValidatorTests {
 				.hasSize(1)
 				.extracting(OAuth2Error::getDescription)
 				.allMatch(msg -> msg.contains(IdTokenClaimNames.AUD));
+	}
+
+	@Test
+	public void validateWhenNonceNullThenHasErrors() {
+		this.claims.remove(IdTokenClaimNames.NONCE);
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.NONCE));
 	}
 
 	@Test
@@ -165,6 +182,13 @@ public class OidcIdTokenValidatorTests {
 				.allMatch(msg -> msg.contains(IdTokenClaimNames.AUD));
 	}
 
+/*
+	@Test
+	public void validateWhenNonceHashMatchesThenErrors() {
+		assertThat(this.validateIdToken()).isEmpty();
+	}
+*/
+
 	@Test
 	public void validateWhenExpiredAnd60secClockSkewThenNoErrors() {
 		this.issuedAt = Instant.now().minus(Duration.ofSeconds(60));
@@ -218,6 +242,7 @@ public class OidcIdTokenValidatorTests {
 	public void validateWhenMissingClaimsThenHasErrors() {
 		this.claims.remove(IdTokenClaimNames.SUB);
 		this.claims.remove(IdTokenClaimNames.AUD);
+		this.claims.remove(IdTokenClaimNames.NONCE);
 		this.issuedAt = null;
 		this.expiresAt = null;
 		assertThat(this.validateIdToken())
@@ -226,7 +251,8 @@ public class OidcIdTokenValidatorTests {
 				.allMatch(msg -> msg.contains(IdTokenClaimNames.SUB))
 				.allMatch(msg -> msg.contains(IdTokenClaimNames.AUD))
 				.allMatch(msg -> msg.contains(IdTokenClaimNames.IAT))
-				.allMatch(msg -> msg.contains(IdTokenClaimNames.EXP));
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.EXP))
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.NONCE));
 	}
 
 	@Test
@@ -241,8 +267,14 @@ public class OidcIdTokenValidatorTests {
 
 	private Collection<OAuth2Error> validateIdToken() {
 		Jwt idToken = new Jwt("token123", this.issuedAt, this.expiresAt, this.headers, this.claims);
-		OidcIdTokenValidator validator = new OidcIdTokenValidator(this.registration.build());
+		OidcIdTokenValidator validator = new OidcIdTokenValidator(this.registration.build(), nonce);
 		validator.setClockSkew(this.clockSkew);
 		return validator.validate(idToken).getErrors();
+	}
+
+	private String createHash(String nonce) throws NoSuchAlgorithmException {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		byte[] digest = md.digest(nonce.getBytes(StandardCharsets.US_ASCII));
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
 }

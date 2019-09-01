@@ -27,8 +27,12 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,12 +51,20 @@ import java.util.Map;
 public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	private static final Duration DEFAULT_CLOCK_SKEW = Duration.ofSeconds(60);
 	private final ClientRegistration clientRegistration;
+	private String nonce = "";
 	private Duration clockSkew = DEFAULT_CLOCK_SKEW;
 
 	public OidcIdTokenValidator(ClientRegistration clientRegistration) {
+		this(clientRegistration, "");
+	}
+
+	public OidcIdTokenValidator(ClientRegistration clientRegistration, String nonce) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		this.clientRegistration = clientRegistration;
+
+		this.nonce = nonce;
 	}
+
 
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt idToken) {
@@ -112,7 +124,18 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		// that it is the same value as the one that was sent in the Authentication Request.
 		// The Client SHOULD check the nonce value for replay attacks.
 		// The precise method for detecting replay attacks is Client specific.
-		// TODO Depends on gh-4442
+		// Depends on gh-4442
+			String nonceHash = "";
+			try {
+				nonceHash = createHash(nonce);
+			} catch (NoSuchAlgorithmException e) {
+				//e.printStackTrace();
+				// MH: ???
+			}
+			String nonceClaim = idToken.getClaim(IdTokenClaimNames.NONCE);
+			if (nonceClaim == null || !nonceClaim.equals(nonceHash)) {
+				invalidClaims.put(IdTokenClaimNames.NONCE, idToken.getClaim(IdTokenClaimNames.NONCE));
+			}
 
 		if (!invalidClaims.isEmpty()) {
 			return OAuth2TokenValidatorResult.failure(invalidIdToken(invalidClaims));
@@ -156,6 +179,11 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		if (CollectionUtils.isEmpty(audience)) {
 			requiredClaims.put(IdTokenClaimNames.AUD, audience);
 		}
+		//String nonce = idToken.getNonce();	MH: We should be using OidcToken for this instead of Jwt. See DefaultOidcIdTokenValidatorFactory
+		String nonce = idToken.getClaim(IdTokenClaimNames.NONCE);
+		if (nonce == null) {
+			requiredClaims.put(IdTokenClaimNames.NONCE, nonce);
+		}
 		Instant expiresAt = idToken.getExpiresAt();
 		if (expiresAt == null) {
 			requiredClaims.put(IdTokenClaimNames.EXP, expiresAt);
@@ -167,4 +195,11 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 
 		return requiredClaims;
 	}
+
+	private String createHash(String nonce) throws NoSuchAlgorithmException {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		byte[] digest = md.digest(nonce.getBytes(StandardCharsets.US_ASCII));
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
+	}
+
 }
