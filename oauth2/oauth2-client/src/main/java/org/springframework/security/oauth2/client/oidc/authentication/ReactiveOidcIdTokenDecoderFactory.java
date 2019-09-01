@@ -57,6 +57,7 @@ import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.w
  *
  * @author Joe Grandja
  * @author Rafael Dominguez
+ * @author Mark Heckler
  * @since 5.2
  * @see ReactiveJwtDecoderFactory
  * @see ClientRegistration
@@ -88,12 +89,14 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 		Converter<Object, ?> booleanConverter = getConverter(TypeDescriptor.valueOf(Boolean.class));
 		Converter<Object, ?> instantConverter = getConverter(TypeDescriptor.valueOf(Instant.class));
 		Converter<Object, ?> urlConverter = getConverter(TypeDescriptor.valueOf(URL.class));
+		Converter<Object, ?> stringConverter = getConverter(TypeDescriptor.valueOf(String.class));
 		Converter<Object, ?> collectionStringConverter = getConverter(
 				TypeDescriptor.collection(Collection.class, TypeDescriptor.valueOf(String.class)));
 
 		Map<String, Converter<Object, ?>> claimTypeConverters = new HashMap<>();
 		claimTypeConverters.put(IdTokenClaimNames.ISS, urlConverter);
 		claimTypeConverters.put(IdTokenClaimNames.AUD, collectionStringConverter);
+		claimTypeConverters.put(IdTokenClaimNames.NONCE, stringConverter);
 		claimTypeConverters.put(IdTokenClaimNames.EXP, instantConverter);
 		claimTypeConverters.put(IdTokenClaimNames.IAT, instantConverter);
 		claimTypeConverters.put(IdTokenClaimNames.AUTH_TIME, instantConverter);

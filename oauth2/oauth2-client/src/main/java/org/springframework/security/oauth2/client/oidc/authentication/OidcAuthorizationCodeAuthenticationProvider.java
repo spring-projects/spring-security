@@ -43,6 +43,10 @@ import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.util.Assert;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
 
@@ -61,6 +65,7 @@ import java.util.Map;
  * to complete the authentication.
  *
  * @author Joe Grandja
+ * @author Mark Heckler
  * @since 5.0
  * @see OAuth2LoginAuthenticationToken
  * @see OAuth2AccessTokenResponseClient
@@ -75,6 +80,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
+	private static final String INVALID_NONCE_ERROR_CODE = "invalid_nonce";
 	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 	private final OAuth2UserService<OidcUserRequest, OidcUser> userService;
 	private JwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new OidcIdTokenDecoderFactory();
@@ -152,7 +158,23 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 				null);
 			throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString());
 		}
-		OidcIdToken idToken = createOidcToken(clientRegistration, accessTokenResponse);
+			OidcIdToken idToken = createOidcToken(clientRegistration, accessTokenResponse);
+
+		String requestNonce = authorizationRequest.getAttribute(OidcParameterNames.NONCE);
+		if (requestNonce != null) {
+			String nonceHash;
+
+			try {
+				nonceHash = createHash(requestNonce);
+			} catch (NoSuchAlgorithmException e) {
+				throw new OAuth2AuthenticationException(new OAuth2Error(INVALID_NONCE_ERROR_CODE));
+			}
+
+			String nonceHashClaim = idToken.getClaim(OidcParameterNames.NONCE);
+			if (nonceHashClaim == null || !nonceHashClaim.equals(nonceHash)) {
+				throw new OAuth2AuthenticationException(new OAuth2Error(INVALID_NONCE_ERROR_CODE));
+			}
+		}
 
 		OidcUser oidcUser = this.userService.loadUser(new OidcUserRequest(
 				clientRegistration, accessTokenResponse.getAccessToken(), idToken, additionalParameters));
@@ -210,5 +232,11 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		}
 		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 		return idToken;
+	}
+
+	private String createHash(String nonce) throws NoSuchAlgorithmException {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		byte[] digest = md.digest(nonce.getBytes(StandardCharsets.US_ASCII));
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
 }

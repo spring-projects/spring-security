@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import static org.mockito.Mockito.*;
  * Tests for {@link OAuth2AuthorizationRequestRedirectFilter}.
  *
  * @author Joe Grandja
+ * @author Mark Heckler
  */
 public class OAuth2AuthorizationRequestRedirectFilterTests {
 	private ClientRegistration registration1;
@@ -154,7 +155,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
 				"response_type=code&client_id=client-id&" +
 				"scope=read:user&state=.{15,}&" +
-				"redirect_uri=http://localhost/login/oauth2/code/registration-id");
+				"redirect_uri=http://localhost/login/oauth2/code/registration-id&" +
+				"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -234,7 +236,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
 				"response_type=code&client_id=client-id&" +
 				"scope=read:user&state=.{15,}&" +
-				"redirect_uri=http://localhost/login/oauth2/code/registration-id");
+				"redirect_uri=http://localhost/login/oauth2/code/registration-id&" +
+				"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -255,7 +258,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
 				"response_type=code&client_id=client-id&" +
 				"scope=read:user&state=.{15,}&" +
-				"redirect_uri=http://localhost/authorize/oauth2/code/registration-id");
+				"redirect_uri=http://localhost/authorize/oauth2/code/registration-id&" +
+				"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 		verify(this.requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -359,6 +363,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 				"response_type=code&client_id=client-id&" +
 				"scope=read:user&state=.{15,}&" +
 				"redirect_uri=http://localhost/login/oauth2/code/registration-id&" +
+				"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" +
 				"login_hint=user@provider\\.com");
 	}
 }

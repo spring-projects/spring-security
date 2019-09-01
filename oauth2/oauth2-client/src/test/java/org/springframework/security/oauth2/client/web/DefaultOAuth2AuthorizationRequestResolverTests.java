@@ -24,10 +24,8 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponseType;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
+import org.springframework.security.oauth2.core.endpoint.*;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -37,6 +35,7 @@ import static org.assertj.core.api.Assertions.entry;
  * Tests for {@link DefaultOAuth2AuthorizationRequestResolver}.
  *
  * @author Joe Grandja
+ * @author Mark Heckler
  */
 public class DefaultOAuth2AuthorizationRequestResolverTests {
 	private ClientRegistration registration1;
@@ -119,12 +118,14 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		assertThat(authorizationRequest.getState()).isNotNull();
 		assertThat(authorizationRequest.getAdditionalParameters()).doesNotContainKey(OAuth2ParameterNames.REGISTRATION_ID);
 		assertThat(authorizationRequest.getAttributes())
-				.containsExactly(entry(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
+				.containsOnlyKeys(OAuth2ParameterNames.REGISTRATION_ID, IdTokenClaimNames.NONCE)
+				.contains(entry(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 				.matches("https://example.com/login/oauth/authorize\\?" +
 						"response_type=code&client_id=client-id&" +
 						"scope=read:user&state=.{15,}&" +
-						"redirect_uri=http://localhost/login/oauth2/code/registration-id");
+						"redirect_uri=http://localhost/login/oauth2/code/registration-id&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -137,7 +138,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request, clientRegistration.getRegistrationId());
 		assertThat(authorizationRequest).isNotNull();
 		assertThat(authorizationRequest.getAttributes())
-				.containsExactly(entry(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
+				.containsOnlyKeys(OAuth2ParameterNames.REGISTRATION_ID, IdTokenClaimNames.NONCE)
+				.contains(entry(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
 	}
 
 	@Test
@@ -259,7 +261,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				.matches("https://example.com/login/oauth/authorize\\?" +
 						"response_type=code&client_id=client-id&" +
 						"scope=read:user&state=.{15,}&" +
-						"redirect_uri=http://localhost/login/oauth2/code/registration-id");
+						"redirect_uri=http://localhost/login/oauth2/code/registration-id&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -277,7 +280,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				.matches("https://example.com/login/oauth/authorize\\?" +
 						"response_type=code&client_id=client-id&" +
 						"scope=read:user&state=.{15,}&" +
-						"redirect_uri=https://example.com/login/oauth2/code/registration-id");
+						"redirect_uri=https://example.com/login/oauth2/code/registration-id&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -292,7 +296,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				.matches("https://example.com/login/oauth/authorize\\?" +
 						"response_type=code&client_id=client-id&" +
 						"scope=read:user&state=.{15,}&" +
-						"redirect_uri=http://localhost/authorize/oauth2/code/registration-id");
+						"redirect_uri=http://localhost/authorize/oauth2/code/registration-id&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -307,7 +312,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				.matches("https://example.com/login/oauth/authorize\\?" +
 						"response_type=code&client_id=client-id-2&" +
 						"scope=read:user&state=.{15,}&" +
-						"redirect_uri=http://localhost/login/oauth2/code/registration-id-2");
+						"redirect_uri=http://localhost/login/oauth2/code/registration-id-2&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -323,7 +329,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				.matches("https://example.com/login/oauth/authorize\\?" +
 						"response_type=code&client_id=client-id&" +
 						"scope=read:user&state=.{15,}&" +
-						"redirect_uri=http://localhost/authorize/oauth2/code/registration-id");
+						"redirect_uri=http://localhost/authorize/oauth2/code/registration-id&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -339,7 +346,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 				.matches("https://example.com/login/oauth/authorize\\?" +
 						"response_type=code&client_id=client-id-2&" +
 						"scope=read:user&state=.{15,}&" +
-						"redirect_uri=http://localhost/login/oauth2/code/registration-id-2");
+						"redirect_uri=http://localhost/login/oauth2/code/registration-id-2&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -375,6 +383,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 						"scope=read:user&state=.{15,}&" +
 						"redirect_uri=http://localhost/login/oauth2/code/pkce-client-registration-id&" +
 						"code_challenge_method=S256&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" +
 						"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 

@@ -107,13 +107,6 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 			invalidClaims.put(IdTokenClaimNames.IAT, idToken.getIssuedAt());
 		}
 
-		// 11. If a nonce value was sent in the Authentication Request,
-		// a nonce Claim MUST be present and its value checked to verify
-		// that it is the same value as the one that was sent in the Authentication Request.
-		// The Client SHOULD check the nonce value for replay attacks.
-		// The precise method for detecting replay attacks is Client specific.
-		// TODO Depends on gh-4442
-
 		if (!invalidClaims.isEmpty()) {
 			return OAuth2TokenValidatorResult.failure(invalidIdToken(invalidClaims));
 		}
