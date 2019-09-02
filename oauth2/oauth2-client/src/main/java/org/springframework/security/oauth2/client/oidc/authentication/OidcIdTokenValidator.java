@@ -124,7 +124,6 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		// that it is the same value as the one that was sent in the Authentication Request.
 		// The Client SHOULD check the nonce value for replay attacks.
 		// The precise method for detecting replay attacks is Client specific.
-		// Depends on gh-4442
 			String nonceHash = "";
 			try {
 				nonceHash = createHash(nonce);
