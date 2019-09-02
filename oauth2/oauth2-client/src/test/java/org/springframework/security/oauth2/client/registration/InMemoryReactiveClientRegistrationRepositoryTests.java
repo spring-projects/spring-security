@@ -16,15 +16,15 @@
 
 package org.springframework.security.oauth2.client.registration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import reactor.test.StepVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Rob Winch
@@ -59,6 +59,12 @@ public class InMemoryReactiveClientRegistrationRepositoryTests {
 		List<ClientRegistration> registrations = null;
 		assertThatThrownBy(() -> new InMemoryReactiveClientRegistrationRepository(registrations))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void constructorListClientRegistrationWhenDuplicateIdThenIllegalArgumentException() {
+		List<ClientRegistration> registrations = Arrays.asList(this.registration, this.registration);
+		new InMemoryReactiveClientRegistrationRepository(registrations);
 	}
 
 	@Test
