@@ -78,8 +78,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
@@ -91,7 +91,7 @@ import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
@@ -159,8 +159,9 @@ public class OAuth2ResourceServerConfigurerTests {
 	private static final String INTROSPECTION_URI = "https://idp.example.com";
 	private static final String CLIENT_ID = "client-id";
 	private static final String CLIENT_SECRET = "client-secret";
-	private static final OAuth2IntrospectionAuthenticationToken INTROSPECTION_AUTHENTICATION_TOKEN =
-			new OAuth2IntrospectionAuthenticationToken(noScopes(), new OAuth2TokenAttributes(JWT_CLAIMS), Collections.emptyList());
+	private static final BearerTokenAuthentication INTROSPECTION_AUTHENTICATION_TOKEN =
+			new BearerTokenAuthentication(new DefaultOAuth2AuthenticatedPrincipal(JWT_CLAIMS, Collections.emptyList()),
+					noScopes(), Collections.emptyList());
 
 	@Autowired(required = false)
 	MockMvc mvc;

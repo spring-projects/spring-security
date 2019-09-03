@@ -38,6 +38,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -113,8 +114,8 @@ public class NimbusOpaqueTokenIntrospectorTests {
 			OpaqueTokenIntrospector introspectionClient =
 					new NimbusOpaqueTokenIntrospector(introspectUri, CLIENT_ID, CLIENT_SECRET);
 
-			Map<String, Object> attributes = introspectionClient.introspect("token");
-			assertThat(attributes)
+			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
+			assertThat(authority.getAttributes())
 					.isNotNull()
 					.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
 					.containsEntry(AUDIENCE, Arrays.asList("https://protected.example.net/resource"))
@@ -168,8 +169,8 @@ public class NimbusOpaqueTokenIntrospectorTests {
 		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.thenReturn(response(new JSONObject(introspectedValues).toJSONString()));
 
-		Map<String, Object> attributes = introspectionClient.introspect("token");
-		assertThat(attributes)
+		OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
+		assertThat(authority.getAttributes())
 				.isNotNull()
 				.containsEntry(OAuth2IntrospectionClaimNames.ACTIVE, true)
 				.containsEntry(AUDIENCE, Arrays.asList("aud"))

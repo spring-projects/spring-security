@@ -17,32 +17,25 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
-import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
-import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.util.Assert;
 
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.EXPIRES_AT;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ISSUED_AT;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SCOPE;
 
 /**
  * An {@link ReactiveAuthenticationManager} implementation for opaque
@@ -66,20 +59,20 @@ import static org.springframework.security.oauth2.server.resource.introspection.
  * @since 5.2
  * @see ReactiveAuthenticationManager
  */
-public class OAuth2IntrospectionReactiveAuthenticationManager implements ReactiveAuthenticationManager {
+public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 	private static final BearerTokenError DEFAULT_INVALID_TOKEN =
 			invalidToken("An error occurred while attempting to introspect the token: Invalid token");
 
-	private ReactiveOpaqueTokenIntrospector introspectionClient;
+	private ReactiveOpaqueTokenIntrospector introspector;
 
 	/**
-	 * Creates a {@code OAuth2IntrospectionReactiveAuthenticationManager} with the provided parameters
+	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided parameters
 	 *
-	 * @param introspectionClient The {@link ReactiveOpaqueTokenIntrospector} to use
+	 * @param introspector The {@link ReactiveOpaqueTokenIntrospector} to use
 	 */
-	public OAuth2IntrospectionReactiveAuthenticationManager(ReactiveOpaqueTokenIntrospector introspectionClient) {
-		Assert.notNull(introspectionClient, "introspectionClient cannot be null");
-		this.introspectionClient = introspectionClient;
+	public OpaqueTokenReactiveAuthenticationManager(ReactiveOpaqueTokenIntrospector introspector) {
+		Assert.notNull(introspector, "introspector cannot be null");
+		this.introspector = introspector;
 	}
 
 	@Override
@@ -92,28 +85,18 @@ public class OAuth2IntrospectionReactiveAuthenticationManager implements Reactiv
 				.cast(Authentication.class);
 	}
 
-	private Mono<OAuth2IntrospectionAuthenticationToken> authenticate(String token) {
-		return this.introspectionClient.introspect(token)
-				.map(claims -> {
-					Instant iat = (Instant) claims.get(ISSUED_AT);
-					Instant exp = (Instant) claims.get(EXPIRES_AT);
+	private Mono<BearerTokenAuthentication> authenticate(String token) {
+		return this.introspector.introspect(token)
+				.map(principal -> {
+					Instant iat = principal.getAttribute(ISSUED_AT);
+					Instant exp = principal.getAttribute(EXPIRES_AT);
 
 					// construct token
 					OAuth2AccessToken accessToken =
 							new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
-					Collection<GrantedAuthority> authorities = extractAuthorities(claims);
-					return new OAuth2IntrospectionAuthenticationToken(accessToken, new OAuth2TokenAttributes(claims), authorities);
+					return new BearerTokenAuthentication(principal, accessToken, principal.getAuthorities());
 				})
 				.onErrorMap(OAuth2IntrospectionException.class, this::onError);
-	}
-
-	private Collection<GrantedAuthority> extractAuthorities(Map<String, Object> claims) {
-		Collection<String> scopes = (Collection<String>) claims.getOrDefault(SCOPE, Collections.emptyList());
-		List<GrantedAuthority> authorities = new ArrayList<>();
-		for (String scope : scopes) {
-			authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
-		}
-		return authorities;
 	}
 
 	private static BearerTokenError invalidToken(String message) {

@@ -37,7 +37,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
-import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
@@ -388,8 +388,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			}
 
 			OpaqueTokenIntrospector introspector = getIntrospector();
-			OAuth2IntrospectionAuthenticationProvider provider =
-					new OAuth2IntrospectionAuthenticationProvider(introspector);
+			OpaqueTokenAuthenticationProvider provider =
+					new OpaqueTokenAuthenticationProvider(introspector);
 			http.authenticationProvider(provider);
 
 			return http.getSharedObject(AuthenticationManager.class);

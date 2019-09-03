@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.server.resource.introspection;
 
 import java.util.Map;
 
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+
 /**
  * A contract for introspecting and verifying an OAuth 2.0 token.
  *
@@ -41,5 +43,5 @@ public interface OpaqueTokenIntrospector {
 	 * @param token the token to introspect
 	 * @return the token's attributes
 	 */
-	Map<String, Object> introspect(String token);
+	OAuth2AuthenticatedPrincipal introspect(String token);
 }
