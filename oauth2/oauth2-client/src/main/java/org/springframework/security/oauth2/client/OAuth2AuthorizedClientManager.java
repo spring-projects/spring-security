@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.web;
+package org.springframework.security.oauth2.client;
 
 import org.springframework.lang.Nullable;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 
 /**
  * Implementations of this interface are responsible for the overall management
@@ -30,13 +29,14 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
  *  <li>Authorizing (or re-authorizing) an OAuth 2.0 Client
  *  	by leveraging an {@link OAuth2AuthorizedClientProvider}(s).</li>
  *  <li>Managing the persistence of an {@link OAuth2AuthorizedClient} between requests,
- *  	typically using an {@link OAuth2AuthorizedClientRepository}.</li>
+ *  	typically using an {@link OAuth2AuthorizedClientService} OR {@link OAuth2AuthorizedClientRepository}.</li>
  * </ol>
  *
  * @author Joe Grandja
  * @since 5.2
  * @see OAuth2AuthorizedClient
  * @see OAuth2AuthorizedClientProvider
+ * @see OAuth2AuthorizedClientService
  * @see OAuth2AuthorizedClientRepository
  */
 public interface OAuth2AuthorizedClientManager {

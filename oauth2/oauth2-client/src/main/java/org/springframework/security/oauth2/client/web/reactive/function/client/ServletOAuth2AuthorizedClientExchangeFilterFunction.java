@@ -26,7 +26,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.ClientCredentialsOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
@@ -36,8 +38,6 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentia
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizeRequest;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -451,8 +451,17 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		}
 		HttpServletRequest servletRequest = getRequest(attrs);
 		HttpServletResponse servletResponse = getResponse(attrs);
-		OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
-				clientRegistrationId, authentication, servletRequest, servletResponse);
+
+		OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withClientRegistrationId(clientRegistrationId).principal(authentication);
+		builder.attributes(attributes -> {
+			if (servletRequest != null) {
+				attributes.put(HttpServletRequest.class.getName(), servletRequest);
+			}
+			if (servletResponse != null) {
+				attributes.put(HttpServletResponse.class.getName(), servletResponse);
+			}
+		});
+		OAuth2AuthorizeRequest authorizeRequest = builder.build();
 
 		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated thread via subscribeOn(Schedulers.elastic())
 		// since it performs a blocking I/O operation using RestTemplate internally
@@ -470,8 +479,17 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		}
 		HttpServletRequest servletRequest = getRequest(attrs);
 		HttpServletResponse servletResponse = getResponse(attrs);
-		OAuth2AuthorizeRequest reauthorizeRequest = new OAuth2AuthorizeRequest(
-				authorizedClient, authentication, servletRequest, servletResponse);
+
+		OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withAuthorizedClient(authorizedClient).principal(authentication);
+		builder.attributes(attributes -> {
+			if (servletRequest != null) {
+				attributes.put(HttpServletRequest.class.getName(), servletRequest);
+			}
+			if (servletResponse != null) {
+				attributes.put(HttpServletResponse.class.getName(), servletResponse);
+			}
+		});
+		OAuth2AuthorizeRequest reauthorizeRequest = builder.build();
 
 		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated thread via subscribeOn(Schedulers.elastic())
 		// since it performs a blocking I/O operation using RestTemplate internally

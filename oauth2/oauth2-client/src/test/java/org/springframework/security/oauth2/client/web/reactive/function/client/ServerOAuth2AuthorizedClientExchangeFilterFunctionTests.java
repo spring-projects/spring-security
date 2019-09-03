@@ -55,7 +55,7 @@ import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClie
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
@@ -127,7 +127,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 			Instant.now(),
 			Instant.now().plus(Duration.ofDays(1)));
 
-	private DefaultServerOAuth2AuthorizedClientManager authorizedClientManager;
+	private DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager;
 
 	@Before
 	public void setup() {
@@ -138,7 +138,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 						.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
 						.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
 						.build();
-		this.authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
+		this.authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		this.authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
@@ -161,7 +161,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void setClientCredentialsTokenResponseClientWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
 		assertThatThrownBy(() -> this.function.setClientCredentialsTokenResponseClient(new WebClientReactiveClientCredentialsTokenResponseClient()))
 				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("The client cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ServerOAuth2AuthorizedClientManager)\". " +
+				.hasMessage("The client cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". " +
 						"Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 	}
 
@@ -169,7 +169,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void setAccessTokenExpiresSkewWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
 		assertThatThrownBy(() -> this.function.setAccessTokenExpiresSkew(Duration.ofSeconds(30)))
 				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("The accessTokenExpiresSkew cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ServerOAuth2AuthorizedClientManager)\". " +
+				.hasMessage("The accessTokenExpiresSkew cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". " +
 						"Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 	}
 
@@ -429,20 +429,21 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		when(this.authorizedClientRepository.loadAuthorizedClient(eq(registration.getRegistrationId()), eq(authentication), any())).thenReturn(Mono.empty());
 
 		// Set custom contextAttributesMapper capable of mapping the form parameters
-		this.authorizedClientManager.setContextAttributesMapper(authorizeRequest ->
-				Mono.just(authorizeRequest.getServerWebExchange())
-						.flatMap(ServerWebExchange::getFormData)
-						.map(formData -> {
-							Map<String, Object> contextAttributes = new HashMap<>();
-							String username = formData.getFirst(OAuth2ParameterNames.USERNAME);
-							String password = formData.getFirst(OAuth2ParameterNames.PASSWORD);
-							if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
-								contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
-								contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
-							}
-							return contextAttributes;
-						})
-		);
+		this.authorizedClientManager.setContextAttributesMapper(authorizeRequest -> {
+			ServerWebExchange serverWebExchange = authorizeRequest.getAttribute(ServerWebExchange.class.getName());
+			return Mono.just(serverWebExchange)
+					.flatMap(ServerWebExchange::getFormData)
+					.map(formData -> {
+						Map<String, Object> contextAttributes = new HashMap<>();
+						String username = formData.getFirst(OAuth2ParameterNames.USERNAME);
+						String password = formData.getFirst(OAuth2ParameterNames.PASSWORD);
+						if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+							contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
+							contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
+						}
+						return contextAttributes;
+					});
+		});
 
 		this.serverWebExchange = MockServerWebExchange.builder(
 				MockServerHttpRequest

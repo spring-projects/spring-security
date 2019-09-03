@@ -36,7 +36,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.util.ReflectionUtils;
@@ -79,7 +79,7 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 						.refreshToken()
 						.clientCredentials()
 						.build();
-		DefaultServerOAuth2AuthorizedClientManager authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
+		DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 		this.argumentResolver = new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager);

@@ -81,6 +81,7 @@ import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
@@ -466,8 +467,9 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		// Set custom contextAttributesMapper
 		this.authorizedClientManager.setContextAttributesMapper(authorizeRequest -> {
 			Map<String, Object> contextAttributes = new HashMap<>();
-			String username = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.USERNAME);
-			String password = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.PASSWORD);
+			HttpServletRequest servletRequest = authorizeRequest.getAttribute(HttpServletRequest.class.getName());
+			String username = servletRequest.getParameter(OAuth2ParameterNames.USERNAME);
+			String password = servletRequest.getParameter(OAuth2ParameterNames.PASSWORD);
 			if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
 				contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
 				contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);

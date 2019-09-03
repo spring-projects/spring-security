@@ -23,6 +23,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -33,6 +34,8 @@ import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -115,9 +118,35 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 	}
 
 	@Test
+	public void authorizeWhenHttpServletRequestIsNullThenThrowIllegalArgumentException() {
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal(this.principal)
+				.build();
+		assertThatThrownBy(() -> this.authorizedClientManager.authorize(authorizeRequest))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("servletRequest cannot be null");
+	}
+
+	@Test
+	public void authorizeWhenHttpServletResponseIsNullThenThrowIllegalArgumentException() {
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal(this.principal)
+				.attribute(HttpServletRequest.class.getName(), this.request)
+				.build();
+		assertThatThrownBy(() -> this.authorizedClientManager.authorize(authorizeRequest))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("servletResponse cannot be null");
+	}
+
+	@Test
 	public void authorizeWhenClientRegistrationNotFoundThenThrowIllegalArgumentException() {
-		OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
-				"invalid-registration-id", this.principal, this.request, this.response);
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("invalid-registration-id")
+				.principal(this.principal)
+				.attributes(attrs -> {
+					attrs.put(HttpServletRequest.class.getName(), this.request);
+					attrs.put(HttpServletResponse.class.getName(), this.response);
+				})
+				.build();
 		assertThatThrownBy(() -> this.authorizedClientManager.authorize(authorizeRequest))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Could not find ClientRegistration with id 'invalid-registration-id'");
@@ -129,8 +158,13 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 		when(this.clientRegistrationRepository.findByRegistrationId(
 				eq(this.clientRegistration.getRegistrationId()))).thenReturn(this.clientRegistration);
 
-		OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
-				this.clientRegistration.getRegistrationId(), this.principal, this.request, this.response);
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal(this.principal)
+				.attributes(attrs -> {
+					attrs.put(HttpServletRequest.class.getName(), this.request);
+					attrs.put(HttpServletResponse.class.getName(), this.response);
+				})
+				.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
@@ -154,8 +188,13 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(this.authorizedClient);
 
-		OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
-				this.clientRegistration.getRegistrationId(), this.principal, this.request, this.response);
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal(this.principal)
+				.attributes(attrs -> {
+					attrs.put(HttpServletRequest.class.getName(), this.request);
+					attrs.put(HttpServletResponse.class.getName(), this.response);
+				})
+				.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
@@ -185,8 +224,13 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(reauthorizedClient);
 
-		OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
-				this.clientRegistration.getRegistrationId(), this.principal, this.request, this.response);
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal(this.principal)
+				.attributes(attrs -> {
+					attrs.put(HttpServletRequest.class.getName(), this.request);
+					attrs.put(HttpServletResponse.class.getName(), this.response);
+				})
+				.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
@@ -212,8 +256,9 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 		// Set custom contextAttributesMapper
 		this.authorizedClientManager.setContextAttributesMapper(authorizeRequest -> {
 			Map<String, Object> contextAttributes = new HashMap<>();
-			String username = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.USERNAME);
-			String password = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.PASSWORD);
+			HttpServletRequest servletRequest = authorizeRequest.getAttribute(HttpServletRequest.class.getName());
+			String username = servletRequest.getParameter(OAuth2ParameterNames.USERNAME);
+			String password = servletRequest.getParameter(OAuth2ParameterNames.PASSWORD);
 			if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
 				contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
 				contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
@@ -224,8 +269,13 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 		this.request.addParameter(OAuth2ParameterNames.USERNAME, "username");
 		this.request.addParameter(OAuth2ParameterNames.PASSWORD, "password");
 
-		OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
-				this.clientRegistration.getRegistrationId(), this.principal, this.request, this.response);
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal(this.principal)
+				.attributes(attrs -> {
+					attrs.put(HttpServletRequest.class.getName(), this.request);
+					attrs.put(HttpServletResponse.class.getName(), this.response);
+				})
+				.build();
 		this.authorizedClientManager.authorize(authorizeRequest);
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
@@ -240,8 +290,13 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenUnsupportedProviderThenNotReauthorized() {
-		OAuth2AuthorizeRequest reauthorizeRequest = new OAuth2AuthorizeRequest(
-				this.authorizedClient, this.principal, this.request, this.response);
+		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.attributes(attrs -> {
+					attrs.put(HttpServletRequest.class.getName(), this.request);
+					attrs.put(HttpServletResponse.class.getName(), this.response);
+				})
+				.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest);
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
@@ -266,8 +321,13 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(reauthorizedClient);
 
-		OAuth2AuthorizeRequest reauthorizeRequest = new OAuth2AuthorizeRequest(
-				this.authorizedClient, this.principal, this.request, this.response);
+		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.attributes(attrs -> {
+					attrs.put(HttpServletRequest.class.getName(), this.request);
+					attrs.put(HttpServletResponse.class.getName(), this.response);
+				})
+				.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest);
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
@@ -297,8 +357,13 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 
 		this.request.addParameter(OAuth2ParameterNames.SCOPE, "read write");
 
-		OAuth2AuthorizeRequest reauthorizeRequest = new OAuth2AuthorizeRequest(
-				this.authorizedClient, this.principal, this.request, this.response);
+		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.attributes(attrs -> {
+					attrs.put(HttpServletRequest.class.getName(), this.request);
+					attrs.put(HttpServletResponse.class.getName(), this.response);
+				})
+				.build();
 		this.authorizedClientManager.authorize(reauthorizeRequest);
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());

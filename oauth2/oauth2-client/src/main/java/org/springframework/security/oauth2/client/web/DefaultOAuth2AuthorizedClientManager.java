@@ -18,16 +18,21 @@ package org.springframework.security.oauth2.client.web;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -68,8 +73,11 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		String clientRegistrationId = authorizeRequest.getClientRegistrationId();
 		OAuth2AuthorizedClient authorizedClient = authorizeRequest.getAuthorizedClient();
 		Authentication principal = authorizeRequest.getPrincipal();
-		HttpServletRequest servletRequest = authorizeRequest.getServletRequest();
-		HttpServletResponse servletResponse = authorizeRequest.getServletResponse();
+
+		HttpServletRequest servletRequest = getHttpServletRequestOrDefault(authorizeRequest.getAttributes());
+		Assert.notNull(servletRequest, "servletRequest cannot be null");
+		HttpServletResponse servletResponse = getHttpServletResponseOrDefault(authorizeRequest.getAttributes());
+		Assert.notNull(servletResponse, "servletResponse cannot be null");
 
 		OAuth2AuthorizationContext.Builder contextBuilder;
 		if (authorizedClient != null) {
@@ -104,6 +112,28 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		return authorizedClient;
 	}
 
+	private static HttpServletRequest getHttpServletRequestOrDefault(Map<String, Object> attributes) {
+		HttpServletRequest servletRequest = (HttpServletRequest) attributes.get(HttpServletRequest.class.getName());
+		if (servletRequest == null) {
+			ServletRequestAttributes context = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+			if (context != null) {
+				servletRequest = context.getRequest();
+			}
+		}
+		return servletRequest;
+	}
+
+	private static HttpServletResponse getHttpServletResponseOrDefault(Map<String, Object> attributes) {
+		HttpServletResponse servletResponse = (HttpServletResponse) attributes.get(HttpServletResponse.class.getName());
+		if (servletResponse == null) {
+			ServletRequestAttributes context = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+			if (context != null) {
+				servletResponse = context.getResponse();
+			}
+		}
+		return servletResponse;
+	}
+
 	/**
 	 * Sets the {@link OAuth2AuthorizedClientProvider} used for authorizing (or re-authorizing) an OAuth 2.0 Client.
 	 *
@@ -133,9 +163,11 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 
 		@Override
 		public Map<String, Object> apply(OAuth2AuthorizeRequest authorizeRequest) {
-			Map<String, Object> contextAttributes = new HashMap<>();
-			String scope = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.SCOPE);
+			Map<String, Object> contextAttributes = Collections.emptyMap();
+			HttpServletRequest servletRequest = getHttpServletRequestOrDefault(authorizeRequest.getAttributes());
+			String scope = servletRequest.getParameter(OAuth2ParameterNames.SCOPE);
 			if (StringUtils.hasText(scope)) {
+				contextAttributes = new HashMap<>();
 				contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
 						StringUtils.delimitedListToStringArray(scope, " "));
 			}

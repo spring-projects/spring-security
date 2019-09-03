@@ -22,7 +22,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.ClientCredentialsReactiveOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.RefreshTokenReactiveOAuth2AuthorizedClientProvider;
@@ -31,9 +33,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentia
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizeRequest;
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -75,7 +75,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	private static final AnonymousAuthenticationToken ANONYMOUS_USER_TOKEN = new AnonymousAuthenticationToken("anonymous", "anonymousUser",
 			AuthorityUtils.createAuthorityList("ROLE_USER"));
 
-	private ServerOAuth2AuthorizedClientManager authorizedClientManager;
+	private ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
 
 	private boolean defaultAuthorizedClientManager;
 
@@ -94,9 +94,9 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * Constructs a {@code ServerOAuth2AuthorizedClientExchangeFilterFunction} using the provided parameters.
 	 *
 	 * @since 5.2
-	 * @param authorizedClientManager the {@link ServerOAuth2AuthorizedClientManager} which manages the authorized client(s)
+	 * @param authorizedClientManager the {@link ReactiveOAuth2AuthorizedClientManager} which manages the authorized client(s)
 	 */
-	public ServerOAuth2AuthorizedClientExchangeFilterFunction(ServerOAuth2AuthorizedClientManager authorizedClientManager) {
+	public ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
 		Assert.notNull(authorizedClientManager, "authorizedClientManager cannot be null");
 		this.authorizedClientManager = authorizedClientManager;
 	}
@@ -113,7 +113,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		this.defaultAuthorizedClientManager = true;
 	}
 
-	private static ServerOAuth2AuthorizedClientManager createDefaultAuthorizedClientManager(
+	private static ReactiveOAuth2AuthorizedClientManager createDefaultAuthorizedClientManager(
 			ReactiveClientRegistrationRepository clientRegistrationRepository,
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
 
@@ -124,7 +124,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 						.clientCredentials()
 						.password()
 						.build();
-		DefaultServerOAuth2AuthorizedClientManager authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
+		DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
 				clientRegistrationRepository, authorizedClientRepository);
 		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
@@ -241,10 +241,10 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	/**
 	 * Sets the {@link ReactiveOAuth2AccessTokenResponseClient} used for getting an {@link OAuth2AuthorizedClient} for the client_credentials grant.
 	 *
-	 * @deprecated Use {@link #ServerOAuth2AuthorizedClientExchangeFilterFunction(ServerOAuth2AuthorizedClientManager)} instead.
+	 * @deprecated Use {@link #ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)} instead.
 	 * 				Create an instance of {@link ClientCredentialsReactiveOAuth2AuthorizedClientProvider} configured with a
 	 * 				{@link ClientCredentialsReactiveOAuth2AuthorizedClientProvider#setAccessTokenResponseClient(ReactiveOAuth2AccessTokenResponseClient) WebClientReactiveClientCredentialsTokenResponseClient}
-	 * 				(or a custom one) and than supply it to {@link DefaultServerOAuth2AuthorizedClientManager#setAuthorizedClientProvider(ReactiveOAuth2AuthorizedClientProvider) DefaultOAuth2AuthorizedClientManager}.
+	 * 				(or a custom one) and than supply it to {@link DefaultReactiveOAuth2AuthorizedClientManager#setAuthorizedClientProvider(ReactiveOAuth2AuthorizedClientProvider) DefaultReactiveOAuth2AuthorizedClientManager}.
 	 *
 	 * @param clientCredentialsTokenResponseClient the client to use
 	 */
@@ -252,7 +252,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	public void setClientCredentialsTokenResponseClient(
 			ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
 		Assert.notNull(clientCredentialsTokenResponseClient, "clientCredentialsTokenResponseClient cannot be null");
-		Assert.state(this.defaultAuthorizedClientManager, "The client cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ServerOAuth2AuthorizedClientManager)\". " +
+		Assert.state(this.defaultAuthorizedClientManager, "The client cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". " +
 				"Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 		this.clientCredentialsTokenResponseClient = clientCredentialsTokenResponseClient;
 		updateDefaultAuthorizedClientManager();
@@ -266,7 +266,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 						.clientCredentials(this::updateClientCredentialsProvider)
 						.password(configurer -> configurer.clockSkew(this.accessTokenExpiresSkew))
 						.build();
-		((DefaultServerOAuth2AuthorizedClientManager) this.authorizedClientManager).setAuthorizedClientProvider(authorizedClientProvider);
+		((DefaultReactiveOAuth2AuthorizedClientManager) this.authorizedClientManager).setAuthorizedClientProvider(authorizedClientProvider);
 	}
 
 	private void updateClientCredentialsProvider(ReactiveOAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilder builder) {
@@ -289,7 +289,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	@Deprecated
 	public void setAccessTokenExpiresSkew(Duration accessTokenExpiresSkew) {
 		Assert.notNull(accessTokenExpiresSkew, "accessTokenExpiresSkew cannot be null");
-		Assert.state(this.defaultAuthorizedClientManager, "The accessTokenExpiresSkew cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ServerOAuth2AuthorizedClientManager)\". " +
+		Assert.state(this.defaultAuthorizedClientManager, "The accessTokenExpiresSkew cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". " +
 				"Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 		this.accessTokenExpiresSkew = accessTokenExpiresSkew;
 		updateDefaultAuthorizedClientManager();
@@ -312,7 +312,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 						reauthorizeRequest(request, authorizedClient).flatMap(this.authorizedClientManager::authorize));
 	}
 
-	private Mono<ServerOAuth2AuthorizeRequest> authorizeRequest(ClientRequest request) {
+	private Mono<OAuth2AuthorizeRequest> authorizeRequest(ClientRequest request) {
 		Mono<Authentication> authentication = currentAuthentication();
 
 		Mono<String> clientRegistrationId = Mono.justOrEmpty(clientRegistrationId(request))
@@ -325,10 +325,16 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 				.defaultIfEmpty(Optional.empty());
 
 		return Mono.zip(clientRegistrationId, authentication, serverWebExchange)
-				.map(t3 -> new ServerOAuth2AuthorizeRequest(t3.getT1(), t3.getT2(), t3.getT3().orElse(null)));
+				.map(t3 -> {
+					OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withClientRegistrationId(t3.getT1()).principal(t3.getT2());
+					if (t3.getT3().isPresent()) {
+						builder.attribute(ServerWebExchange.class.getName(), t3.getT3().get());
+					}
+					return builder.build();
+				});
 	}
 
-	private Mono<ServerOAuth2AuthorizeRequest> reauthorizeRequest(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {
+	private Mono<OAuth2AuthorizeRequest> reauthorizeRequest(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {
 		Mono<Authentication> authentication = currentAuthentication();
 
 		Mono<Optional<ServerWebExchange>> serverWebExchange = Mono.justOrEmpty(serverWebExchange(request))
@@ -337,7 +343,13 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 				.defaultIfEmpty(Optional.empty());
 
 		return Mono.zip(authentication, serverWebExchange)
-				.map(t2 -> new ServerOAuth2AuthorizeRequest(authorizedClient, t2.getT1(), t2.getT2().orElse(null)));
+				.map(t2 -> {
+					OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withAuthorizedClient(authorizedClient).principal(t2.getT1());
+					if (t2.getT2().isPresent()) {
+						builder.attribute(ServerWebExchange.class.getName(), t2.getT2().get());
+					}
+					return builder.build();
+				});
 	}
 
 	private Mono<Authentication> currentAuthentication() {
