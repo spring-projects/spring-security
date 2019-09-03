@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.server.resource.introspection;
 import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,10 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -59,8 +65,10 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	private URI introspectionUri;
 	private WebClient webClient;
 
+	private String authorityPrefix = "SCOPE_";
+
 	/**
-	 * Creates a {@code OAuth2IntrospectionReactiveAuthenticationManager} with the provided parameters
+	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided parameters
 	 *
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param clientId The client id authorized to introspect
@@ -78,7 +86,7 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	}
 
 	/**
-	 * Creates a {@code OAuth2IntrospectionReactiveAuthenticationManager} with the provided parameters
+	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided parameters
 	 *
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param webClient The client for performing the introspection request
@@ -95,7 +103,7 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Mono<Map<String, Object>> introspect(String token) {
+	public Mono<OAuth2AuthenticatedPrincipal> introspect(String token) {
 		return Mono.just(token)
 				.flatMap(this::makeRequest)
 				.flatMap(this::adaptToNimbusResponse)
@@ -150,8 +158,9 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		}
 	}
 
-	private Map<String, Object> convertClaimsSet(TokenIntrospectionSuccessResponse response) {
+	private OAuth2AuthenticatedPrincipal convertClaimsSet(TokenIntrospectionSuccessResponse response) {
 		Map<String, Object> claims = response.toJSONObject();
+		Collection<GrantedAuthority> authorities = new ArrayList<>();
 		if (response.getAudience() != null) {
 			List<String> audiences = new ArrayList<>();
 			for (Audience audience : response.getAudience()) {
@@ -177,10 +186,15 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 			claims.put(NOT_BEFORE, response.getNotBeforeTime().toInstant());
 		}
 		if (response.getScope() != null) {
-			claims.put(SCOPE, Collections.unmodifiableList(response.getScope().toStringList()));
+			List<String> scopes = Collections.unmodifiableList(response.getScope().toStringList());
+			claims.put(SCOPE, scopes);
+
+			for (String scope : scopes) {
+				authorities.add(new SimpleGrantedAuthority(this.authorityPrefix + scope));
+			}
 		}
 
-		return claims;
+		return new DefaultOAuth2AuthenticatedPrincipal(claims, authorities);
 	}
 
 	private URL issuer(String uri) {

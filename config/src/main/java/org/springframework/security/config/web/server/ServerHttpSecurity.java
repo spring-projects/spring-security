@@ -87,7 +87,7 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
-import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionReactiveAuthenticationManager;
+import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusReactiveOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
@@ -1867,7 +1867,7 @@ public class ServerHttpSecurity {
 			}
 
 			protected ReactiveAuthenticationManager getAuthenticationManager() {
-				return new OAuth2IntrospectionReactiveAuthenticationManager(getIntrospector());
+				return new OpaqueTokenReactiveAuthenticationManager(getIntrospector());
 			}
 
 			protected ReactiveOpaqueTokenIntrospector getIntrospector() {

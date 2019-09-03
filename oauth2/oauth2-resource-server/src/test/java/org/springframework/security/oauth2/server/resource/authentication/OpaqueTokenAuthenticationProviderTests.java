@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.net.URL;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 import org.junit.Test;
-import org.springframework.security.oauth2.core.OAuth2TokenAttributes;
-import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
-import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
-import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipals.active;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ACTIVE;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.AUDIENCE;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.EXPIRES_AT;
@@ -45,27 +46,26 @@ import static org.springframework.security.oauth2.server.resource.introspection.
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SCOPE;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SUBJECT;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.USERNAME;
-import static org.springframework.security.oauth2.server.resource.introspection.TestOAuth2TokenIntrospectionClientResponses.active;
 
 /**
- * Tests for {@link OAuth2IntrospectionReactiveAuthenticationManager}
+ * Tests for {@link OpaqueTokenAuthenticationProvider}
+ *
+ * @author Josh Cummings
  */
-public class OAuth2IntrospectionReactiveAuthenticationManagerTests {
+public class OpaqueTokenAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenActiveTokenThenOk() throws Exception {
-		Map<String, Object> claims = active();
-		claims.put("extension_field", "twenty-seven");
-		ReactiveOpaqueTokenIntrospector introspectionClient = mock(ReactiveOpaqueTokenIntrospector.class);
-		when(introspectionClient.introspect(any())).thenReturn(Mono.just(claims));
-		OAuth2IntrospectionReactiveAuthenticationManager provider =
-				new OAuth2IntrospectionReactiveAuthenticationManager(introspectionClient);
+		OAuth2AuthenticatedPrincipal principal = active(attributes -> attributes.put("extension_field", "twenty-seven"));
+		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
+		when(introspector.introspect(any())).thenReturn(principal);
+		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
 
 		Authentication result =
-				provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
+				provider.authenticate(new BearerTokenAuthenticationToken("token"));
 
-		assertThat(result.getPrincipal()).isInstanceOf(OAuth2TokenAttributes.class);
+		assertThat(result.getPrincipal()).isInstanceOf(DefaultOAuth2AuthenticatedPrincipal.class);
 
-		Map<String, Object> attributes = ((OAuth2TokenAttributes) result.getPrincipal()).getAttributes();
+		Map<String, Object> attributes = ((DefaultOAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
 		assertThat(attributes)
 				.isNotNull()
 				.containsEntry(ACTIVE, true)
@@ -85,18 +85,16 @@ public class OAuth2IntrospectionReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenMissingScopeAttributeThenNoAuthorities() {
-		Map<String, Object> claims = active();
-		claims.remove(SCOPE);
-		ReactiveOpaqueTokenIntrospector introspectionClient = mock(ReactiveOpaqueTokenIntrospector.class);
-		when(introspectionClient.introspect(any())).thenReturn(Mono.just(claims));
-		OAuth2IntrospectionReactiveAuthenticationManager provider =
-				new OAuth2IntrospectionReactiveAuthenticationManager(introspectionClient);
+		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(Collections.singletonMap("claim", "value"), null);
+		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
+		when(introspector.introspect(any())).thenReturn(principal);
+		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
 
 		Authentication result =
-				provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
-		assertThat(result.getPrincipal()).isInstanceOf(OAuth2TokenAttributes.class);
+				provider.authenticate(new BearerTokenAuthenticationToken("token"));
+		assertThat(result.getPrincipal()).isInstanceOf(OAuth2AuthenticatedPrincipal.class);
 
-		Map<String, Object> attributes = ((OAuth2TokenAttributes) result.getPrincipal()).getAttributes();
+		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
 		assertThat(attributes)
 				.isNotNull()
 				.doesNotContainKey(SCOPE);
@@ -106,13 +104,11 @@ public class OAuth2IntrospectionReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenIntrospectionEndpointThrowsExceptionThenInvalidToken() {
-		ReactiveOpaqueTokenIntrospector introspectionClient = mock(ReactiveOpaqueTokenIntrospector.class);
-		when(introspectionClient.introspect(any()))
-				.thenReturn(Mono.error(new OAuth2IntrospectionException("with \"invalid\" chars")));
-		OAuth2IntrospectionReactiveAuthenticationManager provider =
-				new OAuth2IntrospectionReactiveAuthenticationManager(introspectionClient);
+		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
+		when(introspector.introspect(any())).thenThrow(new OAuth2IntrospectionException("with \"invalid\" chars"));
+		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
 
-		assertThatCode(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")).block())
+		assertThatCode(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")))
 				.isInstanceOf(OAuth2AuthenticationException.class)
 				.extracting("error.description")
 				.containsExactly("An error occurred while attempting to introspect the token: Invalid token");
@@ -120,7 +116,7 @@ public class OAuth2IntrospectionReactiveAuthenticationManagerTests {
 
 	@Test
 	public void constructorWhenIntrospectionClientIsNullThenIllegalArgumentException() {
-		assertThatCode(() -> new OAuth2IntrospectionReactiveAuthenticationManager(null))
+		assertThatCode(() -> new OpaqueTokenAuthenticationProvider(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 }

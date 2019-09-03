@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.server.resource.introspection;
 import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -63,8 +69,10 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	private Converter<String, RequestEntity<?>> requestEntityConverter;
 	private RestOperations restOperations;
 
+	private final String authorityPrefix = "SCOPE_";
+
 	/**
-	 * Creates a {@code OAuth2IntrospectionAuthenticationProvider} with the provided parameters
+	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
 	 *
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param clientId The client id authorized to introspect
@@ -82,7 +90,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	}
 
 	/**
-	 * Creates a {@code OAuth2IntrospectionAuthenticationProvider} with the provided parameters
+	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
 	 *
 	 * The given {@link RestOperations} should perform its own client authentication against the
 	 * introspection endpoint.
@@ -122,7 +130,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<String, Object> introspect(String token) {
+	public OAuth2AuthenticatedPrincipal introspect(String token) {
 		RequestEntity<?> requestEntity = this.requestEntityConverter.convert(token);
 		if (requestEntity == null) {
 			throw new OAuth2IntrospectionException("Provided token [" + token + "] isn't active");
@@ -189,7 +197,8 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		return (TokenIntrospectionSuccessResponse) introspectionResponse;
 	}
 
-	private Map<String, Object> convertClaimsSet(TokenIntrospectionSuccessResponse response) {
+	private OAuth2AuthenticatedPrincipal convertClaimsSet(TokenIntrospectionSuccessResponse response) {
+		Collection<GrantedAuthority> authorities = new ArrayList<>();
 		Map<String, Object> claims = response.toJSONObject();
 		if (response.getAudience() != null) {
 			List<String> audiences = new ArrayList<>();
@@ -216,10 +225,15 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 			claims.put(NOT_BEFORE, response.getNotBeforeTime().toInstant());
 		}
 		if (response.getScope() != null) {
-			claims.put(SCOPE, Collections.unmodifiableList(response.getScope().toStringList()));
+			List<String> scopes = Collections.unmodifiableList(response.getScope().toStringList());
+			claims.put(SCOPE, scopes);
+
+			for (String scope : scopes) {
+				authorities.add(new SimpleGrantedAuthority(this.authorityPrefix + scope));
+			}
 		}
 
-		return claims;
+		return new DefaultOAuth2AuthenticatedPrincipal(claims, authorities);
 	}
 
 	private URL issuer(String uri) {

@@ -20,6 +20,8 @@ import java.util.Map;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+
 /**
  * A contract for introspecting and verifying an OAuth 2.0 token.
  *
@@ -43,5 +45,5 @@ public interface ReactiveOpaqueTokenIntrospector {
 	 * @param token the token to introspect
 	 * @return the token's attributes
 	 */
-	Mono<Map<String, Object>> introspect(String token);
+	Mono<OAuth2AuthenticatedPrincipal> introspect(String token);
 }
