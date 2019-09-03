@@ -30,7 +30,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
-import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.authentication.JwtBearerTokenAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 
@@ -84,13 +85,15 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 
 	AuthenticationManager jwt() {
 		JwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
-		return new JwtAuthenticationProvider(jwtDecoder)::authenticate;
+		JwtAuthenticationProvider authenticationProvider = new JwtAuthenticationProvider(jwtDecoder);
+		authenticationProvider.setJwtAuthenticationConverter(new JwtBearerTokenAuthenticationConverter());
+		return authenticationProvider::authenticate;
 	}
 
 	AuthenticationManager opaque() {
 		OpaqueTokenIntrospector introspectionClient =
 				new NimbusOpaqueTokenIntrospector(this.introspectionUri,
 						this.introspectionClientId, this.introspectionClientSecret);
-		return new OAuth2IntrospectionAuthenticationProvider(introspectionClient)::authenticate;
+		return new OpaqueTokenAuthenticationProvider(introspectionClient)::authenticate;
 	}
 }

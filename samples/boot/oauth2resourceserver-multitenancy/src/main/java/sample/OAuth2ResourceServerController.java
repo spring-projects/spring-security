@@ -15,7 +15,8 @@
  */
 package sample;
 
-import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,8 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class OAuth2ResourceServerController {
 
 	@GetMapping("/{tenantId}")
-	public String index(AbstractOAuth2TokenAuthenticationToken token, @PathVariable("tenantId") String tenantId) {
-		String subject = (String) token.getTokenAttributes().get("sub");
+	public String index(@AuthenticationPrincipal OAuth2AuthenticatedPrincipal token, @PathVariable("tenantId") String tenantId) {
+		String subject = token.getAttribute("sub");
 		return String.format("Hello, %s for %s!", subject, tenantId);
 	}
 
