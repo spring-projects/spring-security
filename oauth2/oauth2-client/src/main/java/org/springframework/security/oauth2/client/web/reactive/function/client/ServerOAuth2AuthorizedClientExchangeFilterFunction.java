@@ -22,18 +22,18 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.ClientCredentialsReactiveOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.RefreshTokenReactiveOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.ServerOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizeRequest;
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -310,7 +310,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 						reauthorizeRequest(request, authorizedClient).flatMap(this.authorizedClientManager::authorize));
 	}
 
-	private Mono<ServerOAuth2AuthorizeRequest> authorizeRequest(ClientRequest request) {
+	private Mono<OAuth2AuthorizeRequest> authorizeRequest(ClientRequest request) {
 		Mono<Authentication> authentication = currentAuthentication();
 
 		Mono<String> clientRegistrationId = Mono.justOrEmpty(clientRegistrationId(request))
@@ -323,10 +323,16 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 				.defaultIfEmpty(Optional.empty());
 
 		return Mono.zip(clientRegistrationId, authentication, serverWebExchange)
-				.map(t3 -> new ServerOAuth2AuthorizeRequest(t3.getT1(), t3.getT2(), t3.getT3().orElse(null)));
+				.map(t3 -> {
+					OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withClientRegistrationId(t3.getT1()).principal(t3.getT2());
+					if (t3.getT3().isPresent()) {
+						builder.attribute(ServerWebExchange.class.getName(), t3.getT3().get());
+					}
+					return builder.build();
+				});
 	}
 
-	private Mono<ServerOAuth2AuthorizeRequest> reauthorizeRequest(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {
+	private Mono<OAuth2AuthorizeRequest> reauthorizeRequest(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {
 		Mono<Authentication> authentication = currentAuthentication();
 
 		Mono<Optional<ServerWebExchange>> serverWebExchange = Mono.justOrEmpty(serverWebExchange(request))
@@ -335,7 +341,13 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 				.defaultIfEmpty(Optional.empty());
 
 		return Mono.zip(authentication, serverWebExchange)
-				.map(t2 -> new ServerOAuth2AuthorizeRequest(authorizedClient, t2.getT1(), t2.getT2().orElse(null)));
+				.map(t2 -> {
+					OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withAuthorizedClient(authorizedClient).principal(t2.getT1());
+					if (t2.getT2().isPresent()) {
+						builder.attribute(ServerWebExchange.class.getName(), t2.getT2().get());
+					}
+					return builder.build();
+				});
 	}
 
 	private Mono<Authentication> currentAuthentication() {

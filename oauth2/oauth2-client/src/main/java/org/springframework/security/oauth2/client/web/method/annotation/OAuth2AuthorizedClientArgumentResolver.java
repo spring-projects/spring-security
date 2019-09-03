@@ -33,8 +33,8 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResp
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizeRequest;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -142,8 +142,11 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
 		HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
 
-		OAuth2AuthorizeRequest authorizeRequest = new OAuth2AuthorizeRequest(
-				clientRegistrationId, principal, servletRequest, servletResponse);
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(clientRegistrationId)
+				.principal(principal)
+				.attribute(HttpServletRequest.class.getName(), servletRequest)
+				.attribute(HttpServletResponse.class.getName(), servletResponse)
+				.build();
 
 		return this.authorizedClientManager.authorize(authorizeRequest);
 	}

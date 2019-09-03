@@ -23,6 +23,7 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -114,6 +115,16 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 	}
 
 	@Test
+	public void authorizeWhenServerWebExchangeIsNullThenThrowIllegalArgumentException() {
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal(this.principal)
+				.build();
+		assertThatThrownBy(() -> this.authorizedClientManager.authorize(authorizeRequest).block())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("serverWebExchange cannot be null");
+	}
+
+	@Test
 	public void authorizeWhenRequestIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> this.authorizedClientManager.authorize(null).block())
 				.isInstanceOf(IllegalArgumentException.class)
@@ -122,8 +133,10 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 
 	@Test
 	public void authorizeWhenClientRegistrationNotFoundThenThrowIllegalArgumentException() {
-		ServerOAuth2AuthorizeRequest authorizeRequest = new ServerOAuth2AuthorizeRequest(
-				"invalid-registration-id", this.principal, this.serverWebExchange);
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("invalid-registration-id")
+				.principal(this.principal)
+				.attribute(ServerWebExchange.class.getName(), this.serverWebExchange)
+				.build();
 		assertThatThrownBy(() -> this.authorizedClientManager.authorize(authorizeRequest).block())
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Could not find ClientRegistration with id 'invalid-registration-id'");
@@ -135,8 +148,10 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 		when(this.clientRegistrationRepository.findByRegistrationId(
 				eq(this.clientRegistration.getRegistrationId()))).thenReturn(Mono.just(this.clientRegistration));
 
-		ServerOAuth2AuthorizeRequest authorizeRequest = new ServerOAuth2AuthorizeRequest(
-				this.clientRegistration.getRegistrationId(), this.principal, this.serverWebExchange);
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal(this.principal)
+				.attribute(ServerWebExchange.class.getName(), this.serverWebExchange)
+				.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest).block();
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
@@ -161,8 +176,10 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 		when(this.authorizedClientProvider.authorize(
 				any(OAuth2AuthorizationContext.class))).thenReturn(Mono.just(this.authorizedClient));
 
-		ServerOAuth2AuthorizeRequest authorizeRequest = new ServerOAuth2AuthorizeRequest(
-				this.clientRegistration.getRegistrationId(), this.principal, this.serverWebExchange);
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal(this.principal)
+				.attribute(ServerWebExchange.class.getName(), this.serverWebExchange)
+				.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest).block();
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
@@ -192,8 +209,10 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.just(reauthorizedClient));
 
-		ServerOAuth2AuthorizeRequest authorizeRequest = new ServerOAuth2AuthorizeRequest(
-				this.clientRegistration.getRegistrationId(), this.principal, this.serverWebExchange);
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal(this.principal)
+				.attribute(ServerWebExchange.class.getName(), this.serverWebExchange)
+				.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest).block();
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
@@ -212,8 +231,10 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenUnsupportedProviderThenNotReauthorized() {
-		ServerOAuth2AuthorizeRequest reauthorizeRequest = new ServerOAuth2AuthorizeRequest(
-				this.authorizedClient, this.principal, this.serverWebExchange);
+		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.attribute(ServerWebExchange.class.getName(), this.serverWebExchange)
+				.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest).block();
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
@@ -238,8 +259,10 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.just(reauthorizedClient));
 
-		ServerOAuth2AuthorizeRequest reauthorizeRequest = new ServerOAuth2AuthorizeRequest(
-				this.authorizedClient, this.principal, this.serverWebExchange);
+		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.attribute(ServerWebExchange.class.getName(), this.serverWebExchange)
+				.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest).block();
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
@@ -274,8 +297,10 @@ public class DefaultServerOAuth2AuthorizedClientManagerTests {
 						.queryParam(OAuth2ParameterNames.SCOPE, "read write"))
 				.build();
 
-		ServerOAuth2AuthorizeRequest reauthorizeRequest = new ServerOAuth2AuthorizeRequest(
-				this.authorizedClient, this.principal, this.serverWebExchange);
+		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.attribute(ServerWebExchange.class.getName(), this.serverWebExchange)
+				.build();
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(reauthorizeRequest).block();
 
 		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
