@@ -15,10 +15,10 @@
  */
 package org.springframework.security.web.server.header;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
-
-import reactor.core.publisher.Mono;
 
 /**
  * <p>Writes the {@code Clear-Site-Data} response header when the request is secure.</p>
@@ -40,7 +40,7 @@ public final class ClearSiteDataServerHttpHeadersWriter implements ServerHttpHea
 	 * @throws IllegalArgumentException if the argument is null or empty
 	 */
 	public ClearSiteDataServerHttpHeadersWriter(Directive... directives) {
-		Assert.notEmpty(directives, "directives cannot be empty or null.");
+		Assert.notEmpty(directives, "directives cannot be empty or null");
 		this.headerWriterDelegate = StaticServerHttpHeadersWriter.builder()
 				.header(CLEAR_SITE_DATA_HEADER, transformToHeaderValue(directives))
 				.build();

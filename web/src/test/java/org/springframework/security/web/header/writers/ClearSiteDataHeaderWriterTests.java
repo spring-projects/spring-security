@@ -25,6 +25,10 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.CACHE;
+import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.COOKIES;
+import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.EXECUTION_CONTEXTS;
+import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.STORAGE;
 
 /**
  *
@@ -52,7 +56,7 @@ public class ClearSiteDataHeaderWriterTests {
 	@Test
 	public void createInstanceWhenMissingSourceThenThrowsException() {
 		this.thrown.expect(Exception.class);
-		this.thrown.expectMessage("sources cannot be empty or null");
+		this.thrown.expectMessage("directives cannot be empty or null");
 
 		new ClearSiteDataHeaderWriter();
 	}
@@ -60,7 +64,7 @@ public class ClearSiteDataHeaderWriterTests {
 	@Test
 	public void writeHeaderWhenRequestNotSecureThenHeaderIsNotPresent() {
 		this.request.setSecure(false);
-		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter("cache");
+		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter(CACHE);
 		headerWriter.writeHeaders(this.request, this.response);
 
 		assertThat(this.response.getHeader(HEADER_NAME)).isNull();
@@ -68,7 +72,7 @@ public class ClearSiteDataHeaderWriterTests {
 
 	@Test
 	public void writeHeaderWhenRequestIsSecureThenHeaderValueMatchesPassedSource() {
-		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter("storage");
+		ClearSiteDataHeaderWriter headerWriter = new ClearSiteDataHeaderWriter(STORAGE);
 		headerWriter.writeHeaders(this.request, this.response);
 
 		assertThat(this.response.getHeader(HEADER_NAME)).isEqualTo("\"storage\"");
@@ -77,7 +81,7 @@ public class ClearSiteDataHeaderWriterTests {
 	@Test
 	public void writeHeaderWhenRequestIsSecureThenHeaderValueMatchesPassedSources() {
 		ClearSiteDataHeaderWriter headerWriter =
-				new ClearSiteDataHeaderWriter("cache", "cookies", "storage", "executionContexts");
+				new ClearSiteDataHeaderWriter(CACHE, COOKIES, STORAGE, EXECUTION_CONTEXTS);
 		headerWriter.writeHeaders(this.request, this.response);
 
 		assertThat(this.response.getHeader(HEADER_NAME))
