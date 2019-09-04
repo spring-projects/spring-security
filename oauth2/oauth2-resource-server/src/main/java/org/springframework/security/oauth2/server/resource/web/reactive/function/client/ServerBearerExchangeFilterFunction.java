@@ -18,9 +18,7 @@ package org.springframework.security.oauth2.server.resource.web.reactive.functio
 
 import reactor.core.publisher.Mono;
 
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
@@ -52,9 +50,6 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
 public final class ServerBearerExchangeFilterFunction
 		implements ExchangeFilterFunction {
 
-	private static final AnonymousAuthenticationToken ANONYMOUS_USER_TOKEN = new AnonymousAuthenticationToken("anonymous", "anonymousUser",
-			AuthorityUtils.createAuthorityList("ROLE_USER"));
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -75,8 +70,7 @@ public final class ServerBearerExchangeFilterFunction
 
 	private Mono<Authentication> currentAuthentication() {
 		return ReactiveSecurityContextHolder.getContext()
-				.map(SecurityContext::getAuthentication)
-				.defaultIfEmpty(ANONYMOUS_USER_TOKEN);
+				.map(SecurityContext::getAuthentication);
 	}
 
 	private ClientRequest bearer(ClientRequest request, AbstractOAuth2Token token) {
