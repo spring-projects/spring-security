@@ -15,11 +15,12 @@
  */
 package org.springframework.security.web;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  *
@@ -55,5 +56,35 @@ public class DefaultRedirectStrategyTests {
 				"https://context.blah.com/context/remainder");
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("remainder");
+	}
+
+	// gh-7273
+	@Test
+	public void sendRedirectWhenUsingDefaultsThenRemovesHost()
+			throws Exception {
+		DefaultRedirectStrategy rds = new DefaultRedirectStrategy();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setContextPath("/context");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		rds.sendRedirect(request, response,
+				"https://context.blah.com/context/remainder");
+		assertThat(response.getRedirectedUrl()).isEqualTo("/context/remainder");
+	}
+
+	// gh-7273
+	@Test
+	public void sendRedirectWhenHostRelativeFalseThenKeepsHost()
+			throws Exception {
+		DefaultRedirectStrategy rds = new DefaultRedirectStrategy();
+		rds.setHostRelative(false);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setContextPath("/context");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		rds.sendRedirect(request, response,
+				"https://context.blah.com/context/remainder");
+
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://context.blah.com/context/remainder");
 	}
 }

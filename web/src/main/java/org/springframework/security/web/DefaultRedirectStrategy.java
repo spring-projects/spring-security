@@ -16,19 +16,22 @@
 package org.springframework.security.web;
 
 import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Simple implementation of <tt>RedirectStrategy</tt> which is the default used throughout
  * the framework.
  *
  * @author Luke Taylor
+ * @author Josh Cummings
  * @since 3.0
  */
 public class DefaultRedirectStrategy implements RedirectStrategy {
@@ -36,6 +39,7 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private boolean contextRelative;
+	private boolean hostRelative = true;
 
 	/**
 	 * Redirects the response to the supplied URL.
@@ -68,25 +72,40 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 		}
 
 		// Full URL, including http(s)://
+		boolean hostRelative = this.hostRelative;
+		boolean contextRelative = isContextRelative();
 
-		if (!isContextRelative()) {
+		if (!hostRelative && !contextRelative) {
 			return url;
 		}
 
-		// Calculate the relative URL from the fully qualified URL, minus the last
-		// occurrence of the scheme and base context.
-		url = url.substring(url.lastIndexOf("://") + 3); // strip off scheme
-		url = url.substring(url.indexOf(contextPath) + contextPath.length());
+		UriComponents components = UriComponentsBuilder
+				.fromHttpUrl(url).build();
 
-		if (url.length() > 1 && url.charAt(0) == '/') {
-			url = url.substring(1);
+		String path = components.getPath();
+		if (contextRelative) {
+			path = path.substring(path.indexOf(contextPath) + contextPath.length());
+			if (path.length() > 1 && path.charAt(0) == '/') {
+				path = path.substring(1);
+			}
 		}
 
-		return url;
+		return UriComponentsBuilder
+				.fromPath(path)
+				.query(components.getQuery())
+				.build().toString();
 	}
 
 	/**
-	 * If <tt>true</tt>, causes any redirection URLs to be calculated minus the protocol
+	 * If <tt>true</tt>, causes any redirection URLs to be calculated minus the authority
+	 * (defaults to <tt>true</tt>).
+	 */
+	public void setHostRelative(boolean hostRelative) {
+		this.hostRelative = hostRelative;
+	}
+
+	/**
+	 * If <tt>true</tt>, causes any redirection URLs to be calculated minus the authority
 	 * and context path (defaults to <tt>false</tt>).
 	 */
 	public void setContextRelative(boolean useRelativeContext) {
