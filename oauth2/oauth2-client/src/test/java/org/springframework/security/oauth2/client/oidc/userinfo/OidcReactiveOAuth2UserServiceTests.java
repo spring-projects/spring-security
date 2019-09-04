@@ -16,13 +16,25 @@
 
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.function.Function;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -36,17 +48,20 @@ import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import reactor.core.publisher.Mono;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.same;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
+import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.scopes;
+import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
 
 /**
  * @author Rob Winch
@@ -176,6 +191,38 @@ public class OidcReactiveOAuth2UserServiceTests {
 		this.userService.loadUser(userRequest).block().getUserInfo();
 
 		verify(customClaimTypeConverterFactory).apply(same(userRequest.getClientRegistration()));
+	}
+
+	@Test
+	public void loadUserWhenTokenContainsScopesThenIndividualScopeAuthorities() {
+		Map<String, Object> body = new HashMap<>();
+		body.put("id", "id");
+		body.put("sub", "test-subject");
+		OidcReactiveOAuth2UserService userService = new OidcReactiveOAuth2UserService();
+		OidcUserRequest request = new OidcUserRequest(
+				clientRegistration().build(), scopes("message:read", "message:write"), idToken(body));
+		OidcUser user = userService.loadUser(request).block();
+
+		assertThat(user.getAuthorities()).hasSize(3);
+		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
+		assertThat(authorities.next()).isInstanceOf(OAuth2UserAuthority.class);
+		assertThat(authorities.next()).isEqualTo(new SimpleGrantedAuthority("SCOPE_message:read"));
+		assertThat(authorities.next()).isEqualTo(new SimpleGrantedAuthority("SCOPE_message:write"));
+	}
+
+	@Test
+	public void loadUserWhenTokenDoesNotContainScopesThenNoScopeAuthorities() {
+		Map<String, Object> body = new HashMap<>();
+		body.put("id", "id");
+		body.put("sub", "test-subject");
+		OidcReactiveOAuth2UserService userService = new OidcReactiveOAuth2UserService();
+		OidcUserRequest request = new OidcUserRequest(
+				clientRegistration().build(), noScopes(), idToken(body));
+		OidcUser user = userService.loadUser(request).block();
+
+		assertThat(user.getAuthorities()).hasSize(1);
+		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
+		assertThat(authorities.next()).isInstanceOf(OAuth2UserAuthority.class);
 	}
 
 	private OidcUserRequest userRequest() {
