@@ -15,6 +15,17 @@
  */
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,15 +48,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 
 /**
  * An implementation of an {@link OAuth2UserService} that supports OpenID Connect 1.0 Provider's.
@@ -94,6 +96,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
 		OidcUserInfo userInfo = null;
+		Collection<? extends GrantedAuthority> oauth2UserAuthorities = Collections.emptyList();
 		if (this.shouldRetrieveUserInfo(userRequest)) {
 			OAuth2User oauth2User = this.oauth2UserService.loadUser(userRequest);
 
@@ -106,6 +109,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 				claims = DEFAULT_CLAIM_TYPE_CONVERTER.convert(oauth2User.getAttributes());
 			}
 			userInfo = new OidcUserInfo(claims);
+			oauth2UserAuthorities = oauth2User.getAuthorities();
 
 			// https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
 
@@ -127,8 +131,9 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			}
 		}
 
-		Set<GrantedAuthority> authorities = Collections.singleton(
-				new OidcUserAuthority(userRequest.getIdToken(), userInfo));
+		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+		authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo));
+		authorities.addAll(oauth2UserAuthorities);
 
 		OidcUser user;
 
