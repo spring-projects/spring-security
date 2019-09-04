@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.server.resource.web.server;
-
-import java.util.Map;
-import java.util.function.Consumer;
+package org.springframework.security.oauth2.server.resource.web.reactive.function.client;
 
 import reactor.core.publisher.Mono;
 
@@ -52,52 +49,25 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
  * @author Josh Cummings
  * @since 5.2
  */
-public class ServerBearerExchangeFilterFunction
+public final class ServerBearerExchangeFilterFunction
 		implements ExchangeFilterFunction {
-
-	private static final String AUTHENTICATION_ATTR_NAME = Authentication.class.getName();
 
 	private static final AnonymousAuthenticationToken ANONYMOUS_USER_TOKEN = new AnonymousAuthenticationToken("anonymous", "anonymousUser",
 			AuthorityUtils.createAuthorityList("ROLE_USER"));
-
-	/**
-	 * Modifies the {@link ClientRequest#attributes()} to include the {@link Authentication} to be used for
-	 * providing the Bearer Token. Example usage:
-	 *
-	 * <pre>
-	 * WebClient webClient = WebClient.builder()
-	 *    .filter(new ServerBearerExchangeFilterFunction())
-	 *    .build();
-	 * Mono<String> response = webClient
-	 *    .get()
-	 *    .uri(uri)
-	 *    .attributes(authentication(authentication))
-	 *    // ...
-	 *    .retrieve()
-	 *    .bodyToMono(String.class);
-	 * </pre>
-	 * @param authentication the {@link Authentication} to use
-	 * @return the {@link Consumer} to populate the client request attributes
-	 */
-	public static Consumer<Map<String, Object>> authentication(Authentication authentication) {
-		return attributes -> attributes.put(AUTHENTICATION_ATTR_NAME, authentication);
-	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-		return oauth2Token(request.attributes())
-				.map(oauth2Token -> bearer(request, oauth2Token))
+		return oauth2Token()
+				.map(token -> bearer(request, token))
 				.defaultIfEmpty(request)
 				.flatMap(next::exchange);
 	}
 
-	private Mono<AbstractOAuth2Token> oauth2Token(Map<String, Object> attrs) {
-		return Mono.justOrEmpty(attrs.get(AUTHENTICATION_ATTR_NAME))
-				.cast(Authentication.class)
-				.switchIfEmpty(currentAuthentication())
+	private Mono<AbstractOAuth2Token> oauth2Token() {
+		return currentAuthentication()
 				.filter(authentication -> authentication.getCredentials() instanceof AbstractOAuth2Token)
 				.map(Authentication::getCredentials)
 				.cast(AbstractOAuth2Token.class);

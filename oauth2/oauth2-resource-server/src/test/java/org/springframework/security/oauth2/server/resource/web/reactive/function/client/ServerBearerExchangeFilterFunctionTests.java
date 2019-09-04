@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.server.resource.web.server;
+package org.springframework.security.oauth2.server.resource.web.reactive.function.client;
 
 import java.net.URI;
 import java.time.Duration;
@@ -25,6 +25,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -34,7 +35,6 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.security.oauth2.server.resource.web.ServletBearerExchangeFilterFunction.authentication;
 
 /**
  * Tests for {@link ServerBearerExchangeFilterFunction}
@@ -80,26 +80,30 @@ public class ServerBearerExchangeFilterFunctionTests {
 				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
 
+	// gh-7353
 	@Test
-	public void filterWhenAuthenticationAttributeThenAuthorizationHeader() {
+	public void filterWhenAuthenticatedWithOtherTokenThenAuthorizationHeaderNull() throws Exception {
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
-				.attributes(authentication(this.authentication))
 				.build();
 
-		this.function.filter(request, this.exchange).block();
+		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "pass");
+		this.function.filter(request, this.exchange)
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(token))
+				.block();
 
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
-				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
+				.isNull();
 	}
 
 	@Test
 	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.header(HttpHeaders.AUTHORIZATION, "Existing")
-				.attributes(authentication(this.authentication))
 				.build();
 
-		this.function.filter(request, this.exchange).block();
+		this.function.filter(request, this.exchange)
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
+				.block();
 
 		HttpHeaders headers = this.exchange.getRequest().headers();
 		assertThat(headers.get(HttpHeaders.AUTHORIZATION)).containsOnly("Bearer " + this.accessToken.getTokenValue());
