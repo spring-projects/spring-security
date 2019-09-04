@@ -46,6 +46,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
@@ -68,6 +69,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -120,6 +122,8 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Captor
 	private ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor;
 
+	private DefaultOAuth2AuthorizedClientManager authorizedClientManager;
+
 	/**
 	 * Used for get the attributes from defaultRequest.
 	 */
@@ -148,9 +152,9 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 						.clientCredentials(configurer -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
 						.password(configurer -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
 						.build();
-		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
+		this.authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
-		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+		this.authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
 	}
 
@@ -458,6 +462,18 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 		ClientRegistration registration = TestClientRegistrations.password().build();
 		when(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId()))).thenReturn(registration);
+
+		// Set custom contextAttributesMapper
+		this.authorizedClientManager.setContextAttributesMapper(authorizeRequest -> {
+			Map<String, Object> contextAttributes = new HashMap<>();
+			String username = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.USERNAME);
+			String password = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.PASSWORD);
+			if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+				contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
+				contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
+			}
+			return contextAttributes;
+		});
 
 		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
 		servletRequest.setParameter(OAuth2ParameterNames.USERNAME, "username");
