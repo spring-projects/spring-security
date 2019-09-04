@@ -15,13 +15,22 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -34,10 +43,6 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * An implementation of an {@link OAuth2UserService} that supports standard OAuth 2.0 Provider's.
@@ -65,6 +70,9 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 
 	private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE =
 			new ParameterizedTypeReference<Map<String, Object>>() {};
+
+	private static final Collection<String> WELL_KNOWN_AUTHORITIES_CLAIM_NAMES =
+			Arrays.asList("scope", "scp");
 
 	private Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter = new OAuth2UserRequestEntityConverter();
 
@@ -127,7 +135,11 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 		}
 
 		Map<String, Object> userAttributes = response.getBody();
-		Set<GrantedAuthority> authorities = Collections.singleton(new OAuth2UserAuthority(userAttributes));
+		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+		authorities.add(new OAuth2UserAuthority(userAttributes));
+		for (String authority : getAuthorities(() -> userAttributes)) {
+			authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
+		}
 
 		return new DefaultOAuth2User(authorities, userAttributes, userNameAttributeName);
 	}
@@ -159,5 +171,35 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 	public final void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");
 		this.restOperations = restOperations;
+	}
+
+	private String getAuthoritiesClaimName(ClaimAccessor claims) {
+		for (String claimName : WELL_KNOWN_AUTHORITIES_CLAIM_NAMES) {
+			if (claims.containsClaim(claimName)) {
+				return claimName;
+			}
+		}
+		return null;
+	}
+
+	private Collection<String> getAuthorities(ClaimAccessor claims) {
+		String claimName = getAuthoritiesClaimName(claims);
+
+		if (claimName == null) {
+			return Collections.emptyList();
+		}
+
+		Object authorities = claims.getClaim(claimName);
+		if (authorities instanceof String) {
+			if (StringUtils.hasText((String) authorities)) {
+				return Arrays.asList(((String) authorities).split(" "));
+			} else {
+				return Collections.emptyList();
+			}
+		} else if (authorities instanceof Collection) {
+			return (Collection<String>) authorities;
+		}
+
+		return Collections.emptyList();
 	}
 }

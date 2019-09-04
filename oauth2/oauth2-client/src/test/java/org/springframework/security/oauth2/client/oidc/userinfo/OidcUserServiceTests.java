@@ -15,6 +15,15 @@
  */
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -23,12 +32,20 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -39,20 +56,20 @@ import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
-
-import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.same;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.scopes;
+import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
 
 /**
  * Tests for {@link OidcUserService}.
@@ -479,6 +496,73 @@ public class OidcUserServiceTests {
 		this.userService.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 
 		verify(customClaimTypeConverterFactory).apply(same(clientRegistration));
+	}
+
+	@Test
+	public void loadUserWhenAttributesContainScopeThenIndividualScopeAuthorities() {
+		Map<String, Object> body = new HashMap<>();
+		body.put("id", "id");
+		body.put("sub", "test-subject");
+		body.put("scope", "message:read message:write");
+		OidcUserService userService = new OidcUserService();
+		userService.setOauth2UserService(withMockResponse(body));
+		OidcUserRequest request = new OidcUserRequest(clientRegistration().
+				userInfoUri("uri").build(), scopes("profile"), idToken(body));
+		OidcUser user = userService.loadUser(request);
+
+		assertThat(user.getAuthorities()).hasSize(3);
+		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
+		assertThat(authorities.next()).isInstanceOf(OidcUserAuthority.class);
+		assertThat(authorities.next()).isEqualTo(new SimpleGrantedAuthority("SCOPE_message:read"));
+		assertThat(authorities.next()).isEqualTo(new SimpleGrantedAuthority("SCOPE_message:write"));
+	}
+
+	@Test
+	public void loadUserWhenAttributesContainScpThenIndividualScopeAuthorities() {
+		Map<String, Object> body = new HashMap<>();
+		body.put("id", "id");
+		body.put("sub", "test-subject");
+		body.put("scp", Arrays.asList("message:read", "message:write"));
+		OidcUserService userService = new OidcUserService();
+		userService.setOauth2UserService(withMockResponse(body));
+		OidcUserRequest request = new OidcUserRequest(clientRegistration().
+				userInfoUri("uri").build(), scopes("profile"), idToken(body));
+		OidcUser user = userService.loadUser(request);
+
+		assertThat(user.getAuthorities()).hasSize(3);
+		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
+		assertThat(authorities.next()).isInstanceOf(OidcUserAuthority.class);
+		assertThat(authorities.next()).isEqualTo(new SimpleGrantedAuthority("SCOPE_message:read"));
+		assertThat(authorities.next()).isEqualTo(new SimpleGrantedAuthority("SCOPE_message:write"));
+	}
+
+	@Test
+	public void loadUserWhenAttributesDoesNotContainScopesThenNoScopeAuthorities() {
+		Map<String, Object> body = new HashMap<>();
+		body.put("id", "id");
+		body.put("sub", "test-subject");
+		body.put("authorities", Arrays.asList("message:read", "message:write"));
+		OidcUserService userService = new OidcUserService();
+		userService.setOauth2UserService(withMockResponse(body));
+		OidcUserRequest request = new OidcUserRequest(clientRegistration().
+				userInfoUri("uri").build(), scopes("profile"), idToken(body));
+		OidcUser user = userService.loadUser(request);
+
+		assertThat(user.getAuthorities()).hasSize(1);
+		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
+		assertThat(authorities.next()).isInstanceOf(OidcUserAuthority.class);
+	}
+
+	private DefaultOAuth2UserService withMockResponse(Map<String, Object> response) {
+		ResponseEntity<Map<String, Object>> responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+		Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter = mock(Converter.class);
+		RestOperations rest = mock(RestOperations.class);
+		when(rest.exchange(nullable(RequestEntity.class), any(ParameterizedTypeReference.class)))
+				.thenReturn(responseEntity);
+		DefaultOAuth2UserService userService = new DefaultOAuth2UserService();
+		userService.setRequestEntityConverter(requestEntityConverter);
+		userService.setRestOperations(rest);
+		return userService;
 	}
 
 	private MockResponse jsonResponse(String json) {
