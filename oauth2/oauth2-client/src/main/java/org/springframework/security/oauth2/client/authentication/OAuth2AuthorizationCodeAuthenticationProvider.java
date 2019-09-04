@@ -60,13 +60,13 @@ public class OAuth2AuthorizationCodeAuthenticationProvider implements Authentica
 			(OAuth2AuthorizationCodeAuthenticationToken) authentication;
 
 		OAuth2AuthorizationExchangeValidator.validate(
-			authorizationCodeAuthentication.getAuthorizationExchange());
+				authorizationCodeAuthentication.getAuthorizationExchange());
 
 		OAuth2AccessTokenResponse accessTokenResponse =
-			this.accessTokenResponseClient.getTokenResponse(
-				new OAuth2AuthorizationCodeGrantRequest(
-					authorizationCodeAuthentication.getClientRegistration(),
-					authorizationCodeAuthentication.getAuthorizationExchange()));
+				this.getAccessTokenResponse(
+						new OAuth2AuthorizationCodeGrantRequest(
+								authorizationCodeAuthentication.getClientRegistration(),
+								authorizationCodeAuthentication.getAuthorizationExchange()));
 
 		OAuth2AuthorizationCodeAuthenticationToken authenticationResult =
 			new OAuth2AuthorizationCodeAuthenticationToken(
@@ -82,5 +82,9 @@ public class OAuth2AuthorizationCodeAuthenticationProvider implements Authentica
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return OAuth2AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
+	public OAuth2AccessTokenResponse getAccessTokenResponse(OAuth2AuthorizationCodeGrantRequest oAuth2AuthorizationCodeGrantRequest) {
+		return this.accessTokenResponseClient.getTokenResponse(oAuth2AuthorizationCodeGrantRequest);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,10 +45,7 @@ import java.util.Collections;
 public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	private OAuth2User principal;
-	private ClientRegistration clientRegistration;
-	private OAuth2AuthorizationExchange authorizationExchange;
-	private OAuth2AccessToken accessToken;
-	private OAuth2RefreshToken refreshToken;
+	private OAuth2AuthorizationCodeAuthenticationToken oAuth2AuthorizationCodeAuthenticationToken;
 
 	/**
 	 * This constructor should be used when the Authorization Request/Response is complete.
@@ -60,10 +57,8 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 											OAuth2AuthorizationExchange authorizationExchange) {
 
 		super(Collections.emptyList());
-		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		Assert.notNull(authorizationExchange, "authorizationExchange cannot be null");
-		this.clientRegistration = clientRegistration;
-		this.authorizationExchange = authorizationExchange;
+		this.oAuth2AuthorizationCodeAuthenticationToken =
+				new OAuth2AuthorizationCodeAuthenticationToken(clientRegistration, authorizationExchange);
 		this.setAuthenticated(false);
 	}
 
@@ -105,15 +100,10 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 											OAuth2AccessToken accessToken,
 											@Nullable OAuth2RefreshToken refreshToken) {
 		super(authorities);
-		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		Assert.notNull(authorizationExchange, "authorizationExchange cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
-		Assert.notNull(accessToken, "accessToken cannot be null");
-		this.clientRegistration = clientRegistration;
-		this.authorizationExchange = authorizationExchange;
+		this.oAuth2AuthorizationCodeAuthenticationToken =
+				new OAuth2AuthorizationCodeAuthenticationToken(clientRegistration, authorizationExchange, accessToken, refreshToken);
 		this.principal = principal;
-		this.accessToken = accessToken;
-		this.refreshToken = refreshToken;
 		this.setAuthenticated(true);
 	}
 
@@ -133,7 +123,7 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	 * @return the {@link ClientRegistration}
 	 */
 	public ClientRegistration getClientRegistration() {
-		return this.clientRegistration;
+		return this.oAuth2AuthorizationCodeAuthenticationToken.getClientRegistration();
 	}
 
 	/**
@@ -142,7 +132,7 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	 * @return the {@link OAuth2AuthorizationExchange}
 	 */
 	public OAuth2AuthorizationExchange getAuthorizationExchange() {
-		return this.authorizationExchange;
+		return this.oAuth2AuthorizationCodeAuthenticationToken.getAuthorizationExchange();
 	}
 
 	/**
@@ -151,7 +141,7 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	 * @return the {@link OAuth2AccessToken}
 	 */
 	public OAuth2AccessToken getAccessToken() {
-		return this.accessToken;
+		return this.oAuth2AuthorizationCodeAuthenticationToken.getAccessToken();
 	}
 
 	/**
@@ -161,6 +151,6 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 	 * @return the {@link OAuth2RefreshToken}
 	 */
 	public @Nullable OAuth2RefreshToken getRefreshToken() {
-		return this.refreshToken;
+		return this.oAuth2AuthorizationCodeAuthenticationToken.getRefreshToken();
 	}
 }

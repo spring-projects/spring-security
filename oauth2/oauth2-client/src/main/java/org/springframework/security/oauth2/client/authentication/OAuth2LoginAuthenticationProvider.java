@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ import java.util.Map;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response</a>
  */
 public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider {
-	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
+	private final AuthenticationProvider authenticationProvider;
 	private final OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
 	private GrantedAuthoritiesMapper authoritiesMapper = (authorities -> authorities);
 
@@ -76,8 +76,8 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		Assert.notNull(userService, "userService cannot be null");
-		this.accessTokenResponseClient = accessTokenResponseClient;
 		this.userService = userService;
+		this.authenticationProvider = new OAuth2AuthorizationCodeAuthenticationProvider(accessTokenResponseClient);
 	}
 
 	@Override
@@ -100,10 +100,11 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 			OAuth2AuthorizationExchangeValidator.validate(
 					authorizationCodeAuthentication.getAuthorizationExchange());
 
-			accessTokenResponse = this.accessTokenResponseClient.getTokenResponse(
-					new OAuth2AuthorizationCodeGrantRequest(
-							authorizationCodeAuthentication.getClientRegistration(),
-							authorizationCodeAuthentication.getAuthorizationExchange()));
+			accessTokenResponse = ((OAuth2AuthorizationCodeAuthenticationProvider) this.authenticationProvider)
+					.getAccessTokenResponse(
+							new OAuth2AuthorizationCodeGrantRequest(
+									authorizationCodeAuthentication.getClientRegistration(),
+									authorizationCodeAuthentication.getAuthorizationExchange()));
 
 		} catch (OAuth2AuthorizationException ex) {
 			OAuth2Error oauth2Error = ex.getError();
