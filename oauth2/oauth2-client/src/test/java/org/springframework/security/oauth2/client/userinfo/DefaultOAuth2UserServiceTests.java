@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -56,6 +55,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
+import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.scopes;
 
 /**
  * Tests for {@link DefaultOAuth2UserService}.
@@ -342,12 +342,12 @@ public class DefaultOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenAttributesContainScopeThenIndividualScopeAuthorities() {
+	public void loadUserWhenTokenContainsScopesThenIndividualScopeAuthorities() {
 		Map<String, Object> body = new HashMap<>();
 		body.put("id", "id");
-		body.put("scope", "message:read message:write");
 		DefaultOAuth2UserService userService = withMockResponse(body);
-		OAuth2UserRequest request = new OAuth2UserRequest(clientRegistration().build(), noScopes());
+		OAuth2UserRequest request = new OAuth2UserRequest(
+				clientRegistration().build(), scopes("message:read", "message:write"));
 		OAuth2User user = userService.loadUser(request);
 
 		assertThat(user.getAuthorities()).hasSize(3);
@@ -358,28 +358,12 @@ public class DefaultOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenAttributesContainScpThenIndividualScopeAuthorities() {
+	public void loadUserWhenTokenDoesNotContainScopesThenNoScopeAuthorities() {
 		Map<String, Object> body = new HashMap<>();
 		body.put("id", "id");
-		body.put("scp", Arrays.asList("message:read", "message:write"));
 		DefaultOAuth2UserService userService = withMockResponse(body);
-		OAuth2UserRequest request = new OAuth2UserRequest(clientRegistration().build(), noScopes());
-		OAuth2User user = userService.loadUser(request);
-
-		assertThat(user.getAuthorities()).hasSize(3);
-		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
-		assertThat(authorities.next()).isInstanceOf(OAuth2UserAuthority.class);
-		assertThat(authorities.next()).isEqualTo(new SimpleGrantedAuthority("SCOPE_message:read"));
-		assertThat(authorities.next()).isEqualTo(new SimpleGrantedAuthority("SCOPE_message:write"));
-	}
-
-	@Test
-	public void loadUserWhenAttributesDoesNotContainScopesThenNoScopeAuthorities() {
-		Map<String, Object> body = new HashMap<>();
-		body.put("id", "id");
-		body.put("authorities", Arrays.asList("message:read", "message:write"));
-		DefaultOAuth2UserService userService = withMockResponse(body);
-		OAuth2UserRequest request = new OAuth2UserRequest(clientRegistration().build(), noScopes());
+		OAuth2UserRequest request = new OAuth2UserRequest(
+				clientRegistration().build(), noScopes());
 		OAuth2User user = userService.loadUser(request);
 
 		assertThat(user.getAuthorities()).hasSize(1);

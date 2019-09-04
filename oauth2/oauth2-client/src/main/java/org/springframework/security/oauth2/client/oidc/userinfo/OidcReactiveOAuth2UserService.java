@@ -18,10 +18,12 @@ package org.springframework.security.oauth2.client.oidc.userinfo;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.converter.ClaimConversionService;
@@ -99,6 +101,10 @@ public class OidcReactiveOAuth2UserService implements
 				OidcUserInfo userInfo = authority.getUserInfo();
 				Set<GrantedAuthority> authorities = new HashSet<>();
 				authorities.add(authority);
+				OAuth2AccessToken token = userRequest.getAccessToken();
+				for (String scope : token.getScopes()) {
+					authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
+				}
 				String userNameAttributeName = userRequest.getClientRegistration()
 							.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 				if (StringUtils.hasText(userNameAttributeName)) {

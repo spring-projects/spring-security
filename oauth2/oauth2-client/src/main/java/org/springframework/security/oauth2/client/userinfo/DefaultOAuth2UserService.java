@@ -15,9 +15,6 @@
  */
 package org.springframework.security.oauth2.client.userinfo;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +27,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.ClaimAccessor;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -70,9 +67,6 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 
 	private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE =
 			new ParameterizedTypeReference<Map<String, Object>>() {};
-
-	private static final Collection<String> WELL_KNOWN_AUTHORITIES_CLAIM_NAMES =
-			Arrays.asList("scope", "scp");
 
 	private Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter = new OAuth2UserRequestEntityConverter();
 
@@ -137,7 +131,8 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 		Map<String, Object> userAttributes = response.getBody();
 		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
 		authorities.add(new OAuth2UserAuthority(userAttributes));
-		for (String authority : getAuthorities(() -> userAttributes)) {
+		OAuth2AccessToken token = userRequest.getAccessToken();
+		for (String authority : token.getScopes()) {
 			authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
 		}
 
@@ -171,35 +166,5 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 	public final void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");
 		this.restOperations = restOperations;
-	}
-
-	private String getAuthoritiesClaimName(ClaimAccessor claims) {
-		for (String claimName : WELL_KNOWN_AUTHORITIES_CLAIM_NAMES) {
-			if (claims.containsClaim(claimName)) {
-				return claimName;
-			}
-		}
-		return null;
-	}
-
-	private Collection<String> getAuthorities(ClaimAccessor claims) {
-		String claimName = getAuthoritiesClaimName(claims);
-
-		if (claimName == null) {
-			return Collections.emptyList();
-		}
-
-		Object authorities = claims.getClaim(claimName);
-		if (authorities instanceof String) {
-			if (StringUtils.hasText((String) authorities)) {
-				return Arrays.asList(((String) authorities).split(" "));
-			} else {
-				return Collections.emptyList();
-			}
-		} else if (authorities instanceof Collection) {
-			return (Collection<String>) authorities;
-		}
-
-		return Collections.emptyList();
 	}
 }

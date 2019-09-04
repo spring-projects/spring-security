@@ -28,7 +28,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -131,6 +133,10 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 				GrantedAuthority authority = new OAuth2UserAuthority(attrs);
 				Set<GrantedAuthority> authorities = new HashSet<>();
 				authorities.add(authority);
+				OAuth2AccessToken token = userRequest.getAccessToken();
+				for (String scope : token.getScopes()) {
+					authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
+				}
 
 				return new DefaultOAuth2User(authorities, attrs, userNameAttributeName);
 			})

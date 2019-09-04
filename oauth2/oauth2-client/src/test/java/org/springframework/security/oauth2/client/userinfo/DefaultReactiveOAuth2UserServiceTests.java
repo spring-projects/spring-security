@@ -16,15 +16,30 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
@@ -32,14 +47,17 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import okhttp3.mockwebserver.RecordedRequest;
-import reactor.test.StepVerifier;
-
-import java.time.Duration;
-import java.time.Instant;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
+import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.scopes;
 
 /**
  * @author Rob Winch
@@ -209,6 +227,53 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		this.clientRegistration.userInfoUri("https://invalid-provider.com/user");
 		assertThatThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
 				.isInstanceOf(AuthenticationServiceException.class);
+	}
+
+	@Test
+	public void loadUserWhenTokenContainsScopesThenIndividualScopeAuthorities() {
+		Map<String, Object> body = new HashMap<>();
+		body.put("id", "id");
+		DefaultReactiveOAuth2UserService userService = withMockResponse(body);
+		OAuth2UserRequest request = new OAuth2UserRequest(
+				clientRegistration().build(), scopes("message:read", "message:write"));
+		OAuth2User user = userService.loadUser(request).block();
+
+		assertThat(user.getAuthorities()).hasSize(3);
+		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
+		assertThat(authorities.next()).isInstanceOf(OAuth2UserAuthority.class);
+		assertThat(authorities.next()).isEqualTo(new SimpleGrantedAuthority("SCOPE_message:read"));
+		assertThat(authorities.next()).isEqualTo(new SimpleGrantedAuthority("SCOPE_message:write"));
+	}
+
+	@Test
+	public void loadUserWhenTokenDoesNotContainScopesThenNoScopeAuthorities() {
+		Map<String, Object> body = new HashMap<>();
+		body.put("id", "id");
+		DefaultReactiveOAuth2UserService userService = withMockResponse(body);
+		OAuth2UserRequest request = new OAuth2UserRequest(
+				clientRegistration().build(), noScopes());
+		OAuth2User user = userService.loadUser(request).block();
+
+		assertThat(user.getAuthorities()).hasSize(1);
+		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
+		assertThat(authorities.next()).isInstanceOf(OAuth2UserAuthority.class);
+	}
+
+	private DefaultReactiveOAuth2UserService withMockResponse(Map<String, Object> body) {
+		WebClient real = WebClient.builder().build();
+		WebClient.RequestHeadersUriSpec spec = spy(real.post());
+		WebClient rest = spy(WebClient.class);
+		WebClient.ResponseSpec clientResponse = mock(WebClient.ResponseSpec.class);
+		when(rest.get()).thenReturn(spec);
+		when(spec.retrieve()).thenReturn(clientResponse);
+		when(clientResponse.onStatus(any(Predicate.class), any(Function.class)))
+				.thenReturn(clientResponse);
+		when(clientResponse.bodyToMono(any(ParameterizedTypeReference.class)))
+				.thenReturn(Mono.just(body));
+
+		DefaultReactiveOAuth2UserService userService = new DefaultReactiveOAuth2UserService();
+		userService.setWebClient(rest);
+		return userService;
 	}
 
 	private OAuth2UserRequest oauth2UserRequest() {
