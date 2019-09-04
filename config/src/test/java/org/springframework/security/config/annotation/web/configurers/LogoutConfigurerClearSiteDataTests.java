@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.configurers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,6 +33,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.CACHE;
+import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.COOKIES;
+import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.EXECUTION_CONTEXTS;
+import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.STORAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -50,7 +55,8 @@ public class LogoutConfigurerClearSiteDataTests {
 
 	private static final String CLEAR_SITE_DATA_HEADER = "Clear-Site-Data";
 
-	private static final String[] SOURCE = {"cache", "cookies", "storage", "executionContexts"};
+	private static final ClearSiteDataHeaderWriter.Directive[] SOURCE =
+			{ CACHE, COOKIES, STORAGE, EXECUTION_CONTEXTS };
 
 	private static final String HEADER_VALUE = "\"cache\", \"cookies\", \"storage\", \"executionContexts\"";
 
