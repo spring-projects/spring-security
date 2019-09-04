@@ -139,13 +139,6 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 				contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
 						StringUtils.delimitedListToStringArray(scope, " "));
 			}
-			String username = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.USERNAME);
-			String password = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.PASSWORD);
-			if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
-				contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
-				contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
-			}
-
 			return contextAttributes;
 		}
 	}

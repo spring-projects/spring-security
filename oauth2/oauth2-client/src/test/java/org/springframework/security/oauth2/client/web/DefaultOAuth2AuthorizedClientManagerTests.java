@@ -31,7 +31,10 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -206,9 +209,17 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(this.authorizedClient);
 
-		// Override the mock with the default
-		this.authorizedClientManager.setContextAttributesMapper(
-				new DefaultOAuth2AuthorizedClientManager.DefaultContextAttributesMapper());
+		// Set custom contextAttributesMapper
+		this.authorizedClientManager.setContextAttributesMapper(authorizeRequest -> {
+			Map<String, Object> contextAttributes = new HashMap<>();
+			String username = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.USERNAME);
+			String password = authorizeRequest.getServletRequest().getParameter(OAuth2ParameterNames.PASSWORD);
+			if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+				contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
+				contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
+			}
+			return contextAttributes;
+		});
 
 		this.request.addParameter(OAuth2ParameterNames.USERNAME, "username");
 		this.request.addParameter(OAuth2ParameterNames.PASSWORD, "password");
