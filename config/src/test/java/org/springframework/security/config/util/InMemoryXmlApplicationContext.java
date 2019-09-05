@@ -23,7 +23,7 @@ import org.springframework.security.util.InMemoryResource;
 
 /**
  * @author Luke Taylor
- * @author Eddú Meléndez
+ * @author EddÃº MelÃ©ndez
  */
 public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext {
 	static final String BEANS_OPENING = "<b:beans xmlns='http://www.springframework.org/schema/security'\n"
