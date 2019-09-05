@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.web.server;
+package org.springframework.security.oauth2.client.web;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.client.ServerOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -34,26 +35,26 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * The default implementation of a {@link ServerOAuth2AuthorizedClientManager}.
+ * The default implementation of a {@link ReactiveOAuth2AuthorizedClientManager}.
  *
  * @author Joe Grandja
  * @since 5.2
- * @see ServerOAuth2AuthorizedClientManager
+ * @see ReactiveOAuth2AuthorizedClientManager
  * @see ReactiveOAuth2AuthorizedClientProvider
  */
-public final class DefaultServerOAuth2AuthorizedClientManager implements ServerOAuth2AuthorizedClientManager {
+public final class DefaultReactiveOAuth2AuthorizedClientManager implements ReactiveOAuth2AuthorizedClientManager {
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 	private final ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 	private ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = context -> Mono.empty();
 	private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper = new DefaultContextAttributesMapper();
 
 	/**
-	 * Constructs a {@code DefaultServerOAuth2AuthorizedClientManager} using the provided parameters.
+	 * Constructs a {@code DefaultReactiveOAuth2AuthorizedClientManager} using the provided parameters.
 	 *
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientRepository the repository of authorized clients
 	 */
-	public DefaultServerOAuth2AuthorizedClientManager(ReactiveClientRegistrationRepository clientRegistrationRepository,
+	public DefaultReactiveOAuth2AuthorizedClientManager(ReactiveClientRegistrationRepository clientRegistrationRepository,
 														ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");

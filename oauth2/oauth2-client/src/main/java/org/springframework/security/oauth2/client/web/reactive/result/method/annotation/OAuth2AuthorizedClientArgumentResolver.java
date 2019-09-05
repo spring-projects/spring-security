@@ -27,11 +27,11 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
-import org.springframework.security.oauth2.client.ServerOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.server.DefaultServerOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -64,15 +64,15 @@ import reactor.core.publisher.Mono;
 public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMethodArgumentResolver {
 	private static final AnonymousAuthenticationToken ANONYMOUS_USER_TOKEN = new AnonymousAuthenticationToken(
 			"anonymous", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_USER"));
-	private ServerOAuth2AuthorizedClientManager authorizedClientManager;
+	private ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClientArgumentResolver} using the provided parameters.
 	 *
 	 * @since 5.2
-	 * @param authorizedClientManager the {@link ServerOAuth2AuthorizedClientManager} which manages the authorized client(s)
+	 * @param authorizedClientManager the {@link ReactiveOAuth2AuthorizedClientManager} which manages the authorized client(s)
 	 */
-	public OAuth2AuthorizedClientArgumentResolver(ServerOAuth2AuthorizedClientManager authorizedClientManager) {
+	public OAuth2AuthorizedClientArgumentResolver(ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
 		Assert.notNull(authorizedClientManager, "authorizedClientManager cannot be null");
 		this.authorizedClientManager = authorizedClientManager;
 	}
@@ -90,7 +90,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 		this.authorizedClientManager = createDefaultAuthorizedClientManager(clientRegistrationRepository, authorizedClientRepository);
 	}
 
-	private static ServerOAuth2AuthorizedClientManager createDefaultAuthorizedClientManager(
+	private static ReactiveOAuth2AuthorizedClientManager createDefaultAuthorizedClientManager(
 			ReactiveClientRegistrationRepository clientRegistrationRepository, ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
 
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
@@ -99,7 +99,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 						.refreshToken()
 						.clientCredentials()
 						.build();
-		DefaultServerOAuth2AuthorizedClientManager authorizedClientManager = new DefaultServerOAuth2AuthorizedClientManager(
+		DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
 				clientRegistrationRepository, authorizedClientRepository);
 		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
