@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Represents a request the {@link OAuth2AuthorizedClientManager} uses to
@@ -145,13 +146,16 @@ public final class OAuth2AuthorizeRequest {
 		}
 
 		/**
-		 * Sets the attributes associated to the request.
+		 * Provides a {@link Consumer} access to the attributes associated to the request.
 		 *
-		 * @param attributes the attributes associated to the request
+		 * @param attributesConsumer a {@link Consumer} of the attributes associated to the request
 		 * @return the {@link Builder}
 		 */
-		public Builder attributes(Map<String, Object> attributes) {
-			this.attributes = attributes;
+		public Builder attributes(Consumer<Map<String, Object>> attributesConsumer) {
+			if (this.attributes == null) {
+				this.attributes = new HashMap<>();
+			}
+			attributesConsumer.accept(this.attributes);
 			return this;
 		}
 

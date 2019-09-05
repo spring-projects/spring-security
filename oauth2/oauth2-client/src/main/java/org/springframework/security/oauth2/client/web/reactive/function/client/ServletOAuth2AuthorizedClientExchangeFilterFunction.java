@@ -451,12 +451,14 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		HttpServletResponse servletResponse = getResponse(attrs);
 
 		OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withClientRegistrationId(clientRegistrationId).principal(authentication);
-		if (servletRequest != null) {
-			builder.attribute(HttpServletRequest.class.getName(), servletRequest);
-		}
-		if (servletResponse != null) {
-			builder.attribute(HttpServletResponse.class.getName(), servletResponse);
-		}
+		builder.attributes(attributes -> {
+			if (servletRequest != null) {
+				attributes.put(HttpServletRequest.class.getName(), servletRequest);
+			}
+			if (servletResponse != null) {
+				attributes.put(HttpServletResponse.class.getName(), servletResponse);
+			}
+		});
 		OAuth2AuthorizeRequest authorizeRequest = builder.build();
 
 		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated thread via subscribeOn(Schedulers.elastic())
@@ -477,12 +479,14 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		HttpServletResponse servletResponse = getResponse(attrs);
 
 		OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withAuthorizedClient(authorizedClient).principal(authentication);
-		if (servletRequest != null) {
-			builder.attribute(HttpServletRequest.class.getName(), servletRequest);
-		}
-		if (servletResponse != null) {
-			builder.attribute(HttpServletResponse.class.getName(), servletResponse);
-		}
+		builder.attributes(attributes -> {
+			if (servletRequest != null) {
+				attributes.put(HttpServletRequest.class.getName(), servletRequest);
+			}
+			if (servletResponse != null) {
+				attributes.put(HttpServletResponse.class.getName(), servletResponse);
+			}
+		});
 		OAuth2AuthorizeRequest reauthorizeRequest = builder.build();
 
 		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated thread via subscribeOn(Schedulers.elastic())
