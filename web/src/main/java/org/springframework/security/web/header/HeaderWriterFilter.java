@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.web.header.writers.CompositeHeaderWriter;
 import org.springframework.security.web.util.OnCommittedResponseWrapper;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -49,7 +48,7 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	 * The {@link HeaderWriter} to write headers to the response.
 	 * {@see CompositeHeaderWriter}
 	 */
-	private final HeaderWriter headerWriter;
+	private final List<HeaderWriter> headerWriters;
 
 	/**
 	 * Indicates whether to write the headers at the beginning of the request.
@@ -64,7 +63,7 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	 */
 	public HeaderWriterFilter(List<HeaderWriter> headerWriters) {
 		Assert.notEmpty(headerWriters, "headerWriters cannot be null or empty");
-		this.headerWriter = new CompositeHeaderWriter(headerWriters);
+		this.headerWriters = headerWriters;
 	}
 
 	@Override
@@ -80,19 +79,25 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	}
 
 	private void doHeadersBefore(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-		this.headerWriter.writeHeaders(request, response);
+		writeHeaders(request, response);
 		filterChain.doFilter(request, response);
 	}
 
 	private void doHeadersAfter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 		HeaderWriterResponse headerWriterResponse = new HeaderWriterResponse(request,
-				response, this.headerWriter);
+				response);
 		HeaderWriterRequest headerWriterRequest = new HeaderWriterRequest(request,
 				headerWriterResponse);
 		try {
 			filterChain.doFilter(headerWriterRequest, headerWriterResponse);
 		} finally {
 			headerWriterResponse.writeHeaders();
+		}
+	}
+
+	void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
+		for (HeaderWriter writer : this.headerWriters) {
+			writer.writeHeaders(request, response);
 		}
 	}
 
@@ -107,15 +112,12 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 		this.shouldWriteHeadersEagerly = shouldWriteHeadersEagerly;
 	}
 
-	static class HeaderWriterResponse extends OnCommittedResponseWrapper {
+	class HeaderWriterResponse extends OnCommittedResponseWrapper {
 		private final HttpServletRequest request;
-		private final HeaderWriter headerWriter;
 
-		HeaderWriterResponse(HttpServletRequest request, HttpServletResponse response,
-				HeaderWriter headerWriter) {
+		HeaderWriterResponse(HttpServletRequest request, HttpServletResponse response) {
 			super(response);
 			this.request = request;
-			this.headerWriter = headerWriter;
 		}
 
 		/*
@@ -134,7 +136,7 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 			if (isDisableOnResponseCommitted()) {
 				return;
 			}
-			this.headerWriter.writeHeaders(this.request, getHttpResponse());
+			HeaderWriterFilter.this.writeHeaders(this.request, getHttpResponse());
 		}
 
 		private HttpServletResponse getHttpResponse() {
