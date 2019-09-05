@@ -14,17 +14,25 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.interceptor.authentication;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.rsocket.interceptor.PayloadExchange;
-import reactor.core.publisher.Mono;
+package org.springframework.security.rsocket.util.matcher;
 
 /**
- * Converts from a {@link PayloadExchange} to an {@link Authentication}
  * @author Rob Winch
- * @since 5.2
  */
-public interface PayloadExchangeAuthenticationConverter {
-	Mono<Authentication> convert(PayloadExchange exchange);
+public class PayloadExchangeMatcherEntry<T> {
+	private final PayloadExchangeMatcher matcher;
+	private final T entry;
+
+	public PayloadExchangeMatcherEntry(PayloadExchangeMatcher matcher, T entry) {
+		this.matcher = matcher;
+		this.entry = entry;
+	}
+
+	public PayloadExchangeMatcher getMatcher() {
+		return this.matcher;
+	}
+
+	public T getEntry() {
+		return this.entry;
+	}
 }

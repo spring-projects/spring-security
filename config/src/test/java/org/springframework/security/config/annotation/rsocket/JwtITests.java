@@ -34,7 +34,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import org.springframework.security.rsocket.interceptor.PayloadSocketAcceptorInterceptor;
+import org.springframework.security.rsocket.PayloadSocketAcceptorInterceptor;
 import org.springframework.security.rsocket.metadata.BasicAuthenticationEncoder;
 import org.springframework.security.rsocket.metadata.BearerTokenMetadata;
 import org.springframework.stereotype.Controller;

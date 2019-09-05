@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.util;
+package org.springframework.security.rsocket.util.matcher;
 
 import io.rsocket.Payload;
 import io.rsocket.metadata.WellKnownMimeType;
@@ -25,9 +25,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.rsocket.MetadataExtractor;
-import org.springframework.security.rsocket.interceptor.DefaultPayloadExchange;
-import org.springframework.security.rsocket.interceptor.PayloadExchange;
-import org.springframework.security.rsocket.interceptor.PayloadExchangeType;
+import org.springframework.security.rsocket.DefaultPayloadExchange;
+import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.PayloadExchangeType;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.util.RouteMatcher;

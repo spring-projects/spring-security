@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.interceptor.authorization;
+package org.springframework.security.rsocket.authorization;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,11 +22,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
-import org.springframework.security.rsocket.interceptor.PayloadExchange;
-import org.springframework.security.rsocket.util.PayloadExchangeAuthorizationContext;
-import org.springframework.security.rsocket.util.PayloadExchangeMatcher;
-import org.springframework.security.rsocket.util.PayloadExchangeMatcherEntry;
-import org.springframework.security.rsocket.util.PayloadExchangeMatchers;
+import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.util.matcher.PayloadExchangeAuthorizationContext;
+import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcher;
+import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcherEntry;
+import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatchers;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;

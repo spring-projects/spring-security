@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.interceptor.authorization;
+package org.springframework.security.rsocket.authorization;
 
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
@@ -22,10 +22,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import org.springframework.security.rsocket.interceptor.PayloadExchange;
-import org.springframework.security.rsocket.util.PayloadExchangeAuthorizationContext;
-import org.springframework.security.rsocket.util.PayloadExchangeMatcher;
-import org.springframework.security.rsocket.util.PayloadExchangeMatcherEntry;
+import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.util.matcher.PayloadExchangeAuthorizationContext;
+import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcher;
+import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcherEntry;
 
 import java.util.ArrayList;
 import java.util.List;

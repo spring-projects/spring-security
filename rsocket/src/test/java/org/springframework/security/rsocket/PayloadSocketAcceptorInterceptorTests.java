@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.interceptor;
+package org.springframework.security.rsocket;
 
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.Payload;
@@ -28,14 +28,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.MediaType;
+import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.PayloadInterceptor;
+import org.springframework.security.rsocket.PayloadInterceptorRSocket;
+import org.springframework.security.rsocket.PayloadSocketAcceptorInterceptor;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,17 +47,12 @@ import static org.mockito.Mockito.when;
  * @author Rob Winch
  */
 @RunWith(MockitoJUnitRunner.class)
-public class PayloadSocketAcceptorTests {
-
-	private PayloadSocketAcceptor acceptor;
-
-	private List<PayloadInterceptor> interceptors;
-
-	@Mock
-	private SocketAcceptor delegate;
-
+public class PayloadSocketAcceptorInterceptorTests {
 	@Mock
 	private PayloadInterceptor interceptor;
+
+	@Mock
+	private SocketAcceptor socketAcceptor;
 
 	@Mock
 	private ConnectionSetupPayload setupPayload;
@@ -66,50 +63,29 @@ public class PayloadSocketAcceptorTests {
 	@Mock
 	private Payload payload;
 
+	private List<PayloadInterceptor> interceptors;
+
+	private PayloadSocketAcceptorInterceptor acceptorInterceptor;
+
 	@Before
 	public void setup() {
 		this.interceptors = Arrays.asList(this.interceptor);
-		this.acceptor = new PayloadSocketAcceptor(this.delegate, this.interceptors);
+		this.acceptorInterceptor = new PayloadSocketAcceptorInterceptor(this.interceptors);
 	}
 
 	@Test
-	public void constructorWhenNullDelegateThenException() {
-		this.delegate = null;
-		assertThatCode(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
-	}
-
-	@Test
-	public void constructorWhenNullInterceptorsThenException() {
-		this.interceptors = null;
-		assertThatCode(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
-	}
-
-	@Test
-	public void constructorWhenEmptyInterceptorsThenException() {
-		this.interceptors = Collections.emptyList();
-		assertThatCode(() -> new PayloadSocketAcceptor(this.delegate, this.interceptors));
-	}
-
-	@Test
-	public void acceptWhenDataMimeTypeNullThenException() {
-		assertThatCode(() -> this.acceptor.accept(this.setupPayload, this.rSocket)
-				.block()).isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
-	public void acceptWhenDefaultMetadataMimeTypeThenDefaulted() {
+	public void applyWhenDefaultMetadataMimeTypeThenDefaulted() {
 		when(this.setupPayload.dataMimeType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
 
 		PayloadExchange exchange = captureExchange();
 
-		assertThat(exchange.getMetadataMimeType().toString())
-				.isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+		assertThat(exchange.getMetadataMimeType().toString()).isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
 
 	@Test
 	public void acceptWhenDefaultMetadataMimeTypeOverrideThenDefaulted() {
-		this.acceptor.setDefaultMetadataMimeType(MediaType.APPLICATION_JSON);
+		this.acceptorInterceptor.setDefaultMetadataMimeType(MediaType.APPLICATION_JSON);
 		when(this.setupPayload.dataMimeType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
 
 		PayloadExchange exchange = captureExchange();
@@ -120,31 +96,20 @@ public class PayloadSocketAcceptorTests {
 
 	@Test
 	public void acceptWhenDefaultDataMimeTypeThenDefaulted() {
-		this.acceptor.setDefaultDataMimeType(MediaType.APPLICATION_JSON);
+		this.acceptorInterceptor.setDefaultDataMimeType(MediaType.APPLICATION_JSON);
 
 		PayloadExchange exchange = captureExchange();
 
-		assertThat(exchange.getMetadataMimeType()
-				.toString()).isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
-		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
-	}
-
-	@Test
-	public void acceptWhenExplicitMimeTypeThenThenOverrideDefault() {
-		when(this.setupPayload.metadataMimeType()).thenReturn(MediaType.TEXT_PLAIN_VALUE);
-		when(this.setupPayload.dataMimeType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
-
-		PayloadExchange exchange = captureExchange();
-
-		assertThat(exchange.getMetadataMimeType()).isEqualTo(MediaType.TEXT_PLAIN);
+		assertThat(exchange.getMetadataMimeType().toString()).isEqualTo(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
 	}
 
 	private PayloadExchange captureExchange() {
-		when(this.delegate.accept(any(), any())).thenReturn(Mono.just(this.rSocket));
+		when(this.socketAcceptor.accept(any(), any())).thenReturn(Mono.just(this.rSocket));
 		when(this.interceptor.intercept(any(), any())).thenReturn(Mono.empty());
 
-		RSocket result = this.acceptor.accept(this.setupPayload, this.rSocket).block();
+		SocketAcceptor wrappedAcceptor = this.acceptorInterceptor.apply(this.socketAcceptor);
+		RSocket result = wrappedAcceptor.accept(this.setupPayload, this.rSocket).block();
 
 		assertThat(result).isInstanceOf(PayloadInterceptorRSocket.class);
 

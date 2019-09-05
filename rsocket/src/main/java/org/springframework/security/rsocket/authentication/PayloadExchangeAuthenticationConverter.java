@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.interceptor;
+package org.springframework.security.rsocket.authentication;
 
-import io.rsocket.Payload;
-import org.springframework.util.MimeType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.rsocket.PayloadExchange;
+import reactor.core.publisher.Mono;
 
 /**
- * Contract for a Payload interaction.
- *
+ * Converts from a {@link PayloadExchange} to an {@link Authentication}
  * @author Rob Winch
  * @since 5.2
  */
-public interface PayloadExchange {
-	PayloadExchangeType getType();
-
-	Payload getPayload();
-
-	MimeType getDataMimeType();
-
-	MimeType getMetadataMimeType();
+public interface PayloadExchangeAuthenticationConverter {
+	Mono<Authentication> convert(PayloadExchange exchange);
 }

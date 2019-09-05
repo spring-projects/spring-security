@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.util;
+package org.springframework.security.rsocket.util.matcher;
 
-import org.springframework.security.rsocket.interceptor.PayloadExchange;
-import org.springframework.security.rsocket.interceptor.PayloadExchangeType;
+import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.PayloadExchangeType;
 import reactor.core.publisher.Mono;
 
 /**

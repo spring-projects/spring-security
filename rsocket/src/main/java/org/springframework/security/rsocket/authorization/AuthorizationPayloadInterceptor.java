@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.interceptor.authorization;
+package org.springframework.security.rsocket.authorization;
 
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
@@ -22,9 +22,9 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
-import org.springframework.security.rsocket.interceptor.PayloadInterceptorChain;
-import org.springframework.security.rsocket.interceptor.PayloadExchange;
-import org.springframework.security.rsocket.interceptor.PayloadInterceptor;
+import org.springframework.security.rsocket.PayloadInterceptorChain;
+import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.PayloadInterceptor;
 
 /**
  * Provides authorization of the {@link PayloadExchange}.

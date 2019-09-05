@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.interceptor;
+package org.springframework.security.rsocket;
 
 import io.rsocket.SocketAcceptor;
 import io.rsocket.metadata.WellKnownMimeType;

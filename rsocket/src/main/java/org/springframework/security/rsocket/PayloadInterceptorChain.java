@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.util;
+package org.springframework.security.rsocket;
+
+import reactor.core.publisher.Mono;
 
 /**
+ * Contract to allow a {@link PayloadInterceptor} to delegate to the next in the chain.
+ *  *
  * @author Rob Winch
+ * @since 5.2
  */
-public class PayloadExchangeMatcherEntry<T> {
-	private final PayloadExchangeMatcher matcher;
-	private final T entry;
-
-	public PayloadExchangeMatcherEntry(PayloadExchangeMatcher matcher, T entry) {
-		this.matcher = matcher;
-		this.entry = entry;
-	}
-
-	public PayloadExchangeMatcher getMatcher() {
-		return this.matcher;
-	}
-
-	public T getEntry() {
-		return this.entry;
-	}
+public interface PayloadInterceptorChain {
+	/**
+	 * Process the payload exchange.
+	 * @param exchange the current server exchange
+	 * @return {@code Mono<Void>} to indicate when request processing is complete
+	 */
+	Mono<Void> next(PayloadExchange exchange);
 }

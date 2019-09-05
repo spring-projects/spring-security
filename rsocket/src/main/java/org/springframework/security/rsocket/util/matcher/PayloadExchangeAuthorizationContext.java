@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.util;
+package org.springframework.security.rsocket.util.matcher;
 
-import org.springframework.security.rsocket.interceptor.PayloadExchange;
+import org.springframework.security.rsocket.PayloadExchange;
 
 import java.util.Collections;
 import java.util.Map;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.interceptor;
+package org.springframework.security.rsocket;
 
 import io.rsocket.Payload;
 import io.rsocket.RSocket;

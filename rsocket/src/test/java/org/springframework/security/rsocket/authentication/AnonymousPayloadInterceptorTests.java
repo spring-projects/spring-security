@@ -27,8 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.rsocket.interceptor.PayloadExchange;
-import org.springframework.security.rsocket.interceptor.authentication.AnonymousPayloadInterceptor;
+import org.springframework.security.rsocket.PayloadExchange;
 
 import java.util.List;
 

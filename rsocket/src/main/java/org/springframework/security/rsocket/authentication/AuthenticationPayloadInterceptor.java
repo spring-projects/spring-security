@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.interceptor.authentication;
+package org.springframework.security.rsocket.authentication;
 
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.rsocket.interceptor.PayloadExchange;
-import org.springframework.security.rsocket.interceptor.PayloadInterceptor;
-import org.springframework.security.rsocket.interceptor.PayloadInterceptorChain;
+import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.PayloadInterceptor;
+import org.springframework.security.rsocket.PayloadInterceptorChain;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 

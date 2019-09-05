@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket.interceptor;
+package org.springframework.security.rsocket;
 
 /**
  * The {@link PayloadExchange} type

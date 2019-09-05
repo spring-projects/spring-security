@@ -20,8 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import reactor.core.publisher.Mono;
-import org.springframework.security.rsocket.interceptor.PayloadInterceptorChain;
-import org.springframework.security.rsocket.interceptor.PayloadExchange;
+import org.springframework.security.rsocket.PayloadInterceptorChain;
+import org.springframework.security.rsocket.PayloadExchange;
 
 /**
  * @author Rob Winch

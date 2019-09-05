@@ -25,13 +25,12 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.rsocket.interceptor.authorization.AuthorizationPayloadInterceptor;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.test.publisher.PublisherProbe;
 import reactor.util.context.Context;
-import org.springframework.security.rsocket.interceptor.PayloadInterceptorChain;
-import org.springframework.security.rsocket.interceptor.PayloadExchange;
+import org.springframework.security.rsocket.PayloadInterceptorChain;
+import org.springframework.security.rsocket.PayloadExchange;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
