@@ -1,5 +1,5 @@
 ^\Q/*\E$
-^\Q * Copyright\E (\d{4}\-\d{4} the original author or authors\.|(\d{4}, )*(\d{4}) Acegi Technology Pty Limited)$
+^\Q * Copyright\E (\d{4}(\-\d{4})? the original author or authors\.|(\d{4}, )*(\d{4}) Acegi Technology Pty Limited)$
 ^\Q *\E$
 ^\Q * Licensed under the Apache License, Version 2.0 (the "License");\E$
 ^\Q * you may not use this file except in compliance with the License.\E$

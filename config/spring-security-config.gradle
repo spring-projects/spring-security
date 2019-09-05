@@ -15,10 +15,12 @@ dependencies {
 	optional project(':spring-security-oauth2-jose')
 	optional project(':spring-security-oauth2-resource-server')
 	optional project(':spring-security-openid')
+	optional project(':spring-security-rsocket')
 	optional project(':spring-security-web')
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.aspectj:aspectjweaver'
 	optional 'org.springframework:spring-jdbc'
+	optional 'org.springframework:spring-messaging'
 	optional 'org.springframework:spring-tx'
 	optional 'org.springframework:spring-webmvc'
 	optional'org.springframework:spring-web'
@@ -39,6 +41,7 @@ dependencies {
 	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'ch.qos.logback:logback-classic'
 	testCompile 'io.projectreactor.netty:reactor-netty'
+	testCompile 'io.rsocket:rsocket-transport-netty'
 	testCompile 'javax.annotation:jsr250-api:1.0'
 	testCompile 'javax.xml.bind:jaxb-api'
 	testCompile 'ldapsdk:ldapsdk:4.1'

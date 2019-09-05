@@ -1,14 +1,16 @@
 if (!project.hasProperty('reactorVersion')) {
-	ext.reactorVersion = 'Dysprosium-M3'
+	ext.reactorVersion = 'Dysprosium-RC1'
 }
 
 if (!project.hasProperty('springVersion')) {
-	ext.springVersion = '5.2.0.RC1'
+	ext.springVersion = '5.2.0.BUILD-SNAPSHOT'
 }
 
 if (!project.hasProperty('springDataVersion')) {
 	ext.springDataVersion = 'Moore-RC2'
 }
+
+ext.rsocketVersion = '1.0.0-RC3'
 
 dependencyManagement {
 	imports {
@@ -71,6 +73,8 @@ dependencyManagement {
 		dependency 'commons-logging:commons-logging:1.2'
 		dependency 'dom4j:dom4j:1.6.1'
 		dependency 'io.projectreactor.tools:blockhound:1.0.0.M4'
+		dependency "io.rsocket:rsocket-core:${rsocketVersion}"
+		dependency "io.rsocket:rsocket-transport-netty:${rsocketVersion}"
 		dependency 'javax.activation:activation:1.1.1'
 		dependency 'javax.annotation:jsr250-api:1.0'
 		dependency 'javax.inject:javax.inject:1'
