@@ -706,17 +706,24 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
 }
 
 Converter<Jwt, AbstractAuthenticationToken> grantedAuthoritiesExtractor() {
-    return new GrantedAuthoritiesExtractor();
+    JwtAuthenticationConverter jwtAuthenticationConverter =
+            new JwtAuthenticationConverter();
+    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter
+            (new GrantedAuthoritiesExtractor());
+    return jwtAuthenticationConveter;
 }
 ```
 
 which is responsible for converting a `Jwt` into an `Authentication`.
+As part of its configuration, we can supply a subsidiary converter to go from `Jwt` to a `Collection` of `GrantedAuthority`s.
 
-We can override this quite simply to alter the way granted authorities are derived:
+That final converter might be something like `GrantedAuthoritiesExtractor` below:
 
 ```java
-static class GrantedAuthoritiesExtractor extends JwtAuthenticationConverter {
-    protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
+static class GrantedAuthoritiesExtractor
+        implements Converter<Jwt, Collection<GrantedAuthority>> {
+
+    public Collection<GrantedAuthority> convert(Jwt jwt) {
         Collection<String> authorities = (Collection<String>)
                 jwt.getClaims().get("mycustomclaim");
 
