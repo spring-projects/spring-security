@@ -17,7 +17,7 @@
 package org.springframework.security.oauth2.client.userinfo;
 
 
-import java.net.UnknownHostException;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -140,7 +140,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 
 				return new DefaultOAuth2User(authorities, attrs, userNameAttributeName);
 			})
-			.onErrorMap(UnknownHostException.class, t -> new AuthenticationServiceException("Unable to access the userInfoEndpoint " + userInfoUri, t))
+			.onErrorMap(e -> e instanceof IOException, t -> new AuthenticationServiceException("Unable to access the userInfoEndpoint " + userInfoUri, t))
 			.onErrorMap(t -> !(t instanceof AuthenticationServiceException), t -> {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,  "An error occurred reading the UserInfo Success response: " + t.getMessage(), null);
 				return new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), t);
