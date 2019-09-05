@@ -55,6 +55,7 @@ import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -63,6 +64,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
 
+import static java.lang.Boolean.TRUE;
 import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
 
 /**
@@ -502,11 +504,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 			}
 
 			public static void enable(HttpServletRequest request) {
-				request.setAttribute(ENABLED_ATTR_NAME, Boolean.TRUE);
+				request.setAttribute(ENABLED_ATTR_NAME, TRUE);
 			}
 
 			public boolean isEnabled(HttpServletRequest request) {
-				return Boolean.TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
+				return TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
 			}
 		}
 	}
@@ -1043,6 +1045,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			CsrfFilter.skipRequest(request);
 			JwtAuthenticationToken token = new JwtAuthenticationToken(this.jwt, this.authorities);
 			return new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
 		}
