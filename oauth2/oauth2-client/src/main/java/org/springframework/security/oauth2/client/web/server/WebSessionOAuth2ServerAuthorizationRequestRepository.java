@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.web.server;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +47,7 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 			WebSessionOAuth2ServerAuthorizationRequestRepository.class.getName() +  ".AUTHORIZATION_REQUEST";
 
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
+	private Clock clock = Clock.systemUTC();
 
 	@Override
 	public Mono<OAuth2AuthorizationRequest> loadAuthorizationRequest(
@@ -123,11 +126,13 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 
 		return getSessionAttributes(exchange)
 			.doOnNext(sessionAttrs -> {
-				Object stateToAuthzRequest = sessionAttrs.get(this.sessionAttributeName);
+				Map<String, OAuth2AuthorizationRequest> stateToAuthzRequest = sessionAttrsMapStateToAuthorizationRequest(sessionAttrs);
 
 				if (stateToAuthzRequest == null) {
-					stateToAuthzRequest = new HashMap<String, OAuth2AuthorizationRequest>();
+					stateToAuthzRequest = new HashMap<>();
 				}
+
+				cleaUpExpiredAuthorizationRequests(stateToAuthzRequest);
 
 				// No matter stateToAuthzRequest was in session or not, we should always put it into session again
 				// in case of redis or hazelcast session. #6215
@@ -135,7 +140,24 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 			}).flatMap(sessionAttrs -> Mono.justOrEmpty(this.sessionAttrsMapStateToAuthorizationRequest(sessionAttrs)));
 	}
 
+	private void cleaUpExpiredAuthorizationRequests(
+			Map<String, OAuth2AuthorizationRequest> stateToAuthzRequest) {
+		stateToAuthzRequest.values().removeIf(request -> request.isExpired(this.clock));
+	}
+
+	@SuppressWarnings("unchecked")
 	private Map<String, OAuth2AuthorizationRequest> sessionAttrsMapStateToAuthorizationRequest(Map<String, Object> sessionAttrs) {
 		return (Map<String, OAuth2AuthorizationRequest>) sessionAttrs.get(this.sessionAttributeName);
+	}
+
+	/**
+	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking {@link OAuth2AuthorizationRequest#isExpired(Clock)}.
+	 *
+	 * @param clock the clock
+	 * @since 5.2
+	 */
+	public void setClock(Clock clock) {
+		Assert.notNull(clock, "clock cannot be null");
+		this.clock = clock;
 	}
 }

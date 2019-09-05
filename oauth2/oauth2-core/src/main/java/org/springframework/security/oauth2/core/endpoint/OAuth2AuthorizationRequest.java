@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
+import java.time.Clock;
+import java.time.Instant;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
@@ -55,6 +57,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	private Map<String, Object> additionalParameters;
 	private String authorizationRequestUri;
 	private Map<String, Object> attributes;
+	private Instant expiresAt;
 
 	private OAuth2AuthorizationRequest() {
 	}
@@ -155,6 +158,27 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
+	 * Returns the {@code Instant} when this {@link OAuth2AuthorizationRequest} expires, or {@code null} when it
+	 * never expires.
+	 *
+	 * @since 5.2
+	 * @return the {@code Instant} when this request expires, or {@code null} when it never expires.
+	 */
+	public Instant getExpiresAt() {
+		return expiresAt;
+	}
+
+	/**
+	 * Returns whether the request is expired.
+	 *
+	 * @param clock the {@link Clock} to validate the expiration with.
+	 * @return whether this request is expired.
+	 */
+	public boolean isExpired(Clock clock) {
+		return this.getExpiresAt() != null && this.getExpiresAt().isBefore(Instant.now(clock));
+	}
+
+	/**
 	 * Returns the {@code URI} string representation of the OAuth 2.0 Authorization Request.
 	 *
 	 * <p>
@@ -204,7 +228,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 				.scopes(authorizationRequest.getScopes())
 				.state(authorizationRequest.getState())
 				.additionalParameters(authorizationRequest.getAdditionalParameters())
-				.attributes(authorizationRequest.getAttributes());
+				.attributes(authorizationRequest.getAttributes())
+				.expiresAt(authorizationRequest.getExpiresAt());
 	}
 
 	/**
@@ -221,6 +246,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		private Map<String, Object> additionalParameters;
 		private String authorizationRequestUri;
 		private Map<String, Object> attributes;
+		private Instant expiresAt;
 
 		private Builder(AuthorizationGrantType authorizationGrantType) {
 			Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
@@ -324,6 +350,18 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		/**
+		 * Sets when the request expires.
+		 *
+		 * @since 5.2
+		 * @param expiresAt the instant when the request should be considered expired
+		 * @return the {@link Builder}
+		 */
+		public Builder expiresAt(Instant expiresAt) {
+			this.expiresAt = expiresAt;
+			return this;
+		}
+
+		/**
 		 * Sets the {@code URI} string representation of the OAuth 2.0 Authorization Request.
 		 *
 		 * <p>
@@ -370,6 +408,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			authorizationRequest.attributes = Collections.unmodifiableMap(
 					CollectionUtils.isEmpty(this.attributes) ?
 							Collections.emptyMap() : new LinkedHashMap<>(this.attributes));
+			authorizationRequest.expiresAt = this.expiresAt;
 
 			return authorizationRequest;
 		}

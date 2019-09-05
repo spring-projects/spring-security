@@ -15,6 +15,9 @@
  */
 package org.springframework.security.oauth2.core.endpoint;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import org.junit.Test;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
@@ -33,11 +36,15 @@ import static org.assertj.core.api.Assertions.*;
  * @author Joe Grandja
  */
 public class OAuth2AuthorizationRequestTests {
+
 	private static final String AUTHORIZATION_URI = "https://provider.com/oauth2/authorize";
 	private static final String CLIENT_ID = "client-id";
 	private static final String REDIRECT_URI = "https://example.com";
 	private static final Set<String> SCOPES = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
 	private static final String STATE = "state";
+	private static final Clock MOCK_NOW = Clock.fixed(Instant.ofEpochMilli(0), ZoneId.systemDefault());
+	private static final Instant EXPIRED = Instant.now(MOCK_NOW).minusSeconds(5);
+	private static final Instant NOT_EXPIRED = Instant.now(MOCK_NOW).plusSeconds(5);
 
 	@Test
 	public void buildWhenAuthorizationUriIsNullThenThrowIllegalArgumentException() {
@@ -175,6 +182,7 @@ public class OAuth2AuthorizationRequestTests {
 				.state(STATE)
 				.additionalParameters(additionalParameters)
 				.attributes(attributes)
+				.expiresAt(NOT_EXPIRED)
 				.authorizationRequestUri(AUTHORIZATION_URI)
 				.build();
 
@@ -187,6 +195,7 @@ public class OAuth2AuthorizationRequestTests {
 		assertThat(authorizationRequest.getState()).isEqualTo(STATE);
 		assertThat(authorizationRequest.getAdditionalParameters()).isEqualTo(additionalParameters);
 		assertThat(authorizationRequest.getAttributes()).isEqualTo(attributes);
+		assertThat(authorizationRequest.getExpiresAt()).isEqualTo(NOT_EXPIRED);
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo(AUTHORIZATION_URI);
 	}
 
@@ -276,6 +285,7 @@ public class OAuth2AuthorizationRequestTests {
 				.state(STATE)
 				.additionalParameters(additionalParameters)
 				.attributes(attributes)
+				.expiresAt(NOT_EXPIRED)
 				.build();
 
 		OAuth2AuthorizationRequest authorizationRequestCopy =
@@ -290,6 +300,7 @@ public class OAuth2AuthorizationRequestTests {
 		assertThat(authorizationRequestCopy.getState()).isEqualTo(authorizationRequest.getState());
 		assertThat(authorizationRequestCopy.getAdditionalParameters()).isEqualTo(authorizationRequest.getAdditionalParameters());
 		assertThat(authorizationRequestCopy.getAttributes()).isEqualTo(authorizationRequest.getAttributes());
+		assertThat(authorizationRequestCopy.getExpiresAt()).isEqualTo(authorizationRequest.getExpiresAt());
 		assertThat(authorizationRequestCopy.getAuthorizationRequestUri()).isEqualTo(authorizationRequest.getAuthorizationRequestUri());
 	}
 
@@ -306,5 +317,37 @@ public class OAuth2AuthorizationRequestTests {
 						"param1=value1&param2=value2&" +
 						"response_type=code&client_id=client-id&state=state&" +
 						"redirect_uri=https://example.com/authorize/oauth2/code/registration-id");
+	}
+
+	@Test
+	public void buildExpiredRequest() {
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.expiresAt(EXPIRED)
+				.build();
+
+		assertThat(authorizationRequest.isExpired(MOCK_NOW)).isTrue();
+	}
+
+	@Test
+	public void buildNotExpiredRequest() {
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.expiresAt(NOT_EXPIRED)
+				.build();
+
+		assertThat(authorizationRequest.isExpired(MOCK_NOW)).isFalse();
+	}
+
+	@Test
+	public void buildNotExpiredWithoutExpireAtRequest() {
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.build();
+
+		assertThat(authorizationRequest.isExpired(MOCK_NOW)).isFalse();
 	}
 }

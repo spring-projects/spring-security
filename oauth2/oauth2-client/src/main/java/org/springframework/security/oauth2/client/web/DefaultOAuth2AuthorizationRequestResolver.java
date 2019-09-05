@@ -15,6 +15,10 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -48,6 +52,10 @@ import java.util.Map;
  * <b>NOTE:</b> The default base {@code URI} {@code /oauth2/authorization} may be overridden
  * via it's constructor {@link #DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository, String)}.
  *
+ * <p>
+ * <b>NOTE:</b> {@link OAuth2AuthorizationRequest}s expire after two minutes, the default duration can be configured via
+ * {@link #setOAuth2AuthorizationRequestExpiresIn(Duration)}.
+ *
  * @author Joe Grandja
  * @author Rob Winch
  * @author Eddú Meléndez
@@ -62,6 +70,8 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private final StringKeyGenerator codeVerifierGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+	private Duration oAuth2AuthorizationRequestExpiresIn = Duration.ofSeconds(120);
+	private Clock clock = Clock.systemUTC();
 
 	/**
 	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided parameters.
@@ -140,6 +150,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 				.scopes(clientRegistration.getScopes())
 				.state(this.stateGenerator.generateKey())
 				.attributes(attributes)
+				.expiresAt(calculateExpiration())
 				.build();
 
 		return authorizationRequest;
@@ -229,5 +240,36 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] digest = md.digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
+	}
+
+	private Instant calculateExpiration() {
+		return this.oAuth2AuthorizationRequestExpiresIn.isNegative() ? null
+				: Instant.now(this.clock).plus(this.oAuth2AuthorizationRequestExpiresIn);
+	}
+
+	/**
+	 * Sets the {@link Duration} used in {@link Instant#plus(TemporalAmount)} when calculating the {@link
+	 * OAuth2AuthorizationRequest#getExpiresAt()}, a negative {@link Duration} indicates that {@link
+	 * OAuth2AuthorizationRequest} never expire.
+	 *
+	 * @param oAuth2AuthorizationRequestExpiresIn the {@link Duration} a {@link OAuth2AuthorizationRequest} is
+	 * considered not expired
+	 * @since 5.2
+	 */
+	public void setOAuth2AuthorizationRequestExpiresIn(Duration oAuth2AuthorizationRequestExpiresIn) {
+		Assert.notNull(oAuth2AuthorizationRequestExpiresIn, "oAuth2AuthorizationRequestExpiresIn cannot be null");
+		this.oAuth2AuthorizationRequestExpiresIn = oAuth2AuthorizationRequestExpiresIn;
+	}
+
+	/**
+	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when setting the {@link
+	 * OAuth2AuthorizationRequest#getExpiresAt()}.
+	 *
+	 * @param clock the clock
+	 * @since 5.2
+	 */
+	public void setClock(Clock clock) {
+		Assert.notNull(clock, "clock cannot be null");
+		this.clock = clock;
 	}
 }

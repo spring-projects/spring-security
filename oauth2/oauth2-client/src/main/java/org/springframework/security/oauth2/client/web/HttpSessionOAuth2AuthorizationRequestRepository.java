@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import java.time.Clock;
+import java.time.Instant;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
@@ -40,6 +42,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 			HttpSessionOAuth2AuthorizationRequestRepository.class.getName() +  ".AUTHORIZATION_REQUEST";
 
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
+	private Clock clock = Clock.systemUTC();
 
 	@Override
 	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
@@ -64,6 +67,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 		String state = authorizationRequest.getState();
 		Assert.hasText(state, "authorizationRequest.state cannot be empty");
 		Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(request);
+		cleaUpExpiredAuthorizationRequests(authorizationRequests);
 		authorizationRequests.put(state, authorizationRequest);
 		request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
 	}
@@ -100,11 +104,17 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 		return request.getParameter(OAuth2ParameterNames.STATE);
 	}
 
+	private void cleaUpExpiredAuthorizationRequests(
+			Map<String, OAuth2AuthorizationRequest> stateToAuthzRequest) {
+		stateToAuthzRequest.values().removeIf(request -> request.isExpired(this.clock));
+	}
+
 	/**
 	 * Gets a non-null and mutable map of {@link OAuth2AuthorizationRequest#getState()} to an {@link OAuth2AuthorizationRequest}
 	 * @param request
 	 * @return a non-null and mutable map of {@link OAuth2AuthorizationRequest#getState()} to an {@link OAuth2AuthorizationRequest}.
 	 */
+	@SuppressWarnings("unchecked")
 	private Map<String, OAuth2AuthorizationRequest> getAuthorizationRequests(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
 		Map<String, OAuth2AuthorizationRequest> authorizationRequests = session == null ? null :
@@ -113,5 +123,16 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository implements Au
 			return new HashMap<>();
 		}
 		return authorizationRequests;
+	}
+
+	/**
+	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking {@link OAuth2AuthorizationRequest#isExpired(Clock)}.
+	 *
+	 * @param clock the clock
+	 * @since 5.2
+	 */
+	public void setClock(Clock clock) {
+		Assert.notNull(clock, "clock cannot be null");
+		this.clock = clock;
 	}
 }
