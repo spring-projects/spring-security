@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -39,6 +40,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -388,6 +391,22 @@ public class CsrfFilterTests {
 
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 		verifyZeroInteractions(this.filterChain);
+	}
+
+	@Test
+	public void doFilterWhenSkipRequestInvokedThenSkips()
+			throws Exception {
+
+		CsrfTokenRepository repository = mock(CsrfTokenRepository.class);
+		CsrfFilter filter = new CsrfFilter(repository);
+
+		lenient().when(repository.loadToken(any(HttpServletRequest.class))).thenReturn(this.token);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		CsrfFilter.skipRequest(request);
+		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+
+		verifyZeroInteractions(repository);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
