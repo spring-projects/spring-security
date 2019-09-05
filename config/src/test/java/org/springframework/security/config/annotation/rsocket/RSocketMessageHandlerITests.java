@@ -78,14 +78,14 @@ public class RSocketMessageHandlerITests {
 				.frameDecoder(PayloadDecoder.ZERO_COPY)
 				.addSocketAcceptorPlugin(this.interceptor)
 				.acceptor(this.handler.responder())
-				.transport(TcpServerTransport.create("localhost", 7000))
+				.transport(TcpServerTransport.create("localhost", 0))
 				.start()
 				.block();
 
 		this.requester = RSocketRequester.builder()
 				//				.rsocketFactory(factory -> factory.addRequesterPlugin(payloadInterceptor))
 				.rsocketStrategies(this.handler.getRSocketStrategies())
-				.connectTcp("localhost", 7000)
+				.connectTcp("localhost", this.server.address().getPort())
 				.block();
 	}
 

@@ -82,7 +82,7 @@ public class JwtITests {
 				.frameDecoder(PayloadDecoder.ZERO_COPY)
 				.addSocketAcceptorPlugin(this.interceptor)
 				.acceptor(this.handler.responder())
-				.transport(TcpServerTransport.create("localhost", 7000))
+				.transport(TcpServerTransport.create("localhost", 0))
 				.start()
 				.block();
 	}
