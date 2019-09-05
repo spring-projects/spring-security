@@ -20,19 +20,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.mock.web.server.MockServerWebExchange;
-import org.springframework.web.server.WebFilterChain;
-import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.test.publisher.PublisherProbe;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.web.server.WebFilterChain;
+import org.springframework.web.server.WebSession;
+
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.mock.web.server.MockServerWebExchange.from;
 
 /**
  * @author Rob Winch
@@ -49,10 +54,10 @@ public class CsrfWebFilterTests {
 
 	private CsrfWebFilter csrfFilter = new CsrfWebFilter();
 
-	private MockServerWebExchange get = MockServerWebExchange.from(
+	private MockServerWebExchange get = from(
 		MockServerHttpRequest.get("/"));
 
-	private MockServerWebExchange post = MockServerWebExchange.from(
+	private MockServerWebExchange post = from(
 		MockServerHttpRequest.post("/"));
 
 	@Test
@@ -104,7 +109,7 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
 			.thenReturn(Mono.just(this.token));
-		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
+		this.post = from(MockServerHttpRequest.post("/")
 			.body(this.token.getParameterName() + "="+this.token.getToken()+"INVALID"));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
@@ -125,7 +130,7 @@ public class CsrfWebFilterTests {
 			.thenReturn(Mono.just(this.token));
 		when(this.repository.generateToken(any()))
 			.thenReturn(Mono.just(this.token));
-		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
+		this.post = from(MockServerHttpRequest.post("/")
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.body(this.token.getParameterName() + "="+this.token.getToken()));
 
@@ -142,7 +147,7 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
 			.thenReturn(Mono.just(this.token));
-		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
+		this.post = from(MockServerHttpRequest.post("/")
 			.header(this.token.getHeaderName(), this.token.getToken()+"INVALID"));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
@@ -163,7 +168,7 @@ public class CsrfWebFilterTests {
 			.thenReturn(Mono.just(this.token));
 		when(this.repository.generateToken(any()))
 			.thenReturn(Mono.just(this.token));
-		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
+		this.post = from(MockServerHttpRequest.post("/")
 			.header(this.token.getHeaderName(), this.token.getToken()));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
@@ -172,5 +177,20 @@ public class CsrfWebFilterTests {
 			.verifyComplete();
 
 		chainResult.assertWasSubscribed();
+	}
+
+	@Test
+	public void doFilterWhenSkipExchangeInvokedThenSkips() {
+		PublisherProbe<Void> chainResult = PublisherProbe.empty();
+		when(this.chain.filter(any())).thenReturn(chainResult.mono());
+
+		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
+		this.csrfFilter.setRequireCsrfProtectionMatcher(matcher);
+
+		MockServerWebExchange exchange = from(MockServerHttpRequest.post("/post").build());
+		CsrfWebFilter.skipExchange(exchange);
+		this.csrfFilter.filter(exchange, this.chain).block();
+
+		verifyZeroInteractions(matcher);
 	}
 }
