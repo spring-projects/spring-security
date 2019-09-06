@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -106,7 +107,11 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 				.flatMap(this.contextAttributesMapper::apply)
 				.map(attrs -> OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
 						.principal(authorizeRequest.getPrincipal())
-						.attributes(attrs)
+						.attributes(attributes -> {
+							if (!CollectionUtils.isEmpty(attrs)) {
+								attributes.putAll(attrs);
+							}
+						})
 						.build());
 	}
 
@@ -116,7 +121,11 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 				.flatMap(this.contextAttributesMapper::apply)
 				.map(attrs -> OAuth2AuthorizationContext.withClientRegistration(clientRegistration)
 						.principal(authorizeRequest.getPrincipal())
-						.attributes(attrs)
+						.attributes(attributes -> {
+							if (!CollectionUtils.isEmpty(attrs)) {
+								attributes.putAll(attrs);
+							}
+						})
 						.build());
 	}
 

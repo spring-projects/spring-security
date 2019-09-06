@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * A context that holds authorization-specific state and is used by an {@link OAuth2AuthorizedClientProvider}
@@ -161,13 +162,16 @@ public final class OAuth2AuthorizationContext {
 		}
 
 		/**
-		 * Sets the attributes associated to the context.
+		 * Provides a {@link Consumer} access to the attributes associated to the context.
 		 *
-		 * @param attributes the attributes associated to the context
-		 * @return the {@link Builder}
+		 * @param attributesConsumer a {@link Consumer} of the attributes associated to the context
+		 * @return the {@link OAuth2AuthorizeRequest.Builder}
 		 */
-		public Builder attributes(Map<String, Object> attributes) {
-			this.attributes = attributes;
+		public Builder attributes(Consumer<Map<String, Object>> attributesConsumer) {
+			if (this.attributes == null) {
+				this.attributes = new HashMap<>();
+			}
+			attributesConsumer.accept(this.attributes);
 			return this;
 		}
 

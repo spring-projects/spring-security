@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.Collections;
@@ -83,7 +84,12 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 		}
 		OAuth2AuthorizationContext authorizationContext = contextBuilder
 				.principal(principal)
-				.attributes(this.contextAttributesMapper.apply(authorizeRequest))
+				.attributes(attributes -> {
+					Map<String, Object> contextAttributes = this.contextAttributesMapper.apply(authorizeRequest);
+					if (!CollectionUtils.isEmpty(contextAttributes)) {
+						attributes.putAll(contextAttributes);
+					}
+				})
 				.build();
 
 		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
