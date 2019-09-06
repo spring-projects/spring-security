@@ -15,7 +15,7 @@
  */
 package org.springframework.security.rsocket.util.matcher;
 
-import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;

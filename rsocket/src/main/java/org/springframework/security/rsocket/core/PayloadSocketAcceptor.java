@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket;
+package org.springframework.security.rsocket.core;
 
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.Payload;
@@ -22,6 +22,8 @@ import io.rsocket.RSocket;
 import io.rsocket.SocketAcceptor;
 import io.rsocket.metadata.WellKnownMimeType;
 import org.springframework.lang.Nullable;
+import org.springframework.security.rsocket.api.PayloadExchangeType;
+import org.springframework.security.rsocket.api.PayloadInterceptor;
 import org.springframework.util.Assert;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;

@@ -17,7 +17,7 @@
 package org.springframework.security.rsocket.util.matcher;
 
 import org.springframework.messaging.rsocket.MetadataExtractor;
-import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.util.Assert;
 import org.springframework.util.RouteMatcher;
 import reactor.core.publisher.Mono;

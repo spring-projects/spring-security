@@ -20,7 +20,7 @@ import io.netty.buffer.ByteBuf;
 import io.rsocket.metadata.CompositeMetadata;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
-import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.metadata.BearerTokenMetadata;
 import reactor.core.publisher.Mono;
 

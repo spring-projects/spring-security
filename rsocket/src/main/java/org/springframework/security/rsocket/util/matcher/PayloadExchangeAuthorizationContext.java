@@ -16,7 +16,7 @@
 
 package org.springframework.security.rsocket.util.matcher;
 
-import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadExchange;
 
 import java.util.Collections;
 import java.util.Map;

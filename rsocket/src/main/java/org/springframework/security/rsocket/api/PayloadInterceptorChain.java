@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket;
+package org.springframework.security.rsocket.api;
 
-import io.rsocket.Payload;
-import org.springframework.util.MimeType;
+import reactor.core.publisher.Mono;
 
 /**
- * Contract for a Payload interaction.
- *
+ * Contract to allow a {@link PayloadInterceptor} to delegate to the next in the chain.
+ *  *
  * @author Rob Winch
  * @since 5.2
  */
-public interface PayloadExchange {
-	PayloadExchangeType getType();
-
-	Payload getPayload();
-
-	MimeType getDataMimeType();
-
-	MimeType getMetadataMimeType();
+public interface PayloadInterceptorChain {
+	/**
+	 * Process the payload exchange.
+	 * @param exchange the current server exchange
+	 * @return {@code Mono<Void>} to indicate when request processing is complete
+	 */
+	Mono<Void> next(PayloadExchange exchange);
 }

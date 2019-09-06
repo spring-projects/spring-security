@@ -37,7 +37,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.rsocket.PayloadExchangeType;
+import org.springframework.security.rsocket.api.PayloadExchangeType;
 import org.springframework.security.rsocket.metadata.BasicAuthenticationEncoder;
 import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
 import org.springframework.util.MimeType;
@@ -45,9 +45,9 @@ import org.springframework.util.MimeTypeUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.test.publisher.PublisherProbe;
-import org.springframework.security.rsocket.DefaultPayloadExchange;
-import org.springframework.security.rsocket.PayloadInterceptorChain;
-import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.core.DefaultPayloadExchange;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
+import org.springframework.security.rsocket.api.PayloadExchange;
 
 import java.util.Map;
 

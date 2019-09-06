@@ -23,9 +23,9 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
-import org.springframework.security.rsocket.PayloadInterceptorChain;
-import org.springframework.security.rsocket.PayloadExchange;
-import org.springframework.security.rsocket.PayloadInterceptor;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
+import org.springframework.security.rsocket.api.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadInterceptor;
 
 /**
  * Provides authorization of the {@link PayloadExchange}.

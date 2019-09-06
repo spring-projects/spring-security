@@ -29,8 +29,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.test.publisher.PublisherProbe;
 import reactor.util.context.Context;
-import org.springframework.security.rsocket.PayloadInterceptorChain;
-import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
+import org.springframework.security.rsocket.api.PayloadExchange;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
