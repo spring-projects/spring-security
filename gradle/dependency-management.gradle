@@ -7,7 +7,7 @@ if (!project.hasProperty('springVersion')) {
 }
 
 if (!project.hasProperty('springDataVersion')) {
-	ext.springDataVersion = 'Moore-RC2'
+	ext.springDataVersion = 'Moore-RC3'
 }
 
 ext.rsocketVersion = '1.0.0-RC3'
