@@ -16,6 +16,7 @@
 
 package org.springframework.security.rsocket.authentication;
 
+import org.springframework.core.Ordered;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -35,12 +36,13 @@ import java.util.List;
  * @author Rob Winch
  * @since 5.2
  */
-public class AnonymousPayloadInterceptor implements PayloadInterceptor {
+public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered {
 
 	private String key;
 	private Object principal;
 	private List<GrantedAuthority> authorities;
 
+	private int order;
 
 	/**
 	 * Creates a filter with a principal named "anonymousUser" and the single authority
@@ -67,6 +69,14 @@ public class AnonymousPayloadInterceptor implements PayloadInterceptor {
 		this.authorities = authorities;
 	}
 
+	@Override
+	public int getOrder() {
+		return this.order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
 
 	@Override
 	public Mono<Void> intercept(PayloadExchange exchange, PayloadInterceptorChain chain) {

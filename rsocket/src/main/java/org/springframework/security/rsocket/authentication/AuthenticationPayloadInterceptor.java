@@ -16,6 +16,7 @@
 
 package org.springframework.security.rsocket.authentication;
 
+import org.springframework.core.Ordered;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -33,9 +34,11 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.2
  */
-public class AuthenticationPayloadInterceptor implements PayloadInterceptor {
+public class AuthenticationPayloadInterceptor implements PayloadInterceptor, Ordered {
 
 	private final ReactiveAuthenticationManager authenticationManager;
+
+	private int order;
 
 	private PayloadExchangeAuthenticationConverter authenticationConverter =
 			new BasicAuthenticationPayloadExchangeConverter();
@@ -47,6 +50,15 @@ public class AuthenticationPayloadInterceptor implements PayloadInterceptor {
 	public AuthenticationPayloadInterceptor(ReactiveAuthenticationManager authenticationManager) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
 		this.authenticationManager = authenticationManager;
+	}
+
+	@Override
+	public int getOrder() {
+		return this.order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
 	}
 
 	/**

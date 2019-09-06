@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.rsocket;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager;
@@ -107,6 +108,8 @@ import java.util.List;
  */
 public class RSocketSecurity {
 
+	private List<PayloadInterceptor> payloadInterceptors = new ArrayList<>();
+
 	private BasicAuthenticationSpec basicAuthSpec;
 
 	private JwtSpec jwtSpec;
@@ -116,6 +119,22 @@ public class RSocketSecurity {
 	private ApplicationContext context;
 
 	private ReactiveAuthenticationManager authenticationManager;
+
+	/**
+	 * Adds a {@link PayloadInterceptor} to be used. This is typically only used
+	 * when using the DSL does not meet a users needs. In order to ensure the
+	 * {@link PayloadInterceptor} is done in the proper order the {@link PayloadInterceptor} should
+	 * either implement {@link org.springframework.core.Ordered} or be annotated with
+	 * {@link org.springframework.core.annotation.Order}.
+	 *
+	 * @param interceptor
+	 * @return the builder for additional customizations
+	 * @see PayloadInterceptorOrder
+	 */
+	public RSocketSecurity addPayloadInterceptor(PayloadInterceptor interceptor) {
+		this.payloadInterceptors.add(interceptor);
+		return this;
+	}
 
 	public RSocketSecurity authenticationManager(ReactiveAuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
@@ -147,7 +166,9 @@ public class RSocketSecurity {
 
 		protected AuthenticationPayloadInterceptor build() {
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
-			return new AuthenticationPayloadInterceptor(manager);
+			AuthenticationPayloadInterceptor result = new AuthenticationPayloadInterceptor(manager);
+			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
+			return result;
 		}
 
 		private BasicAuthenticationSpec() {}
@@ -185,6 +206,7 @@ public class RSocketSecurity {
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
 			AuthenticationPayloadInterceptor result = new AuthenticationPayloadInterceptor(manager);
 			result.setAuthenticationConverter(new BearerPayloadExchangeConverter());
+			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
 			return result;
 		}
 
@@ -209,20 +231,27 @@ public class RSocketSecurity {
 	}
 
 	private List<PayloadInterceptor> payloadInterceptors() {
-		List<PayloadInterceptor> payloadInterceptors = new ArrayList<>();
+		List<PayloadInterceptor> result = new ArrayList<>(this.payloadInterceptors);
 
 		if (this.basicAuthSpec != null) {
-			payloadInterceptors.add(this.basicAuthSpec.build());
+			result.add(this.basicAuthSpec.build());
 		}
 		if (this.jwtSpec != null) {
-			payloadInterceptors.add(this.jwtSpec.build());
+			result.add(this.jwtSpec.build());
 		}
-		payloadInterceptors.add(new AnonymousPayloadInterceptor("anonymousUser"));
+		result.add(anonymous());
 
 		if (this.authorizePayload != null) {
-			payloadInterceptors.add(this.authorizePayload.build());
+			result.add(this.authorizePayload.build());
 		}
-		return payloadInterceptors;
+		AnnotationAwareOrderComparator.sort(result);
+		return result;
+	}
+
+	private AnonymousPayloadInterceptor anonymous() {
+		AnonymousPayloadInterceptor result = new AnonymousPayloadInterceptor("anonymousUser");
+		result.setOrder(PayloadInterceptorOrder.ANONYMOUS.getOrder());
+		return result;
 	}
 
 	public class AuthorizePayloadsSpec {
@@ -239,7 +268,9 @@ public class RSocketSecurity {
 		}
 
 		protected AuthorizationPayloadInterceptor build() {
-			return new AuthorizationPayloadInterceptor(this.authzBuilder.build());
+			AuthorizationPayloadInterceptor result = new AuthorizationPayloadInterceptor(this.authzBuilder.build());
+			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
+			return result;
 		}
 
 		public Access route(String pattern) {

@@ -16,6 +16,7 @@
 
 package org.springframework.security.rsocket.authorization;
 
+import org.springframework.core.Ordered;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -32,13 +33,24 @@ import org.springframework.security.rsocket.PayloadInterceptor;
  * @author Rob Winch
  * @since 5.2
  */
-public class AuthorizationPayloadInterceptor implements PayloadInterceptor {
+public class AuthorizationPayloadInterceptor implements PayloadInterceptor, Ordered {
 	private final ReactiveAuthorizationManager<PayloadExchange> authorizationManager;
+
+	private int order;
 
 	public AuthorizationPayloadInterceptor(
 			ReactiveAuthorizationManager<PayloadExchange> authorizationManager) {
 		Assert.notNull(authorizationManager, "authorizationManager cannot be null");
 		this.authorizationManager = authorizationManager;
+	}
+
+	@Override
+	public int getOrder() {
+		return this.order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
 	}
 
 	@Override
