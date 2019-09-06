@@ -11,6 +11,7 @@ dependencies {
 
 	optional project(':spring-security-ldap')
 	optional project(':spring-security-messaging')
+	optional project(':spring-security-saml2-service-provider')
 	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-oauth2-jose')
 	optional project(':spring-security-oauth2-resource-server')

@@ -24,6 +24,11 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.HtmlUtils;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Map;
+import java.util.function.Function;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -31,11 +36,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * For internal use with namespace configuration in the case where a user doesn't
@@ -56,6 +56,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	private boolean formLoginEnabled;
 	private boolean openIdEnabled;
 	private boolean oauth2LoginEnabled;
+	private boolean saml2LoginEnabled;
 	private String authenticationUrl;
 	private String usernameParameter;
 	private String passwordParameter;
@@ -64,6 +65,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	private String openIDusernameParameter;
 	private String openIDrememberMeParameter;
 	private Map<String, String> oauth2AuthenticationUrlToClientName;
+	private Map<String, String> saml2AuthenticationUrlToProviderName;
 	private Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs = request -> Collections
 		.emptyMap();
 
@@ -126,7 +128,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	public boolean isEnabled() {
-		return formLoginEnabled || openIdEnabled || oauth2LoginEnabled;
+		return formLoginEnabled || openIdEnabled || oauth2LoginEnabled || this.saml2LoginEnabled;
 	}
 
 	public void setLogoutSuccessUrl(String logoutSuccessUrl) {
@@ -157,6 +159,10 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		this.oauth2LoginEnabled = oauth2LoginEnabled;
 	}
 
+	public void setSaml2LoginEnabled(boolean saml2LoginEnabled) {
+		this.saml2LoginEnabled = saml2LoginEnabled;
+	}
+
 	public void setAuthenticationUrl(String authenticationUrl) {
 		this.authenticationUrl = authenticationUrl;
 	}
@@ -184,6 +190,10 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	public void setOauth2AuthenticationUrlToClientName(Map<String, String> oauth2AuthenticationUrlToClientName) {
 		this.oauth2AuthenticationUrlToClientName = oauth2AuthenticationUrlToClientName;
+	}
+
+	public void setSaml2AuthenticationUrlToProviderName(Map<String, String> saml2AuthenticationUrlToProviderName) {
+		this.saml2AuthenticationUrlToProviderName = saml2AuthenticationUrlToProviderName;
 	}
 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -282,6 +292,23 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 				sb.append("<a href=\"").append(contextPath).append(url).append("\">");
 				String clientName = HtmlUtils.htmlEscape(clientAuthenticationUrlToClientName.getValue());
 				sb.append(clientName);
+				sb.append("</a>");
+				sb.append("</td></tr>\n");
+			}
+			sb.append("</table>\n");
+		}
+
+		if (this.saml2LoginEnabled) {
+			sb.append("<h2 class=\"form-signin-heading\">Login with SAML 2.0</h2>");
+			sb.append(createError(loginError, errorMsg));
+			sb.append(createLogoutSuccess(logoutSuccess));
+			sb.append("<table class=\"table table-striped\">\n");
+			for (Map.Entry<String, String> relyingPartyUrlToName : saml2AuthenticationUrlToProviderName.entrySet()) {
+				sb.append(" <tr><td>");
+				String url = relyingPartyUrlToName.getKey();
+				sb.append("<a href=\"").append(contextPath).append(url).append("\">");
+				String partyName = HtmlUtils.htmlEscape(relyingPartyUrlToName.getValue());
+				sb.append(partyName);
 				sb.append("</a>");
 				sb.append("</td></tr>\n");
 			}
