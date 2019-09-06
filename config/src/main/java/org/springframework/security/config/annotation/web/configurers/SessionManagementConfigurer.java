@@ -389,6 +389,13 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
+		/**
+		 * Determines the behaviour when an expired session is detected.
+		 *
+		 * @param expiredSessionStrategy the {@link SessionInformationExpiredStrategy} to
+		 * use when an expired session is detected.
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 */
 		public ConcurrencyControlConfigurer expiredSessionStrategy(
 				SessionInformationExpiredStrategy expiredSessionStrategy) {
 			SessionManagementConfigurer.this.expiredSessionStrategy = expiredSessionStrategy;
