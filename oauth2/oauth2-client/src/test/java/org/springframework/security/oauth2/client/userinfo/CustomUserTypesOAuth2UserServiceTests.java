@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.no
  * Tests for {@link CustomUserTypesOAuth2UserService}.
  *
  * @author Joe Grandja
+ * @author Eddú Meléndez
  */
 public class CustomUserTypesOAuth2UserServiceTests {
 	private ClientRegistration.Builder clientRegistrationBuilder;
@@ -134,10 +135,10 @@ public class CustomUserTypesOAuth2UserServiceTests {
 
 		assertThat(user.getName()).isEqualTo("first last");
 		assertThat(user.getAttributes().size()).isEqualTo(4);
-		assertThat(user.getAttributes().get("id")).isEqualTo("12345");
-		assertThat(user.getAttributes().get("name")).isEqualTo("first last");
-		assertThat(user.getAttributes().get("login")).isEqualTo("user1");
-		assertThat(user.getAttributes().get("email")).isEqualTo("user1@example.com");
+		assertThat((String) user.getAttribute("id")).isEqualTo("12345");
+		assertThat((String) user.getAttribute("name")).isEqualTo("first last");
+		assertThat((String) user.getAttribute("login")).isEqualTo("user1");
+		assertThat((String) user.getAttribute("email")).isEqualTo("user1@example.com");
 
 		assertThat(user.getAuthorities().size()).isEqualTo(1);
 		assertThat(user.getAuthorities().iterator().next().getAuthority()).isEqualTo("ROLE_USER");
