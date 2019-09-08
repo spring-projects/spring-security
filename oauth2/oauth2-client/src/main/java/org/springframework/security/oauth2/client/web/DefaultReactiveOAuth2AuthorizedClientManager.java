@@ -70,35 +70,52 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 
 		String clientRegistrationId = authorizeRequest.getClientRegistrationId();
 		Authentication principal = authorizeRequest.getPrincipal();
-
 		ServerWebExchange serverWebExchange = authorizeRequest.getAttribute(ServerWebExchange.class.getName());
-		Assert.notNull(serverWebExchange, "serverWebExchange cannot be null");
 
 		return Mono.justOrEmpty(authorizeRequest.getAuthorizedClient())
-				.switchIfEmpty(Mono.defer(() ->
-						this.authorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal, serverWebExchange)))
+				.switchIfEmpty(Mono.defer(() -> loadAuthorizedClient(clientRegistrationId, principal, serverWebExchange)))
 				.flatMap(authorizedClient -> {
 					// Re-authorize
 					return authorizationContext(authorizeRequest, authorizedClient)
 							.flatMap(this.authorizedClientProvider::authorize)
-							.doOnNext(reauthorizedClient ->
-									this.authorizedClientRepository.saveAuthorizedClient(
-											reauthorizedClient, principal, serverWebExchange))
+							.flatMap(reauthorizedClient -> saveAuthorizedClient(reauthorizedClient, principal, serverWebExchange))
 							// Default to the existing authorizedClient if the client was not re-authorized
 							.defaultIfEmpty(authorizeRequest.getAuthorizedClient() != null ?
 									authorizeRequest.getAuthorizedClient() : authorizedClient);
 				})
-				.switchIfEmpty(Mono.defer(() ->
+				.switchIfEmpty(Mono.deferWithContext(context ->
 						// Authorize
 						this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
 								.switchIfEmpty(Mono.error(() -> new IllegalArgumentException(
 										"Could not find ClientRegistration with id '" + clientRegistrationId + "'")))
 								.flatMap(clientRegistration -> authorizationContext(authorizeRequest, clientRegistration))
 								.flatMap(this.authorizedClientProvider::authorize)
-								.doOnNext(authorizedClient ->
-										this.authorizedClientRepository.saveAuthorizedClient(
-												authorizedClient, principal, serverWebExchange))
-				));
+								.flatMap(authorizedClient -> saveAuthorizedClient(authorizedClient, principal, serverWebExchange))
+								.subscriberContext(context)
+						)
+				);
+	}
+
+	private Mono<OAuth2AuthorizedClient> loadAuthorizedClient(String clientRegistrationId, Authentication principal, ServerWebExchange serverWebExchange) {
+		return Mono.justOrEmpty(serverWebExchange)
+				.switchIfEmpty(Mono.defer(() -> currentServerWebExchange()))
+				.flatMap(exchange -> this.authorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal, exchange));
+	}
+
+	private Mono<OAuth2AuthorizedClient> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal, ServerWebExchange serverWebExchange) {
+		return Mono.justOrEmpty(serverWebExchange)
+				.switchIfEmpty(Mono.defer(() -> currentServerWebExchange()))
+				.map(exchange -> {
+					this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, exchange);
+					return authorizedClient;
+				})
+				.defaultIfEmpty(authorizedClient);
+	}
+
+	private static Mono<ServerWebExchange> currentServerWebExchange() {
+		return Mono.subscriberContext()
+				.filter(c -> c.hasKey(ServerWebExchange.class))
+				.map(c -> c.get(ServerWebExchange.class));
 	}
 
 	private Mono<OAuth2AuthorizationContext> authorizationContext(OAuth2AuthorizeRequest authorizeRequest,
@@ -158,15 +175,20 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 
 		@Override
 		public Mono<Map<String, Object>> apply(OAuth2AuthorizeRequest authorizeRequest) {
-			Map<String, Object> contextAttributes = Collections.emptyMap();
 			ServerWebExchange serverWebExchange = authorizeRequest.getAttribute(ServerWebExchange.class.getName());
-			String scope = serverWebExchange.getRequest().getQueryParams().getFirst(OAuth2ParameterNames.SCOPE);
-			if (StringUtils.hasText(scope)) {
-				contextAttributes = new HashMap<>();
-				contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
-						StringUtils.delimitedListToStringArray(scope, " "));
-			}
-			return Mono.just(contextAttributes);
+			return Mono.justOrEmpty(serverWebExchange)
+					.switchIfEmpty(Mono.defer(() -> currentServerWebExchange()))
+					.flatMap(exchange -> {
+						Map<String, Object> contextAttributes = Collections.emptyMap();
+						String scope = exchange.getRequest().getQueryParams().getFirst(OAuth2ParameterNames.SCOPE);
+						if (StringUtils.hasText(scope)) {
+							contextAttributes = new HashMap<>();
+							contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
+									StringUtils.delimitedListToStringArray(scope, " "));
+						}
+						return Mono.just(contextAttributes);
+					})
+					.defaultIfEmpty(Collections.emptyMap());
 		}
 	}
 }
