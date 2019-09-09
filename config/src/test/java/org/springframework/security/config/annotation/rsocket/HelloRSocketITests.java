@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.rsocket;
 
 import io.rsocket.RSocketFactory;
-import io.rsocket.exceptions.ApplicationErrorException;
 import io.rsocket.frame.decoder.PayloadDecoder;
 import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
@@ -31,11 +31,9 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 import org.springframework.security.rsocket.core.SecuritySocketAcceptorInterceptor;
 import org.springframework.security.rsocket.metadata.BasicAuthenticationEncoder;
 import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
@@ -54,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  */
 @ContextConfiguration
 @RunWith(SpringRunner.class)
-public class RSocketMessageHandlerConnectionITests {
+public class HelloRSocketITests {
 	@Autowired
 	RSocketMessageHandler handler;
 
@@ -87,91 +85,42 @@ public class RSocketMessageHandlerConnectionITests {
 	}
 
 	@Test
-	public void routeWhenAuthorized() {
-		UsernamePasswordMetadata credentials =
-				new UsernamePasswordMetadata("user", "password");
-		this.requester = requester()
-				.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+	public void retrieveMonoWhenSecureThenDenied() throws Exception {
+		this.requester = RSocketRequester.builder()
+				.rsocketStrategies(this.handler.getRSocketStrategies())
+				.connectTcp("localhost", this.server.address().getPort())
 				.block();
 
-		String hiRob = this.requester.route("secure.retrieve-mono")
-				.data("rob")
+		String data = "rob";
+		assertThatCode(() -> this.requester.route("secure.retrieve-mono")
+				.data(data)
 				.retrieveMono(String.class)
-				.block();
-
-		assertThat(hiRob).isEqualTo("Hi rob");
-	}
-
-	@Test
-	public void routeWhenNotAuthorized() {
-		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
-		this.requester = requester()
-				.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
-				.block();
-
-		assertThatCode(() -> this.requester.route("secure.admin.retrieve-mono")
-				.data("data")
-				.retrieveMono(String.class)
-				.block())
-			.isInstanceOf(ApplicationErrorException.class);
-	}
-
-	@Test
-	public void routeWhenStreamCredentialsAuthorized() {
-		UsernamePasswordMetadata connectCredentials = new UsernamePasswordMetadata("user", "password");
-		this.requester = requester()
-				.setupMetadata(connectCredentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
-				.block();
-
-		String hiRob = this.requester.route("secure.admin.retrieve-mono")
-				.metadata(new UsernamePasswordMetadata("admin", "password"), UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.data("rob")
-				.retrieveMono(String.class)
-				.block();
-
-		assertThat(hiRob).isEqualTo("Hi rob");
-	}
-
-	@Test
-	public void connectWhenNotAuthenticated() {
-		this.requester = requester()
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
-				.block();
-
-		assertThatCode(() -> this.requester.route("retrieve-mono")
-				.data("data")
-				.retrieveMono(String.class)
-				.block())
-				.isNotNull();
+				.block()
+			)
+			.isNotNull();
 		// FIXME: https://github.com/rsocket/rsocket-java/issues/686
 		//			.isInstanceOf(RejectedSetupException.class);
+		assertThat(this.controller.payloads).isEmpty();
 	}
 
 	@Test
-	public void connectWhenNotAuthorized() {
-		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("evil", "password");
-		this.requester = requester()
+	public void retrieveMonoWhenAuthorizedThenGranted() throws Exception {
+		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("rob", "password");
+		this.requester = RSocketRequester.builder()
 				.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.rsocketStrategies(this.handler.getRSocketStrategies())
+				.connectTcp("localhost", this.server.address().getPort())
+				.block();
+		String data = "rob";
+		String hiRob = this.requester.route("secure.retrieve-mono")
+				.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+				.data(data)
+				.retrieveMono(String.class)
 				.block();
 
-		assertThatCode(() -> this.requester.route("retrieve-mono")
-				.data("data")
-				.retrieveMono(String.class)
-				.block())
-			.isNotNull();
-//		 FIXME: https://github.com/rsocket/rsocket-java/issues/686
-//			.isInstanceOf(RejectedSetupException.class);
+		assertThat(hiRob).isEqualTo("Hi rob");
+		assertThat(this.controller.payloads).containsOnly(data);
 	}
-
-	private RSocketRequester.Builder requester() {
-		return RSocketRequester.builder()
-				.rsocketStrategies(this.handler.getRSocketStrategies());
-	}
-
 
 	@Configuration
 	@EnableRSocketSecurity
@@ -198,37 +147,12 @@ public class RSocketMessageHandlerConnectionITests {
 
 		@Bean
 		MapReactiveUserDetailsService uds() {
-			UserDetails admin = User.withDefaultPasswordEncoder()
-					.username("admin")
+			UserDetails rob = User.withDefaultPasswordEncoder()
+					.username("rob")
 					.password("password")
-					.roles("USER", "ADMIN", "SETUP")
+					.roles("USER", "ADMIN")
 					.build();
-			UserDetails user = User.withDefaultPasswordEncoder()
-					.username("user")
-					.password("password")
-					.roles("USER", "SETUP")
-					.build();
-
-			UserDetails evil = User.withDefaultPasswordEncoder()
-					.username("evil")
-					.password("password")
-					.roles("EVIL")
-					.build();
-			return new MapReactiveUserDetailsService(admin, user, evil);
-		}
-
-		@Bean
-		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			rsocket
-				.authorizePayload(authorize ->
-					authorize
-						.setup().hasRole("SETUP")
-						.route("secure.admin.*").hasRole("ADMIN")
-						.route("secure.**").hasRole("USER")
-						.anyRequest().permitAll()
-				)
-				.basicAuthentication(Customizer.withDefaults());
-			return rsocket.build();
+			return new MapReactiveUserDetailsService(rob);
 		}
 	}
 
@@ -237,8 +161,13 @@ public class RSocketMessageHandlerConnectionITests {
 		private List<String> payloads = new ArrayList<>();
 
 		@MessageMapping("**")
-		String connect(String payload) {
+		String retrieveMono(String payload) {
+			add(payload);
 			return "Hi " + payload;
+		}
+
+		private void add(String p) {
+			this.payloads.add(p);
 		}
 	}
 

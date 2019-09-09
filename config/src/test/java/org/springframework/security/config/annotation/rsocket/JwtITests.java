@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
+import org.springframework.security.rsocket.core.SecuritySocketAcceptorInterceptor;
 import org.springframework.security.rsocket.metadata.BasicAuthenticationEncoder;
 import org.springframework.security.rsocket.metadata.BearerTokenMetadata;
 import org.springframework.stereotype.Controller;
@@ -64,7 +65,7 @@ public class JwtITests {
 	RSocketMessageHandler handler;
 
 	@Autowired
-	PayloadSocketAcceptorInterceptor interceptor;
+	SecuritySocketAcceptorInterceptor interceptor;
 
 	@Autowired
 	ServerController controller;
