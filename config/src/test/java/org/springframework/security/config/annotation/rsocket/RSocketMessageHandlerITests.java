@@ -298,7 +298,7 @@ public class RSocketMessageHandlerITests {
 		}
 
 		private synchronized List<String> awaitPayloads() throws InterruptedException {
-			this.wait();
+			this.wait(TimeUnit.SECONDS.toMillis(1));
 			return this.payloads;
 		}
 
