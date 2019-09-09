@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.*;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,6 +35,7 @@ import static org.assertj.core.api.Assertions.entry;
  * Tests for {@link DefaultOAuth2AuthorizationRequestResolver}.
  *
  * @author Joe Grandja
+ * @author Mark Heckler
  */
 public class DefaultOAuth2AuthorizationRequestResolverTests {
 	private ClientRegistration registration1;
@@ -116,7 +118,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		assertThat(authorizationRequest.getState()).isNotNull();
 		assertThat(authorizationRequest.getAdditionalParameters()).doesNotContainKey(OAuth2ParameterNames.REGISTRATION_ID);
 		assertThat(authorizationRequest.getAttributes())
-				.containsOnlyKeys(OAuth2ParameterNames.REGISTRATION_ID, NonceParameterNames.NONCE)
+				.containsOnlyKeys(OAuth2ParameterNames.REGISTRATION_ID, IdTokenClaimNames.NONCE)
 				.contains(entry(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 				.matches("https://example.com/login/oauth/authorize\\?" +
@@ -136,7 +138,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request, clientRegistration.getRegistrationId());
 		assertThat(authorizationRequest).isNotNull();
 		assertThat(authorizationRequest.getAttributes())
-				.containsOnlyKeys(OAuth2ParameterNames.REGISTRATION_ID, NonceParameterNames.NONCE)
+				.containsOnlyKeys(OAuth2ParameterNames.REGISTRATION_ID, IdTokenClaimNames.NONCE)
 				.contains(entry(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
 	}
 

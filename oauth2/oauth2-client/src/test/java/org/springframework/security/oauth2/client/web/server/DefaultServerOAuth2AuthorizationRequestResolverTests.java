@@ -41,6 +41,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
+ * @author Mark Heckler
  * @since 5.1
  */
 @RunWith(MockitoJUnitRunner.class)

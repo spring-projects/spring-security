@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
  * A representation of an OAuth 2.0 Authorization Response for the authorization code grant type.
  *
  * @author Joe Grandja
+ * @author Mark Heckler
  * @since 5.0
  * @see OAuth2Error
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
@@ -31,6 +32,7 @@ public final class OAuth2AuthorizationResponse {
 	private String redirectUri;
 	private String state;
 	private String code;
+	private String nonce;
 	private OAuth2Error error;
 
 	private OAuth2AuthorizationResponse() {
@@ -61,6 +63,15 @@ public final class OAuth2AuthorizationResponse {
 	 */
 	public String getCode() {
 		return this.code;
+	}
+
+	/**
+	 * Returns the nonce.
+	 *
+	 * @return the nonce
+	 */
+	public String getNonce() {
+		return this.nonce;
 	}
 
 	/**
@@ -119,6 +130,7 @@ public final class OAuth2AuthorizationResponse {
 		private String redirectUri;
 		private String state;
 		private String code;
+		private String nonce;
 		private String errorCode;
 		private String errorDescription;
 		private String errorUri;
@@ -156,6 +168,17 @@ public final class OAuth2AuthorizationResponse {
 		 */
 		public Builder code(String code) {
 			this.code = code;
+			return this;
+		}
+
+		/**
+		 * Sets the nonce.
+		 *
+		 * @param nonce the nonce
+		 * @return the {@link Builder}
+		 */
+		public Builder nonce(String nonce) {
+			this.nonce = nonce;
 			return this;
 		}
 
@@ -212,6 +235,7 @@ public final class OAuth2AuthorizationResponse {
 				authorizationResponse.error = new OAuth2Error(
 					this.errorCode, this.errorDescription, this.errorUri);
 			}
+			authorizationResponse.nonce = this.nonce;
 			return authorizationResponse;
 		}
 	}

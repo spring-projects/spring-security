@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.core.endpoint;
 
 /**
  * @author Rob Winch
+ * @author Mark Heckler
  * @since 5.1
  */
 public class TestOAuth2AuthorizationResponses {
@@ -25,6 +26,13 @@ public class TestOAuth2AuthorizationResponses {
 	public static OAuth2AuthorizationResponse.Builder success() {
 		return OAuth2AuthorizationResponse.success("authorization-code")
 				.state("state")
+				.redirectUri("https://example.com/authorize/oauth2/code/registration-id");
+	}
+
+	public static OAuth2AuthorizationResponse.Builder successWithNonce(String nonce) {
+		return OAuth2AuthorizationResponse.success("authorization-code")
+				.state("state")
+				.nonce(nonce)
 				.redirectUri("https://example.com/authorize/oauth2/code/registration-id");
 	}
 

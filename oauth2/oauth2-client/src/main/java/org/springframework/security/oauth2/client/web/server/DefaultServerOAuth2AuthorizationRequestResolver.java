@@ -24,10 +24,10 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.endpoint.NonceParameterNames;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.Assert;
@@ -53,6 +53,7 @@ import java.util.Map;
  * used to resolve the {@link ClientRegistration} and create the {@link OAuth2AuthorizationRequest}.
  *
  * @author Rob Winch
+ * @author Mark Heckler
  * @since 5.1
  */
 public class DefaultServerOAuth2AuthorizationRequestResolver
@@ -135,7 +136,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 			builder = OAuth2AuthorizationRequest.authorizationCode();
 			Map<String, Object> additionalParameters = new HashMap<>();
 
-			addNonceHash(attributes, additionalParameters);
+			createNonceAndHashForRequest(attributes, additionalParameters);
 
 			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
 				addPkceParameters(attributes, additionalParameters);
@@ -211,22 +212,22 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 	}
 
 	/**
-	 * Created and adds nonce for use in OpenID Connect Authentication Requests
+	 * Creates nonce and its hash for use in OpenID Connect Authentication Requests
 	 *
-	 * @param attributes where {@link PkceParameterNames#CODE_VERIFIER} is stored for the token request
-	 * @param additionalParameters where {@link NonceParameterNames#NONCE} is added to be used in the authentication request.
+	 * @param attributes where {@link IdTokenClaimNames#NONCE} is stored for the token request
+	 * @param additionalParameters where hash of {@link IdTokenClaimNames#NONCE} is added to the authentication request
 	 *
-	 * @since 5.2	MAH fix links
+	 * @since 5.2
 	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#NonceNotes">15.5.2.  Nonce Implementation Notes</a>
 	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">3.1.3.7.  ID Token Validation</a>
 	 */
-	private void addNonceHash(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
+	private void createNonceAndHashForRequest(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
 		String nonce = this.randomKeyGenerator.generateKey();
-		attributes.put(NonceParameterNames.NONCE, nonce);
+		attributes.put(IdTokenClaimNames.NONCE, nonce);
 
 		try {
-			String hashNonce = createHash(nonce);
-			additionalParameters.put(NonceParameterNames.NONCE, hashNonce);
+			String nonceHash = createHash(nonce);
+			additionalParameters.put(IdTokenClaimNames.NONCE, nonceHash);
 		} catch (NoSuchAlgorithmException e) {
 			// MAH: TODO...but what?
 		}

@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
@@ -43,6 +44,10 @@ import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.util.Assert;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
 
@@ -61,6 +66,7 @@ import java.util.Map;
  * to complete the authentication.
  *
  * @author Joe Grandja
+ * @author Mark Heckler
  * @since 5.0
  * @see OAuth2LoginAuthenticationToken
  * @see OAuth2AccessTokenResponseClient
@@ -75,6 +81,8 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
+	private static final String UNVERIFIABLE_NONCE = "unverifiable_nonce";
+	private static final String INVALID_NONCE = "invalid_nonce";
 	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 	private final OAuth2UserService<OidcUserRequest, OidcUser> userService;
 	private JwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new OidcIdTokenDecoderFactory();
@@ -154,6 +162,19 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		}
 		OidcIdToken idToken = createOidcToken(clientRegistration, accessTokenResponse);
 
+		String nonceHash;
+		try {
+			nonceHash = createHash(authorizationRequest.getAttribute(IdTokenClaimNames.NONCE));
+		} catch (NoSuchAlgorithmException e) {
+			OAuth2Error nonceVerificationError = new OAuth2Error(UNVERIFIABLE_NONCE, e.getMessage(), null);
+			throw new OAuth2AuthenticationException(nonceVerificationError);
+		}
+		String nonceClaim = idToken.getClaim(IdTokenClaimNames.NONCE);
+		if (nonceClaim == null || !nonceClaim.equals(nonceHash)) {
+			OAuth2Error nonceError = new OAuth2Error(INVALID_NONCE);
+			throw new OAuth2AuthenticationException(nonceError);
+		}
+
 		OidcUser oidcUser = this.userService.loadUser(new OidcUserRequest(
 				clientRegistration, accessTokenResponse.getAccessToken(), idToken, additionalParameters));
 		Collection<? extends GrantedAuthority> mappedAuthorities =
@@ -210,5 +231,11 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		}
 		OidcIdToken idToken = new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims());
 		return idToken;
+	}
+
+	private String createHash(String codeVerifier) throws NoSuchAlgorithmException {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		byte[] digest = md.digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
 }
