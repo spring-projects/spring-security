@@ -157,7 +157,7 @@ public class JwtITests {
 				.authorizePayload(authorize ->
 					authorize
 						.route("secure.admin.*").authenticated()
-						.anyRequest().permitAll()
+						.anyExchange().permitAll()
 				)
 				.jwt(Customizer.withDefaults());
 			return rsocket.build();

@@ -263,7 +263,20 @@ public class RSocketSecurity {
 			return matcher(PayloadExchangeMatchers.setup());
 		}
 
+		/**
+		 * Matches if {@link org.springframework.security.rsocket.api.PayloadExchangeType#isRequest()} is true, else
+		 * not a match
+		 * @return the Access to set up the authorization rule.
+		 */
 		public Access anyRequest() {
+			return matcher(PayloadExchangeMatchers.anyRequest());
+		}
+
+		/**
+		 * Always matches
+		 * @return the Access to set up the authorization rule.
+		 */
+		public Access anyExchange() {
 			return matcher(PayloadExchangeMatchers.anyExchange());
 		}
 

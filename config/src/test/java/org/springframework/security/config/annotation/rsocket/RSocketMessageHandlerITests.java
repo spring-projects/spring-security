@@ -261,7 +261,7 @@ public class RSocketMessageHandlerITests {
 					.authorizePayload(authorize -> {
 						authorize
 								.route("secure.*").authenticated()
-								.anyRequest().permitAll();
+								.anyExchange().permitAll();
 					})
 					.basicAuthentication(Customizer.withDefaults());
 			return rsocket.build();
