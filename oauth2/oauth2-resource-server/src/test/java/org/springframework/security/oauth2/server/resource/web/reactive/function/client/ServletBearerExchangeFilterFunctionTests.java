@@ -22,15 +22,14 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.util.context.Context;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.MockExchangeFunction;
@@ -62,11 +61,6 @@ public class ServletBearerExchangeFilterFunctionTests {
 		}
 	};
 
-	@After
-	public void cleanup() {
-		SecurityContextHolder.clearContext();
-	}
-
 	@Test
 	public void filterWhenUnauthenticatedThenAuthorizationHeaderNull() {
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
@@ -80,41 +74,41 @@ public class ServletBearerExchangeFilterFunctionTests {
 
 	// gh-7353
 	@Test
-	public void filterWhenAuthenticatedWithOtherTokenThenAuthorizationHeaderNull() throws Exception {
+	public void filterWhenAuthenticatedWithOtherTokenThenAuthorizationHeaderNull() {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "pass");
-		SecurityContextHolder.getContext().setAuthentication(token);
-
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.build();
 
-		this.function.filter(request, this.exchange).block();
+		this.function.filter(request, this.exchange)
+				.subscriberContext(Context.of(Authentication.class, token))
+				.block();
 
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
 				.isNull();
 	}
 
 	@Test
-	public void filterWhenAuthenticatedThenAuthorizationHeader() throws Exception {
-		SecurityContextHolder.getContext().setAuthentication(this.authentication);
-
+	public void filterWhenAuthenticatedThenAuthorizationHeader() {
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.build();
 
-		this.function.filter(request, this.exchange).block();
+		this.function.filter(request, this.exchange)
+				.subscriberContext(Context.of(Authentication.class, this.authentication))
+				.block();
 
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
 
 	@Test
-	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() throws Exception {
-		SecurityContextHolder.getContext().setAuthentication(this.authentication);
-
+	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
 		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
 				.header(HttpHeaders.AUTHORIZATION, "Existing")
 				.build();
 
-		this.function.filter(request, this.exchange).block();
+		this.function.filter(request, this.exchange)
+				.subscriberContext(Context.of(Authentication.class, this.authentication))
+				.block();
 
 		HttpHeaders headers = this.exchange.getRequest().headers();
 		assertThat(headers.get(HttpHeaders.AUTHORIZATION)).containsOnly("Bearer " + this.accessToken.getTokenValue());
