@@ -73,8 +73,8 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	private OAuth2AccessTokenResponse accessTokenResponse;
 	private OAuth2UserService<OidcUserRequest, OidcUser> userService;
 	private OidcAuthorizationCodeAuthenticationProvider authenticationProvider;
-	private StringKeyGenerator randomKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
-	private String nonce = this.randomKeyGenerator.generateKey();
+	private StringKeyGenerator stringKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+	private String nonce = this.stringKeyGenerator.generateKey();
 	private String nonceHash;
 
 	@Rule
@@ -98,7 +98,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 				.attributes(attributes)
 				.additionalParameters(additionalParameters)
 				.build();
-		this.authorizationResponse = successWithNonce((String) additionalParameters.get(IdTokenClaimNames.NONCE)).build();
+		this.authorizationResponse = success().build();
 		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest, this.authorizationResponse);
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 		this.accessTokenResponse = this.accessTokenSuccessResponse();
@@ -361,7 +361,6 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">3.1.3.7.  ID Token Validation</a>
 	 */
 	private void addNonceToRequest(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
-		//String nonce = this.randomKeyGenerator.generateKey();
 		attributes.put(IdTokenClaimNames.NONCE, nonce);
 		additionalParameters.put(IdTokenClaimNames.NONCE, nonceHash);
 	}

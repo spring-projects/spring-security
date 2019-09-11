@@ -63,7 +63,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
-	private final StringKeyGenerator randomKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+	private final StringKeyGenerator stringKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
 
 	/**
 	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided parameters.
@@ -122,7 +122,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 			builder = OAuth2AuthorizationRequest.authorizationCode();
 			Map<String, Object> additionalParameters = new HashMap<>();
 
-			createNonceAndHashForRequest(attributes, additionalParameters);
+			addNonceParameters(attributes, additionalParameters);
 
 			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
 				addPkceParameters(attributes, additionalParameters);
@@ -217,15 +217,15 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#NonceNotes">15.5.2.  Nonce Implementation Notes</a>
 	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">3.1.3.7.  ID Token Validation</a>
 	 */
-	private void createNonceAndHashForRequest(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
-		String nonce = this.randomKeyGenerator.generateKey();
+	private void addNonceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
+		String nonce = this.stringKeyGenerator.generateKey();
 		attributes.put(IdTokenClaimNames.NONCE, nonce);
 
 		try {
 			String nonceHash = createHash(nonce);
 			additionalParameters.put(IdTokenClaimNames.NONCE, nonceHash);
 		} catch (NoSuchAlgorithmException e) {
-			// MAH: TODO...but what?
+			//
 		}
 	}
 
@@ -242,7 +242,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.2">4.2.  Client Creates the Code Challenge</a>
 	 */
 	private void addPkceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
-		String codeVerifier = this.randomKeyGenerator.generateKey();
+		String codeVerifier = this.stringKeyGenerator.generateKey();
 		attributes.put(PkceParameterNames.CODE_VERIFIER, codeVerifier);
 		try {
 			String codeChallenge = createHash(codeVerifier);
@@ -253,9 +253,9 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		}
 	}
 
-	private String createHash(String codeVerifier) throws NoSuchAlgorithmException {
+	private String createHash(String value) throws NoSuchAlgorithmException {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
-		byte[] digest = md.digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));
+		byte[] digest = md.digest(value.getBytes(StandardCharsets.US_ASCII));
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
 }
