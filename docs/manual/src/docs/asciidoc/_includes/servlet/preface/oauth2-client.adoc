@@ -42,6 +42,7 @@ The following sections go into more detail on each of the configuration options 
 * <<oauth2Client-client-registration-repo>>
 * <<oauth2Client-authorized-client>>
 * <<oauth2Client-authorized-repo-service>>
+* <<oauth2Client-authorized-manager-provider>>
 * <<oauth2Client-registered-authorized-client>>
 * <<oauth2Client-authorization-request-repository>>
 * <<oauth2Client-authorization-request-resolver>>
@@ -198,6 +199,53 @@ public class OAuth2LoginController {
 	}
 }
 ----
+
+
+[[oauth2Client-authorized-manager-provider]]
+=== OAuth2AuthorizedClientManager / OAuth2AuthorizedClientProvider
+
+The `OAuth2AuthorizedClientManager` is responsible for the overall management of `OAuth2AuthorizedClient`(s).
+
+The primary responsibilities include:
+
+* Authorizing (or re-authorizing) an OAuth 2.0 Client, using an `OAuth2AuthorizedClientProvider`.
+* Delegating the persistence of an `OAuth2AuthorizedClient`, typically using an `OAuth2AuthorizedClientService` or `OAuth2AuthorizedClientRepository`.
+
+An `OAuth2AuthorizedClientProvider` implements a strategy for authorizing (or re-authorizing) an OAuth 2.0 Client.
+Implementations will typically implement an authorization grant type, eg. `authorization_code`, `client_credentials`, etc.
+
+The default implementation of `OAuth2AuthorizedClientManager` is `DefaultOAuth2AuthorizedClientManager`, which is associated with an `OAuth2AuthorizedClientProvider` that may support multiple authorization grant types using a delegation-based composite.
+The `OAuth2AuthorizedClientProviderBuilder` may be used to configure and build the delegation-based composite.
+
+The following code shows an example of how to configure and build an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials` and `password` authorization grant types:
+
+[source,java]
+----
+@Bean
+public OAuth2AuthorizedClientManager authorizedClientManager(
+		ClientRegistrationRepository clientRegistrationRepository,
+		OAuth2AuthorizedClientRepository authorizedClientRepository) {
+
+	OAuth2AuthorizedClientProvider authorizedClientProvider =
+			OAuth2AuthorizedClientProviderBuilder.builder()
+					.authorizationCode()
+					.refreshToken()
+					.clientCredentials()
+					.password()
+					.build();
+
+	DefaultOAuth2AuthorizedClientManager authorizedClientManager =
+			new DefaultOAuth2AuthorizedClientManager(
+					clientRegistrationRepository, authorizedClientRepository);
+	authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+	return authorizedClientManager;
+}
+----
+
+[NOTE]
+Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientManager` `@Bean` in the `ApplicationContext`.
+However, the application may choose to override and register a custom `OAuth2AuthorizedClientManager` `@Bean`.
 
 
 [[oauth2Client-registered-authorized-client]]
