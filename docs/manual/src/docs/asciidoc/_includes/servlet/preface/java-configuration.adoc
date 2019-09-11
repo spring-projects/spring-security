@@ -597,7 +597,7 @@ More powerful than `jwkSetUri()` is `decoder()`, which will completely replace a
 
 ```java
 @EnableWebSecurity
-public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
+public class DirectlyConfiguredJwtDecoder extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
             .authorizeRequests()
@@ -621,6 +621,157 @@ Or, exposing a `JwtDecoder` `@Bean` has the same effect as `decoder()`:
 @Bean
 public JwtDecoder jwtDecoder() {
     return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+}
+```
+
+[[oauth2resourceserver-jwt-decoder-algorithm]]
+=== Configuring Trusted Algorithms
+
+By default, `NimbusJwtDecoder`, and hence Resource Server, will only trust and verify tokens using `RS256`.
+
+You can customize this via <<oauth2-resourceserver-jwt-boot-algorithm,Spring Boot>>, <<oauth2-resourceserver-jwt-decoder-builder,the NimbusJwtDecoder builder>>, or from the <<oauth2-resourceserver-jwt-decoder-jwk-response,JWK Set response>>.
+
+[[oauth2-resourceserver-jwt-boot-algorithm]]
+==== Via Spring Boot
+
+The simplest way to set the algorithm is as a property:
+
+```yaml
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jws-algorithm: RS512
+          jwk-set-uri: https://idp.example.org/.well-known/jwks.json
+```
+
+[[oauth2-resourceserver-jwt-decoder-builder]]
+==== Using a Builder
+
+For greater power, though, we can use a builder that ships with `NimbusJwtDecoder`:
+
+```java
+@Bean
+JwtDecoder jwtDecoder() {
+    return NimbusJwtDecoder.fromJwkSetUri(this.jwkSetUri)
+            .jwsAlgorithm(RS512).build();
+}
+```
+
+Calling `jwsAlgorithm` more than once will configure `NimbusJwtDecoder` to trust more than one algorithm, like so:
+
+```java
+@Bean
+JwtDecoder jwtDecoder() {
+    return NimbusJwtDecoder.fromJwkSetUri(this.jwkSetUri)
+            .jwsAlgorithm(RS512).jwsAlgorithm(EC512).build();
+}
+```
+
+Or, you can call `jwsAlgorithms`:
+
+```java
+@Bean
+JwtDecoder jwtDecoder() {
+    return NimbusJwtDecoder.fromJwkSetUri(this.jwkSetUri)
+            .jwsAlgorithms(algorithms -> {
+                    algorithms.add(RS512);
+                    algorithms.add(EC512);
+            }).build();
+}
+```
+
+[[oauth2-resourceserver-jwt-decoder-jwk-response]]
+==== From JWK Set response
+
+Since Spring Security's JWT support is based off of Nimbus, you can use all it's great features as well.
+
+For example, Nimbus has a `JWSKeySelector` implementation that will select the set of algorithms based on the JWK Set URI response.
+You can use it to generate a `NimbusJwtDecoder` like so:
+
+```java
+@Bean
+public JwtDecoder jwtDecoder() {
+    // makes a request to the JWK Set endpoint
+    JWSKeySelector<SecurityContext> jwsKeySelector =
+            JWSAlgorithmFamilyJWSKeySelector.fromJWKSetURL(this.jwkSetUrl);
+
+    DefaultJWTProcessor<SecurityContext> jwtProcessor =
+            new DefaultJWTProcessor<>();
+    jwtProcessor.setJWSKeySelector(jwsKeySelector);
+
+    return new NimbusJwtDecoder(jwtProcessor);
+}
+```
+
+[[oauth2resourceserver-jwt-decoder-public-key]]
+=== Trusting a Single Asymmetric Key
+
+Simpler than backing a Resource Server with a JWK Set endpoint is to hard-code an RSA public key.
+The public key can be provided via <<oauth2resourceserver-jwt-decoder-public-key-boot,Spring Boot>> or by <<oauth2resourceserver-jwt-decoder-public-key-builder,Using a Builder>>.
+
+[[oauth2resourceserver-jwt-decoder-public-key-boot]]
+==== Via Spring Boot
+
+Specifying a key via Spring Boot is quite simple.
+The key's location can be specified like so:
+
+```yaml
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:my-key.pub
+```
+
+Or, to allow for a more sophisticated lookup, you can post-process the `RsaKeyConversionServicePostProcessor`:
+
+```java
+@Bean
+BeanFactoryPostProcessor conversionServiceCustomizer() {
+    return beanFactory ->
+        beanFactory.getBean(RsaKeyConversionServicePostProcessor.class)
+                .setResourceLoader(new CustomResourceLoader());
+}
+```
+
+Specify your key's location:
+
+```yaml
+key.location: hfds://my-key.pub
+```
+
+And then autowire the value:
+
+```java
+@Value("${key.location}")
+RSAPublicKey key;
+```
+
+[[oauth2resourceserver-jwt-decoder-public-key-builder]]
+==== Using a Builder
+
+To wire an `RSAPublicKey` directly, you can simply use the appropriate `NimbusJwtDecoder` builder, like so:
+
+```java
+@Bean
+public JwtDecoder jwtDecoder() {
+    return NimbusJwtDecoder.withPublicKey(this.key).build();
+}
+```
+
+[[oauth2resourceserver-jwt-decoder-secret-key]]
+=== Trusting a Single Symmetric Key
+
+Using a single symmetric key is also simple.
+You can simply load in your `SecretKey` and use the appropriate `NimbusJwtDecoder` builder, like so:
+
+```java
+@Bean
+public JwtDecoder jwtDecoder() {
+    return NimbusJwtDecoder.withSecretKey(this.key).build();
 }
 ```
 
@@ -690,7 +841,7 @@ Converter<Jwt, AbstractAuthenticationToken> grantedAuthoritiesExtractor() {
 ```
 
 which is responsible for converting a `Jwt` into an `Authentication`.
-As part of its configuration, we can supply a subsidiary converter to go from `Jwt` to a `Collection` of `GrantedAuthority`s.
+As part of its configuration, we can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
 
 That final converter might be something like `GrantedAuthoritiesExtractor` below:
 
