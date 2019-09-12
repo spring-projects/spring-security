@@ -44,13 +44,14 @@ The following sections go into more detail on each of the configuration options 
 * <<oauth2Client-authorized-repo-service>>
 * <<oauth2Client-authorized-manager-provider>>
 * <<oauth2Client-registered-authorized-client>>
-* <<oauth2Client-authorization-request-repository>>
-* <<oauth2Client-authorization-request-resolver>>
-* <<oauth2Client-access-token-client>>
+
+
+[[oauth2Client-core-interface-class]]
+=== Core Interfaces / Classes
 
 
 [[oauth2Client-client-registration]]
-=== ClientRegistration
+==== ClientRegistration
 
 `ClientRegistration` is a representation of a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
 
@@ -112,7 +113,7 @@ The supported values are *header*, *form* and *query*.
 
 
 [[oauth2Client-client-registration-repo]]
-=== ClientRegistrationRepository
+==== ClientRegistrationRepository
 
 The `ClientRegistrationRepository` serves as a repository for OAuth 2.0 / OpenID Connect 1.0 `ClientRegistration`(s).
 
@@ -151,7 +152,7 @@ public class OAuth2ClientController {
 
 
 [[oauth2Client-authorized-client]]
-=== OAuth2AuthorizedClient
+==== OAuth2AuthorizedClient
 
 `OAuth2AuthorizedClient` is a representation of an Authorized Client.
 A client is considered to be authorized when the end-user (Resource Owner) has granted authorization to the client to access its protected resources.
@@ -160,7 +161,7 @@ A client is considered to be authorized when the end-user (Resource Owner) has g
 
 
 [[oauth2Client-authorized-repo-service]]
-=== OAuth2AuthorizedClientRepository / OAuth2AuthorizedClientService
+==== OAuth2AuthorizedClientRepository / OAuth2AuthorizedClientService
 
 `OAuth2AuthorizedClientRepository` is responsible for persisting `OAuth2AuthorizedClient`(s) between web requests.
 Whereas, the primary role of `OAuth2AuthorizedClientService` is to manage `OAuth2AuthorizedClient`(s) at the application-level.
@@ -202,7 +203,7 @@ public class OAuth2LoginController {
 
 
 [[oauth2Client-authorized-manager-provider]]
-=== OAuth2AuthorizedClientManager / OAuth2AuthorizedClientProvider
+==== OAuth2AuthorizedClientManager / OAuth2AuthorizedClientProvider
 
 The `OAuth2AuthorizedClientManager` is responsible for the overall management of `OAuth2AuthorizedClient`(s).
 
@@ -248,37 +249,20 @@ Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientManager` 
 However, the application may choose to override and register a custom `OAuth2AuthorizedClientManager` `@Bean`.
 
 
-[[oauth2Client-registered-authorized-client]]
-=== RegisteredOAuth2AuthorizedClient
-
-The `@RegisteredOAuth2AuthorizedClient` annotation provides the capability of resolving a method parameter to an argument value of type `OAuth2AuthorizedClient`.
-This is a convenient alternative compared to looking up the `OAuth2AuthorizedClient` via the `OAuth2AuthorizedClientService`.
-
-[source,java]
-----
-@Controller
-public class OAuth2LoginController {
-
-	@RequestMapping("/userinfo")
-	public String userinfo(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
-		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
-
-		...
-
-		return "userinfo";
-	}
-}
-----
-
-The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2AuthorizedClientArgumentResolver` and provides the following capabilities:
-
-* An `OAuth2AccessToken` will automatically be requested if the client has not yet been authorized.
-** For `authorization_code`, this involves triggering the authorization request redirect to initiate the flow
-** For `client_credentials`, the access token is directly obtained from the Token Endpoint using `DefaultClientCredentialsTokenResponseClient`
+[[oauth2Client-auth-grant-support]]
+=== Authorization Grant Support
 
 
-[[oauth2Client-authorization-request-repository]]
-=== AuthorizationRequestRepository
+[[oauth2Client-auth-code-grant]]
+==== Authorization Code
+
+[.lead]
+Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.1[Authorization Code] grant.
+
+
+===== Obtaining Authorization
+
+`AuthorizationRequestRepository`
 
 `AuthorizationRequestRepository` is responsible for the persistence of the `OAuth2AuthorizationRequest` from the time the Authorization Request is initiated to the time the Authorization Response is received (the callback).
 
@@ -314,8 +298,7 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 ----
 
 
-[[oauth2Client-authorization-request-resolver]]
-=== OAuth2AuthorizationRequestResolver
+`OAuth2AuthorizationRequestResolver`
 
 The primary role of the `OAuth2AuthorizationRequestResolver` is to resolve an `OAuth2AuthorizationRequest` from the provided web request.
 The default implementation `DefaultOAuth2AuthorizationRequestResolver` matches on the (default) path `/oauth2/authorization/{registrationId}` extracting the `registrationId` and using it to build the `OAuth2AuthorizationRequest` for the associated `ClientRegistration`.
@@ -438,8 +421,9 @@ private OAuth2AuthorizationRequest customAuthorizationRequest(
 ----
 
 
-[[oauth2Client-access-token-client]]
-=== OAuth2AccessTokenResponseClient
+===== Requesting an Access Token
+
+`OAuth2AccessTokenResponseClient`
 
 The primary role of the `OAuth2AccessTokenResponseClient` is to exchange an authorization grant credential for an access token credential at the Authorization Server's Token Endpoint.
 
@@ -498,3 +482,36 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
+
+
+[[oauth2Client-additional-features]]
+=== Additional Features
+
+
+[[oauth2Client-registered-authorized-client]]
+==== RegisteredOAuth2AuthorizedClient
+
+The `@RegisteredOAuth2AuthorizedClient` annotation provides the capability of resolving a method parameter to an argument value of type `OAuth2AuthorizedClient`.
+This is a convenient alternative compared to looking up the `OAuth2AuthorizedClient` via the `OAuth2AuthorizedClientService`.
+
+[source,java]
+----
+@Controller
+public class OAuth2LoginController {
+
+	@RequestMapping("/userinfo")
+	public String userinfo(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
+		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+
+		...
+
+		return "userinfo";
+	}
+}
+----
+
+The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2AuthorizedClientArgumentResolver` and provides the following capabilities:
+
+* An `OAuth2AccessToken` will automatically be requested if the client has not yet been authorized.
+** For `authorization_code`, this involves triggering the authorization request redirect to initiate the flow
+** For `client_credentials`, the access token is directly obtained from the Token Endpoint using `DefaultClientCredentialsTokenResponseClient`
