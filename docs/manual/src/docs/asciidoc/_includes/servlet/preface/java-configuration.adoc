@@ -1440,6 +1440,69 @@ public OpaqueTokenIntrospector introspector() {
 }
 ```
 
+[[oauth2resourceserver-opaque-userinfo]]
+=== Calling a `/userinfo` Endpoint
+
+Generally speaking, a Resource Server doesn't care about the underlying user, but instead about the authorities that have been granted.
+
+That said, at times it can be valuable to tie the authorization statement back to a user.
+
+If an application is also using `spring-security-oauth2-client`, having set up the appropriate `ClientRegistrationRepository`, then this is quite simple with a custom `OpaqueTokenIntrospector`.
+This implementation below does three things:
+
+* Delegates to the introspection endpoint, to affirm the token's validity
+* Looks up the appropriate client registration associated with the `/userinfo` endpoint
+* Invokes and returns the response from the `/userinfo` endpoint
+
+```java
+public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
+    private final OpaqueTokenIntrospector delegate =
+            new NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret");
+    private final OAuth2UserService oauth2UserService = new DefaultOAuth2UserService();
+
+    private final ClientRegistrationRepository repository;
+
+    // ... constructor
+
+    @Override
+    public OAuth2AuthenticatedPrincipal introspect(String token) {
+        OAuth2AuthenticatedPrincipal authorized = this.delegate.introspect(token);
+        Instant issuedAt = authorized.getAttribute(ISSUED_AT);
+        Instant expiresAt = authorized.getAttribute(EXPIRES_AT);
+        ClientRegistration clientRegistration = this.repository.findByRegistrationId("registration-id");
+        OAuth2AccessToken token = new OAuth2AccessToken(BEARER, token, issuedAt, expiresAt);
+        OAuth2UserRequest oauth2UserRequest = new OAuth2UserRequest(clientRegistration, token);
+        return this.oauth2UserService.loadUser(oauth2UserRequest);
+    }
+}
+```
+
+If you aren't using `spring-security-oauth2-client`, it's still quite simple.
+You will simply need to invoke the `/userinfo` with your own instance of `WebClient`:
+
+```java
+public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
+    private final OpaqueTokenIntrospector delegate =
+            new NimbusOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret");
+    private final WebClient rest = WebClient.create();
+
+    @Override
+    public OAuth2AuthenticatedPrincipal introspect(String token) {
+        OAuth2AuthenticatedPrincipal authorized = this.delegate.introspect(token);
+        return makeUserInfoRequest(authorized);
+    }
+}
+```
+
+Either way, having created your `OpaqueTokenIntrospector`, you should publish it as a `@Bean` to override the defaults:
+
+```java
+@Bean
+OpaqueTokenIntrospector introspector() {
+    return new UserInfoOpaqueTokenIntrospector(...);
+}
+```
+
 [[jc-authentication]]
 == Authentication
 
