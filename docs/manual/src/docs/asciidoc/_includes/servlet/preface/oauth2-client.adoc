@@ -179,8 +179,8 @@ public class OAuth2ClientController {
 
 	@RequestMapping("/")
 	public String index() {
-		ClientRegistration googleRegistration =
-			this.clientRegistrationRepository.findByRegistrationId("google");
+		ClientRegistration oktaRegistration =
+			this.clientRegistrationRepository.findByRegistrationId("okta");
 
 		...
 
@@ -207,37 +207,33 @@ Whereas, the primary role of `OAuth2AuthorizedClientService` is to manage `OAuth
 
 From a developer perspective, the `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` provides the capability to lookup an `OAuth2AccessToken` associated with a client so that it may be used to initiate a protected resource request.
 
-[NOTE]
-Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientRepository` and/or `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
-However, the application may choose to override and register a custom `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` `@Bean`.
-
 The following listing shows an example:
 
 [source,java]
 ----
 @Controller
-public class OAuth2LoginController {
+public class OAuth2ClientController {
 
-	@Autowired
-	private OAuth2AuthorizedClientService authorizedClientService;
+    @Autowired
+    private OAuth2AuthorizedClientService authorizedClientService;
 
-	@RequestMapping("/userinfo")
-	public String userinfo(OAuth2AuthenticationToken authentication) {
-		// authentication.getAuthorizedClientRegistrationId() returns the
-		// registrationId of the Client that was authorized during the oauth2Login() flow
-		OAuth2AuthorizedClient authorizedClient =
-			this.authorizedClientService.loadAuthorizedClient(
-				authentication.getAuthorizedClientRegistrationId(),
-				authentication.getName());
+    @RequestMapping("/")
+    public String index(Authentication authentication) {
+        OAuth2AuthorizedClient authorizedClient =
+            this.authorizedClientService.loadAuthorizedClient("okta", authentication.getName());
 
-		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+        OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
 
-		...
+        ...
 
-		return "userinfo";
-	}
+        return "index";
+    }
 }
 ----
+
+[NOTE]
+Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientRepository` and/or `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
+However, the application may choose to override and register a custom `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` `@Bean`.
 
 
 [[oauth2Client-authorized-manager-provider]]
@@ -310,6 +306,29 @@ The `OAuth2AuthorizationRequestRedirectFilter` uses an `OAuth2AuthorizationReque
 
 The primary role of the `OAuth2AuthorizationRequestResolver` is to resolve an `OAuth2AuthorizationRequest` from the provided web request.
 The default implementation `DefaultOAuth2AuthorizationRequestResolver` matches on the (default) path `/oauth2/authorization/{registrationId}` extracting the `registrationId` and using it to build the `OAuth2AuthorizationRequest` for the associated `ClientRegistration`.
+
+Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: okta-client-id
+            client-secret: okta-client-secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/authorized/okta"
+            scope: read, write
+----
+
+A request with the base path `/oauth2/authorization/okta` will initiate the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectFilter` and ultimately start the Authorization Code grant flow.
+
+[NOTE]
+The `AuthorizationCodeOAuth2AuthorizedClientProvider` is an implementation of `OAuth2AuthorizedClientProvider` for the Authorization Code grant,
+which also initiates the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectFilter`.
 
 
 ===== Customizing the Authorization Request
@@ -471,7 +490,7 @@ Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.3[Access Tok
 
 The primary role of the `OAuth2AccessTokenResponseClient` is to exchange an authorization grant credential for an access token credential at the Authorization Server's Token Endpoint.
 
-The default implementation of `OAuth2AccessTokenResponseClient` for the `authorization_code` grant is `DefaultAuthorizationCodeTokenResponseClient`, which uses a `RestOperations` for exchanging an authorization code for an access token at the Token Endpoint.
+The default implementation of `OAuth2AccessTokenResponseClient` for the Authorization Code grant is `DefaultAuthorizationCodeTokenResponseClient`, which uses a `RestOperations` for exchanging an authorization code for an access token at the Token Endpoint.
 
 The `DefaultAuthorizationCodeTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
 
@@ -543,15 +562,15 @@ This is a convenient alternative compared to looking up the `OAuth2AuthorizedCli
 [source,java]
 ----
 @Controller
-public class OAuth2LoginController {
+public class OAuth2ClientController {
 
-	@RequestMapping("/userinfo")
-	public String userinfo(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
+	@RequestMapping("/")
+	public String index(@RegisteredOAuth2AuthorizedClient("okta") OAuth2AuthorizedClient authorizedClient) {
 		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
 
 		...
 
-		return "userinfo";
+		return "index";
 	}
 }
 ----
