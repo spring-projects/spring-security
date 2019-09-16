@@ -234,7 +234,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder notBefore(Instant notBefore) {
-			this.claim(NBF, notBefore.getEpochSecond());
+			this.claim(NBF, notBefore);
 			return this;
 		}
 
