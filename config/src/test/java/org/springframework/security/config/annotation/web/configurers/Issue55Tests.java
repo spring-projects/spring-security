@@ -15,8 +15,13 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import javax.servlet.Filter;
+
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -31,13 +36,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.Filter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
@@ -68,9 +67,11 @@ public class Issue55Tests {
 
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
-						.authorizeRequests()
+					.authorizeRequests()
 						.anyRequest().hasRole("USER");
+				// @formatter:on
 			}
 		}
 
@@ -96,12 +97,6 @@ public class Issue55Tests {
 		assertThat(secondFilter.getAuthenticationManager().authenticate(token)).isEqualTo(CustomAuthenticationManager.RESULT);
 	}
 
-	private AuthenticationManager getAuthManager(AbstractAuthenticationProcessingFilter filter) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-		final Method getAuthenticationManager = filter.getClass().getDeclaredMethod("getAuthenticationManager");
-		getAuthenticationManager.setAccessible(true);
-		return (AuthenticationManager) getAuthenticationManager.invoke(filter);
-	}
-
 	@EnableWebSecurity
 	static class MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
 		@Component
@@ -109,10 +104,11 @@ public class Issue55Tests {
 		public static class ApiWebSecurityAdapter extends WebSecurityConfigurerAdapter {
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
-				http
-						.antMatcher("/api/**")
-						.authorizeRequests()
+				// @formatter:off
+				http.antMatcher("/api/**")
+					.authorizeRequests()
 						.anyRequest().hasRole("USER");
+				// @formatter:on
 			}
 		}
 
@@ -120,9 +116,11 @@ public class Issue55Tests {
 		public static class WebSecurityAdapter extends WebSecurityConfigurerAdapter {
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
-						.authorizeRequests()
+					.authorizeRequests()
 						.anyRequest().hasRole("USER");
+				// @formatter:on
 			}
 		}
 
@@ -143,7 +141,7 @@ public class Issue55Tests {
 		}
 	}
 
-	protected Filter findFilter(Class<?> filter, int index) {
+	Filter findFilter(Class<?> filter, int index) {
 		List<Filter> filters = filterChain(index).getFilters();
 		for (Filter it : filters) {
 			if (filter.isAssignableFrom(it.getClass())) {

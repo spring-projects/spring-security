@@ -15,8 +15,15 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.servlet.Filter;
+import javax.servlet.ServletException;
+
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,12 +59,6 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
-import javax.servlet.Filter;
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -79,9 +80,11 @@ public class DefaultFiltersTests {
 	static class FilterChainProxyBuilderMissingConfig {
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
-					.inMemoryAuthentication()
+				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER");
+			// @formatter:on
 		}
 	}
 
@@ -146,17 +149,21 @@ public class DefaultFiltersTests {
 	@EnableWebSecurity
 	static class FilterChainProxyBuilderIgnoringConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		public void configure(WebSecurity builder) throws Exception {
-			builder
-					.ignoring()
+		public void configure(WebSecurity web) throws Exception {
+			// @formatter:off
+			web
+				.ignoring()
 					.antMatchers("/resources/**");
+			// @formatter:on
 		}
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
-					.authorizeRequests()
+				.authorizeRequests()
 					.anyRequest().hasRole("USER");
+			// @formatter:on
 		}
 	}
 
