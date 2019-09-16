@@ -322,6 +322,10 @@ spring:
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/authorized/okta"
             scope: read, write
+        provider:
+          okta:
+            authorization-uri: https://dev-1234.oktapreview.com/oauth2/v1/authorize
+            token-uri: https://dev-1234.oktapreview.com/oauth2/v1/token
 ----
 
 A request with the base path `/oauth2/authorization/okta` will initiate the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectFilter` and ultimately start the Authorization Code grant flow.
@@ -474,7 +478,7 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 			    oauth2Client
 				    .authorizationCodeGrant(authorizationCodeGrant ->
 				        authorizationCodeGrant
-					        .authorizationRequestRepository(this.customAuthorizationRequestRepository())
+					        .authorizationRequestRepository(this.authorizationRequestRepository())
 					        ...
 					)
 			);
@@ -488,9 +492,7 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 [NOTE]
 Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.3[Access Token Request/Response] protocol flow for the Authorization Code grant.
 
-The primary role of the `OAuth2AccessTokenResponseClient` is to exchange an authorization grant credential for an access token credential at the Authorization Server's Token Endpoint.
-
-The default implementation of `OAuth2AccessTokenResponseClient` for the Authorization Code grant is `DefaultAuthorizationCodeTokenResponseClient`, which uses a `RestOperations` for exchanging an authorization code for an access token at the Token Endpoint.
+The default implementation of `OAuth2AccessTokenResponseClient` for the Authorization Code grant is `DefaultAuthorizationCodeTokenResponseClient`, which uses a `RestOperations` for exchanging an authorization code for an access token at the Authorization Server’s Token Endpoint.
 
 The `DefaultAuthorizationCodeTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
 
@@ -540,7 +542,7 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 			    oauth2Client
 				    .authorizationCodeGrant(authorizationCodeGrant ->
 				        authorizationCodeGrant
-					        .accessTokenResponseClient(this.customAccessTokenResponseClient())
+					        .accessTokenResponseClient(this.accessTokenResponseClient())
 					        ...
 					 )
 			);
