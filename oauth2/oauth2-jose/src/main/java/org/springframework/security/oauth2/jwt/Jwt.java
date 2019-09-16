@@ -62,6 +62,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	 * @param expiresAt the expiration time on or after which the JWT MUST NOT be accepted
 	 * @param headers the JOSE header(s)
 	 * @param claims the JWT Claims Set
+	 *
 	 */
 	public Jwt(String tokenValue, Instant issuedAt, Instant expiresAt,
 				Map<String, Object> headers, Map<String, Object> claims) {

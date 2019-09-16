@@ -21,7 +21,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -136,8 +135,6 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	private Jwt createJwt(String token, JWT parsedJwt) {
-		Jwt jwt;
-
 		try {
 			// Verify the signature
 			JWTClaimsSet jwtClaimsSet = this.jwtProcessor.process(parsedJwt, null);
@@ -145,9 +142,10 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
 			Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
 
-			Instant expiresAt = (Instant) claims.get(JwtClaimNames.EXP);
-			Instant issuedAt = (Instant) claims.get(JwtClaimNames.IAT);
-			jwt = new Jwt(token, issuedAt, expiresAt, headers, claims);
+			return Jwt.withTokenValue(token)
+					.headers(h -> h.putAll(headers))
+					.claims(c -> c.putAll(claims))
+					.build();
 		} catch (RemoteKeySourceException ex) {
 			if (ex.getCause() instanceof ParseException) {
 				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed Jwk set"));
@@ -161,8 +159,6 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 			}
 		}
-
-		return jwt;
 	}
 
 	private Jwt validateJwt(Jwt jwt){

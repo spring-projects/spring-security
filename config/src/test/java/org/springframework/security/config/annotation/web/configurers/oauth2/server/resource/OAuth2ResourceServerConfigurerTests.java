@@ -83,16 +83,15 @@ import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrinci
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
@@ -131,6 +130,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withPublicKey;
+import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -150,9 +150,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class OAuth2ResourceServerConfigurerTests {
 	private static final String JWT_TOKEN = "token";
 	private static final String JWT_SUBJECT = "mock-test-subject";
-	private static final Map<String, Object> JWT_HEADERS = Collections.singletonMap("alg", JwsAlgorithms.RS256);
 	private static final Map<String, Object> JWT_CLAIMS = Collections.singletonMap(JwtClaimNames.SUB, JWT_SUBJECT);
-	private static final Jwt JWT = new Jwt(JWT_TOKEN, Instant.MIN, Instant.MAX, JWT_HEADERS, JWT_CLAIMS);
+	private static final Jwt JWT = jwt().build();
 	private static final String JWK_SET_URI = "https://mock.org";
 	private static final JwtAuthenticationToken JWT_AUTHENTICATION_TOKEN =
 			new JwtAuthenticationToken(JWT, Collections.emptyList());

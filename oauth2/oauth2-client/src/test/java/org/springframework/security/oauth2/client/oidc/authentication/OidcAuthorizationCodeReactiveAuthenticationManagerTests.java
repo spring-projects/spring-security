@@ -16,12 +16,20 @@
 
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
@@ -46,17 +54,13 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * @author Rob Winch
@@ -171,9 +175,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, claims, claims);
+		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 		when(this.userService.loadUser(any())).thenReturn(Mono.empty());
@@ -193,9 +195,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, claims, claims);
+		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
@@ -222,9 +222,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, claims, claims);
+		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
@@ -257,9 +255,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
 		claims.put(IdTokenClaimNames.SUB, "rob");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList(clientRegistration.getClientId()));
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, claims, claims);
+		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
 		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);

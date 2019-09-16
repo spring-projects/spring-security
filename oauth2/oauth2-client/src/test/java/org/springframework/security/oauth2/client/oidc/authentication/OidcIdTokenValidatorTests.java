@@ -15,15 +15,6 @@
  */
 package org.springframework.security.oauth2.client.oidc.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
-import org.springframework.security.oauth2.jwt.Jwt;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -31,6 +22,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -240,7 +241,12 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	private Collection<OAuth2Error> validateIdToken() {
-		Jwt idToken = new Jwt("token123", this.issuedAt, this.expiresAt, this.headers, this.claims);
+		Jwt idToken = Jwt.withTokenValue("token")
+			.issuedAt(this.issuedAt)
+			.expiresAt(this.expiresAt)
+			.headers(h -> h.putAll(this.headers))
+			.claims(c -> c.putAll(this.claims))
+			.build();
 		OidcIdTokenValidator validator = new OidcIdTokenValidator(this.registration.build());
 		validator.setClockSkew(this.clockSkew);
 		return validator.validate(idToken).getErrors();

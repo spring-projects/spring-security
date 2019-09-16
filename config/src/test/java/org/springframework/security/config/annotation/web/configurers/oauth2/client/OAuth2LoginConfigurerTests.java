@@ -15,11 +15,20 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.http.HttpHeaders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -79,19 +88,12 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -937,8 +939,7 @@ public class OAuth2LoginConfigurerTests {
 			claims.put(IdTokenClaimNames.ISS, "http://localhost/iss");
 			claims.put(IdTokenClaimNames.AUD, Arrays.asList("clientId", "a", "u", "d"));
 			claims.put(IdTokenClaimNames.AZP, "clientId");
-			Jwt jwt = new Jwt("token123", Instant.now(), Instant.now().plusSeconds(3600),
-					Collections.singletonMap("header1", "value1"), claims);
+			Jwt jwt = jwt().claims(c -> c.putAll(claims)).build();
 			JwtDecoder jwtDecoder = mock(JwtDecoder.class);
 			when(jwtDecoder.decode(any())).thenReturn(jwt);
 			return jwtDecoder;

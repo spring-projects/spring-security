@@ -16,15 +16,8 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -32,8 +25,11 @@ import org.junit.Test;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link ReactiveJwtGrantedAuthoritiesConverterAdapter}
@@ -44,7 +40,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 public class ReactiveJwtGrantedAuthoritiesConverterAdapterTests {
 	@Test
 	public void convertWithGrantedAuthoritiesConverter() {
-		Jwt jwt = this.jwt(Collections.singletonMap("scope", "message:read message:write"));
+		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
 
 		Converter<Jwt, Collection<GrantedAuthority>> grantedAuthoritiesConverter =
 				token -> Arrays.asList(new SimpleGrantedAuthority("blah"));
@@ -64,12 +60,5 @@ public class ReactiveJwtGrantedAuthoritiesConverterAdapterTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new ReactiveJwtGrantedAuthoritiesConverterAdapter(null))
 				.withMessage("grantedAuthoritiesConverter cannot be null");
-	}
-
-	private Jwt jwt(Map<String, Object> claims) {
-		Map<String, Object> headers = new HashMap<>();
-		headers.put("alg", JwsAlgorithms.RS256);
-
-		return new Jwt("token", Instant.now(), Instant.now().plusSeconds(3600), headers, claims);
 	}
 }

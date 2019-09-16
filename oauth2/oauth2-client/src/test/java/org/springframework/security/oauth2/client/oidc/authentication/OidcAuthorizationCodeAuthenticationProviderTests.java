@@ -15,12 +15,22 @@
  */
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -44,24 +54,18 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.error;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
+import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link OidcAuthorizationCodeAuthenticationProvider}.
@@ -299,16 +303,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	}
 
 	private void setUpIdToken(Map<String, Object> claims) {
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		this.setUpIdToken(claims, issuedAt, expiresAt);
-	}
-
-	private void setUpIdToken(Map<String, Object> claims, Instant issuedAt, Instant expiresAt) {
-		Map<String, Object> headers = new HashMap<>();
-		headers.put("alg", "RS256");
-
-		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, headers, claims);
+		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 
 		JwtDecoder jwtDecoder = mock(JwtDecoder.class);
 		when(jwtDecoder.decode(anyString())).thenReturn(idToken);

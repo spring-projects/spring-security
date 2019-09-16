@@ -16,7 +16,6 @@
 package org.springframework.security.oauth2.jwt;
 
 import java.security.interfaces.RSAPublicKey;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -165,9 +164,10 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
 		Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
 
-		Instant expiresAt = (Instant) claims.get(JwtClaimNames.EXP);
-		Instant issuedAt = (Instant) claims.get(JwtClaimNames.IAT);
-		return new Jwt(parsedJwt.getParsedString(), issuedAt, expiresAt, headers, claims);
+		return Jwt.withTokenValue(parsedJwt.getParsedString())
+				.headers(h -> h.putAll(headers))
+				.claims(c -> c.putAll(claims))
+				.build();
 	}
 
 	private Jwt validateJwt(Jwt jwt) {

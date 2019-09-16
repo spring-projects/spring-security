@@ -15,41 +15,26 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.time.Instant;
-import java.util.Collections;
-import java.util.Map;
-
 import org.junit.Test;
 
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * @author Josh Cummings
  * @since 5.1
  */
 public class JwtIssuerValidatorTests {
-	private static final String MOCK_TOKEN = "token";
-	private static final Instant MOCK_ISSUED_AT = Instant.MIN;
-	private static final Instant MOCK_EXPIRES_AT = Instant.MAX;
-	private static final Map<String, Object> MOCK_HEADERS =
-			Collections.singletonMap("alg", JwsAlgorithms.RS256);
-
 	private static final String ISSUER = "https://issuer";
 
 	private final JwtIssuerValidator validator = new JwtIssuerValidator(ISSUER);
 
 	@Test
 	public void validateWhenIssuerMatchesThenReturnsSuccess() {
-		Jwt jwt = new Jwt(
-				MOCK_TOKEN,
-				MOCK_ISSUED_AT,
-				MOCK_EXPIRES_AT,
-				MOCK_HEADERS,
-				Collections.singletonMap("iss", ISSUER));
+		Jwt jwt = jwt().claim("iss", ISSUER).build();
 
 		assertThat(this.validator.validate(jwt))
 				.isEqualTo(OAuth2TokenValidatorResult.success());
@@ -57,12 +42,7 @@ public class JwtIssuerValidatorTests {
 
 	@Test
 	public void validateWhenIssuerMismatchesThenReturnsError() {
-		Jwt jwt = new Jwt(
-				MOCK_TOKEN,
-				MOCK_ISSUED_AT,
-				MOCK_EXPIRES_AT,
-				MOCK_HEADERS,
-				Collections.singletonMap(JwtClaimNames.ISS, "https://other"));
+		Jwt jwt = jwt().claim(JwtClaimNames.ISS, "https://other").build();
 
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
 
@@ -71,12 +51,7 @@ public class JwtIssuerValidatorTests {
 
 	@Test
 	public void validateWhenJwtHasNoIssuerThenReturnsError() {
-		Jwt jwt = new Jwt(
-				MOCK_TOKEN,
-				MOCK_ISSUED_AT,
-				MOCK_EXPIRES_AT,
-				MOCK_HEADERS,
-				Collections.singletonMap(JwtClaimNames.AUD, "https://aud"));
+		Jwt jwt = jwt().claim(JwtClaimNames.AUD, "https://aud").build();
 
 		OAuth2TokenValidatorResult result = this.validator.validate(jwt);
 		assertThat(result.getErrors()).isNotEmpty();
@@ -85,12 +60,7 @@ public class JwtIssuerValidatorTests {
 	// gh-6073
 	@Test
 	public void validateWhenIssuerMatchesAndIsNotAUriThenReturnsSuccess() {
-		Jwt jwt = new Jwt(
-				MOCK_TOKEN,
-				MOCK_ISSUED_AT,
-				MOCK_EXPIRES_AT,
-				MOCK_HEADERS,
-				Collections.singletonMap(JwtClaimNames.ISS, "issuer"));
+		Jwt jwt = jwt().claim(JwtClaimNames.ISS, "issuer").build();
 		JwtIssuerValidator validator = new JwtIssuerValidator("issuer");
 
 		assertThat(validator.validate(jwt))
