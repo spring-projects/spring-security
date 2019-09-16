@@ -280,6 +280,125 @@ mvc
 	.perform(formLogin("/auth").user("u","admin").password("p","pass"))
 ----
 
+
+==== Testing Bearer Authentication
+
+In order to make an authorized request on a resource server, you need a bearer token.
+If your resource server is configured for JWTs, then this would mean that the bearer token needs to be signed and then encoded according to the JWT specification.
+All of this can be quite daunting, especially when this isn't the focus of your test.
+
+Fortunately, there are a number of simple ways that you can overcome this difficulty and allow your tests to focus on authorization and not on representing bearer tokens.
+We'll look at two of them now:
+
+===== `jwt() RequestPostProcessor`
+
+The first way is via a `RequestPostProcessor`.
+The simplest of these would look something like this:
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint").with(jwt()));
+----
+
+What this will do is create a mock `Jwt`, passing it correctly through any authentication APIs so that it's available for your authorization mechanisms to verify.
+
+By default, the `JWT` that it creates has the following characteristics:
+
+[source,json]
+----
+{
+  "headers" : { "alg" : "none" },
+  "claims" : {
+    "sub" : "user",
+    "scope" : "read"
+  }
+}
+----
+
+And the resulting `Jwt`, were it tested, would pass in the following way:
+
+[source,java]
+----
+assertThat(jwt.getTokenValue()).isEqualTo("token");
+assertThat(jwt.getHeaders().get("alg")).isEqualTo("none");
+assertThat(jwt.getSubject()).isEqualTo("sub");
+GrantedAuthority authority = jwt.getAuthorities().iterator().next();
+assertThat(authority.getAuthority()).isEqualTo("read");
+----
+
+These values can, of course be configured.
+
+Any headers or claims can be configured with their corresponding methods:
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt(jwt -> jwt.header("kid", "one").claim("iss", "https://idp.example.org"))));
+----
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt(jwt -> jwt.claims(claims -> claims.remove("scope")))));
+----
+
+The `scope` and `scp` claims are processed the same way here as they are in a normal bearer token request.
+However, this can be overridden simply by providing the list of `GrantedAuthority` instances that you need for your test:
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_messages"))));
+----
+
+Or, if you have a custom `Jwt` to `Collection<GrantedAuthority>` converter, you can also use that to derive the authorities:
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt().authorities(new MyConverter())));
+----
+
+You can also specify a complete `Jwt`, for which `Jwt.Builder` comes quite handy:
+
+[source,java]
+----
+Jwt jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .claim("scope", "read");
+
+mvc
+    .perform(get("/endpoint")
+        .with(jwt(jwt)));
+----
+
+===== `authentication()` `RequestPostProcessor`
+
+The second way is by using the `authentication()` `RequestPostProcessor`.
+Essentially, you can instantiate your own `JwtAuthenticationToken` and provide it in your test, like so:
+
+[source,java]
+----
+Jwt jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .build();
+Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("SCOPE_read");
+JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
+
+mvc
+    .perform(get("/endpoint")
+        .with(authentication(token)));
+----
+
+Note that as an alternative to these, you can also mock the `JwtDecoder` bean itself with a `@MockBean` annotation.
+
 [[test-logout]]
 ==== Testing Logout
 
