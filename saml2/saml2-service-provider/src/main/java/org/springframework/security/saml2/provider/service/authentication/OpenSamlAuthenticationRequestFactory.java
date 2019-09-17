@@ -19,11 +19,8 @@ package org.springframework.security.saml2.provider.service.authentication;
 import org.springframework.util.Assert;
 
 import org.joda.time.DateTime;
-import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
-import org.opensaml.security.SecurityException;
-import org.opensaml.xmlsec.signature.support.SignatureException;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -51,16 +48,11 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		issuer.setValue(request.getLocalSpEntityId());
 		auth.setIssuer(issuer);
 		auth.setDestination(request.getWebSsoUri());
-		try {
-			return this.saml.toXml(
-					auth,
-					request.getCredentials(),
-					request.getLocalSpEntityId()
-			);
-		}
-		catch (MarshallingException | SignatureException | SecurityException e) {
-			throw new IllegalStateException(e);
-		}
+		return this.saml.toXml(
+				auth,
+				request.getCredentials(),
+				request.getLocalSpEntityId()
+		);
 	}
 
 	/**

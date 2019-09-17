@@ -15,14 +15,6 @@
  */
 package org.springframework.security.saml2.provider.service.authentication;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
-
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 
@@ -58,6 +50,14 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureSupport;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -165,10 +165,7 @@ final class OpenSamlImplementation {
 			QName defaultElementName = (QName) clazz.getDeclaredField("DEFAULT_ELEMENT_NAME").get(null);
 			return (T) getBuilderFactory().getBuilder(defaultElementName).buildObject(defaultElementName);
 		}
-		catch (IllegalAccessException e) {
-			throw new Saml2Exception("Could not create SAML object", e);
-		}
-		catch (NoSuchFieldException e) {
+		catch (NoSuchFieldException | IllegalAccessException e) {
 			throw new Saml2Exception("Could not create SAML object", e);
 		}
 	}
@@ -177,6 +174,28 @@ final class OpenSamlImplementation {
 		return resolve(xml.getBytes(StandardCharsets.UTF_8));
 	}
 
+	String toXml(XMLObject object, List<Saml2X509Credential> signingCredentials, String localSpEntityId) {
+		if (object instanceof SignableSAMLObject && null != hasSigningCredential(signingCredentials)) {
+			signXmlObject(
+					(SignableSAMLObject) object,
+					signingCredentials,
+					localSpEntityId
+			);
+		}
+		final MarshallerFactory marshallerFactory = XMLObjectProviderRegistrySupport.getMarshallerFactory();
+		try {
+			Element element = marshallerFactory.getMarshaller(object).marshall(object);
+			return SerializeSupport.nodeToString(element);
+		} catch (MarshallingException e) {
+			throw new Saml2Exception(e);
+		}
+	}
+
+	/*
+	 * ==============================================================
+	 * PRIVATE METHODS
+	 * ==============================================================
+	 */
 	private XMLObject resolve(byte[] xml) {
 		XMLObject parsed = parse(xml);
 		if (parsed != null) {
@@ -200,18 +219,6 @@ final class OpenSamlImplementation {
 		return XMLObjectProviderRegistrySupport.getUnmarshallerFactory();
 	}
 
-	String toXml(XMLObject object, List<Saml2X509Credential> signingCredentials, String localSpEntityId)
-			throws MarshallingException, SignatureException, SecurityException {
-		if (object instanceof SignableSAMLObject && null != hasSigningCredential(signingCredentials)) {
-			signXmlObject(
-					(SignableSAMLObject) object,
-					getSigningCredential(signingCredentials, localSpEntityId)
-			);
-		}
-		final MarshallerFactory marshallerFactory = XMLObjectProviderRegistrySupport.getMarshallerFactory();
-		Element element = marshallerFactory.getMarshaller(object).marshall(object);
-		return SerializeSupport.nodeToString(element);
-	}
 
 	private Saml2X509Credential hasSigningCredential(List<Saml2X509Credential> credentials) {
 		for (Saml2X509Credential c : credentials) {
@@ -222,27 +229,32 @@ final class OpenSamlImplementation {
 		return null;
 	}
 
-	private void signXmlObject(SignableSAMLObject object, Credential credential)
-			throws MarshallingException, SecurityException, SignatureException {
-		SignatureSigningParameters parameters = new SignatureSigningParameters();
-		parameters.setSigningCredential(credential);
-		parameters.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
-		parameters.setSignatureReferenceDigestMethod(SignatureConstants.ALGO_ID_DIGEST_SHA256);
-		parameters.setSignatureCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-		SignatureSupport.signObject(object, parameters);
-	}
-
 	private Credential getSigningCredential(List<Saml2X509Credential> signingCredential,
 											String localSpEntityId
 	) {
 		Saml2X509Credential credential = hasSigningCredential(signingCredential);
 		if (credential == null) {
-			throw new IllegalArgumentException("no signing credential configured");
+			throw new Saml2Exception("no signing credential configured");
 		}
 		BasicCredential cred = getBasicCredential(credential);
 		cred.setEntityId(localSpEntityId);
 		cred.setUsageType(UsageType.SIGNING);
 		return cred;
+	}
+
+	private void signXmlObject(SignableSAMLObject object, List<Saml2X509Credential> signingCredentials, String entityId) {
+		SignatureSigningParameters parameters = new SignatureSigningParameters();
+		Credential credential = getSigningCredential(signingCredentials, entityId);
+		parameters.setSigningCredential(credential);
+		parameters.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
+		parameters.setSignatureReferenceDigestMethod(SignatureConstants.ALGO_ID_DIGEST_SHA256);
+		parameters.setSignatureCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+		try {
+			SignatureSupport.signObject(object, parameters);
+		} catch (MarshallingException | SignatureException | SecurityException e) {
+			throw new Saml2Exception(e);
+		}
+
 	}
 
 	private BasicX509Credential getBasicCredential(Saml2X509Credential credential) {

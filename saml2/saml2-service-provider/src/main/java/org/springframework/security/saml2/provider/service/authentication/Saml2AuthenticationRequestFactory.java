@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import org.springframework.security.saml2.Saml2Exception;
+
 /**
  * Component that generates an AuthenticationRequest, <code>samlp:AuthnRequestType</code> as defined by
  * https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf
@@ -33,6 +35,7 @@ public interface Saml2AuthenticationRequestFactory {
 	 *                accompanying data
 	 * @return XML data in the format of a String. This data may be signed, encrypted, both signed and encrypted or
 	 * neither signed and encrypted
+	 * @throws Saml2Exception when a SAML library exception occurs
 	 */
 	String createAuthenticationRequest(Saml2AuthenticationRequest request);
 }
