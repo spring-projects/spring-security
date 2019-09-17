@@ -104,6 +104,7 @@ import java.util.List;
  * }
  * </pre>
  * @author Rob Winch
+ * @author Jesús Ascama Arias
  * @since 5.2
  */
 public class RSocketSecurity {
@@ -282,7 +283,7 @@ public class RSocketSecurity {
 
 		protected AuthorizationPayloadInterceptor build() {
 			AuthorizationPayloadInterceptor result = new AuthorizationPayloadInterceptor(this.authzBuilder.build());
-			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
+			result.setOrder(PayloadInterceptorOrder.AUTHORIZATION.getOrder());
 			return result;
 		}
 
