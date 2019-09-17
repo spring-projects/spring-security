@@ -158,7 +158,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		this.failureHandler.onAuthenticationFailure(request, response, failed);
 	}
 
-	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+	private void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authentication) throws IOException, ServletException {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authentication);
@@ -166,7 +166,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		this.successHandler.onAuthenticationSuccess(request, response, chain, authentication);
 	}
 
-	protected Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+	private Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
 		Authentication authentication = this.authenticationConverter.convert(request);
 		if (authentication == null) {
