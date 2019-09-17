@@ -16,12 +16,12 @@
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -144,6 +144,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 			if (authenticationResult == null) {
 				filterChain.doFilter(request, response);
 				return;
+			}
+
+			HttpSession session = request.getSession(false);
+			if (session != null) {
+				request.changeSessionId();
 			}
 
 			successfulAuthentication(request, response, filterChain, authenticationResult);
