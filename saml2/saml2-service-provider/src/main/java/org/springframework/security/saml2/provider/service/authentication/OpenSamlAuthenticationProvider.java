@@ -253,7 +253,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		validationParams.put(SAML2AssertionValidationParameters.SIGNATURE_REQUIRED, false);
 		validationParams.put(
 				SAML2AssertionValidationParameters.CLOCK_SKEW,
-				this.responseTimeValidationSkew
+				this.responseTimeValidationSkew.toMillis()
 		);
 		validationParams.put(
 				SAML2AssertionValidationParameters.COND_VALID_AUDIENCES,
