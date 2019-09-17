@@ -16,16 +16,12 @@
 package org.springframework.security.saml2.provider.service.authentication;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 import org.springframework.util.Assert;
@@ -79,18 +75,59 @@ import java.util.Set;
 import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2ErrorCodes.DECRYPTION_ERROR;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2ErrorCodes.INVALID_DESTINATION;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2ErrorCodes.INVALID_ISSUER;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2ErrorCodes.MALFORMED_RESPONSE_DATA;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2ErrorCodes.SUBJECT_NOT_FOUND;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2ErrorCodes.UNKNOWN_RESPONSE_CLASS;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2ErrorCodes.USERNAME_NOT_FOUND;
 import static org.springframework.util.Assert.notNull;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
+ * Implementation of {@link AuthenticationProvider} for SAML authentications when receiving a
+ * {@code Response} object containing an {@code Assertion}. This implementation uses
+ * the {@code OpenSAML 3} library.
+ *
+ * <p>
+ *  The {@link OpenSamlAuthenticationProvider} supports {@link Saml2AuthenticationToken} objects
+ *  that contain a SAML response in its decoded XML format {@link Saml2AuthenticationToken#getSaml2Response()}
+ *  along with the information about the asserting party, the identity provider (IDP), as well as
+ *  the relying party, the service provider (SP, this application).
+ * </p>
+ * <p>
+ *   The {@link Saml2AuthenticationToken} will be processed into a SAML Response object.
+ *   The SAML response object can be signed. If the Response is signed, a signature will not be required on the assertion.
+ * </p>
+ * <p>
+ *   While a response object can contain a list of assertion, this provider will only leverage
+ *   the first valid assertion for the purpose of authentication. Assertions that do not pass validation
+ *   will be ignored. If no valid assertions are found a {@link Saml2AuthenticationException} is thrown.
+ * </p>
+ * <p>
+ *   This provider supports two types of encrypted SAML elements
+ *   <ul>
+ *     <li><a href="https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf#page=17">EncryptedAssertion</a></li>
+ *     <li><a href="https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf#page=14">EncryptedID</a></li>
+ *   </ul>
+ *   If the assertion is encrypted, then signature validation on the assertion is no longer required.
+ * </p>
+ * <p>
+ *   This provider does not perform an X509 certificate validation on the configured asserting party, IDP, verification
+ *   certificates.
+ * </p>
  * @since 5.2
+ * @see <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf#page=38">SAML 2 StatusResponse</a>
+ * @see <a href="https://wiki.shibboleth.net/confluence/display/OS30/Home">OpenSAML 3</a>
  */
 public final class OpenSamlAuthenticationProvider implements AuthenticationProvider {
 
 	private static Log logger = LogFactory.getLog(OpenSamlAuthenticationProvider.class);
 
 	private final OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
-	private Converter<Assertion, Collection<? extends GrantedAuthority>> authoritiesExtractor = (a -> singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+	private Converter<Assertion, Collection<? extends GrantedAuthority>> authoritiesExtractor =
+			(a -> singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 	private GrantedAuthoritiesMapper authoritiesMapper = (a -> a);
 	private Duration responseTimeValidationSkew = Duration.ofMinutes(5);
 
@@ -138,20 +175,16 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			Saml2AuthenticationToken token = (Saml2AuthenticationToken) authentication;
 			String xml = token.getSaml2Response();
 			Response samlResponse = getSaml2Response(xml);
-
 			Assertion assertion = validateSaml2Response(token, token.getRecipientUri(), samlResponse);
-			final String username = getUsername(token, assertion);
-			if (username == null) {
-				throw new UsernameNotFoundException("Assertion [" +
-						assertion.getID() +
-						"] is missing a user identifier");
-			}
+			String username = getUsername(token, assertion);
 			return new Saml2Authentication(
 					() -> username, token.getSaml2Response(),
 					this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion))
 			);
-		}catch (Saml2Exception | IllegalArgumentException e) {
-			throw new AuthenticationServiceException(e.getMessage(), e);
+		} catch (Saml2AuthenticationException e) {
+			throw e;
+		} catch (Exception e) {
+			throw authException(Saml2ErrorCodes.INTERNAL_VALIDATION_ERROR, e.getMessage(), e);
 		}
 	}
 
@@ -167,88 +200,111 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		return this.authoritiesExtractor.convert(assertion);
 	}
 
-	private String getUsername(Saml2AuthenticationToken token, Assertion assertion) {
-		final Subject subject = assertion.getSubject();
+	private String getUsername(Saml2AuthenticationToken token, Assertion assertion) throws Saml2AuthenticationException {
+		String username = null;
+		Subject subject = assertion.getSubject();
 		if (subject == null) {
-			return null;
+			throw authException(SUBJECT_NOT_FOUND, "Assertion [" + assertion.getID() + "] is missing a subject");
 		}
 		if (subject.getNameID() != null) {
-			return subject.getNameID().getValue();
+			username = subject.getNameID().getValue();
 		}
-		if (subject.getEncryptedID() != null) {
+		else if (subject.getEncryptedID() != null) {
 			NameID nameId = decrypt(token, subject.getEncryptedID());
-			return nameId.getValue();
+			username = nameId.getValue();
 		}
-		return null;
+		if (username == null) {
+			throw authException(USERNAME_NOT_FOUND, "Assertion [" + assertion.getID() + "] is missing a user identifier");
+		}
+		return username;
 	}
 
 	private Assertion validateSaml2Response(Saml2AuthenticationToken token,
 											String recipient,
-											Response samlResponse) throws AuthenticationException {
+											Response samlResponse) throws Saml2AuthenticationException {
+		//optional validation if the response contains a destination
 		if (hasText(samlResponse.getDestination()) && !recipient.equals(samlResponse.getDestination())) {
-			throw new Saml2Exception("Invalid SAML response destination: " + samlResponse.getDestination());
+			throw authException(INVALID_DESTINATION, "Invalid SAML response destination: " + samlResponse.getDestination());
 		}
 
-		final String issuer = samlResponse.getIssuer().getValue();
+		String issuer = samlResponse.getIssuer().getValue();
 		if (logger.isDebugEnabled()) {
-			logger.debug("Processing SAML response from " + issuer);
+			logger.debug("Validating SAML response from " + issuer);
 		}
-		if (token == null) {
-			throw new Saml2Exception(format("SAML 2 Provider for %s was not found.", issuer));
+		if (!hasText(issuer) || (!issuer.equals(token.getIdpEntityId()))) {
+			String message = String.format("Response issuer '%s' doesn't match '%s'", issuer, token.getIdpEntityId());
+			throw authException(INVALID_ISSUER, message);
 		}
+		Saml2AuthenticationException lastValidationError = null;
+
 		boolean responseSigned = hasValidSignature(samlResponse, token);
 		for (Assertion a : samlResponse.getAssertions()) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Checking plain assertion validity " + a);
 			}
-			if (isValidAssertion(recipient, a, token, !responseSigned)) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Found valid assertion. Skipping potential others.");
-				}
+			try {
+				validateAssertion(recipient, a, token, !responseSigned);
 				return a;
+			} catch (Saml2AuthenticationException e) {
+				lastValidationError = e;
 			}
 		}
 		for (EncryptedAssertion ea : samlResponse.getEncryptedAssertions()) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Checking encrypted assertion validity " + ea);
 			}
-
-			Assertion a = decrypt(token, ea);
-			if (isValidAssertion(recipient, a, token, false)) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Found valid encrypted assertion. Skipping potential others.");
-				}
+			try {
+				Assertion a = decrypt(token, ea);
+				validateAssertion(recipient, a, token, false);
 				return a;
+			} catch (Saml2AuthenticationException e) {
+				lastValidationError = e;
 			}
 		}
-		throw new InsufficientAuthenticationException("Unable to find a valid assertion");
+		if (lastValidationError != null) {
+			throw lastValidationError;
+		}
+		else {
+			throw authException(MALFORMED_RESPONSE_DATA, "No assertions found in response.");
+		}
 	}
 
-	private boolean hasValidSignature(SignableSAMLObject samlResponse, Saml2AuthenticationToken token) {
-		if (!samlResponse.isSigned()) {
+	private boolean hasValidSignature(SignableSAMLObject samlObject, Saml2AuthenticationToken token) {
+		if (!samlObject.isSigned()) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("SAML object is not signed, no signatures found");
+			}
 			return false;
 		}
 
-		final List<X509Certificate> verificationKeys = getVerificationKeys(token);
+		List<X509Certificate> verificationKeys = getVerificationCertificates(token);
 		if (verificationKeys.isEmpty()) {
 			return false;
 		}
 
-		for (X509Certificate key : verificationKeys) {
-			final Credential credential = getVerificationCredential(key);
+		for (X509Certificate certificate : verificationKeys) {
+			Credential credential = getVerificationCredential(certificate);
 			try {
-				SignatureValidator.validate(samlResponse.getSignature(), credential);
+				SignatureValidator.validate(samlObject.getSignature(), credential);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Valid signature found in SAML object:"+samlObject.getClass().getName());
+				}
 				return true;
 			}
 			catch (SignatureException ignored) {
-				logger.debug("Signature validation failed", ignored);
+				if (logger.isTraceEnabled()) {
+					logger.trace("Signature validation failed with cert:"+certificate.toString(), ignored);
+				}
+				else if (logger.isDebugEnabled()) {
+					logger.debug("Signature validation failed with cert:"+certificate.toString());
+				}
 			}
 		}
 		return false;
 	}
 
-	private boolean isValidAssertion(String recipient, Assertion a, Saml2AuthenticationToken token, boolean signatureRequired) {
-		final SAML20AssertionValidator validator = getAssertionValidator(token);
+	private void validateAssertion(String recipient, Assertion a, Saml2AuthenticationToken token, boolean signatureRequired) {
+		SAML20AssertionValidator validator = getAssertionValidator(token);
 		Map<String, Object> validationParams = new HashMap<>();
 		validationParams.put(SAML2AssertionValidationParameters.SIGNATURE_REQUIRED, false);
 		validationParams.put(
@@ -267,55 +323,78 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			if (logger.isDebugEnabled()) {
 				logger.debug(format("Assertion [%s] does not a valid signature.", a.getID()));
 			}
-			return false;
+			throw authException(Saml2ErrorCodes.INVALID_SIGNATURE, "Assertion doesn't have a valid signature.");
 		}
+		//ensure that OpenSAML doesn't attempt signature validation, already performed
 		a.setSignature(null);
 
-		// validation for recipient
+		//remainder of assertion validation
 		ValidationContext vctx = new ValidationContext(validationParams);
 		try {
-			final ValidationResult result = validator.validate(a, vctx);
-			final boolean valid = result.equals(ValidationResult.VALID);
+			ValidationResult result = validator.validate(a, vctx);
+			boolean valid = result.equals(ValidationResult.VALID);
 			if (!valid) {
 				if (logger.isDebugEnabled()) {
-					logger.debug(format("Failed to validate assertion from %s with user %s", token.getIdpEntityId(),
-							getUsername(token, a)
-					));
+					logger.debug(format("Failed to validate assertion from %s", token.getIdpEntityId()));
 				}
+				throw authException(Saml2ErrorCodes.INVALID_ASSERTION, vctx.getValidationFailureMessage());
 			}
-			return valid;
 		}
 		catch (AssertionValidationException e) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Failed to validate assertion:", e);
 			}
-			return false;
+			throw authException(Saml2ErrorCodes.INTERNAL_VALIDATION_ERROR, e.getMessage(), e);
 		}
 
 	}
 
-	private Response getSaml2Response(String xml) throws Saml2Exception, AuthenticationException {
-		final Object result = this.saml.resolve(xml);
-		if (result == null) {
-			throw new AuthenticationCredentialsNotFoundException("SAMLResponse returned null object");
+	private Response getSaml2Response(String xml) throws Saml2Exception, Saml2AuthenticationException {
+		try {
+			Object result = this.saml.resolve(xml);
+			if (result instanceof Response) {
+				return (Response) result;
+			}
+			else {
+				throw authException(UNKNOWN_RESPONSE_CLASS, "Invalid response class:" + result.getClass().getName());
+			}
+		} catch (Saml2Exception x) {
+			throw authException(MALFORMED_RESPONSE_DATA, x.getMessage(), x);
 		}
-		else if (result instanceof Response) {
-			return (Response) result;
-		}
-		throw new IllegalArgumentException("Invalid response class:"+result.getClass().getName());
+
+	}
+
+	private Saml2Error validationError(String code, String description) {
+		return new Saml2Error(
+				code,
+				description
+		);
+	}
+
+	private Saml2AuthenticationException authException(String code, String description) throws Saml2AuthenticationException {
+		return new Saml2AuthenticationException(
+				validationError(code, description)
+		);
+	}
+
+
+	private Saml2AuthenticationException authException(String code, String description, Exception cause) throws Saml2AuthenticationException {
+		return new Saml2AuthenticationException(
+				validationError(code, description),
+				cause
+		);
 	}
 
 	private SAML20AssertionValidator getAssertionValidator(Saml2AuthenticationToken provider) {
 		List<ConditionValidator> conditions = Collections.singletonList(new AudienceRestrictionConditionValidator());
-		final BearerSubjectConfirmationValidator subjectConfirmationValidator =
-				new BearerSubjectConfirmationValidator();
+		BearerSubjectConfirmationValidator subjectConfirmationValidator = new BearerSubjectConfirmationValidator();
 
 		List<SubjectConfirmationValidator> subjects = Collections.singletonList(subjectConfirmationValidator);
 		List<StatementValidator> statements = Collections.emptyList();
 
 		Set<Credential> credentials = new HashSet<>();
-		for (X509Certificate key : getVerificationKeys(provider)) {
-			final Credential cred = getVerificationCredential(key);
+		for (X509Certificate key : getVerificationCertificates(provider)) {
+			Credential cred = getVerificationCredential(key);
 			credentials.add(cred);
 		}
 		CredentialResolver credentialsResolver = new CollectionCredentialResolver(credentials);
@@ -345,37 +424,38 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		return decrypter;
 	}
 
-	private Assertion decrypt(Saml2AuthenticationToken token, EncryptedAssertion assertion) {
-		Saml2Exception last = null;
+	private Assertion decrypt(Saml2AuthenticationToken token, EncryptedAssertion assertion)
+			throws Saml2AuthenticationException {
+		Saml2AuthenticationException last = null;
 		List<Saml2X509Credential> decryptionCredentials = getDecryptionCredentials(token);
 		if (decryptionCredentials.isEmpty()) {
-			throw new Saml2Exception("No valid decryption credentials found.");
+			throw authException(DECRYPTION_ERROR, "No valid decryption credentials found.");
 		}
 		for (Saml2X509Credential key : decryptionCredentials) {
-			final Decrypter decrypter = getDecrypter(key);
+			Decrypter decrypter = getDecrypter(key);
 			try {
 				return decrypter.decrypt(assertion);
 			}
 			catch (DecryptionException e) {
-				last = new Saml2Exception(e);
+				last = authException(DECRYPTION_ERROR, e.getMessage(), e);
 			}
 		}
 		throw last;
 	}
 
-	private NameID decrypt(Saml2AuthenticationToken token, EncryptedID assertion) {
-		Saml2Exception last = null;
+	private NameID decrypt(Saml2AuthenticationToken token, EncryptedID assertion) throws Saml2AuthenticationException {
+		Saml2AuthenticationException last = null;
 		List<Saml2X509Credential> decryptionCredentials = getDecryptionCredentials(token);
 		if (decryptionCredentials.isEmpty()) {
-			throw new Saml2Exception("No valid decryption credentials found.");
+			throw authException(DECRYPTION_ERROR, "No valid decryption credentials found.");
 		}
 		for (Saml2X509Credential key : decryptionCredentials) {
-			final Decrypter decrypter = getDecrypter(key);
+			Decrypter decrypter = getDecrypter(key);
 			try {
 				return (NameID) decrypter.decrypt(assertion);
 			}
 			catch (DecryptionException e) {
-				last = new Saml2Exception(e);
+				last = authException(DECRYPTION_ERROR, e.getMessage(), e);
 			}
 		}
 		throw last;
@@ -391,7 +471,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		return result;
 	}
 
-	private List<X509Certificate> getVerificationKeys(Saml2AuthenticationToken token) {
+	private List<X509Certificate> getVerificationCertificates(Saml2AuthenticationToken token) {
 		List<X509Certificate> result = new LinkedList<>();
 		for (Saml2X509Credential c : token.getX509Credentials()) {
 			if (c.isSignatureVerficationCredential()) {
