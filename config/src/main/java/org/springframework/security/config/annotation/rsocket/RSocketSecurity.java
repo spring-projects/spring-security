@@ -104,6 +104,7 @@ import java.util.List;
  * }
  * </pre>
  * @author Rob Winch
+ * @author Jesús Ascama Arias
  * @since 5.2
  */
 public class RSocketSecurity {
@@ -324,6 +325,11 @@ public class RSocketSecurity {
 					ReactiveAuthorizationManager<PayloadExchangeAuthorizationContext> authorization) {
 				AuthorizePayloadsSpec.this.authzBuilder.add(new PayloadExchangeMatcherEntry<>(this.matcher, authorization));
 				return AuthorizePayloadsSpec.this;
+			}
+
+			public AuthorizePayloadsSpec denyAll() {
+				return access((a, ctx) -> Mono
+						.just(new AuthorizationDecision(false)));
 			}
 		}
 	}
