@@ -51,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * @author Rob Winch
+ * @author Manuel Tejeda
  */
 @ContextConfiguration
 @RunWith(SpringRunner.class)
@@ -167,6 +168,23 @@ public class RSocketMessageHandlerConnectionITests {
 //			.isInstanceOf(RejectedSetupException.class);
 	}
 
+	@Test
+	public void connectWithAnyRole() {
+		UsernamePasswordMetadata credentials =
+				new UsernamePasswordMetadata("user", "password");
+		this.requester = requester()
+				.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.block();
+
+		String hiRob = this.requester.route("anyroute")
+				.data("rob")
+				.retrieveMono(String.class)
+				.block();
+
+		assertThat(hiRob).isEqualTo("Hi rob");
+	}
+
 	private RSocketRequester.Builder requester() {
 		return RSocketRequester.builder()
 				.rsocketStrategies(this.handler.getRSocketStrategies());
@@ -225,6 +243,7 @@ public class RSocketMessageHandlerConnectionITests {
 						.setup().hasRole("SETUP")
 						.route("secure.admin.*").hasRole("ADMIN")
 						.route("secure.**").hasRole("USER")
+						.route("anyroute").hasAnyRole("USER")
 						.anyRequest().permitAll()
 				)
 				.basicAuthentication(Customizer.withDefaults());
