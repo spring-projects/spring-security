@@ -647,7 +647,7 @@ The `DefaultClientCredentialsTokenResponseClient` is quite flexible as it allows
 ===== Customizing the Access Token Request
 
 If you need to customize the pre-processing of the Token Request, you can provide `DefaultClientCredentialsTokenResponseClient.setRequestEntityConverter()` with a custom `Converter<OAuth2ClientCredentialsGrantRequest, RequestEntity<?>>`.
-The default implementation `OAuth2ClientCredentialsRequestEntityConverter` builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request].
+The default implementation `OAuth2ClientCredentialsGrantRequestEntityConverter` builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request].
 However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
 
 IMPORTANT: The custom `Converter` must return a valid `RequestEntity` representation of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
