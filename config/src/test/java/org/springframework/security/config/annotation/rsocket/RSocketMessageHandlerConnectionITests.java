@@ -51,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * @author Rob Winch
+ * @author Ebert Toribio
  */
 @ContextConfiguration
 @RunWith(SpringRunner.class)
@@ -167,6 +168,23 @@ public class RSocketMessageHandlerConnectionITests {
 //			.isInstanceOf(RejectedSetupException.class);
 	}
 
+	@Test
+	public void connectWithAnyAuthority() {
+		UsernamePasswordMetadata credentials =
+				new UsernamePasswordMetadata("ebert", "ebert");
+		this.requester = requester()
+				.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.block();
+
+		String hiEbert = this.requester.route("management.users")
+				.data("ebert")
+				.retrieveMono(String.class)
+				.block();
+
+		assertThat(hiEbert).isEqualTo("Hi ebert");
+	}
+
 	private RSocketRequester.Builder requester() {
 		return RSocketRequester.builder()
 				.rsocketStrategies(this.handler.getRSocketStrategies());
@@ -208,13 +226,18 @@ public class RSocketMessageHandlerConnectionITests {
 					.password("password")
 					.roles("USER", "SETUP")
 					.build();
+			UserDetails manager = User.withDefaultPasswordEncoder()
+					.username("ebert")
+					.password("ebert")
+					.roles("SETUP", "MANAGER")
+					.build();
 
 			UserDetails evil = User.withDefaultPasswordEncoder()
 					.username("evil")
 					.password("password")
 					.roles("EVIL")
 					.build();
-			return new MapReactiveUserDetailsService(admin, user, evil);
+			return new MapReactiveUserDetailsService(admin, user, manager, evil);
 		}
 
 		@Bean
@@ -225,6 +248,7 @@ public class RSocketMessageHandlerConnectionITests {
 						.setup().hasRole("SETUP")
 						.route("secure.admin.*").hasRole("ADMIN")
 						.route("secure.**").hasRole("USER")
+						.route("management.*").hasAnyAuthority("ROLE_MANAGER")
 						.anyRequest().permitAll()
 				)
 				.basicAuthentication(Customizer.withDefaults());

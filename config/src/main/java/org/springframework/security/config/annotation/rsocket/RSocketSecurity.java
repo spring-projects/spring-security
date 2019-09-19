@@ -104,6 +104,7 @@ import java.util.List;
  * }
  * </pre>
  * @author Rob Winch
+ * @author Ebert Toribio
  * @since 5.2
  */
 public class RSocketSecurity {
@@ -318,6 +319,10 @@ public class RSocketSecurity {
 			public AuthorizePayloadsSpec permitAll() {
 				return access((a, ctx) -> Mono
 						.just(new AuthorizationDecision(true)));
+			}
+
+			public AuthorizePayloadsSpec hasAnyAuthority(String... authorities) {
+				return access(AuthorityReactiveAuthorizationManager.hasAnyAuthority(authorities));
 			}
 
 			public AuthorizePayloadsSpec access(
