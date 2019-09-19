@@ -55,7 +55,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 
 	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
 
-	private Scheduler scheduler = Schedulers.parallel();
+	private Scheduler scheduler = Schedulers.newParallel("password-encoder");
 
 	private UserDetailsChecker preAuthenticationChecks = user -> {
 		if (!user.isAccountNonLocked()) {
@@ -127,7 +127,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 
 	/**
 	 * Sets the {@link Scheduler} used by the {@link UserDetailsRepositoryReactiveAuthenticationManager}.
-	 * The default is {@code Schedulers.parallel()} because modern password encoding is
+	 * The default is {@code Schedulers.newParallel(String)} because modern password encoding is
 	 * a CPU intensive task that is non blocking. This means validation is bounded by the
 	 * number of CPUs. Some applications may want to customize the {@link Scheduler}. For
 	 * example, if users are stuck using the insecure {@link org.springframework.security.crypto.password.NoOpPasswordEncoder}
