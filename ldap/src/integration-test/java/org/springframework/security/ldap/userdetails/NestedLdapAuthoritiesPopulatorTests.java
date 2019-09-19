@@ -55,7 +55,7 @@ public class NestedLdapAuthoritiesPopulatorTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		populator = new NestedLdapAuthoritiesPopulator(this.contextSource,
 				"ou=jdeveloper");
 		populator.setGroupSearchFilter("(member={0})");

@@ -55,7 +55,7 @@ class InitializeAuthenticationProviderBeanManagerConfigurer
 	class InitializeUserDetailsManagerConfigurer
 			extends GlobalAuthenticationConfigurerAdapter {
 		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
+		public void configure(AuthenticationManagerBuilder auth) {
 			if (auth.isConfigured()) {
 				return;
 			}

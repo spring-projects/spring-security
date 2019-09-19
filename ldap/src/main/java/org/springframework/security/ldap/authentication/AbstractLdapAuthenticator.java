@@ -75,7 +75,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.isTrue((userDnFormat != null) || (userSearch != null),
 				"Either an LdapUserSearch or DN pattern (or both) must be supplied.");
 	}

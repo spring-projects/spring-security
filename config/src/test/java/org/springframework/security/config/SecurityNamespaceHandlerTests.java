@@ -72,7 +72,7 @@ public class SecurityNamespaceHandlerTests {
 	}
 
 	@Test
-	public void pre32SchemaAreNotSupported() throws Exception {
+	public void pre32SchemaAreNotSupported() {
 		try {
 			new InMemoryXmlApplicationContext(
 					"<user-service id='us'>"

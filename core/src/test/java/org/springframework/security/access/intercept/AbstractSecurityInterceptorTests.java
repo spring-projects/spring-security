@@ -35,7 +35,7 @@ public class AbstractSecurityInterceptorTests {
 	// ========================================================================================================
 
 	@Test(expected = IllegalArgumentException.class)
-	public void detectsIfInvocationPassedIncompatibleSecureObject() throws Exception {
+	public void detectsIfInvocationPassedIncompatibleSecureObject() {
 		MockSecurityInterceptorWhichOnlySupportsStrings si = new MockSecurityInterceptorWhichOnlySupportsStrings();
 
 		si.setRunAsManager(mock(RunAsManager.class));

@@ -42,7 +42,7 @@ public class ContextPropagatingRemoteInvocationTests {
 	// ~ Methods
 	// ========================================================================================================
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
 

@@ -65,13 +65,13 @@ public class SpringCacheBasedAclCacheTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorRejectsNullParameters() throws Exception {
+	public void constructorRejectsNullParameters() {
 		new SpringCacheBasedAclCache(null, null, null);
 	}
 
 	@SuppressWarnings("rawtypes")
 	@Test
-	public void cacheOperationsAclWithoutParent() throws Exception {
+	public void cacheOperationsAclWithoutParent() {
 		Cache cache = getCache();
 		Map realCache = (Map) cache.getNativeCache();
 		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);

@@ -106,7 +106,7 @@ public final class CurrentSecurityContextArgumentResolver
 	 */
 	public Object resolveArgument(MethodParameter parameter,
 				ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-				WebDataBinderFactory binderFactory) throws Exception {
+				WebDataBinderFactory binderFactory) {
 		SecurityContext securityContext = SecurityContextHolder.getContext();
 		if (securityContext == null) {
 			return null;

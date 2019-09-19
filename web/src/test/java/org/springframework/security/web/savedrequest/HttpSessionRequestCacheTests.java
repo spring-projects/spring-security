@@ -59,7 +59,7 @@ public class HttpSessionRequestCacheTests {
 	}
 
 	@Test
-	public void requestMatcherDefinesCorrectSubsetOfCachedRequests() throws Exception {
+	public void requestMatcherDefinesCorrectSubsetOfCachedRequests() {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 		cache.setRequestMatcher(request -> request.getMethod().equals("GET"));
 
@@ -75,7 +75,7 @@ public class HttpSessionRequestCacheTests {
 
 	// SEC-2246
 	@Test
-	public void getRequestCustomNoClassCastException() throws Exception {
+	public void getRequestCustomNoClassCastException() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST",
 				"/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();

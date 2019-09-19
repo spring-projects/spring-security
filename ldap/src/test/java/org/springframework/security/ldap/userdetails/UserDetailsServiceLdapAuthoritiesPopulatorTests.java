@@ -35,7 +35,7 @@ import org.springframework.security.ldap.authentication.UserDetailsServiceLdapAu
 public class UserDetailsServiceLdapAuthoritiesPopulatorTests {
 
 	@Test
-	public void delegationToUserDetailsServiceReturnsCorrectRoles() throws Exception {
+	public void delegationToUserDetailsServiceReturnsCorrectRoles() {
 		UserDetailsService uds = mock(UserDetailsService.class);
 		UserDetails user = mock(UserDetails.class);
 		when(uds.loadUserByUsername("joe")).thenReturn(user);

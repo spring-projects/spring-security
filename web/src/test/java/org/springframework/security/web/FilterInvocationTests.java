@@ -130,7 +130,7 @@ public class FilterInvocationTests {
 	}
 
 	@Test
-	public void dummyRequestIsSupportedByUrlUtils() throws Exception {
+	public void dummyRequestIsSupportedByUrlUtils() {
 		DummyRequest request = new DummyRequest();
 		request.setContextPath("");
 		request.setRequestURI("/something");

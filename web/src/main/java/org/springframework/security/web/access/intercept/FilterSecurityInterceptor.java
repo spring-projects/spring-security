@@ -63,9 +63,8 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	 *
 	 * @param arg0 ignored
 	 *
-	 * @throws ServletException never thrown
 	 */
-	public void init(FilterConfig arg0) throws ServletException {
+	public void init(FilterConfig arg0) {
 	}
 
 	/**

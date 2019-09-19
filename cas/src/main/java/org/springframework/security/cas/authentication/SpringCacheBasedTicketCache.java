@@ -42,7 +42,7 @@ public class SpringCacheBasedTicketCache implements StatelessTicketCache {
 	// ~ Constructors
 	// ===================================================================================================
 
-	public SpringCacheBasedTicketCache(Cache cache) throws Exception {
+	public SpringCacheBasedTicketCache(Cache cache) {
 		Assert.notNull(cache, "cache mandatory");
 		this.cache = cache;
 	}

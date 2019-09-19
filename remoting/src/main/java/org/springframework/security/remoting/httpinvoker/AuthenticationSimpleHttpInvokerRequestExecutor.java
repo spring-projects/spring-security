@@ -57,10 +57,8 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends
 	 * @param con the HTTP connection to prepare
 	 * @param contentLength the length of the content to send
 	 *
-	 * @throws IOException if thrown by HttpURLConnection methods
 	 */
-	protected void doPrepareConnection(HttpURLConnection con, int contentLength)
-			throws IOException {
+	protected void doPrepareConnection(HttpURLConnection con, int contentLength) {
 	}
 
 	/**

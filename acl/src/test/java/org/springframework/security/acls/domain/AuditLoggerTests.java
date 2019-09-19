@@ -44,7 +44,7 @@ public class AuditLoggerTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		logger = new ConsoleAuditLogger();
 		ace = mock(AuditableAccessControlEntry.class);
 		console = System.out;
@@ -52,7 +52,7 @@ public class AuditLoggerTests {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		System.setOut(console);
 		bytes.reset();
 	}
@@ -65,14 +65,14 @@ public class AuditLoggerTests {
 	}
 
 	@Test
-	public void successIsNotLoggedIfAceDoesntRequireSuccessAudit() throws Exception {
+	public void successIsNotLoggedIfAceDoesntRequireSuccessAudit() {
 		when(ace.isAuditSuccess()).thenReturn(false);
 		logger.logIfNeeded(true, ace);
 		assertThat(bytes.size()).isZero();
 	}
 
 	@Test
-	public void successIsLoggedIfAceRequiresSuccessAudit() throws Exception {
+	public void successIsLoggedIfAceRequiresSuccessAudit() {
 		when(ace.isAuditSuccess()).thenReturn(true);
 
 		logger.logIfNeeded(true, ace);
@@ -80,14 +80,14 @@ public class AuditLoggerTests {
 	}
 
 	@Test
-	public void failureIsntLoggedIfAceDoesntRequireFailureAudit() throws Exception {
+	public void failureIsntLoggedIfAceDoesntRequireFailureAudit() {
 		when(ace.isAuditFailure()).thenReturn(false);
 		logger.logIfNeeded(false, ace);
 		assertThat(bytes.size()).isZero();
 	}
 
 	@Test
-	public void failureIsLoggedIfAceRequiresFailureAudit() throws Exception {
+	public void failureIsLoggedIfAceRequiresFailureAudit() {
 		when(ace.isAuditFailure()).thenReturn(true);
 		logger.logIfNeeded(false, ace);
 		assertThat(bytes.toString()).startsWith("DENIED due to ACE");

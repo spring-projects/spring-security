@@ -149,7 +149,7 @@ public class AuthenticationTag extends TagSupport {
 	/**
 	 * Set HTML escaping for this tag, as boolean value.
 	 */
-	public void setHtmlEscape(String htmlEscape) throws JspException {
+	public void setHtmlEscape(String htmlEscape) {
 		this.htmlEscape = Boolean.parseBoolean(htmlEscape);
 	}
 

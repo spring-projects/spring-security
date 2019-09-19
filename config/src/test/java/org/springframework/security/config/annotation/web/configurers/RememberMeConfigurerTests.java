@@ -76,7 +76,7 @@ public class RememberMeConfigurerTests {
 	MockMvc mvc;
 
 	@Test
-	public void postWhenNoUserDetailsServiceThenException() throws Exception {
+	public void postWhenNoUserDetailsServiceThenException() {
 		this.spring.register(NullUserDetailsConfig.class).autowire();
 
 		assertThatThrownBy(() ->
@@ -103,7 +103,7 @@ public class RememberMeConfigurerTests {
 		}
 
 		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		protected void configure(AuthenticationManagerBuilder auth) {
 			User user = (User) PasswordEncodedUser.user();
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 			provider.setUserDetailsService(new InMemoryUserDetailsManager(Collections.singletonList(user)));

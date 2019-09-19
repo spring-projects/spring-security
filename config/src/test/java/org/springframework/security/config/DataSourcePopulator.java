@@ -32,7 +32,7 @@ public class DataSourcePopulator implements InitializingBean {
 
 	JdbcTemplate template;
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(template, "dataSource required");
 
 		template.execute("CREATE TABLE USERS(USERNAME VARCHAR_IGNORECASE(50) NOT NULL PRIMARY KEY,PASSWORD VARCHAR_IGNORECASE(500) NOT NULL,ENABLED BOOLEAN NOT NULL);");

@@ -57,7 +57,7 @@ public class UserDetailsByNameServiceWrapper<T extends Authentication> implement
 	 *
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
 	 */
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(this.userDetailsService, "UserDetailsService must be set");
 	}
 

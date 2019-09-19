@@ -171,7 +171,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 	}
 
 	private void checkEntries(ObjectIdentity topParentOid, ObjectIdentity middleParentOid, ObjectIdentity childOid,
-		Map<ObjectIdentity, Acl> map) throws Exception {
+		Map<ObjectIdentity, Acl> map) {
 		assertThat(map).hasSize(3);
 
 		MutableAcl topParent = (MutableAcl) map.get(topParentOid);
@@ -238,7 +238,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 	}
 
 	@Test
-	public void testAllParentsAreRetrievedWhenChildIsLoaded() throws Exception {
+	public void testAllParentsAreRetrievedWhenChildIsLoaded() {
 		String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (6,2,103,1,1,1);";
 		getJdbcTemplate().execute(query);
 
@@ -266,7 +266,7 @@ public abstract class AbstractBasicLookupStrategyTests {
 	 * Test created from SEC-590.
 	 */
 	@Test
-	public void testReadAllObjectIdentitiesWhenLastElementIsAlreadyCached() throws Exception {
+	public void testReadAllObjectIdentitiesWhenLastElementIsAlreadyCached() {
 		String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (6,2,105,null,1,1);"
 			+ "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (7,2,106,6,1,1);"
 			+ "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (8,2,107,6,1,1);"

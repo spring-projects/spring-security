@@ -291,7 +291,7 @@ public class OAuth2LoginApplicationTests {
 		assertThat(errorElement.asText()).contains("invalid_redirect_uri_parameter");
 	}
 
-	private void assertLoginPage(HtmlPage page) throws Exception {
+	private void assertLoginPage(HtmlPage page) {
 		assertThat(page.getTitleText()).isEqualTo("Please sign in");
 
 		int expectedClients = 4;
@@ -322,7 +322,7 @@ public class OAuth2LoginApplicationTests {
 		}
 	}
 
-	private void assertIndexPage(HtmlPage page) throws Exception {
+	private void assertIndexPage(HtmlPage page) {
 		assertThat(page.getTitleText()).isEqualTo("Spring Security - OAuth 2.0 Login");
 
 		DomNodeList<HtmlElement> divElements = page.getBody().getElementsByTagName("div");

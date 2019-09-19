@@ -64,10 +64,8 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 *
 	 * @param dataSource the {@link DataSource} to be used. Cannot be null.
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional customizations
-	 * @throws Exception
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> dataSource(DataSource dataSource)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> dataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 		getUserDetailsService().setDataSource(dataSource);
 		return this;
@@ -83,10 +81,8 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * is enabled by username. Must contain a single parameter for the username.
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
-	 * @throws Exception
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> usersByUsernameQuery(String query)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> usersByUsernameQuery(String query) {
 		getUserDetailsService().setUsersByUsernameQuery(query);
 		return this;
 	}
@@ -103,10 +99,8 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * Must contain a single parameter for the username.
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
-	 * @throws Exception
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> authoritiesByUsernameQuery(String query)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> authoritiesByUsernameQuery(String query) {
 		getUserDetailsService().setAuthoritiesByUsernameQuery(query);
 		return this;
 	}
@@ -127,10 +121,8 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * a single parameter for the username.
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
-	 * @throws Exception
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> groupAuthoritiesByUsername(String query)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> groupAuthoritiesByUsername(String query) {
 		JdbcUserDetailsManager userDetailsService = getUserDetailsService();
 		userDetailsService.setEnableGroups(true);
 		userDetailsService.setGroupAuthoritiesByUsernameQuery(query);
@@ -143,10 +135,8 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 *
 	 * @param rolePrefix
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional customizations
-	 * @throws Exception
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> rolePrefix(String rolePrefix)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> rolePrefix(String rolePrefix) {
 		getUserDetailsService().setRolePrefix(rolePrefix);
 		return this;
 	}
@@ -156,10 +146,8 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 *
 	 * @param userCache the {@link UserCache} to use
 	 * @return the {@link JdbcUserDetailsManagerConfigurer} for further customizations
-	 * @throws Exception
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> userCache(UserCache userCache)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> userCache(UserCache userCache) {
 		getUserDetailsService().setUserCache(userCache);
 		return this;
 	}

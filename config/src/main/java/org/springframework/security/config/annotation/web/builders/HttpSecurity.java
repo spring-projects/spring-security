@@ -2513,7 +2513,7 @@ public final class HttpSecurity extends
 	}
 
 	@Override
-	protected DefaultSecurityFilterChain performBuild() throws Exception {
+	protected DefaultSecurityFilterChain performBuild() {
 		filters.sort(comparator);
 		return new DefaultSecurityFilterChain(requestMatcher, filters);
 	}
@@ -2821,9 +2821,8 @@ public final class HttpSecurity extends
 	 * @param requestMatcherCustomizer the {@link Customizer} to provide more options for
 	 * the {@link RequestMatcherConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
 	 */
-	public HttpSecurity requestMatchers(Customizer<RequestMatcherConfigurer> requestMatcherCustomizer) throws Exception {
+	public HttpSecurity requestMatchers(Customizer<RequestMatcherConfigurer> requestMatcherCustomizer) {
 		requestMatcherCustomizer.customize(requestMatcherConfigurer);
 		return HttpSecurity.this;
 	}

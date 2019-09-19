@@ -183,10 +183,9 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * {@link SecurityConfigurer#init(SecurityBuilder)} immediately if necessary.
 	 *
 	 * @param configurer the {@link SecurityConfigurer} to add
-	 * @throws Exception if an error occurs
 	 */
 	@SuppressWarnings("unchecked")
-	private <C extends SecurityConfigurer<O, B>> void add(C configurer) throws Exception {
+	private <C extends SecurityConfigurer<O, B>> void add(C configurer) {
 		Assert.notNull(configurer, "configurer cannot be null");
 
 		Class<? extends SecurityConfigurer<O, B>> clazz = (Class<? extends SecurityConfigurer<O, B>>) configurer
@@ -344,7 +343,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * method. Subclasses may override this method to hook into the lifecycle without
 	 * using a {@link SecurityConfigurer}.
 	 */
-	protected void beforeInit() throws Exception {
+	protected void beforeInit() {
 	}
 
 	/**

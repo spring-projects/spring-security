@@ -71,7 +71,7 @@ public class CsrfConfigurerNoWebMvcTests {
 	static class EnableWebConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 	}
 
@@ -88,7 +88,7 @@ public class CsrfConfigurerNoWebMvcTests {
 	static class EnableWebMvcConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 	}
 

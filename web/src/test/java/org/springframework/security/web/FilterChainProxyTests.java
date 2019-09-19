@@ -78,7 +78,7 @@ public class FilterChainProxyTests {
 	}
 
 	@Test
-	public void toStringCallSucceeds() throws Exception {
+	public void toStringCallSucceeds() {
 		fcp.afterPropertiesSet();
 		fcp.toString();
 	}

@@ -624,7 +624,7 @@ public class ResolvableMethod {
 		}
 
 		@Override
-		public Object invoke(org.aopalliance.intercept.MethodInvocation inv) throws Throwable {
+		public Object invoke(org.aopalliance.intercept.MethodInvocation inv) {
 			return intercept(inv.getThis(), inv.getMethod(), inv.getArguments(), null);
 		}
 	}

@@ -56,7 +56,7 @@ public class HttpConfigurationTests {
 	private MockMvc mockMvc;
 
 	@Test
-	public void configureWhenAddFilterUnregisteredThenThrowsBeanCreationException() throws Exception {
+	public void configureWhenAddFilterUnregisteredThenThrowsBeanCreationException() {
 		Throwable thrown = catchThrowable(() -> this.spring.register(UnregisteredFilterConfig.class).autowire() );
 		assertThat(thrown).isInstanceOf(BeanCreationException.class);
 		assertThat(thrown.getMessage()).contains("The Filter class " + UnregisteredFilter.class.getName() +
@@ -67,7 +67,7 @@ public class HttpConfigurationTests {
 	@EnableWebSecurity
 	static class UnregisteredFilterConfig extends WebSecurityConfigurerAdapter {
 
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 			http
 				.addFilter(new UnregisteredFilter());
 		}
@@ -104,7 +104,7 @@ public class HttpConfigurationTests {
 	static class CasAuthenticationFilterConfig extends WebSecurityConfigurerAdapter {
 		static CasAuthenticationFilter CAS_AUTHENTICATION_FILTER;
 
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 			http
 				.addFilter(CAS_AUTHENTICATION_FILTER);
 		}

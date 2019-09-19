@@ -161,7 +161,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 
 	// SEC-1491
 	@Test
-	public void customAnnotationAttributesAreFound() throws Exception {
+	public void customAnnotationAttributesAreFound() {
 		SecuredAnnotationSecurityMetadataSource mds = new SecuredAnnotationSecurityMetadataSource(
 				new CustomSecurityAnnotationMetadataExtractor());
 		Collection<ConfigAttribute> attrs = mds.findAttributes(

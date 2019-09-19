@@ -38,7 +38,7 @@ public class RegexRequestMatcherTests {
 	private HttpServletRequest request;
 
 	@Test
-	public void doesntMatchIfHttpMethodIsDifferent() throws Exception {
+	public void doesntMatchIfHttpMethodIsDifferent() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
 
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/anything");
@@ -47,7 +47,7 @@ public class RegexRequestMatcherTests {
 	}
 
 	@Test
-	public void matchesIfHttpMethodAndPathMatch() throws Exception {
+	public void matchesIfHttpMethodAndPathMatch() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
 
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/anything");
@@ -57,7 +57,7 @@ public class RegexRequestMatcherTests {
 	}
 
 	@Test
-	public void queryStringIsMatcherCorrectly() throws Exception {
+	public void queryStringIsMatcherCorrectly() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*\\?x=y", "GET");
 
 		MockHttpServletRequest request = new MockHttpServletRequest("GET",

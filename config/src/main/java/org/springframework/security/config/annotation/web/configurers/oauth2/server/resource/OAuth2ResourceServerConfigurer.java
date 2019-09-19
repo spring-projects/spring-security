@@ -221,14 +221,14 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	}
 
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		registerDefaultAccessDeniedHandler(http);
 		registerDefaultEntryPoint(http);
 		registerDefaultCsrfOverride(http);
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		BearerTokenResolver bearerTokenResolver = getBearerTokenResolver();
 		this.requestMatcher.setBearerTokenResolver(bearerTokenResolver);
 

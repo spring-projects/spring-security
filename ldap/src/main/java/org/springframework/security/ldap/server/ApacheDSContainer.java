@@ -153,7 +153,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 		start();
 	}
 
-	public void destroy() throws Exception {
+	public void destroy() {
 		stop();
 	}
 

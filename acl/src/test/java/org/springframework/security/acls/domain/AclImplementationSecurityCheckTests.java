@@ -41,17 +41,17 @@ public class AclImplementationSecurityCheckTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		SecurityContextHolder.clearContext();
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
 
 	@Test
-	public void testSecurityCheckNoACEs() throws Exception {
+	public void testSecurityCheckNoACEs() {
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				"ROLE_GENERAL", "ROLE_AUDITING", "ROLE_OWNERSHIP");
 		auth.setAuthenticated(true);
@@ -103,7 +103,7 @@ public class AclImplementationSecurityCheckTests {
 	}
 
 	@Test
-	public void testSecurityCheckWithMultipleACEs() throws Exception {
+	public void testSecurityCheckWithMultipleACEs() {
 		// Create a simple authentication with ROLE_GENERAL
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				"ROLE_GENERAL");
@@ -206,7 +206,7 @@ public class AclImplementationSecurityCheckTests {
 	}
 
 	@Test
-	public void testSecurityCheckWithInheritableACEs() throws Exception {
+	public void testSecurityCheckWithInheritableACEs() {
 		// Create a simple authentication with ROLE_GENERAL
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				"ROLE_GENERAL");
@@ -273,7 +273,7 @@ public class AclImplementationSecurityCheckTests {
 	}
 
 	@Test
-	public void testSecurityCheckPrincipalOwner() throws Exception {
+	public void testSecurityCheckPrincipalOwner() {
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				"ROLE_ONE");
 		auth.setAuthenticated(true);

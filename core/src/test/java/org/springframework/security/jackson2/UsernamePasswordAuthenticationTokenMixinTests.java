@@ -93,7 +93,7 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 	}
 
 	@Test
-	public void deserializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws IOException, JSONException {
+	public void deserializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws IOException {
 		UsernamePasswordAuthenticationToken token = mapper
 				.readValue(UNAUTHENTICATED_STRINGPRINCIPAL_JSON, UsernamePasswordAuthenticationToken.class);
 		assertThat(token).isNotNull();

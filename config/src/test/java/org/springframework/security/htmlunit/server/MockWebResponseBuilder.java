@@ -57,7 +57,7 @@ final class MockWebResponseBuilder {
 		return new WebResponse(webResponseData, this.webRequest, endTime - this.startTime);
 	}
 
-	private WebResponseData webResponseData() throws IOException {
+	private WebResponseData webResponseData() {
 		List<NameValuePair> responseHeaders = responseHeaders();
 		HttpStatus status = this.exchangeResult.getStatus();
 		return new WebResponseData(this.exchangeResult.getResponseBodyContent(), status.value(), status.getReasonPhrase(), responseHeaders);

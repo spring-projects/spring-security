@@ -98,7 +98,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		ChannelDecisionManagerImpl channelDecisionManager = new ChannelDecisionManagerImpl();
 		channelDecisionManager.setChannelProcessors(getChannelProcessors(http));
 		channelDecisionManager = postProcess(channelDecisionManager);

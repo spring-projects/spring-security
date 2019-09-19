@@ -44,7 +44,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 
 	// SEC-3836
 	@Test
-	public void findCookieCsrfTokenRepository() throws Exception {
+	public void findCookieCsrfTokenRepository() {
 		MockHttpServletRequest request = post("/").buildRequest(wac.getServletContext());
 		CsrfTokenRepository csrfTokenRepository = WebTestUtils.getCsrfTokenRepository(request);
 		assertThat(csrfTokenRepository).isNotNull();
@@ -61,7 +61,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 		}
 
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			// Enable the DebugFilter
 			web.debug(true);
 		}

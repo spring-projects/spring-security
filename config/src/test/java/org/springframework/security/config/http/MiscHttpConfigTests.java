@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.servlet.Filter;
 import javax.servlet.ServletException;
@@ -858,22 +857,22 @@ public class MiscHttpConfigTests {
 		}
 
 		@Override
-		public boolean login() throws LoginException {
+		public boolean login() {
 			return this.subject.getPrincipals().add(() -> "user");
 		}
 
 		@Override
-		public boolean commit() throws LoginException {
+		public boolean commit() {
 			return true;
 		}
 
 		@Override
-		public boolean abort() throws LoginException {
+		public boolean abort() {
 			return true;
 		}
 
 		@Override
-		public boolean logout() throws LoginException {
+		public boolean logout() {
 			return true;
 		}
 	}

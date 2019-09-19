@@ -173,7 +173,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		this.serverInteger = serverInteger;
 	}
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.hasText(serverSecret, "Server secret required");
 		Assert.notNull(serverInteger, "Server integer required");
 		Assert.notNull(secureRandom, "SecureRandom instance required");

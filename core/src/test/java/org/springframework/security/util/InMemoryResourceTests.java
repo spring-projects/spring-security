@@ -33,7 +33,7 @@ public class InMemoryResourceTests {
 	}
 
 	@Test
-	public void resourceIsEqualToOneWithSameContent() throws Exception {
+	public void resourceIsEqualToOneWithSameContent() {
 		assertThat(new InMemoryResource("xxx")).isEqualTo(new InMemoryResource("xxx"));
 		assertThat(new InMemoryResource("xxx").equals(new InMemoryResource("xxxx"))).isFalse();
 		assertThat(new InMemoryResource("xxx").equals(new Object())).isFalse();

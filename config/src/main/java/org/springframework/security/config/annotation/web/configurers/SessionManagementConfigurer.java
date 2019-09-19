@@ -451,7 +451,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		SecurityContextRepository securityContextRepository = http
 				.getSharedObject(SecurityContextRepository.class);
 		boolean stateless = isStateless();
@@ -488,7 +488,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		SecurityContextRepository securityContextRepository = http
 				.getSharedObject(SecurityContextRepository.class);
 		SessionManagementFilter sessionManagementFilter = new SessionManagementFilter(

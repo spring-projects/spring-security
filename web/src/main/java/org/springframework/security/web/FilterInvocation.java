@@ -231,7 +231,7 @@ class DummyRequest extends HttpServletRequestWrapper {
 }
 
 final class UnsupportedOperationExceptionInvocationHandler implements InvocationHandler {
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+	public Object invoke(Object proxy, Method method, Object[] args) {
 		throw new UnsupportedOperationException(method + " is not supported");
 	}
 }

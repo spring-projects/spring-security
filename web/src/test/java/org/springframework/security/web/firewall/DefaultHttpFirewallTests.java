@@ -29,7 +29,7 @@ public class DefaultHttpFirewallTests {
 			"./path", ".//path", "." };
 
 	@Test
-	public void unnormalizedPathsAreRejected() throws Exception {
+	public void unnormalizedPathsAreRejected() {
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
 
 		MockHttpServletRequest request;

@@ -50,7 +50,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource
 	/**
 	 * Check that all required properties have been set.
 	 */
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(j2eeMappableRoles, "No mappable roles available");
 		Assert.notNull(j2eeUserRoles2GrantedAuthoritiesMapper,
 				"Roles to granted authorities mapper not set");

@@ -1083,7 +1083,7 @@ public class OnCommittedResponseWrapperTests {
 	}
 
 	@Test
-	public void contentLengthDoesNotCommit() throws IOException {
+	public void contentLengthDoesNotCommit() {
 		String body = "something";
 
 		response.setContentLength(body.length());

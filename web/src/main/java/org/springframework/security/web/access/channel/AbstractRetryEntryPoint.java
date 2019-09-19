@@ -21,7 +21,6 @@ import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -58,7 +57,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	// ========================================================================================================
 
 	public void commence(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+			throws IOException {
 		String queryString = request.getQueryString();
 		String redirectUrl = request.getRequestURI()
 				+ ((queryString == null) ? "" : ("?" + queryString));

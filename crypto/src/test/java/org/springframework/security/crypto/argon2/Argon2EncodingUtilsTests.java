@@ -45,24 +45,24 @@ public class Argon2EncodingUtilsTests {
 			));
 
 	@Test
-	public void decodeWhenValidEncodedHashWithIThenDecodeCorrectly() throws Exception {
+	public void decodeWhenValidEncodedHashWithIThenDecodeCorrectly() {
 		assertArgon2HashEquals(testDataEntry1.decoded, Argon2EncodingUtils.decode(testDataEntry1.encoded));
 	}
 
 	@Test
-	public void decodeWhenValidEncodedHashWithIDThenDecodeCorrectly() throws Exception {
+	public void decodeWhenValidEncodedHashWithIDThenDecodeCorrectly() {
 		assertArgon2HashEquals(testDataEntry2.decoded, Argon2EncodingUtils.decode(testDataEntry2.encoded));
 	}
 
 	@Test
-	public void encodeWhenValidArgumentsWithIThenEncodeToCorrectHash() throws Exception {
+	public void encodeWhenValidArgumentsWithIThenEncodeToCorrectHash() {
 		assertThat(Argon2EncodingUtils
 				.encode(testDataEntry1.decoded.getHash(), testDataEntry1.decoded.getParameters()))
 				.isEqualTo(testDataEntry1.encoded);
 	}
 
 	@Test
-	public void encodeWhenValidArgumentsWithID2ThenEncodeToCorrectHash() throws Exception {
+	public void encodeWhenValidArgumentsWithID2ThenEncodeToCorrectHash() {
 		assertThat(Argon2EncodingUtils
 				.encode(testDataEntry2.decoded.getHash(), testDataEntry2.decoded.getParameters()))
 				.isEqualTo(testDataEntry2.encoded);

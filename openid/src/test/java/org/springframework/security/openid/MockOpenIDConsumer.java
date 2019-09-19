@@ -17,7 +17,6 @@ package org.springframework.security.openid;
 
 import org.springframework.security.openid.OpenIDAuthenticationToken;
 import org.springframework.security.openid.OpenIDConsumer;
-import org.springframework.security.openid.OpenIDConsumerException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -51,12 +50,11 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
 	// ========================================================================================================
 
 	public String beginConsumption(HttpServletRequest req, String claimedIdentity,
-			String returnToUrl, String realm) throws OpenIDConsumerException {
+			String returnToUrl, String realm) {
 		return redirectUrl;
 	}
 
-	public OpenIDAuthenticationToken endConsumption(HttpServletRequest req)
-			throws OpenIDConsumerException {
+	public OpenIDAuthenticationToken endConsumption(HttpServletRequest req) {
 		return token;
 	}
 

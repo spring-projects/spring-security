@@ -57,7 +57,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void externalUserServiceRefWorks() throws Exception {
+	public void externalUserServiceRefWorks() {
 		appContext = new InMemoryXmlApplicationContext(
 				"    <authentication-manager>"
 						+ "        <authentication-provider user-service-ref='myUserService' />"
@@ -69,7 +69,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void providerWithBCryptPasswordEncoderWorks() throws Exception {
+	public void providerWithBCryptPasswordEncoderWorks() {
 		setContext(" <authentication-provider>"
 				+ "        <password-encoder hash='bcrypt'/>"
 				+ "        <user-service>"
@@ -80,7 +80,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void providerWithMd5PasswordEncoderWorks() throws Exception {
+	public void providerWithMd5PasswordEncoderWorks() {
 		appContext = new InMemoryXmlApplicationContext(
 				" <authentication-manager>"
 				+ " <authentication-provider>"
@@ -99,7 +99,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void providerWithShaPasswordEncoderWorks() throws Exception {
+	public void providerWithShaPasswordEncoderWorks() {
 		appContext = new InMemoryXmlApplicationContext(
 			" <authentication-manager>"
 				+ " <authentication-provider>"
@@ -116,7 +116,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void passwordIsBase64EncodedWhenBase64IsEnabled() throws Exception {
+	public void passwordIsBase64EncodedWhenBase64IsEnabled() {
 		appContext = new InMemoryXmlApplicationContext(
 				" <authentication-manager>"
 				+ " <authentication-provider>"
@@ -137,7 +137,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 
 	// SEC-1466
 	@Test(expected = BeanDefinitionParsingException.class)
-	public void exernalProviderDoesNotSupportChildElements() throws Exception {
+	public void exernalProviderDoesNotSupportChildElements() {
 		appContext = new InMemoryXmlApplicationContext(
 				"    <authentication-manager>"
 						+ "      <authentication-provider ref='aProvider'> "

@@ -102,7 +102,7 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
-	public void autoLoginReturnsNullIfNoCookiePresented() throws Exception {
+	public void autoLoginReturnsNullIfNoCookiePresented() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		Authentication result = services
@@ -113,7 +113,7 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
-	public void autoLoginIgnoresUnrelatedCookie() throws Exception {
+	public void autoLoginIgnoresUnrelatedCookie() {
 		Cookie cookie = new Cookie("unrelated_cookie", "foobar");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setCookies(cookie);
@@ -126,7 +126,7 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
-	public void autoLoginReturnsNullForExpiredCookieAndClearsCookie() throws Exception {
+	public void autoLoginReturnsNullForExpiredCookieAndClearsCookie() {
 		Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
 				generateCorrectCookieContentForToken(
 						System.currentTimeMillis() - 1000000, "someone", "password",
@@ -144,8 +144,7 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
-	public void autoLoginReturnsNullAndClearsCookieIfMissingThreeTokensInCookieValue()
-			throws Exception {
+	public void autoLoginReturnsNullAndClearsCookieIfMissingThreeTokensInCookieValue() {
 		Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, new String(
 				Base64.encodeBase64("x".getBytes())));
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -161,7 +160,7 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
-	public void autoLoginClearsNonBase64EncodedCookie() throws Exception {
+	public void autoLoginClearsNonBase64EncodedCookie() {
 		Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
 				"NOT_BASE_64_ENCODED");
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -177,8 +176,7 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
-	public void autoLoginClearsCookieIfSignatureBlocksDoesNotMatchExpectedValue()
-			throws Exception {
+	public void autoLoginClearsCookieIfSignatureBlocksDoesNotMatchExpectedValue() {
 		udsWillReturnUser();
 		Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
 				generateCorrectCookieContentForToken(
@@ -198,8 +196,7 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
-	public void autoLoginClearsCookieIfTokenDoesNotContainANumberInCookieValue()
-			throws Exception {
+	public void autoLoginClearsCookieIfTokenDoesNotContainANumberInCookieValue() {
 		Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, new String(
 				Base64.encodeBase64("username:NOT_A_NUMBER:signature".getBytes())));
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -215,7 +212,7 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
-	public void autoLoginClearsCookieIfUserNotFound() throws Exception {
+	public void autoLoginClearsCookieIfUserNotFound() {
 		udsWillThrowNotFound();
 		Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
 				generateCorrectCookieContentForToken(
@@ -250,7 +247,7 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
-	public void autoLoginWithValidTokenAndUserSucceeds() throws Exception {
+	public void autoLoginWithValidTokenAndUserSucceeds() {
 		udsWillReturnUser();
 		Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
 				generateCorrectCookieContentForToken(
@@ -349,7 +346,7 @@ public class TokenBasedRememberMeServicesTests {
 
 	// SEC-933
 	@Test
-	public void obtainPasswordReturnsNullForTokenWithNullCredentials() throws Exception {
+	public void obtainPasswordReturnsNullForTokenWithNullCredentials() {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("username",
 				null);
 		assertThat(services.retrievePassword(token)).isNull();
@@ -357,8 +354,7 @@ public class TokenBasedRememberMeServicesTests {
 
 	// SEC-949
 	@Test
-	public void negativeValidityPeriodIsSetOnCookieButExpiryTimeRemainsAtTwoWeeks()
-			throws Exception {
+	public void negativeValidityPeriodIsSetOnCookieButExpiryTimeRemainsAtTwoWeeks() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter(DEFAULT_PARAMETER, "true");
 

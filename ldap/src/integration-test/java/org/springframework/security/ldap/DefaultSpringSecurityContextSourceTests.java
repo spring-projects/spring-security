@@ -58,8 +58,7 @@ public class DefaultSpringSecurityContextSourceTests {
 	}
 
 	@Test
-	public void poolingFlagIsSetWhenAuthenticationDnMatchesManagerUserDn()
-			throws Exception {
+	public void poolingFlagIsSetWhenAuthenticationDnMatchesManagerUserDn() {
 		EnvExposingDefaultSpringSecurityContextSource ctxSrc = new EnvExposingDefaultSpringSecurityContextSource(
 				"ldap://blah:789/dc=springframework,dc=org");
 		ctxSrc.setUserDn("manager");
@@ -70,8 +69,7 @@ public class DefaultSpringSecurityContextSourceTests {
 	}
 
 	@Test
-	public void poolingFlagIsNotSetWhenAuthenticationDnIsNotManagerUserDn()
-			throws Exception {
+	public void poolingFlagIsNotSetWhenAuthenticationDnIsNotManagerUserDn() {
 		EnvExposingDefaultSpringSecurityContextSource ctxSrc = new EnvExposingDefaultSpringSecurityContextSource(
 				"ldap://blah:789/dc=springframework,dc=org");
 		ctxSrc.setUserDn("manager");
@@ -103,7 +101,7 @@ public class DefaultSpringSecurityContextSourceTests {
 	}
 
 	@Test
-	public void serverUrlWithSpacesIsSupported() throws Exception {
+	public void serverUrlWithSpacesIsSupported() {
 		DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
 				this.contextSource.getUrls()[0]
 						+ "ou=space%20cadets,dc=springframework,dc=org");
@@ -114,7 +112,7 @@ public class DefaultSpringSecurityContextSourceTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void instantiationFailsWithEmptyServerList() throws Exception {
+	public void instantiationFailsWithEmptyServerList() {
 		List<String> serverUrls = new ArrayList<>();
 		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(
 				serverUrls, "dc=springframework,dc=org");
@@ -122,7 +120,7 @@ public class DefaultSpringSecurityContextSourceTests {
 	}
 
 	@Test
-	public void instantiationSuceedsWithProperServerList() throws Exception {
+	public void instantiationSuceedsWithProperServerList() {
 		List<String> serverUrls = new ArrayList<>();
 		serverUrls.add("ldap://foo:789");
 		serverUrls.add("ldap://bar:389");
@@ -136,7 +134,7 @@ public class DefaultSpringSecurityContextSourceTests {
 
 	// SEC-2308
 	@Test
-	public void instantiationSuceedsWithEmtpyBaseDn() throws Exception {
+	public void instantiationSuceedsWithEmtpyBaseDn() {
 		String baseDn = "";
 		List<String> serverUrls = new ArrayList<>();
 		serverUrls.add("ldap://foo:789");
@@ -150,7 +148,7 @@ public class DefaultSpringSecurityContextSourceTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void instantiationFailsWithIncorrectServerUrl() throws Exception {
+	public void instantiationFailsWithIncorrectServerUrl() {
 		List<String> serverUrls = new ArrayList<>();
 		// a simple trailing slash should be ok
 		serverUrls.add("ldaps://blah:636/");

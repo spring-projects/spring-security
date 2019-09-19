@@ -44,7 +44,7 @@ public class ExpressionBasedPreInvocationAdviceTests {
 	private ExpressionBasedPreInvocationAdvice expressionBasedPreInvocationAdvice;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		expressionBasedPreInvocationAdvice = new ExpressionBasedPreInvocationAdvice();
 	}
 

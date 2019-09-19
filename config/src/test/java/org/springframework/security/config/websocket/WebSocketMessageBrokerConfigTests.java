@@ -299,7 +299,7 @@ public class WebSocketMessageBrokerConfigTests {
 	}
 
 	@Test
-	public void sendWhenNoIdMessageThenAuthenticationPrincipalResolved() throws Exception {
+	public void sendWhenNoIdMessageThenAuthenticationPrincipalResolved() {
 		this.spring.configLocations(xml("SyncConfig")).autowire();
 
 		this.clientInboundChannel.send(message("/message"));
@@ -484,7 +484,7 @@ public class WebSocketMessageBrokerConfigTests {
 		}
 
 		@Override
-		public Object resolveArgument(MethodParameter parameter, Message<?> message) throws Exception {
+		public Object resolveArgument(MethodParameter parameter, Message<?> message) {
 			return new MessageArgument("");
 		}
 	}

@@ -50,7 +50,7 @@ public class HelloWebfluxMethodApplicationTests {
 	}
 
 	@Test
-	public void messageWhenNotAuthenticated() throws Exception {
+	public void messageWhenNotAuthenticated() {
 		this.rest
 			.get()
 			.uri("/message")
@@ -61,7 +61,7 @@ public class HelloWebfluxMethodApplicationTests {
 	// --- Basic Authentication ---
 
 	@Test
-	public void messageWhenUserThenForbidden() throws Exception {
+	public void messageWhenUserThenForbidden() {
 		this.rest
 			.get()
 			.uri("/message")
@@ -71,7 +71,7 @@ public class HelloWebfluxMethodApplicationTests {
 	}
 
 	@Test
-	public void messageWhenAdminThenOk() throws Exception {
+	public void messageWhenAdminThenOk() {
 		this.rest
 			.get()
 			.uri("/message")
@@ -85,7 +85,7 @@ public class HelloWebfluxMethodApplicationTests {
 
 	@Test
 	@WithMockUser
-	public void messageWhenWithMockUserThenForbidden() throws Exception {
+	public void messageWhenWithMockUserThenForbidden() {
 		this.rest
 			.get()
 			.uri("/message")
@@ -95,7 +95,7 @@ public class HelloWebfluxMethodApplicationTests {
 
 	@Test
 	@WithMockUser(roles = "ADMIN")
-	public void messageWhenWithMockAdminThenOk() throws Exception {
+	public void messageWhenWithMockAdminThenOk() {
 		this.rest
 			.get()
 			.uri("/message")
@@ -107,7 +107,7 @@ public class HelloWebfluxMethodApplicationTests {
 	// --- mutateWith mockUser ---
 
 	@Test
-	public void messageWhenMutateWithMockUserThenForbidden() throws Exception {
+	public void messageWhenMutateWithMockUserThenForbidden() {
 		this.rest
 			.mutateWith(mockUser())
 			.get()
@@ -117,7 +117,7 @@ public class HelloWebfluxMethodApplicationTests {
 	}
 
 	@Test
-	public void messageWhenMutateWithMockAdminThenOk() throws Exception {
+	public void messageWhenMutateWithMockAdminThenOk() {
 		this.rest
 			.mutateWith(mockUser().roles("ADMIN"))
 			.get()

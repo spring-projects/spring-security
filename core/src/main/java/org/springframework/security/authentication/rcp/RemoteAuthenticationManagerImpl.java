@@ -43,7 +43,7 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(this.authenticationManager, "authenticationManager is required");
 	}
 

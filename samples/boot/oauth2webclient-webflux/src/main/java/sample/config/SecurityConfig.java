@@ -32,7 +32,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
 	@Bean
-	SecurityWebFilterChain configure(ServerHttpSecurity http) throws Exception {
+	SecurityWebFilterChain configure(ServerHttpSecurity http) {
 		http
 			.authorizeExchange(exchanges ->
 				exchanges

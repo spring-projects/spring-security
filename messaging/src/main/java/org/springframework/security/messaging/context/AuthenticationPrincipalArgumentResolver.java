@@ -105,8 +105,7 @@ public final class AuthenticationPrincipalArgumentResolver
 	 * resolveArgument(org.springframework.core.MethodParameter,
 	 * org.springframework.messaging.Message)
 	 */
-	public Object resolveArgument(MethodParameter parameter, Message<?> message)
-			throws Exception {
+	public Object resolveArgument(MethodParameter parameter, Message<?> message) {
 		Authentication authentication = SecurityContextHolder.getContext()
 				.getAuthentication();
 		if (authentication == null) {

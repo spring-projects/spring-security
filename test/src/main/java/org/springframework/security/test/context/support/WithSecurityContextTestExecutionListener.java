@@ -58,7 +58,7 @@ public class WithSecurityContextTestExecutionListener
 	 * still not found, then no {@link SecurityContext} is populated.
 	 */
 	@Override
-	public void beforeTestMethod(TestContext testContext) throws Exception {
+	public void beforeTestMethod(TestContext testContext) {
 		TestSecurityContext testSecurityContext = createTestSecurityContext(
 				testContext.getTestMethod(), testContext);
 		if (testSecurityContext == null) {
@@ -166,7 +166,7 @@ public class WithSecurityContextTestExecutionListener
 	 * {@link SecurityContextHolder} after each test method.
 	 */
 	@Override
-	public void afterTestMethod(TestContext testContext) throws Exception {
+	public void afterTestMethod(TestContext testContext) {
 		TestSecurityContextHolder.clearContext();
 	}
 

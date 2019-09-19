@@ -59,17 +59,17 @@ public class AnonymousAuthenticationFilterTests {
 
 	@Before
 	@After
-	public void clearContext() throws Exception {
+	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsMissingKey() throws Exception {
+	public void testDetectsMissingKey() {
 		new AnonymousAuthenticationFilter(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsUserAttribute() throws Exception {
+	public void testDetectsUserAttribute() {
 		new AnonymousAuthenticationFilter("qwerty", null, null);
 	}
 
@@ -124,8 +124,7 @@ public class AnonymousAuthenticationFilterTests {
 			this.expectToProceed = expectToProceed;
 		}
 
-		public void doFilter(ServletRequest request, ServletResponse response)
-				throws IOException, ServletException {
+		public void doFilter(ServletRequest request, ServletResponse response) {
 			if (!expectToProceed) {
 				fail("Did not expect filter chain to proceed");
 			}

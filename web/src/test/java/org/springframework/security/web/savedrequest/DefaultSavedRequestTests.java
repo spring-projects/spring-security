@@ -29,7 +29,7 @@ public class DefaultSavedRequestTests {
 
 	// SEC-308, SEC-315
 	@Test
-	public void headersAreCaseInsensitive() throws Exception {
+	public void headersAreCaseInsensitive() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("USER-aGenT", "Mozilla");
 		DefaultSavedRequest saved = new DefaultSavedRequest(request,
@@ -39,7 +39,7 @@ public class DefaultSavedRequestTests {
 
 	// SEC-1412
 	@Test
-	public void discardsIfNoneMatchHeader() throws Exception {
+	public void discardsIfNoneMatchHeader() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("If-None-Match", "somehashvalue");
 		DefaultSavedRequest saved = new DefaultSavedRequest(request,
@@ -49,7 +49,7 @@ public class DefaultSavedRequestTests {
 
 	// SEC-3082
 	@Test
-	public void parametersAreCaseSensitive() throws Exception {
+	public void parametersAreCaseSensitive() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter("AnotHerTest", "Hi dad");
 		request.addParameter("thisisatest", "Hi mom");

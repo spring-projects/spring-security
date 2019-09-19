@@ -139,7 +139,7 @@ public class NamespaceHttpTests {
 		static AuthenticationManager AUTHENTICATION_MANAGER;
 
 		@Override
-		protected AuthenticationManager authenticationManager() throws Exception {
+		protected AuthenticationManager authenticationManager() {
 			return AUTHENTICATION_MANAGER;
 		}
 
@@ -298,7 +298,7 @@ public class NamespaceHttpTests {
 	@EnableWebSecurity
 	static class JaasApiProvisionConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 			http
 				.addFilter(new JaasApiIntegrationFilter());
 		}
@@ -327,7 +327,7 @@ public class NamespaceHttpTests {
 	}
 
 	@Test	// http@request-matcher-ref ant
-	public void configureWhenAntPatternMatchingThenAntPathRequestMatcherUsed() throws Exception {
+	public void configureWhenAntPatternMatchingThenAntPathRequestMatcherUsed() {
 		this.spring.register(RequestMatcherAntConfig.class).autowire();
 
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
@@ -340,14 +340,14 @@ public class NamespaceHttpTests {
 	@EnableWebSecurity
 	static class RequestMatcherAntConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 			http
 				.antMatcher("/api/**");
 		}
 	}
 
 	@Test	// http@request-matcher-ref regex
-	public void configureWhenRegexPatternMatchingThenRegexRequestMatcherUsed() throws Exception {
+	public void configureWhenRegexPatternMatchingThenRegexRequestMatcherUsed() {
 		this.spring.register(RequestMatcherRegexConfig.class).autowire();
 
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
@@ -360,14 +360,14 @@ public class NamespaceHttpTests {
 	@EnableWebSecurity
 	static class RequestMatcherRegexConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 			http
 				.regexMatcher("/regex/.*");
 		}
 	}
 
 	@Test	// http@request-matcher-ref
-	public void configureWhenRequestMatcherProvidedThenRequestMatcherUsed() throws Exception {
+	public void configureWhenRequestMatcherProvidedThenRequestMatcherUsed() {
 		this.spring.register(RequestMatcherRefConfig.class).autowire();
 
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
@@ -380,7 +380,7 @@ public class NamespaceHttpTests {
 	@EnableWebSecurity
 	static class RequestMatcherRefConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 			http
 				.requestMatcher(new MyRequestMatcher());
 		}
@@ -393,7 +393,7 @@ public class NamespaceHttpTests {
 	}
 
 	@Test	// http@security=none
-	public void configureWhenIgnoredAntPatternsThenAntPathRequestMatcherUsedWithNoFilters() throws Exception {
+	public void configureWhenIgnoredAntPatternsThenAntPathRequestMatcherUsedWithNoFilters() {
 		this.spring.register(SecurityNoneConfig.class).autowire();
 
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
@@ -415,14 +415,14 @@ public class NamespaceHttpTests {
 	static class SecurityNoneConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			web
 				.ignoring()
 					.antMatchers("/resources/**", "/public/**");
 		}
 
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 	}
 
@@ -510,7 +510,7 @@ public class NamespaceHttpTests {
 	}
 
 	@Test	// http@use-expressions=true
-	public void configureWhenUseExpressionsEnabledThenExpressionBasedSecurityMetadataSource() throws Exception {
+	public void configureWhenUseExpressionsEnabledThenExpressionBasedSecurityMetadataSource() {
 		this.spring.register(UseExpressionsConfig.class).autowire();
 
 		UseExpressionsConfig config = this.spring.getContext().getBean(UseExpressionsConfig.class);
@@ -545,7 +545,7 @@ public class NamespaceHttpTests {
 	}
 
 	@Test	// http@use-expressions=false
-	public void configureWhenUseExpressionsDisabledThenDefaultSecurityMetadataSource() throws Exception {
+	public void configureWhenUseExpressionsDisabledThenDefaultSecurityMetadataSource() {
 		this.spring.register(DisableUseExpressionsConfig.class).autowire();
 
 		DisableUseExpressionsConfig config = this.spring.getContext().getBean(DisableUseExpressionsConfig.class);

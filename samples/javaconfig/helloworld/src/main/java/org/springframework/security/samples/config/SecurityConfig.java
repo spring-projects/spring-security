@@ -27,7 +27,7 @@ public class SecurityConfig {
 
 	// @formatter:off
 	@Bean
-	public UserDetailsService userDetailsService() throws Exception {
+	public UserDetailsService userDetailsService() {
 		UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER").build();
 		return new InMemoryUserDetailsManager(user);
 	}

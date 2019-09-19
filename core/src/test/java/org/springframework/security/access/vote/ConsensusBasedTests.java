@@ -35,8 +35,7 @@ import java.util.*;
 public class ConsensusBasedTests {
 
 	@Test(expected = AccessDeniedException.class)
-	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccessWithoutDefault()
-			throws Exception {
+	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccessWithoutDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 		mgr.setAllowIfEqualGrantedDeniedDecisions(false);
@@ -49,8 +48,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test
-	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccessWithDefault()
-			throws Exception {
+	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccessWithDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 
@@ -64,7 +62,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test
-	public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
+	public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 
@@ -73,7 +71,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void testOneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
+	public void testOneDenyVoteTwoAbstainVotesDeniesAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 
@@ -82,7 +80,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void testThreeAbstainVotesDeniesAccessWithDefault() throws Exception {
+	public void testThreeAbstainVotesDeniesAccessWithDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 
@@ -92,7 +90,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test
-	public void testThreeAbstainVotesGrantsAccessWithoutDefault() throws Exception {
+	public void testThreeAbstainVotesGrantsAccessWithoutDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 		mgr.setAllowIfAllAbstainDecisions(true);
@@ -102,7 +100,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test
-	public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() throws Exception {
+	public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 

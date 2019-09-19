@@ -28,7 +28,7 @@ import org.springframework.security.web.util.matcher.ELRequestMatcher;
 public class ELRequestMatcherTests {
 
 	@Test
-	public void testHasIpAddressTrue() throws Exception {
+	public void testHasIpAddressTrue() {
 		ELRequestMatcher requestMatcher = new ELRequestMatcher("hasIpAddress('1.1.1.1')");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRemoteAddr("1.1.1.1");
@@ -37,7 +37,7 @@ public class ELRequestMatcherTests {
 	}
 
 	@Test
-	public void testHasIpAddressFalse() throws Exception {
+	public void testHasIpAddressFalse() {
 		ELRequestMatcher requestMatcher = new ELRequestMatcher("hasIpAddress('1.1.1.1')");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRemoteAddr("1.1.1.2");
@@ -46,7 +46,7 @@ public class ELRequestMatcherTests {
 	}
 
 	@Test
-	public void testHasHeaderTrue() throws Exception {
+	public void testHasHeaderTrue() {
 		ELRequestMatcher requestMatcher = new ELRequestMatcher(
 				"hasHeader('User-Agent','MSIE')");
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -56,7 +56,7 @@ public class ELRequestMatcherTests {
 	}
 
 	@Test
-	public void testHasHeaderTwoEntries() throws Exception {
+	public void testHasHeaderTwoEntries() {
 		ELRequestMatcher requestMatcher = new ELRequestMatcher(
 				"hasHeader('User-Agent','MSIE') or hasHeader('User-Agent','Mozilla')");
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -72,7 +72,7 @@ public class ELRequestMatcherTests {
 	}
 
 	@Test
-	public void testHasHeaderFalse() throws Exception {
+	public void testHasHeaderFalse() {
 		ELRequestMatcher requestMatcher = new ELRequestMatcher(
 				"hasHeader('User-Agent','MSIE')");
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -82,7 +82,7 @@ public class ELRequestMatcherTests {
 	}
 
 	@Test
-	public void testHasHeaderNull() throws Exception {
+	public void testHasHeaderNull() {
 		ELRequestMatcher requestMatcher = new ELRequestMatcher(
 				"hasHeader('User-Agent','MSIE')");
 		MockHttpServletRequest request = new MockHttpServletRequest();

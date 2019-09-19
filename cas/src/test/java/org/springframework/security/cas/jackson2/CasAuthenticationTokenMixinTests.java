@@ -128,7 +128,7 @@ public class CasAuthenticationTokenMixinTests {
 	}
 
 	@Test
-	public void deserializeCasAuthenticationTest() throws IOException, JSONException {
+	public void deserializeCasAuthenticationTest() throws IOException {
 		CasAuthenticationToken token = mapper.readValue(CAS_TOKEN_JSON, CasAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(User.class);

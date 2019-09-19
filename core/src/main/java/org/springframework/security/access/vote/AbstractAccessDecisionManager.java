@@ -60,7 +60,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notEmpty(this.decisionVoters, "A list of AccessDecisionVoters is required");
 		Assert.notNull(this.messages, "A message source must be set");
 	}

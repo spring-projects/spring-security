@@ -32,7 +32,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -78,7 +77,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 
 	@Override
 	protected OAuth2AccessTokenResponse readInternal(Class<? extends OAuth2AccessTokenResponse> clazz, HttpInputMessage inputMessage)
-			throws IOException, HttpMessageNotReadableException {
+			throws HttpMessageNotReadableException {
 
 		try {
 			@SuppressWarnings("unchecked")
@@ -93,7 +92,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 
 	@Override
 	protected void writeInternal(OAuth2AccessTokenResponse tokenResponse, HttpOutputMessage outputMessage)
-			throws IOException, HttpMessageNotWritableException {
+			throws HttpMessageNotWritableException {
 
 		try {
 			Map<String, String> tokenResponseParameters = this.tokenResponseParametersConverter.convert(tokenResponse);

@@ -42,14 +42,14 @@ public class UserDetailsResourceFactoryBeanTest {
 	UserDetailsResourceFactoryBean factory = new UserDetailsResourceFactoryBean();
 
 	@Test
-	public void setResourceLoaderWhenNullThenThrowsException() throws Exception {
+	public void setResourceLoaderWhenNullThenThrowsException() {
 		assertThatThrownBy(() -> factory.setResourceLoader(null) )
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasStackTraceContaining("resourceLoader cannot be null");
 	}
 
 	@Test
-	public void getObjectWhenPropertiesResourceLocationNullThenThrowsIllegalStateException() throws Exception {
+	public void getObjectWhenPropertiesResourceLocationNullThenThrowsIllegalStateException() {
 		factory.setResourceLoader(resourceLoader);
 
 		assertThatThrownBy(() -> factory.getObject() )
@@ -74,7 +74,7 @@ public class UserDetailsResourceFactoryBeanTest {
 	}
 
 	@Test
-	public void getObjectWhenInvalidUserThenThrowsMeaningfulException() throws Exception {
+	public void getObjectWhenInvalidUserThenThrowsMeaningfulException() {
 		factory.setResource(new InMemoryResource("user=invalidFormatHere"));
 
 		assertThatThrownBy(() -> factory.getObject() )

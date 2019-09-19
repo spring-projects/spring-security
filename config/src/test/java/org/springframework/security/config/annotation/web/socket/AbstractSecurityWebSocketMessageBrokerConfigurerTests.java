@@ -134,7 +134,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	@Test
-	public void addsAuthenticationPrincipalResolver() throws InterruptedException {
+	public void addsAuthenticationPrincipalResolver() {
 		loadConfig(SockJsSecurityConfig.class);
 
 		MessageChannel messageChannel = clientInboundChannel();
@@ -146,8 +146,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	@Test
-	public void addsAuthenticationPrincipalResolverWhenNoAuthorization()
-			throws InterruptedException {
+	public void addsAuthenticationPrincipalResolverWhenNoAuthorization() {
 		loadConfig(NoInboundSecurityConfig.class);
 
 		MessageChannel messageChannel = clientInboundChannel();
@@ -159,7 +158,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	@Test
-	public void addsCsrfProtectionWhenNoAuthorization() throws InterruptedException {
+	public void addsCsrfProtectionWhenNoAuthorization() {
 		loadConfig(NoInboundSecurityConfig.class);
 
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor
@@ -177,7 +176,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	@Test
-	public void csrfProtectionForConnect() throws InterruptedException {
+	public void csrfProtectionForConnect() {
 		loadConfig(SockJsSecurityConfig.class);
 
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor
@@ -195,7 +194,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	@Test
-	public void csrfProtectionDisabledForConnect() throws InterruptedException {
+	public void csrfProtectionDisabledForConnect() {
 		loadConfig(CsrfDisabledSockJsSecurityConfig.class);
 
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor
@@ -265,8 +264,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	@Test
-	public void msmsRegistryCustomPatternMatcher()
-			throws Exception {
+	public void msmsRegistryCustomPatternMatcher() {
 		loadConfig(MsmsRegistryCustomPatternMatcherConfig.class);
 
 		clientInboundChannel().send(message("/app/a.b"));
@@ -317,8 +315,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	@Test
-	public void overrideMsmsRegistryCustomPatternMatcher()
-			throws Exception {
+	public void overrideMsmsRegistryCustomPatternMatcher() {
 		loadConfig(OverrideMsmsRegistryCustomPatternMatcherConfig.class);
 
 		clientInboundChannel().send(message("/app/a/b"));
@@ -371,8 +368,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	@Test
-	public void defaultPatternMatcher()
-			throws Exception {
+	public void defaultPatternMatcher() {
 		loadConfig(DefaultPatternMatcherConfig.class);
 
 		clientInboundChannel().send(message("/app/a/b"));
@@ -422,8 +418,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	}
 
 	@Test
-	public void customExpression()
-			throws Exception {
+	public void customExpression() {
 		loadConfig(CustomExpressionConfig.class);
 
 		clientInboundChannel().send(message("/denyRob"));
@@ -612,8 +607,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 			return parameter.getParameterType().isAssignableFrom(MyCustomArgument.class);
 		}
 
-		public Object resolveArgument(MethodParameter parameter, Message<?> message)
-				throws Exception {
+		public Object resolveArgument(MethodParameter parameter, Message<?> message) {
 			return new MyCustomArgument("");
 		}
 	}

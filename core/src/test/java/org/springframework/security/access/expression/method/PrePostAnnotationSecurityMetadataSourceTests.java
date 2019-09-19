@@ -84,8 +84,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	}
 
 	@Test
-	public void classLevelPreAnnotationIsPickedUpWhenNoMethodLevelExists()
-			throws Exception {
+	public void classLevelPreAnnotationIsPickedUpWhenNoMethodLevelExists() {
 		ConfigAttribute[] attrs = mds.getAttributes(voidImpl1).toArray(
 				new ConfigAttribute[0]);
 
@@ -167,7 +166,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	}
 
 	@Test
-	public void customAnnotationAtClassLevelIsDetected() throws Exception {
+	public void customAnnotationAtClassLevelIsDetected() {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtClassLevel).toArray(
 				new ConfigAttribute[0]);
 
@@ -175,7 +174,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	}
 
 	@Test
-	public void customAnnotationAtInterfaceLevelIsDetected() throws Exception {
+	public void customAnnotationAtInterfaceLevelIsDetected() {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtInterfaceLevel).toArray(
 				new ConfigAttribute[0]);
 
@@ -183,7 +182,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	}
 
 	@Test
-	public void customAnnotationAtMethodLevelIsDetected() throws Exception {
+	public void customAnnotationAtMethodLevelIsDetected() {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtMethodLevel).toArray(
 				new ConfigAttribute[0]);
 

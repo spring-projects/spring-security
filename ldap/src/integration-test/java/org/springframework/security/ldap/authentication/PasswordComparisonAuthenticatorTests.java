@@ -59,7 +59,7 @@ public class PasswordComparisonAuthenticatorTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		authenticator = new PasswordComparisonAuthenticator(this.contextSource);
 		authenticator.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
 		authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
@@ -106,7 +106,7 @@ public class PasswordComparisonAuthenticatorTests {
 	}
 
 	@Test
-	public void testOnlySpecifiedAttributesAreRetrieved() throws Exception {
+	public void testOnlySpecifiedAttributesAreRetrieved() {
 		authenticator.setUserAttributes(new String[] { "uid", "userPassword" });
 
 		DirContextAdapter user = (DirContextAdapter) authenticator.authenticate(bob);

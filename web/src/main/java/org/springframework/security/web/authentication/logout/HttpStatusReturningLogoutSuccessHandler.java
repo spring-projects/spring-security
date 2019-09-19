@@ -18,7 +18,6 @@ package org.springframework.security.web.authentication.logout;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -63,7 +62,7 @@ public class HttpStatusReturningLogoutSuccessHandler implements LogoutSuccessHan
 	 * . Sets the status on the {@link HttpServletResponse}.
 	 */
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException, ServletException {
+			Authentication authentication) throws IOException {
 		response.setStatus(this.httpStatusToReturn.value());
 		response.getWriter().flush();
 	}

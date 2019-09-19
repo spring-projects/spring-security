@@ -273,7 +273,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends
 	}
 
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		if (permitAll) {
 			PermitAllSupport.permitAll(http, this.logoutSuccessUrl);
 			PermitAllSupport.permitAll(http, this.getLogoutRequestMatcher(http));
@@ -328,9 +328,8 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 *
 	 * @param http the builder to use
 	 * @return the {@link LogoutFilter} to use.
-	 * @throws Exception
 	 */
-	private LogoutFilter createLogoutFilter(H http) throws Exception {
+	private LogoutFilter createLogoutFilter(H http) {
 		logoutHandlers.add(contextLogoutHandler);
 		logoutHandlers.add(postProcess(new LogoutSuccessEventPublishingLogoutHandler()));
 		LogoutHandler[] handlers = logoutHandlers

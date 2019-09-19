@@ -133,7 +133,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
 	// SEC-1236
 	@Test
-	public void mixingPatternsWithAndWithoutHttpMethodsIsSupported() throws Exception {
+	public void mixingPatternsWithAndWithoutHttpMethodsIsSupported() {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 		Collection<ConfigAttribute> userAttrs = SecurityConfig.createList("A");
 

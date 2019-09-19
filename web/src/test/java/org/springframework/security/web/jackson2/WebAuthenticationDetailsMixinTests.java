@@ -71,7 +71,7 @@ public class WebAuthenticationDetailsMixinTests extends AbstractMixinTests {
 
 	@Test
 	public void webAuthenticationDetailsDeserializeTest()
-			throws IOException, JSONException {
+			throws IOException {
 		WebAuthenticationDetails details = mapper.readValue(AUTHENTICATION_DETAILS_JSON,
 				WebAuthenticationDetails.class);
 		assertThat(details).isNotNull();

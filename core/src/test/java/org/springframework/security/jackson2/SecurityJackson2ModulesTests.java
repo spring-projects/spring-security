@@ -44,7 +44,7 @@ public class SecurityJackson2ModulesTests {
 	}
 
 	@Test
-	public void readValueWhenNotWhitelistedOrMappedThenThrowsException() throws Exception {
+	public void readValueWhenNotWhitelistedOrMappedThenThrowsException() {
 		String content = "{\"@class\":\"org.springframework.security.jackson2.SecurityJackson2ModulesTests$NotWhitelisted\",\"property\":\"bar\"}";
 		assertThatThrownBy(() -> {
 				mapper.readValue(content, Object.class);

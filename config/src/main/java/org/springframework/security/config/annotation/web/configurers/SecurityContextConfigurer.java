@@ -82,7 +82,7 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>> e
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 
 		SecurityContextRepository securityContextRepository = http
 				.getSharedObject(SecurityContextRepository.class);

@@ -60,12 +60,12 @@ public class RememberMeAuthenticationTokenMixinTests extends AbstractMixinTests 
 	// @formatter:on
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testWithNullPrincipal() throws JsonProcessingException, JSONException {
+	public void testWithNullPrincipal() {
 		new RememberMeAuthenticationToken("key", null, Collections.<GrantedAuthority>emptyList());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testWithNullKey() throws JsonProcessingException, JSONException {
+	public void testWithNullKey() {
 		new RememberMeAuthenticationToken(null, "principal", Collections.<GrantedAuthority>emptyList());
 	}
 

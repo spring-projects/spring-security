@@ -112,7 +112,7 @@ public final class AuthenticationPrincipalArgumentResolver
 	 */
 	public Object resolveArgument(MethodParameter parameter,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-			WebDataBinderFactory binderFactory) throws Exception {
+			WebDataBinderFactory binderFactory) {
 		Authentication authentication = SecurityContextHolder.getContext()
 				.getAuthentication();
 		if (authentication == null) {

@@ -621,7 +621,7 @@ public class CsrfConfigTests {
 
 	static class CsrfCreatedResultMatcher implements ResultMatcher {
 		@Override
-		public void match(MvcResult result) throws Exception {
+		public void match(MvcResult result) {
 			MockHttpServletRequest request = result.getRequest();
 			CsrfToken token = WebTestUtils.getCsrfTokenRepository(request).loadToken(request);
 			assertThat(token).isNotNull();

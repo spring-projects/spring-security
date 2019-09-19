@@ -190,7 +190,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	}
 
 	private void sendRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
-												OAuth2AuthorizationRequest authorizationRequest) throws IOException, ServletException {
+												OAuth2AuthorizationRequest authorizationRequest) throws IOException {
 
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationRequest.getGrantType())) {
 			this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
@@ -199,7 +199,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	}
 
 	private void unsuccessfulRedirectForAuthorization(HttpServletRequest request, HttpServletResponse response,
-														Exception failed) throws IOException, ServletException {
+														Exception failed) throws IOException {
 
 		if (logger.isErrorEnabled()) {
 			logger.error("Authorization Request failed: " + failed.toString(), failed);

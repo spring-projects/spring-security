@@ -18,7 +18,6 @@ package org.springframework.security.web.access.channel;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -48,5 +47,5 @@ public interface ChannelEntryPoint {
 	 *
 	 */
 	void commence(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException;
+			throws IOException;
 }

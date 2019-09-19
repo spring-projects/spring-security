@@ -90,13 +90,13 @@ public class MultiAnnotationTests {
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void preAuthorizedOnlyServiceDeniesIfRoleMissing() throws Exception {
+	public void preAuthorizedOnlyServiceDeniesIfRoleMissing() {
 		SecurityContextHolder.getContext().setAuthentication(joe_b);
 		preService.preAuthorizedMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void securedOnlyRoleAServiceDeniesIfRoleMissing() throws Exception {
+	public void securedOnlyRoleAServiceDeniesIfRoleMissing() {
 		SecurityContextHolder.getContext().setAuthentication(joe_b);
 		secService.securedMethod();
 	}

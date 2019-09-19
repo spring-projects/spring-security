@@ -94,7 +94,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.hasLength(key, "key cannot be empty or null");
 		Assert.notNull(userDetailsService, "A UserDetailsService is required");
 	}

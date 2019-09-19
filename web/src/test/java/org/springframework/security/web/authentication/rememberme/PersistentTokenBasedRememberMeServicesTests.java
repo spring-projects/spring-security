@@ -124,7 +124,7 @@ public class PersistentTokenBasedRememberMeServicesTests {
 	}
 
 	@Test
-	public void logoutClearsUsersTokenAndCookie() throws Exception {
+	public void logoutClearsUsersTokenAndCookie() {
 		Cookie cookie = new Cookie("mycookiename", "somevalue");
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setCookies(cookie);

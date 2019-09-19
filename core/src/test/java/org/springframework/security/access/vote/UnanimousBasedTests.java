@@ -73,8 +73,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccess()
-			throws Exception {
+	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 
@@ -90,7 +89,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
+	public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 
@@ -100,7 +99,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testOneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
+	public void testOneDenyVoteTwoAbstainVotesDeniesAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 
@@ -115,7 +114,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testRoleVoterPrefixObserved() throws Exception {
+	public void testRoleVoterPrefixObserved() {
 		TestingAuthenticationToken auth = makeTestTokenWithFooBarPrefix();
 		UnanimousBased mgr = makeDecisionManagerWithFooBarPrefix();
 
@@ -126,7 +125,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testThreeAbstainVotesDeniesAccessWithDefault() throws Exception {
+	public void testThreeAbstainVotesDeniesAccessWithDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 
@@ -143,7 +142,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testThreeAbstainVotesGrantsAccessWithoutDefault() throws Exception {
+	public void testThreeAbstainVotesGrantsAccessWithoutDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 		mgr.setAllowIfAllAbstainDecisions(true);
@@ -155,7 +154,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() throws Exception {
+	public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 

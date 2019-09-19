@@ -39,7 +39,7 @@ public class Sec2515Tests {
 
 	// SEC-2515
 	@Test(expected = FatalBeanException.class)
-	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanThenThrowFatalBeanException() throws Exception {
+	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanThenThrowFatalBeanException() {
 		this.spring.register(StackOverflowSecurityConfig.class).autowire();
 	}
 
@@ -54,7 +54,7 @@ public class Sec2515Tests {
 	}
 
 	@Test(expected = FatalBeanException.class)
-	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanCustomNameThenThrowFatalBeanException() throws Exception {
+	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanCustomNameThenThrowFatalBeanException() {
 		this.spring.register(CustomBeanNameStackOverflowSecurityConfig.class).autowire();
 	}
 
@@ -70,7 +70,7 @@ public class Sec2515Tests {
 
 	// SEC-2549
 	@Test
-	public void loadConfigWhenChildClassLoaderSetThenContextLoads() throws Exception {
+	public void loadConfigWhenChildClassLoaderSetThenContextLoads() {
 		CanLoadWithChildConfig.AUTHENTICATION_MANAGER = mock(AuthenticationManager.class);
 		this.spring.register(CanLoadWithChildConfig.class);
 		AnnotationConfigWebApplicationContext context = (AnnotationConfigWebApplicationContext) this.spring.getContext();
@@ -92,7 +92,7 @@ public class Sec2515Tests {
 
 	// SEC-2515
 	@Test
-	public void loadConfigWhenAuthenticationManagerConfiguredAndRegisterBeanThenContextLoads() throws Exception {
+	public void loadConfigWhenAuthenticationManagerConfiguredAndRegisterBeanThenContextLoads() {
 		this.spring.register(SecurityConfig.class).autowire();
 	}
 

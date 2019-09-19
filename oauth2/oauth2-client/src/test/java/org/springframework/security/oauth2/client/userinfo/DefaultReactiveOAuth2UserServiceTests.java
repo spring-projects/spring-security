@@ -123,7 +123,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() throws Exception {
+	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() {
 		String userInfoResponse = "{\n" +
 				"	\"id\": \"user1\",\n" +
 				"   \"first-name\": \"first\",\n" +
@@ -198,7 +198,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() throws Exception {
+	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() {
 		String userInfoResponse = "{\n" +
 				"	\"id\": \"user1\",\n" +
 				"   \"first-name\": \"first\",\n" +
@@ -215,7 +215,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
+	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() {
 		this.server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setResponseCode(500).setBody("{}"));
 
 		assertThatThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
@@ -224,7 +224,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() throws Exception {
+	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() {
 		this.clientRegistration.userInfoUri("https://invalid-provider.com/user");
 		assertThatThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
 				.isInstanceOf(AuthenticationServiceException.class);

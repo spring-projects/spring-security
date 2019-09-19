@@ -34,7 +34,7 @@ public class PortMapperImplTests {
 	// ~ Methods
 	// ========================================================================================================
 	@Test
-	public void testDefaultMappingsAreKnown() throws Exception {
+	public void testDefaultMappingsAreKnown() {
 		PortMapperImpl portMapper = new PortMapperImpl();
 		assertThat(portMapper.lookupHttpPort(443)).isEqualTo(
 				Integer.valueOf(80));
@@ -47,7 +47,7 @@ public class PortMapperImplTests {
 	}
 
 	@Test
-	public void testDetectsEmptyMap() throws Exception {
+	public void testDetectsEmptyMap() {
 		PortMapperImpl portMapper = new PortMapperImpl();
 
 		try {
@@ -60,7 +60,7 @@ public class PortMapperImplTests {
 	}
 
 	@Test
-	public void testDetectsNullMap() throws Exception {
+	public void testDetectsNullMap() {
 		PortMapperImpl portMapper = new PortMapperImpl();
 
 		try {

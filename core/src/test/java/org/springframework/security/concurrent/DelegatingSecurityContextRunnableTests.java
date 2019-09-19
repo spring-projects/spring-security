@@ -56,7 +56,7 @@ public class DelegatingSecurityContextRunnableTests {
 	private SecurityContext originalSecurityContext;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		originalSecurityContext = SecurityContextHolder.createEmptyContext();
 		doAnswer((Answer<Object>) invocation -> {
 			assertThat(SecurityContextHolder.getContext()).isEqualTo(securityContext);

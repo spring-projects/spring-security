@@ -99,7 +99,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.isTrue(
 				StringUtils.hasText(loginFormUrl)
 						&& UrlUtils.isValidRedirectUrl(loginFormUrl),
@@ -211,8 +211,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	 * Builds a URL to redirect the supplied request to HTTPS. Used to redirect the
 	 * current request to HTTPS, before doing a forward to the login page.
 	 */
-	protected String buildHttpsRedirectUrlForRequest(HttpServletRequest request)
-			throws IOException, ServletException {
+	protected String buildHttpsRedirectUrlForRequest(HttpServletRequest request) {
 
 		int serverPort = portResolver.getServerPort(request);
 		Integer httpsPort = portMapper.lookupHttpsPort(serverPort);

@@ -78,7 +78,7 @@ public class WebSecurityConfigurationTests {
 	private MockMvc mockMvc;
 
 	@Test
-	public void loadConfigWhenWebSecurityConfigurersHaveOrderThenFilterChainsOrdered() throws Exception {
+	public void loadConfigWhenWebSecurityConfigurersHaveOrderThenFilterChainsOrdered() {
 		this.spring.register(SortedWebSecurityConfigurerAdaptersConfig.class).autowire();
 
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
@@ -116,7 +116,7 @@ public class WebSecurityConfigurationTests {
 		@Order(1)
 		static class WebConfigurer1 extends WebSecurityConfigurerAdapter {
 			@Override
-			public void configure(WebSecurity web)	throws Exception {
+			public void configure(WebSecurity web) {
 				web
 					.ignoring()
 						.antMatchers("/ignore1", "/ignore2");
@@ -168,7 +168,7 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenWebSecurityConfigurersHaveSameOrderThenThrowBeanCreationException() throws Exception {
+	public void loadConfigWhenWebSecurityConfigurersHaveSameOrderThenThrowBeanCreationException() {
 		Throwable thrown = catchThrowable(() -> this.spring.register(DuplicateOrderConfig.class).autowire());
 
 		assertThat(thrown).isInstanceOf(BeanCreationException.class)
@@ -205,7 +205,7 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenWebInvocationPrivilegeEvaluatorSetThenIsRegistered() throws Exception {
+	public void loadConfigWhenWebInvocationPrivilegeEvaluatorSetThenIsRegistered() {
 		PrivilegeEvaluatorConfigurerAdapterConfig.PRIVILEGE_EVALUATOR = mock(WebInvocationPrivilegeEvaluator.class);
 
 		this.spring.register(PrivilegeEvaluatorConfigurerAdapterConfig.class).autowire();
@@ -219,13 +219,13 @@ public class WebSecurityConfigurationTests {
 		static WebInvocationPrivilegeEvaluator PRIVILEGE_EVALUATOR;
 
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			web.privilegeEvaluator(PRIVILEGE_EVALUATOR);
 		}
 	}
 
 	@Test
-	public void loadConfigWhenSecurityExpressionHandlerSetThenIsRegistered() throws Exception {
+	public void loadConfigWhenSecurityExpressionHandlerSetThenIsRegistered() {
 		WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER = mock(SecurityExpressionHandler.class);
 		when(WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER.getExpressionParser()).thenReturn(mock(ExpressionParser.class));
 
@@ -240,7 +240,7 @@ public class WebSecurityConfigurationTests {
 		static SecurityExpressionHandler EXPRESSION_HANDLER;
 
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			web.expressionHandler(EXPRESSION_HANDLER);
 		}
 
@@ -254,7 +254,7 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenDefaultSecurityExpressionHandlerThenDefaultIsRegistered() throws Exception {
+	public void loadConfigWhenDefaultSecurityExpressionHandlerThenDefaultIsRegistered() {
 		this.spring.register(WebSecurityExpressionHandlerDefaultsConfig.class).autowire();
 
 		assertThat(this.spring.getContext().getBean(SecurityExpressionHandler.class))
@@ -272,7 +272,7 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void securityExpressionHandlerWhenPermissionEvaluatorBeanThenPermissionEvaluatorUsed() throws Exception {
+	public void securityExpressionHandlerWhenPermissionEvaluatorBeanThenPermissionEvaluatorUsed() {
 		this.spring.register(WebSecurityExpressionHandlerPermissionEvaluatorBeanConfig.class).autowire();
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "notused");
 		FilterInvocation invocation = new FilterInvocation(new MockHttpServletRequest("GET", ""), new MockHttpServletResponse(), new MockFilterChain());
@@ -308,7 +308,7 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenDefaultWebInvocationPrivilegeEvaluatorThenDefaultIsRegistered() throws Exception {
+	public void loadConfigWhenDefaultWebInvocationPrivilegeEvaluatorThenDefaultIsRegistered() {
 		this.spring.register(WebInvocationPrivilegeEvaluatorDefaultsConfig.class).autowire();
 
 		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
@@ -372,7 +372,7 @@ public class WebSecurityConfigurationTests {
 
 	// SEC-2461
 	@Test
-	public void loadConfigWhenMultipleWebSecurityConfigurationThenContextLoads() throws Exception {
+	public void loadConfigWhenMultipleWebSecurityConfigurationThenContextLoads() {
 		this.spring.register(ParentConfig.class).autowire();
 
 		this.child.register(ChildConfig.class);
@@ -400,7 +400,7 @@ public class WebSecurityConfigurationTests {
 
 	// SEC-2773
 	@Test
-	public void getMethodDelegatingApplicationListenerWhenWebSecurityConfigurationThenIsStatic() throws Exception {
+	public void getMethodDelegatingApplicationListenerWhenWebSecurityConfigurationThenIsStatic() {
 		Method method = ClassUtils.getMethod(WebSecurityConfiguration.class, "delegatingApplicationListener", null);
 		assertThat(Modifier.isStatic(method.getModifiers())).isTrue();
 	}
@@ -426,7 +426,7 @@ public class WebSecurityConfigurationTests {
 		@Order(1)
 		static class WebConfigurer1 extends WebSecurityConfigurerAdapter {
 			@Override
-			public void configure(WebSecurity web)	throws Exception {
+			public void configure(WebSecurity web) {
 				web
 						.ignoring()
 						.antMatchers("/ignore1", "/ignore2");

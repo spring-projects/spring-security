@@ -59,12 +59,12 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void supportsParameterNoAnnotation() throws Exception {
+	public void supportsParameterNoAnnotation() {
 		assertThat(resolver.supportsParameter(showSecurityContextNoAnnotation())).isFalse();
 	}
 
 	@Test
-	public void supportsParameterAnnotation() throws Exception {
+	public void supportsParameterAnnotation() {
 		assertThat(resolver.supportsParameter(showSecurityContextAnnotation())).isTrue();
 	}
 
@@ -103,7 +103,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWithNullAuthentication() throws Exception {
+	public void resolveArgumentWithNullAuthentication() {
 		SecurityContext context = SecurityContextHolder.getContext();
 		Authentication authentication = context.getAuthentication();
 		context.setAuthentication(null);
@@ -159,7 +159,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentSecurityContextErrorOnInvalidTypeTrue() throws Exception {
+	public void resolveArgumentSecurityContextErrorOnInvalidTypeTrue() {
 		String principal = "invalid_type_true";
 		setAuthenticationPrincipal(principal);
 		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> resolver.resolveArgument(showSecurityContextErrorOnInvalidTypeTrue(), null,
@@ -187,7 +187,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenMisMatch() throws Exception {
+	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenMisMatch() {
 		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> resolver.resolveArgument(showCurrentSecurityWithErrorOnInvalidTypeMisMatch(), null,
 				null, null));
 	}

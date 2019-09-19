@@ -149,7 +149,7 @@ public class DefaultFiltersTests {
 	@EnableWebSecurity
 	static class FilterChainProxyBuilderIgnoringConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			// @formatter:off
 			web
 				.ignoring()

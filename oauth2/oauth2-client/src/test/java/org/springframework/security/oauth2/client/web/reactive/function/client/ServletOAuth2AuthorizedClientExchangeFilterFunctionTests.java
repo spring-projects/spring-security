@@ -642,7 +642,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	}
 
 	@Test
-	public void filterWhenRequestAttributesNotSetAndHooksNotInitThenDefaultsNotAvailable() throws Exception {
+	public void filterWhenRequestAttributesNotSetAndHooksNotInitThenDefaultsNotAvailable() {
 //		this.function.afterPropertiesSet();		// Hooks.onLastOperator() NOT initialized
 		this.function.setDefaultOAuth2AuthorizedClient(true);
 

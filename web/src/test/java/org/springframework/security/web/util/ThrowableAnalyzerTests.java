@@ -82,7 +82,7 @@ public class ThrowableAnalyzerTests {
 	private ThrowableAnalyzer nonstandardAnalyzer;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 
 		// Set up test trace
 		this.testTrace = new Throwable[7];

@@ -56,7 +56,7 @@ public class SpringSecurityLdapTemplateITests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		template = new SpringSecurityLdapTemplate(this.contextSource);
 	}
 
@@ -181,7 +181,7 @@ public class SpringSecurityLdapTemplateITests {
 	}
 
 	@Test
-	public void roleSearchWithEscapedCharacterSucceeds() throws Exception {
+	public void roleSearchWithEscapedCharacterSucceeds() {
 		String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
 
 		Set<String> values = template.searchForSingleAttributeValues("ou=groups",

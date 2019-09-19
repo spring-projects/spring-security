@@ -28,7 +28,7 @@ import javax.naming.ldap.Control;
 public class PasswordPolicyControlFactoryTests {
 
 	@Test
-	public void returnsNullForUnrecognisedOID() throws Exception {
+	public void returnsNullForUnrecognisedOID() {
 		PasswordPolicyControlFactory ctrlFactory = new PasswordPolicyControlFactory();
 		Control wrongCtrl = mock(Control.class);
 
@@ -37,7 +37,7 @@ public class PasswordPolicyControlFactoryTests {
 	}
 
 	@Test
-	public void returnsControlForCorrectOID() throws Exception {
+	public void returnsControlForCorrectOID() {
 		PasswordPolicyControlFactory ctrlFactory = new PasswordPolicyControlFactory();
 		Control control = mock(Control.class);
 

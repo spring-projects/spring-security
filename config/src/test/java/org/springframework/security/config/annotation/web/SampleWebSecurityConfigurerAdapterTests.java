@@ -210,7 +210,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	public static class SampleWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			web
 				.ignoring()
 					.antMatchers("/resources/**");
@@ -367,7 +367,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 		@Configuration
 		public static class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 			@Override
-			public void configure(WebSecurity web) throws Exception {
+			public void configure(WebSecurity web) {
 				web
 					.ignoring()
 						.antMatchers("/resources/**");

@@ -96,7 +96,7 @@ public class DefaultJaasAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateSuccess() throws Exception {
+	public void authenticateSuccess() {
 		Authentication auth = provider.authenticate(token);
 		assertThat(auth.getPrincipal()).isEqualTo(token.getPrincipal());
 		assertThat(auth.getCredentials()).isEqualTo(token.getCredentials());
@@ -194,7 +194,7 @@ public class DefaultJaasAuthenticationProviderTests {
 	}
 
 	@Test
-	public void logoutNullLoginContext() throws Exception {
+	public void logoutNullLoginContext() {
 		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
 		SecurityContext securityContext = mock(SecurityContext.class);
 		JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);

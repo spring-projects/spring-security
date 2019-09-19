@@ -45,7 +45,7 @@ public final class ProxyTicketSampleServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+			throws IOException {
 		// NOTE: The CasAuthenticationToken can also be obtained using
 		// SecurityContextHolder.getContext().getAuthentication()
 		final CasAuthenticationToken token = (CasAuthenticationToken) request

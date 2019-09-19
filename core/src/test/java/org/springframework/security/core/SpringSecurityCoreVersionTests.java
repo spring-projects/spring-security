@@ -59,7 +59,7 @@ public class SpringSecurityCoreVersionTests {
 	}
 
 	@Test
-	public void springVersionIsUpToDate() throws Exception {
+	public void springVersionIsUpToDate() {
 		// Property is set by the build script
 		String springVersion = System.getProperty("springVersion");
 
@@ -67,7 +67,7 @@ public class SpringSecurityCoreVersionTests {
 	}
 
 	@Test
-	public void serialVersionMajorAndMinorVersionMatchBuildVersion() throws Exception {
+	public void serialVersionMajorAndMinorVersionMatchBuildVersion() {
 		String version = System.getProperty("springSecurityVersion");
 
 		// Strip patch version
@@ -156,7 +156,7 @@ public class SpringSecurityCoreVersionTests {
 		verifyZeroInteractions(logger);
 	}
 
-	private String getDisableChecksProperty() throws Exception {
+	private String getDisableChecksProperty() {
 		return SpringSecurityCoreVersion.class.getName().concat(".DISABLE_CHECKS");
 	}
 

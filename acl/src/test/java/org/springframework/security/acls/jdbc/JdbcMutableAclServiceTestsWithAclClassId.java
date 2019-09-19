@@ -70,7 +70,7 @@ public class JdbcMutableAclServiceTestsWithAclClassId extends JdbcMutableAclServ
 
 	@Test
 	@Transactional
-	public void identityWithUuidIdIsSupportedByCreateAcl() throws Exception {
+	public void identityWithUuidIdIsSupportedByCreateAcl() {
 		SecurityContextHolder.getContext().setAuthentication(getAuth());
 
 		UUID id = UUID.randomUUID();

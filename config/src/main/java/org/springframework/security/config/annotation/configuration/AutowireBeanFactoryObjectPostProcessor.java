@@ -97,7 +97,7 @@ final class AutowireBeanFactoryObjectPostProcessor
 	 *
 	 * @see org.springframework.beans.factory.DisposableBean#destroy()
 	 */
-	public void destroy() throws Exception {
+	public void destroy() {
 		for (DisposableBean disposable : this.disposableBeans) {
 			try {
 				disposable.destroy();

@@ -76,7 +76,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 *
 	 * @exception LoginException if the abort fails
 	 */
-	public boolean abort() throws LoginException {
+	public boolean abort() {
 		if (authen == null) {
 			return false;
 		}
@@ -95,7 +95,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 *
 	 * @exception LoginException if the commit fails
 	 */
-	public boolean commit() throws LoginException {
+	public boolean commit() {
 		if (authen == null) {
 			return false;
 		}
@@ -171,7 +171,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 *
 	 * @exception LoginException if the logout fails
 	 */
-	public boolean logout() throws LoginException {
+	public boolean logout() {
 		if (authen == null) {
 			return false;
 		}

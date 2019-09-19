@@ -67,7 +67,7 @@ public class AnnotationSecurityAspectTests {
 	private PrePostSecured prePostSecured = new PrePostSecured();
 
 	@Before
-	public final void setUp() throws Exception {
+	public final void setUp() {
 		MockitoAnnotations.initMocks(this);
 		interceptor = new AspectJMethodSecurityInterceptor();
 		AccessDecisionVoter[] voters = new AccessDecisionVoter[] {
@@ -90,17 +90,17 @@ public class AnnotationSecurityAspectTests {
 	}
 
 	@Test
-	public void securedInterfaceMethodAllowsAllAccess() throws Exception {
+	public void securedInterfaceMethodAllowsAllAccess() {
 		secured.securedMethod();
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
-	public void securedClassMethodDeniesUnauthenticatedAccess() throws Exception {
+	public void securedClassMethodDeniesUnauthenticatedAccess() {
 		secured.securedClassMethod();
 	}
 
 	@Test
-	public void securedClassMethodAllowsAccessToRoleA() throws Exception {
+	public void securedClassMethodAllowsAccessToRoleA() {
 		SecurityContextHolder.getContext().setAuthentication(anne);
 		secured.securedClassMethod();
 	}
@@ -119,28 +119,28 @@ public class AnnotationSecurityAspectTests {
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void protectedMethodIsIntercepted() throws Exception {
+	public void protectedMethodIsIntercepted() {
 		SecurityContextHolder.getContext().setAuthentication(anne);
 
 		secured.protectedMethod();
 	}
 
 	@Test
-	public void overriddenProtectedMethodIsNotIntercepted() throws Exception {
+	public void overriddenProtectedMethodIsNotIntercepted() {
 		// AspectJ doesn't inherit annotations
 		securedSub.protectedMethod();
 	}
 
 	// SEC-1262
 	@Test(expected = AccessDeniedException.class)
-	public void denyAllPreAuthorizeDeniesAccess() throws Exception {
+	public void denyAllPreAuthorizeDeniesAccess() {
 		configureForElAnnotations();
 		SecurityContextHolder.getContext().setAuthentication(anne);
 		prePostSecured.denyAllMethod();
 	}
 
 	@Test
-	public void postFilterIsApplied() throws Exception {
+	public void postFilterIsApplied() {
 		configureForElAnnotations();
 		SecurityContextHolder.getContext().setAuthentication(anne);
 		List<String> objects = prePostSecured.postFilterMethod();

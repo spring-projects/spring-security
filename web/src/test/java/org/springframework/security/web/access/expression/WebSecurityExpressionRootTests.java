@@ -36,7 +36,7 @@ import org.springframework.security.web.access.expression.WebSecurityExpressionR
 public class WebSecurityExpressionRootTests {
 
 	@Test
-	public void ipAddressMatchesForEqualIpAddresses() throws Exception {
+	public void ipAddressMatchesForEqualIpAddresses() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/test");
 		// IPv4
@@ -53,7 +53,7 @@ public class WebSecurityExpressionRootTests {
 	}
 
 	@Test
-	public void addressesInIpRangeMatch() throws Exception {
+	public void addressesInIpRangeMatch() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/test");
 		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(

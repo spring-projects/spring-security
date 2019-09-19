@@ -331,7 +331,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * Override this method to configure {@link WebSecurity}. For example, if you wish to
 	 * ignore certain requests.
 	 */
-	public void configure(WebSecurity web) throws Exception {
+	public void configure(WebSecurity web) {
 	}
 
 	/**

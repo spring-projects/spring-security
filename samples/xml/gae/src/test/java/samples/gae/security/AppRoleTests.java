@@ -34,7 +34,7 @@ public class AppRoleTests {
 	}
 
 	@Test
-	public void bitsAreCorrect() throws Exception {
+	public void bitsAreCorrect() {
 		// If this fails, someone has modified the Enum and the Datastore is probably
 		// corrupt!
 		assertThat(ADMIN.getBit()).isZero();

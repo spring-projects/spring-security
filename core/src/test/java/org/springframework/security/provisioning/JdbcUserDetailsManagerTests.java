@@ -290,7 +290,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void deleteGroupRemovesData() throws Exception {
+	public void deleteGroupRemovesData() {
 		manager.deleteGroup("GROUP_0");
 		manager.deleteGroup("GROUP_1");
 		manager.deleteGroup("GROUP_2");
@@ -302,7 +302,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void renameGroupIsSuccessful() throws Exception {
+	public void renameGroupIsSuccessful() {
 		manager.renameGroup("GROUP_0", "GROUP_X");
 
 		assertThat(template.queryForObject("select id from groups where group_name = 'GROUP_X'",
@@ -310,7 +310,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void addingGroupUserSetsCorrectData() throws Exception {
+	public void addingGroupUserSetsCorrectData() {
 		manager.addUserToGroup("tom", "GROUP_0");
 
 		assertThat(
@@ -319,7 +319,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void removeUserFromGroupDeletesGroupMemberRow() throws Exception {
+	public void removeUserFromGroupDeletesGroupMemberRow() {
 		manager.removeUserFromGroup("jerry", "GROUP_1");
 
 		assertThat(
@@ -328,12 +328,12 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void findGroupAuthoritiesReturnsCorrectAuthorities() throws Exception {
+	public void findGroupAuthoritiesReturnsCorrectAuthorities() {
 		assertThat(AuthorityUtils.createAuthorityList("ROLE_A")).isEqualTo(manager.findGroupAuthorities("GROUP_0"));
 	}
 
 	@Test
-	public void addGroupAuthorityInsertsCorrectGroupAuthorityRow() throws Exception {
+	public void addGroupAuthorityInsertsCorrectGroupAuthorityRow() {
 		GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_X");
 		manager.addGroupAuthority("GROUP_0", auth);
 
@@ -343,7 +343,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void deleteGroupAuthorityRemovesCorrectRows() throws Exception {
+	public void deleteGroupAuthorityRemovesCorrectRows() {
 		GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_A");
 		manager.removeGroupAuthority("GROUP_0", auth);
 		assertThat(
@@ -358,8 +358,7 @@ public class JdbcUserDetailsManagerTests {
 
 	// SEC-1156
 	@Test
-	public void createUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse()
-			throws Exception {
+	public void createUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse() {
 		manager.setEnableAuthorities(false);
 		manager.createUser(joe);
 		assertThat(template.queryForList(SELECT_JOE_AUTHORITIES_SQL)).isEmpty();
@@ -367,8 +366,7 @@ public class JdbcUserDetailsManagerTests {
 
 	// SEC-1156
 	@Test
-	public void updateUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse()
-			throws Exception {
+	public void updateUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse() {
 		manager.setEnableAuthorities(false);
 		insertJoe();
 		template.execute("delete from authorities where username='joe'");
