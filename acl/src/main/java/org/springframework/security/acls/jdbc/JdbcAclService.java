@@ -153,7 +153,7 @@ public class JdbcAclService implements AclService {
 	public void setAclClassIdSupported(boolean aclClassIdSupported) {
 		this.aclClassIdSupported = aclClassIdSupported;
 		if (aclClassIdSupported) {
-			// Change the default insert if it hasn't been overridden
+			// Change the default children select if it hasn't been overridden
 			if (this.findChildrenSql.equals(DEFAULT_SELECT_ACL_WITH_PARENT_SQL)) {
 				this.findChildrenSql = DEFAULT_SELECT_ACL_WITH_PARENT_SQL_WITH_CLASS_ID_TYPE;
 			} else {
