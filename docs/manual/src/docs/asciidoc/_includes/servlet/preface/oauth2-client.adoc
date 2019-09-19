@@ -285,6 +285,54 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientManager` `@Bean` in the `ApplicationContext`.
 However, the application may choose to override and register a custom `OAuth2AuthorizedClientManager` `@Bean`.
 
+The `DefaultOAuth2AuthorizedClientManager` is also associated with a `contextAttributesMapper` of type `Function<OAuth2AuthorizeRequest, Map<String, Object>>`, which is responsible for mapping attribute(s) from the `OAuth2AuthorizeRequest` to a `Map` of attributes to be associated to the `OAuth2AuthorizationContext`.
+This can be useful when you need to supply an `OAuth2AuthorizedClientProvider` with required (supported) attribute(s), eg. the `PasswordOAuth2AuthorizedClientProvider` requires the resource owner's `username` and `password` to be available in `OAuth2AuthorizationContext.getAttributes()`.
+
+The following code shows an example of the `contextAttributesMapper`:
+
+[source,java]
+----
+@Bean
+public OAuth2AuthorizedClientManager authorizedClientManager(
+		ClientRegistrationRepository clientRegistrationRepository,
+		OAuth2AuthorizedClientRepository authorizedClientRepository) {
+
+	OAuth2AuthorizedClientProvider authorizedClientProvider =
+			OAuth2AuthorizedClientProviderBuilder.builder()
+					.password()
+					.refreshToken()
+					.build();
+
+	DefaultOAuth2AuthorizedClientManager authorizedClientManager =
+			new DefaultOAuth2AuthorizedClientManager(
+					clientRegistrationRepository, authorizedClientRepository);
+	authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+	// Assuming the `username` and `password` are supplied as `HttpServletRequest` parameters,
+	// map the `HttpServletRequest` parameters to `OAuth2AuthorizationContext.getAttributes()`
+	authorizedClientManager.setContextAttributesMapper(contextAttributesMapper());
+
+	return authorizedClientManager;
+}
+
+private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper() {
+	return authorizeRequest -> {
+		Map<String, Object> contextAttributes = Collections.emptyMap();
+		HttpServletRequest servletRequest = authorizeRequest.getAttribute(HttpServletRequest.class.getName());
+		String username = servletRequest.getParameter(OAuth2ParameterNames.USERNAME);
+		String password = servletRequest.getParameter(OAuth2ParameterNames.PASSWORD);
+		if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+			contextAttributes = new HashMap<>();
+
+			// `PasswordOAuth2AuthorizedClientProvider` requires both attributes
+			contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
+			contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
+		}
+		return contextAttributes;
+	};
+}
+----
+
 
 [[oauth2Client-auth-grant-support]]
 === Authorization Grant Support
