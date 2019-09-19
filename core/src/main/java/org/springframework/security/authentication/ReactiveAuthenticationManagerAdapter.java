@@ -34,7 +34,7 @@ import reactor.core.scheduler.Schedulers;
 public class ReactiveAuthenticationManagerAdapter implements ReactiveAuthenticationManager {
 	private final AuthenticationManager authenticationManager;
 
-	private Scheduler scheduler = Schedulers.elastic();
+	private Scheduler scheduler = Schedulers.boundedElastic();
 
 	public ReactiveAuthenticationManagerAdapter(AuthenticationManager authenticationManager) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
