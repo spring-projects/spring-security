@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.Assert;
@@ -214,22 +214,21 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 	/**
 	 * Creates nonce and its hash for use in OpenID Connect Authentication Requests
 	 *
-	 * @param attributes where {@link IdTokenClaimNames#NONCE} is stored for the token request
-	 * @param additionalParameters where hash of {@link IdTokenClaimNames#NONCE} is added to the authentication request
+	 * @param attributes where {@link OidcParameterNames#NONCE} is stored for the token request
+	 * @param additionalParameters where hash of {@link OidcParameterNames#NONCE} is added to the authentication request
 	 *
 	 * @since 5.2
 	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#NonceNotes">15.5.2.  Nonce Implementation Notes</a>
 	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">3.1.3.7.  ID Token Validation</a>
 	 */
 	private void addNonceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
-		String nonce = this.stringKeyGenerator.generateKey();
-		attributes.put(IdTokenClaimNames.NONCE, nonce);
-
 		try {
+			String nonce = this.stringKeyGenerator.generateKey();
+			attributes.put(OidcParameterNames.NONCE, nonce);
+			
 			String nonceHash = createHash(nonce);
-			additionalParameters.put(IdTokenClaimNames.NONCE, nonceHash);
-		} catch (NoSuchAlgorithmException e) {
-			//
+			additionalParameters.put(OidcParameterNames.NONCE, nonceHash);
+		} catch (NoSuchAlgorithmException ignored) {
 		}
 	}
 

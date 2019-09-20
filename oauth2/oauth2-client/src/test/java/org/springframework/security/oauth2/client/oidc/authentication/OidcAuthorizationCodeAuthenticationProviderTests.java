@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -308,6 +308,37 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 		this.authenticationProvider.authenticate(new OAuth2LoginAuthenticationToken(
 				this.clientRegistration, this.authorizationExchange));
+
+		assertThat(userRequestArgCaptor.getValue().getAdditionalParameters()).containsAllEntriesOf(
+				this.accessTokenResponse.getAdditionalParameters());
+	}
+
+	// gh-4442
+	@Test
+	public void authenticateWhenTokenSuccessResponseThenAdditionalParametersAddedToUserRequestNoNonce() {
+		OAuth2AuthorizationRequest authorizationRequestNoNonce = request()
+				.scope("openid", "profile", "email")
+				.attributes(new HashMap<>())
+				.additionalParameters(new HashMap<>())
+				.build();
+		OAuth2AuthorizationExchange authorizationExchangeNoNonce = new OAuth2AuthorizationExchange(authorizationRequestNoNonce, this.authorizationResponse);
+
+		Map<String, Object> claims = new HashMap<>();
+		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
+		claims.put(IdTokenClaimNames.SUB, "subject1");
+		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
+		claims.put(IdTokenClaimNames.AZP, "client1");
+		this.setUpIdToken(claims);
+
+		OidcUser principal = mock(OidcUser.class);
+		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+		when(principal.getAuthorities()).thenAnswer(
+				(Answer<List<GrantedAuthority>>) invocation -> authorities);
+		ArgumentCaptor<OidcUserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OidcUserRequest.class);
+		when(this.userService.loadUser(userRequestArgCaptor.capture())).thenReturn(principal);
+
+		this.authenticationProvider.authenticate(new OAuth2LoginAuthenticationToken(
+				this.clientRegistration, authorizationExchangeNoNonce));
 
 		assertThat(userRequestArgCaptor.getValue().getAdditionalParameters()).containsAllEntriesOf(
 				this.accessTokenResponse.getAdditionalParameters());
