@@ -1034,7 +1034,7 @@ If not provided, it will default to `ServletRequestAttributes` using `RequestCon
 ==== Resolving an Authorized Client
 
 The `@RegisteredOAuth2AuthorizedClient` annotation provides the capability of resolving a method parameter to an argument value of type `OAuth2AuthorizedClient`.
-This is a convenient alternative compared to looking up the `OAuth2AuthorizedClient` via the `OAuth2AuthorizedClientService`.
+This is a convenient alternative compared to accessing the `OAuth2AuthorizedClient` using the `OAuth2AuthorizedClientManager` or `OAuth2AuthorizedClientService`.
 
 [source,java]
 ----
@@ -1052,13 +1052,7 @@ public class OAuth2ClientController {
 }
 ----
 
-The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2AuthorizedClientArgumentResolver` and provides the following capabilities:
-
-* An `OAuth2AccessToken` will be requested if the client has not yet been authorized.
-** `authorization_code` - triggers the authorization request redirect to initiate the flow
-** `client_credentials` - the access token is obtained directly from the Token Endpoint
-** `password` - the access token is obtained directly from the Token Endpoint
-* If the `OAuth2AccessToken` is expired, it will be renewed (or refreshed) if an `OAuth2AuthorizedClientProvider` is available to perform the authorization
+The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2AuthorizedClientArgumentResolver`, which directly uses an <<oauth2Client-authorized-manager-provider, OAuth2AuthorizedClientManager>> and therefore inherits it's capabilities.
 
 
 [[oauth2Client-webclient-servlet]]
