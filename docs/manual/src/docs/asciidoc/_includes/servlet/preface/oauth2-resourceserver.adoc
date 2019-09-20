@@ -36,15 +36,15 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://idp.example.com
+          issuer-uri: https://idp.example.com/issuer
 ----
 
-Where `https://idp.example.com` is the value contained in the `iss` claim for JWT tokens that the authorization server will issue.
+Where `https://idp.example.com/issuer` is the value contained in the `iss` claim for JWT tokens that the authorization server will issue.
 Resource Server will use this property to further self-configure, discover the authorization server's public keys, and subsequently validate incoming JWTs.
 
 [NOTE]
-To use the `issuer-uri` property, it must also be true that `https://idp.example.com/.well-known/openid-configuration` is a supported endpoint for the authorization server.
-This endpoint is referred to as a https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Provider Configuration] endpoint.
+To use the `issuer-uri` property, it must also be true that one of `https://idp.example.com/issuer/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/issuer`, or `https://idp.example.com/.well-known/oauth-authorization-server/issuer` is a supported endpoint for the authorization server.
+This endpoint is referred to as a https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Provider Configuration] endpoint or a https://tools.ietf.org/html/rfc8414#section-3[Authorization Server Metadata] endpoint.
 
 And that's it!
 
@@ -54,7 +54,7 @@ When this property and these dependencies are used, Resource Server will automat
 
 It achieves this through a deterministic startup process:
 
-1. Hit the Provider Configuration endpoint, `https://idp.example.com/.well-known/openid-configuration`, processing the response for the `jwks_url` property
+1. Hit the Provider Configuration or Authorization Server Metadata endpoint, processing the response for the `jwks_url` property
 2. Configure the validation strategy to query `jwks_url` for valid public keys
 3. Configure the validation strategy to validate each JWTs `iss` claim against `https://idp.example.com`.
 
@@ -95,7 +95,7 @@ From here, consider jumping to:
 [[oauth2resourceserver-jwt-jwkseturi]]
 === Specifying the Authorization Server JWK Set Uri Directly
 
-If the authorization server doesn't support the Provider Configuration endpoint, or if Resource Server must be able to start up independently from the authorization server, then `issuer-uri` can be exchanged for `jwk-set-uri`:
+If the authorization server doesn't support any configuration endpoints, or if Resource Server must be able to start up independently from the authorization server, then the `jwk-set-uri` can be supplied as well:
 
 [source,yaml]
 ----
@@ -104,6 +104,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
+          issuer-uri: https://idp.example.com
           jwk-set-uri: https://idp.example.com/.well-known/jwks.json
 ----
 
@@ -111,7 +112,7 @@ spring:
 The JWK Set uri is not standardized, but can typically be found in the authorization server's documentation
 
 Consequently, Resource Server will not ping the authorization server at startup.
-However, it will also no longer validate the `iss` claim in the JWT (since Resource Server no longer knows what the issuer value should be).
+We still specify the `issuer-uri` so that Resource Server still validates the `iss` claim on incoming JWTs.
 
 [NOTE]
 This property can also be supplied directly on the <<oauth2resourceserver-jwt-jwkseturi-dsl,DSL>>.
@@ -165,9 +166,12 @@ For example, the second `@Bean` Spring Boot creates is a `JwtDecoder`, which dec
 ----
 @Bean
 public JwtDecoder jwtDecoder() {
-    return JwtDecoders.fromOidcIssuerLocation(issuerUri);
+    return JwtDecoders.fromIssuerLocation(issuerUri);
 }
 ----
+
+[NOTE]
+Calling `{security-api-url}org/springframework/security/oauth2/jwt/JwtDecoders.html#fromIssuerLocation-java.lang.String-[JwtDecoders#fromIssuerLocation]` is what invokes the Provider Configuration or Authorization Server Metadata endpoint in order to derive the JWK Set Uri.
 
 If the application doesn't expose a `JwtDecoder` bean, then Spring Boot will expose the above default one.
 
@@ -512,7 +516,7 @@ Resource Server uses `JwtTimestampValidator` to verify a token's validity window
 @Bean
 JwtDecoder jwtDecoder() {
      NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)
-             JwtDecoders.fromOidcIssuerLocation(issuerUri);
+             JwtDecoders.fromIssuerLocation(issuerUri);
 
      OAuth2TokenValidator<Jwt> withClockSkew = new DelegatingOAuth2TokenValidator<>(
             new JwtTimestampValidator(Duration.ofSeconds(60)),
@@ -554,7 +558,7 @@ Then, to add into a resource server, it's a matter of specifying the `JwtDecoder
 @Bean
 JwtDecoder jwtDecoder() {
     NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)
-        JwtDecoders.fromOidcIssuerLocation(issuerUri);
+        JwtDecoders.fromIssuerLocation(issuerUri);
 
     OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator();
     OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuerUri);
