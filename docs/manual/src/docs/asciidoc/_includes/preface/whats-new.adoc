@@ -12,7 +12,7 @@ Below are the highlights of the release.
 ** `authorization_code` grant support
 ** `client_credentials` grant support
 * OAuth 2.0 Resource Server - support for {gh-samples-url}/boot/oauth2resourceserver[JWT-encoded bearer tokens]
-* Added OAuth2 <<servlet-webclient,WebClient>> integration
+* Added OAuth2 <<oauth2Client-webclient-servlet,WebClient>> integration
 * <<request-matching,HTTP Firewall>> protects against HTTP Verb Tampering and Cross-site Tracing
 * <<exception-translation-filter,ExceptionTranslationFilter>> support for selecting an `AccessDeniedHandler` by `RequestMatcher`
 * <<csrf,CSRF>> support for excluding certain requests

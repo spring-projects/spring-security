@@ -12,7 +12,7 @@ At a high-level, the core features available are:
 * https://tools.ietf.org/html/rfc6749#section-1.3.3[Resource Owner Password Credentials]
 
 .HTTP Client support
-* <<servlet-webclient, `WebClient` integration for Servlet Environments>> (for requesting protected resources)
+* <<oauth2Client-webclient-servlet, `WebClient` integration for Servlet Environments>> (for requesting protected resources)
 
 The `HttpSecurity.oauth2Client()` DSL provides a number of configuration options for customizing the core components used by OAuth 2.0 Client.
 In addition, `HttpSecurity.oauth2Client().authorizationCodeGrant()` enables the customization of the Authorization Code grant.
@@ -87,6 +87,7 @@ The following sections will go into more detail on the core components used by O
 ** <<oauth2Client-password-grant, Resource Owner Password Credentials>>
 * <<oauth2Client-additional-features>>
 ** <<oauth2Client-registered-authorized-client, Resolving an Authorized Client>>
+* <<oauth2Client-webclient-servlet>>
 
 
 [[oauth2Client-core-interface-class]]
@@ -1058,3 +1059,131 @@ The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2Authoriz
 ** `client_credentials` - the access token is obtained directly from the Token Endpoint
 ** `password` - the access token is obtained directly from the Token Endpoint
 * If the `OAuth2AccessToken` is expired, it will be renewed (or refreshed) if an `OAuth2AuthorizedClientProvider` is available to perform the authorization
+
+
+[[oauth2Client-webclient-servlet]]
+=== WebClient integration for Servlet Environments
+
+The OAuth 2.0 Client support integrates with `WebClient` using an `ExchangeFilterFunction`.
+
+The `ServletOAuth2AuthorizedClientExchangeFilterFunction` provides a simple mechanism for requesting protected resources by using an `OAuth2AuthorizedClient` and including the associated `OAuth2AccessToken` as a Bearer Token.
+It directly uses an <<oauth2Client-authorized-manager-provider, OAuth2AuthorizedClientManager>> and therefore inherits the following capabilities:
+
+* An `OAuth2AccessToken` will be requested if the client has not yet been authorized.
+** `authorization_code` - triggers the Authorization Request redirect to initiate the flow
+** `client_credentials` - the access token is obtained directly from the Token Endpoint
+** `password` - the access token is obtained directly from the Token Endpoint
+* If the `OAuth2AccessToken` is expired, it will be refreshed (or renewed) if an `OAuth2AuthorizedClientProvider` is available to perform the authorization
+
+The following code shows an example of how to configure `WebClient` with OAuth 2.0 Client support:
+
+[source,java]
+----
+@Bean
+WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+	ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
+			new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
+	return WebClient.builder()
+			.apply(oauth2Client.oauth2Configuration())
+			.build();
+}
+----
+
+[NOTE]
+Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientManager` `@Bean` in the `ApplicationContext`.
+
+
+==== Providing the Authorized Client
+
+The `ServletOAuth2AuthorizedClientExchangeFilterFunction` determines the client to use (for a request) by resolving the `OAuth2AuthorizedClient` from the `ClientRequest.attributes()` (request attributes).
+
+The following code shows how to set an `OAuth2AuthorizedClient` as a request attribute:
+
+[source,java]
+----
+@GetMapping("/")
+public String index(@RegisteredOAuth2AuthorizedClient("okta") OAuth2AuthorizedClient authorizedClient) {
+	String resourceUri = ...
+
+	String body = webClient
+			.get()
+			.uri(resourceUri)
+			.attributes(oauth2AuthorizedClient(authorizedClient))   <1>
+			.retrieve()
+			.bodyToMono(String.class)
+			.block();
+
+	...
+
+	return "index";
+}
+----
+<1> `oauth2AuthorizedClient()` is a `static` method in `ServletOAuth2AuthorizedClientExchangeFilterFunction`.
+
+The following code shows how to set the `ClientRegistration.getRegistrationId()` as a request attribute:
+
+[source,java]
+----
+@GetMapping("/")
+public String index() {
+	String resourceUri = ...
+
+	String body = webClient
+			.get()
+			.uri(resourceUri)
+			.attributes(clientRegistrationId("okta"))   <1>
+			.retrieve()
+			.bodyToMono(String.class)
+			.block();
+
+	...
+
+	return "index";
+}
+----
+<1> `clientRegistrationId()` is a `static` method in `ServletOAuth2AuthorizedClientExchangeFilterFunction`.
+
+
+==== Defaulting the Authorized Client
+
+If neither `OAuth2AuthorizedClient` or `ClientRegistration.getRegistrationId()` is provided as a request attribute, the `ServletOAuth2AuthorizedClientExchangeFilterFunction` can determine the _default_ client to use depending on it's configuration.
+
+If `setDefaultOAuth2AuthorizedClient(true)` is configured and the user has authenticated using `HttpSecurity.oauth2Login()`, the `OAuth2AccessToken` associated with the current `OAuth2AuthenticationToken` is used.
+
+The following code shows the specific configuration:
+
+[source,java]
+----
+@Bean
+WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+	ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
+			new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
+	oauth2Client.setDefaultOAuth2AuthorizedClient(true);
+	return WebClient.builder()
+			.apply(oauth2Client.oauth2Configuration())
+			.build();
+}
+----
+
+[WARNING]
+It is recommended to be cautious with this feature since all HTTP requests will receive the access token.
+
+Alternatively, if `setDefaultClientRegistrationId("okta")` is configured with a valid `ClientRegistration`, the `OAuth2AccessToken` associated with the `OAuth2AuthorizedClient` is used.
+
+The following code shows the specific configuration:
+
+[source,java]
+----
+@Bean
+WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+	ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
+			new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
+	oauth2Client.setDefaultClientRegistrationId("okta");
+	return WebClient.builder()
+			.apply(oauth2Client.oauth2Configuration())
+			.build();
+}
+----
+
+[WARNING]
+It is recommended to be cautious with this feature since all HTTP requests will receive the access token.
