@@ -1150,3 +1150,79 @@ OpaqueTokenIntrospector introspector() {
 
 Thus far we have only taken a look at the most basic authentication configuration.
 Let's take a look at a few slightly more advanced options for configuring authentication.
+
+=== Bearer Token Propagation
+
+Now that you're in possession of a bearer token, it might be handy to pass that to downstream services.
+This is quite simple with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServletBearerExchangeFilterFunction.html[ServletBearerExchangeFilterFunction]`, which you can see in the following example:
+
+[source,java]
+----
+@Bean
+public WebClient rest() {
+    return WebClient.builder()
+            .filter(new ServletBearerExchangeFilterFunction())
+            .build();
+}
+----
+
+When the above `WebClient` is used to perform requests, Spring Security will look up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
+Then, it will propagate that token in the `Authorization` header.
+
+For example:
+
+[source,java]
+----
+this.rest.get()
+        .uri("https://other-service.example.com/endpoint")
+        .retrieve()
+        .bodyToMono(String.class)
+        .block()
+----
+
+Will invoke the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
+
+In places where you need to override this behavior, it's a simple matter of supplying the header yourself, like so:
+
+[source,java]
+----
+this.rest.get()
+        .uri("https://other-service.example.com/endpoint")
+        .headers(headers -> headers.setBearerAuth(overridingToken))
+        .retrieve()
+        .bodyToMono(String.class)
+        .block()
+----
+
+In this case, the filter will fall back and simply forward the request onto the rest of the web filter chain.
+
+[NOTE]
+Unlike the https://docs.spring.io/spring-security/site/docs/current-SNAPSHOT/api/org/springframework/security/oauth2/client/web/reactive/function/client/ServletOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
+To obtain this level of support, please use the OAuth 2.0 Client filter.
+
+==== `RestTemplate` support
+
+There is no dedicated support for `RestTemplate` at the moment, but you can achieve propagation quite simply with your own interceptor:
+
+[source,java]
+----
+@Bean
+RestTemplate rest() {
+	RestTemplate rest = new RestTemplate();
+	rest.getInterceptors().add((request, body, execution) -> {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null) {
+			return execution.execute(request, body);
+		}
+
+		if (!(authentication.getCredentials() instanceof AbstractOAuth2Token)) {
+			return execution.execute(request, body);
+		}
+
+		AbstractOAuth2Token token = (AbstractOAuth2Token) authentication.getCredentials();
+	    request.getHeaders().setBearerAuth(token.getTokenValue());
+	    return execution.execute(request, body);
+	});
+	return rest;
+}
+----
