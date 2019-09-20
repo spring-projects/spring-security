@@ -202,7 +202,7 @@ public class OAuth2ClientController {
 	@Autowired
 	private ClientRegistrationRepository clientRegistrationRepository;
 
-	@RequestMapping("/")
+	@GetMapping("/")
 	public String index() {
 		ClientRegistration oktaRegistration =
 			this.clientRegistrationRepository.findByRegistrationId("okta");
@@ -242,7 +242,7 @@ public class OAuth2ClientController {
     @Autowired
     private OAuth2AuthorizedClientService authorizedClientService;
 
-    @RequestMapping("/")
+    @GetMapping("/")
     public String index(Authentication authentication) {
         OAuth2AuthorizedClient authorizedClient =
             this.authorizedClientService.loadAuthorizedClient("okta", authentication.getName());
@@ -1041,7 +1041,7 @@ This is a convenient alternative compared to looking up the `OAuth2AuthorizedCli
 @Controller
 public class OAuth2ClientController {
 
-	@RequestMapping("/")
+	@GetMapping("/")
 	public String index(@RegisteredOAuth2AuthorizedClient("okta") OAuth2AuthorizedClient authorizedClient) {
 		OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
 
