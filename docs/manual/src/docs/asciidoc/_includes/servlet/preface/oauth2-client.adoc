@@ -407,6 +407,28 @@ A request with the base path `/oauth2/authorization/okta` will initiate the Auth
 The `AuthorizationCodeOAuth2AuthorizedClientProvider` is an implementation of `OAuth2AuthorizedClientProvider` for the Authorization Code grant,
 which also initiates the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectFilter`.
 
+The `DefaultOAuth2AuthorizationRequestResolver` also supports `URI` template variables for the `redirect-uri` using `UriComponentsBuilder`.
+
+The following configuration uses all the supported `URI` template variables:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            ...
+            redirect-uri: "{baseScheme}{baseHost}{basePort}{basePath}/authorized/{registrationId}"
+            ...
+----
+
+[NOTE]
+`{baseUrl}` resolves to `{baseScheme}{baseHost}{basePort}{basePath}`
+
+Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a <<appendix-proxy-server, Proxy Server>>.
+This ensures that the `X-Forwarded-*` headers are used when expanding the `redirect-uri`.
 
 ===== Customizing the Authorization Request
 
@@ -504,6 +526,20 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
 [TIP]
 `OAuth2AuthorizationRequest.Builder.build()` constructs the `OAuth2AuthorizationRequest.authorizationRequestUri`, which represents the complete Authorization Request URI including all query parameters using the `application/x-www-form-urlencoded` format.
 
+For the simple use case, where the additional request parameter is always the same for a specific provider, it can be added directly in the `authorization-uri`.
+
+For example, if the value for the request parameter `prompt` is always `consent` for the provider `okta`, than simply configure as follows:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          okta:
+            authorization-uri: https://dev-1234.oktapreview.com/oauth2/v1/authorize?prompt=consent
+----
 
 The preceding example shows the common use case of adding a custom parameter on top of the standard parameters.
 Alternatively, if your requirements are more advanced, than you can take full control in building the Authorization Request URI by simply overriding the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
