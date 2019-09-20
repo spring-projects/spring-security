@@ -58,7 +58,7 @@ public class OpenIDAuthenticationProvider
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(this.userDetailsService, "The userDetailsService must be set");
 	}
 

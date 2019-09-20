@@ -75,7 +75,7 @@ public class SecurityContextChannelInterceptorTests {
 	}
 
 	@Test
-	public void preSendCustomHeader() throws Exception {
+	public void preSendCustomHeader() {
 		String headerName = "header";
 		interceptor = new SecurityContextChannelInterceptor(headerName);
 		messageBuilder.setHeader(headerName, authentication);
@@ -87,7 +87,7 @@ public class SecurityContextChannelInterceptorTests {
 	}
 
 	@Test
-	public void preSendUserSet() throws Exception {
+	public void preSendUserSet() {
 		messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, authentication);
 
 		interceptor.preSend(messageBuilder.build(), channel);
@@ -102,7 +102,7 @@ public class SecurityContextChannelInterceptorTests {
 	}
 
 	@Test
-	public void preSendUsesCustomAnonymous() throws Exception {
+	public void preSendUsesCustomAnonymous() {
 		expectedAnonymous = new AnonymousAuthenticationToken("customKey",
 				"customAnonymous", AuthorityUtils.createAuthorityList("ROLE_CUSTOM"));
 		interceptor.setAnonymousAuthentication(expectedAnonymous);
@@ -114,7 +114,7 @@ public class SecurityContextChannelInterceptorTests {
 
 	// SEC-2845
 	@Test
-	public void preSendUserNotAuthentication() throws Exception {
+	public void preSendUserNotAuthentication() {
 		messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, principal);
 
 		interceptor.preSend(messageBuilder.build(), channel);
@@ -124,7 +124,7 @@ public class SecurityContextChannelInterceptorTests {
 
 	// SEC-2845
 	@Test
-	public void preSendUserNotSet() throws Exception {
+	public void preSendUserNotSet() {
 		interceptor.preSend(messageBuilder.build(), channel);
 
 		assertAnonymous();
@@ -132,14 +132,14 @@ public class SecurityContextChannelInterceptorTests {
 
 	// SEC-2845
 	@Test
-	public void preSendUserNotSetCustomAnonymous() throws Exception {
+	public void preSendUserNotSetCustomAnonymous() {
 		interceptor.preSend(messageBuilder.build(), channel);
 
 		assertAnonymous();
 	}
 
 	@Test
-	public void afterSendCompletion() throws Exception {
+	public void afterSendCompletion() {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		interceptor.afterSendCompletion(messageBuilder.build(), channel, true, null);
@@ -148,14 +148,14 @@ public class SecurityContextChannelInterceptorTests {
 	}
 
 	@Test
-	public void afterSendCompletionNullAuthentication() throws Exception {
+	public void afterSendCompletionNullAuthentication() {
 		interceptor.afterSendCompletion(messageBuilder.build(), channel, true, null);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
-	public void beforeHandleUserSet() throws Exception {
+	public void beforeHandleUserSet() {
 		messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, authentication);
 
 		interceptor.beforeHandle(messageBuilder.build(), channel, handler);
@@ -166,7 +166,7 @@ public class SecurityContextChannelInterceptorTests {
 
 	// SEC-2845
 	@Test
-	public void beforeHandleUserNotAuthentication() throws Exception {
+	public void beforeHandleUserNotAuthentication() {
 		messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, principal);
 
 		interceptor.beforeHandle(messageBuilder.build(), channel, handler);
@@ -176,21 +176,21 @@ public class SecurityContextChannelInterceptorTests {
 
 	// SEC-2845
 	@Test
-	public void beforeHandleUserNotSet() throws Exception {
+	public void beforeHandleUserNotSet() {
 		interceptor.beforeHandle(messageBuilder.build(), channel, handler);
 
 		assertAnonymous();
 	}
 
 	@Test
-	public void afterMessageHandledUserNotSet() throws Exception {
+	public void afterMessageHandledUserNotSet() {
 		interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
 
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
-	public void afterMessageHandled() throws Exception {
+	public void afterMessageHandled() {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
@@ -200,7 +200,7 @@ public class SecurityContextChannelInterceptorTests {
 
 	// SEC-2829
 	@Test
-	public void restoresOriginalContext() throws Exception {
+	public void restoresOriginalContext() {
 		TestingAuthenticationToken original = new TestingAuthenticationToken("original",
 				"original", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(original);
@@ -220,10 +220,9 @@ public class SecurityContextChannelInterceptorTests {
 	/**
 	 * If a user sends a websocket when processing another websocket
 	 *
-	 * @throws Exception
 	 */
 	@Test
-	public void restoresOriginalContextNestedThreeDeep() throws Exception {
+	public void restoresOriginalContextNestedThreeDeep() {
 		AnonymousAuthenticationToken anonymous = new AnonymousAuthenticationToken("key",
 				"anonymous", AuthorityUtils.createAuthorityList("ROLE_USER"));
 

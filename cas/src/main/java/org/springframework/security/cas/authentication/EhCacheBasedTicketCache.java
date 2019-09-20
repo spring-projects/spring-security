@@ -44,7 +44,7 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(cache, "cache mandatory");
 	}
 

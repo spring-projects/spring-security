@@ -16,25 +16,20 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-
-import java.time.Instant;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.Test;
-
 import reactor.core.publisher.Flux;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link ReactiveJwtAuthenticationConverter}
@@ -47,7 +42,7 @@ public class ReactiveJwtAuthenticationConverterTests {
 
 	@Test
 	public void convertWhenDefaultGrantedAuthoritiesConverterSet() {
-		Jwt jwt = this.jwt(Collections.singletonMap("scope", "message:read message:write"));
+		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
 
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
@@ -66,7 +61,7 @@ public class ReactiveJwtAuthenticationConverterTests {
 
 	@Test
 	public void convertWithOverriddenGrantedAuthoritiesConverter() {
-		Jwt jwt = this.jwt(Collections.singletonMap("scope", "message:read message:write"));
+		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
 
 		Converter<Jwt, Flux<GrantedAuthority>> grantedAuthoritiesConverter =
 				token -> Flux.just(new SimpleGrantedAuthority("blah"));
@@ -78,12 +73,5 @@ public class ReactiveJwtAuthenticationConverterTests {
 
 		assertThat(authorities).containsExactly(
 				new SimpleGrantedAuthority("blah"));
-	}
-
-	private Jwt jwt(Map<String, Object> claims) {
-		Map<String, Object> headers = new HashMap<>();
-		headers.put("alg", JwsAlgorithms.RS256);
-
-		return new Jwt("token", Instant.now(), Instant.now().plusSeconds(3600), headers, claims);
 	}
 }

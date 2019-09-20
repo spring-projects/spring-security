@@ -60,7 +60,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager,
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notEmpty(channelProcessors, "A list of ChannelProcessors is required");
 	}
 

@@ -50,7 +50,7 @@ public class NamespaceHttpFirewallTests {
 	MockMvc mvc;
 
 	@Test
-	public void requestWhenPathContainsDoubleDotsThenBehaviorMatchesNamespace() throws Exception {
+	public void requestWhenPathContainsDoubleDotsThenBehaviorMatchesNamespace() {
 		this.rule.register(HttpFirewallConfig.class).autowire();
 		assertThatCode(() -> this.mvc.perform(get("/public/../private/")))
 				.isInstanceOf(RequestRejectedException.class);
@@ -69,7 +69,7 @@ public class NamespaceHttpFirewallTests {
 	@EnableWebSecurity
 	static class CustomHttpFirewallConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			web
 				.httpFirewall(new CustomHttpFirewall());
 		}

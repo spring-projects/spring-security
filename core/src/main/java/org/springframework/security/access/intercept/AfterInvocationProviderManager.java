@@ -61,7 +61,7 @@ public class AfterInvocationProviderManager implements AfterInvocationManager,
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		checkIfValidList(this.providers);
 	}
 

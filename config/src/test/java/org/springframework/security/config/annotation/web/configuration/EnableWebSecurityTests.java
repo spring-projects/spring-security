@@ -51,7 +51,7 @@ public class EnableWebSecurityTests {
 	private MockMvc mockMvc;
 
 	@Test
-	public void configureWhenOverrideAuthenticationManagerBeanThenAuthenticationManagerBeanRegistered() throws Exception {
+	public void configureWhenOverrideAuthenticationManagerBeanThenAuthenticationManagerBeanRegistered() {
 		this.spring.register(SecurityConfig.class).autowire();
 
 		AuthenticationManager authenticationManager = this.spring.getContext().getBean(AuthenticationManager.class);
@@ -85,7 +85,7 @@ public class EnableWebSecurityTests {
 	}
 
 	@Test
-	public void loadConfigWhenChildConfigExtendsSecurityConfigThenSecurityConfigInherited() throws Exception {
+	public void loadConfigWhenChildConfigExtendsSecurityConfigThenSecurityConfigInherited() {
 		this.spring.register(ChildSecurityConfig.class).autowire();
 		this.spring.getContext().getBean("springSecurityFilterChain", DebugFilter.class);
 	}
@@ -110,7 +110,7 @@ public class EnableWebSecurityTests {
 	@EnableWebMvc
 	static class AuthenticationPrincipalConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 
 		@RestController

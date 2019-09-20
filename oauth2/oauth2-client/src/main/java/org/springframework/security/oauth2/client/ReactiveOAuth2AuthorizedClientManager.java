@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
  * <ol>
  *  <li>Authorizing (or re-authorizing) an OAuth 2.0 Client
  *  	by leveraging a {@link ReactiveOAuth2AuthorizedClientProvider}(s).</li>
- *  <li>Managing the persistence of an {@link OAuth2AuthorizedClient} between requests,
+ *  <li>Delegating the persistence of an {@link OAuth2AuthorizedClient},
  *  	typically using a {@link ReactiveOAuth2AuthorizedClientService} OR {@link ServerOAuth2AuthorizedClientRepository}.</li>
  * </ol>
  *

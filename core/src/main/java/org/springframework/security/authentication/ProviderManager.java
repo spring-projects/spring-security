@@ -115,7 +115,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		checkState();
 	}
 

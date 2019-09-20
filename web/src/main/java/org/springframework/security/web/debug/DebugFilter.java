@@ -143,7 +143,7 @@ public final class DebugFilter implements Filter {
 		return null;
 	}
 
-	public void init(FilterConfig filterConfig) throws ServletException {
+	public void init(FilterConfig filterConfig) {
 	}
 
 	public void destroy() {

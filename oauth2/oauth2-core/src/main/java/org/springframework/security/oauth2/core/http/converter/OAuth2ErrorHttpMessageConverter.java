@@ -30,7 +30,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -67,7 +66,7 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 
 	@Override
 	protected OAuth2Error readInternal(Class<? extends OAuth2Error> clazz, HttpInputMessage inputMessage)
-			throws IOException, HttpMessageNotReadableException {
+			throws HttpMessageNotReadableException {
 
 		try {
 			@SuppressWarnings("unchecked")
@@ -82,7 +81,7 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 
 	@Override
 	protected void writeInternal(OAuth2Error oauth2Error, HttpOutputMessage outputMessage)
-			throws IOException, HttpMessageNotWritableException {
+			throws HttpMessageNotWritableException {
 
 		try {
 			Map<String, String> errorParameters = this.errorParametersConverter.convert(oauth2Error);

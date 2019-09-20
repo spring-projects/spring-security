@@ -419,6 +419,10 @@ public class SecurityMockServerConfigurers {
 				WebTestClient.Builder builder,
 				@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
 				@Nullable ClientHttpConnector connector) {
+			httpHandlerBuilder.filter((exchange, chain) -> {
+				CsrfWebFilter.skipExchange(exchange);
+				return chain.filter(exchange);
+			});
 			configurer().afterConfigurerAdded(builder, httpHandlerBuilder, connector);
 		}
 

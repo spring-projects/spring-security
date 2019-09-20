@@ -18,7 +18,6 @@ package org.springframework.security.cas.web;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -65,7 +64,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.hasLength(this.loginUrl, "loginUrl must be specified");
 		Assert.notNull(this.serviceProperties, "serviceProperties must be specified");
 		Assert.notNull(this.serviceProperties.getService(),
@@ -74,8 +73,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint,
 
 	public final void commence(final HttpServletRequest servletRequest,
 			final HttpServletResponse response,
-			final AuthenticationException authenticationException) throws IOException,
-			ServletException {
+			final AuthenticationException authenticationException) throws IOException {
 
 		final String urlEncodedService = createServiceUrl(servletRequest, response);
 		final String redirectUrl = createRedirectUrl(urlEncodedService);

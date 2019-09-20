@@ -76,17 +76,17 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void supportsParameterCurrentSecurityContext() throws Exception {
+	public void supportsParameterCurrentSecurityContext() {
 		assertThat(resolver.supportsParameter(this.securityContextMethod.arg(Mono.class, SecurityContext.class))).isTrue();
 	}
 
 	@Test
-	public void supportsParameterWithAuthentication() throws Exception {
+	public void supportsParameterWithAuthentication() {
 		assertThat(resolver.supportsParameter(this.securityContextWithAuthentication.arg(Mono.class, Authentication.class))).isTrue();
 	}
 
 	@Test
-	public void resolveArgumentWithNullSecurityContext() throws Exception {
+	public void resolveArgumentWithNullSecurityContext() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("securityContext").build().arg(Mono.class, SecurityContext.class);
 		Context context = ReactiveSecurityContextHolder.withSecurityContext(Mono.empty());
 		Mono<Object> argument = resolver.resolveArgument(parameter, bindingContext, exchange);
@@ -96,7 +96,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWithSecurityContext() throws Exception {
+	public void resolveArgumentWithSecurityContext() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("securityContext").build().arg(Mono.class, SecurityContext.class);
 		Authentication auth = buildAuthenticationWithPrincipal("hello");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -107,7 +107,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWithCustomSecurityContext() throws Exception {
+	public void resolveArgumentWithCustomSecurityContext() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("customSecurityContext").build().arg(Mono.class, SecurityContext.class);
 		Authentication auth = buildAuthenticationWithPrincipal("hello");
 		Context context = ReactiveSecurityContextHolder.withSecurityContext(Mono.just(new CustomSecurityContext(auth)));
@@ -118,7 +118,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWithNullAuthentication1() throws Exception {
+	public void resolveArgumentWithNullAuthentication1() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("securityContext").build().arg(Mono.class, SecurityContext.class);
 		Authentication auth = null;
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -129,7 +129,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWithNullAuthentication2() throws Exception {
+	public void resolveArgumentWithNullAuthentication2() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("securityContextWithAuthentication").build().arg(Mono.class, Authentication.class);
 		Authentication auth = null;
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -140,7 +140,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWithAuthentication1() throws Exception {
+	public void resolveArgumentWithAuthentication1() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("securityContextWithAuthentication").build().arg(Mono.class, Authentication.class);
 		Authentication auth = buildAuthenticationWithPrincipal("authentication1");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -151,7 +151,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWithNullAuthenticationOptional1() throws Exception {
+	public void resolveArgumentWithNullAuthenticationOptional1() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("securityContextWithDepthPropOptional").build().arg(Mono.class, Object.class);
 		Authentication auth = null;
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -162,7 +162,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWithAuthenticationOptional1() throws Exception {
+	public void resolveArgumentWithAuthenticationOptional1() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("securityContextWithDepthPropOptional").build().arg(Mono.class, Object.class);
 		Authentication auth = buildAuthenticationWithPrincipal("auth_optional");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -173,7 +173,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWithNullDepthProp1() throws Exception {
+	public void resolveArgumentWithNullDepthProp1() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("securityContextWithDepthProp").build().arg(Mono.class, Object.class);
 		Authentication auth = null;
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -183,7 +183,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWithStringDepthProp() throws Exception {
+	public void resolveArgumentWithStringDepthProp() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("securityContextWithDepthStringProp").build().arg(Mono.class, String.class);
 		Authentication auth = buildAuthenticationWithPrincipal("auth_string");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -194,7 +194,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWhenErrorOnInvalidTypeImplicit() throws Exception {
+	public void resolveArgumentWhenErrorOnInvalidTypeImplicit() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenImplicit").build().arg(Mono.class, String.class);
 		Authentication auth = buildAuthenticationWithPrincipal("invalid_type_implicit");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -205,7 +205,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentErrorOnInvalidTypeWhenExplicitFalse() throws Exception {
+	public void resolveArgumentErrorOnInvalidTypeWhenExplicitFalse() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenExplicitFalse").build().arg(Mono.class, String.class);
 		Authentication auth = buildAuthenticationWithPrincipal("error_on_invalid_type_explicit_false");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -216,7 +216,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentErrorOnInvalidTypeWhenExplicitTrue() throws Exception {
+	public void resolveArgumentErrorOnInvalidTypeWhenExplicitTrue() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenExplicitTrue").build().arg(Mono.class, String.class);
 		Authentication auth = buildAuthenticationWithPrincipal("error_on_invalid_type_explicit_true");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -226,7 +226,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void metaAnnotationWhenDefaultSecurityContextThenInjectSecurityContext() throws Exception {
+	public void metaAnnotationWhenDefaultSecurityContextThenInjectSecurityContext() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("currentCustomSecurityContext").build().arg(Mono.class, SecurityContext.class);
 		Authentication auth = buildAuthenticationWithPrincipal("current_custom_security_context");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -237,7 +237,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void metaAnnotationWhenCurrentAuthenticationThenInjectAuthentication() throws Exception {
+	public void metaAnnotationWhenCurrentAuthenticationThenInjectAuthentication() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("currentAuthentication").build().arg(Mono.class, Authentication.class);
 		Authentication auth = buildAuthenticationWithPrincipal("current_authentication");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -248,7 +248,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenInjectSecurityContext() throws Exception {
+	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenInjectSecurityContext() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("currentSecurityWithErrorOnInvalidType").build().arg(Mono.class, SecurityContext.class);
 		Authentication auth = buildAuthenticationWithPrincipal("current_security_with_error_on_invalid_type");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);
@@ -259,7 +259,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 	}
 
 	@Test
-	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenMisMatch() throws Exception {
+	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenMisMatch() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("currentSecurityWithErrorOnInvalidTypeMisMatch").build().arg(Mono.class, String.class);
 		Authentication auth = buildAuthenticationWithPrincipal("current_security_with_error_on_invalid_type_mismatch");
 		Context context = ReactiveSecurityContextHolder.withAuthentication(auth);

@@ -156,7 +156,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	}
 
 	private void processAuthorizationResponse(HttpServletRequest request, HttpServletResponse response)
-		throws ServletException, IOException {
+		throws IOException {
 
 		OAuth2AuthorizationRequest authorizationRequest =
 				this.authorizationRequestRepository.removeAuthorizationRequest(request, response);

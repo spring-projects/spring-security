@@ -50,7 +50,7 @@ public class ApacheDSEmbeddedLdifTests {
 		this.ldapTemplate = new SpringSecurityLdapTemplate(createLdapContextSource());
 	}
 
-	private LdapContextSource createLdapContextSource() throws Exception {
+	private LdapContextSource createLdapContextSource() {
 		LdapContextSource ldapContextSource = new LdapContextSource();
 		ldapContextSource.setUrl("ldap://localhost:" + LDAP_PORT);
 		ldapContextSource.setBase(LDAP_ROOT);

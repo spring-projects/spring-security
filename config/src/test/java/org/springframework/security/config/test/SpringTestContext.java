@@ -35,11 +35,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +60,7 @@ public class SpringTestContext implements Closeable {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		try {
 			this.context.close();
 		} catch(Exception e) {}
@@ -104,8 +102,7 @@ public class SpringTestContext implements Closeable {
 		return addFilter(new OncePerRequestFilter() {
 			@Override
 			protected void doFilterInternal(HttpServletRequest request,
-				HttpServletResponse response, FilterChain filterChain)
-				throws ServletException, IOException {
+				HttpServletResponse response, FilterChain filterChain) {
 				response.setStatus(HttpServletResponse.SC_OK);
 			}
 		});

@@ -60,7 +60,7 @@ public class LdapUserDetailsManagerTests {
 	private SpringSecurityLdapTemplate template;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		mgr = new LdapUserDetailsManager(this.contextSource);
 		template = new SpringSecurityLdapTemplate(this.contextSource);
 		DirContextAdapter ctx = new DirContextAdapter();
@@ -91,7 +91,7 @@ public class LdapUserDetailsManagerTests {
 	}
 
 	@After
-	public void onTearDown() throws Exception {
+	public void onTearDown() {
 		// Iterator people = template.list("ou=testpeople").iterator();
 
 		// DirContext rootCtx = new DirContextAdapter(new

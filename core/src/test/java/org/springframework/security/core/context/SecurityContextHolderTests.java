@@ -33,7 +33,7 @@ public class SecurityContextHolderTests {
 	// ~ Methods
 	// ========================================================================================================
 	@Before
-	public final void setUp() throws Exception {
+	public final void setUp() {
 		SecurityContextHolder
 				.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
 	}

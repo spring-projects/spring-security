@@ -128,14 +128,14 @@ public class Argon2PasswordEncoderTests {
 	}
 
 	@Test
-	public void upgradeEncodingWhenSameEncodingThenFalse() throws Exception {
+	public void upgradeEncodingWhenSameEncodingThenFalse() {
 		String hash = encoder.encode("password");
 
 		assertThat(encoder.upgradeEncoding(hash)).isFalse();
 	}
 
 	@Test
-	public void upgradeEncodingWhenSameStandardParamsThenFalse() throws Exception {
+	public void upgradeEncodingWhenSameStandardParamsThenFalse() {
 		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder();
 
 		String hash = encoder.encode("password");
@@ -144,7 +144,7 @@ public class Argon2PasswordEncoderTests {
 	}
 
 	@Test
-	public void upgradeEncodingWhenSameCustomParamsThenFalse() throws Exception {
+	public void upgradeEncodingWhenSameCustomParamsThenFalse() {
 		Argon2PasswordEncoder oldEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
 		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
 
@@ -154,7 +154,7 @@ public class Argon2PasswordEncoderTests {
 	}
 
 	@Test
-	public void upgradeEncodingWhenHashHasLowerMemoryThenTrue() throws Exception {
+	public void upgradeEncodingWhenHashHasLowerMemoryThenTrue() {
 		Argon2PasswordEncoder oldEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
 		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder(20, 64, 4, 512, 4);
 
@@ -164,7 +164,7 @@ public class Argon2PasswordEncoderTests {
 	}
 
 	@Test
-	public void upgradeEncodingWhenHashHasLowerIterationsThenTrue() throws Exception {
+	public void upgradeEncodingWhenHashHasLowerIterationsThenTrue() {
 		Argon2PasswordEncoder oldEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
 		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 5);
 
@@ -174,7 +174,7 @@ public class Argon2PasswordEncoderTests {
 	}
 
 	@Test
-	public void upgradeEncodingWhenHashHasHigherParamsThenFalse() throws Exception {
+	public void upgradeEncodingWhenHashHasHigherParamsThenFalse() {
 		Argon2PasswordEncoder oldEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
 		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder(20, 64, 4, 128, 3);
 

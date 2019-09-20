@@ -70,7 +70,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 	}
 
 	public OpenID4JavaConsumer(ConsumerManager consumerManager,
-			AxFetchListFactory attributesToFetchFactory) throws ConsumerException {
+			AxFetchListFactory attributesToFetchFactory) {
 		this.consumerManager = consumerManager;
 		this.attributesToFetchFactory = attributesToFetchFactory;
 	}

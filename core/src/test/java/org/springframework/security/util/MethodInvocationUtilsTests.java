@@ -60,7 +60,7 @@ public class MethodInvocationUtilsTests {
 	}
 
 	@Test
-	public void createFromObjectLocatesExistingMethods() throws Exception {
+	public void createFromObjectLocatesExistingMethods() {
 		AdvisedTarget t = new AdvisedTarget();
 		// Just lie about interfaces
 		t.setInterfaces(new Class[] { Serializable.class, MethodInvocation.class,

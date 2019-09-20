@@ -66,13 +66,13 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 			"joe", "password");
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		provider = new ActiveDirectoryLdapAuthenticationProvider("mydomain.eu",
 				"ldap://192.168.1.200/");
 	}
 
 	@Test
-	public void bindPrincipalIsCreatedCorrectly() throws Exception {
+	public void bindPrincipalIsCreatedCorrectly() {
 		assertThat(provider.createBindPrincipal("joe")).isEqualTo("joe@mydomain.eu");
 		assertThat(provider.createBindPrincipal("joe@mydomain.eu")).isEqualTo("joe@mydomain.eu");
 	}
@@ -370,7 +370,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	}
 
 	@Test(expected = BadCredentialsException.class)
-	public void errorWithNoSubcodeIsHandledCleanly() throws Exception {
+	public void errorWithNoSubcodeIsHandledCleanly() {
 		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(
 				msg));
 		provider.setConvertSubErrorCodesToExceptions(true);
@@ -378,8 +378,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	}
 
 	@Test(expected = org.springframework.ldap.CommunicationException.class)
-	public void nonAuthenticationExceptionIsConvertedToSpringLdapException()
-			throws Exception {
+	public void nonAuthenticationExceptionIsConvertedToSpringLdapException() {
 		provider.contextFactory = createContextFactoryThrowing(new CommunicationException(
 				msg));
 		provider.authenticate(joe);
@@ -404,7 +403,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	}
 
 	@Test
-	public void contextEnvironmentPropertiesUsed() throws Exception {
+	public void contextEnvironmentPropertiesUsed() {
 		Hashtable<String, Object> env = new Hashtable<>();
 
 		env.put("java.naming.ldap.factory.socket", "unknown.package.NonExistingSocketFactory");
@@ -431,7 +430,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	ContextFactory createContextFactoryReturning(final DirContext ctx) {
 		return new ContextFactory() {
 			@Override
-			DirContext createContext(Hashtable<?, ?> env) throws NamingException {
+			DirContext createContext(Hashtable<?, ?> env) {
 				return ctx;
 			}
 		};

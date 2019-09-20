@@ -37,7 +37,7 @@ public class HelloWebfluxApplicationITests {
 	WebTestClient rest;
 
 	@Test
-	public void basicWhenNoCredentialsThenUnauthorized() throws Exception {
+	public void basicWhenNoCredentialsThenUnauthorized() {
 		this.rest
 			.get()
 			.uri("/")
@@ -46,7 +46,7 @@ public class HelloWebfluxApplicationITests {
 	}
 
 	@Test
-	public void basicWhenValidCredentialsThenOk() throws Exception {
+	public void basicWhenValidCredentialsThenOk() {
 		this.rest
 			.get()
 			.uri("/")
@@ -57,7 +57,7 @@ public class HelloWebfluxApplicationITests {
 	}
 
 	@Test
-	public void basicWhenInvalidCredentialsThenUnauthorized() throws Exception {
+	public void basicWhenInvalidCredentialsThenUnauthorized() {
 		this.rest
 			.get()
 			.uri("/")

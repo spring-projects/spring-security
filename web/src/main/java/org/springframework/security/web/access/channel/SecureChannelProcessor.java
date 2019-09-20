@@ -50,7 +50,7 @@ public class SecureChannelProcessor implements InitializingBean, ChannelProcesso
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.hasLength(secureKeyword, "secureKeyword required");
 		Assert.notNull(entryPoint, "entryPoint required");
 	}

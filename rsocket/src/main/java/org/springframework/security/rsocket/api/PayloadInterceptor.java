@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket;
+package org.springframework.security.rsocket.api;
 
 import reactor.core.publisher.Mono;
 

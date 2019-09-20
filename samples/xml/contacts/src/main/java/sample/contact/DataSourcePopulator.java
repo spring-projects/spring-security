@@ -63,7 +63,7 @@ public class DataSourcePopulator implements InitializingBean {
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(mutableAclService, "mutableAclService required");
 		Assert.notNull(template, "dataSource required");
 		Assert.notNull(tt, "platformTransactionManager required");

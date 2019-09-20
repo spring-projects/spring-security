@@ -102,7 +102,7 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 		this.defaultEntryPoint = defaultEntryPoint;
 	}
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notEmpty(entryPoints, "entryPoints must be specified");
 		Assert.notNull(defaultEntryPoint, "defaultEntryPoint must be specified");
 	}

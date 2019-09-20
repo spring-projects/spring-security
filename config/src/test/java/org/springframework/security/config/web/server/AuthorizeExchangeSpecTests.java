@@ -93,7 +93,7 @@ public class AuthorizeExchangeSpecTests {
 	}
 
 	@Test
-	public void antMatchersWhenPatternsInLambdaThenAnyMethod() throws Exception {
+	public void antMatchersWhenPatternsInLambdaThenAnyMethod() {
 		this.http
 			.csrf(ServerHttpSecurity.CsrfSpec::disable)
 			.authorizeExchange(exchanges ->
@@ -151,7 +151,7 @@ public class AuthorizeExchangeSpecTests {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void buildWhenMatcherDefinedWithNoAccessInLambdaThenThrowsException() throws Exception {
+	public void buildWhenMatcherDefinedWithNoAccessInLambdaThenThrowsException() {
 		this.http
 			.authorizeExchange(exchanges ->
 				exchanges

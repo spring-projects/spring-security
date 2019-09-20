@@ -65,7 +65,7 @@ public class SimpleMethodInvocation implements MethodInvocation {
 		return targetObject;
 	}
 
-	public Object proceed() throws Throwable {
+	public Object proceed() {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}
 }

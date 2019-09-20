@@ -37,7 +37,7 @@ public class BasicLookupStrategyTests extends AbstractBasicLookupStrategyTests {
 	}
 
 	@AfterClass
-	public static void dropDatabase() throws Exception {
+	public static void dropDatabase() {
 		DATABASE_HELPER.getDataSource().destroy();
 	}
 

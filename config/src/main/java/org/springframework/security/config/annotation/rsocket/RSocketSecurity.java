@@ -29,8 +29,8 @@ import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
-import org.springframework.security.rsocket.PayloadInterceptor;
-import org.springframework.security.rsocket.PayloadSocketAcceptorInterceptor;
+import org.springframework.security.rsocket.api.PayloadInterceptor;
+import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 import org.springframework.security.rsocket.authentication.AnonymousPayloadInterceptor;
 import org.springframework.security.rsocket.authentication.AuthenticationPayloadInterceptor;
 import org.springframework.security.rsocket.authentication.BearerPayloadExchangeConverter;
@@ -263,7 +263,20 @@ public class RSocketSecurity {
 			return matcher(PayloadExchangeMatchers.setup());
 		}
 
+		/**
+		 * Matches if {@link org.springframework.security.rsocket.api.PayloadExchangeType#isRequest()} is true, else
+		 * not a match
+		 * @return the Access to set up the authorization rule.
+		 */
 		public Access anyRequest() {
+			return matcher(PayloadExchangeMatchers.anyRequest());
+		}
+
+		/**
+		 * Always matches
+		 * @return the Access to set up the authorization rule.
+		 */
+		public Access anyExchange() {
 			return matcher(PayloadExchangeMatchers.anyExchange());
 		}
 

@@ -36,7 +36,7 @@ import java.util.List;
 public class AclPermissionCacheOptimizerTests {
 
 	@Test
-	public void eagerlyLoadsRequiredAcls() throws Exception {
+	public void eagerlyLoadsRequiredAcls() {
 		AclService service = mock(AclService.class);
 		AclPermissionCacheOptimizer pco = new AclPermissionCacheOptimizer(service);
 		ObjectIdentityRetrievalStrategy oidStrat = mock(ObjectIdentityRetrievalStrategy.class);

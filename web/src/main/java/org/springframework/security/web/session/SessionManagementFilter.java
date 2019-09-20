@@ -139,7 +139,7 @@ public class SessionManagementFilter extends GenericFilterBean {
 
 	/**
 	 * Sets the strategy which will be invoked instead of allowing the filter chain to
-	 * prceed, if the user agent requests an invalid session Id. If the property is not
+	 * proceed, if the user agent requests an invalid session ID. If the property is not
 	 * set, no action will be taken.
 	 *
 	 * @param invalidSessionStrategy the strategy to invoke. Typically a

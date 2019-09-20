@@ -37,7 +37,7 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper,
 	private boolean convertToUpperCase = false;
 	private boolean convertToLowerCase = false;
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.isTrue(!(convertToUpperCase && convertToLowerCase),
 				"Either convertToUpperCase or convertToLowerCase can be set to true, but not both");
 	}

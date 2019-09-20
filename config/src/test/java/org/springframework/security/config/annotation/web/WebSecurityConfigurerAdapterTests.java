@@ -110,7 +110,7 @@ public class WebSecurityConfigurerAdapterTests {
 		}
 
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 	}
 
@@ -146,7 +146,7 @@ public class WebSecurityConfigurerAdapterTests {
 		}
 
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 	}
 
@@ -237,7 +237,7 @@ public class WebSecurityConfigurerAdapterTests {
 	}
 
 	@Test
-	public void loadConfigWhenCustomContentNegotiationStrategyBeanThenOverridesDefault() throws Exception {
+	public void loadConfigWhenCustomContentNegotiationStrategyBeanThenOverridesDefault() {
 		OverrideContentNegotiationStrategySharedObjectConfig.CONTENT_NEGOTIATION_STRATEGY_BEAN = mock(ContentNegotiationStrategy.class);
 		this.spring.register(OverrideContentNegotiationStrategySharedObjectConfig.class).autowire();
 
@@ -267,7 +267,7 @@ public class WebSecurityConfigurerAdapterTests {
 	}
 
 	@Test
-	public void loadConfigWhenDefaultContentNegotiationStrategyThenHeaderContentNegotiationStrategy() throws Exception {
+	public void loadConfigWhenDefaultContentNegotiationStrategyThenHeaderContentNegotiationStrategy() {
 		this.spring.register(ContentNegotiationStrategyDefaultSharedObjectConfig.class).autowire();
 
 		ContentNegotiationStrategyDefaultSharedObjectConfig securityConfig =
@@ -289,7 +289,7 @@ public class WebSecurityConfigurerAdapterTests {
 	}
 
 	@Test
-	public void loadConfigWhenUserDetailsServiceHasCircularReferenceThenStillLoads() throws Exception {
+	public void loadConfigWhenUserDetailsServiceHasCircularReferenceThenStillLoads() {
 		this.spring.register(RequiresUserDetailsServiceConfig.class, UserDetailsServiceConfig.class).autowire();
 
 		MyFilter myFilter = this.spring.getContext().getBean(MyFilter.class);
@@ -350,7 +350,7 @@ public class WebSecurityConfigurerAdapterTests {
 
 	// SEC-2274: WebSecurityConfigurer adds ApplicationContext as a shared object
 	@Test
-	public void loadConfigWhenSharedObjectsCreatedThenApplicationContextAdded() throws Exception {
+	public void loadConfigWhenSharedObjectsCreatedThenApplicationContextAdded() {
 		this.spring.register(ApplicationContextSharedObjectConfig.class).autowire();
 
 		ApplicationContextSharedObjectConfig securityConfig =
@@ -372,7 +372,7 @@ public class WebSecurityConfigurerAdapterTests {
 	}
 
 	@Test
-	public void loadConfigWhenCustomAuthenticationTrustResolverBeanThenOverridesDefault() throws Exception {
+	public void loadConfigWhenCustomAuthenticationTrustResolverBeanThenOverridesDefault() {
 		CustomTrustResolverConfig.AUTHENTICATION_TRUST_RESOLVER_BEAN = mock(AuthenticationTrustResolver.class);
 		this.spring.register(CustomTrustResolverConfig.class).autowire();
 
@@ -402,7 +402,7 @@ public class WebSecurityConfigurerAdapterTests {
 	}
 
 	@Test
-	public void compareOrderWebSecurityConfigurerAdapterWhenLowestOrderToDefaultOrderThenGreaterThanZero() throws Exception {
+	public void compareOrderWebSecurityConfigurerAdapterWhenLowestOrderToDefaultOrderThenGreaterThanZero() {
 		AnnotationAwareOrderComparator comparator = new AnnotationAwareOrderComparator();
 		assertThat(comparator.compare(
 			new LowestPriorityWebSecurityConfig(),

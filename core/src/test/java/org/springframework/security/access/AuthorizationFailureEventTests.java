@@ -59,7 +59,7 @@ public class AuthorizationFailureEventTests {
 	}
 
 	@Test
-	public void gettersReturnCtorSuppliedData() throws Exception {
+	public void gettersReturnCtorSuppliedData() {
 		AuthorizationFailureEvent event = new AuthorizationFailureEvent(new Object(),
 				attributes, foo, exception);
 		assertThat(event.getConfigAttributes()).isSameAs(attributes);

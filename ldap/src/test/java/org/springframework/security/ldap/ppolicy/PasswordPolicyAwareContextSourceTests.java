@@ -36,7 +36,7 @@ public class PasswordPolicyAwareContextSourceTests {
 	private final LdapContext ctx = mock(LdapContext.class);
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		reset(ctx);
 		ctxSource = new PasswordPolicyAwareContextSource(
 				"ldap://blah:789/dc=springframework,dc=org") {
@@ -55,8 +55,7 @@ public class PasswordPolicyAwareContextSourceTests {
 	}
 
 	@Test
-	public void contextIsReturnedWhenNoControlsAreSetAndReconnectIsSuccessful()
-			throws Exception {
+	public void contextIsReturnedWhenNoControlsAreSetAndReconnectIsSuccessful() {
 		assertThat(ctxSource.getContext("user", "ignored")).isNotNull();
 	}
 

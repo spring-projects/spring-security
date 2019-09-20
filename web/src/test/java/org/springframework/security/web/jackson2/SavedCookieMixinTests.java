@@ -83,7 +83,7 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void deserializeSavedCookieWithList() throws IOException, JSONException {
+	public void deserializeSavedCookieWithList() throws IOException {
 		List<SavedCookie> savedCookies = (List<SavedCookie>) mapper.readValue(COOKIES_JSON, Object.class);
 		assertThat(savedCookies).isNotNull().hasSize(1);
 		assertThat(savedCookies.get(0).getName()).isEqualTo("SESSION");

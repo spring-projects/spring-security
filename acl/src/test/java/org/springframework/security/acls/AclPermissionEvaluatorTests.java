@@ -37,7 +37,7 @@ import org.springframework.security.core.Authentication;
 public class AclPermissionEvaluatorTests {
 
 	@Test
-	public void hasPermissionReturnsTrueIfAclGrantsPermission() throws Exception {
+	public void hasPermissionReturnsTrueIfAclGrantsPermission() {
 		AclService service = mock(AclService.class);
 		AclPermissionEvaluator pe = new AclPermissionEvaluator(service);
 		ObjectIdentity oid = mock(ObjectIdentity.class);

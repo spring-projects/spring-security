@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.web.concurrent;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +54,7 @@ import static org.mockito.Mockito.when;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Onur Kagan Ozcan
  */
 public class ConcurrentSessionFilterTests {
 
@@ -134,7 +136,7 @@ public class ConcurrentSessionFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void detectsMissingSessionRegistry() throws Exception {
+	public void detectsMissingSessionRegistry() {
 		new ConcurrentSessionFilter(null);
 	}
 
@@ -315,7 +317,7 @@ public class ConcurrentSessionFilterTests {
 	public void setLogoutHandlersWhenNullThenThrowsException() {
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(new SessionRegistryImpl());
 
-		filter.setLogoutHandlers(null);
+		filter.setLogoutHandlers((List<LogoutHandler>) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

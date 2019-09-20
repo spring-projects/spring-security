@@ -20,7 +20,6 @@ import org.springframework.core.io.AbstractResource;
 import org.springframework.util.Assert;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
@@ -66,7 +65,7 @@ public class InMemoryResource extends AbstractResource {
 	}
 
 	@Override
-	public InputStream getInputStream() throws IOException {
+	public InputStream getInputStream() {
 		return new ByteArrayInputStream(source);
 	}
 

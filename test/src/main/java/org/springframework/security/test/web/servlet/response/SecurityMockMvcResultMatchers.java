@@ -92,7 +92,7 @@ public final class SecurityMockMvcResultMatchers {
 		private Consumer<Authentication> assertAuthentication;
 
 		@Override
-		public void match(MvcResult result) throws Exception {
+		public void match(MvcResult result) {
 			SecurityContext context = load(result);
 
 			Authentication auth = context.getAuthentication();
@@ -252,7 +252,7 @@ public final class SecurityMockMvcResultMatchers {
 		private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
 		@Override
-		public void match(MvcResult result) throws Exception {
+		public void match(MvcResult result) {
 			SecurityContext context = load(result);
 
 			Authentication authentication = context.getAuthentication();

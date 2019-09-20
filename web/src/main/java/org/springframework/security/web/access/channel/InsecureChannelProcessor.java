@@ -50,7 +50,7 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.hasLength(insecureKeyword, "insecureKeyword required");
 		Assert.notNull(entryPoint, "entryPoint required");
 	}

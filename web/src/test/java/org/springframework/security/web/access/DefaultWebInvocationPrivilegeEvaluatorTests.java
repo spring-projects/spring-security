@@ -62,8 +62,7 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 	}
 
 	@Test
-	public void permitsAccessIfNoMatchingAttributesAndPublicInvocationsAllowed()
-			throws Exception {
+	public void permitsAccessIfNoMatchingAttributesAndPublicInvocationsAllowed() {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
 				interceptor);
 		when(ods.getAttributes(anyObject())).thenReturn(null);
@@ -72,8 +71,7 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 	}
 
 	@Test
-	public void deniesAccessIfNoMatchingAttributesAndPublicInvocationsNotAllowed()
-			throws Exception {
+	public void deniesAccessIfNoMatchingAttributesAndPublicInvocationsNotAllowed() {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
 				interceptor);
 		when(ods.getAttributes(anyObject())).thenReturn(null);
@@ -83,14 +81,14 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 	}
 
 	@Test
-	public void deniesAccessIfAuthenticationIsNull() throws Exception {
+	public void deniesAccessIfAuthenticationIsNull() {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
 				interceptor);
 		assertThat(wipe.isAllowed("/foo/index.jsp", null)).isFalse();
 	}
 
 	@Test
-	public void allowsAccessIfAccessDecisionManagerDoes() throws Exception {
+	public void allowsAccessIfAccessDecisionManagerDoes() {
 		Authentication token = new TestingAuthenticationToken("test", "Password",
 				"MOCK_INDEX");
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
@@ -100,7 +98,7 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void deniesAccessIfAccessDecisionManagerDoes() throws Exception {
+	public void deniesAccessIfAccessDecisionManagerDoes() {
 		Authentication token = new TestingAuthenticationToken("test", "Password",
 				"MOCK_INDEX");
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(

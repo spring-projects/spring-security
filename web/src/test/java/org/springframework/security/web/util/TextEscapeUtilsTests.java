@@ -32,23 +32,23 @@ public class TextEscapeUtilsTests {
 	}
 
 	@Test
-	public void nullOrEmptyStringIsHandled() throws Exception {
+	public void nullOrEmptyStringIsHandled() {
 		assertThat(TextEscapeUtils.escapeEntities("")).isEqualTo("");
 		assertThat(TextEscapeUtils.escapeEntities(null)).isNull();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void invalidLowSurrogateIsDetected() throws Exception {
+	public void invalidLowSurrogateIsDetected() {
 		TextEscapeUtils.escapeEntities("abc\uDCCCdef");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void missingLowSurrogateIsDetected() throws Exception {
+	public void missingLowSurrogateIsDetected() {
 		TextEscapeUtils.escapeEntities("abc\uD888a");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void highSurrogateAtEndOfStringIsRejected() throws Exception {
+	public void highSurrogateAtEndOfStringIsRejected() {
 		TextEscapeUtils.escapeEntities("abc\uD888");
 	}
 
@@ -56,12 +56,12 @@ public class TextEscapeUtilsTests {
 	 * Delta char: &#66560;
 	 */
 	@Test
-	public void validSurrogatePairIsAccepted() throws Exception {
+	public void validSurrogatePairIsAccepted() {
 		assertThat(TextEscapeUtils.escapeEntities("abc\uD801\uDC00a")).isEqualTo("abc&#66560;a");
 	}
 
 	@Test
-	public void undefinedSurrogatePairIsIgnored() throws Exception {
+	public void undefinedSurrogatePairIsIgnored() {
 		assertThat(TextEscapeUtils.escapeEntities("abc\uD888\uDC00a")).isEqualTo("abca");
 	}
 }

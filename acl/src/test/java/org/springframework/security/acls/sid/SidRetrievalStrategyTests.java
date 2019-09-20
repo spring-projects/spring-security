@@ -46,7 +46,7 @@ public class SidRetrievalStrategyTests {
 	// ========================================================================================================
 
 	@Test
-	public void correctSidsAreRetrieved() throws Exception {
+	public void correctSidsAreRetrieved() {
 		SidRetrievalStrategy retrStrategy = new SidRetrievalStrategyImpl();
 		List<Sid> sids = retrStrategy.getSids(authentication);
 
@@ -66,7 +66,7 @@ public class SidRetrievalStrategyTests {
 	}
 
 	@Test
-	public void roleHierarchyIsUsedWhenSet() throws Exception {
+	public void roleHierarchyIsUsedWhenSet() {
 		RoleHierarchy rh = mock(RoleHierarchy.class);
 		List rhAuthorities = AuthorityUtils.createAuthorityList("D");
 		when(rh.getReachableGrantedAuthorities(anyCollection()))

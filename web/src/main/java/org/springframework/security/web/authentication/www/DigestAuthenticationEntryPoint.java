@@ -19,7 +19,6 @@ package org.springframework.security.web.authentication.www;
 import java.io.IOException;
 import java.util.Base64;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -72,7 +71,7 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 		this.order = order;
 	}
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		if ((realmName == null) || "".equals(realmName)) {
 			throw new IllegalArgumentException("realmName must be specified");
 		}
@@ -83,7 +82,7 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	}
 
 	public void commence(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException authException) throws IOException, ServletException {
+			AuthenticationException authException) throws IOException {
 		HttpServletResponse httpResponse = response;
 
 		// compute a nonce (do not use remote IP address due to proxy farms)

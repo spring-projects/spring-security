@@ -55,7 +55,7 @@ public class NamespaceAuthenticationProviderTests {
 
 	@EnableWebSecurity
 	static class AuthenticationProviderRefConfig extends WebSecurityConfigurerAdapter {
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		protected void configure(AuthenticationManagerBuilder auth) {
 			auth
 				.authenticationProvider(authenticationProvider());
 		}

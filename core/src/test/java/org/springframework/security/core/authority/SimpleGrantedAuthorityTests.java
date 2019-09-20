@@ -30,7 +30,7 @@ import org.springframework.security.core.GrantedAuthority;
 public class SimpleGrantedAuthorityTests {
 
 	@Test
-	public void equalsBehavesAsExpected() throws Exception {
+	public void equalsBehavesAsExpected() {
 		SimpleGrantedAuthority auth1 = new SimpleGrantedAuthority("TEST");
 		assertThat(auth1).isEqualTo(auth1);
 		assertThat(new SimpleGrantedAuthority("TEST")).isEqualTo(auth1);

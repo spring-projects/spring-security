@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import javax.crypto.SecretKey;
 
-import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
@@ -465,7 +464,7 @@ public class NimbusJwtDecoderTests {
 	private static class MockJwtProcessor extends DefaultJWTProcessor<SecurityContext> {
 		@Override
 		public JWTClaimsSet process(SignedJWT signedJWT, SecurityContext context)
-				throws BadJOSEException, JOSEException {
+				throws BadJOSEException {
 
 			try {
 				return signedJWT.getJWTClaimsSet();

@@ -81,7 +81,7 @@ public aspect AnnotationSecurityAspect implements InitializingBean {
 				this.securityInterceptor = securityInterceptor;
 		}
 
-		public void afterPropertiesSet() throws Exception {
+		public void afterPropertiesSet() {
 				if (this.securityInterceptor == null) {
 						throw new IllegalArgumentException("securityInterceptor required");
 				}

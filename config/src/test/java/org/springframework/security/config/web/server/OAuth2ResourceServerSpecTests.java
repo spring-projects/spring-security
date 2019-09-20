@@ -23,9 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
-import java.time.Instant;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,7 +59,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
@@ -88,6 +85,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link org.springframework.security.config.web.server.ServerHttpSecurity.OAuth2ResourceServerSpec}
@@ -114,9 +112,7 @@ public class OAuth2ResourceServerSpecTests {
 			"  ]\n" +
 			"}\n";
 
-	private Jwt jwt = new Jwt("token", Instant.MIN, Instant.MAX,
-			Collections.singletonMap("alg", JwsAlgorithms.RS256),
-			Collections.singletonMap("sub", "user"));
+	private Jwt jwt = jwt().build();
 
 	private String clientId = "client";
 	private String clientSecret = "secret";
@@ -687,7 +683,7 @@ public class OAuth2ResourceServerSpecTests {
 	@EnableWebFluxSecurity
 	static class CustomAuthenticationManagerResolverConfig {
 		@Bean
-		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) throws Exception {
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
 				.authorizeExchange()

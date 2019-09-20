@@ -34,10 +34,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.Filter;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -227,7 +225,7 @@ public class FormLoginConfigTests {
 		public void onAuthenticationFailure(
 				HttpServletRequest request,
 				HttpServletResponse response,
-				AuthenticationException exception) throws IOException, ServletException {
+				AuthenticationException exception) {
 
 			response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 		}
@@ -236,7 +234,7 @@ public class FormLoginConfigTests {
 		public void onAuthenticationSuccess(
 				HttpServletRequest request,
 				HttpServletResponse response,
-				Authentication authentication) throws IOException, ServletException {
+				Authentication authentication) {
 
 			response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 		}

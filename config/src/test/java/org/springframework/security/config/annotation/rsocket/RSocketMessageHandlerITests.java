@@ -36,7 +36,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.rsocket.PayloadSocketAcceptorInterceptor;
+import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
+import org.springframework.security.rsocket.core.SecuritySocketAcceptorInterceptor;
 import org.springframework.security.rsocket.metadata.BasicAuthenticationEncoder;
 import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
 import org.springframework.stereotype.Controller;
@@ -47,6 +48,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -61,7 +63,7 @@ public class RSocketMessageHandlerITests {
 	RSocketMessageHandler handler;
 
 	@Autowired
-	PayloadSocketAcceptorInterceptor interceptor;
+	SecuritySocketAcceptorInterceptor interceptor;
 
 	@Autowired
 	ServerController controller;
@@ -261,7 +263,7 @@ public class RSocketMessageHandlerITests {
 					.authorizePayload(authorize -> {
 						authorize
 								.route("secure.*").authenticated()
-								.anyRequest().permitAll();
+								.anyExchange().permitAll();
 					})
 					.basicAuthentication(Customizer.withDefaults());
 			return rsocket.build();
@@ -298,7 +300,7 @@ public class RSocketMessageHandlerITests {
 		}
 
 		private synchronized List<String> awaitPayloads() throws InterruptedException {
-			this.wait();
+			this.wait(TimeUnit.SECONDS.toMillis(1));
 			return this.payloads;
 		}
 

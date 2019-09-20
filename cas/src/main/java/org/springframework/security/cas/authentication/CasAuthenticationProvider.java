@@ -77,7 +77,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider,
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(this.authenticationUserDetailsService,
 				"An authenticationUserDetailsService must be set");
 		Assert.notNull(this.ticketValidator, "A ticketValidator must be set");

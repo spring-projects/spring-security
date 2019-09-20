@@ -65,7 +65,7 @@ public class LdapUserDetailsServiceTests {
 	}
 
 	@Test
-	public void nullPopulatorConstructorReturnsEmptyAuthoritiesList() throws Exception {
+	public void nullPopulatorConstructorReturnsEmptyAuthoritiesList() {
 		DirContextAdapter userData = new DirContextAdapter(new DistinguishedName(
 				"uid=joe"));
 

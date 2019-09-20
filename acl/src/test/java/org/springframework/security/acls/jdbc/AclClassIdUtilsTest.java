@@ -151,13 +151,13 @@ public class AclClassIdUtilsTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void shouldNotAcceptNullConversionServiceInConstruction() throws SQLException {
+	public void shouldNotAcceptNullConversionServiceInConstruction() {
 		// when
 		new AclClassIdUtils(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void shouldNotAcceptNullConversionServiceInSetter() throws SQLException {
+	public void shouldNotAcceptNullConversionServiceInSetter() {
 		// when
 		aclClassIdUtils.setConversionService(null);
 	}

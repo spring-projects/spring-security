@@ -51,7 +51,7 @@ public class ExpressionBasedFilterInvocationSecurityMetadataSourceTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void invalidExpressionIsRejected() throws Exception {
+	public void invalidExpressionIsRejected() {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 		requestMap.put(AnyRequestMatcher.INSTANCE,
 				SecurityConfig.createList("hasRole('X'"));

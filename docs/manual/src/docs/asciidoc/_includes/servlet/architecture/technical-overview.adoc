@@ -5,7 +5,7 @@
 
 [[runtime-environment]]
 === Runtime Environment
-Spring Security 3.0 requires a Java 5.0 Runtime Environment or higher.
+Spring Security {spring-security-version} requires a Java 8 Runtime Environment or higher.
 As Spring Security aims to operate in a self-contained manner, there is no need to place any special configuration files into your Java Runtime Environment.
 In particular, there is no need to configure a special Java Authentication and Authorization Service (JAAS) policy file or place Spring Security into common classpath locations.
 
@@ -17,7 +17,7 @@ This design offers maximum deployment time flexibility, as you can simply copy y
 
 [[core-components]]
 === Core Components
-In Spring Security 3.0, the contents of the `spring-security-core` jar were stripped down to the bare minimum.
+As of Spring Security 3.0, the contents of the `spring-security-core` jar were stripped down to the bare minimum.
 It no longer contains any code related to web-application security, LDAP or namespace configuration.
 We'll take a look here at some of the Java types that you'll find in the core module.
 They represent the building blocks of the framework, so if you ever need to go beyond a simple namespace configuration then it's important that you understand what they are, even if you don't actually need to interact with them directly.

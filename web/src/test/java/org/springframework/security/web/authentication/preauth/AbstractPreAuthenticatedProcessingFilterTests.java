@@ -116,7 +116,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 
 	// SEC-2045
 	@Test
-	public void testAfterPropertiesSetInvokesSuper() throws Exception {
+	public void testAfterPropertiesSetInvokesSuper() {
 		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		filter.setAuthenticationManager(am);
@@ -384,8 +384,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 				grantAccess);
 	}
 
-	private static ConcretePreAuthenticatedProcessingFilter getFilter(boolean grantAccess)
-			throws Exception {
+	private static ConcretePreAuthenticatedProcessingFilter getFilter(boolean grantAccess) {
 		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
 		AuthenticationManager am = mock(AuthenticationManager.class);
 

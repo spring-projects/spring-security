@@ -18,9 +18,10 @@ package org.springframework.security.config.annotation.rsocket;
 
 import org.springframework.core.Ordered;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.rsocket.api.PayloadInterceptor;
 
 /**
- * The standard order for {@link org.springframework.security.rsocket.PayloadInterceptor} to be
+ * The standard order for {@link PayloadInterceptor} to be
  * sorted. The actual values might change, so users should use the {@link #getOrder()} method to
  * calculate the position dynamically rather than copy values.
  *

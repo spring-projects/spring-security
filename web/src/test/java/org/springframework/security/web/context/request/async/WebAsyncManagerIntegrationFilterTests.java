@@ -92,7 +92,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 				.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
 					@Override
 					public <T> void postProcess(NativeWebRequest request,
-							Callable<T> task, Object concurrentResult) throws Exception {
+							Callable<T> task, Object concurrentResult) {
 						assertThat(SecurityContextHolder.getContext()).isNotSameAs(
 								securityContext);
 					}
@@ -113,7 +113,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 				.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
 					@Override
 					public <T> void postProcess(NativeWebRequest request,
-							Callable<T> task, Object concurrentResult) throws Exception {
+							Callable<T> task, Object concurrentResult) {
 						assertThat(SecurityContextHolder.getContext()).isNotSameAs(
 								securityContext);
 					}
@@ -142,7 +142,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 
 	private class VerifyingCallable implements Callable<SecurityContext> {
 
-		public SecurityContext call() throws Exception {
+		public SecurityContext call() {
 			return SecurityContextHolder.getContext();
 		}
 

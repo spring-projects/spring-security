@@ -103,7 +103,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements
 	}
 
 	@Test(expected = AuthenticationException.class)
-	public void transactionalMethodsShouldBeSecured() throws Exception {
+	public void transactionalMethodsShouldBeSecured() {
 		transactionalTarget.doSomething();
 	}
 

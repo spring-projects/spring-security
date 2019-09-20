@@ -60,7 +60,7 @@ public class FilterSecurityInterceptorTests {
 	// ========================================================================================================
 
 	@Before
-	public final void setUp() throws Exception {
+	public final void setUp() {
 		interceptor = new FilterSecurityInterceptor();
 		am = mock(AuthenticationManager.class);
 		ods = mock(FilterInvocationSecurityMetadataSource.class);
@@ -76,7 +76,7 @@ public class FilterSecurityInterceptorTests {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
 

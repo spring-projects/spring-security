@@ -46,7 +46,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(cache, "cache mandatory");
 	}
 

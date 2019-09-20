@@ -56,7 +56,7 @@ public class BasicAuthenticationFilterTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		SecurityContextHolder.clearContext();
 		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken(
 				"rod", "koala");
@@ -74,7 +74,7 @@ public class BasicAuthenticationFilterTests {
 	}
 
 	@After
-	public void clearContext() throws Exception {
+	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
@@ -208,12 +208,12 @@ public class BasicAuthenticationFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
+	public void testStartupDetectsMissingAuthenticationEntryPoint() {
 		new BasicAuthenticationFilter(manager, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testStartupDetectsMissingAuthenticationManager() throws Exception {
+	public void testStartupDetectsMissingAuthenticationManager() {
 		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(null);
 	}
 

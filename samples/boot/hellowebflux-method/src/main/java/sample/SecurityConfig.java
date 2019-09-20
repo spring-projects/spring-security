@@ -36,7 +36,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
 	@Bean
-	SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) throws Exception {
+	SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) {
 		return http
 			// Demonstrate that method security works
 			// Best practice to use both for defense in depth

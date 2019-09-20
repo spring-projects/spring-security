@@ -15,14 +15,6 @@
  */
 package org.springframework.security.web.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -35,9 +27,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -45,6 +40,14 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Sergey Bespalov
@@ -72,7 +75,7 @@ public class AuthenticationFilterTests {
 	}
 
 	@After
-	public void clearContext() throws Exception {
+	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
@@ -244,6 +247,26 @@ public class AuthenticationFilterTests {
 
 		verifyZeroInteractions(this.authenticationConverter, this.authenticationManagerResolver, this.successHandler);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+	}
+
+	// gh-7446
+	@Test
+	public void filterWhenSuccessfulAuthenticationThenSessionIdChanges() throws Exception {
+		Authentication authentication = new TestingAuthenticationToken("test", "this", "ROLE_USER");
+		when(this.authenticationConverter.convert(any())).thenReturn(authentication);
+		when(this.authenticationManager.authenticate(any())).thenReturn(authentication);
+
+		MockHttpSession session = new MockHttpSession();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		request.setSession(session);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain chain = new MockFilterChain();
+
+		String sessionId = session.getId();
+		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManager, this.authenticationConverter);
+		filter.doFilter(request, response, chain);
+
+		assertThat(session.getId()).isNotEqualTo(sessionId);
 	}
 
 }

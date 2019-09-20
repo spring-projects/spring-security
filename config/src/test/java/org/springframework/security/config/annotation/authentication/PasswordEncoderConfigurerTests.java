@@ -60,7 +60,7 @@ public class PasswordEncoderConfigurerTests {
 		// @formatter:on
 
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 
 		@Bean

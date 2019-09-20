@@ -116,7 +116,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 	}
 
 	@Override
-	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+	public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
 		// @formatter:off
 		endpoints
 			.authenticationManager(this.authenticationManager)

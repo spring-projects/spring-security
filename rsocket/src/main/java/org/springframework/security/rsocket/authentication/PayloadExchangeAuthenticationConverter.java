@@ -17,7 +17,7 @@
 package org.springframework.security.rsocket.authentication;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadExchange;
 import reactor.core.publisher.Mono;
 
 /**

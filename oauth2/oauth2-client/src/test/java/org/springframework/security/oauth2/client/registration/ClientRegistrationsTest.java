@@ -241,10 +241,9 @@ public class ClientRegistrationsTest {
 
 	/**
 	 * We currently only support authorization_code, so verify we have a meaningful error until we add support.
-	 * @throws Exception
 	 */
 	@Test
-	public void issuerWhenGrantTypesSupportedInvalidThenException() throws Exception {
+	public void issuerWhenGrantTypesSupportedInvalidThenException() {
 		this.response.put("grant_types_supported", Arrays.asList("implicit"));
 
 		assertThatThrownBy(() -> registration(""))
@@ -253,7 +252,7 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOAuth2GrantTypesSupportedInvalidThenException() throws Exception {
+	public void issuerWhenOAuth2GrantTypesSupportedInvalidThenException() {
 		this.response.put("grant_types_supported", Arrays.asList("implicit"));
 
 		assertThatThrownBy(() -> registrationOAuth2("", null))
@@ -317,10 +316,9 @@ public class ClientRegistrationsTest {
 
 	/**
 	 * We currently only support client_secret_basic, so verify we have a meaningful error until we add support.
-	 * @throws Exception
 	 */
 	@Test
-	public void issuerWhenTokenEndpointAuthMethodsInvalidThenException() throws Exception {
+	public void issuerWhenTokenEndpointAuthMethodsInvalidThenException() {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
 
 		assertThatThrownBy(() -> registration(""))
@@ -329,7 +327,7 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void issuerWhenOAuth2TokenEndpointAuthMethodsInvalidThenException() throws Exception {
+	public void issuerWhenOAuth2TokenEndpointAuthMethodsInvalidThenException() {
 		this.response.put("token_endpoint_auth_methods_supported", Arrays.asList("tls_client_auth"));
 
 		assertThatThrownBy(() -> registrationOAuth2("", null))
@@ -395,7 +393,7 @@ public class ClientRegistrationsTest {
 
 		final Dispatcher dispatcher = new Dispatcher() {
 			@Override
-			public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+			public MockResponse dispatch(RecordedRequest request) {
 				switch(request.getPath()) {
 					case "/.well-known/oauth-authorization-server/issuer1":
 					case "/.well-known/oauth-authorization-server/":
@@ -433,7 +431,7 @@ public class ClientRegistrationsTest {
 
 		final Dispatcher dispatcher = new Dispatcher() {
 			@Override
-			public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+			public MockResponse dispatch(RecordedRequest request) {
 				switch(request.getPath()) {
 					case "/issuer1/.well-known/openid-configuration":
 					case "/.well-known/openid-configuration/":

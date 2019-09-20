@@ -23,7 +23,6 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.SessionTrackingMode;
 
 import org.springframework.context.ApplicationContext;
@@ -109,7 +108,7 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * @see org.springframework.web.WebApplicationInitializer#onStartup(javax.servlet.
 	 * ServletContext)
 	 */
-	public final void onStartup(ServletContext servletContext) throws ServletException {
+	public final void onStartup(ServletContext servletContext) {
 		beforeSpringSecurityFilterChain(servletContext);
 		if (this.configurationClasses != null) {
 			AnnotationConfigWebApplicationContext rootAppContext = new AnnotationConfigWebApplicationContext();

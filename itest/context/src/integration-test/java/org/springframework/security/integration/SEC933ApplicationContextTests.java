@@ -32,7 +32,7 @@ public class SEC933ApplicationContextTests {
 	private UserDetailsService userDetailsService;
 
 	@Test
-	public void testSimpleApplicationContextBootstrap() throws Exception {
+	public void testSimpleApplicationContextBootstrap() {
 		assertThat(userDetailsService).isNotNull();
 	}
 }

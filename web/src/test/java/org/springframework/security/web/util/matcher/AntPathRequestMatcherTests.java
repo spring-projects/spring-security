@@ -139,7 +139,7 @@ public class AntPathRequestMatcherTests {
 	}
 
 	@Test
-	public void exactMatchOnlyMatchesIdenticalPath() throws Exception {
+	public void exactMatchOnlyMatchesIdenticalPath() {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/login.html");
 		assertThat(matcher.matches(createRequest("/login.html"))).isTrue();
 		assertThat(matcher.matches(createRequest("/login.html/"))).isFalse();
@@ -147,8 +147,7 @@ public class AntPathRequestMatcherTests {
 	}
 
 	@Test
-	public void httpMethodSpecificMatchOnlyMatchesRequestsWithCorrectMethod()
-			throws Exception {
+	public void httpMethodSpecificMatchOnlyMatchesRequestsWithCorrectMethod() {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/blah", "GET");
 		MockHttpServletRequest request = createRequest("/blah");
 		request.setMethod("GET");
@@ -158,7 +157,7 @@ public class AntPathRequestMatcherTests {
 	}
 
 	@Test
-	public void caseSensitive() throws Exception {
+	public void caseSensitive() {
 		MockHttpServletRequest request = createRequest("/UPPER");
 		assertThat(new AntPathRequestMatcher("/upper", null, true).matches(request))
 				.isFalse();
@@ -185,7 +184,7 @@ public class AntPathRequestMatcherTests {
 	}
 
 	@Test
-	public void equalsBehavesCorrectly() throws Exception {
+	public void equalsBehavesCorrectly() {
 		// Both universal wildcard options should be equal
 		assertThat(new AntPathRequestMatcher("**"))
 				.isEqualTo(new AntPathRequestMatcher("/**"));
@@ -204,7 +203,7 @@ public class AntPathRequestMatcherTests {
 	}
 
 	@Test
-	public void toStringIsOk() throws Exception {
+	public void toStringIsOk() {
 		new AntPathRequestMatcher("/blah").toString();
 		new AntPathRequestMatcher("/blah", "GET").toString();
 	}

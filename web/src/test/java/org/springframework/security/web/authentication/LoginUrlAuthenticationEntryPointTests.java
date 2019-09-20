@@ -37,19 +37,19 @@ public class LoginUrlAuthenticationEntryPointTests {
 	// ========================================================================================================
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsMissingLoginFormUrl() throws Exception {
+	public void testDetectsMissingLoginFormUrl() {
 		new LoginUrlAuthenticationEntryPoint(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsMissingPortMapper() throws Exception {
+	public void testDetectsMissingPortMapper() {
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
 				"/login");
 		ep.setPortMapper(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsMissingPortResolver() throws Exception {
+	public void testDetectsMissingPortResolver() {
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
 				"/login");
 		ep.setPortResolver(null);

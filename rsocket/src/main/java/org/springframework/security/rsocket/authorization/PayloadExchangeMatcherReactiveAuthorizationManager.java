@@ -22,7 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeAuthorizationContext;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcher;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcherEntry;

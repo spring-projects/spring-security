@@ -15,15 +15,21 @@
  */
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 
 /**
  * Used by {@link EnableWebSecurity} to conditionally import {@link OAuth2ClientConfiguration}
- * when the {@code spring-security-oauth2-client} module is present on the classpath.
-
+ * when the {@code spring-security-oauth2-client} module is present on the classpath and
+ * {@link OAuth2ResourceServerConfiguration} when the {@code spring-security-oauth2-resource-server}
+ * module is on the classpath.
+ *
  * @author Joe Grandja
+ * @author Josh Cummings
  * @since 5.1
  * @see OAuth2ClientConfiguration
  */
@@ -31,11 +37,18 @@ final class OAuth2ImportSelector implements ImportSelector {
 
 	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-		boolean oauth2ClientPresent = ClassUtils.isPresent(
-			"org.springframework.security.oauth2.client.registration.ClientRegistration", getClass().getClassLoader());
+		List<String> imports = new ArrayList<>();
 
-		return oauth2ClientPresent ?
-			new String[] { "org.springframework.security.config.annotation.web.configuration.OAuth2ClientConfiguration" } :
-			new String[] {};
+		if (ClassUtils.isPresent(
+			"org.springframework.security.oauth2.client.registration.ClientRegistration", getClass().getClassLoader())) {
+			imports.add("org.springframework.security.config.annotation.web.configuration.OAuth2ClientConfiguration");
+		}
+
+		if (ClassUtils.isPresent(
+			"org.springframework.security.oauth2.server.resource.BearerTokenError", getClass().getClassLoader())) {
+			imports.add("org.springframework.security.config.annotation.web.configuration.OAuth2ResourceServerConfiguration");
+		}
+
+		return imports.toArray(new String[0]);
 	}
 }

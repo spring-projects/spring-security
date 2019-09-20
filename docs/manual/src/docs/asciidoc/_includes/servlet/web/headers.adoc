@@ -814,6 +814,44 @@ WebSecurityConfigurerAdapter {
 }
 ----
 
+[[headers-clearsitedata]]
+==== Clear Site Data
+
+https://www.w3.org/TR/clear-site-data/[Clear Site Data] is a mechanism by which any browser-side data - cookies, local storage, and the like - can be removed when an HTTP response contains this header:
+
+[source]
+----
+Clear-Site-Data: "cache", "cookies", "storage", "executionContexts"
+----
+
+This is a nice clean-up action to perform on logout.
+
+[[headers-clearsitedata-configure]]
+===== Configuring Clear Site Data
+
+Spring Security *_doesn't add_* the Clear Site Data header by default.
+
+You can configure your application to send down this header on logout like so:
+
+[source,java]
+----
+@EnableWebSecurity
+public class WebSecurityConfig extends
+WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .logout()
+                .addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(CACHE, COOKIES)));
+    }
+}
+----
+
+[NOTE]
+It's not recommended that you configure this header writer via the `headers()` directive.
+The reason for this is that any session state, say the `JSESSIONID` cookie, would be removed, effectively logging the user out.
 
 [[headers-custom]]
 === Custom Headers

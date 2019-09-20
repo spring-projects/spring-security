@@ -65,7 +65,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void getObjectWhenNotBuiltThenThrowIllegalStateException() throws Exception {
+	public void getObjectWhenNotBuiltThenThrowIllegalStateException() {
 		this.builder.getObject();
 	}
 
@@ -141,7 +141,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 			super(objectPostProcessor, allowConfigurersOfSameType);
 		}
 
-		public Object performBuild() throws Exception {
+		public Object performBuild() {
 			return "success";
 		}
 	}

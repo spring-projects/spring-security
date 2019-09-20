@@ -171,7 +171,7 @@ public class JaasApiIntegrationFilterTests {
 	}
 
 	@Test
-	public void obtainSubject() throws Exception {
+	public void obtainSubject() {
 		SecurityContextHolder.getContext().setAuthentication(token);
 		assertThat(filter.obtainSubject(request)).isEqualTo(authenticatedSubject);
 	}

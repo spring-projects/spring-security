@@ -42,7 +42,7 @@ public abstract class AbstractWebServerIntegrationTests {
 		}
 	}
 
-	protected final MockMvc createMockMvc(String... configLocations) throws Exception {
+	protected final MockMvc createMockMvc(String... configLocations) {
 		if (this.context != null) {
 			throw new IllegalStateException("context is already loaded");
 		}

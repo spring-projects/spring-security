@@ -23,8 +23,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.security.util.InMemoryResource;
 import org.springframework.web.context.support.AbstractRefreshableWebApplicationContext;
 
-import java.io.IOException;
-
 import static org.springframework.security.config.util.InMemoryXmlApplicationContext.BEANS_CLOSE;
 import static org.springframework.security.config.util.InMemoryXmlApplicationContext.BEANS_OPENING;
 import static org.springframework.security.config.util.InMemoryXmlApplicationContext.SPRING_SECURITY_VERSION;
@@ -52,7 +50,7 @@ public class InMemoryXmlWebApplicationContext extends AbstractRefreshableWebAppl
 	}
 
 	@Override
-	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
+	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException {
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
 		reader.loadBeanDefinitions(new Resource[] { inMemoryXml });
 	}

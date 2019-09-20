@@ -172,7 +172,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 	static class CsrfParamResultMatcher implements ResultMatcher {
 
 		@Override
-		public void match(MvcResult result) throws Exception {
+		public void match(MvcResult result) {
 			MockHttpServletRequest request = result.getRequest();
 			assertThat(request.getParameter("_csrf")).isNotNull();
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNull();
@@ -186,7 +186,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 	static class CsrfHeaderResultMatcher implements ResultMatcher {
 
 		@Override
-		public void match(MvcResult result) throws Exception {
+		public void match(MvcResult result) {
 			MockHttpServletRequest request = result.getRequest();
 			assertThat(request.getParameter("_csrf")).isNull();
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNotNull();
@@ -224,7 +224,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 
 		@RestController

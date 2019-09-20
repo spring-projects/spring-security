@@ -34,7 +34,7 @@ public class Jsr250VoterTests {
 
 	// SEC-1443
 	@Test
-	public void supportsMultipleRolesCorrectly() throws Exception {
+	public void supportsMultipleRolesCorrectly() {
 		List<ConfigAttribute> attrs = new ArrayList<>();
 		Jsr250Voter voter = new Jsr250Voter();
 

@@ -62,7 +62,7 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extend
 	}
 
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		http.setSharedObject(PortMapper.class, getPortMapper());
 	}
 

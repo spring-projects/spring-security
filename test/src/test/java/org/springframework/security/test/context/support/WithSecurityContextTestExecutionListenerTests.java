@@ -106,14 +106,14 @@ public class WithSecurityContextTestExecutionListenerTests {
 	}
 
 	@Test
-	public void beforeTestExecutionWhenTestContextNullThenSecurityContextNotSet() throws Exception {
+	public void beforeTestExecutionWhenTestContextNullThenSecurityContextNotSet() {
 		this.listener.beforeTestExecution(this.testContext);
 
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
-	public void beforeTestExecutionWhenTestContextNotNullThenSecurityContextSet() throws Exception {
+	public void beforeTestExecutionWhenTestContextNotNullThenSecurityContextSet() {
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(new TestingAuthenticationToken("user", "passsword", "ROLE_USER"));
 		when(this.testContext.removeAttribute(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME)).thenReturn(securityContext);

@@ -54,7 +54,7 @@ public class UserDetailsMapFactoryBean implements FactoryBean<Collection<UserDet
 	}
 
 	@Override
-	public Collection<UserDetails> getObject() throws Exception {
+	public Collection<UserDetails> getObject() {
 		Collection<UserDetails> users = new ArrayList<>(this.userProperties.size());
 
 		UserAttributeEditor editor = new UserAttributeEditor();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket;
+package org.springframework.security.rsocket.core;
 
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.Payload;
@@ -28,10 +28,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.MediaType;
-import org.springframework.security.rsocket.PayloadExchange;
-import org.springframework.security.rsocket.PayloadInterceptor;
-import org.springframework.security.rsocket.PayloadInterceptorRSocket;
-import org.springframework.security.rsocket.PayloadSocketAcceptor;
+import org.springframework.security.rsocket.api.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadInterceptor;
+import org.springframework.security.rsocket.core.PayloadInterceptorRSocket;
+import org.springframework.security.rsocket.core.PayloadSocketAcceptor;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;

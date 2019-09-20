@@ -899,7 +899,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		HeaderWriterFilter headersFilter = createHeaderWriterFilter();
 		http.addFilter(headersFilter);
 	}

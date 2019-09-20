@@ -86,14 +86,14 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorRejectsNullParameters() throws Exception {
+	public void constructorRejectsNullParameters() {
 		new EhCacheBasedAclCache(null, new DefaultPermissionGrantingStrategy(
 				new ConsoleAuditLogger()), new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_USER")));
 	}
 
 	@Test
-	public void methodsRejectNullParameters() throws Exception {
+	public void methodsRejectNullParameters() {
 		try {
 			Serializable id = null;
 			myCache.evictFromCache(id);
@@ -162,14 +162,14 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test
-	public void clearCache() throws Exception {
+	public void clearCache() {
 		myCache.clearCache();
 
 		verify(cache).removeAll();
 	}
 
 	@Test
-	public void putInCache() throws Exception {
+	public void putInCache() {
 		myCache.putInCache(acl);
 
 		verify(cache, times(2)).put(element.capture());
@@ -181,7 +181,7 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test
-	public void putInCacheAclWithParent() throws Exception {
+	public void putInCacheAclWithParent() {
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				"ROLE_GENERAL");
 		auth.setAuthenticated(true);
@@ -216,14 +216,14 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test
-	public void getFromCacheSerializable() throws Exception {
+	public void getFromCacheSerializable() {
 		when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(), acl));
 
 		assertThat(myCache.getFromCache(acl.getId())).isEqualTo(acl);
 	}
 
 	@Test
-	public void getFromCacheSerializablePopulatesTransient() throws Exception {
+	public void getFromCacheSerializablePopulatesTransient() {
 		when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(), acl));
 
 		myCache.putInCache(acl);
@@ -240,14 +240,14 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test
-	public void getFromCacheObjectIdentity() throws Exception {
+	public void getFromCacheObjectIdentity() {
 		when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(), acl));
 
 		assertThat(myCache.getFromCache(acl.getId())).isEqualTo(acl);
 	}
 
 	@Test
-	public void getFromCacheObjectIdentityPopulatesTransient() throws Exception {
+	public void getFromCacheObjectIdentityPopulatesTransient() {
 		when(cache.get(acl.getObjectIdentity()))
 				.thenReturn(new Element(acl.getId(), acl));
 
@@ -265,7 +265,7 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test
-	public void evictCacheSerializable() throws Exception {
+	public void evictCacheSerializable() {
 		when(cache.get(acl.getObjectIdentity()))
 				.thenReturn(new Element(acl.getId(), acl));
 
@@ -276,7 +276,7 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test
-	public void evictCacheObjectIdentity() throws Exception {
+	public void evictCacheObjectIdentity() {
 		when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(), acl));
 
 		myCache.evictFromCache(acl.getId());

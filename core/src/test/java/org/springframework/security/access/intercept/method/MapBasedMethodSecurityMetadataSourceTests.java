@@ -54,7 +54,7 @@ public class MapBasedMethodSecurityMetadataSourceTests {
 	}
 
 	@Test
-	public void methodsWithDifferentArgumentsAreMatchedCorrectly() throws Exception {
+	public void methodsWithDifferentArgumentsAreMatchedCorrectly() {
 		mds.addSecureMethod(MockService.class, someMethodInteger, ROLE_A);
 		mds.addSecureMethod(MockService.class, someMethodString, ROLE_B);
 

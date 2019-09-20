@@ -62,7 +62,7 @@ public class JaasAuthenticationProviderTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
 		context = new ClassPathXmlApplicationContext(resName);
 		eventCheck = (JaasEventCheck) context.getBean("eventCheck");
@@ -190,7 +190,7 @@ public class JaasAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testFull() throws Exception {
+	public void testFull() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"user", "password", AuthorityUtils.createAuthorityList("ROLE_ONE"));
 
@@ -227,7 +227,7 @@ public class JaasAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testGetApplicationEventPublisher() throws Exception {
+	public void testGetApplicationEventPublisher() {
 		assertThat(jaasProvider.getApplicationEventPublisher()).isNotNull();
 	}
 
@@ -294,7 +294,7 @@ public class JaasAuthenticationProviderTests {
 			super(loginModule);
 		}
 
-		public void logout() throws LoginException {
+		public void logout() {
 			this.loggedOut = true;
 		}
 	}

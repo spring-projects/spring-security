@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
-import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeAuthorizationContext;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcher;
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcherEntry;

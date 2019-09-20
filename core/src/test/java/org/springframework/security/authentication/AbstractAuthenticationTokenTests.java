@@ -42,7 +42,7 @@ public class AbstractAuthenticationTokenTests {
 	// ========================================================================================================
 
 	@Before
-	public final void setUp() throws Exception {
+	public final void setUp() {
 		authorities = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 	}
 
@@ -58,7 +58,7 @@ public class AbstractAuthenticationTokenTests {
 	}
 
 	@Test
-	public void testGetters() throws Exception {
+	public void testGetters() {
 		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password",
 				authorities);
 		assertThat(token.getPrincipal()).isEqualTo("Test");
@@ -67,7 +67,7 @@ public class AbstractAuthenticationTokenTests {
 	}
 
 	@Test
-	public void testHashCode() throws Exception {
+	public void testHashCode() {
 		MockAuthenticationImpl token1 = new MockAuthenticationImpl("Test", "Password",
 				authorities);
 		MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test", "Password",
@@ -83,7 +83,7 @@ public class AbstractAuthenticationTokenTests {
 	}
 
 	@Test
-	public void testObjectsEquals() throws Exception {
+	public void testObjectsEquals() {
 		MockAuthenticationImpl token1 = new MockAuthenticationImpl("Test", "Password",
 				authorities);
 		MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test", "Password",
@@ -115,7 +115,7 @@ public class AbstractAuthenticationTokenTests {
 	}
 
 	@Test
-	public void testSetAuthenticated() throws Exception {
+	public void testSetAuthenticated() {
 		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password",
 				authorities);
 		assertThat(!token.isAuthenticated()).isTrue();

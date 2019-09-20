@@ -16,12 +16,12 @@
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -146,6 +146,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 				return;
 			}
 
+			HttpSession session = request.getSession(false);
+			if (session != null) {
+				request.changeSessionId();
+			}
+
 			successfulAuthentication(request, response, filterChain, authenticationResult);
 		} catch (AuthenticationException e) {
 			unsuccessfulAuthentication(request, response, e);
@@ -158,7 +163,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		this.failureHandler.onAuthenticationFailure(request, response, failed);
 	}
 
-	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+	private void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authentication) throws IOException, ServletException {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authentication);
@@ -166,8 +171,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		this.successHandler.onAuthenticationSuccess(request, response, chain, authentication);
 	}
 
-	protected Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-			throws AuthenticationException, IOException, ServletException {
+	private Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationException, ServletException {
 		Authentication authentication = this.authenticationConverter.convert(request);
 		if (authentication == null) {
 			return null;

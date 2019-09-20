@@ -77,7 +77,7 @@ public class OAuth2LoginAuthenticationProviderTests {
 
 	@Before
 	@SuppressWarnings("unchecked")
-	public void setUp() throws Exception {
+	public void setUp() {
 		this.clientRegistration = clientRegistration().build();
 		this.authorizationRequest = request().scope("scope1", "scope2").build();
 		this.authorizationResponse = success().build();

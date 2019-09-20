@@ -54,7 +54,7 @@ public class UserTests {
 	}
 
 	@Test
-	public void hashLookupOnlyDependsOnUsername() throws Exception {
+	public void hashLookupOnlyDependsOnUsername() {
 		User user1 = new User("rod", "koala", true, true, true, true, ROLE_12);
 		Set<UserDetails> users = new HashSet<>();
 		users.add(user1);
@@ -80,7 +80,7 @@ public class UserTests {
 	}
 
 	@Test
-	public void testNullValuesRejected() throws Exception {
+	public void testNullValuesRejected() {
 		try {
 			new User(null, "koala", true, true, true, true, ROLE_12);
 			fail("Should have thrown IllegalArgumentException");
@@ -106,7 +106,7 @@ public class UserTests {
 	}
 
 	@Test
-	public void testNullWithinGrantedAuthorityElementIsRejected() throws Exception {
+	public void testNullWithinGrantedAuthorityElementIsRejected() {
 		try {
 			List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
 			auths.add(null);
@@ -119,7 +119,7 @@ public class UserTests {
 	}
 
 	@Test
-	public void testUserGettersSetter() throws Exception {
+	public void testUserGettersSetter() {
 		UserDetails user = new User("rod", "koala", true, true, true, true,
 				AuthorityUtils.createAuthorityList("ROLE_TWO", "ROLE_ONE"));
 		assertThat(user.getUsername()).isEqualTo("rod");
@@ -133,7 +133,7 @@ public class UserTests {
 	}
 
 	@Test
-	public void enabledFlagIsFalseForDisabledAccount() throws Exception {
+	public void enabledFlagIsFalseForDisabledAccount() {
 		UserDetails user = new User("rod", "koala", false, true, true, true, ROLE_12);
 		assertThat(user.isEnabled()).isFalse();
 	}
@@ -149,7 +149,7 @@ public class UserTests {
 	}
 
 	@Test
-	public void withUserDetailsWhenAllEnabled() throws Exception {
+	public void withUserDetailsWhenAllEnabled() {
 		User expected = new User("rob", "pass", true, true, true, true, ROLE_12);
 
 		UserDetails actual = User.withUserDetails(expected).build();
@@ -165,7 +165,7 @@ public class UserTests {
 
 
 	@Test
-	public void withUserDetailsWhenAllDisabled() throws Exception {
+	public void withUserDetailsWhenAllDisabled() {
 		User expected = new User("rob", "pass", false, false, false, false, ROLE_12);
 
 		UserDetails actual = User.withUserDetails(expected).build();

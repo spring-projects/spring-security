@@ -36,7 +36,7 @@ public class ObjectIdentityImplTests {
 	// ========================================================================================================
 
 	@Test
-	public void constructorsRespectRequiredFields() throws Exception {
+	public void constructorsRespectRequiredFields() {
 		// Check one-argument constructor required field
 		try {
 			new ObjectIdentityImpl(null);
@@ -79,14 +79,14 @@ public class ObjectIdentityImplTests {
 	}
 
 	@Test
-	public void gettersReturnExpectedValues() throws Exception {
+	public void gettersReturnExpectedValues() {
 		ObjectIdentity obj = new ObjectIdentityImpl(DOMAIN_CLASS, 1L);
 		assertThat(obj.getIdentifier()).isEqualTo(1L);
 		assertThat(obj.getType()).isEqualTo(MockIdDomainObject.class.getName());
 	}
 
 	@Test
-	public void testGetIdMethodConstraints() throws Exception {
+	public void testGetIdMethodConstraints() {
 		// Check the getId() method is present
 		try {
 			new ObjectIdentityImpl("A_STRING_OBJECT");
@@ -125,12 +125,12 @@ public class ObjectIdentityImplTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorRejectsInvalidTypeParameter() throws Exception {
+	public void constructorRejectsInvalidTypeParameter() {
 		new ObjectIdentityImpl("", 1L);
 	}
 
 	@Test
-	public void testEquals() throws Exception {
+	public void testEquals() {
 		ObjectIdentity obj = new ObjectIdentityImpl(DOMAIN_CLASS, 1L);
 		MockIdDomainObject mockObj = new MockIdDomainObject();
 		mockObj.setId(1L);
@@ -148,7 +148,7 @@ public class ObjectIdentityImplTests {
 	}
 
 	@Test
-	public void hashcodeIsDifferentForDifferentJavaTypes() throws Exception {
+	public void hashcodeIsDifferentForDifferentJavaTypes() {
 		ObjectIdentity obj = new ObjectIdentityImpl(Object.class, 1L);
 		ObjectIdentity obj2 = new ObjectIdentityImpl(String.class, 1L);
 		assertThat(obj.hashCode()).isNotEqualTo(obj2.hashCode());
@@ -164,7 +164,7 @@ public class ObjectIdentityImplTests {
 	}
 
 	@Test
-	public void equalStringIdsAreEqualAndHaveSameHashcode() throws Exception {
+	public void equalStringIdsAreEqualAndHaveSameHashcode() {
 		ObjectIdentity obj = new ObjectIdentityImpl(Object.class, "1000");
 		ObjectIdentity obj2 = new ObjectIdentityImpl(Object.class, "1000");
 		assertThat(obj2).isEqualTo(obj);
@@ -172,7 +172,7 @@ public class ObjectIdentityImplTests {
 	}
 
 	@Test
-	public void stringAndNumericIdsAreNotEqual() throws Exception {
+	public void stringAndNumericIdsAreNotEqual() {
 		ObjectIdentity obj = new ObjectIdentityImpl(Object.class, "1000");
 		ObjectIdentity obj2 = new ObjectIdentityImpl(Object.class, 1000L);
 		assertThat(obj).isNotEqualTo(obj2);

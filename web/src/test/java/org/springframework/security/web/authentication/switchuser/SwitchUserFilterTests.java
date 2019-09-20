@@ -171,7 +171,7 @@ public class SwitchUserFilterTests {
 	}
 
 	@Test(expected = UsernameNotFoundException.class)
-	public void attemptSwitchToUnknownUserFails() throws Exception {
+	public void attemptSwitchToUnknownUserFails() {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY,
@@ -183,27 +183,27 @@ public class SwitchUserFilterTests {
 	}
 
 	@Test(expected = DisabledException.class)
-	public void attemptSwitchToUserThatIsDisabledFails() throws Exception {
+	public void attemptSwitchToUserThatIsDisabledFails() {
 		switchToUser("mcgarrett");
 	}
 
 	@Test(expected = AccountExpiredException.class)
-	public void attemptSwitchToUserWithAccountExpiredFails() throws Exception {
+	public void attemptSwitchToUserWithAccountExpiredFails() {
 		switchToUser("wofat");
 	}
 
 	@Test(expected = CredentialsExpiredException.class)
-	public void attemptSwitchToUserWithExpiredCredentialsFails() throws Exception {
+	public void attemptSwitchToUserWithExpiredCredentialsFails() {
 		switchToUser("steve");
 	}
 
 	@Test(expected = UsernameNotFoundException.class)
-	public void switchUserWithNullUsernameThrowsException() throws Exception {
+	public void switchUserWithNullUsernameThrowsException() {
 		switchToUser(null);
 	}
 
 	@Test
-	public void attemptSwitchUserIsSuccessfulWithValidUser() throws Exception {
+	public void attemptSwitchUserIsSuccessfulWithValidUser() {
 		assertThat(switchToUser("jacklord")).isNotNull();
 	}
 
@@ -245,7 +245,7 @@ public class SwitchUserFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void configMissingUserDetailsServiceFails() throws Exception {
+	public void configMissingUserDetailsServiceFails() {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setSwitchUserUrl("/login/impersonate");
 		filter.setExitUserUrl("/logout/impersonate");
@@ -254,7 +254,7 @@ public class SwitchUserFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testBadConfigMissingTargetUrl() throws Exception {
+	public void testBadConfigMissingTargetUrl() {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setUserDetailsService(new MockUserDetailsService());
 		filter.setSwitchUserUrl("/login/impersonate");
@@ -454,7 +454,7 @@ public class SwitchUserFilterTests {
 
 	// SEC-1763
 	@Test
-	public void nestedSwitchesAreNotAllowed() throws Exception {
+	public void nestedSwitchesAreNotAllowed() {
 		// original user
 		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken(
 				"orig", "hawaii50", ROLES_12);
@@ -477,7 +477,7 @@ public class SwitchUserFilterTests {
 
 	// gh-3697
 	@Test
-	public void switchAuthorityRoleCannotBeNull() throws Exception {
+	public void switchAuthorityRoleCannotBeNull() {
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage("switchAuthorityRole cannot be null");
 		switchToUserWithAuthorityRole("dano", null);
@@ -485,7 +485,7 @@ public class SwitchUserFilterTests {
 
 	// gh-3697
 	@Test
-	public void switchAuthorityRoleCanBeChanged() throws Exception {
+	public void switchAuthorityRoleCanBeChanged() {
 		String switchAuthorityRole = "PREVIOUS_ADMINISTRATOR";
 
 		// original user

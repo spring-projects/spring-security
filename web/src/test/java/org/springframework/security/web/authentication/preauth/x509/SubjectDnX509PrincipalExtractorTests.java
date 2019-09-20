@@ -37,7 +37,7 @@ public class SubjectDnX509PrincipalExtractorTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void invalidRegexFails() throws Exception {
+	public void invalidRegexFails() {
 		extractor.setSubjectDnRegex("CN=(.*?,"); // missing closing bracket on group
 	}
 

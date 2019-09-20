@@ -15,6 +15,10 @@
  */
 package org.springframework.security.config.annotation.rsocket;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import io.rsocket.RSocketFactory;
 import io.rsocket.frame.decoder.PayloadDecoder;
 import io.rsocket.transport.netty.server.CloseableChannel;
@@ -23,6 +27,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,20 +40,14 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import org.springframework.security.rsocket.PayloadSocketAcceptorInterceptor;
+import org.springframework.security.oauth2.jwt.TestJwts;
+import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
+import org.springframework.security.rsocket.core.SecuritySocketAcceptorInterceptor;
 import org.springframework.security.rsocket.metadata.BasicAuthenticationEncoder;
 import org.springframework.security.rsocket.metadata.BearerTokenMetadata;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -64,7 +64,7 @@ public class JwtITests {
 	RSocketMessageHandler handler;
 
 	@Autowired
-	PayloadSocketAcceptorInterceptor interceptor;
+	SecuritySocketAcceptorInterceptor interceptor;
 
 	@Autowired
 	ServerController controller;
@@ -113,13 +113,11 @@ public class JwtITests {
 	}
 
 	private Jwt jwt() {
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
-		claims.put(IdTokenClaimNames.SUB, "rob");
-		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client-id"));
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		return new Jwt("token", issuedAt, expiresAt, claims, claims);
+		return TestJwts.jwt()
+				.claim(IdTokenClaimNames.ISS, "https://issuer.example.com")
+				.claim(IdTokenClaimNames.SUB, "rob")
+				.claim(IdTokenClaimNames.AUD, Arrays.asList("client-id"))
+				.build();
 	}
 
 	private RSocketRequester.Builder requester() {
@@ -157,7 +155,7 @@ public class JwtITests {
 				.authorizePayload(authorize ->
 					authorize
 						.route("secure.admin.*").authenticated()
-						.anyRequest().permitAll()
+						.anyExchange().permitAll()
 				)
 				.jwt(Customizer.withDefaults());
 			return rsocket.build();

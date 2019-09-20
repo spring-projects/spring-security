@@ -51,7 +51,7 @@ public class MethodSecurityExpressionRootTests {
 	}
 
 	@Test
-	public void canCallMethodsOnVariables() throws Exception {
+	public void canCallMethodsOnVariables() {
 		ctx.setVariable("var", "somestring");
 		Expression e = parser.parseExpression("#var.length() == 10");
 
@@ -71,8 +71,7 @@ public class MethodSecurityExpressionRootTests {
 	}
 
 	@Test
-	public void hasPermissionOnDomainObjectReturnsFalseIfPermissionEvaluatorDoes()
-			throws Exception {
+	public void hasPermissionOnDomainObjectReturnsFalseIfPermissionEvaluatorDoes() {
 		final Object dummyDomainObject = new Object();
 		final PermissionEvaluator pe = mock(PermissionEvaluator.class);
 		ctx.setVariable("domainObject", dummyDomainObject);
@@ -84,8 +83,7 @@ public class MethodSecurityExpressionRootTests {
 	}
 
 	@Test
-	public void hasPermissionOnDomainObjectReturnsTrueIfPermissionEvaluatorDoes()
-			throws Exception {
+	public void hasPermissionOnDomainObjectReturnsTrueIfPermissionEvaluatorDoes() {
 		final Object dummyDomainObject = new Object();
 		final PermissionEvaluator pe = mock(PermissionEvaluator.class);
 		ctx.setVariable("domainObject", dummyDomainObject);
@@ -96,7 +94,7 @@ public class MethodSecurityExpressionRootTests {
 	}
 
 	@Test
-	public void hasPermissionOnDomainObjectWorksWithIntegerExpressions() throws Exception {
+	public void hasPermissionOnDomainObjectWorksWithIntegerExpressions() {
 		final Object dummyDomainObject = new Object();
 		ctx.setVariable("domainObject", dummyDomainObject);
 		final PermissionEvaluator pe = mock(PermissionEvaluator.class);
@@ -116,7 +114,7 @@ public class MethodSecurityExpressionRootTests {
 	}
 
 	@Test
-	public void hasPermissionWorksWithThisObject() throws Exception {
+	public void hasPermissionWorksWithThisObject() {
 		Object targetObject = new Object() {
 			public String getX() {
 				return "x";

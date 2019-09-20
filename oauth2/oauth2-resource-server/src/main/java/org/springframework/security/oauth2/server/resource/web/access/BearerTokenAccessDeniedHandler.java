@@ -24,10 +24,8 @@ import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -57,8 +55,7 @@ public final class BearerTokenAccessDeniedHandler implements AccessDeniedHandler
 	@Override
 	public void handle(
 			HttpServletRequest request, HttpServletResponse response,
-			AccessDeniedException accessDeniedException)
-			throws IOException, ServletException {
+			AccessDeniedException accessDeniedException) {
 
 		Map<String, String> parameters = new LinkedHashMap<>();
 

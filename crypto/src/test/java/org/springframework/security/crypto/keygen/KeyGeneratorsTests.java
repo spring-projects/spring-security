@@ -45,7 +45,7 @@ public class KeyGeneratorsTests {
 	}
 
 	@Test
-	public void shared() throws Exception {
+	public void shared() {
 		BytesKeyGenerator keyGenerator = KeyGenerators.shared(21);
 		assertThat(keyGenerator.getKeyLength()).isEqualTo(21);
 		byte[] key = keyGenerator.generateKey();

@@ -15,10 +15,6 @@
  */
 package org.springframework.security.oauth2.server.resource.authentication;
 
-import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Predicate;
 
 import org.junit.Before;
@@ -29,7 +25,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -40,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link JwtAuthenticationProvider}
@@ -67,9 +63,7 @@ public class JwtAuthenticationProviderTests {
 	public void authenticateWhenJwtDecodesThenAuthenticationHasAttributesContainedInJwt() {
 		BearerTokenAuthenticationToken token = this.authentication();
 
-		Map<String, Object> claims = new HashMap<>();
-		claims.put("name", "value");
-		Jwt jwt = this.jwt(claims);
+		Jwt jwt = jwt().claim("name", "value").build();
 
 		when(this.jwtDecoder.decode("token")).thenReturn(jwt);
 		when(this.jwtAuthenticationConverter.convert(jwt)).thenReturn(new JwtAuthenticationToken(jwt));
@@ -77,7 +71,7 @@ public class JwtAuthenticationProviderTests {
 		JwtAuthenticationToken authentication =
 				(JwtAuthenticationToken) this.provider.authenticate(token);
 
-		assertThat(authentication.getTokenAttributes()).isEqualTo(claims);
+		assertThat(authentication.getTokenAttributes()).containsEntry("name", "value");
 	}
 
 	@Test
@@ -110,7 +104,7 @@ public class JwtAuthenticationProviderTests {
 		Object details = mock(Object.class);
 		token.setDetails(details);
 
-		Jwt jwt = this.jwt(Collections.singletonMap("some", "value"));
+		Jwt jwt = jwt().build();
 		JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
 
 		when(this.jwtDecoder.decode(token.getToken())).thenReturn(jwt);
@@ -128,13 +122,6 @@ public class JwtAuthenticationProviderTests {
 
 	private BearerTokenAuthenticationToken authentication() {
 		return new BearerTokenAuthenticationToken("token");
-	}
-
-	private Jwt jwt(Map<String, Object> claims) {
-		Map<String, Object> headers = new HashMap<>();
-		headers.put("alg", JwsAlgorithms.RS256);
-
-		return new Jwt("token", Instant.now(), Instant.now().plusSeconds(3600), headers, claims);
 	}
 
 	private Predicate<? super Throwable> errorCode(String errorCode) {

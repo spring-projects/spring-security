@@ -54,7 +54,7 @@ public class MockMethodInvocation implements MethodInvocation {
 		return targetObject;
 	}
 
-	public Object proceed() throws Throwable {
+	public Object proceed() {
 		return null;
 	}
 }

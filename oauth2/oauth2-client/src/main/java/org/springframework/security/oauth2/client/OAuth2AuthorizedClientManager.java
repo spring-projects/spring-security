@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepo
  * <ol>
  *  <li>Authorizing (or re-authorizing) an OAuth 2.0 Client
  *  	by leveraging an {@link OAuth2AuthorizedClientProvider}(s).</li>
- *  <li>Managing the persistence of an {@link OAuth2AuthorizedClient} between requests,
+ *  <li>Delegating the persistence of an {@link OAuth2AuthorizedClient},
  *  	typically using an {@link OAuth2AuthorizedClientService} OR {@link OAuth2AuthorizedClientRepository}.</li>
  * </ol>
  *

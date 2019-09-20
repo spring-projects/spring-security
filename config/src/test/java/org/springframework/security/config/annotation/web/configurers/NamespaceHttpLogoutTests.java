@@ -81,7 +81,7 @@ public class NamespaceHttpLogoutTests {
 	@EnableWebSecurity
 	static class HttpLogoutConfig extends WebSecurityConfigurerAdapter {
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 	}
 

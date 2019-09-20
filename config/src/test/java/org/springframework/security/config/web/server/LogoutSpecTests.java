@@ -121,7 +121,7 @@ public class LogoutSpecTests {
 	}
 
 	@Test
-	public void logoutWhenCustomLogoutInLambdaThenCustomLogoutUsed() throws Exception {
+	public void logoutWhenCustomLogoutInLambdaThenCustomLogoutUsed() {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.authorizeExchange(authorizeExchange ->
 				authorizeExchange

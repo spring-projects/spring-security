@@ -15,8 +15,6 @@
  */
 package org.springframework.security.itest.web;
 
-import java.io.IOException;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
 	@RequestMapping(value = "/secure/file?with?special?chars.htm", method = RequestMethod.GET)
-	public String sec1255TestUrl() throws IOException {
+	public String sec1255TestUrl() {
 		return "I'm file?with?special?chars.htm";
 	}
 

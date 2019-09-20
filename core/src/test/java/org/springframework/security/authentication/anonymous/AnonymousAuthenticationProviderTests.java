@@ -37,7 +37,7 @@ public class AnonymousAuthenticationProviderTests {
 	// ========================================================================================================
 
 	@Test
-	public void testDetectsAnInvalidKey() throws Exception {
+	public void testDetectsAnInvalidKey() {
 		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
 				"qwerty");
 
@@ -54,7 +54,7 @@ public class AnonymousAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testDetectsMissingKey() throws Exception {
+	public void testDetectsMissingKey() {
 		try {
 			new AnonymousAuthenticationProvider(null);
 			fail("Should have thrown IllegalArgumentException");
@@ -65,14 +65,14 @@ public class AnonymousAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testGettersSetters() throws Exception {
+	public void testGettersSetters() {
 		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
 				"qwerty");
 		assertThat(aap.getKey()).isEqualTo("qwerty");
 	}
 
 	@Test
-	public void testIgnoresClassesItDoesNotSupport() throws Exception {
+	public void testIgnoresClassesItDoesNotSupport() {
 		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
 				"qwerty");
 
@@ -85,7 +85,7 @@ public class AnonymousAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testNormalOperation() throws Exception {
+	public void testNormalOperation() {
 		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
 				"qwerty");
 

@@ -31,7 +31,7 @@ public class ObjectIdentityRetrievalStrategyImplTests {
 	// ~ Methods
 	// ========================================================================================================
 	@Test
-	public void testObjectIdentityCreation() throws Exception {
+	public void testObjectIdentityCreation() {
 		MockIdDomainObject domain = new MockIdDomainObject();
 		domain.setId(1);
 

@@ -74,7 +74,7 @@ class AclClassIdUtils {
 		return identifier;
 	}
 
-	private boolean hasValidClassIdType(ResultSet resultSet) throws SQLException {
+	private boolean hasValidClassIdType(ResultSet resultSet) {
 		boolean hasClassIdType = false;
 		try {
 			hasClassIdType = classIdTypeFrom(resultSet) != null;

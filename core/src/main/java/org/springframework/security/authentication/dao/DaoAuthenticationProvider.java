@@ -96,7 +96,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 		}
 	}
 
-	protected void doAfterPropertiesSet() throws Exception {
+	protected void doAfterPropertiesSet() {
 		Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
 	}
 

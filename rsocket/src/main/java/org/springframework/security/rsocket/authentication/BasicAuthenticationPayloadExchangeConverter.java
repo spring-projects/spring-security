@@ -21,7 +21,7 @@ import org.springframework.messaging.rsocket.DefaultMetadataExtractor;
 import org.springframework.messaging.rsocket.MetadataExtractor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.rsocket.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.metadata.BasicAuthenticationDecoder;
 import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
 import org.springframework.util.MimeType;

@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.fail;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -41,9 +40,6 @@ public class Http403ForbiddenEntryPointTests {
 					HttpServletResponse.SC_FORBIDDEN);
 		}
 		catch (IOException e) {
-			fail("Unexpected exception thrown: " + e);
-		}
-		catch (ServletException e) {
 			fail("Unexpected exception thrown: " + e);
 		}
 	}

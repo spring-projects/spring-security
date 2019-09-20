@@ -66,12 +66,12 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 	}
 
 	@Override
-	public void destroy() throws Exception {
+	public void destroy() {
 		stop();
 	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		start();
 	}
 

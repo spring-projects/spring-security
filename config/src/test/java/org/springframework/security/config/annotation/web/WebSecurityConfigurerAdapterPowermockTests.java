@@ -79,7 +79,7 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 	}
 
@@ -88,12 +88,12 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 		boolean configure;
 
 		@Override
-		public void init(HttpSecurity builder) throws Exception {
+		public void init(HttpSecurity builder) {
 			this.init = true;
 		}
 
 		@Override
-		public void configure(HttpSecurity builder) throws Exception {
+		public void configure(HttpSecurity builder) {
 			this.configure = true;
 		}
 	}

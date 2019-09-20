@@ -38,7 +38,7 @@ public class InetOrgPersonTests {
 	}
 
 	@Test
-	public void hashLookupViaEqualObjectRetrievesOriginal() throws Exception {
+	public void hashLookupViaEqualObjectRetrievesOriginal() {
 		InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
 		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
 		essence = new InetOrgPerson.Essence(createUserContext());

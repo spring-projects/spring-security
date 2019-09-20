@@ -34,7 +34,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	}
 
 	@Test
-	public void defaults() throws Exception {
+	public void defaults() {
 		MockHttpServletRequest request = logout().buildRequest(servletContext);
 
 		CsrfToken token = (CsrfToken) request.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
@@ -46,7 +46,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	}
 
 	@Test
-	public void custom() throws Exception {
+	public void custom() {
 		MockHttpServletRequest request = logout("/admin/logout").buildRequest(
 				servletContext);
 

@@ -29,20 +29,18 @@ import org.springframework.security.authentication.jaas.JaasGrantedAuthority;
 public class JaasGrantedAuthorityTests {
 
 	/**
-	 * @throws Exception
 	 */
 	@Test
-	public void authorityWithNullRoleFailsAssertion() throws Exception {
+	public void authorityWithNullRoleFailsAssertion() {
 		assertThatThrownBy(() -> new JaasGrantedAuthority(null, null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("role cannot be null");
 	}
 
 	/**
-	 * @throws Exception
 	 */
 	@Test
-	public void authorityWithNullPrincipleFailsAssertion() throws Exception {
+	public void authorityWithNullPrincipleFailsAssertion() {
 		assertThatThrownBy(() -> new JaasGrantedAuthority("role", null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("principal cannot be null");

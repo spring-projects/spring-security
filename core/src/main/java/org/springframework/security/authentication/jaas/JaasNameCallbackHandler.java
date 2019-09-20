@@ -19,11 +19,8 @@ package org.springframework.security.authentication.jaas;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.IOException;
-
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
  * The most basic Callbacks to be handled when using a LoginContext from JAAS, are the
@@ -49,11 +46,8 @@ public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandle
 	 * @param callback
 	 * @param authentication
 	 *
-	 * @throws IOException
-	 * @throws UnsupportedCallbackException
 	 */
-	public void handle(Callback callback, Authentication authentication)
-			throws IOException, UnsupportedCallbackException {
+	public void handle(Callback callback, Authentication authentication) {
 		if (callback instanceof NameCallback) {
 			NameCallback ncb = (NameCallback) callback;
 			String username;

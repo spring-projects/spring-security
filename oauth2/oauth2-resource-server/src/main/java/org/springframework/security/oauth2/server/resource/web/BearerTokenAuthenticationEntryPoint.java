@@ -16,10 +16,8 @@
 
 package org.springframework.security.oauth2.server.resource.web;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -60,8 +58,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	@Override
 	public void commence(
 			HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException authException)
-			throws IOException, ServletException {
+			AuthenticationException authException) {
 
 		HttpStatus status = HttpStatus.UNAUTHORIZED;
 

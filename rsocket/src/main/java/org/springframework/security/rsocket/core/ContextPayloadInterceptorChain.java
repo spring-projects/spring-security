@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket;
+package org.springframework.security.rsocket.core;
 
+import org.springframework.security.rsocket.api.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadInterceptor;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 

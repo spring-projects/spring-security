@@ -38,7 +38,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements
 	private String stringSeparator = ",";
 	private Set<String> mappableAttributes = null;
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(attributes2grantedAuthoritiesMap,
 				"attributes2grantedAuthoritiesMap must be set");
 	}

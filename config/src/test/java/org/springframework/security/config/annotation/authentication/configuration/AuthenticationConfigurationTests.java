@@ -203,7 +203,7 @@ public class AuthenticationConfigurationTests {
 				inits.add(getClass());
 			}
 
-			public void configure(AuthenticationManagerBuilder auth) throws Exception {
+			public void configure(AuthenticationManagerBuilder auth) {
 				configs.add(getClass());
 			}
 		}
@@ -256,7 +256,7 @@ public class AuthenticationConfigurationTests {
 
 	static class DefaultBootGlobalAuthenticationConfigurerAdapter extends DefaultOrderGlobalAuthenticationConfigurerAdapter {
 		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
+		public void configure(AuthenticationManagerBuilder auth) {
 			if (auth.isConfigured()) {
 				return;
 			}
@@ -477,7 +477,7 @@ public class AuthenticationConfigurationTests {
 	}
 
 	@Test
-	public void enableGlobalMethodSecurityWhenPreAuthorizeThenNoException() throws Exception {
+	public void enableGlobalMethodSecurityWhenPreAuthorizeThenNoException() {
 		this.spring.register(UsesPreAuthorizeMethodSecurityConfig.class, AuthenticationManagerBeanConfig.class).autowire();
 
 		// no exception
@@ -491,7 +491,7 @@ public class AuthenticationConfigurationTests {
 	}
 
 	@Test
-	public void enableGlobalMethodSecurityWhenPreAuthorizeThenUsesMethodSecurityService() throws Exception {
+	public void enableGlobalMethodSecurityWhenPreAuthorizeThenUsesMethodSecurityService() {
 		this.spring.register(ServicesConfig.class, UsesPreAuthorizeMethodSecurityConfig.class, AuthenticationManagerBeanConfig.class).autowire();
 
 		// no exception

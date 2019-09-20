@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket;
+package org.springframework.security.rsocket.core;
 
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
@@ -33,12 +33,12 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.rsocket.DefaultPayloadExchange;
-import org.springframework.security.rsocket.PayloadExchange;
-import org.springframework.security.rsocket.PayloadExchangeType;
-import org.springframework.security.rsocket.PayloadInterceptor;
-import org.springframework.security.rsocket.PayloadInterceptorChain;
-import org.springframework.security.rsocket.PayloadInterceptorRSocket;
+import org.springframework.security.rsocket.api.PayloadExchange;
+import org.springframework.security.rsocket.api.PayloadExchangeType;
+import org.springframework.security.rsocket.api.PayloadInterceptor;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
+import org.springframework.security.rsocket.core.DefaultPayloadExchange;
+import org.springframework.security.rsocket.core.PayloadInterceptorRSocket;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;

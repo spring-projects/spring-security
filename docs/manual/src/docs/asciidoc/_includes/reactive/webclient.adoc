@@ -3,7 +3,7 @@
 [NOTE]
 ====
 The following documentation is for use within Reactive environments.
-For Servlet environments, refer to <<servlet-webclient, WebClient for Servlet>> environments.
+For Servlet environments, refer to <<oauth2Client-webclient-servlet, WebClient for Servlet>> environments.
 ====
 
 

@@ -19,11 +19,8 @@ package org.springframework.security.authentication.jaas;
 import org.springframework.security.authentication.jaas.JaasAuthenticationCallbackHandler;
 import org.springframework.security.core.Authentication;
 
-import java.io.IOException;
-
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.TextInputCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
  * TestCallbackHandler
@@ -34,8 +31,7 @@ public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
 	// ~ Methods
 	// ========================================================================================================
 
-	public void handle(Callback callback, Authentication auth) throws IOException,
-			UnsupportedCallbackException {
+	public void handle(Callback callback, Authentication auth) {
 		if (callback instanceof TextInputCallback) {
 			TextInputCallback tic = (TextInputCallback) callback;
 			tic.setText(auth.getPrincipal().toString());

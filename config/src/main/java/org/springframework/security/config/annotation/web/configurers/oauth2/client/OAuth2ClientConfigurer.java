@@ -142,10 +142,8 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 	 * @param authorizationCodeGrantCustomizer the {@link Customizer} to provide more options for
 	 * the {@link AuthorizationCodeGrantConfigurer}
 	 * @return the {@link OAuth2ClientConfigurer} for further customizations
-	 * @throws Exception
 	 */
-	public OAuth2ClientConfigurer<B> authorizationCodeGrant(Customizer<AuthorizationCodeGrantConfigurer> authorizationCodeGrantCustomizer)
-			throws Exception {
+	public OAuth2ClientConfigurer<B> authorizationCodeGrant(Customizer<AuthorizationCodeGrantConfigurer> authorizationCodeGrantCustomizer) {
 		authorizationCodeGrantCustomizer.customize(this.authorizationCodeGrantConfigurer);
 		return this;
 	}
@@ -270,12 +268,12 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 	}
 
 	@Override
-	public void init(B builder) throws Exception {
+	public void init(B builder) {
 		this.authorizationCodeGrantConfigurer.init(builder);
 	}
 
 	@Override
-	public void configure(B builder) throws Exception {
+	public void configure(B builder) {
 		this.authorizationCodeGrantConfigurer.configure(builder);
 	}
 }

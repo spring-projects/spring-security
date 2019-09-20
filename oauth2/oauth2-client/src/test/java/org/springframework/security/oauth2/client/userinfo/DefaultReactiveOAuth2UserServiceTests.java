@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.sc
 
 /**
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 5.1
  */
 public class DefaultReactiveOAuth2UserServiceTests {
@@ -122,7 +123,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() throws Exception {
+	public void loadUserWhenUserInfoSuccessResponseThenReturnUser() {
 		String userInfoResponse = "{\n" +
 				"	\"id\": \"user1\",\n" +
 				"   \"first-name\": \"first\",\n" +
@@ -137,12 +138,12 @@ public class DefaultReactiveOAuth2UserServiceTests {
 
 		assertThat(user.getName()).isEqualTo("user1");
 		assertThat(user.getAttributes().size()).isEqualTo(6);
-		assertThat(user.getAttributes().get("id")).isEqualTo("user1");
-		assertThat(user.getAttributes().get("first-name")).isEqualTo("first");
-		assertThat(user.getAttributes().get("last-name")).isEqualTo("last");
-		assertThat(user.getAttributes().get("middle-name")).isEqualTo("middle");
-		assertThat(user.getAttributes().get("address")).isEqualTo("address");
-		assertThat(user.getAttributes().get("email")).isEqualTo("user1@example.com");
+		assertThat((String) user.getAttribute("id")).isEqualTo("user1");
+		assertThat((String) user.getAttribute("first-name")).isEqualTo("first");
+		assertThat((String) user.getAttribute("last-name")).isEqualTo("last");
+		assertThat((String) user.getAttribute("middle-name")).isEqualTo("middle");
+		assertThat((String) user.getAttribute("address")).isEqualTo("address");
+		assertThat((String) user.getAttribute("email")).isEqualTo("user1@example.com");
 
 		assertThat(user.getAuthorities().size()).isEqualTo(1);
 		assertThat(user.getAuthorities().iterator().next()).isInstanceOf(OAuth2UserAuthority.class);
@@ -197,7 +198,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() throws Exception {
+	public void loadUserWhenUserInfoSuccessResponseInvalidThenThrowOAuth2AuthenticationException() {
 		String userInfoResponse = "{\n" +
 				"	\"id\": \"user1\",\n" +
 				"   \"first-name\": \"first\",\n" +
@@ -214,7 +215,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
+	public void loadUserWhenUserInfoErrorResponseThenThrowOAuth2AuthenticationException() {
 		this.server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).setResponseCode(500).setBody("{}"));
 
 		assertThatThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
@@ -223,7 +224,7 @@ public class DefaultReactiveOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() throws Exception {
+	public void loadUserWhenUserInfoUriInvalidThenThrowAuthenticationServiceException() {
 		this.clientRegistration.userInfoUri("https://invalid-provider.com/user");
 		assertThatThrownBy(() -> this.userService.loadUser(oauth2UserRequest()).block())
 				.isInstanceOf(AuthenticationServiceException.class);

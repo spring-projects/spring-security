@@ -49,46 +49,46 @@ public class AspectJInterceptorTests {
 	private SecuredService securedService;
 
 	@Test
-	public void publicMethod() throws Exception {
+	public void publicMethod() {
 		service.publicMethod();
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
-	public void securedMethodNotAuthenticated() throws Exception {
+	public void securedMethodNotAuthenticated() {
 		service.secureMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void securedMethodWrongRole() throws Exception {
+	public void securedMethodWrongRole() {
 		SecurityContextHolder.getContext().setAuthentication(admin);
 		service.secureMethod();
 	}
 
 	@Test
-	public void securedMethodEverythingOk() throws Exception {
+	public void securedMethodEverythingOk() {
 		SecurityContextHolder.getContext().setAuthentication(user);
 		service.secureMethod();
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
-	public void securedClassNotAuthenticated() throws Exception {
+	public void securedClassNotAuthenticated() {
 		securedService.secureMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void securedClassWrongRole() throws Exception {
+	public void securedClassWrongRole() {
 		SecurityContextHolder.getContext().setAuthentication(admin);
 		securedService.secureMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void securedClassWrongRoleOnNewedInstance() throws Exception {
+	public void securedClassWrongRoleOnNewedInstance() {
 		SecurityContextHolder.getContext().setAuthentication(admin);
 		new SecuredService().secureMethod();
 	}
 
 	@Test
-	public void securedClassEverythingOk() throws Exception {
+	public void securedClassEverythingOk() {
 		SecurityContextHolder.getContext().setAuthentication(user);
 		securedService.secureMethod();
 		new SecuredService().secureMethod();

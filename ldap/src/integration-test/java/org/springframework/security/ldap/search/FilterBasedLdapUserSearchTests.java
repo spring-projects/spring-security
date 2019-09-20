@@ -73,7 +73,7 @@ public class FilterBasedLdapUserSearchTests {
 
 	// Try some funny business with filters.
 	@Test
-	public void extraFilterPartToExcludeBob() throws Exception {
+	public void extraFilterPartToExcludeBob() {
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch(
 				"ou=people",
 				"(&(cn=*)(!(|(uid={0})(uid=rod)(uid=jerry)(uid=slashguy)(uid=javadude)(uid=groovydude)(uid=closuredude)(uid=scaladude))))",
@@ -112,7 +112,7 @@ public class FilterBasedLdapUserSearchTests {
 	}
 
 	@Test
-	public void searchWithDifferentSearchBaseIsSuccessful() throws Exception {
+	public void searchWithDifferentSearchBaseIsSuccessful() {
 		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch(
 				"ou=otherpeople", "(cn={0})", this.contextSource);
 		DirContextOperations joe = locator.searchForUser("Joe Smeth");

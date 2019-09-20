@@ -37,7 +37,7 @@ import java.util.List;
 @SuppressWarnings({ "unchecked" })
 public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 	@Test
-	public void objectsAreRemovedIfPermissionDenied() throws Exception {
+	public void objectsAreRemovedIfPermissionDenied() {
 		AclService service = mock(AclService.class);
 		Acl acl = mock(Acl.class);
 		when(acl.isGranted(any(), any(), anyBoolean())).thenReturn(
@@ -63,7 +63,7 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 	}
 
 	@Test
-	public void accessIsGrantedIfNoAttributesDefined() throws Exception {
+	public void accessIsGrantedIfNoAttributesDefined() {
 		AclEntryAfterInvocationCollectionFilteringProvider provider = new AclEntryAfterInvocationCollectionFilteringProvider(
 				mock(AclService.class), Arrays.asList(mock(Permission.class)));
 		Object returned = new Object();
@@ -75,7 +75,7 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 	}
 
 	@Test
-	public void nullReturnObjectIsIgnored() throws Exception {
+	public void nullReturnObjectIsIgnored() {
 		AclService service = mock(AclService.class);
 		AclEntryAfterInvocationCollectionFilteringProvider provider = new AclEntryAfterInvocationCollectionFilteringProvider(
 				service, Arrays.asList(mock(Permission.class)));

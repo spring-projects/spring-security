@@ -75,7 +75,7 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extend
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		securityContextRequestFilter.setAuthenticationManager(http
 				.getSharedObject(AuthenticationManager.class));
 		ExceptionHandlingConfigurer<H> exceptionConf = http

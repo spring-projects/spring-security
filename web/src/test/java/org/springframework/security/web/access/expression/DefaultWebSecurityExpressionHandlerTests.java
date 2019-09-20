@@ -63,7 +63,7 @@ public class DefaultWebSecurityExpressionHandlerTests {
 	}
 
 	@Test
-	public void expressionPropertiesAreResolvedAgainstAppContextBeans() throws Exception {
+	public void expressionPropertiesAreResolvedAgainstAppContextBeans() {
 		StaticApplicationContext appContext = new StaticApplicationContext();
 		RootBeanDefinition bean = new RootBeanDefinition(SecurityConfig.class);
 		bean.getConstructorArgumentValues().addGenericArgumentValue("ROLE_A");

@@ -154,7 +154,7 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 
 	@Test
 	// SEC-2382
-	public void autowireBeanFactoryWhenBeanNameAutoProxyCreatorThenWorks() throws Exception {
+	public void autowireBeanFactoryWhenBeanNameAutoProxyCreatorThenWorks() {
 		this.spring.testConfigLocations("AutowireBeanFactoryObjectPostProcessorTests-aopconfig.xml").autowire();
 
 		MyAdvisedBean bean = this.spring.getContext().getBean(MyAdvisedBean.class);

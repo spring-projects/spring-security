@@ -31,7 +31,7 @@ import org.springframework.security.web.firewall.DefaultHttpFirewall;
 public class LogoutHandlerTests {
 	LogoutFilter filter;
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		filter = new LogoutFilter("/success", new SecurityContextLogoutHandler());
 	}
 

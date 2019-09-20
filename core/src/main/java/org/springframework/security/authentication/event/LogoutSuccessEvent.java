@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package org.springframework.security.rsocket;
+package org.springframework.security.authentication.event;
 
-import reactor.core.publisher.Mono;
+import org.springframework.security.core.Authentication;
 
 /**
- * Contract to allow a {@link PayloadInterceptor} to delegate to the next in the chain.
- *  *
- * @author Rob Winch
- * @since 5.2
+ * Application event which indicates successful logout
+ *
+ * @author Onur Kagan Ozcan
+ * @since 5.2.0
  */
-public interface PayloadInterceptorChain {
-	/**
-	 * Process the payload exchange.
-	 * @param exchange the current server exchange
-	 * @return {@code Mono<Void>} to indicate when request processing is complete
-	 */
-	Mono<Void> next(PayloadExchange exchange);
+public class LogoutSuccessEvent extends AbstractAuthenticationEvent {
+
+	public LogoutSuccessEvent(Authentication authentication) {
+		super(authentication);
+	}
+
 }

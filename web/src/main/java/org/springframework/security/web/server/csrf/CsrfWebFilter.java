@@ -32,6 +32,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
+import static java.lang.Boolean.TRUE;
+
 /**
  * <p>
  * Applies
@@ -60,6 +62,16 @@ import org.springframework.web.server.WebFilterChain;
 public class CsrfWebFilter implements WebFilter {
 	public static final ServerWebExchangeMatcher DEFAULT_CSRF_MATCHER = new DefaultRequireCsrfProtectionMatcher();
 
+	/**
+	 * The attribute name to use when marking a given request as one that should not be filtered.
+	 *
+	 * To use, set the attribute on your {@link ServerWebExchange}:
+	 * <pre>
+	 * 	CsrfWebFilter.skipExchange(exchange);
+	 * </pre>
+	 */
+	private static final String SHOULD_NOT_FILTER = "SHOULD_NOT_FILTER" + CsrfWebFilter.class.getName();
+
 	private ServerWebExchangeMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
 
 	private ServerCsrfTokenRepository csrfTokenRepository = new WebSessionServerCsrfTokenRepository();
@@ -86,6 +98,10 @@ public class CsrfWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+		if (TRUE.equals(exchange.getAttribute(SHOULD_NOT_FILTER))) {
+			return chain.filter(exchange).then(Mono.empty());
+		}
+
 		return this.requireCsrfProtectionMatcher.matches(exchange)
 			.filter( matchResult -> matchResult.isMatch())
 			.filter( matchResult -> !exchange.getAttributes().containsKey(CsrfToken.class.getName()))
@@ -94,6 +110,10 @@ public class CsrfWebFilter implements WebFilter {
 			.switchIfEmpty(continueFilterChain(exchange, chain).then(Mono.empty()))
 			.onErrorResume(CsrfException.class, e -> this.accessDeniedHandler
 				.handle(exchange, e));
+	}
+
+	public static void skipExchange(ServerWebExchange exchange) {
+		exchange.getAttributes().put(SHOULD_NOT_FILTER, TRUE);
 	}
 
 	private Mono<Void> validateToken(ServerWebExchange exchange) {

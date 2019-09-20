@@ -58,13 +58,13 @@ public class ReactorContextTestExecutionListener
 
 	private static class DelegateTestExecutionListener extends AbstractTestExecutionListener {
 		@Override
-		public void beforeTestMethod(TestContext testContext) throws Exception {
+		public void beforeTestMethod(TestContext testContext) {
 			SecurityContext securityContext = TestSecurityContextHolder.getContext();
 			Hooks.onLastOperator(CONTEXT_OPERATOR_KEY, Operators.lift((s, sub) -> new SecuritySubContext<>(sub, securityContext)));
 		}
 
 		@Override
-		public void afterTestMethod(TestContext testContext) throws Exception {
+		public void afterTestMethod(TestContext testContext) {
 			Hooks.resetOnLastOperator(CONTEXT_OPERATOR_KEY);
 		}
 

@@ -27,7 +27,7 @@ public class CsrfBeanDefinitionParserTests {
 			"classpath:org/springframework/security/config/http/CsrfBeanDefinitionParserTests";
 
 	@Test
-	public void registerDataValueProcessorOnlyIfNotRegistered() throws Exception {
+	public void registerDataValueProcessorOnlyIfNotRegistered() {
 		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext()) {
 			context.setAllowBeanDefinitionOverriding(false);
 			context.setConfigLocation(this.xml("RegisterDataValueProcessorOnyIfNotRegistered"));

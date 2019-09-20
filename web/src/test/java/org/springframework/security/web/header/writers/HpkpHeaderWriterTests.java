@@ -158,7 +158,7 @@ public class HpkpHeaderWriterTests {
 	}
 
 	@Test
-	public void writeHeadersTerminateConnectionWithURIAsString() throws URISyntaxException {
+	public void writeHeadersTerminateConnectionWithURIAsString() {
 		writer.setReportOnly(false);
 		writer.setReportUri("https://example.com/pkp-report");
 

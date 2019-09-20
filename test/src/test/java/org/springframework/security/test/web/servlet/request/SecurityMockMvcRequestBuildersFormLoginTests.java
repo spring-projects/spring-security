@@ -31,12 +31,12 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 	private MockServletContext servletContext;
 
 	@Before
-	public void setup() throws Exception {
+	public void setup() {
 		this.servletContext = new MockServletContext();
 	}
 
 	@Test
-	public void defaults() throws Exception {
+	public void defaults() {
 		MockHttpServletRequest request = formLogin().buildRequest(this.servletContext);
 		CsrfToken token = (CsrfToken) request
 				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
@@ -51,7 +51,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 	}
 
 	@Test
-	public void custom() throws Exception {
+	public void custom() {
 		MockHttpServletRequest request = formLogin("/login").user("username", "admin")
 				.password("password", "secret").buildRequest(this.servletContext);
 
@@ -68,7 +68,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 
 	// gh-3920
 	@Test
-	public void usesAcceptMediaForContentNegotiation() throws Exception {
+	public void usesAcceptMediaForContentNegotiation() {
 		MockHttpServletRequest request = formLogin("/login").user("username", "admin")
 				.password("password", "secret").buildRequest(this.servletContext);
 

@@ -38,7 +38,7 @@ public final class CsrfTokenHandshakeInterceptor implements HandshakeInterceptor
 
 	public boolean beforeHandshake(ServerHttpRequest request,
 			ServerHttpResponse response, WebSocketHandler wsHandler,
-			Map<String, Object> attributes) throws Exception {
+			Map<String, Object> attributes) {
 		HttpServletRequest httpRequest = ((ServletServerHttpRequest) request)
 				.getServletRequest();
 		CsrfToken token = (CsrfToken) httpRequest.getAttribute(CsrfToken.class.getName());

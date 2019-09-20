@@ -54,7 +54,7 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 
 	@Test
 	// SEC-1225
-	public void providersAreRegisteredAsTopLevelBeans() throws Exception {
+	public void providersAreRegisteredAsTopLevelBeans() {
 		ConfigurableApplicationContext context = this.spring.context(CONTEXT)
 			.getContext();
 		assertThat(context.getBeansOfType(AuthenticationProvider.class)).hasSize(1);
@@ -78,7 +78,7 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void credentialsAreClearedByDefault() throws Exception {
+	public void credentialsAreClearedByDefault() {
 		ConfigurableApplicationContext appContext = this.spring.context(CONTEXT)
 			.getContext();
 		ProviderManager pm = (ProviderManager) appContext
@@ -87,7 +87,7 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void clearCredentialsPropertyIsRespected() throws Exception {
+	public void clearCredentialsPropertyIsRespected() {
 		ConfigurableApplicationContext appContext = this.spring.context("<authentication-manager erase-credentials='false'/>")
 			.getContext();
 		ProviderManager pm = (ProviderManager) appContext

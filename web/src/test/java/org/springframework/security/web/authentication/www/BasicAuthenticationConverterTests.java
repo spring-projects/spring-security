@@ -50,7 +50,7 @@ public class BasicAuthenticationConverterTests {
 	}
 
 	@Test
-	public void testNormalOperation() throws Exception {
+	public void testNormalOperation() {
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
@@ -74,7 +74,7 @@ public class BasicAuthenticationConverterTests {
 	}
 
 	@Test
-	public void testWhenUnsupportedAuthorizationHeaderThenIgnored() throws Exception {
+	public void testWhenUnsupportedAuthorizationHeaderThenIgnored() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer someOtherToken");
 		UsernamePasswordAuthenticationToken authentication = converter.convert(request);
@@ -84,7 +84,7 @@ public class BasicAuthenticationConverterTests {
 	}
 
 	@Test(expected = BadCredentialsException.class)
-	public void testWhenInvalidBasicAuthorizationTokenThenError() throws Exception {
+	public void testWhenInvalidBasicAuthorizationTokenThenError() {
 		String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
@@ -92,7 +92,7 @@ public class BasicAuthenticationConverterTests {
 	}
 
 	@Test(expected = BadCredentialsException.class)
-	public void testWhenInvalidBase64ThenError() throws Exception {
+	public void testWhenInvalidBase64ThenError() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Basic NOT_VALID_BASE64");
 
