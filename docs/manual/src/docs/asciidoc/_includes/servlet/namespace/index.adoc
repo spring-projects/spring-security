@@ -1,0 +1,403 @@
+
+[[ns-config]]
+= Security Namespace Configuration
+
+
+== Introduction
+Namespace configuration has been available since version 2.0 of the Spring Framework.
+It allows you to supplement the traditional Spring beans application context syntax with elements from additional XML schema.
+You can find more information in the Spring https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/[Reference Documentation].
+A namespace element can be used simply to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax which more closely matches the problem domain and hides the underlying complexity from the user.
+A simple element may conceal the fact that multiple beans and processing steps are being added to the application context.
+For example, adding the following element from the security namespace to an application context will start up an embedded LDAP server for testing use within the application:
+
+[source,xml]
+----
+<security:ldap-server />
+----
+
+This is much simpler than wiring up the equivalent Apache Directory Server beans.
+The most common alternative configuration requirements are supported by attributes on the `ldap-server` element and the user is isolated from worrying about which beans they need to create and what the bean property names are.
+footnote:[You can find out more about the use of the `ldap-server` element in the chapter on pass:specialcharacters,macros[<<ldap>>].].
+Use of a good XML editor while editing the application context file should provide information on the attributes and elements that are available.
+We would recommend that you try out the https://spring.io/tools/sts[Spring Tool Suite] as it has special features for working with standard Spring namespaces.
+
+
+To start using the security namespace in your application context, you need to have the `spring-security-config` jar on your classpath.
+Then all you need to do is add the schema declaration to your application context file:
+
+[source,xml]
+----
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:security="http://www.springframework.org/schema/security"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+		https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/security
+		https://www.springframework.org/schema/security/spring-security.xsd">
+	...
+</beans>
+----
+
+In many of the examples you will see (and in the sample applications), we will often use "security" as the default namespace rather than "beans", which means we can omit the prefix on all the security namespace elements, making the content easier to read.
+You may also want to do this if you have your application context divided up into separate files and have most of your security configuration in one of them.
+Your security application context file would then start like this
+
+[source,xml]
+----
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+xmlns:beans="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+		https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/security
+		https://www.springframework.org/schema/security/spring-security.xsd">
+	...
+</beans:beans>
+----
+
+We'll assume this syntax is being used from now on in this chapter.
+
+
+=== Design of the Namespace
+The namespace is designed to capture the most common uses of the framework and provide a simplified and concise syntax for enabling them within an application.
+The design is based around the large-scale dependencies within the framework, and can be divided up into the following areas:
+
+* __Web/HTTP Security__ - the most complex part.
+Sets up the filters and related service beans used to apply the framework authentication mechanisms, to secure URLs, render login and error pages and much more.
+
+* __Business Object (Method) Security__ - options for securing the service layer.
+
+* __AuthenticationManager__ - handles authentication requests from other parts of the framework.
+
+* __AccessDecisionManager__ - provides access decisions for web and method security.
+A default one will be registered, but you can also choose to use a custom one, declared using normal Spring bean syntax.
+
+* __AuthenticationProvider__s - mechanisms against which the authentication manager authenticates users.
+The namespace provides supports for several standard options and also a means of adding custom beans declared using a traditional syntax.
+
+* __UserDetailsService__ - closely related to authentication providers, but often also required by other beans.
+
+We'll see how to configure these in the following sections.
+
+[[ns-getting-started]]
+== Getting Started with Security Namespace Configuration
+In this section, we'll look at how you can build up a namespace configuration to use some of the main features of the framework.
+Let's assume you initially want to get up and running as quickly as possible and add authentication support and access control to an existing web application, with a few test logins.
+Then we'll look at how to change over to authenticating against a database or other security repository.
+In later sections we'll introduce more advanced namespace configuration options.
+
+[[ns-web-xml]]
+=== web.xml Configuration
+The first thing you need to do is add the following filter declaration to your `web.xml` file:
+
+[source,xml]
+----
+<filter>
+<filter-name>springSecurityFilterChain</filter-name>
+<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+</filter>
+
+<filter-mapping>
+<filter-name>springSecurityFilterChain</filter-name>
+<url-pattern>/*</url-pattern>
+</filter-mapping>
+----
+
+This provides a hook into the Spring Security web infrastructure.
+`DelegatingFilterProxy` is a Spring Framework class which delegates to a filter implementation which is defined as a Spring bean in your application context.
+In this case, the bean is named "springSecurityFilterChain", which is an internal infrastructure bean created by the namespace to handle web security.
+Note that you should not use this bean name yourself.
+Once you've added this to your `web.xml`, you're ready to start editing your application context file.
+Web security services are configured using the `<http>` element.
+
+[[ns-minimal]]
+=== A Minimal <http> Configuration
+All you need to enable web security to begin with is
+
+[source,xml]
+----
+<http>
+<intercept-url pattern="/**" access="hasRole('USER')" />
+<form-login />
+<logout />
+</http>
+----
+
+Which says that we want all URLs within our application to be secured, requiring the role `ROLE_USER` to access them, we want to log in to the application using a form with username and password, and that we want a logout URL registered which will allow us to log out of the application.
+`<http>` element is the parent for all web-related namespace functionality.
+The `<intercept-url>` element defines a `pattern` which is matched against the URLs of incoming requests using an ant path style syntax footnote:[See the section on pass:specialcharacters,macros[<<request-matching>>] in the Web Application Infrastructure chapter for more details on how matches are actually performed.].
+You can also use regular-expression matching as an alternative (see the namespace appendix for more details).
+The `access` attribute defines the access requirements for requests matching the given pattern.
+With the default configuration, this is typically a comma-separated list of roles, one of which a user must have to be allowed to make the request.
+The prefix "ROLE_" is a marker which indicates that a simple comparison with the user's authorities should be made.
+In other words, a normal role-based check should be used.
+Access-control in Spring Security is not limited to the use of simple roles (hence the use of the prefix to differentiate between different types of security attributes).
+We'll see later how the interpretation can vary footnote:[The interpretation of the comma-separated values in the `access` attribute depends on the implementation of the <<ns-access-manager,AccessDecisionManager>> which is used.].
+In Spring Security 3.0, the attribute can also be populated with an pass:specialcharacters,macros[<<el-access,EL expression>>].
+
+
+[NOTE]
+===
+
+You can use multiple `<intercept-url>` elements to define different access requirements for different sets of URLs, but they will be evaluated in the order listed and the first match will be used.
+So you must put the most specific matches at the top.
+You can also add a `method` attribute to limit the match to a particular HTTP method (`GET`, `POST`, `PUT` etc.).
+
+===
+
+To add some users, you can define a set of test data directly in the namespace:
+
+[source,xml]
+----
+<authentication-manager>
+<authentication-provider>
+	<user-service>
+	<!-- Password is prefixed with {noop} to indicate to DelegatingPasswordEncoder that
+	NoOpPasswordEncoder should be used. This is not safe for production, but makes reading
+	in samples easier. Normally passwords should be hashed using BCrypt -->
+	<user name="jimi" password="{noop}jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
+	<user name="bob" password="{noop}bobspassword" authorities="ROLE_USER" />
+	</user-service>
+</authentication-provider>
+</authentication-manager>
+----
+
+This is an example of a secure way of storing the same passwords.
+The password is prefixed with `{bcrypt}` to instruct `DelegatingPasswordEncoder`, which supports any configured `PasswordEncoder` for matching, that the passwords are hashed using BCrypt:
+
+[source,xml]
+----
+<authentication-manager>
+<authentication-provider>
+	<user-service>
+	<user name="jimi" password="{bcrypt}$2a$10$ddEWZUl8aU0GdZPPpy7wbu82dvEw/pBpbRvDQRqA41y6mK1CoH00m"
+			authorities="ROLE_USER, ROLE_ADMIN" />
+	<user name="bob" password="{bcrypt}$2a$10$/elFpMBnAYYig6KRR5bvOOYeZr1ie1hSogJryg9qDlhza4oCw1Qka"
+			authorities="ROLE_USER" />
+	<user name="jimi" password="{noop}jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
+	<user name="bob" password="{noop}bobspassword" authorities="ROLE_USER" />
+	</user-service>
+</authentication-provider>
+</authentication-manager>
+----
+
+
+
+[subs="quotes"]
+****
+If you are familiar with pre-namespace versions of the framework, you can probably already guess roughly what's going on here.
+The `<http>` element is responsible for creating a `FilterChainProxy` and the filter beans which it uses.
+Common problems like incorrect filter ordering are no longer an issue as the filter positions are predefined.
+
+The `<authentication-provider>` element creates a `DaoAuthenticationProvider` bean and the `<user-service>` element creates an `InMemoryDaoImpl`.
+All `authentication-provider` elements must be children of the `<authentication-manager>` element, which creates a `ProviderManager` and registers the authentication providers with it.
+You can find more detailed information on the beans that are created in the <<appendix-namespace,namespace appendix>>.
+It's worth cross-checking this if you want to start understanding what the important classes in the framework are and how they are used, particularly if you want to customise things later.
+****
+
+The configuration above defines two users, their passwords and their roles within the application (which will be used for access control).
+It is also possible to load user information from a standard properties file using the `properties` attribute on `user-service`.
+See the section on <<core-services-in-memory-service,in-memory authentication>> for more details on the file format.
+Using the `<authentication-provider>` element means that the user information will be used by the authentication manager to process authentication requests.
+You can have multiple `<authentication-provider>` elements to define different authentication sources and each will be consulted in turn.
+
+At this point you should be able to start up your application and you will be required to log in to proceed.
+Try it out, or try experimenting with the "tutorial" sample application that comes with the project.
+
+[[ns-form-target]]
+==== Setting a Default Post-Login Destination
+If a form login isn't prompted by an attempt to access a protected resource, the `default-target-url` option comes into play.
+This is the URL the user will be taken to after successfully logging in, and defaults to "/".
+You can also configure things so that the user __always__ ends up at this page (regardless of whether the login was "on-demand" or they explicitly chose to log in) by setting the `always-use-default-target` attribute to "true".
+This is useful if your application always requires that the user starts at a "home" page, for example:
+
+[source,xml]
+----
+<http pattern="/login.htm*" security="none"/>
+<http use-expressions="false">
+<intercept-url pattern='/**' access='ROLE_USER' />
+<form-login login-page='/login.htm' default-target-url='/home.htm'
+		always-use-default-target='true' />
+</http>
+----
+
+For even more control over the destination, you can use the `authentication-success-handler-ref` attribute as an alternative to `default-target-url`.
+The referenced bean should be an instance of `AuthenticationSuccessHandler`.
+You'll find more on this in the <<form-login-flow-handling,Core Filters>> chapter and also in the namespace appendix, as well as information on how to customize the flow when authentication fails.
+
+[[ns-web-advanced]]
+== Advanced Web Features
+
+[[ns-custom-filters]]
+=== Adding in Your Own Filters
+If you've used Spring Security before, you'll know that the framework maintains a chain of filters in order to apply its services.
+You may want to add your own filters to the stack at particular locations or use a Spring Security filter for which there isn't currently a namespace configuration option (CAS, for example).
+Or you might want to use a customized version of a standard namespace filter, such as the `UsernamePasswordAuthenticationFilter` which is created by the `<form-login>` element, taking advantage of some of the extra configuration options which are available by using the bean explicitly.
+How can you do this with namespace configuration, since the filter chain is not directly exposed?
+
+The order of the filters is always strictly enforced when using the namespace.
+When the application context is being created, the filter beans are sorted by the namespace handling code and the standard Spring Security filters each have an alias in the namespace and a well-known position.
+
+[NOTE]
+===
+In previous versions, the sorting took place after the filter instances had been created, during post-processing of the application context.
+In version 3.0+ the sorting is now done at the bean metadata level, before the classes have been instantiated.
+This has implications for how you add your own filters to the stack as the entire filter list must be known during the parsing of the `<http>` element, so the syntax has changed slightly in 3.0.
+===
+
+The filters, aliases and namespace elements/attributes which create the filters are shown in <<filter-stack>>.
+The filters are listed in the order in which they occur in the filter chain.
+
+[[filter-stack]]
+.Standard Filter Aliases and Ordering
+|===
+| Alias | Filter Class | Namespace Element or Attribute
+
+|  CHANNEL_FILTER
+| `ChannelProcessingFilter`
+| `http/intercept-url@requires-channel`
+
+|  SECURITY_CONTEXT_FILTER
+| `SecurityContextPersistenceFilter`
+| `http`
+
+|  CONCURRENT_SESSION_FILTER
+| `ConcurrentSessionFilter`
+| `session-management/concurrency-control`
+
+| HEADERS_FILTER
+| `HeaderWriterFilter`
+| `http/headers`
+
+| CSRF_FILTER
+| `CsrfFilter`
+| `http/csrf`
+
+|  LOGOUT_FILTER
+| `LogoutFilter`
+| `http/logout`
+
+|  X509_FILTER
+| `X509AuthenticationFilter`
+| `http/x509`
+
+|  PRE_AUTH_FILTER
+| `AbstractPreAuthenticatedProcessingFilter` Subclasses
+| N/A
+
+|  CAS_FILTER
+| `CasAuthenticationFilter`
+| N/A
+
+|  FORM_LOGIN_FILTER
+| `UsernamePasswordAuthenticationFilter`
+| `http/form-login`
+
+|  BASIC_AUTH_FILTER
+| `BasicAuthenticationFilter`
+| `http/http-basic`
+
+|  SERVLET_API_SUPPORT_FILTER
+| `SecurityContextHolderAwareRequestFilter`
+| `http/@servlet-api-provision`
+
+| JAAS_API_SUPPORT_FILTER
+| `JaasApiIntegrationFilter`
+| `http/@jaas-api-provision`
+
+|  REMEMBER_ME_FILTER
+| `RememberMeAuthenticationFilter`
+| `http/remember-me`
+
+|  ANONYMOUS_FILTER
+| `AnonymousAuthenticationFilter`
+| `http/anonymous`
+
+|  SESSION_MANAGEMENT_FILTER
+| `SessionManagementFilter`
+| `session-management`
+
+| EXCEPTION_TRANSLATION_FILTER
+| `ExceptionTranslationFilter`
+| `http`
+
+|  FILTER_SECURITY_INTERCEPTOR
+| `FilterSecurityInterceptor`
+| `http`
+
+|  SWITCH_USER_FILTER
+| `SwitchUserFilter`
+| N/A
+|===
+
+You can add your own filter to the stack, using the `custom-filter` element and one of these names to specify the position your filter should appear at:
+
+[source,xml]
+----
+<http>
+<custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
+</http>
+
+<beans:bean id="myFilter" class="com.mycompany.MySpecialAuthenticationFilter"/>
+----
+
+You can also use the `after` or `before` attributes if you want your filter to be inserted before or after another filter in the stack.
+The names "FIRST" and "LAST" can be used with the `position` attribute to indicate that you want your filter to appear before or after the entire stack, respectively.
+
+.Avoiding filter position conflicts
+[TIP]
+===
+
+If you are inserting a custom filter which may occupy the same position as one of the standard filters created by the namespace then it's important that you don't include the namespace versions by mistake.
+Remove any elements which create filters whose functionality you want to replace.
+
+Note that you can't replace filters which are created by the use of the `<http>` element itself - `SecurityContextPersistenceFilter`, `ExceptionTranslationFilter` or `FilterSecurityInterceptor`.
+Some other filters are added by default, but you can disable them.
+An `AnonymousAuthenticationFilter` is added by default and unless you have <<ns-session-fixation,session-fixation protection>> disabled, a `SessionManagementFilter` will also be added to the filter chain.
+
+===
+
+If you're replacing a namespace filter which requires an authentication entry point (i.e. where the authentication process is triggered by an attempt by an unauthenticated user to access to a secured resource), you will need to add a custom entry point bean too.
+
+
+
+[[ns-method-security]]
+== Method Security
+From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods.
+It provides support for JSR-250 annotation security as well as the framework's original `@Secured` annotation.
+From 3.0 you can also make use of new <<el-access,expression-based annotations>>.
+You can apply security to a single bean, using the `intercept-methods` element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
+
+[[ns-access-manager]]
+== The Default AccessDecisionManager
+This section assumes you have some knowledge of the underlying architecture for access-control within Spring Security.
+If you don't you can skip it and come back to it later, as this section is only really relevant for people who need to do some customization in order to use more than simple role-based security.
+
+When you use a namespace configuration, a default instance of `AccessDecisionManager` is automatically registered for you and will be used for making access decisions for method invocations and web URL access, based on the access attributes you specify in your `intercept-url` and `protect-pointcut` declarations (and in annotations if you are using annotation secured methods).
+
+The default strategy is to use an `AffirmativeBased` `AccessDecisionManager` with a `RoleVoter` and an `AuthenticatedVoter`.
+You can find out more about these in the chapter on <<authz-arch,authorization>>.
+
+
+[[ns-custom-access-mgr]]
+=== Customizing the AccessDecisionManager
+If you need to use a more complicated access control strategy then it is easy to set an alternative for both method and web security.
+
+For method security, you do this by setting the `access-decision-manager-ref` attribute on `global-method-security` to the `id` of the appropriate `AccessDecisionManager` bean in the application context:
+
+[source,xml]
+----
+<global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
+...
+</global-method-security>
+----
+
+The syntax for web security is the same, but on the `http` element:
+
+[source,xml]
+----
+<http access-decision-manager-ref="myAccessDecisionManagerBean">
+...
+</http>
+----

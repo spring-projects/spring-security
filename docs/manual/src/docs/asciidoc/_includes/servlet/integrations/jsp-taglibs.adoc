@@ -1,0 +1,202 @@
+[[taglibs]]
+== JSP Tag Libraries
+Spring Security has its own taglib which provides basic support for accessing security information and applying security constraints in JSPs.
+
+
+=== Declaring the Taglib
+To use any of the tags, you must have the security taglib declared in your JSP:
+
+[source,xml]
+----
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+----
+
+[[taglibs-authorize]]
+=== The authorize Tag
+This tag is used to determine whether its contents should be evaluated or not.
+In Spring Security 3.0, it can be used in two ways footnote:[
+The legacy options from Spring Security 2.0 are also supported, but discouraged.
+].
+The first approach uses a <<el-access-web,web-security expression>>, specified in the `access` attribute of the tag.
+The expression evaluation will be delegated to the `SecurityExpressionHandler<FilterInvocation>` defined in the application context (you should have web expressions enabled in your `<http>` namespace configuration to make sure this service is available).
+So, for example, you might have
+
+[source,xml]
+----
+<sec:authorize access="hasRole('supervisor')">
+
+This content will only be visible to users who have the "supervisor" authority in their list of <tt>GrantedAuthority</tt>s.
+
+</sec:authorize>
+----
+
+When used in conjuction with Spring Security's PermissionEvaluator, the tag can also be used to check permissions.
+For example:
+
+[source,xml]
+----
+<sec:authorize access="hasPermission(#domain,'read') or hasPermission(#domain,'write')">
+
+This content will only be visible to users who have read or write permission to the Object found as a request attribute named "domain".
+
+</sec:authorize>
+----
+
+A common requirement is to only show a particular link, if the user is actually allowed to click it.
+How can we determine in advance whether something will be allowed? This tag can also operate in an alternative mode which allows you to define a particular URL as an attribute.
+If the user is allowed to invoke that URL, then the tag body will be evaluated, otherwise it will be skipped.
+So you might have something like
+
+[source,xml]
+----
+<sec:authorize url="/admin">
+
+This content will only be visible to users who are authorized to send requests to the "/admin" URL.
+
+</sec:authorize>
+----
+
+To use this tag there must also be an instance of `WebInvocationPrivilegeEvaluator` in your application context.
+If you are using the namespace, one will automatically be registered.
+This is an instance of `DefaultWebInvocationPrivilegeEvaluator`, which creates a dummy web request for the supplied URL and invokes the security interceptor to see whether the request would succeed or fail.
+This allows you to delegate to the access-control setup you defined using `intercept-url` declarations within the `<http>` namespace configuration and saves having to duplicate the information (such as the required roles) within your JSPs.
+This approach can also be combined with a `method` attribute, supplying the HTTP method, for a more specific match.
+
+The Boolean result of evaluating the tag (whether it grants or denies access) can be stored in a page context scope variable by setting the `var` attribute to the variable name, avoiding the need for duplicating and re-evaluating the condition at other points in the page.
+
+
+==== Disabling Tag Authorization for Testing
+Hiding a link in a page for unauthorized users doesn't prevent them from accessing the URL.
+They could just type it into their browser directly, for example.
+As part of your testing process, you may want to reveal the hidden areas in order to check that links really are secured at the back end.
+If you set the system property `spring.security.disableUISecurity` to `true`, the `authorize` tag will still run but will not hide its contents.
+By default it will also surround the content with `<span class="securityHiddenUI">...</span>` tags.
+This allows you to display "hidden" content with a particular CSS style such as a different background colour.
+Try running the "tutorial" sample application with this property enabled, for example.
+
+You can also set the properties `spring.security.securedUIPrefix` and `spring.security.securedUISuffix` if you want to change surrounding text from the default `span` tags (or use empty strings to remove it completely).
+
+
+=== The authentication Tag
+This tag allows access to the current `Authentication` object stored in the security context.
+It renders a property of the object directly in the JSP.
+So, for example, if the `principal` property of the `Authentication` is an instance of Spring Security's `UserDetails` object, then using `<sec:authentication property="principal.username" />` will render the name of the current user.
+
+Of course, it isn't necessary to use JSP tags for this kind of thing and some people prefer to keep as little logic as possible in the view.
+You can access the `Authentication` object in your MVC controller (by calling `SecurityContextHolder.getContext().getAuthentication()`) and add the data directly to your model for rendering by the view.
+
+
+=== The accesscontrollist Tag
+This tag is only valid when used with Spring Security's ACL module.
+It checks a comma-separated list of required permissions for a specified domain object.
+If the current user has all of those permissions, then the tag body will be evaluated.
+If they don't, it will be skipped.
+An example might be
+
+CAUTION: In general this tag should be considered deprecated.
+Instead use the <<taglibs-authorize>>.
+
+[source,xml]
+----
+<sec:accesscontrollist hasPermission="1,2" domainObject="${someObject}">
+
+This will be shown if the user has all of the permissions represented by the values "1" or "2" on the given object.
+
+</sec:accesscontrollist>
+----
+
+The permissions are passed to the `PermissionFactory` defined in the application context, converting them to ACL `Permission` instances, so they may be any format which is supported by the factory - they don't have to be integers, they could be strings like `READ` or `WRITE`.
+If no `PermissionFactory` is found, an instance of `DefaultPermissionFactory` will be used.
+The `AclService` from the application context will be used to load the `Acl` instance for the supplied object.
+The `Acl` will be invoked with the required permissions to check if all of them are granted.
+
+This tag also supports the `var` attribute, in the same way as the `authorize` tag.
+
+
+=== The csrfInput Tag
+If CSRF protection is enabled, this tag inserts a hidden form field with the correct name and value for the CSRF protection token.
+If CSRF protection is not enabled, this tag outputs nothing.
+
+Normally Spring Security automatically inserts a CSRF form field for any `<form:form>` tags you use, but if for some reason you cannot use `<form:form>`, `csrfInput` is a handy replacement.
+
+You should place this tag within an HTML `<form></form>` block, where you would normally place other input fields.
+Do NOT place this tag within a Spring `<form:form></form:form>` block.
+Spring Security handles Spring forms automatically.
+
+[source,xml]
+----
+	<form method="post" action="/do/something">
+		<sec:csrfInput />
+		Name:<br />
+		<input type="text" name="name" />
+		...
+	</form>
+----
+
+
+=== The csrfMetaTags Tag
+If CSRF protection is enabled, this tag inserts meta tags containing the CSRF protection token form field and header names and CSRF protection token value.
+These meta tags are useful for employing CSRF protection within JavaScript in your applications.
+
+You should place `csrfMetaTags` within an HTML `<head></head>` block, where you would normally place other meta tags.
+Once you use this tag, you can access the form field name, header name, and token value easily using JavaScript.
+JQuery is used in this example to make the task easier.
+
+[source,xml]
+----
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>CSRF Protected JavaScript Page</title>
+		<meta name="description" content="This is the description for this page" />
+		<sec:csrfMetaTags />
+		<script type="text/javascript" language="javascript">
+
+			var csrfParameter = $("meta[name='_csrf_parameter']").attr("content");
+			var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			var csrfToken = $("meta[name='_csrf']").attr("content");
+
+			// using XMLHttpRequest directly to send an x-www-form-urlencoded request
+			var ajax = new XMLHttpRequest();
+			ajax.open("POST", "https://www.example.org/do/something", true);
+			ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded data");
+			ajax.send(csrfParameter + "=" + csrfToken + "&name=John&...");
+
+			// using XMLHttpRequest directly to send a non-x-www-form-urlencoded request
+			var ajax = new XMLHttpRequest();
+			ajax.open("POST", "https://www.example.org/do/something", true);
+			ajax.setRequestHeader(csrfHeader, csrfToken);
+			ajax.send("...");
+
+			// using JQuery to send an x-www-form-urlencoded request
+			var data = {};
+			data[csrfParameter] = csrfToken;
+			data["name"] = "John";
+			...
+			$.ajax({
+				url: "https://www.example.org/do/something",
+				type: "POST",
+				data: data,
+				...
+			});
+
+			// using JQuery to send a non-x-www-form-urlencoded request
+			var headers = {};
+			headers[csrfHeader] = csrfToken;
+			$.ajax({
+				url: "https://www.example.org/do/something",
+				type: "POST",
+				headers: headers,
+				...
+			});
+
+		<script>
+	</head>
+	<body>
+		...
+	</body>
+</html>
+----
+
+If CSRF protection is not enabled, `csrfMetaTags` outputs nothing.
+

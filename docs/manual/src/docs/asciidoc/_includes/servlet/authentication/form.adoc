@@ -1,0 +1,138 @@
+[[jc-form]]
+== Form Login
+
+=== Form Login Java Configuration
+
+You might be wondering where the login form came from when you were prompted to log in, since we made no mention of any HTML files or JSPs.
+Since Spring Security's default configuration does not explicitly set a URL for the login page, Spring Security generates one automatically, based on the features that are enabled and using standard values for the URL which processes the submitted login, the default target URL the user will be sent to after logging in and so on.
+
+While the automatically generated log in page is convenient to get up and running quickly, most applications will want to provide their own login page.
+When we want to change the default configuration, we can customize the `WebSecurityConfigurerAdapter` that we mentioned earlier by extending it like so:
+
+[source,java]
+----
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+	// ...
+}
+----
+
+And then override the `configure` method as seen below:
+
+[source,java]
+----
+protected void configure(HttpSecurity http) throws Exception {
+	http
+		.authorizeRequests(authorizeRequests ->
+		    authorizeRequests
+			    .anyRequest().authenticated()
+		)
+		.formLogin(formLogin ->
+		    formLogin
+			    .loginPage("/login") // <1>
+			    .permitAll()         // <2>
+	    );
+}
+----
+
+<1> The updated configuration specifies the location of the log in page.
+<2> We must grant all users (i.e. unauthenticated users) access to our log in page.
+The `formLogin().permitAll()` method allows granting access to all users for all URLs associated with form based log in.
+
+An example log in page implemented with JSPs for our current configuration can be seen below:
+
+NOTE: The login page below represents our current configuration.
+We could easily update our configuration if some of the defaults do not meet our needs.
+
+[source,html]
+----
+<c:url value="/login" var="loginUrl"/>
+<form action="${loginUrl}" method="post">       <1>
+	<c:if test="${param.error != null}">        <2>
+		<p>
+			Invalid username and password.
+		</p>
+	</c:if>
+	<c:if test="${param.logout != null}">       <3>
+		<p>
+			You have been logged out.
+		</p>
+	</c:if>
+	<p>
+		<label for="username">Username</label>
+		<input type="text" id="username" name="username"/>	<4>
+	</p>
+	<p>
+		<label for="password">Password</label>
+		<input type="password" id="password" name="password"/>	<5>
+	</p>
+	<input type="hidden"                        <6>
+		name="${_csrf.parameterName}"
+		value="${_csrf.token}"/>
+	<button type="submit" class="btn">Log in</button>
+</form>
+----
+
+<1> A POST to the `/login` URL will attempt to authenticate the user
+<2> If the query parameter `error` exists, authentication was attempted and failed
+<3> If the query parameter `logout` exists, the user was successfully logged out
+<4> The username must be present as the HTTP parameter named __username__
+<5> The password must be present as the HTTP parameter named __password__
+<6> We must <<csrf-include-csrf-token>> To learn more read the <<csrf>> section of the reference
+
+=== Form Login XML Configuration
+
+[[ns-form-and-basic]]
+==== Form and Basic Login Options
+You might be wondering where the login form came from when you were prompted to log in, since we made no mention of any HTML files or JSPs.
+In fact, since we didn't explicitly set a URL for the login page, Spring Security generates one automatically, based on the features that are enabled and using standard values for the URL which processes the submitted login, the default target URL the user will be sent to after logging in and so on.
+However, the namespace offers plenty of support to allow you to customize these options.
+For example, if you want to supply your own login page, you could use:
+
+[source,xml]
+----
+<http>
+<intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+<intercept-url pattern="/**" access="ROLE_USER" />
+<form-login login-page='/login.jsp'/>
+</http>
+----
+
+Also note that we've added an extra `intercept-url` element to say that any requests for the login page should be available to anonymous users footnote:[See the chapter on pass:specialcharacters,macros[<<anonymous>>]] and also the <<authz-authenticated-voter,AuthenticatedVoter>> class for more details on how the value `IS_AUTHENTICATED_ANONYMOUSLY` is processed.].
+Otherwise the request would be matched by the pattern /** and it wouldn't be possible to access the login page itself!
+This is a common configuration error and will result in an infinite loop in the application.
+Spring Security will emit a warning in the log if your login page appears to be secured.
+It is also possible to have all requests matching a particular pattern bypass the security filter chain completely, by defining a separate `http` element for the pattern like this:
+
+
+[source,xml]
+----
+<http pattern="/css/**" security="none"/>
+<http pattern="/login.jsp*" security="none"/>
+
+<http use-expressions="false">
+<intercept-url pattern="/**" access="ROLE_USER" />
+<form-login login-page='/login.jsp'/>
+</http>
+----
+
+From Spring Security 3.1 it is now possible to use multiple `http` elements to define separate security filter chain configurations for different request patterns.
+If the `pattern` attribute is omitted from an `http` element, it matches all requests.
+Creating an unsecured pattern is a simple example of this syntax, where the pattern is mapped to an empty filter chain  footnote:[The use of multiple `<http>` elements is an important feature, allowing the namespace to simultaneously support both stateful and stateless paths within the same application, for example.
+The previous syntax, using the attribute `filters="none"` on an `intercept-url` element is incompatible with this change and is no longer supported in 3.1.].
+We'll look at this new syntax in more detail in the chapter on the <<filter-chains-with-ns,Security Filter Chain>>.
+
+It's important to realise that these unsecured requests will be completely oblivious to any Spring Security web-related configuration or additional attributes such as `requires-channel`, so you will not be able to access information on the current user or call secured methods during the request.
+Use `access='IS_AUTHENTICATED_ANONYMOUSLY'` as an alternative if you still want the security filter chain to be applied.
+
+If you want to use basic authentication instead of form login, then change the configuration to
+
+[source,xml]
+----
+<http use-expressions="false">
+<intercept-url pattern="/**" access="ROLE_USER" />
+<http-basic />
+</http>
+----
+
+Basic authentication will then take precedence and will be used to prompt for a login when a user attempts to access a protected resource.
+Form login is still available in this configuration if you wish to use it, for example through a login form embedded in another web page.

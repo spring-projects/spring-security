@@ -1,4 +1,3 @@
-
 [[authorization]]
 = Authorization
 The advanced authorization capabilities within Spring Security represent one of the most compelling reasons for its popularity.
@@ -12,4 +11,10 @@ include::architecture.adoc[]
 include::secure-objects.adoc[]
 
 include::expression-based.adoc[]
+
+include::authorize-requests.adoc[]
+
+include::method-security.adoc[]
+
+include::acls.adoc[]
 

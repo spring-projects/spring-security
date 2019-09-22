@@ -1,0 +1,151 @@
+[[crypto]]
+= Spring Security Crypto Module
+
+
+[[spring-security-crypto-introduction]]
+== Introduction
+The Spring Security Crypto module provides support for symmetric encryption, key generation, and password encoding.
+The code is distributed as part of the core module but has no dependencies on any other Spring Security (or Spring) code.
+
+
+[[spring-security-crypto-encryption]]
+== Encryptors
+The Encryptors class provides factory methods for constructing symmetric encryptors.
+Using this class, you can create ByteEncryptors to encrypt data in raw byte[] form.
+You can also construct TextEncryptors to encrypt text strings.
+Encryptors are thread-safe.
+
+[[spring-security-crypto-encryption-bytes]]
+=== BytesEncryptor
+Use the Encryptors.standard factory method to construct a "standard" BytesEncryptor:
+
+[source,java]
+----
+Encryptors.standard("password", "salt");
+----
+
+The "standard" encryption method is 256-bit AES using PKCS #5's PBKDF2 (Password-Based Key Derivation Function #2).
+This method requires Java 6.
+The password used to generate the SecretKey should be kept in a secure place and not be shared.
+The salt is used to prevent dictionary attacks against the key in the event your encrypted data is compromised.
+A 16-byte random initialization vector is also applied so each encrypted message is unique.
+
+The provided salt should be in hex-encoded String form, be random, and be at least 8 bytes in length.
+Such a salt may be generated using a KeyGenerator:
+
+[source,java]
+----
+String salt = KeyGenerators.string().generateKey(); // generates a random 8-byte salt that is then hex-encoded
+----
+
+[[spring-security-crypto-encryption-text]]
+=== TextEncryptor
+Use the Encryptors.text factory method to construct a standard TextEncryptor:
+
+[source,java]
+----
+
+Encryptors.text("password", "salt");
+----
+
+A TextEncryptor uses a standard BytesEncryptor to encrypt text data.
+Encrypted results are returned as hex-encoded strings for easy storage on the filesystem or in the database.
+
+Use the Encryptors.queryableText factory method to construct a "queryable" TextEncryptor:
+
+[source,java]
+----
+Encryptors.queryableText("password", "salt");
+----
+
+The difference between a queryable TextEncryptor and a standard TextEncryptor has to do with initialization vector (iv) handling.
+The iv used in a queryable TextEncryptor#encrypt operation is shared, or constant, and is not randomly generated.
+This means the same text encrypted multiple times will always produce the same encryption result.
+This is less secure, but necessary for encrypted data that needs to be queried against.
+An example of queryable encrypted text would be an OAuth apiKey.
+
+[[spring-security-crypto-keygenerators]]
+== Key Generators
+The KeyGenerators class provides a number of convenience factory methods for constructing different types of key generators.
+Using this class, you can create a BytesKeyGenerator to generate byte[] keys.
+You can also construct a StringKeyGenerator to generate string keys.
+KeyGenerators are thread-safe.
+
+=== BytesKeyGenerator
+Use the KeyGenerators.secureRandom factory methods to generate a BytesKeyGenerator backed by a SecureRandom instance:
+
+[source,java]
+----
+BytesKeyGenerator generator = KeyGenerators.secureRandom();
+byte[] key = generator.generateKey();
+----
+
+The default key length is 8 bytes.
+There is also a KeyGenerators.secureRandom variant that provides control over the key length:
+
+[source,java]
+----
+KeyGenerators.secureRandom(16);
+----
+
+Use the KeyGenerators.shared factory method to construct a BytesKeyGenerator that always returns the same key on every invocation:
+
+[source,java]
+----
+KeyGenerators.shared(16);
+----
+
+=== StringKeyGenerator
+Use the KeyGenerators.string factory method to construct a 8-byte, SecureRandom KeyGenerator that hex-encodes each key as a String:
+
+[source,java]
+----
+KeyGenerators.string();
+----
+
+[[spring-security-crypto-passwordencoders]]
+== Password Encoding
+The password package of the spring-security-crypto module provides support for encoding passwords.
+`PasswordEncoder` is the central service interface and has the following signature:
+
+[source,java]
+----
+public interface PasswordEncoder {
+
+String encode(String rawPassword);
+
+boolean matches(String rawPassword, String encodedPassword);
+}
+----
+
+The matches method returns true if the rawPassword, once encoded, equals the encodedPassword.
+This method is designed to support password-based authentication schemes.
+
+The `BCryptPasswordEncoder` implementation uses the widely supported "bcrypt" algorithm to hash the passwords.
+Bcrypt uses a random 16 byte salt value and is a deliberately slow algorithm, in order to hinder password crackers.
+The amount of work it does can be tuned using the "strength" parameter which takes values from 4 to 31.
+The higher the value, the more work has to be done to calculate the hash.
+The default value is 10.
+You can change this value in your deployed system without affecting existing passwords, as the value is also stored in the encoded hash.
+
+[source,java]
+----
+
+// Create an encoder with strength 16
+BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
+String result = encoder.encode("myPassword");
+assertTrue(encoder.matches("myPassword", result));
+----
+
+The `Pbkdf2PasswordEncoder` implementation uses PBKDF2 algorithm to hash the passwords.
+In order to defeat password cracking PBKDF2 is a deliberately slow algorithm and should be tuned to take about .5 seconds to verify a password on your system.
+
+
+[source,java]
+----
+
+// Create an encoder with all the defaults
+Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder();
+String result = encoder.encode("myPassword");
+assertTrue(encoder.matches("myPassword", result));
+----

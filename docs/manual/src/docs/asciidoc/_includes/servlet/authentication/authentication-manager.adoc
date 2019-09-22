@@ -1,0 +1,38 @@
+[[ns-auth-manager]]
+== The Authentication Manager and the Namespace
+The main interface which provides authentication services in Spring Security is the `AuthenticationManager`.
+This is usually an instance of Spring Security's `ProviderManager` class, which you may already be familiar with if you've used the framework before.
+If not, it will be covered later, in the <<tech-intro-authentication,technical overview chapter>>.
+The bean instance is registered using the `authentication-manager` namespace element.
+You can't use a custom `AuthenticationManager` if you are using either HTTP or method security through the namespace, but this should not be a problem as you have full control over the `AuthenticationProvider` s that are used.
+
+You may want to register additional `AuthenticationProvider` beans with the `ProviderManager` and you can do this using the `<authentication-provider>` element with the `ref` attribute, where the value of the attribute is the name of the provider bean you want to add.
+For example:
+
+[source,xml]
+----
+<authentication-manager>
+<authentication-provider ref="casAuthenticationProvider"/>
+</authentication-manager>
+
+<bean id="casAuthenticationProvider"
+	class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+...
+</bean>
+----
+
+Another common requirement is that another bean in the context may require a reference to the `AuthenticationManager`.
+You can easily register an alias for the `AuthenticationManager` and use this name elsewhere in your application context.
+
+[source,xml]
+----
+<security:authentication-manager alias="authenticationManager">
+...
+</security:authentication-manager>
+
+<bean id="customizedFormLoginFilter"
+	class="com.somecompany.security.web.CustomFormLoginFilter">
+<property name="authenticationManager" ref="authenticationManager"/>
+...
+</bean>
+----

@@ -1,0 +1,20 @@
+[[jackson]]
+== Jackson Support
+
+Spring Security has added Jackson Support for persisting Spring Security related classes.
+This can improve the performance of serializing Spring Security related classes when working with distributed sessions (i.e. session replication, Spring Session, etc).
+
+To use it, register the `SecurityJackson2Modules.getModules(ClassLoader)` as https://wiki.fasterxml.com/JacksonFeatureModules[Jackson Modules].
+
+[source,java]
+----
+ObjectMapper mapper = new ObjectMapper();
+ClassLoader loader = getClass().getClassLoader();
+List<Module> modules = SecurityJackson2Modules.getModules(loader);
+mapper.registerModules(modules);
+
+// ... use ObjectMapper as normally ...
+SecurityContext context = new SecurityContextImpl();
+// ...
+String json = mapper.writeValueAsString(context);
+----

@@ -1,3 +1,0 @@
-include::java-configuration.adoc[]
-
-include::namespace.adoc[]

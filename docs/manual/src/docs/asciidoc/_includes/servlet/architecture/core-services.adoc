@@ -1,4 +1,3 @@
-
 [[core-services]]
 == Core Services
 Now that we have a high-level overview of the Spring Security architecture and its core classes, let's take a closer look at one or two of the core interfaces and their implementations, in particular the `AuthenticationManager`, `UserDetailsService` and the `AccessDecisionManager`.
@@ -171,8 +170,4 @@ An alternative approach is to partition the authorities into groups and assign g
 Some people prefer this approach as a means of administering user rights.
 See the `JdbcDaoImpl` Javadoc for more information on how to enable the use of group authorities.
 The group schema is also included in the appendix.
-
-include::password-encoder.adoc[leveloffset=+2]
-
-include::jackson.adoc[]
 

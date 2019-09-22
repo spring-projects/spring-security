@@ -1,17 +1,27 @@
 = Servlet Applications
 
-include::preface/index.adoc[leveloffset=+1]
+Spring Security integrates with the Servlet Container by using a standard Servlet `Filter`. This means it works with any application that runs in a Servlet Container. More concretely, you do not need to use Spring in your Servlet-based application to take advantage of Spring Security.
+
+include::hello/guides.adoc[]
 
 include::architecture/index.adoc[leveloffset=+1]
 
-include::test/index.adoc[leveloffset=+1]
-
-include::web/index.adoc[leveloffset=+1]
+include::authentication/index.adoc[leveloffset=+1]
 
 include::authorization/index.adoc[leveloffset=+1]
 
-include::additional-topics/index.adoc[leveloffset=+1]
+include::oauth2/index.adoc[leveloffset=+1]
 
-include::data/index.adoc[leveloffset=+1]
+include::exploits/index.adoc[leveloffset=+1]
+
+include::integrations/index.adoc[leveloffset=+1]
+
+include::java-configuration/index.adoc[leveloffset=+1]
+
+include::namespace/index.adoc[leveloffset=+1]
+
+include::test/index.adoc[leveloffset=+1]
+
+include::crypto/index.adoc[leveloffset=+1]
 
 include::appendix/index.adoc[leveloffset=+1]
