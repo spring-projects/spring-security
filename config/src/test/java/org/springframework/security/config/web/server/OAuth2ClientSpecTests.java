@@ -34,11 +34,16 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
-import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -140,19 +145,33 @@ public class OAuth2ClientSpecTests {
 
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		ReactiveAuthenticationManager manager = config.manager;
+		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
 
-		OAuth2AuthorizationExchange exchange = TestOAuth2AuthorizationExchanges.success();
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.redirectUri("/authorize/oauth2/code/registration-id")
+				.build();
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success()
+				.redirectUri("/authorize/oauth2/code/registration-id")
+				.build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse);
 		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.noScopes();
 
-		OAuth2AuthorizationCodeAuthenticationToken result = new OAuth2AuthorizationCodeAuthenticationToken(this.registration, exchange, accessToken);
+		OAuth2AuthorizationCodeAuthenticationToken result = new OAuth2AuthorizationCodeAuthenticationToken(
+				this.registration, authorizationExchange, accessToken);
 
+		when(authorizationRequestRepository.loadAuthorizationRequest(any())).thenReturn(Mono.just(authorizationRequest));
 		when(converter.convert(any())).thenReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
 		when(manager.authenticate(any())).thenReturn(Mono.just(result));
 
 		this.client.get()
-			.uri("/authorize/oauth2/code/registration-id")
-			.exchange()
-			.expectStatus().is3xxRedirection();
+				.uri(uriBuilder ->
+					uriBuilder.path("/authorize/oauth2/code/registration-id")
+						.queryParam(OAuth2ParameterNames.CODE, "code")
+						.queryParam(OAuth2ParameterNames.STATE, "state")
+						.build())
+				.exchange()
+				.expectStatus().is3xxRedirection();
 
 		verify(converter).convert(any());
 		verify(manager).authenticate(any());
@@ -176,12 +195,15 @@ public class OAuth2ClientSpecTests {
 
 		ServerAuthenticationConverter authenticationConverter = mock(ServerAuthenticationConverter.class);
 
+		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = mock(ServerAuthorizationRequestRepository.class);
+
 		@Bean
 		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			http
 				.oauth2Client()
 					.authenticationConverter(this.authenticationConverter)
-					.authenticationManager(this.manager);
+					.authenticationManager(this.manager)
+					.authorizationRequestRepository(this.authorizationRequestRepository);
 			return http.build();
 		}
 	}
@@ -194,17 +216,31 @@ public class OAuth2ClientSpecTests {
 
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		ReactiveAuthenticationManager manager = config.manager;
+		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
 
-		OAuth2AuthorizationExchange exchange = TestOAuth2AuthorizationExchanges.success();
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.redirectUri("/authorize/oauth2/code/registration-id")
+				.build();
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success()
+				.redirectUri("/authorize/oauth2/code/registration-id")
+				.build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse);
 		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.noScopes();
 
-		OAuth2AuthorizationCodeAuthenticationToken result = new OAuth2AuthorizationCodeAuthenticationToken(this.registration, exchange, accessToken);
+		OAuth2AuthorizationCodeAuthenticationToken result = new OAuth2AuthorizationCodeAuthenticationToken(
+				this.registration, authorizationExchange, accessToken);
 
+		when(authorizationRequestRepository.loadAuthorizationRequest(any())).thenReturn(Mono.just(authorizationRequest));
 		when(converter.convert(any())).thenReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
 		when(manager.authenticate(any())).thenReturn(Mono.just(result));
 
 		this.client.get()
-				.uri("/authorize/oauth2/code/registration-id")
+				.uri(uriBuilder ->
+					uriBuilder.path("/authorize/oauth2/code/registration-id")
+						.queryParam(OAuth2ParameterNames.CODE, "code")
+						.queryParam(OAuth2ParameterNames.STATE, "state")
+						.build())
 				.exchange()
 				.expectStatus().is3xxRedirection();
 
@@ -218,6 +254,8 @@ public class OAuth2ClientSpecTests {
 
 		ServerAuthenticationConverter authenticationConverter = mock(ServerAuthenticationConverter.class);
 
+		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = mock(ServerAuthorizationRequestRepository.class);
+
 		@Bean
 		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			http
@@ -225,6 +263,7 @@ public class OAuth2ClientSpecTests {
 					oauth2Client
 						.authenticationConverter(this.authenticationConverter)
 						.authenticationManager(this.manager)
+						.authorizationRequestRepository(this.authorizationRequestRepository)
 				);
 			return http.build();
 		}

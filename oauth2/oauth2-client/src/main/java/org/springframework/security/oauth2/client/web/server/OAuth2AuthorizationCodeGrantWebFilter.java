@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,13 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
-import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 /**
@@ -71,6 +72,7 @@ import reactor.core.publisher.Mono;
  * </ul>
  *
  * @author Rob Winch
+ * @author Joe Grandja
  * @since 5.1
  * @see OAuth2AuthorizationCodeAuthenticationToken
  * @see org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeReactiveAuthenticationManager
@@ -89,9 +91,14 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 
 	private final ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
+	private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
+			new WebSessionOAuth2ServerAuthorizationRequestRepository();
+
 	private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
 
 	private ServerAuthenticationConverter authenticationConverter;
+
+	private boolean defaultAuthenticationConverter;
 
 	private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
@@ -109,8 +116,12 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.authenticationManager = authenticationManager;
 		this.authorizedClientRepository = authorizedClientRepository;
-		this.requiresAuthenticationMatcher = new PathPatternParserServerWebExchangeMatcher("/{action}/oauth2/code/{registrationId}");
-		this.authenticationConverter = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository);
+		this.requiresAuthenticationMatcher = this::matchesAuthorizationResponse;
+		ServerOAuth2AuthorizationCodeAuthenticationTokenConverter authenticationConverter =
+				new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository);
+		authenticationConverter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
+		this.authenticationConverter = authenticationConverter;
+		this.defaultAuthenticationConverter = true;
 		this.authenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler();
 		this.authenticationFailureHandler = (webFilterExchange, exception) -> Mono.error(exception);
 	}
@@ -124,10 +135,31 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.authenticationManager = authenticationManager;
 		this.authorizedClientRepository = authorizedClientRepository;
-		this.requiresAuthenticationMatcher = new PathPatternParserServerWebExchangeMatcher("/{action}/oauth2/code/{registrationId}");
+		this.requiresAuthenticationMatcher = this::matchesAuthorizationResponse;
 		this.authenticationConverter = authenticationConverter;
 		this.authenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler();
 		this.authenticationFailureHandler = (webFilterExchange, exception) -> Mono.error(exception);
+	}
+
+	/**
+	 * Sets the repository used for storing {@link OAuth2AuthorizationRequest}'s.
+	 * The default is {@link WebSessionOAuth2ServerAuthorizationRequestRepository}.
+	 *
+	 * @since 5.2
+	 * @param authorizationRequestRepository the repository used for storing {@link OAuth2AuthorizationRequest}'s
+	 */
+	public final void setAuthorizationRequestRepository(
+			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
+		this.authorizationRequestRepository = authorizationRequestRepository;
+		updateDefaultAuthenticationConverter();
+	}
+
+	private void updateDefaultAuthenticationConverter() {
+		if (this.defaultAuthenticationConverter) {
+			((ServerOAuth2AuthorizationCodeAuthenticationTokenConverter) this.authenticationConverter)
+					.setAuthorizationRequestRepository(this.authorizationRequestRepository);
+		}
 	}
 
 	@Override
@@ -163,5 +195,23 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 							.defaultIfEmpty(this.anonymousToken)
 							.flatMap(principal -> this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, webFilterExchange.getExchange()))
 					);
+	}
+
+	private Mono<ServerWebExchangeMatcher.MatchResult> matchesAuthorizationResponse(ServerWebExchange exchange) {
+		return this.authorizationRequestRepository.loadAuthorizationRequest(exchange)
+				.flatMap(authorizationRequest -> {
+					String requestUrl = UriComponentsBuilder.fromUri(exchange.getRequest().getURI())
+							.query(null)
+							.build()
+							.toUriString();
+					MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
+					if (requestUrl.equals(authorizationRequest.getRedirectUri()) &&
+							OAuth2AuthorizationResponseUtils.isAuthorizationResponse(queryParams)) {
+						return ServerWebExchangeMatcher.MatchResult.match();
+					}
+					return ServerWebExchangeMatcher.MatchResult.notMatch();
+				})
+				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+				.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.notMatch());
 	}
 }

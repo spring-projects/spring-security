@@ -31,6 +31,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.server.WebSessionOAuth2ServerAuthorizationRequestRepository;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -231,6 +233,7 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
  * @author Vedran Pavic
  * @author Rafiullah Hamedy
  * @author Eddú Meléndez
+ * @author Joe Grandja
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -1317,6 +1320,8 @@ public class ServerHttpSecurity {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
+		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+
 		/**
 		 * Sets the converter to use
 		 * @param authenticationConverter the converter to use
@@ -1329,7 +1334,10 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationConverter getAuthenticationConverter() {
 			if (this.authenticationConverter == null) {
-				this.authenticationConverter = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(getClientRegistrationRepository());
+				ServerOAuth2AuthorizationCodeAuthenticationTokenConverter authenticationConverter =
+						new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(getClientRegistrationRepository());
+				authenticationConverter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+				this.authenticationConverter = authenticationConverter;
 			}
 			return this.authenticationConverter;
 		}
@@ -1379,6 +1387,26 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Sets the repository to use for storing {@link OAuth2AuthorizationRequest}'s.
+		 *
+		 * @since 5.2
+		 * @param authorizationRequestRepository the repository to use for storing {@link OAuth2AuthorizationRequest}'s
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 */
+		public OAuth2ClientSpec authorizationRequestRepository(
+				ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+			this.authorizationRequestRepository = authorizationRequestRepository;
+			return this;
+		}
+
+		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> getAuthorizationRequestRepository() {
+			if (this.authorizationRequestRepository == null) {
+				this.authorizationRequestRepository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
+			}
+			return this.authorizationRequestRepository;
+		}
+
+		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
 		 */
@@ -1391,12 +1419,13 @@ public class ServerHttpSecurity {
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
 			ServerAuthenticationConverter authenticationConverter = getAuthenticationConverter();
 			ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
-			OAuth2AuthorizationCodeGrantWebFilter codeGrantWebFilter = new OAuth2AuthorizationCodeGrantWebFilter(authenticationManager,
-					authenticationConverter,
-					authorizedClientRepository);
+			OAuth2AuthorizationCodeGrantWebFilter codeGrantWebFilter = new OAuth2AuthorizationCodeGrantWebFilter(
+					authenticationManager, authenticationConverter, authorizedClientRepository);
+			codeGrantWebFilter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
 
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
 					clientRegistrationRepository);
+			oauthRedirectFilter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
 			http.addFilterAt(codeGrantWebFilter, SecurityWebFiltersOrder.OAUTH2_AUTHORIZATION_CODE);
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 		}
