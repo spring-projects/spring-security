@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,17 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.server.WebSessionOAuth2ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
-import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -69,8 +75,11 @@ public class OAuth2ClientSpecTests {
 
 	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
+	private ApplicationContext context;
+
 	@Autowired
 	public void setApplicationContext(ApplicationContext context) {
+		this.context = context;
 		this.client = WebTestClient.bindToApplicationContext(context).build();
 	}
 
@@ -140,19 +149,40 @@ public class OAuth2ClientSpecTests {
 
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		ReactiveAuthenticationManager manager = config.manager;
+		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
+				new WebSessionOAuth2ServerAuthorizationRequestRepository();
 
-		OAuth2AuthorizationExchange exchange = TestOAuth2AuthorizationExchanges.success();
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.redirectUri("/authorize/oauth2/code/registration-id")
+				.build();
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success()
+				.redirectUri("/authorize/oauth2/code/registration-id")
+				.build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse);
 		OAuth2AccessToken accessToken = TestOAuth2AccessTokens.noScopes();
 
-		OAuth2AuthorizationCodeAuthenticationToken result = new OAuth2AuthorizationCodeAuthenticationToken(this.registration, exchange, accessToken);
+		OAuth2AuthorizationCodeAuthenticationToken result = new OAuth2AuthorizationCodeAuthenticationToken(
+				this.registration, authorizationExchange, accessToken);
 
 		when(converter.convert(any())).thenReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
 		when(manager.authenticate(any())).thenReturn(Mono.just(result));
 
-		this.client.get()
-			.uri("/authorize/oauth2/code/registration-id")
-			.exchange()
-			.expectStatus().is3xxRedirection();
+		WebTestClient client = WebTestClient.bindToApplicationContext(this.context)
+				.webFilter((exchange, chain) ->
+						authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, exchange)
+								.then(chain.filter(exchange).then(Mono.empty()))
+				)
+				.build();
+
+		client.get()
+				.uri(uriBuilder ->
+					uriBuilder.path("/authorize/oauth2/code/registration-id")
+						.queryParam(OAuth2ParameterNames.CODE, "code")
+						.queryParam(OAuth2ParameterNames.STATE, "state")
+						.build())
+				.exchange()
+				.expectStatus().is3xxRedirection();
 
 		verify(converter).convert(any());
 		verify(manager).authenticate(any());
