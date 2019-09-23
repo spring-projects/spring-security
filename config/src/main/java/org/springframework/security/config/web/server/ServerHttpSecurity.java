@@ -74,6 +74,7 @@ import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserSer
 import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationCodeGrantWebFilter;
 import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationRequestRedirectWebFilter;
+import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationCodeAuthenticationTokenConverter;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
@@ -969,6 +970,8 @@ public class ServerHttpSecurity {
 
 		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
+		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+
 		private ReactiveAuthenticationManager authenticationManager;
 
 		private ServerSecurityContextRepository securityContextRepository;
@@ -1100,6 +1103,18 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Sets authorization request repository for {@link OAuth2AuthorizationRequestRedirectWebFilter}.
+		 *
+		 * @param authorizationRequestRepository authorization request repository, must not be null
+		 * @return the {@link OAuth2LoginSpec} for further configuration
+		 */
+		public OAuth2LoginSpec authorizationRequestRepository(ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
+			Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
+			this.authorizationRequestRepository = authorizationRequestRepository;
+			return this;
+		}
+
+		/**
 		 * Sets the resolver used for resolving {@link OAuth2AuthorizationRequest}'s.
 		 *
 		 * @since 5.2
@@ -1143,6 +1158,12 @@ public class ServerHttpSecurity {
 			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = getRedirectWebFilter();
+			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
+					getAuthorizationRequestRepository();
+			if (authorizationRequestRepository != null) {
+				oauthRedirectFilter.setAuthorizationRequestRepository(authorizationRequestRepository);
+			}
+			oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
 
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
 
@@ -1241,6 +1262,14 @@ public class ServerHttpSecurity {
 				}
 			}
 			return result;
+		}
+
+		@SuppressWarnings("unchecked")
+		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> getAuthorizationRequestRepository() {
+			if (this.authorizationRequestRepository == null) {
+				this.authorizationRequestRepository = getBeanOrNull(ServerAuthorizationRequestRepository.class);
+			}
+			return this.authorizationRequestRepository;
 		}
 
 		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
