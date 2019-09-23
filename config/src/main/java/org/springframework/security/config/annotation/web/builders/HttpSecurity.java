@@ -1611,14 +1611,18 @@ public final class HttpSecurity extends
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AnononymousSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
 	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 				.and()
-	 * 				// sample anonymous customization
-	 * 				.anonymous().authorities(&quot;ROLE_ANON&quot;);
+	 * 			.formLogin()
+	 * 				.and()
+	 * 			// sample anonymous customization
+	 * 			.anonymous().authorities(&quot;ROLE_ANON&quot;);
 	 * 	}
 	 *
 	 * 	&#064;Override
@@ -1635,14 +1639,18 @@ public final class HttpSecurity extends
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AnononymousSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
 	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 				.and()
-	 * 				// sample anonymous customization
-	 * 				.anonymous().disabled();
+	 * 			.formLogin()
+	 * 				.and()
+	 * 			// sample anonymous customization
+	 * 			.anonymous().disable();
 	 * 	}
 	 *
 	 * 	&#064;Override
@@ -1674,7 +1682,7 @@ public final class HttpSecurity extends
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AnononymousSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
 	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
@@ -1712,8 +1720,13 @@ public final class HttpSecurity extends
 	 * 			.formLogin(withDefaults())
 	 * 			// sample anonymous customization
 	 * 			.anonymous(anonymous ->
-	 * 				anonymous.disabled()
+	 * 				anonymous.disable()
 	 * 			);
+	 * 	}
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
 	 * 	}
 	 * }
 	 * </pre>
