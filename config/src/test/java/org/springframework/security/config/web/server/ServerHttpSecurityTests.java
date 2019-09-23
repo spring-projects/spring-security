@@ -20,12 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,6 +43,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.server.authentication.ServerX509AuthenticationConverter;
+import org.springframework.web.server.handler.FilteringWebHandler;
 import reactor.core.publisher.Mono;
 import reactor.test.publisher.TestPublisher;
 
@@ -48,18 +51,29 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationRequestRedirectWebFilter;
+import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
+import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilterTests;
+import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
+import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
+import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
@@ -68,10 +82,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
-import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.web.server.WebFilterChain;
-import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilterTests;
-import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 
 /**
  * @author Rob Winch
@@ -473,6 +484,71 @@ public class ServerHttpSecurityTests {
 				.expectStatus().isForbidden();
 
 		verify(customServerCsrfTokenRepository).loadToken(any());
+	}
+
+	@SuppressWarnings("UnassignedFluxMonoInstance")
+	@Test
+	public void configureOAuth2LoginUsingCustomCommonServerRequestCache() {
+		ServerRequestCache requestCacheMock = mock(ServerRequestCache.class);
+		when(requestCacheMock.saveRequest(any(ServerWebExchange.class))).thenReturn(Mono.empty());
+
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		String registrationId = clientRegistration.getRegistrationId();
+
+		ReactiveClientRegistrationRepository clientRegistrationRepositoryMock =
+				mock(ReactiveClientRegistrationRepository.class);
+		when(clientRegistrationRepositoryMock.findByRegistrationId(registrationId))
+				.thenReturn(Mono.just(clientRegistration));
+
+		SecurityWebFilterChain filterChain = http.requestCache().requestCache(requestCacheMock)
+				.and().oauth2Login().clientRegistrationRepository(clientRegistrationRepositoryMock)
+				.and().build();
+
+		Optional<OAuth2AuthorizationRequestRedirectWebFilter> redirectWebFilter =
+				getWebFilter(filterChain, OAuth2AuthorizationRequestRedirectWebFilter.class);
+		assertThat(redirectWebFilter.isPresent()).isTrue();
+
+		FilteringWebHandler webHandler = new FilteringWebHandler(
+				e -> Mono.error(new ClientAuthorizationRequiredException(registrationId)),
+				Collections.singletonList(redirectWebFilter.get())
+		);
+		WebTestClient client = WebTestClient.bindToWebHandler(webHandler).build();
+		client.get().uri("/foo/bar").exchange();
+		verify(requestCacheMock, times(1)).saveRequest(any(ServerWebExchange.class));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void throwExceptionWhenNullPassedForOAuth2LoginAuthorizationRequestRepository() {
+		http.oauth2Login().authorizationRequestRepository(null).and().build();
+	}
+
+	@SuppressWarnings({"UnassignedFluxMonoInstance", "unchecked"})
+	@Test
+	public void configureOAuth2LoginUsingCustomAuthorizationRequestRepository() {
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		String registrationId = clientRegistration.getRegistrationId();
+
+		ReactiveClientRegistrationRepository clientRegistrationRepositoryMock =
+				mock(ReactiveClientRegistrationRepository.class);
+		when(clientRegistrationRepositoryMock.findByRegistrationId(registrationId))
+				.thenReturn(Mono.just(clientRegistration));
+
+		ServerAuthorizationRequestRepository requestRepositoryMock = mock(ServerAuthorizationRequestRepository.class);
+		SecurityWebFilterChain filterChain = http.oauth2Login()
+				.clientRegistrationRepository(clientRegistrationRepositoryMock)
+				.authorizationRequestRepository(requestRepositoryMock)
+				.and().build();
+
+		Optional<OAuth2AuthorizationRequestRedirectWebFilter> redirectWebFilter =
+				getWebFilter(filterChain, OAuth2AuthorizationRequestRedirectWebFilter.class);
+		assertThat(redirectWebFilter.isPresent()).isTrue();
+
+		WebTestClient client = WebTestClient.bindToController(new SubscriberContextController())
+				.webFilter(redirectWebFilter.get())
+				.build();
+		client.get().uri("/oauth2/authorization/" + registrationId).exchange();
+		verify(requestRepositoryMock, times(1)).saveAuthorizationRequest(any(OAuth2AuthorizationRequest.class),
+				any(ServerWebExchange.class));
 	}
 
 	private boolean isX509Filter(WebFilter filter) {
