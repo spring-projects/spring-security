@@ -22,15 +22,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.AssertionErrors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.ResultMatcher;
 
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
-import org.hamcrest.Matcher;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,11 +62,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.UUID;
-import javax.servlet.http.HttpSession;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.security.samples.OpenSamlActionTestingSupport.buildConditions;
 import static org.springframework.security.samples.OpenSamlActionTestingSupport.buildIssuer;
@@ -80,9 +74,6 @@ import static org.springframework.security.samples.OpenSamlActionTestingSupport.
 import static org.springframework.security.samples.OpenSamlActionTestingSupport.encryptNameId;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
-import static org.springframework.security.web.WebAttributes.AUTHENTICATION_EXCEPTION;
-import static org.springframework.test.util.AssertionErrors.assertEquals;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -95,7 +86,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class Saml2LoginIntegrationTests {
 
 	static final String LOCAL_SP_ENTITY_ID = "http://localhost:8080/saml2/service-provider-metadata/simplesamlphp";
-	static final String USERNAME = "testuser@spring.security.saml";
 
 	@Autowired
 	MockMvc mockMvc;
@@ -107,21 +97,21 @@ public class Saml2LoginIntegrationTests {
 	}
 
 	@Test
-	public void applicationAccessWhenSingleProviderAndUnauthenticatedThenRedirectsToAuthNRequest() throws Exception {
+	public void redirectToLoginPageSingleProvider() throws Exception {
 		mockMvc.perform(get("http://localhost:8080/some/url"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost:8080/saml2/authenticate/simplesamlphp"));
 	}
 
 	@Test
-	public void authenticateRequestWhenUnauthenticatedThenRespondsWithRedirectAuthNRequestXML() throws Exception {
+	public void testAuthNRequest() throws Exception {
 		mockMvc.perform(get("http://localhost:8080/saml2/authenticate/simplesamlphp"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(header().string("Location", startsWith("https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php?SAMLRequest=")));
 	}
 
 	@Test
-	public void authenticateRequestWhenRelayStateThenRespondsWithRedirectAndEncodedRelayState() throws Exception {
+	public void testRelayState() throws Exception {
 		mockMvc.perform(
 				get("http://localhost:8080/saml2/authenticate/simplesamlphp")
 						.param("RelayState", "relay state value with spaces")
@@ -132,136 +122,96 @@ public class Saml2LoginIntegrationTests {
 	}
 
 	@Test
-	public void authenticateWhenResponseIsSignedThenItSucceeds() throws Exception {
-		Assertion assertion = buildAssertion(USERNAME);
+	public void signedResponse() throws Exception {
+		final String username = "testuser@spring.security.saml";
+		Assertion assertion = buildAssertion(username);
 		Response response = buildResponse(assertion);
 		signXmlObject(response, getSigningCredential(idpCertificate, idpPrivateKey, UsageType.SIGNING));
-		sendResponse(response, "/")
-				.andExpect(authenticated().withUsername(USERNAME));
+		String xml = toXml(response);
+		mockMvc.perform(post("http://localhost:8080/login/saml2/sso/simplesamlphp")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.param("SAMLResponse", OpenSamlActionTestingSupport.encode(xml.getBytes(UTF_8))))
+				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/"))
+				.andExpect(authenticated().withUsername(username));
 	}
 
 	@Test
-	public void authenticateWhenAssertionIsThenItSignedSucceeds() throws Exception {
-		Assertion assertion = buildAssertion(USERNAME);
+	public void signedAssertion() throws Exception {
+		final String username = "testuser@spring.security.saml";
+		Assertion assertion = buildAssertion(username);
 		Response response = buildResponse(assertion);
 		signXmlObject(assertion, getSigningCredential(idpCertificate, idpPrivateKey, UsageType.SIGNING));
-		sendResponse(response, "/")
-				.andExpect(authenticated().withUsername(USERNAME));
+		String xml = toXml(response);
+		final ResultActions actions = mockMvc
+				.perform(post("http://localhost:8080/login/saml2/sso/simplesamlphp")
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+						.param("SAMLResponse", OpenSamlActionTestingSupport.encode(xml.getBytes(UTF_8))))
+				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/"))
+				.andExpect(authenticated().withUsername(username));
 	}
 
 	@Test
-	public void authenticateWhenXmlObjectIsNotSignedThenItFails() throws Exception {
-		Assertion assertion = buildAssertion(USERNAME);
+	public void unsigned() throws Exception {
+		Assertion assertion = buildAssertion("testuser@spring.security.saml");
 		Response response = buildResponse(assertion);
-		sendResponse(response, "/login?error")
+		String xml = toXml(response);
+		mockMvc.perform(post("http://localhost:8080/login/saml2/sso/simplesamlphp")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.param("SAMLResponse", OpenSamlActionTestingSupport.encode(xml.getBytes(UTF_8))))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/login?error"))
 				.andExpect(unauthenticated());
 	}
 
 	@Test
-	public void authenticateWhenResponseIsSignedAndAssertionIsEncryptedThenItSucceeds() throws Exception {
-		Assertion assertion = buildAssertion(USERNAME);
+	public void signedResponseEncryptedAssertion() throws Exception {
+		final String username = "testuser@spring.security.saml";
+		Assertion assertion = buildAssertion(username);
 		EncryptedAssertion encryptedAssertion =
 				OpenSamlActionTestingSupport.encryptAssertion(assertion, decodeCertificate(spCertificate));
 		Response response = buildResponse(encryptedAssertion);
 		signXmlObject(assertion, getSigningCredential(idpCertificate, idpPrivateKey, UsageType.SIGNING));
-		sendResponse(response, "/")
-				.andExpect(authenticated().withUsername(USERNAME));
+		String xml = toXml(response);
+		final ResultActions actions = mockMvc
+				.perform(post("http://localhost:8080/login/saml2/sso/simplesamlphp")
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+						.param("SAMLResponse", OpenSamlActionTestingSupport.encode(xml.getBytes(UTF_8))))
+				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/"))
+				.andExpect(authenticated().withUsername(username));
 	}
 
 	@Test
-	public void authenticateWhenResponseIsNotSignedAndAssertionIsEncryptedThenItSucceeds() throws Exception {
-		Assertion assertion = buildAssertion(USERNAME);
+	public void unsignedResponseEncryptedAssertion() throws Exception {
+		final String username = "testuser@spring.security.saml";
+		Assertion assertion = buildAssertion(username);
 		EncryptedAssertion encryptedAssertion =
 				OpenSamlActionTestingSupport.encryptAssertion(assertion, decodeCertificate(spCertificate));
 		Response response = buildResponse(encryptedAssertion);
-		sendResponse(response, "/")
-				.andExpect(authenticated().withUsername(USERNAME));
+		String xml = toXml(response);
+		final ResultActions actions = mockMvc
+				.perform(post("http://localhost:8080/login/saml2/sso/simplesamlphp")
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+						.param("SAMLResponse", OpenSamlActionTestingSupport.encode(xml.getBytes(UTF_8))))
+				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/"))
+				.andExpect(authenticated().withUsername(username));
 	}
 
 	@Test
-	public void authenticateWhenResponseIsSignedAndNameIDisEncryptedThenItSucceeds() throws Exception {
-		Assertion assertion = buildAssertion(USERNAME);
+	public void signedResponseEncryptedNameId() throws Exception {
+		final String username = "testuser@spring.security.saml";
+		Assertion assertion = buildAssertion(username);
 		final EncryptedID nameId = encryptNameId(assertion.getSubject().getNameID(), decodeCertificate(spCertificate));
 		assertion.getSubject().setEncryptedID(nameId);
 		assertion.getSubject().setNameID(null);
 		Response response = buildResponse(assertion);
 		signXmlObject(assertion, getSigningCredential(idpCertificate, idpPrivateKey, UsageType.SIGNING));
-		sendResponse(response, "/")
-				.andExpect(authenticated().withUsername(USERNAME));
-	}
-
-	@Test
-	public void authenticateWhenSignatureKeysDontMatchThenItFails() throws Exception {
-		Assertion assertion = buildAssertion(USERNAME);
-		Response response = buildResponse(assertion);
-		signXmlObject(assertion, getSigningCredential(spCertificate, spPrivateKey, UsageType.SIGNING));
-		sendResponse(response, "/login?error")
-				.andExpect(
-						saml2AuthenticationExceptionMatcher(
-								"invalid_signature",
-								equalTo("Assertion doesn't have a valid signature.")
-						)
-				);
-	}
-
-	@Test
-	public void authenticateWhenNotOnOrAfterDontMatchThenItFails() throws Exception {
-		Assertion assertion = buildAssertion(USERNAME);
-		assertion.getConditions().setNotOnOrAfter(DateTime.now().minusDays(1));
-		Response response = buildResponse(assertion);
-		signXmlObject(assertion, getSigningCredential(idpCertificate, idpPrivateKey, UsageType.SIGNING));
-		sendResponse(response, "/login?error")
-				.andExpect(
-						saml2AuthenticationExceptionMatcher(
-								"invalid_assertion",
-								containsString("Assertion 'assertion' with NotOnOrAfter condition of")
-						)
-				);
-	}
-
-	@Test
-	public void authenticateWhenNotOnOrBeforeDontMatchThenItFails() throws Exception {
-		Assertion assertion = buildAssertion(USERNAME);
-		assertion.getConditions().setNotBefore(DateTime.now().plusDays(1));
-		Response response = buildResponse(assertion);
-		signXmlObject(assertion, getSigningCredential(idpCertificate, idpPrivateKey, UsageType.SIGNING));
-		sendResponse(response, "/login?error")
-				.andExpect(
-						saml2AuthenticationExceptionMatcher(
-								"invalid_assertion",
-								containsString("Assertion 'assertion' with NotBefore condition of")
-						)
-				);
-	}
-
-	@Test
-	public void authenticateWhenIssuerIsInvalidThenItFails() throws Exception {
-		Assertion assertion = buildAssertion(USERNAME);
-		Response response = buildResponse(assertion);
-		response.getIssuer().setValue("invalid issuer");
-		signXmlObject(response, getSigningCredential(idpCertificate, idpPrivateKey, UsageType.SIGNING));
-		sendResponse(response, "/login?error")
-				.andExpect(unauthenticated())
-				.andExpect(
-						saml2AuthenticationExceptionMatcher(
-								"invalid_issuer",
-								containsString(
-										"Response issuer 'invalid issuer' doesn't match "+
-										"'https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php'"
-								)
-						)
-				);
-	}
-
-	private ResultActions sendResponse(
-			Response response,
-			String redirectUrl) throws Exception {
 		String xml = toXml(response);
-		return mockMvc.perform(post("http://localhost:8080/login/saml2/sso/simplesamlphp")
-				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.param("SAMLResponse", OpenSamlActionTestingSupport.encode(xml.getBytes(UTF_8))))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl(redirectUrl));
+		final ResultActions actions = mockMvc
+				.perform(post("http://localhost:8080/login/saml2/sso/simplesamlphp")
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+						.param("SAMLResponse", OpenSamlActionTestingSupport.encode(xml.getBytes(UTF_8))))
+				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/"))
+				.andExpect(authenticated().withUsername(username));
 	}
 
 	private Response buildResponse(Assertion assertion) {
@@ -409,42 +359,4 @@ public class Saml2LoginIntegrationTests {
 			"RZ/nbTJ7VTeZOSyRoVn5XHhpuJ0B\n" +
 			"-----END CERTIFICATE-----";
 
-	private String spPrivateKey = "-----BEGIN PRIVATE KEY-----\n" +
-			"MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANG7v8QjQGU3MwQE\n" +
-			"VUBxvH6Uuiy/MhZT7TV0ZNjyAF2ExA1gpn3aUxx6jYK5UnrpxRRE/KbeLucYbOhK\n" +
-			"cDECt77Rggz5TStrOta0BQTvfluRyoQtmQ5Nkt6Vqg7O2ZapFt7k64Sal7AftzH6\n" +
-			"Q2BxWN1y04bLdDrH4jipqRj/2qEFAgMBAAECgYEAj4ExY1jjdN3iEDuOwXuRB+Nn\n" +
-			"x7pC4TgntE2huzdKvLJdGvIouTArce8A6JM5NlTBvm69mMepvAHgcsiMH1zGr5J5\n" +
-			"wJz23mGOyhM1veON41/DJTVG+cxq4soUZhdYy3bpOuXGMAaJ8QLMbQQoivllNihd\n" +
-			"vwH0rNSK8LTYWWPZYIECQQDxct+TFX1VsQ1eo41K0T4fu2rWUaxlvjUGhK6HxTmY\n" +
-			"8OMJptunGRJL1CUjIb45Uz7SP8TPz5FwhXWsLfS182kRAkEA3l+Qd9C9gdpUh1uX\n" +
-			"oPSNIxn5hFUrSTW1EwP9QH9vhwb5Vr8Jrd5ei678WYDLjUcx648RjkjhU9jSMzIx\n" +
-			"EGvYtQJBAMm/i9NR7IVyyNIgZUpz5q4LI21rl1r4gUQuD8vA36zM81i4ROeuCly0\n" +
-			"KkfdxR4PUfnKcQCX11YnHjk9uTFj75ECQEFY/gBnxDjzqyF35hAzrYIiMPQVfznt\n" +
-			"YX/sDTE2AdVBVGaMj1Cb51bPHnNC6Q5kXKQnj/YrLqRQND09Q7ParX0CQQC5NxZr\n" +
-			"9jKqhHj8yQD6PlXTsY4Occ7DH6/IoDenfdEVD5qlet0zmd50HatN2Jiqm5ubN7CM\n" +
-			"INrtuLp4YHbgk1mi\n" +
-			"-----END PRIVATE KEY-----";
-
-	private static ResultMatcher saml2AuthenticationExceptionMatcher(
-			String code,
-			Matcher<String> message
-	) {
-		return result -> {
-			final HttpSession session = result.getRequest().getSession(false);
-			AssertionErrors.assertNotNull("HttpSession", session);
-			Object exception = session.getAttribute(AUTHENTICATION_EXCEPTION);
-			AssertionErrors.assertNotNull(AUTHENTICATION_EXCEPTION, exception);
-			if (!(exception instanceof Saml2AuthenticationException)) {
-				AssertionErrors.fail(
-						"Invalid exception type",
-						Saml2AuthenticationException.class,
-						exception.getClass().getName()
-				);
-			}
-			Saml2AuthenticationException se = (Saml2AuthenticationException) exception;
-			assertEquals("SAML 2 Error Code", code, se.getError().getErrorCode());
-			assertTrue("SAML 2 Error Description", message.matches(se.getError().getDescription()));
-		};
-	}
 }

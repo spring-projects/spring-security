@@ -9,6 +9,4 @@ dependencies {
     compile("org.opensaml:opensaml-saml-impl")
 
     provided 'javax.servlet:javax.servlet-api'
-
-	testCompile powerMock2Dependencies
 }
