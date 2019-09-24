@@ -83,7 +83,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@Test
 	public void resolveArgumentWhenExpressionThenFound() {
 		Authentication authentication = TestAuthentication.authenticatedUser();
-		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver.resolveArgument(arg0("authenticationPrincipalExpression"), null)
+		Mono<String> result = (Mono<String>) this.resolver.resolveArgument(arg0("authenticationPrincipalExpression"), null)
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
 		assertThat(result.block()).isEqualTo(authentication.getName());
