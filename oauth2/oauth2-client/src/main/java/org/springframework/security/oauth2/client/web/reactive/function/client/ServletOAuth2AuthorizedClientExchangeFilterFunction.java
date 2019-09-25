@@ -16,10 +16,6 @@
 
 package org.springframework.security.oauth2.client.web.reactive.function.client;
 
-import org.reactivestreams.Subscription;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -47,10 +43,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.CoreSubscriber;
-import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Operators;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.context.Context;
 
@@ -100,8 +93,10 @@ import java.util.function.Consumer;
  * @since 5.1
  * @see OAuth2AuthorizedClientManager
  */
-public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
-		implements ExchangeFilterFunction, InitializingBean, DisposableBean {
+public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implements ExchangeFilterFunction {
+
+	// Same key as in SecurityReactorContextConfiguration.SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES
+	static final String SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY = "org.springframework.security.SECURITY_CONTEXT_ATTRIBUTES";
 
 	/**
 	 * The request attribute name used to locate the {@link OAuth2AuthorizedClient}.
@@ -111,8 +106,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	private static final String AUTHENTICATION_ATTR_NAME = Authentication.class.getName();
 	private static final String HTTP_SERVLET_REQUEST_ATTR_NAME = HttpServletRequest.class.getName();
 	private static final String HTTP_SERVLET_RESPONSE_ATTR_NAME = HttpServletResponse.class.getName();
-
-	private static final String REQUEST_CONTEXT_OPERATOR_KEY = RequestContextSubscriber.class.getName();
 
 	private static final Authentication ANONYMOUS_AUTHENTICATION = new AnonymousAuthenticationToken(
 			"anonymous", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
@@ -173,16 +166,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
 		return authorizedClientManager;
-	}
-
-	@Override
-	public void afterPropertiesSet() {
-		Hooks.onLastOperator(REQUEST_CONTEXT_OPERATOR_KEY, Operators.liftPublisher((s, sub) -> createRequestContextSubscriberIfNecessary(sub)));
-	}
-
-	@Override
-	public void destroy() {
-		Hooks.resetOnLastOperator(REQUEST_CONTEXT_OPERATOR_KEY);
 	}
 
 	/**
@@ -382,22 +365,22 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 	}
 
 	private void populateRequestAttributes(Map<String, Object> attrs, Context ctx) {
-		RequestContextDataHolder holder = RequestContextSubscriber.getRequestContext(ctx);
-		if (holder != null) {
-			HttpServletRequest request = holder.getRequest();
-			if (request != null) {
-				attrs.putIfAbsent(HTTP_SERVLET_REQUEST_ATTR_NAME, request);
-			}
-
-			HttpServletResponse response = holder.getResponse();
-			if (response != null) {
-				attrs.putIfAbsent(HTTP_SERVLET_RESPONSE_ATTR_NAME, response);
-			}
-
-			Authentication authentication = holder.getAuthentication();
-			if (authentication != null) {
-				attrs.putIfAbsent(AUTHENTICATION_ATTR_NAME, authentication);
-			}
+		// NOTE: SecurityReactorContextConfiguration.SecurityReactorContextSubscriber adds this key
+		if (!ctx.hasKey(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY)) {
+			return;
+		}
+		Map<Object, Object> contextAttributes = ctx.get(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY);
+		HttpServletRequest servletRequest = (HttpServletRequest) contextAttributes.get(HttpServletRequest.class);
+		if (servletRequest != null) {
+			attrs.putIfAbsent(HTTP_SERVLET_REQUEST_ATTR_NAME, servletRequest);
+		}
+		HttpServletResponse servletResponse = (HttpServletResponse) contextAttributes.get(HttpServletResponse.class);
+		if (servletResponse != null) {
+			attrs.putIfAbsent(HTTP_SERVLET_RESPONSE_ATTR_NAME, servletResponse);
+		}
+		Authentication authentication = (Authentication) contextAttributes.get(Authentication.class);
+		if (authentication != null) {
+			attrs.putIfAbsent(AUTHENTICATION_ATTR_NAME, authentication);
 		}
 	}
 
@@ -503,23 +486,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 					.build();
 	}
 
-	<T> CoreSubscriber<T> createRequestContextSubscriberIfNecessary(CoreSubscriber<T> delegate) {
-		HttpServletRequest request = null;
-		HttpServletResponse response = null;
-		ServletRequestAttributes requestAttributes =
-				(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		if (requestAttributes != null) {
-			request = requestAttributes.getRequest();
-			response = requestAttributes.getResponse();
-		}
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null && request == null && response == null) {
-			//do not need to create RequestContextSubscriber with empty data
-			return delegate;
-		}
-		return new RequestContextSubscriber<>(delegate, request, response, authentication);
-	}
-
 	static OAuth2AuthorizedClient getOAuth2AuthorizedClient(Map<String, Object> attrs) {
 		return (OAuth2AuthorizedClient) attrs.get(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME);
 	}
@@ -585,89 +551,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction
 
 		private UnsupportedOperationException unsupported() {
 			return new UnsupportedOperationException("Not Supported");
-		}
-	}
-
-	static class RequestContextSubscriber<T> implements CoreSubscriber<T> {
-		static final String REQUEST_CONTEXT_DATA_HOLDER =
-				RequestContextSubscriber.class.getName().concat(".REQUEST_CONTEXT_DATA_HOLDER");
-		private final CoreSubscriber<T> delegate;
-		private final Context context;
-
-		RequestContextSubscriber(CoreSubscriber<T> delegate,
-								HttpServletRequest request,
-								HttpServletResponse response,
-								Authentication authentication) {
-			this.delegate = delegate;
-
-			Context parentContext = this.delegate.currentContext();
-			Context context;
-			if (parentContext.hasKey(REQUEST_CONTEXT_DATA_HOLDER)) {
-				context = parentContext;
-			} else {
-				context = parentContext.put(REQUEST_CONTEXT_DATA_HOLDER, new RequestContextDataHolder(request, response, authentication));
-			}
-
-			this.context = context;
-		}
-
-		@Nullable
-		private static RequestContextDataHolder getRequestContext(Context ctx) {
-			return ctx.getOrDefault(REQUEST_CONTEXT_DATA_HOLDER, null);
-		}
-
-		@Override
-		public Context currentContext() {
-			return this.context;
-		}
-
-		@Override
-		public void onSubscribe(Subscription s) {
-			this.delegate.onSubscribe(s);
-		}
-
-		@Override
-		public void onNext(T t) {
-			this.delegate.onNext(t);
-		}
-
-		@Override
-		public void onError(Throwable t) {
-			this.delegate.onError(t);
-		}
-
-		@Override
-		public void onComplete() {
-			this.delegate.onComplete();
-		}
-	}
-
-	static class RequestContextDataHolder {
-		private final HttpServletRequest request;
-		private final HttpServletResponse response;
-		private final Authentication authentication;
-
-		RequestContextDataHolder(@Nullable HttpServletRequest request,
-								@Nullable HttpServletResponse response,
-								@Nullable Authentication authentication) {
-			this.request = request;
-			this.response = response;
-			this.authentication = authentication;
-		}
-
-		@Nullable
-		private HttpServletRequest getRequest() {
-			return this.request;
-		}
-
-		@Nullable
-		private HttpServletResponse getResponse() {
-			return this.response;
-		}
-
-		@Nullable
-		private Authentication getAuthentication() {
-			return this.authentication;
 		}
 	}
 }
