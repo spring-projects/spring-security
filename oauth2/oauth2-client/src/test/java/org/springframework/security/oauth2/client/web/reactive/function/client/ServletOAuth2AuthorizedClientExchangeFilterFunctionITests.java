@@ -43,16 +43,20 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.blockhound.BlockHound;
+import reactor.util.context.Context;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
 /**
@@ -104,7 +108,6 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		});
 		this.authorizedClientFilter = new ServletOAuth2AuthorizedClientExchangeFilterFunction(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
-		this.authorizedClientFilter.afterPropertiesSet();
 		this.server = new MockWebServer();
 		this.server.start();
 		this.serverUrl = this.server.url("/").toString();
@@ -120,7 +123,6 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 
 	@After
 	public void cleanup() throws Exception {
-		this.authorizedClientFilter.destroy();
 		this.server.shutdown();
 		SecurityContextHolder.clearContext();
 		RequestContextHolder.resetRequestAttributes();
@@ -248,6 +250,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 						.attributes(clientRegistrationId(clientRegistration2.getRegistrationId()))
 						.retrieve()
 						.bodyToMono(String.class))
+				.subscriberContext(context())
 				.block();
 
 		assertThat(this.server.getRequestCount()).isEqualTo(4);
@@ -257,6 +260,14 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				authorizedClientCaptor.capture(), eq(this.authentication), eq(this.request), eq(this.response));
 		assertThat(authorizedClientCaptor.getAllValues().get(0).getClientRegistration()).isSameAs(clientRegistration1);
 		assertThat(authorizedClientCaptor.getAllValues().get(1).getClientRegistration()).isSameAs(clientRegistration2);
+	}
+
+	private Context context() {
+		Map<Object, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put(HttpServletRequest.class, this.request);
+		contextAttributes.put(HttpServletResponse.class, this.response);
+		contextAttributes.put(Authentication.class, this.authentication);
+		return Context.of(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY, contextAttributes);
 	}
 
 	private MockResponse jsonResponse(String json) {
