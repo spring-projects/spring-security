@@ -158,21 +158,22 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 				null);
 			throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString());
 		}
-			OidcIdToken idToken = createOidcToken(clientRegistration, accessTokenResponse);
+		OidcIdToken idToken = createOidcToken(clientRegistration, accessTokenResponse);
 
+		// Validate nonce
 		String requestNonce = authorizationRequest.getAttribute(OidcParameterNames.NONCE);
 		if (requestNonce != null) {
 			String nonceHash;
-
 			try {
 				nonceHash = createHash(requestNonce);
 			} catch (NoSuchAlgorithmException e) {
-				throw new OAuth2AuthenticationException(new OAuth2Error(INVALID_NONCE_ERROR_CODE));
+				OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-
-			String nonceHashClaim = idToken.getClaim(OidcParameterNames.NONCE);
+			String nonceHashClaim = idToken.getNonce();
 			if (nonceHashClaim == null || !nonceHashClaim.equals(nonceHash)) {
-				throw new OAuth2AuthenticationException(new OAuth2Error(INVALID_NONCE_ERROR_CODE));
+				OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 		}
 
@@ -234,7 +235,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		return idToken;
 	}
 
-	private String createHash(String nonce) throws NoSuchAlgorithmException {
+	static String createHash(String nonce) throws NoSuchAlgorithmException {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] digest = md.digest(nonce.getBytes(StandardCharsets.US_ASCII));
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);

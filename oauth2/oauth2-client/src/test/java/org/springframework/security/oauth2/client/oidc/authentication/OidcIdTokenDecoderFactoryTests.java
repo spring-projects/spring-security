@@ -59,6 +59,7 @@ public class OidcIdTokenDecoderFactoryTests {
 		Map<String, Converter<Object, ?>> claimTypeConverters = OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters();
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.ISS);
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.AUD);
+		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.NONCE);
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.EXP);
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.IAT);
 		assertThat(claimTypeConverters).containsKey(IdTokenClaimNames.AUTH_TIME);

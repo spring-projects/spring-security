@@ -65,6 +65,7 @@ import java.util.Map;
  * to complete the authentication.
  *
  * @author Rob Winch
+ * @author Mark Heckler
  * @since 5.1
  * @see OAuth2LoginAuthenticationToken
  * @see ReactiveOAuth2AccessTokenResponseClient
@@ -199,30 +200,28 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 				.map(jwt -> new OidcIdToken(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaims()));
 	}
 
-	private Mono<OidcIdToken> validateNonce(OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication, OidcIdToken idToken) {
-		String requestNonce = authorizationCodeAuthentication
-				.getAuthorizationExchange()
-				.getAuthorizationRequest()
-				.getAttribute(OidcParameterNames.NONCE);
+	private static Mono<OidcIdToken> validateNonce(OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication, OidcIdToken idToken) {
+		String requestNonce = authorizationCodeAuthentication.getAuthorizationExchange()
+				.getAuthorizationRequest().getAttribute(OidcParameterNames.NONCE);
 		if (requestNonce != null) {
 			String nonceHash;
-
 			try {
 				nonceHash = createHash(requestNonce);
 			} catch (NoSuchAlgorithmException e) {
-				throw new OAuth2AuthenticationException(new OAuth2Error(INVALID_NONCE_ERROR_CODE));
+				OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-
-			String nonceHashClaim = idToken.getClaim(OidcParameterNames.NONCE);
+			String nonceHashClaim = idToken.getNonce();
 			if (nonceHashClaim == null || !nonceHashClaim.equals(nonceHash)) {
-				throw new OAuth2AuthenticationException(new OAuth2Error(INVALID_NONCE_ERROR_CODE));
+				OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE);
+				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 		}
 
 		return Mono.just(idToken);
 	}
 
-	private String createHash(String nonce) throws NoSuchAlgorithmException {
+	static String createHash(String nonce) throws NoSuchAlgorithmException {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] digest = md.digest(nonce.getBytes(StandardCharsets.US_ASCII));
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);

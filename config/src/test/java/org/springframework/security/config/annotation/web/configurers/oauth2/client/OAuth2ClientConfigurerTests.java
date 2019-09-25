@@ -75,7 +75,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Tests for {@link OAuth2ClientConfigurer}.
  *
  * @author Joe Grandja
- * @author Mark Heckler
  */
 public class OAuth2ClientConfigurerTests {
 	private static ClientRegistrationRepository clientRegistrationRepository;
@@ -139,8 +138,7 @@ public class OAuth2ClientConfigurerTests {
 		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?" +
 				"response_type=code&client_id=client-1&" +
 				"scope=user&state=.{15,}&" +
-				"redirect_uri=http://localhost/client-1&" +
-				"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
+				"redirect_uri=http://localhost/client-1");
 	}
 
 	@Test
@@ -153,8 +151,7 @@ public class OAuth2ClientConfigurerTests {
 		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?" +
 				"response_type=code&client_id=client-1&" +
 				"scope=user&state=.{15,}&" +
-				"redirect_uri=http://localhost/client-1&" +
-				"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
+				"redirect_uri=http://localhost/client-1");
 	}
 
 	@Test
@@ -206,8 +203,7 @@ public class OAuth2ClientConfigurerTests {
 		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?" +
 				"response_type=code&client_id=client-1&" +
 				"scope=user&state=.{15,}&" +
-				"redirect_uri=http://localhost/client-1&" +
-				"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
+				"redirect_uri=http://localhost/client-1");
 
 		verify(requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}

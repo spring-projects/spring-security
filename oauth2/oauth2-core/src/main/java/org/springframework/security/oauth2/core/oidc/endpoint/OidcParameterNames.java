@@ -32,7 +32,7 @@ public interface OidcParameterNames {
 	String ID_TOKEN = "id_token";
 
 	/**
-	 * {@code nonce} - used in the Access Token Request and Response.
+	 * {@code nonce} - used in the Authentication Request.
 	 */
 	String NONCE = "nonce";
 

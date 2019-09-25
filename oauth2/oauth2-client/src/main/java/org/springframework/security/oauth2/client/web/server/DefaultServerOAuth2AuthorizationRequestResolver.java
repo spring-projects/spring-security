@@ -27,10 +27,12 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
@@ -77,7 +79,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 
-	private final StringKeyGenerator stringKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+	private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
 
 	/**
 	 * Creates a new instance
@@ -135,13 +137,16 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
 			builder = OAuth2AuthorizationRequest.authorizationCode();
 			Map<String, Object> additionalParameters = new HashMap<>();
-
-			addNonceParameters(attributes, additionalParameters);
-
+			if (!CollectionUtils.isEmpty(clientRegistration.getScopes()) &&
+					clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
+				// Section 3.1.2.1 Authentication Request - https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
+				// scope
+				// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
+				addNonceParameters(attributes, additionalParameters);
+			}
 			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
 				addPkceParameters(attributes, additionalParameters);
 			}
-
 			builder.additionalParameters(additionalParameters);
 		} else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
 			builder = OAuth2AuthorizationRequest.implicit();
@@ -212,24 +217,21 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 	}
 
 	/**
-	 * Creates nonce and its hash for use in OpenID Connect Authentication Requests
+	 * Creates nonce and its hash for use in OpenID Connect 1.0 Authentication Requests.
 	 *
-	 * @param attributes where {@link OidcParameterNames#NONCE} is stored for the token request
-	 * @param additionalParameters where hash of {@link OidcParameterNames#NONCE} is added to the authentication request
+	 * @param attributes where the {@link OidcParameterNames#NONCE} is stored for the authentication request
+	 * @param additionalParameters where the {@link OidcParameterNames#NONCE} hash is added for the authentication request
 	 *
 	 * @since 5.2
-	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#NonceNotes">15.5.2.  Nonce Implementation Notes</a>
-	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">3.1.3.7.  ID Token Validation</a>
+	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest">3.1.2.1.  Authentication Request</a>
 	 */
 	private void addNonceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
 		try {
-			String nonce = this.stringKeyGenerator.generateKey();
-			attributes.put(OidcParameterNames.NONCE, nonce);
-			
+			String nonce = this.secureKeyGenerator.generateKey();
 			String nonceHash = createHash(nonce);
+			attributes.put(OidcParameterNames.NONCE, nonce);
 			additionalParameters.put(OidcParameterNames.NONCE, nonceHash);
-		} catch (NoSuchAlgorithmException ignored) {
-		}
+		} catch (NoSuchAlgorithmException e) { }
 	}
 
 	/**
@@ -245,7 +247,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.2">4.2.  Client Creates the Code Challenge</a>
 	 */
 	private void addPkceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
-		String codeVerifier = this.stringKeyGenerator.generateKey();
+		String codeVerifier = this.secureKeyGenerator.generateKey();
 		attributes.put(PkceParameterNames.CODE_VERIFIER, codeVerifier);
 		try {
 			String codeChallenge = createHash(codeVerifier);
@@ -256,7 +258,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 		}
 	}
 
-	private String createHash(String value) throws NoSuchAlgorithmException {
+	private static String createHash(String value) throws NoSuchAlgorithmException {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 		byte[] digest = md.digest(value.getBytes(StandardCharsets.US_ASCII));
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
