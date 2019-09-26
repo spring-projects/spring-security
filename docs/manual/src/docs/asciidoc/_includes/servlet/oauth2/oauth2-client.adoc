@@ -407,7 +407,7 @@ A request with the base path `/oauth2/authorization/okta` will initiate the Auth
 The `AuthorizationCodeOAuth2AuthorizedClientProvider` is an implementation of `OAuth2AuthorizedClientProvider` for the Authorization Code grant,
 which also initiates the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectFilter`.
 
-If the OAuth 2.0 Client is a https://tools.ietf.org/html/rfc6749#section-2.1[Public Client], than configure the OAuth 2.0 Client registration as follows:
+If the OAuth 2.0 Client is a https://tools.ietf.org/html/rfc6749#section-2.1[Public Client], then configure the OAuth 2.0 Client registration as follows:
 
 [source,yaml]
 ----
