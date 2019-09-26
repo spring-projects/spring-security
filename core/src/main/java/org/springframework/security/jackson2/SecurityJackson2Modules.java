@@ -24,7 +24,9 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import org.apache.commons.logging.Log;
@@ -146,19 +148,29 @@ public final class SecurityJackson2Modules {
 	}
 
 	/**
-	 * An implementation of {@link ObjectMapper.DefaultTypeResolverBuilder} that overrides the {@link TypeIdResolver}
-	 * with {@link WhitelistTypeIdResolver}.
+	 * An implementation of {@link ObjectMapper.DefaultTypeResolverBuilder}
+	 * that inserts an {@code allow all} {@link PolymorphicTypeValidator}
+	 * and overrides the {@code TypeIdResolver}
 	 * @author Rob Winch
 	 */
 	static class WhitelistTypeResolverBuilder extends ObjectMapper.DefaultTypeResolverBuilder {
 
 		WhitelistTypeResolverBuilder(ObjectMapper.DefaultTyping defaultTyping) {
-			super(defaultTyping);
+			super(
+					defaultTyping,
+					//we do explicit validation in the TypeIdResolver
+					BasicPolymorphicTypeValidator.builder()
+							.allowIfSubType(Object.class)
+							.build()
+			);
 		}
 
+		@Override
 		protected TypeIdResolver idResolver(MapperConfig<?> config,
-											JavaType baseType, Collection<NamedType> subtypes, boolean forSer, boolean forDeser) {
-			TypeIdResolver result = super.idResolver(config, baseType, subtypes, forSer, forDeser);
+				JavaType baseType,
+				PolymorphicTypeValidator subtypeValidator,
+				Collection<NamedType> subtypes, boolean forSer, boolean forDeser) {
+			TypeIdResolver result = super.idResolver(config, baseType, subtypeValidator, subtypes, forSer, forDeser);
 			return new WhitelistTypeIdResolver(result);
 		}
 	}
