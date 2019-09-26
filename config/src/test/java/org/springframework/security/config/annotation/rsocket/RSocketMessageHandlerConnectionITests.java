@@ -51,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * @author Rob Winch
+ * @author Luis Felipe Vega
  */
 @ContextConfiguration
 @RunWith(SpringRunner.class)
@@ -133,6 +134,23 @@ public class RSocketMessageHandlerConnectionITests {
 				.block();
 
 		assertThat(hiRob).isEqualTo("Hi rob");
+	}
+
+	@Test
+	public void routeWhenStreamCredentialsHaveAuthority() {
+		UsernamePasswordMetadata connectCredentials = new UsernamePasswordMetadata("user", "password");
+		this.requester = requester()
+				.setupMetadata(connectCredentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.block();
+
+		String hiUser = this.requester.route("secure.authority.retrieve-mono")
+				.metadata(new UsernamePasswordMetadata("admin", "password"), UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+				.data("Felipe")
+				.retrieveMono(String.class)
+				.block();
+
+		assertThat(hiUser).isEqualTo("Hi Felipe");
 	}
 
 	@Test
@@ -225,6 +243,7 @@ public class RSocketMessageHandlerConnectionITests {
 						.setup().hasRole("SETUP")
 						.route("secure.admin.*").hasRole("ADMIN")
 						.route("secure.**").hasRole("USER")
+						.route("secure.authority.*").hasAuthority("ROLE_USER")
 						.anyRequest().permitAll()
 				)
 				.basicAuthentication(Customizer.withDefaults());

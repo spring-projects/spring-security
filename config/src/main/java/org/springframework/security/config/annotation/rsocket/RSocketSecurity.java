@@ -105,6 +105,7 @@ import java.util.List;
  * </pre>
  * @author Rob Winch
  * @author Jesús Ascama Arias
+ * @author Luis Felipe Vega
  * @since 5.2
  */
 public class RSocketSecurity {
@@ -310,6 +311,10 @@ public class RSocketSecurity {
 
 			public AuthorizePayloadsSpec authenticated() {
 				return access(AuthenticatedReactiveAuthorizationManager.authenticated());
+			}
+
+			public AuthorizePayloadsSpec hasAuthority(String authority) {
+				return access(AuthorityReactiveAuthorizationManager.hasAuthority(authority));
 			}
 
 			public AuthorizePayloadsSpec hasRole(String role) {
