@@ -56,8 +56,11 @@ class UserDeserializer extends JsonDeserializer<User> {
 	public User deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode jsonNode = mapper.readTree(jp);
-		Set<GrantedAuthority> authorities = mapper.convertValue(jsonNode.get("authorities"), new TypeReference<Set<SimpleGrantedAuthority>>() {
-		});
+		Set<? extends GrantedAuthority> authorities =
+				mapper.convertValue(
+						jsonNode.get("authorities"),
+						new TypeReference<Set<SimpleGrantedAuthority>>() {}
+				);
 		JsonNode password = readJsonNode(jsonNode, "password");
 		User result =  new User(
 				readJsonNode(jsonNode, "username").asText(), password.asText(""),
