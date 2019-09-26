@@ -16,16 +16,10 @@
 
 package org.springframework.security.config.web.server;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 import org.openqa.selenium.WebDriver;
-import reactor.core.publisher.Mono;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +35,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
@@ -53,7 +49,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
+import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -84,20 +82,25 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
+import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebHandler;
+import reactor.core.publisher.Mono;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
@@ -186,6 +189,68 @@ public class OAuth2LoginTests {
 		@Bean
 		InMemoryReactiveClientRegistrationRepository clientRegistrationRepository() {
 			return new InMemoryReactiveClientRegistrationRepository(github);
+		}
+	}
+
+	@Test
+	public void oauth2AuthorizeWhenCustomObjectsThenUsed() {
+		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class,
+				OAuth2AuthorizeWithMockObjectsConfig.class,
+				AuthorizedClientController.class).autowire();
+
+		OAuth2AuthorizeWithMockObjectsConfig config = this.spring.getContext().getBean(OAuth2AuthorizeWithMockObjectsConfig.class);
+
+		ServerOAuth2AuthorizedClientRepository authorizedClientRepository = config.authorizedClientRepository;
+		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
+		ServerRequestCache requestCache = config.requestCache;
+
+		when(authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
+		when(authorizationRequestRepository.saveAuthorizationRequest(any(), any())).thenReturn(Mono.empty());
+		when(requestCache.removeMatchingRequest(any())).thenReturn(Mono.empty());
+		when(requestCache.saveRequest(any())).thenReturn(Mono.empty());
+
+		this.client.get()
+				.uri("/")
+				.exchange()
+				.expectStatus().is3xxRedirection();
+
+		verify(authorizedClientRepository).loadAuthorizedClient(any(), any(), any());
+		verify(authorizationRequestRepository).saveAuthorizationRequest(any(), any());
+		verify(requestCache).saveRequest(any());
+	}
+
+	@EnableWebFlux
+	static class OAuth2AuthorizeWithMockObjectsConfig {
+		ServerOAuth2AuthorizedClientRepository authorizedClientRepository =
+				mock(ServerOAuth2AuthorizedClientRepository.class);
+
+		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
+				mock(ServerAuthorizationRequestRepository.class);
+
+		ServerRequestCache requestCache = mock(ServerRequestCache.class);
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			http
+				.requestCache()
+					.requestCache(this.requestCache)
+					.and()
+				.oauth2Login()
+					.authorizationRequestRepository(this.authorizationRequestRepository);
+			return http.build();
+		}
+
+		@Bean
+		ServerOAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return this.authorizedClientRepository;
+		}
+	}
+
+	@RestController
+	static class AuthorizedClientController {
+		@GetMapping("/")
+		String home(@RegisteredOAuth2AuthorizedClient("github") OAuth2AuthorizedClient authorizedClient) {
+			return "home";
 		}
 	}
 
