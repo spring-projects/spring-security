@@ -398,7 +398,7 @@ public class OAuth2LoginConfig {
 ----
 
 [[oauth2login-advanced]]
-=== OAuth 2.0 Login -- Advanced Configuration
+=== Advanced Configuration
 
 `HttpSecurity.oauth2Login()` provides a number of configuration options for customizing OAuth 2.0 Login.
 The main configuration options are grouped into their protocol endpoint counterparts.
@@ -501,9 +501,9 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 
 The following sections go into more detail on each of the configuration options available:
 
-* <<oauth2login-advanced-login-page>>
-* <<oauth2login-advanced-redirection-endpoint>>
-* <<oauth2login-advanced-userinfo-endpoint>>
+* <<oauth2login-advanced-login-page, OAuth 2.0 Login Page>>
+* <<oauth2login-advanced-redirection-endpoint, Redirection Endpoint>>
+* <<oauth2login-advanced-userinfo-endpoint, UserInfo Endpoint>>
 
 
 [[oauth2login-advanced-login-page]]
@@ -957,16 +957,3 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
-
-[[oauth2login-resources]]
-=== Additional Resources
-
-The following additional resources describe advanced configuration options:
-
-* <<oauth2login-advanced-login-page, OAuth 2.0 Login Page>>
-* <<oauth2login-advanced-redirection-endpoint, Redirection Endpoint>>
-* <<oauth2login-advanced-userinfo-endpoint, UserInfo Endpoint:>>
-** <<oauth2login-advanced-map-authorities, Mapping User Authorities>>
-** <<oauth2login-advanced-custom-user, Configuring a Custom OAuth2User>>
-** <<oauth2login-advanced-oauth2-user-service, OAuth 2.0 UserService>>
-** <<oauth2login-advanced-oidc-user-service, OpenID Connect 1.0 UserService>>
