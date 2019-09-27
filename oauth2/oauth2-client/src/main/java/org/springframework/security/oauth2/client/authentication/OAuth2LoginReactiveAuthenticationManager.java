@@ -85,8 +85,7 @@ public class OAuth2LoginReactiveAuthenticationManager implements
 					.getAuthorizationRequest().getScopes().contains("openid")) {
 				// This is an OpenID Connect Authentication Request so return null
 				// and let OidcAuthorizationCodeReactiveAuthenticationManager handle it instead once one is created
-				// FIXME: Once we create OidcAuthorizationCodeReactiveAuthenticationManager uncomment below
-//				return Mono.empty();
+				return Mono.empty();
 			}
 
 			return this.authorizationCodeManager.authenticate(token)
