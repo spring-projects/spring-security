@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.resource.web.reactive.function.client;
 
+import java.util.Map;
+
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -56,6 +58,9 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
 public final class ServletBearerExchangeFilterFunction
 		implements ExchangeFilterFunction {
 
+	static final String SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY =
+			"org.springframework.security.SECURITY_CONTEXT_ATTRIBUTES";
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -76,8 +81,16 @@ public final class ServletBearerExchangeFilterFunction
 	}
 
 	private Mono<Authentication> currentAuthentication(Context ctx) {
-		Authentication authentication = ctx.getOrDefault(Authentication.class, null);
-		return Mono.justOrEmpty(authentication);
+		return Mono.justOrEmpty(getAttribute(ctx, Authentication.class));
+	}
+
+	private <T> T getAttribute(Context ctx, Class<T> clazz) {
+		// NOTE: SecurityReactorContextConfiguration.SecurityReactorContextSubscriber adds this key
+		if (!ctx.hasKey(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY)) {
+			return null;
+		}
+		Map<Class<T>, T> attributes = ctx.get(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY);
+		return attributes.get(clazz);
 	}
 
 	private ClientRequest bearer(ClientRequest request, AbstractOAuth2Token token) {

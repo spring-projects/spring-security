@@ -15,20 +15,21 @@
  */
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Used by {@link EnableWebSecurity} to conditionally import:
  *
  * <ul>
  * 	<li>{@link OAuth2ClientConfiguration} when the {@code spring-security-oauth2-client} module is present on the classpath</li>
- * 	<li>{@link SecurityReactorContextConfiguration} when the {@code spring-webflux} and {@code spring-security-oauth2-client} module is present on the classpath</li>
- * 	<li>{@link OAuth2ResourceServerConfiguration} when the {@code spring-security-oauth2-resource-server} module is present on the classpath</li>
+ * 	<li>{@link SecurityReactorContextConfiguration} when either the {@code spring-security-oauth2-client} or
+ * 		{@code spring-security-oauth2-resource-server} module as well as the {@code spring-webflux} module
+ * 		are present on the classpath</li>
  * </ul>
  *
  * @author Joe Grandja
@@ -36,13 +37,12 @@ import java.util.List;
  * @since 5.1
  * @see OAuth2ClientConfiguration
  * @see SecurityReactorContextConfiguration
- * @see OAuth2ResourceServerConfiguration
  */
 final class OAuth2ImportSelector implements ImportSelector {
 
 	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-		List<String> imports = new ArrayList<>();
+		Set<String> imports = new LinkedHashSet<>();
 
 		boolean oauth2ClientPresent = ClassUtils.isPresent(
 				"org.springframework.security.oauth2.client.registration.ClientRegistration", getClass().getClassLoader());
@@ -56,9 +56,10 @@ final class OAuth2ImportSelector implements ImportSelector {
 			imports.add("org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
 		}
 
-		if (ClassUtils.isPresent(
-				"org.springframework.security.oauth2.server.resource.BearerTokenError", getClass().getClassLoader())) {
-			imports.add("org.springframework.security.config.annotation.web.configuration.OAuth2ResourceServerConfiguration");
+		boolean oauth2ResourceServerPresent = ClassUtils.isPresent(
+				"org.springframework.security.oauth2.server.resource.BearerTokenError", getClass().getClassLoader());
+		if (webfluxPresent && oauth2ResourceServerPresent) {
+			imports.add("org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration");
 		}
 
 		return imports.toArray(new String[0]);

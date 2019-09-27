@@ -20,6 +20,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
@@ -37,6 +38,7 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.security.oauth2.server.resource.web.reactive.function.client.ServletBearerExchangeFilterFunction.SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY;
 
 /**
  * Tests for {@link ServletBearerExchangeFilterFunction}
@@ -80,7 +82,7 @@ public class ServletBearerExchangeFilterFunctionTests {
 				.build();
 
 		this.function.filter(request, this.exchange)
-				.subscriberContext(Context.of(Authentication.class, token))
+				.subscriberContext(context(token))
 				.block();
 
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
@@ -93,7 +95,7 @@ public class ServletBearerExchangeFilterFunctionTests {
 				.build();
 
 		this.function.filter(request, this.exchange)
-				.subscriberContext(Context.of(Authentication.class, this.authentication))
+				.subscriberContext(context(this.authentication))
 				.block();
 
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
@@ -107,10 +109,16 @@ public class ServletBearerExchangeFilterFunctionTests {
 				.build();
 
 		this.function.filter(request, this.exchange)
-				.subscriberContext(Context.of(Authentication.class, this.authentication))
+				.subscriberContext(context(this.authentication))
 				.block();
 
 		HttpHeaders headers = this.exchange.getRequest().headers();
 		assertThat(headers.get(HttpHeaders.AUTHORIZATION)).containsOnly("Bearer " + this.accessToken.getTokenValue());
+	}
+
+	private Context context(Authentication authentication) {
+		Map<Class<?>, Object> contextAttributes = new HashMap<>();
+		contextAttributes.put(Authentication.class, authentication);
+		return Context.of(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY, contextAttributes);
 	}
 }

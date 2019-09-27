@@ -44,11 +44,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests for {@link OAuth2ResourceServerConfiguration}.
+ * Tests for applications of {@link SecurityReactorContextConfiguration} in resource servers.
  *
  * @author Josh Cummings
  */
-public class OAuth2ResourceServerConfigurationTests {
+public class SecurityReactorContextConfigurationResourceServerTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
 
