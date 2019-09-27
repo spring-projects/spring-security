@@ -303,10 +303,6 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-[NOTE]
-Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientManager` `@Bean` in the `ApplicationContext`.
-However, the application may choose to override and register a custom `OAuth2AuthorizedClientManager` `@Bean`.
-
 The `DefaultOAuth2AuthorizedClientManager` is also associated with a `contextAttributesMapper` of type `Function<OAuth2AuthorizeRequest, Map<String, Object>>`, which is responsible for mapping attribute(s) from the `OAuth2AuthorizeRequest` to a `Map` of attributes to be associated to the `OAuth2AuthorizationContext`.
 This can be useful when you need to supply an `OAuth2AuthorizedClientProvider` with required (supported) attribute(s), eg. the `PasswordOAuth2AuthorizedClientProvider` requires the resource owner's `username` and `password` to be available in `OAuth2AuthorizationContext.getAttributes()`.
 
@@ -444,12 +440,12 @@ spring:
         registration:
           okta:
             ...
-            redirect-uri: "{baseScheme}{baseHost}{basePort}{basePath}/authorized/{registrationId}"
+            redirect-uri: "{baseScheme}://{baseHost}{basePort}{basePath}/authorized/{registrationId}"
             ...
 ----
 
 [NOTE]
-`{baseUrl}` resolves to `{baseScheme}{baseHost}{basePort}{basePath}`
+`{baseUrl}` resolves to `{baseScheme}://{baseHost}{basePort}{basePath}`
 
 Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a <<appendix-proxy-server, Proxy Server>>.
 This ensures that the `X-Forwarded-*` headers are used when expanding the `redirect-uri`.
@@ -871,9 +867,6 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-[NOTE]
-Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientManager` `@Bean` in the `ApplicationContext`.
-
 You may obtain the `OAuth2AccessToken` as follows:
 
 [source,java]
@@ -1142,9 +1135,6 @@ WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
 			.build();
 }
 ----
-
-[NOTE]
-Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientManager` `@Bean` in the `ApplicationContext`.
 
 
 ==== Providing the Authorized Client
