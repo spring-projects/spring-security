@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,17 @@
  */
 package org.springframework.security.config.annotation;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Rob Winch
+ * @author Josh Cummings
  *
  */
 public class ObjectPostProcessorTests {
@@ -34,17 +35,19 @@ public class ObjectPostProcessorTests {
 		assertThat((Object) PerformConversion.perform(new ArrayList<>()))
 				.isInstanceOf(LinkedList.class);
 	}
-}
 
-class ListToLinkedListObjectPostProcessor implements ObjectPostProcessor<List<?>> {
+	static class ListToLinkedListObjectPostProcessor implements ObjectPostProcessor<List<?>> {
 
-	public <O extends List<?>> O postProcess(O l) {
-		return (O) new LinkedList(l);
+		public <O extends List<?>> O postProcess(O l) {
+			return (O) new LinkedList(l);
+		}
+	}
+
+	static class PerformConversion {
+		public static List<?> perform(ArrayList<?> l) {
+			return new ListToLinkedListObjectPostProcessor().postProcess(l);
+		}
 	}
 }
 
-class PerformConversion {
-	public static List<?> perform(ArrayList<?> l) {
-		return new ListToLinkedListObjectPostProcessor().postProcess(l);
-	}
-}
+
