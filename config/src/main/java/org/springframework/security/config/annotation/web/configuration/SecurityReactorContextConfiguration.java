@@ -49,6 +49,7 @@ import static org.springframework.security.config.annotation.web.configuration.S
  * to the Reactor {@code Context} so that it's accessible in every flow, if required.
  *
  * @author Joe Grandja
+ * @author Roman Matiushchenko
  * @since 5.2
  * @see OAuth2ImportSelector
  */
