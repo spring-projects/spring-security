@@ -1,50 +1,61 @@
 [[new]]
-== What's New in Spring Security 5.1
+== What's New in Spring Security 5.2
 
-Spring Security 5.1 provides a number of new features.
+Spring Security 5.2 provides a number of new features.
 Below are the highlights of the release.
 
 === Servlet
 
-* Automatic password storage upgrades through {security-api-url}org/springframework/security/core/userdetails/UserDetailsPasswordService.html[UserDetailsPasswordService]
-* {gh-samples-url}/boot/oauth2webclient[OAuth 2.0 Client]
-** Customizable Authorize and Token requests
-** `authorization_code` grant support
-** `client_credentials` grant support
-* OAuth 2.0 Resource Server - support for {gh-samples-url}/boot/oauth2resourceserver[JWT-encoded bearer tokens]
-* Added OAuth2 <<oauth2Client-webclient-servlet,WebClient>> integration
-* <<request-matching,HTTP Firewall>> protects against HTTP Verb Tampering and Cross-site Tracing
-* <<exception-translation-filter,ExceptionTranslationFilter>> support for selecting an `AccessDeniedHandler` by `RequestMatcher`
-* <<csrf,CSRF>> support for excluding certain requests
-* Added Support for <<headers-feature,Feature Policy>>
-* Added {security-api-url}org/springframework/security/core/Transient.html[@Transient] authentication tokens
-* A modern look-and-feel for the default log in page
+* Added https://github.com/spring-projects/spring-security/issues/5557[nested builder] support in HTTP Security DSL
+* OAuth 2.0 Client
+** Introducing https://github.com/spring-projects/spring-security/pull/6845[OAuth2AuthorizedClientManager / OAuth2AuthorizedClientProvider]
+** Added https://github.com/spring-projects/spring-security/issues/7122[AuthorizedClientServiceOAuth2AuthorizedClientManager] which is capable of operating outside of a HttpServletRequest context
+** Public Client support with https://github.com/spring-projects/spring-security/issues/6446[PKCE]
+** Support for https://github.com/spring-projects/spring-security/issues/6003[Resource Owner Password Credentials] grant
+** Support for ID Token verification using a https://github.com/spring-projects/spring-security/issues/5465[Symmetric Key] via NimbusJwtDecoder
+** Added https://github.com/spring-projects/spring-security/issues/4442[nonce] to OpenID Connect Authentication Request
+** OpenID Connect https://github.com/spring-projects/spring-security/issues/5350[RP-Initiated Logout]
+** Updated <<oauth2client, documentation>>
+* OAuth 2.0 Resource Server
+** Introducing https://github.com/spring-projects/spring-security/issues/5200[Token Introspection] (Opaque Tokens)
+** https://github.com/spring-projects/spring-security/issues/5351[Multi-tenancy] support
+** Added ExchangeFilterFunction that performs https://github.com/spring-projects/spring-security/issues/5334[Bearer Token propagation] (Token Relay)
+** Support for multiple https://github.com/spring-projects/spring-security/issues/6883[JWS algorithms] via NimbusJwtDecoder
+** Test support for https://github.com/spring-projects/spring-security/issues/6634[mock JWT]
+** Added https://github.com/spring-projects/spring-security/issues/7033[JWE] sample
+** Updated <<oauth2resourceserver, documentation>>
 
 === WebFlux
 
-* Automatic password storage upgrades through {security-api-url}org/springframework/security/core/userdetails/ReactiveUserDetailsPasswordService.html[ReactiveUserDetailsPasswordService]
-* Added <<webflux-oauth2,OAuth2>> support
-** Added <<webflux-oauth2-client,OAuth2 Client>> support
-** Added <<webflux-oauth2-resource-server,OAuth2 Resource Server>> support
-** Added OAuth2 <<webclient,WebClient>> integration
-* `@WithUserDetails` <<test-method-withuserdetails,now works>> with `ReactiveUserDetailsService`
-* Added <<webflux-cors,CORS>> support
-* Added support for the following <<webflux-headers,HTTP headers>>
-** <<webflux-headers-csp,Content Security Policy>>
-** <<webflux-headers-feature,Feature Policy>>
-** <<webflux-headers-referrer,Referrer Policy>>
-* <<webflux-redirect-https,Redirect to HTTPS>>
-* Improvements for {security-api-url}org/springframework/security/core/annotation/AuthenticationPrincipal.html[@AuthenticationPrincipal]
-** Support for resolving beans
-** Support for resolving `errorOnInvalidType`
+* Added https://github.com/spring-projects/spring-security/issues/7107[nested builder] support in HTTP Security DSL
+* OAuth 2.0 Client
+** Introducing https://github.com/spring-projects/spring-security/pull/7116[ReactiveOAuth2AuthorizedClientManager / ReactiveOAuth2AuthorizedClientProvider]
+** Public Client support with https://github.com/spring-projects/spring-security/issues/6446[PKCE]
+** Support for https://github.com/spring-projects/spring-security/issues/6003[Resource Owner Password Credentials] grant
+** Support for ID Token verification using a https://github.com/spring-projects/spring-security/issues/5465[Symmetric Key] via NimbusReactiveJwtDecoder
+** Added https://github.com/spring-projects/spring-security/issues/4442[nonce] to OpenID Connect Authentication Request
+** OpenID Connect https://github.com/spring-projects/spring-security/issues/5350[RP-Initiated Logout]
+* OAuth 2.0 Resource Server
+** Introducing https://github.com/spring-projects/spring-security/issues/6513[Token Introspection] (Opaque Tokens)
+** https://github.com/spring-projects/spring-security/issues/6727[Multi-tenancy] support
+** Added ExchangeFilterFunction that performs https://github.com/spring-projects/spring-security/issues/7284[Bearer Token propagation] (Token Relay)
+** Support for multiple https://github.com/spring-projects/spring-security/issues/6883[JWS algorithms] via NimbusReactiveJwtDecoder
+* Support for https://github.com/spring-projects/spring-security/issues/5038[X509]
 
-=== Integrations
+=== Core
 
-* <<jackson,Jackson Support>> works with `BadCredentialsException`
-* `@WithMockUser` <<test-method-withmockuser,supports>> customizing when the `SecurityContext` is setup in the test.
-For example, `@WithMockUser(setupBefore = TestExecutionEvent.TEST_EXECUTION)` will setup a user after JUnit's `@Before` and before the test executes.
-* <<ldap,LDAP Authentication>> can be configured with custom environment variables
-* <<x509,X.509 Authentication>> supports deriving the principal as a strategy
-
-
-
+* Introducing https://github.com/spring-projects/spring-security/issues/7360[RSocket] support
+* Introducing https://github.com/spring-projects/spring-security/issues/6019[SAML Service Provider] support
+* Introducing https://github.com/spring-projects/spring-security/issues/6722[AuthenticationManagerResolver]
+* Introducing https://github.com/spring-projects/spring-security/issues/6506[AuthenticationFilter]
+* Introducing https://github.com/spring-projects/spring-security/issues/6546[@CurrentSecurityContext] for method arguments
+* Converting https://github.com/spring-projects/spring-security/issues/6494[key material] to Key instances
+* Support for https://github.com/spring-projects/spring-security/issues/4187[Clear-Site-Data] header
+* Introducing https://github.com/spring-projects/spring-security/issues/6453[CompositeHeaderWriter]
+* Added https://spring.io/blog/2019/06/10/announcing-nohttp[nohttp] to build
+* https://github.com/spring-projects/spring-security/issues/6774[JDK 12] support
+* Support for https://github.com/spring-projects/spring-security/issues/4469[path variables] in message expressions
+* Configuration classes are proxy-less and support https://github.com/spring-projects/spring-security/issues/6818[proxyBeanMethods=false]
+* Added https://github.com/spring-projects/spring-security/issues/5354[Argon2PasswordEncoder]
+* Support upgrading between different https://github.com/spring-projects/spring-security/pull/7042[BCrypt encodings]
+* Support upgrading between different https://github.com/spring-projects/spring-security/pull/7057[SCrypt encodings]
