@@ -15,11 +15,6 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
-import org.junit.Test;
-import org.springframework.security.oauth2.core.AuthenticationMethod;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,8 +22,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.Test;
+
+import org.springframework.security.oauth2.core.AuthenticationMethod;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.security.oauth2.client.registration.ClientRegistration.withClientRegistration;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 
 /**
  * Tests for {@link ClientRegistration}.
@@ -695,5 +698,73 @@ public class ClientRegistrationTests {
 		assertThat(registration.getScopes()).isEqualTo(SCOPES);
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
 		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
+	}
+
+	@Test
+	public void buildWhenClientRegistrationProvidedThenMakesACopy() {
+		ClientRegistration clientRegistration = clientRegistration().build();
+		ClientRegistration updated = withClientRegistration(clientRegistration).build();
+		assertThat(clientRegistration.getScopes()).isEqualTo(updated.getScopes());
+		assertThat(clientRegistration.getScopes()).isNotSameAs(updated.getScopes());
+		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata())
+				.isEqualTo(updated.getProviderDetails().getConfigurationMetadata());
+		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata())
+				.isNotSameAs(updated.getProviderDetails().getConfigurationMetadata());
+	}
+
+	@Test
+	public void buildWhenClientRegistrationProvidedThenEachPropertyMatches() {
+		ClientRegistration clientRegistration = clientRegistration().build();
+		ClientRegistration updated = withClientRegistration(clientRegistration).build();
+		assertThat(clientRegistration.getRegistrationId()).isEqualTo(updated.getRegistrationId());
+		assertThat(clientRegistration.getClientId()).isEqualTo(updated.getClientId());
+		assertThat(clientRegistration.getClientSecret()).isEqualTo(updated.getClientSecret());
+		assertThat(clientRegistration.getClientAuthenticationMethod())
+				.isEqualTo(updated.getClientAuthenticationMethod());
+		assertThat(clientRegistration.getAuthorizationGrantType())
+				.isEqualTo(updated.getAuthorizationGrantType());
+		assertThat(clientRegistration.getRedirectUriTemplate())
+				.isEqualTo(updated.getRedirectUriTemplate());
+		assertThat(clientRegistration.getScopes()).isEqualTo(updated.getScopes());
+
+		ClientRegistration.ProviderDetails providerDetails = clientRegistration.getProviderDetails();
+		ClientRegistration.ProviderDetails updatedProviderDetails = updated.getProviderDetails();
+		assertThat(providerDetails.getAuthorizationUri())
+				.isEqualTo(updatedProviderDetails.getAuthorizationUri());
+		assertThat(providerDetails.getTokenUri())
+				.isEqualTo(updatedProviderDetails.getTokenUri());
+
+		ClientRegistration.ProviderDetails.UserInfoEndpoint userInfoEndpoint = providerDetails.getUserInfoEndpoint();
+		ClientRegistration.ProviderDetails.UserInfoEndpoint updatedUserInfoEndpoint = updatedProviderDetails.getUserInfoEndpoint();
+		assertThat(userInfoEndpoint.getUri()).isEqualTo(updatedUserInfoEndpoint.getUri());
+		assertThat(userInfoEndpoint.getAuthenticationMethod())
+				.isEqualTo(updatedUserInfoEndpoint.getAuthenticationMethod());
+		assertThat(userInfoEndpoint.getUserNameAttributeName())
+				.isEqualTo(updatedUserInfoEndpoint.getUserNameAttributeName());
+
+		assertThat(providerDetails.getJwkSetUri()).isEqualTo(updatedProviderDetails.getJwkSetUri());
+		assertThat(providerDetails.getConfigurationMetadata())
+				.isEqualTo(updatedProviderDetails.getConfigurationMetadata());
+
+		assertThat(clientRegistration.getClientName()).isEqualTo(updated.getClientName());
+	}
+
+	@Test
+	public void buildWhenClientRegistrationValuesOverriddenThenPropagated() {
+		ClientRegistration clientRegistration = clientRegistration().build();
+		ClientRegistration updated = withClientRegistration(clientRegistration)
+				.clientSecret("a-new-secret")
+				.scope("a-new-scope")
+				.providerConfigurationMetadata(Collections.singletonMap("a-new-config", "a-new-value"))
+				.build();
+
+		assertThat(clientRegistration.getClientSecret()).isNotEqualTo(updated.getClientSecret());
+		assertThat(updated.getClientSecret()).isEqualTo("a-new-secret");
+		assertThat(clientRegistration.getScopes()).doesNotContain("a-new-scope");
+		assertThat(updated.getScopes()).containsExactly("a-new-scope");
+		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata())
+				.doesNotContainKey("a-new-config").doesNotContainValue("a-new-value");
+		assertThat(updated.getProviderDetails().getConfigurationMetadata())
+				.containsOnlyKeys("a-new-config").containsValue("a-new-value");
 	}
 }

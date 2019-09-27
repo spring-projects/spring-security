@@ -15,6 +15,17 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -22,14 +33,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import static java.util.Collections.EMPTY_MAP;
 
 /**
  * A representation of a client registration with an OAuth 2.0 or OpenID Connect 1.0 Provider.
@@ -264,6 +268,17 @@ public final class ClientRegistration implements Serializable {
 	}
 
 	/**
+	 * Returns a new {@link Builder}, initialized with the provided {@link ClientRegistration}.
+	 *
+	 * @param clientRegistration the {@link ClientRegistration} to copy from
+	 * @return the {@link Builder}
+	 */
+	public static Builder withClientRegistration(ClientRegistration clientRegistration) {
+		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
+		return new Builder(clientRegistration);
+	}
+
+	/**
 	 * A builder for {@link ClientRegistration}.
 	 */
 	public static class Builder implements Serializable {
@@ -286,6 +301,27 @@ public final class ClientRegistration implements Serializable {
 
 		private Builder(String registrationId) {
 			this.registrationId = registrationId;
+		}
+
+		private Builder(ClientRegistration clientRegistration) {
+			this.registrationId = clientRegistration.registrationId;
+			this.clientId = clientRegistration.clientId;
+			this.clientSecret = clientRegistration.clientSecret;
+			this.clientAuthenticationMethod = clientRegistration.clientAuthenticationMethod;
+			this.authorizationGrantType = clientRegistration.authorizationGrantType;
+			this.redirectUriTemplate = clientRegistration.redirectUriTemplate;
+			this.scopes = clientRegistration.scopes == null ? null : new HashSet<>(clientRegistration.scopes);
+			this.authorizationUri = clientRegistration.providerDetails.authorizationUri;
+			this.tokenUri = clientRegistration.providerDetails.tokenUri;
+			this.userInfoUri = clientRegistration.providerDetails.userInfoEndpoint.uri;
+			this.userInfoAuthenticationMethod = clientRegistration.providerDetails.userInfoEndpoint.authenticationMethod;
+			this.userNameAttributeName = clientRegistration.providerDetails.userInfoEndpoint.userNameAttributeName;
+			this.jwkSetUri = clientRegistration.providerDetails.jwkSetUri;
+			Map<String, Object> configurationMetadata = clientRegistration.providerDetails.configurationMetadata;
+			if (configurationMetadata != EMPTY_MAP) {
+				this.configurationMetadata = new HashMap<>(configurationMetadata);
+			}
+			this.clientName = clientRegistration.clientName;
 		}
 
 		/**
