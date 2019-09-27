@@ -75,7 +75,6 @@ The following sections will go into more detail on the core components used by O
 
 * <<oauth2Client-core-interface-class>>
 ** <<oauth2Client-client-registration, ClientRegistration>>
-** <<oauth2Client-client-registrations, ClientRegistrations>>
 ** <<oauth2Client-client-registration-repo, ClientRegistrationRepository>>
 ** <<oauth2Client-authorized-client, OAuth2AuthorizedClient>>
 ** <<oauth2Client-authorized-repo-service, OAuth2AuthorizedClientRepository / OAuth2AuthorizedClientService>>
@@ -155,26 +154,19 @@ The name may be used in certain scenarios, such as when displaying the name of t
 The supported values are *header*, *form* and *query*.
 <15> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
 
-[[oauth2Client-client-registrations]]
-==== ClientRegistrations
+A `ClientRegistration` can be initially configured using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint].
 
-A `ClientRegistration` can be initially configured by hitting an authorization server's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Provider Configuration] endpoint or a https://tools.ietf.org/html/rfc8414#section-3[Authorization Server Metadata] endpoint.
-
-`ClientRegistrations` provides convenience methods for generating a `ClientRegistration` in this way, as can be seen in the following example:
+`ClientRegistrations` provides convenience methods for configuring a `ClientRegistration` in this way, as can be seen in the following example:
 
 [source,java]
 ----
-@Bean
-public ClientRegistrationRepository clientRegistrationRepository() {
-	ClientRegistration clientRegistration =
-	    ClientRegistrations.fromIssuerLocation("https://idp.example.com/issuer").build();
-	return new InMemoryClientRegistrationRepository(clientRegistration);
-}
+ClientRegistration clientRegistration =
+    ClientRegistrations.fromIssuerLocation("https://idp.example.com/issuer").build();
 ----
 
 The above code will query in series `https://idp.example.com/issuer/.well-known/openid-configuration`, and then `https://idp.example.com/.well-known/openid-configuration/issuer`, and finally `https://idp.example.com/.well-known/oauth-authorization-server/issuer`, stopping at the first to return a 200 response.
 
-As an alternative, you can invoke `ClientRegistrations#fromOidcIssuerLocation` to only hit the OIDC Provider Configuration endpoint.
+As an alternative, you can use `ClientRegistrations.fromOidcIssuerLocation()` to only query the OpenID Connect Provider's Configuration endpoint.
 
 [[oauth2Client-client-registration-repo]]
 ==== ClientRegistrationRepository
