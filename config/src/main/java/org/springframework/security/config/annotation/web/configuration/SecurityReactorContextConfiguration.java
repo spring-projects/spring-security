@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import reactor.core.CoreSubscriber;
@@ -70,7 +69,7 @@ class SecurityReactorContextConfiguration {
 					Operators.liftPublisher((pub, sub) -> createSubscriberIfNecessary(sub));
 
 			Hooks.onLastOperator(SECURITY_REACTOR_CONTEXT_OPERATOR_KEY, pub -> {
-				if (CollectionUtils.isEmpty(getContextAttributes())) {
+				if (!contextAttributesAvailable()) {
 					// No need to decorate so return original Publisher
 					return pub;
 				}
@@ -89,6 +88,22 @@ class SecurityReactorContextConfiguration {
 				return delegate;
 			}
 			return new SecurityReactorContextSubscriber<>(delegate, getContextAttributes());
+		}
+
+		private static boolean contextAttributesAvailable() {
+			HttpServletRequest servletRequest = null;
+			HttpServletResponse servletResponse = null;
+			ServletRequestAttributes requestAttributes =
+					(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+			if (requestAttributes != null) {
+				servletRequest = requestAttributes.getRequest();
+				servletResponse = requestAttributes.getResponse();
+			}
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			if (authentication != null || servletRequest != null || servletResponse != null) {
+				return true;
+			}
+			return false;
 		}
 
 		private static Map<Object, Object> getContextAttributes() {
