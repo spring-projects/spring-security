@@ -114,7 +114,9 @@ class WebFluxSecurityConfiguration {
 
 	private static class OAuth2ClasspathGuard {
 		static void configure(ApplicationContext context, ServerHttpSecurity http) {
-			http.oauth2Login();
+			http
+				.oauth2Login().and()
+				.oauth2Client();
 		}
 
 		static boolean shouldConfigure(ApplicationContext context) {
