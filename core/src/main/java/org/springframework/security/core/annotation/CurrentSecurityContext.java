@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that is used to resolve {@link SecurityContext#getAuthentication()} to a method
+ * Annotation that is used to resolve the {@link org.springframework.security.core.context.SecurityContext} as a method
  * argument.
  *
  * @author Dan Zheng
@@ -46,29 +46,24 @@ import java.lang.annotation.Target;
 public @interface CurrentSecurityContext {
 	/**
 	 * True if a {@link ClassCastException} should be thrown when the current
-	 * {@link SecurityContext} is the incorrect type. Default is false.
+	 * {@link org.springframework.security.core.context.SecurityContext} is the incorrect type. Default is false.
 	 *
-	 * @return
+	 * @return whether or not to error on an invalid type
 	 */
 	boolean errorOnInvalidType() default false;
 
 	/**
-	 * If specified will use the provided SpEL expression to resolve the security context. This
-	 * is convenient if users need to transform the result.
+	 * If specified, will use the provided SpEL expression to resolve the security context. This
+	 * is convenient if applications need to transform the result.
+	 *
+	 * For example, if an application needs to extract its custom {@code Authentication} implementation,
+	 * then it could specify the appropriate SpEL like so:
 	 *
 	 * <pre>
-	 * &#64;CurrentSecurityContext(expression = "authentication") Authentication authentication
+	 * &#64;CurrentSecurityContext(expression = "authentication") CustomAuthentication authentication
 	 * </pre>
 	 *
-	 * <p>
-	 *    if you want to retrieve more object from the authentcation, you can see the following the expression
-	 * </p>
-	 *
-	 * <pre>
-	 * &#64;CurrentSecurityContext(expression = "authentication.principal") Object principal
-	 * </pre>
-	 *
-	 * @return the expression to use.
+	 * @return the expression to use
 	 */
 	String expression() default "";
 }
