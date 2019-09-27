@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.bind.support;
+package org.springframework.security.web.method.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -45,12 +45,11 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  */
 public class CurrentSecurityContextArgumentResolverTests {
-	private Object expectedPrincipal;
 	private CurrentSecurityContextArgumentResolver resolver;
 
 	@Before
 	public void setup() {
-		resolver = new CurrentSecurityContextArgumentResolver();
+		this.resolver = new CurrentSecurityContextArgumentResolver();
 	}
 
 	@After
@@ -60,45 +59,48 @@ public class CurrentSecurityContextArgumentResolverTests {
 
 	@Test
 	public void supportsParameterNoAnnotation() {
-		assertThat(resolver.supportsParameter(showSecurityContextNoAnnotation())).isFalse();
+		assertThat(this.resolver.supportsParameter(showSecurityContextNoAnnotation())).isFalse();
 	}
 
 	@Test
 	public void supportsParameterAnnotation() {
-		assertThat(resolver.supportsParameter(showSecurityContextAnnotation())).isTrue();
+		assertThat(this.resolver.supportsParameter(showSecurityContextAnnotation())).isTrue();
 	}
 
 	@Test
-	public void resolveArgumentWithCustomSecurityContext() throws Exception {
+	public void resolveArgumentWithCustomSecurityContext() {
 		String principal = "custom_security_context";
 		setAuthenticationPrincipalWithCustomSecurityContext(principal);
-		CustomSecurityContext customSecurityContext = (CustomSecurityContext) resolver.resolveArgument(showAnnotationWithCustomSecurityContext(), null, null, null);
+		CustomSecurityContext customSecurityContext = (CustomSecurityContext)
+				this.resolver.resolveArgument(showAnnotationWithCustomSecurityContext(), null, null, null);
 		assertThat(customSecurityContext.getAuthentication().getPrincipal()).isEqualTo(principal);
 	}
 
 	@Test
-	public void resolveArgumentWithCustomSecurityContextTypeMatch() throws Exception {
+	public void resolveArgumentWithCustomSecurityContextTypeMatch() {
 		String principal = "custom_security_context_type_match";
 		setAuthenticationPrincipalWithCustomSecurityContext(principal);
-		CustomSecurityContext customSecurityContext = (CustomSecurityContext) resolver.resolveArgument(showAnnotationWithCustomSecurityContext(), null, null, null);
+		CustomSecurityContext customSecurityContext = (CustomSecurityContext)
+				this.resolver.resolveArgument(showAnnotationWithCustomSecurityContext(), null, null, null);
 		assertThat(customSecurityContext.getAuthentication().getPrincipal()).isEqualTo(principal);
 	}
 
 	@Test
-	public void resolveArgumentNullAuthentication() throws Exception {
+	public void resolveArgumentNullAuthentication() {
 		SecurityContext context = SecurityContextHolder.getContext();
 		Authentication authentication = context.getAuthentication();
 		context.setAuthentication(null);
-		assertThat(resolver.resolveArgument(showSecurityContextAuthenticationAnnotation(), null, null, null))
+		assertThat(this.resolver.resolveArgument(showSecurityContextAuthenticationAnnotation(), null, null, null))
 				.isNull();
 		context.setAuthentication(authentication);
 	}
 
 	@Test
-	public void resolveArgumentWithAuthentication() throws Exception {
+	public void resolveArgumentWithAuthentication() {
 		String principal = "john";
 		setAuthenticationPrincipal(principal);
-		Authentication auth1 = (Authentication) resolver.resolveArgument(showSecurityContextAuthenticationAnnotation(), null, null, null);
+		Authentication auth1 = (Authentication)
+				this.resolver.resolveArgument(showSecurityContextAuthenticationAnnotation(), null, null, null);
 		assertThat(auth1.getPrincipal()).isEqualTo(principal);
 	}
 
@@ -109,52 +111,54 @@ public class CurrentSecurityContextArgumentResolverTests {
 		context.setAuthentication(null);
 		assertThatExceptionOfType(SpelEvaluationException.class)
 		.isThrownBy(() -> {
-			resolver.resolveArgument(showSecurityContextAuthenticationWithPrincipal(), null, null, null);
+			this.resolver.resolveArgument(showSecurityContextAuthenticationWithPrincipal(), null, null, null);
 		});
 		context.setAuthentication(authentication);
 	}
 
 	@Test
-	public void resolveArgumentWithOptionalPrincipal() throws Exception {
+	public void resolveArgumentWithOptionalPrincipal() {
 		SecurityContext context = SecurityContextHolder.getContext();
 		Authentication authentication = context.getAuthentication();
 		context.setAuthentication(null);
-		Object principalResult = resolver.resolveArgument(showSecurityContextAuthenticationWithOptionalPrincipal(), null, null, null);
+		Object principalResult =
+				this.resolver.resolveArgument(showSecurityContextAuthenticationWithOptionalPrincipal(), null, null, null);
 		assertThat(principalResult).isNull();
 		context.setAuthentication(authentication);
 	}
 
 	@Test
-	public void resolveArgumentWithPrincipal() throws Exception {
+	public void resolveArgumentWithPrincipal() {
 		String principal = "smith";
 		setAuthenticationPrincipal(principal);
-		String principalResult = (String) resolver.resolveArgument(showSecurityContextAuthenticationWithPrincipal(), null, null, null);
+		String principalResult = (String)
+				this.resolver.resolveArgument(showSecurityContextAuthenticationWithPrincipal(), null, null, null);
 		assertThat(principalResult).isEqualTo(principal);
 	}
 
 	@Test
-	public void resolveArgumentUserDetails() throws Exception {
+	public void resolveArgumentUserDetails() {
 		setAuthenticationDetail(new User("my_user", "my_password",
 				AuthorityUtils.createAuthorityList("ROLE_USER")));
 
-		User u = (User) resolver.resolveArgument(showSecurityContextWithUserDetail(), null, null,
+		User u = (User) this.resolver.resolveArgument(showSecurityContextWithUserDetail(), null, null,
 				null);
 		assertThat(u.getUsername()).isEqualTo("my_user");
 	}
 
 	@Test
-	public void resolveArgumentSecurityContextErrorOnInvalidTypeImplicit() throws Exception {
+	public void resolveArgumentSecurityContextErrorOnInvalidTypeImplicit() {
 		String principal = "invalid_type_implicit";
 		setAuthenticationPrincipal(principal);
-		assertThat(resolver.resolveArgument(showSecurityContextErrorOnInvalidTypeImplicit(), null, null, null))
+		assertThat(this.resolver.resolveArgument(showSecurityContextErrorOnInvalidTypeImplicit(), null, null, null))
 				.isNull();
 	}
 
 	@Test
-	public void resolveArgumentSecurityContextErrorOnInvalidTypeFalse() throws Exception {
+	public void resolveArgumentSecurityContextErrorOnInvalidTypeFalse() {
 		String principal = "invalid_type_false";
 		setAuthenticationPrincipal(principal);
-		assertThat(resolver.resolveArgument(showSecurityContextErrorOnInvalidTypeFalse(), null, null, null))
+		assertThat(this.resolver.resolveArgument(showSecurityContextErrorOnInvalidTypeFalse(), null, null, null))
 				.isNull();
 	}
 
@@ -162,34 +166,35 @@ public class CurrentSecurityContextArgumentResolverTests {
 	public void resolveArgumentSecurityContextErrorOnInvalidTypeTrue() {
 		String principal = "invalid_type_true";
 		setAuthenticationPrincipal(principal);
-		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> resolver.resolveArgument(showSecurityContextErrorOnInvalidTypeTrue(), null,
-				null, null));
+		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() ->
+				this.resolver.resolveArgument(showSecurityContextErrorOnInvalidTypeTrue(), null, null, null));
 	}
 
 	@Test
-	public void metaAnnotationWhenCurrentCustomSecurityContextThenInjectSecurityContext() throws Exception {
-		assertThat(resolver.resolveArgument(showCurrentCustomSecurityContext(), null, null, null))
+	public void metaAnnotationWhenCurrentCustomSecurityContextThenInjectSecurityContext() {
+		assertThat(this.resolver.resolveArgument(showCurrentCustomSecurityContext(), null, null, null))
 				.isNotNull();
 	}
 
 	@Test
-	public void metaAnnotationWhenCurrentAuthenticationThenInjectAuthentication() throws Exception {
+	public void metaAnnotationWhenCurrentAuthenticationThenInjectAuthentication() {
 		String principal = "current_authentcation";
 		setAuthenticationPrincipal(principal);
-		Authentication auth1 = (Authentication) resolver.resolveArgument(showCurrentAuthentication(), null, null, null);
+		Authentication auth1 = (Authentication)
+				this.resolver.resolveArgument(showCurrentAuthentication(), null, null, null);
 		assertThat(auth1.getPrincipal()).isEqualTo(principal);
 	}
 
 	@Test
-	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenInjectSecurityContext() throws Exception {
-		assertThat(resolver.resolveArgument(showCurrentSecurityWithErrorOnInvalidType(), null, null, null))
+	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenInjectSecurityContext() {
+		assertThat(this.resolver.resolveArgument(showCurrentSecurityWithErrorOnInvalidType(), null, null, null))
 				.isNotNull();
 	}
 
 	@Test
 	public void metaAnnotationWhenCurrentSecurityWithErrorOnInvalidTypeThenMisMatch() {
-		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> resolver.resolveArgument(showCurrentSecurityWithErrorOnInvalidTypeMisMatch(), null,
-				null, null));
+		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() ->
+				this.resolver.resolveArgument(showCurrentSecurityWithErrorOnInvalidTypeMisMatch(), null, null, null));
 	}
 
 	private MethodParameter showSecurityContextNoAnnotation() {
@@ -342,13 +347,13 @@ public class CurrentSecurityContextArgumentResolverTests {
 	@Target({ ElementType.PARAMETER })
 	@Retention(RetentionPolicy.RUNTIME)
 	@CurrentSecurityContext
-	static @interface CurrentCustomSecurityContext {
+	@interface CurrentCustomSecurityContext {
 	}
 
 	@Target({ ElementType.PARAMETER })
 	@Retention(RetentionPolicy.RUNTIME)
 	@CurrentSecurityContext(expression = "authentication")
-	static @interface CurrentAuthentication {
+	@interface CurrentAuthentication {
 	}
 
 	@Target({ ElementType.PARAMETER })

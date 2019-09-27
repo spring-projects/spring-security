@@ -15,7 +15,11 @@
  */
 package org.springframework.security.web.reactive.result.method.annotation;
 
+import java.lang.annotation.Annotation;
+
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
@@ -34,12 +38,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolverSupport;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import java.lang.annotation.Annotation;
 
 /**
- * Resolves the SecurityContext
+ * Resolves the {@link SecurityContext}
+ *
  * @author Dan Zheng
  * @since 5.2
  */
@@ -63,13 +65,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 	}
 
 	/**
-	 * check if this argument resolve can support the parameter.
-	 * @param parameter the method parameter.
-	 * @return true = it can support parameter.
-	 *
-	 * @see
-	 * org.springframework.web.reactive.result.method.HandlerMethodArgumentResolver#
-	 * supportsParameter(org.springframework.core.MethodParameter)
+	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
@@ -77,11 +73,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 	}
 
 	/**
-	 * resolve the argument to inject into the controller parameter.
-	 * @param parameter the method parameter.
-	 * @param bindingContext the binding context.
-	 * @param exchange the server web exchange.
-	 * @return the reactive mono object result.
+	 * {@inheritDoc}
 	 */
 	@Override
 	public Mono<Object> resolveArgument(MethodParameter parameter, BindingContext bindingContext,

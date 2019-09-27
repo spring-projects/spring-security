@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.bind.support;
+package org.springframework.security.web.method.annotation;
 
 import java.lang.annotation.Annotation;
 
@@ -62,10 +62,10 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * </pre>
  *
  * <p>
- * Will resolve the SecurityContext argument using {@link SecurityContextHolder#getContext()} from
- * the {@link SecurityContextHolder}. If the {@link SecurityContext} is null, it will return null.
- * If the types do not match, null will be returned unless
- * {@link CurrentSecurityContext#errorOnInvalidType()} is true in which case a
+ * Will resolve the {@link SecurityContext} argument using {@link SecurityContextHolder#getContext()} from
+ * the {@link SecurityContextHolder}. If the {@link SecurityContext} is {@code null}, it will return {@code null}.
+ * If the types do not match, {@code null} will be returned unless
+ * {@link CurrentSecurityContext#errorOnInvalidType()} is {@code true} in which case a
  * {@link ClassCastException} will be thrown.
  * </p>
  *
@@ -78,32 +78,19 @@ public final class CurrentSecurityContextArgumentResolver
 	private ExpressionParser parser = new SpelExpressionParser();
 
 	private BeanResolver beanResolver;
+
 	/**
-	 * check if this argument resolve can support the parameter.
-	 * @param parameter the method parameter.
-	 * @return true = it can support parameter.
-	 *
-	 * @see
-	 * org.springframework.web.method.support.HandlerMethodArgumentResolver#
-	 * supportsParameter(org.springframework.core.MethodParameter)
+	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return findMethodAnnotation(CurrentSecurityContext.class, parameter) != null;
 	}
 
 	/**
-	 * resolve the argument to inject into the controller parameter.
-	 * @param parameter the method parameter.
-	 * @param mavContainer the model and view container.
-	 * @param webRequest the web request.
-	 * @param binderFactory the web data binder factory.
-	 *
-	 * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#
-	 * resolveArgument (org.springframework.core.MethodParameter,
-	 * org.springframework.web.method.support.ModelAndViewContainer,
-	 * org.springframework.web.context.request.NativeWebRequest,
-	 * org.springframework.web.bind.support.WebDataBinderFactory)
+	 * {@inheritDoc}
 	 */
+	@Override
 	public Object resolveArgument(MethodParameter parameter,
 				ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
 				WebDataBinderFactory binderFactory) {
@@ -138,8 +125,9 @@ public final class CurrentSecurityContextArgumentResolver
 		}
 		return securityContextResult;
 	}
+
 	/**
-	 * Sets the {@link BeanResolver} to be used on the expressions
+	 * Set the {@link BeanResolver} to be used on the expressions
 	 * @param beanResolver the {@link BeanResolver} to use
 	 */
 	public void setBeanResolver(BeanResolver beanResolver) {
@@ -148,7 +136,7 @@ public final class CurrentSecurityContextArgumentResolver
 	}
 
 	/**
-	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
+	 * Obtain the specified {@link Annotation} on the specified {@link MethodParameter}.
 	 *
 	 * @param annotationClass the class of the {@link Annotation} to find on the
 	 * {@link MethodParameter}
