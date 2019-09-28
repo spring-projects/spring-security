@@ -1,0 +1,3 @@
+= SAML2
+
+include::saml2-login.adoc[]
