@@ -254,7 +254,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			}
 			try {
 				Assertion a = decrypt(token, ea);
-				validateAssertion(recipient, a, token, false);
+				validateAssertion(recipient, a, token, !responseSigned);
 				return a;
 			} catch (Saml2AuthenticationException e) {
 				lastValidationError = e;
