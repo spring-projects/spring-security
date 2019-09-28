@@ -1,0 +1,312 @@
+[[saml2login]]
+== SAML 2.0 Login
+
+The SAML 2.0 Login, `saml2Login()`, feature provides an application with the capability to have users log in to the application by using their existing account at an SAML 2.0 Identity Provider (Okta, ADFS, etc).
+
+NOTE: SAML 2.0 Login is implemented by using the *Web Browser SSO Profile*, as specified in
+https://www.oasis-open.org/committees/download.php/35389/sstc-saml-profiles-errata-2.0-wd-06-diff.pdf#page=15[SAML 2 Profiles].
+Our implementation is currently limited to a simple authentication scheme.
+
+[[saml2login-spring-security-saml2-history]]
+=== SAML 2 Support in Spring Security
+
+SAML 2 Service Provider, SP a.k.a. a relying party, support existed as an
+https://github.com/spring-projects/spring-security-saml/tree/1e013b07a7772defd6a26fcfae187c9bf661ee8f#spring-saml[independent project]
+since 2009. The 1.0.x branch is still in use, including in the
+https://github.com/cloudfoundry/uaa[Cloud Foundry User Account and Authentication Server] that
+also created a SAML 2.0 Identity Provider implementation based on the SP implementation.
+
+In 2018 we experimented with creating an updated implementation of both a
+https://github.com/spring-projects/spring-security-saml#spring-saml[Service Provider and Identity Provider]
+as a standalone library. After careful, and lengthy, deliberation we, the Spring Security team, decided
+to discontinue that effort. While this effort created a replacement for that standalone 1.0.x library
+we didn't feel that we should build a library on top of another library.
+
+Instead we opted to provide framework support for SAML 2 authentication as part of
+https://github.com/spring-projects/spring-security[core Spring Security] instead.
+
+[[samllogin-concepts]]
+=== Saml 2 Login - High Level Concepts
+
+`saml2Login()` is aimed to support a fraction of the https://saml.xml.org/saml-specifications[SAML 2 feature set]
+with a focus on authentication being a Service Provider, SP, a relying party, receiving XML assertions from an
+Identity Provider, aka an asserting party.
+
+A SAML 2 login, or authentication, is the concept that the SP receives and validates an XML message called
+an assertion from an IDP.
+
+There are currently two supported authentication flows
+
+1. IDP Initiated flow - example: You login in directly to Okta, and then select a web application to be authenticated for.
+Okta, the IDP, sends an assertion to the web application, the SP.
+2. SP Initiated flow - example: You access a web application, a SP, the application sends an
+authentication request to the IDP requesting an assertion. Upon successful authentication on the IDP,
+the IDP sends an assertion to the SP.
+
+[[samllogin-feature-set]]
+=== Saml 2 Login - Current Feature Set
+
+1. Service Provider (SP/Relying Party) is identified by `entityId = {baseUrl}/saml2/service-provider-metadata/{registrationId}`
+2. Receive assertion embedded in a SAML response via Http-POST or Http-Redirect at `{baseUrl}/login/saml2/sso/{registrationId}`
+3. Requires the assertion to be signed, unless the response is signed
+4. Supports encrypted assertions
+5. Supports encrypted NameId elements
+6. Allows for extraction of assertion attributes into authorities using a `Converter<Assertion, Collection<? extends GrantedAuthority>>`
+7. Allows mapping and white listing of authorities using a `GrantedAuthoritiesMapper`
+8. Public keys in `java.security.cert.X509Certificate` format.
+9. SP Initiated Authentication via an `AuthNRequest`
+
+==== Saml 2 Login - Not Yet Supported
+
+1. Mappings assertion conditions and attributes to session features (timeout, tracking, etc)
+2. Single logout
+3. Dynamic metadata generation
+4. Receiving and validating standalone assertion (not wrapped in a response object)
+
+[[samllogin-introduction-java-config]]
+=== Saml 2 Login - Introduction to Java Configuration
+
+To add `saml2Login()` to a Spring Security filter chain,
+the minimal Java configuration requires a configuration repository,
+the `RelyingPartyRegistrationRepository`, that contains the SAML configuration and
+the invocation of the `HttpSecurity.saml2Login()` method:
+[source,java]
+----
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Bean
+    public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
+        //SAML configuration
+        //Mapping this application to one or more Identity Providers
+        return new InMemoryRelyingPartyRegistrationRepository(...);
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests()
+                .anyRequest().authenticated()
+                .and()
+            .saml2Login()
+        ;
+    }
+}
+----
+
+The bean declaration is a convenient, but optional, approach.
+You can directly wire up the repository using a method call
+[source,java]
+----
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests()
+                .anyRequest().authenticated()
+                .and()
+            .saml2Login()
+                .relyingPartyRegistrationRepository(...)
+        ;
+    }
+}
+----
+
+==== RelyingPartyRegistration
+The https://github.com/spring-projects/spring-security/blob/5.2.0.RELEASE/saml2/saml2-service-provider/src/main/java/org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistration.java[`RelyingPartyRegistration`]
+object represents the mapping between this application, the SP, and the asserting party, the IDP.
+
+===== URI Patterns
+
+URI patterns are frequenty used to automatically generate URIs based on
+an incoming request. The URI patterns in `saml2Login` can contain the following variables
+
+* `baseUrl`
+* `registrationId`
+* `baseScheme`
+* `baseHost`
+* `basePort`
+
+For example:
+```
+{baseUrl}/login/saml2/sso/{registrationId}
+```
+
+===== Relying Party
+
+
+* `registrationId` - (required) a unique identifer for this configuration mapping.
+This identifier may be used in URI paths, so care should be taken that no URI encoding is required.
+* `localEntityIdTemplate` - (optional) A URI pattern that creates an entity ID for this application based on the incoming request. The default is
+`{baseUrl}/saml2/service-provider-metadata/{registrationId}` and for a small sample application
+it would look like
+```
+http://localhost:8080/saml2/service-provider-metadata/my-test-configuration
+```
+There is no requirement that this configuration option is a pattern, it can be a fixed URI value.
+
+* `remoteIdpEntityId` - (required) the entity ID of the Identity Provider. Always a fixed URI value or string,
+no patterns allowed.
+* `assertionConsumerServiceUrlTemplate` - (optional) A URI pattern that denotes the assertion
+consumer service URI to be sent with any `AuthNRequest` from the SP to the IDP during the SP initiated flow.
+While this can be a pattern the actual URI must resolve to the ACS endpoint on the SP.
+The default value is `{baseUrl}/login/saml2/sso/{registrationId}` and maps directly to the
+https://github.com/spring-projects/spring-security/blob/5.2.0.RELEASE/saml2/saml2-service-provider/src/main/java/org/springframework/security/saml2/provider/service/servlet/filter/Saml2WebSsoAuthenticationFilter.java#L42[`Saml2WebSsoAuthenticationFilter`] endpoint
+* `idpWebSsoUrl`  - (required) a fixed URI value for the IDP Single Sign On endpoint where
+the SP sends the `AuthNRequest` messages.
+* `credentials` - A list of credentials, private keys and x509 certificates, used for
+message signing, verification, encryption and decryption.
+This list can contain redundant credentials to allow for easy rotation of credentials.
+For example
+** [0] - X509Certificate{VERIFICATION,ENCRYPTION} - The IDP's first public key used for
+verification and encryption.
+** [1] - X509Certificate/{VERIFICATION,ENCRYPTION} - The IDP's second verification key used for verification.
+Encryption is always done using the first `ENCRYPTION` key in the list.
+** [2] - PrivateKey/X509Certificate{SIGNING,DECRYPTION} - The SP's first signing and decryption credential.
+** [3] - PrivateKey/X509Certificate{SIGNING,DECRYPTION} - The SP's second decryption credential.
+Signing is always done using the first `SIGNING` key in the list.
+
+When an incoming message is received, signatures are always required, the system will first attempt
+to validate the signature using the certificate at index [0] and only move to the second
+credential if the first one fails.
+
+In a similar fashion, the SP configured private keys are used for decryption and attempted in the same order.
+The first SP credential (`type=SIGNING`) will be used when messages to the IDP are signed.
+
+===== Duplicated Relying Party Configurations
+
+In the use case where an application uses multiple identity providers it becomes
+obvious that some configuration is duplicated between two `RelyingPartyRegistration` objects
+
+* localEntityIdTemplate
+* credentials (all SP credentials, IDP credentials change)
+* assertionConsumerServiceUrlTemplate
+
+While there is some drawback in duplicating configuration values the back end
+configuration repository does not need to replicate this data storage model.
+
+There is a benefit that comes with this setup. Credentials may be more easily rotated
+for some identity providers vs others. This object model can ensure that there is no
+disruption when configuration is changed in a multi IDP use case and you're not able to rotate
+credentials on all the identity providers.
+
+==== Service Provider Metadata
+
+The Spring Security SAML 2 implementation does not yet provide an endpoint for downloading
+SP metadata in XML format. The minimal pieces that are exchanged
+
+* *entity ID* - defaults to `{baseUrl}/saml2/service-provider-metadata/{registrationId}`
+Other known configuration names that also use this same value
+** Audience Restriction
+* *single signon URL* - defaults to `{baseUrl}/login/saml2/sso/{registrationId}`
+Other known configuration names that also use this same value
+** Recipient URL
+** Destination URL
+** Assertion Consumer Service URL
+* X509Certificate - the certificate that you configure as part of your {SIGNING,DECRYPTION}
+credentials must be shared with the Identity Provider
+
+==== Authentication Requests - SP Initiated Flow
+
+To initiate an authentication from the web application, a simple redirect to
+```
+{baseUrl}/saml2/authenticate/{registrationId}
+```
+The endpoint will generate an `AuthNRequest` by invoking the `createAuthenticationRequest` method on a
+configurable factory. Just expose the `Saml2AuthenticationRequestFactory` as a bean in your configuration.
+[source,java]
+----
+public interface Saml2AuthenticationRequestFactory {
+    String createAuthenticationRequest(Saml2AuthenticationRequest request);
+}
+----
+
+[[samllogin-sample-boot]]
+=== Spring Boot 2.x Sample
+
+We are currently working with the the Spring Boot team on the
+https://github.com/spring-projects/spring-boot/issues/18260[Auto Configuration for Spring Security SAML Login].
+In the meantime, we have provided a Spring Boot sample that supports a Yaml configuration.
+
+To run the sample, follow these three steps
+
+1. Launch the Spring Boot application
+** `./gradlew :spring-security-samples-boot-saml2login:bootRun`
+2. Open a browser
+** http://localhost:8080/[http://localhost:8080/]
+3. This will take you to an identity provider, log in using:
+** User: `user`
+** Password: `password`
+
+==== Multiple Identity Provider Sample
+
+It's very simple to use multiple providers, but there are some defaults that
+may trip you up if you don't pay attention. In our SAML configuration of
+`RelyingPartyRegistration` objects, we default an SP entity ID to
+```
+{baseUrl}/saml2/service-provider-metadata/{registrationId}
+```
+
+That means in our two provider configuration, our system would look like
+
+```
+registration-1 (Identity Provider 1) - Our local SP Entity ID is:
+http://localhost:8080/saml2/service-provider-metadata/registration-1
+
+registration-2 (Identity Provider 2) - Our local SP Entity ID is:
+http://localhost:8080/saml2/service-provider-metadata/registration-2
+```
+
+In this configuration, illustrated in the sample below, to the outside world,
+we have actually created two virtual Service Provider identities
+hosted within the same application.
+
+[source,yaml]
+----
+spring:
+  security:
+    saml2:
+      login:
+        relying-parties:
+          - entity-id: &idp-entity-id https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php
+            registration-id: simplesamlphp
+            web-sso-url: &idp-sso-url https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php
+            signing-credentials: &service-provider-credentials
+              - private-key: |
+                  -----BEGIN PRIVATE KEY-----
+                  MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBANG7v8QjQGU3MwQE
+                  ...................SHORTENED FOR READ ABILITY...................
+                  INrtuLp4YHbgk1mi
+                  -----END PRIVATE KEY-----
+                certificate: |
+                  -----BEGIN CERTIFICATE-----
+                  MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBhMC
+                  ...................SHORTENED FOR READ ABILITY...................
+                  RZ/nbTJ7VTeZOSyRoVn5XHhpuJ0B
+                  -----END CERTIFICATE-----
+            verification-credentials: &idp-certificates
+              - |
+                -----BEGIN CERTIFICATE-----
+                MIIEEzCCAvugAwIBAgIJAIc1qzLrv+5nMA0GCSqGSIb3DQEBCwUAMIGfMQswCQYD
+                ...................SHORTENED FOR READ ABILITY...................
+                lx13Y1YlQ4/tlpgTgfIJxKV6nyPiLoK0nywbMd+vpAirDt2Oc+hk
+                -----END CERTIFICATE-----
+          - entity-id: *idp-entity-id
+            registration-id: simplesamlphp2
+            web-sso-url: *idp-sso-url
+            signing-credentials: *service-provider-credentials
+            verification-credentials: *idp-certificates
+----
+
+If this is not desirable, you can manually override the local SP entity ID by using the
+```
+localEntityIdTemplate = {baseUrl}/saml2/service-provider-metadata
+```
+If we change our local SP entity ID to this value, it is still important that we give
+out the correct single sign on URL (the assertion consumer service URL)
+for each registered identity provider based on the registration Id.
+`{baseUrl}/login/saml2/sso/{registrationId}`
+
+
