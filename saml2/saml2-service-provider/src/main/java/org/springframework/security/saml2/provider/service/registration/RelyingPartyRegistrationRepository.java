@@ -17,8 +17,8 @@
 package org.springframework.security.saml2.provider.service.registration;
 
 /**
- * Resolves a {@link RelyingPartyRegistration}, a configured service provider and remote identity provider pair,
- * by entityId or registrationId
+ * Resolves a {@link RelyingPartyRegistration}, a configured service provider and remote identity provider pair
+ * based on a unique registrationId.
  * @since 5.2
  */
 public interface RelyingPartyRegistrationRepository {
