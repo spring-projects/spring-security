@@ -163,14 +163,15 @@ public class Saml2LoginIntegrationTests {
 		EncryptedAssertion encryptedAssertion =
 				OpenSamlActionTestingSupport.encryptAssertion(assertion, decodeCertificate(spCertificate));
 		Response response = buildResponse(encryptedAssertion);
-		signXmlObject(assertion, getSigningCredential(idpCertificate, idpPrivateKey, UsageType.SIGNING));
+		signXmlObject(response, getSigningCredential(idpCertificate, idpPrivateKey, UsageType.SIGNING));
 		sendResponse(response, "/")
 				.andExpect(authenticated().withUsername(USERNAME));
 	}
 
 	@Test
-	public void authenticateWhenResponseIsNotSignedAndAssertionIsEncryptedThenItSucceeds() throws Exception {
+	public void authenticateWhenResponseIsNotSignedAndAssertionIsEncryptedAndSignedThenItSucceeds() throws Exception {
 		Assertion assertion = buildAssertion(USERNAME);
+		signXmlObject(assertion, getSigningCredential(idpCertificate, idpPrivateKey, UsageType.SIGNING));
 		EncryptedAssertion encryptedAssertion =
 				OpenSamlActionTestingSupport.encryptAssertion(assertion, decodeCertificate(spCertificate));
 		Response response = buildResponse(encryptedAssertion);

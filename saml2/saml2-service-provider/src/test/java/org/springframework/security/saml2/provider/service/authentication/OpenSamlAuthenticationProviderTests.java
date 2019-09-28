@@ -216,11 +216,46 @@ public class OpenSamlAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateWhenEncryptedAssertionWithoutSignatureThenItSucceeds() throws Exception {
+	public void authenticateWhenEncryptedAssertionWithoutSignatureThenItFails() throws Exception {
 		Response response = response(recipientUri, idpEntityId);
 		Assertion assertion = defaultAssertion();
 		EncryptedAssertion encryptedAssertion = encryptAssertion(assertion, assertingPartyCredentials());
 		response.getEncryptedAssertions().add(encryptedAssertion);
+		token = responseXml(response, idpEntityId);
+		exception.expect(
+				authenticationMatcher(
+						Saml2ErrorCodes.INVALID_SIGNATURE
+				)
+		);
+		provider.authenticate(token);
+	}
+
+	@Test
+	public void authenticateWhenEncryptedAssertionWithSignatureThenItSucceeds() throws Exception {
+		Response response = response(recipientUri, idpEntityId);
+		Assertion assertion = defaultAssertion();
+		signXmlObject(
+				assertion,
+				assertingPartyCredentials(),
+				recipientEntityId
+		);
+		EncryptedAssertion encryptedAssertion = encryptAssertion(assertion, assertingPartyCredentials());
+		response.getEncryptedAssertions().add(encryptedAssertion);
+		token = responseXml(response, idpEntityId);
+		provider.authenticate(token);
+	}
+
+	@Test
+	public void authenticateWhenEncryptedAssertionWithResponseSignatureThenItSucceeds() throws Exception {
+		Response response = response(recipientUri, idpEntityId);
+		Assertion assertion = defaultAssertion();
+		EncryptedAssertion encryptedAssertion = encryptAssertion(assertion, assertingPartyCredentials());
+		response.getEncryptedAssertions().add(encryptedAssertion);
+		signXmlObject(
+				response,
+				assertingPartyCredentials(),
+				recipientEntityId
+		);
 		token = responseXml(response, idpEntityId);
 		provider.authenticate(token);
 	}
