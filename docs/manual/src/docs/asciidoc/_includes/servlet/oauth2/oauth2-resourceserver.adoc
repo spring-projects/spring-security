@@ -1151,6 +1151,37 @@ OpaqueTokenIntrospector introspector() {
 Thus far we have only taken a look at the most basic authentication configuration.
 Let's take a look at a few slightly more advanced options for configuring authentication.
 
+[[oauth2resourceserver-bearertoken-resolver]]
+=== Bearer Token Resolution
+
+By default, Resource Server looks for a bearer token in the `Authorization` header.
+This, however, can be customized in a couple of ways.
+
+==== Reading the Bearer Token from a Custom Header
+
+For example, you may have a need to read the bearer token from a custom header.
+To achieve this, you can wire a `HeaderBearerTokenResolver` instance into the DSL, as you can see in the following example:
+
+[source,java]
+----
+http
+    .oauth2ResourceServer()
+        .bearerTokenResolver(new HeaderBearerTokenResolver("x-goog-iap-jwt-assertion"));
+----
+
+==== Reading the Bearer Token from a Form Parameter
+
+Or, you may wish to read the token from a form parameter, which you can do by configuring the `DefaultBearerTokenResolver`, as you can see below:
+
+[source,java]
+----
+DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+resolver.setAllowFormEncodedBodyParameter(true);
+http
+    .oauth2ResourceServer()
+        .bearerTokenResolver(resolver);
+----
+
 === Bearer Token Propagation
 
 Now that you're in possession of a bearer token, it might be handy to pass that to downstream services.
