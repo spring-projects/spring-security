@@ -957,3 +957,34 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
+
+
+[[oauth2login-advanced-idtoken-verify]]
+==== ID Token Signature Verification
+
+OpenID Connect 1.0 Authentication introduces the https://openid.net/specs/openid-connect-core-1_0.html#IDToken[ID Token], which is a security token that contains Claims about the Authentication of an End-User by an Authorization Server when used by a Client.
+
+The ID Token is represented as a https://tools.ietf.org/html/rfc7519[JSON Web Token] (JWT) and MUST be signed using https://tools.ietf.org/html/rfc7515[JSON Web Signature] (JWS).
+
+The `OidcIdTokenDecoderFactory` provides a `JwtDecoder` used for `OidcIdToken` signature verification. The default algorithm is `RS256` but may be different when assigned during client registration.
+For these cases, a resolver may be configured to return the expected JWS algorithm assigned for a specific client.
+
+The JWS algorithm resolver is a `Function` that accepts a `ClientRegistration` and returns the expected `JwsAlgorithm` for the client, eg. `SignatureAlgorithm.RS256` or `MacAlgorithm.HS256`
+
+The following code shows how to configure the `OidcIdTokenDecoderFactory` `@Bean` to default to `MacAlgorithm.HS256` for all `ClientRegistration`:
+
+[source,java]
+----
+@Bean
+public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
+	OidcIdTokenDecoderFactory idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
+	idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> MacAlgorithm.HS256);
+	return idTokenDecoderFactory;
+}
+----
+
+[NOTE]
+For MAC based algorithms such as `HS256`, `HS384` or `HS512`, the `client-secret` corresponding to the `client-id` is used as the symmetric key for signature verification.
+
+[TIP]
+If more than one `ClientRegistration` is configured for OpenID Connect 1.0 Authentication, the JWS algorithm resolver may evaluate the provided `ClientRegistration` to determine which algorithm to return.
