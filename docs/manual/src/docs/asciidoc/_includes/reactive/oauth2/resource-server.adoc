@@ -608,7 +608,7 @@ Given an Opaque Token, Resource Server will
 2. Inspect the response for an `{ 'active' : true }` attribute
 3. Map each scope to an authority with the prefix `SCOPE_`
 
-The resulting `Authentication#getPrincipal`, by default, is a Spring Security `OAuth2AuthenticatedPrincipal` object, and `Authentication#getName` maps to the token's `sub` property, if one is present.
+The resulting `Authentication#getPrincipal`, by default, is a Spring Security `{security-api-url}org/springframework/security/oauth2/core/OAuth2AuthenticatedPrincipal.html[OAuth2AuthenticatedPrincipal]` object, and `Authentication#getName` maps to the token's `sub` property, if one is present.
 
 From here, you may want to jump to:
 
