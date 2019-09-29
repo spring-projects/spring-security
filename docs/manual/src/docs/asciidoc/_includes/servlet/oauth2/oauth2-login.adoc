@@ -988,3 +988,66 @@ For MAC based algorithms such as `HS256`, `HS384` or `HS512`, the `client-secret
 
 [TIP]
 If more than one `ClientRegistration` is configured for OpenID Connect 1.0 Authentication, the JWS algorithm resolver may evaluate the provided `ClientRegistration` to determine which algorithm to return.
+
+
+[[oauth2login-advanced-oidc-logout]]
+==== OpenID Connect 1.0 Logout
+
+OpenID Connect Session Management 1.0 allows the ability to log out the End-User at the Provider using the Client.
+One of the strategies available is https://openid.net/specs/openid-connect-session-1_0.html#RPLogout[RP-Initiated Logout].
+
+If the OpenID Provider supports both Session Management and https://openid.net/specs/openid-connect-discovery-1_0.html[Discovery], the client may obtain the `end_session_endpoint` `URL` from the OpenID Provider's https://openid.net/specs/openid-connect-session-1_0.html#OPMetadata[Discovery Metadata].
+This can be achieved by configuring the `ClientRegistration` with the `issuer-uri`, as in the following example:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: okta-client-id
+            client-secret: okta-client-secret
+            ...
+        provider:
+          okta:
+            issuer-uri: https://dev-1234.oktapreview.com
+----
+
+...and the `OidcClientInitiatedLogoutSuccessHandler`, which implements RP-Initiated Logout, may be configured as follows:
+
+[source,java]
+----
+@EnableWebSecurity
+public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	private ClientRegistrationRepository clientRegistrationRepository;
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.authorizeRequests(authorizeRequests ->
+				authorizeRequests
+					.anyRequest().authenticated()
+			)
+			.oauth2Login(withDefaults())
+			.logout(logout ->
+				logout
+					.logoutSuccessHandler(oidcLogoutSuccessHandler())
+			);
+	}
+
+	private LogoutSuccessHandler oidcLogoutSuccessHandler() {
+		OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
+				new OidcClientInitiatedLogoutSuccessHandler(this.clientRegistrationRepository);
+
+		// Sets the `URI` that the End-User's User Agent will be redirected to
+		// after the logout has been performed at the Provider
+		oidcLogoutSuccessHandler.setPostLogoutRedirectUri(URI.create("https://localhost:8080"));
+
+		return oidcLogoutSuccessHandler;
+	}
+}
+----
