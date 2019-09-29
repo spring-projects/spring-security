@@ -364,7 +364,7 @@ mvc
         .with(jwt().authorities(new MyConverter())));
 ----
 
-You can also specify a complete `Jwt`, for which `Jwt.Builder` comes quite handy:
+You can also specify a complete `Jwt`, for which `{security-api-url}org/springframework/security/oauth2/jwt/Jwt.Builder.html[Jwt.Builder]` comes quite handy:
 
 [source,java]
 ----
