@@ -55,7 +55,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 
 	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
 
-	private Scheduler scheduler = Schedulers.newParallel("password-encoder");
+	private Scheduler scheduler = Schedulers.newParallel("password-encoder", Schedulers.DEFAULT_POOL_SIZE, true);
 
 	private UserDetailsChecker preAuthenticationChecks = user -> {
 		if (!user.isAccountNonLocked()) {
