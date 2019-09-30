@@ -16,8 +16,6 @@
 
 package org.springframework.security.web.server.csrf;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.Duration;
 
 import org.junit.Test;
@@ -27,6 +25,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.util.StringUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Eric Deandrea
@@ -111,7 +111,7 @@ public class CookieServerCsrfTokenRepositoryTests {
 
 	@Test
 	public void saveTokenWhenCustomPropertiesThenCustomProperties() {
-		setExpectedDomain(".spring.io");
+		setExpectedDomain("spring.io");
 		setExpectedCookieName("csrfCookie");
 		setExpectedPath("/some/path");
 		setExpectedHeaderName("headerName");
