@@ -104,8 +104,12 @@ import java.util.List;
  * }
  * </pre>
  * @author Rob Winch
+<<<<<<< HEAD
  * @author Jesús Ascama Arias
  * @author Luis Felipe Vega
+=======
+ * @author Manuel Tejeda
+>>>>>>> 9926ad68b8f4e465f6c5243a8ff993fbf9d1b7a2
  * @since 5.2
  */
 public class RSocketSecurity {
@@ -319,6 +323,10 @@ public class RSocketSecurity {
 
 			public AuthorizePayloadsSpec hasRole(String role) {
 				return access(AuthorityReactiveAuthorizationManager.hasRole(role));
+			}
+
+			public AuthorizePayloadsSpec hasAnyRole(String... roles) {
+				return access(AuthorityReactiveAuthorizationManager.hasAnyRole(roles));
 			}
 
 			public AuthorizePayloadsSpec permitAll() {

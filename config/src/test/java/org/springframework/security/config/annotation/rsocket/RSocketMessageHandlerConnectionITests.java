@@ -53,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * @author Rob Winch
  * @author Luis Felipe Vega
  * @author Jesús Ascama Arias
+ * @author Manuel Tejeda
  */
 @ContextConfiguration
 @RunWith(SpringRunner.class)
@@ -199,6 +200,23 @@ public class RSocketMessageHandlerConnectionITests {
 				.retrieveMono(String.class)
 				.block())
 				.isInstanceOf(ApplicationErrorException.class);
+	}
+
+	@Test
+	public void connectWithAnyRole() {
+		UsernamePasswordMetadata credentials =
+				new UsernamePasswordMetadata("user", "password");
+		this.requester = requester()
+				.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.block();
+
+		String hiRob = this.requester.route("anyroute")
+				.data("rob")
+				.retrieveMono(String.class)
+				.block();
+
+		assertThat(hiRob).isEqualTo("Hi rob");
 	}
 
 	private RSocketRequester.Builder requester() {
