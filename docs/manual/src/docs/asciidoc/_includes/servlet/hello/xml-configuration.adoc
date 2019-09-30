@@ -29,8 +29,8 @@ The following example shows the most basic example of a Spring Security XML Conf
 <b:beans xmlns="http://www.springframework.org/schema/security"
 		 xmlns:b="http://www.springframework.org/schema/beans"
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+		 xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 	<http />
 
 	<user-service>
@@ -50,20 +50,20 @@ A summary of the features follows:
 * Lets the user with a username of `user` and a password of `password` authenticate with form-based authentication
 * Protects the password storage with BCrypt
 * Lets the user to log out
-* http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
-* http://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
+* https://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
+* https://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
 * Security Header integration
-** http://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HTTP Strict Transport Security] for secure requests
-** http://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx[X-Content-Type-Options] integration
+** https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HTTP Strict Transport Security] for secure requests
+** https://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx[X-Content-Type-Options] integration
 ** Cache Control (can be overridden later by your application to allow caching of your static resources)
-** http://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-Protection] integration
-** X-Frame-Options integration to help prevent http://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
+** https://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-Protection] integration
+** X-Frame-Options integration to help prevent https://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
 * Integrate with the following Servlet API methods:
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[`HttpServletRequest#getRemoteUser()`]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[`HttpServletRequest.html#getUserPrincipal()`]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[`HttpServletRequest.html#isUserInRole(java.lang.String)`]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[`HttpServletRequest.html#login(java.lang.String, java.lang.String)`]
-** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[`HttpServletRequest.html#logout()`]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[`HttpServletRequest#getRemoteUser()`]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[`HttpServletRequest.html#getUserPrincipal()`]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[`HttpServletRequest.html#isUserInRole(java.lang.String)`]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[`HttpServletRequest.html#login(java.lang.String, java.lang.String)`]
+** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[`HttpServletRequest.html#logout()`]
 
 // FIXME: After completed rewriting, link to all the sections of doc that this relates to
 
