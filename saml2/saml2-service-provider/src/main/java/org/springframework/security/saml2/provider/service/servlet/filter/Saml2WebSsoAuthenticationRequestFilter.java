@@ -107,12 +107,7 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 		String localSpEntityId = Saml2Utils.getServiceProviderEntityId(relyingParty, request);
 		return new Saml2AuthenticationRequest(
 				localSpEntityId,
-				Saml2Utils.resolveUrlTemplate(
-						relyingParty.getAssertionConsumerServiceUrlTemplate(),
-						Saml2Utils.getApplicationUri(request),
-						relyingParty.getRemoteIdpEntityId(),
-						relyingParty.getRegistrationId()
-				),
+				relyingParty.getIdpWebSsoUrl(),
 				relyingParty.getSigningCredentials()
 		);
 	}
