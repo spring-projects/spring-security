@@ -80,6 +80,11 @@ It contains the following top-level packages:
 * `org.springframework.security.oauth2.jwt`
 * `org.springframework.security.oauth2.jose`
 
+[[spring-security-oauth2-resource-server]]
+== OAuth 2.0 Resource Server -- `spring-security-oauth2-resource-server.jar`
+`spring-security-oauth2-resource-server.jar` contains Spring Security's support for OAuth 2.0 Resource Servers.
+It is used to protect APIs via OAuth 2.0 Bearer Tokens.
+The top-level package is `org.springframework.security.oauth2.server.resource`.
 
 [[spring-security-acl]]
 == ACL -- `spring-security-acl.jar`
