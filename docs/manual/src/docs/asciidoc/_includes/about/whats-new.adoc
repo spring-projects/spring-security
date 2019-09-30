@@ -44,7 +44,7 @@ Below are the highlights of the release.
 
 === Core
 
-* Introducing https://github.com/spring-projects/spring-security/issues/7360[RSocket] support
+* Introducing <<rsoket,RSocket>> support
 * Introducing https://github.com/spring-projects/spring-security/issues/6019[SAML Service Provider] support
 * Introducing https://github.com/spring-projects/spring-security/issues/6722[AuthenticationManagerResolver]
 * Introducing https://github.com/spring-projects/spring-security/issues/6506[AuthenticationFilter]
