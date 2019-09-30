@@ -331,6 +331,11 @@ public class RSocketSecurity {
 				AuthorizePayloadsSpec.this.authzBuilder.add(new PayloadExchangeMatcherEntry<>(this.matcher, authorization));
 				return AuthorizePayloadsSpec.this;
 			}
+
+			public AuthorizePayloadsSpec denyAll() {
+				return access((a, ctx) -> Mono
+						.just(new AuthorizationDecision(false)));
+			}
 		}
 	}
 

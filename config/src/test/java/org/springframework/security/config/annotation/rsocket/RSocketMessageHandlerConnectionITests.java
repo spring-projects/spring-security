@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 /**
  * @author Rob Winch
  * @author Luis Felipe Vega
+ * @author Jesús Ascama Arias
  */
 @ContextConfiguration
 @RunWith(SpringRunner.class)
@@ -185,6 +186,21 @@ public class RSocketMessageHandlerConnectionITests {
 //			.isInstanceOf(RejectedSetupException.class);
 	}
 
+	@Test
+	public void connectionDenied() {
+		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
+		this.requester = requester()
+				.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.block();
+
+		assertThatCode(() -> this.requester.route("prohibit")
+				.data("data")
+				.retrieveMono(String.class)
+				.block())
+				.isInstanceOf(ApplicationErrorException.class);
+	}
+
 	private RSocketRequester.Builder requester() {
 		return RSocketRequester.builder()
 				.rsocketStrategies(this.handler.getRSocketStrategies());
@@ -244,6 +260,7 @@ public class RSocketMessageHandlerConnectionITests {
 						.route("secure.admin.*").hasRole("ADMIN")
 						.route("secure.**").hasRole("USER")
 						.route("secure.authority.*").hasAuthority("ROLE_USER")
+						.route("prohibit").denyAll()
 						.anyRequest().permitAll()
 				)
 				.basicAuthentication(Customizer.withDefaults());
