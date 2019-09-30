@@ -16,7 +16,7 @@ try {
 				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
-						sh "./gradlew clean check  --refresh-dependencies --no-daemon --stacktrace"
+						sh "./gradlew clean check  --refresh-dependencies --no-daemon --stacktrace -PforceMavenRepositories=milestone"
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: check'
@@ -36,9 +36,9 @@ try {
 					try {
 						withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
 							if ("master" == env.BRANCH_NAME) {
-								sh "./gradlew sonarqube -PexcludeProjects='**/samples/**' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --stacktrace"
+								sh "./gradlew sonarqube -PexcludeProjects='**/samples/**' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --stacktrace -PforceMavenRepositories=milestone"
 							} else {
-								sh "./gradlew sonarqube -PexcludeProjects='**/samples/**' -Dsonar.projectKey='spring-security-${env.BRANCH_NAME}' -Dsonar.projectName='spring-security-${env.BRANCH_NAME}' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --stacktrace"
+								sh "./gradlew sonarqube -PexcludeProjects='**/samples/**' -Dsonar.projectKey='spring-security-${env.BRANCH_NAME}' -Dsonar.projectName='spring-security-${env.BRANCH_NAME}' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --stacktrace -PforceMavenRepositories=milestone"
 							}
 						}
 					} catch(Exception e) {
@@ -72,7 +72,7 @@ try {
 				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk9' }"]) {
-						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
+						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace -PforceMavenRepositories=milestone"
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: jdk9'
@@ -88,7 +88,7 @@ try {
 				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk10' }"]) {
-						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
+						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace -PforceMavenRepositories=milestone"
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: jdk10'
@@ -104,7 +104,7 @@ try {
 				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk11' }"]) {
-						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
+						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace -PforceMavenRepositories=milestone"
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: jdk11'
@@ -120,7 +120,7 @@ try {
 				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'openjdk12' }"]) {
-						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace"
+						sh "./gradlew clean test --refresh-dependencies --no-daemon --stacktrace -PforceMavenRepositories=milestone"
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: jdk12'
@@ -141,7 +141,7 @@ try {
 							withCredentials([usernamePassword(credentialsId: 'oss-token', passwordVariable: 'OSSRH_PASSWORD', usernameVariable: 'OSSRH_USERNAME')]) {
 								withCredentials([usernamePassword(credentialsId: '02bd1690-b54f-4c9f-819d-a77cb7a9822c', usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
 									withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
-										sh "./gradlew deployArtifacts finalizeDeployArtifacts -Psigning.secretKeyRingFile=$SIGNING_KEYRING_FILE -Psigning.keyId=$SPRING_SIGNING_KEYID -Psigning.password='$SIGNING_PASSWORD' -PossrhUsername=$OSSRH_USERNAME -PossrhPassword=$OSSRH_PASSWORD -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace"
+										sh "./gradlew deployArtifacts finalizeDeployArtifacts -Psigning.secretKeyRingFile=$SIGNING_KEYRING_FILE -Psigning.keyId=$SPRING_SIGNING_KEYID -Psigning.password='$SIGNING_PASSWORD' -PossrhUsername=$OSSRH_USERNAME -PossrhPassword=$OSSRH_PASSWORD -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --refresh-dependencies --no-daemon --stacktrace -PforceMavenRepositories=milestone"
 									}
 								}
 							}
@@ -157,7 +157,7 @@ try {
 					sh "git clean -dfx"
 					withCredentials([file(credentialsId: 'docs.spring.io-jenkins_private_ssh_key', variable: 'DEPLOY_SSH_KEY')]) {
 						withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
-							sh "./gradlew deployDocs -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME --refresh-dependencies --no-daemon --stacktrace"
+							sh "./gradlew deployDocs -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME --refresh-dependencies --no-daemon --stacktrace -PforceMavenRepositories=milestone"
 						}
 					}
 				}
@@ -170,7 +170,7 @@ try {
 					sh "git clean -dfx"
 					withCredentials([file(credentialsId: 'docs.spring.io-jenkins_private_ssh_key', variable: 'DEPLOY_SSH_KEY')]) {
 						withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
-							sh "./gradlew deploySchema -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME --refresh-dependencies --no-daemon --stacktrace"
+							sh "./gradlew deploySchema -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME --refresh-dependencies --no-daemon --stacktrace -PforceMavenRepositories=milestone"
 						}
 					}
 				}
