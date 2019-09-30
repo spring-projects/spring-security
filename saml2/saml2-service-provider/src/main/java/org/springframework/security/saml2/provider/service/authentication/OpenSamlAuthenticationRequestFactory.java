@@ -45,13 +45,14 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		auth.setIsPassive(Boolean.FALSE);
 		auth.setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect");
 		Issuer issuer = this.saml.buildSAMLObject(Issuer.class);
-		issuer.setValue(request.getLocalSpEntityId());
+		issuer.setValue(request.getIssuer());
 		auth.setIssuer(issuer);
-		auth.setDestination(request.getWebSsoUri());
+		auth.setDestination(request.getDestination());
+		auth.setAssertionConsumerServiceURL(request.getAssertionConsumerServiceUrl());
 		return this.saml.toXml(
 				auth,
 				request.getCredentials(),
-				request.getLocalSpEntityId()
+				request.getIssuer()
 		);
 	}
 
