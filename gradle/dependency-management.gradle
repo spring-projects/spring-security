@@ -10,7 +10,7 @@ if (!project.hasProperty('springDataVersion')) {
 	ext.springDataVersion = 'Lovelace-SR11'
 }
 
-ext.rsocketVersion = '1.0.0-RC3'
+ext.rsocketVersion = '1.0.0-RC5'
 
 dependencyManagement {
 	imports {
