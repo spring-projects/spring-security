@@ -56,8 +56,9 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 
 	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
 
-	Scheduler scheduler = Schedulers.newParallel("password-encoder");
-	private boolean defaultScheduler = true;
+	private final Scheduler DEFAULT_SCHEDULER = Schedulers.newParallel("password-encoder");
+
+	private Scheduler scheduler = this.DEFAULT_SCHEDULER;
 
 	private UserDetailsChecker preAuthenticationChecks = user -> {
 		if (!user.isAccountNonLocked()) {
@@ -140,10 +141,6 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 	 */
 	public void setScheduler(Scheduler scheduler) {
 		Assert.notNull(scheduler, "scheduler cannot be null");
-		if (this.defaultScheduler) {
-			this.defaultScheduler = false;
-			this.scheduler.dispose();
-		}
 		this.scheduler = scheduler;
 	}
 
@@ -179,8 +176,6 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 
 	@Override
 	public void destroy() {
-		if (this.defaultScheduler) {
-			this.scheduler.dispose();
-		}
+		this.DEFAULT_SCHEDULER.dispose();
 	}
 }
