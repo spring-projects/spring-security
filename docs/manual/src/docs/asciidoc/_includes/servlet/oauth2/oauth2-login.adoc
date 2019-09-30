@@ -142,6 +142,9 @@ The following table outlines the mapping of the Spring Boot 2.x OAuth Client pro
 |`providerDetails.userInfoEndpoint.userNameAttributeName`
 |===
 
+[TIP]
+A `ClientRegistration` can be initially configured using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint], by specifying the `spring.security.oauth2.client.provider._[providerId]_.issuer-uri` property.
+
 
 [[oauth2login-common-oauth2-provider]]
 === CommonOAuth2Provider
