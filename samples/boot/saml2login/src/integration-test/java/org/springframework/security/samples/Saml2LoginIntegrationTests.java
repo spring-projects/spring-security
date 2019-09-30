@@ -160,6 +160,13 @@ public class Saml2LoginIntegrationTests {
 				"https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php",
 				destination
 		);
+		String acsURL = authnRequest.getAssertionConsumerServiceURL();
+		assertEquals(
+				"AssertionConsumerServiceURL must match",
+				"http://localhost:8080/login/saml2/sso/simplesamlphp",
+				acsURL
+		);
+
 	}
 
 

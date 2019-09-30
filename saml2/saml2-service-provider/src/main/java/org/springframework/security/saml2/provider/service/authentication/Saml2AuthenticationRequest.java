@@ -19,27 +19,36 @@ package org.springframework.security.saml2.provider.service.authentication;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 import org.springframework.util.Assert;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Data holder for information required to send an {@code AuthNRequest}
  * from the service provider to the identity provider
+ * https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf (line 2031)
  *
  * @see {@link Saml2AuthenticationRequestFactory}
- * @see https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf (line 2031)
  * @since 5.2
  */
-public class Saml2AuthenticationRequest {
-	private final String localSpEntityId;
+public final class Saml2AuthenticationRequest {
+	private final String issuer;
 	private final List<Saml2X509Credential> credentials;
-	private String webSsoUri;
+	private final String destination;
+	private final String assertionConsumerServiceUrl;
 
-	public Saml2AuthenticationRequest(String localSpEntityId, String webSsoUri, List<Saml2X509Credential> credentials) {
-		Assert.hasText(localSpEntityId, "localSpEntityId cannot be null");
-		Assert.hasText(localSpEntityId, "webSsoUri cannot be null");
-		this.localSpEntityId = localSpEntityId;
-		this.webSsoUri = webSsoUri;
+	private Saml2AuthenticationRequest(
+			String issuer,
+			String destination,
+			String assertionConsumerServiceUrl,
+			List<Saml2X509Credential> credentials) {
+		Assert.hasText(issuer, "issuer cannot be null");
+		Assert.hasText(destination, "destination cannot be null");
+		Assert.hasText(assertionConsumerServiceUrl, "spAssertionConsumerServiceUrl cannot be null");
+		this.issuer = issuer;
+		this.destination = destination;
+		this.assertionConsumerServiceUrl = assertionConsumerServiceUrl;
 		this.credentials = new LinkedList<>();
 		for (Saml2X509Credential c : credentials) {
 			if (c.isSigningCredential()) {
@@ -50,15 +59,126 @@ public class Saml2AuthenticationRequest {
 	}
 
 
-	public String getLocalSpEntityId() {
-		return this.localSpEntityId;
+	/**
+	 * returns the issuer, the local SP entity ID, for this authentication request.
+	 * This property should be used to populate the {@code AuthNRequest.Issuer} XML element.
+	 * This value typically is a URI, but can be an arbitrary string.
+	 * @return issuer
+	 */
+	public String getIssuer() {
+		return this.issuer;
 	}
 
-	public String getWebSsoUri() {
-		return this.webSsoUri;
+	/**
+	 * returns the destination, the WEB Single Sign On URI, for this authentication request.
+	 * This property populates the {@code AuthNRequest#Destination} XML attribute.
+	 * @return destination
+	 */
+	public String getDestination() {
+		return this.destination;
 	}
 
+	/**
+	 * Returns the desired {@code AssertionConsumerServiceUrl} that this SP wishes to receive the
+	 * assertion on. The IDP may or may not honor this request.
+	 * This property populates the {@code AuthNRequest#AssertionConsumerServiceURL} XML attribute.
+	 * @return the AssertionConsumerServiceURL value
+	 */
+	public String getAssertionConsumerServiceUrl() {
+		return assertionConsumerServiceUrl;
+	}
+
+	/**
+	 * Returns a list of credentials that can be used to sign the {@code AuthNRequest} object
+	 * @return signing credentials
+	 */
 	public List<Saml2X509Credential> getCredentials() {
 		return this.credentials;
+	}
+
+	/**
+	 * A builder for {@link Saml2AuthenticationRequest}.
+	 * returns a builder object
+	 */
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	/**
+	 * A builder for {@link Saml2AuthenticationRequest}.
+	 */
+	public static class Builder {
+		private String issuer;
+		private List<Saml2X509Credential> credentials = new LinkedList<>();
+		private String destination;
+		private String assertionConsumerServiceUrl;
+
+		private Builder() {
+		}
+
+		/**
+		 * Sets the issuer for the authentication request.
+		 * @param issuer - a required value
+		 * @return this {@code Builder}
+		 */
+		public Builder issuer(String issuer) {
+			this.issuer = issuer;
+			return this;
+		}
+
+		/**
+		 * Modifies the collection of {@link Saml2X509Credential} credentials
+		 * used in communication between IDP and SP, specifically signing the
+		 * authentication request.
+		 * For example:
+		 * <code>
+		 *     Saml2X509Credential credential = ...;
+		 *     return Saml2AuthenticationRequest.withLocalSpEntityId("id")
+		 *             .credentials(c -> c.add(credential))
+		 *             ...
+		 *             .build();
+		 * </code>
+		 * @param credentials - a consumer that can modify the collection of credentials
+		 * @return this object
+		 */
+		public Builder credentials(Consumer<Collection<Saml2X509Credential>> credentials) {
+			credentials.accept(this.credentials);
+			return this;
+		}
+
+		/**
+		 * Sets the Destination for the authentication request. Typically the {@code Service Provider EntityID}
+		 * @param destination - a required value
+		 * @return this {@code Builder}
+		 */
+		public Builder destination(String destination) {
+			this.destination = destination;
+			return this;
+		}
+
+		/**
+		 * Sets the {@code assertionConsumerServiceURL} for the authentication request.
+		 * Typically the {@code Service Provider EntityID}
+		 * @param assertionConsumerServiceUrl - a required value
+		 * @return this {@code Builder}
+		 */
+		public Builder assertionConsumerServiceUrl(String assertionConsumerServiceUrl) {
+			this.assertionConsumerServiceUrl = assertionConsumerServiceUrl;
+			return this;
+		}
+
+		/**
+		 * Creates a {@link Saml2AuthenticationRequest} object.
+		 * @return the Saml2AuthenticationRequest object
+		 * @throws {@link IllegalArgumentException} if a required property is not set
+		 */
+		public Saml2AuthenticationRequest build() {
+			return new Saml2AuthenticationRequest(
+					this.issuer,
+					this.destination,
+					this.assertionConsumerServiceUrl,
+					this.credentials
+			);
+		}
 	}
 }

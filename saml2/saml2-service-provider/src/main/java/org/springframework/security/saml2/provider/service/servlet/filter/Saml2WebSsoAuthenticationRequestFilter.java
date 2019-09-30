@@ -105,11 +105,20 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 
 	private Saml2AuthenticationRequest createAuthenticationRequest(RelyingPartyRegistration relyingParty, HttpServletRequest request) {
 		String localSpEntityId = Saml2Utils.getServiceProviderEntityId(relyingParty, request);
-		return new Saml2AuthenticationRequest(
-				localSpEntityId,
-				relyingParty.getIdpWebSsoUrl(),
-				relyingParty.getSigningCredentials()
-		);
+		return Saml2AuthenticationRequest
+				.builder()
+				.issuer(localSpEntityId)
+				.destination(relyingParty.getIdpWebSsoUrl())
+				.credentials(c -> c.addAll(relyingParty.getCredentials()))
+				.assertionConsumerServiceUrl(
+						Saml2Utils.resolveUrlTemplate(
+								relyingParty.getAssertionConsumerServiceUrlTemplate(),
+								Saml2Utils.getApplicationUri(request),
+								relyingParty.getRemoteIdpEntityId(),
+								relyingParty.getRegistrationId()
+						)
+				)
+				.build();
 	}
 
 }
