@@ -10,7 +10,7 @@ Spring Security is a framework that provides authentication, authorization, and 
 // FIXME: Add links for imperative and reactive applications
 With first class support for both imperative and reactive applications, it is the de-facto standard for securing Spring-based applications.
 
-include::{include-dir}/preface/index.adoc[]
+include::{include-dir}/about/index.adoc[]
 
 include::{include-dir}/servlet/index.adoc[]
 
