@@ -15,21 +15,10 @@
  */
 package org.springframework.security.samples;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.MediaType;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.AssertionErrors;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.ResultMatcher;
-
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
+import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
+import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.hamcrest.Matcher;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -38,8 +27,10 @@ import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
+import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.Response;
@@ -55,9 +46,26 @@ import org.opensaml.xmlsec.SignatureSigningParameters;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.MediaType;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.AssertionErrors;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.ByteArrayInputStream;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyException;
 import java.security.PrivateKey;
@@ -78,6 +86,7 @@ import static org.springframework.security.samples.OpenSamlActionTestingSupport.
 import static org.springframework.security.samples.OpenSamlActionTestingSupport.buildSubjectConfirmation;
 import static org.springframework.security.samples.OpenSamlActionTestingSupport.buildSubjectConfirmationData;
 import static org.springframework.security.samples.OpenSamlActionTestingSupport.encryptNameId;
+import static org.springframework.security.samples.OpenSamlActionTestingSupport.inflate;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.web.WebAttributes.AUTHENTICATION_EXCEPTION;
@@ -130,6 +139,29 @@ public class Saml2LoginIntegrationTests {
 				.andExpect(header().string("Location", startsWith("https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php?SAMLRequest=")))
 				.andExpect(header().string("Location", containsString("RelayState=relay%20state%20value%20with%20spaces")));
 	}
+
+	@Test
+	public void authenticateRequestWhenWorkingThenDestinationAttributeIsSet() throws Exception {
+		final String redirectedUrl = mockMvc.perform(get("http://localhost:8080/saml2/authenticate/simplesamlphp"))
+				.andExpect(status().is3xxRedirection())
+				.andReturn()
+				.getResponse()
+				.getRedirectedUrl();
+		MultiValueMap<String, String> parameters =
+				UriComponentsBuilder.fromUriString(redirectedUrl).build(true).getQueryParams();
+		String request = parameters.getFirst("SAMLRequest");
+		AssertionErrors.assertNotNull("SAMLRequest parameter is missing", request);
+		request = URLDecoder.decode(request);
+		request = inflate(OpenSamlActionTestingSupport.decode(request));
+		AuthnRequest authnRequest = (AuthnRequest) fromXml(request);
+		String destination = authnRequest.getDestination();
+		assertEquals(
+				"Destination must match",
+				"https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php",
+				destination
+		);
+	}
+
 
 	@Test
 	public void authenticateWhenResponseIsSignedThenItSucceeds() throws Exception {
@@ -248,7 +280,7 @@ public class Saml2LoginIntegrationTests {
 								"invalid_issuer",
 								containsString(
 										"Response issuer 'invalid issuer' doesn't match "+
-										"'https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php'"
+												"'https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php'"
 								)
 						)
 				);
@@ -328,6 +360,16 @@ public class Saml2LoginIntegrationTests {
 		final MarshallerFactory marshallerFactory = XMLObjectProviderRegistrySupport.getMarshallerFactory();
 		Element element = marshallerFactory.getMarshaller(object).marshall(object);
 		return SerializeSupport.nodeToString(element);
+	}
+
+	private XMLObject fromXml(String xml)
+			throws XMLParserException, UnmarshallingException, ComponentInitializationException {
+		BasicParserPool parserPool = new BasicParserPool();
+		parserPool.initialize();
+		Document document = parserPool.parse(new ByteArrayInputStream(xml.getBytes(UTF_8)));
+		Element element = document.getDocumentElement();
+		return XMLObjectProviderRegistrySupport.getUnmarshallerFactory().getUnmarshaller(element).unmarshall(element);
+
 	}
 
 	private X509Certificate decodeCertificate(String source) {
