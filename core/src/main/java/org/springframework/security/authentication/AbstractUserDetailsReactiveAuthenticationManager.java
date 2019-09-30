@@ -18,7 +18,6 @@ package org.springframework.security.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.DisposableBean;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -46,7 +45,7 @@ import org.springframework.util.Assert;
  * @author Eddú Meléndez
  * @since 5.2
  */
-public abstract class AbstractUserDetailsReactiveAuthenticationManager implements ReactiveAuthenticationManager, DisposableBean {
+public abstract class AbstractUserDetailsReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
@@ -56,9 +55,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 
 	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
 
-	private final Scheduler DEFAULT_SCHEDULER = Schedulers.newParallel("password-encoder");
-
-	private Scheduler scheduler = this.DEFAULT_SCHEDULER;
+	private Scheduler scheduler = Schedulers.newParallel("password-encoder");
 
 	private UserDetailsChecker preAuthenticationChecks = user -> {
 		if (!user.isAccountNonLocked()) {
@@ -174,8 +171,4 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager implement
 	 */
 	protected abstract Mono<UserDetails> retrieveUser(String username);
 
-	@Override
-	public void destroy() {
-		this.DEFAULT_SCHEDULER.dispose();
-	}
 }

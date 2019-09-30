@@ -33,8 +33,6 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 /**
@@ -138,33 +136,4 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 			.expectError(BadCredentialsException.class)
 			.verify();
 	}
-
-	@Test
-	public void destroyWhenDefaultSchedulerThenShouldDispose() {
-		assertThat(manager.scheduler.isDisposed()).isFalse();
-		manager.destroy();
-		assertThat(manager.scheduler.isDisposed())
-				.as("default Scheduler should be disposed")
-				.isTrue();
-	}
-
-	@Test
-	public void destroyWhenCustomSchedulerThenShouldNotDispose() {
-		manager.setScheduler(Schedulers.parallel());
-		manager.destroy();
-		assertThat(manager.scheduler.isDisposed())
-				.as("custom Scheduler should not be disposed")
-				.isFalse();
-	}
-
-	@Test
-	public void setSchedulerWhenSetCustomSchedulerThenDisposeDefault() {
-		Scheduler defaultScheduler = manager.scheduler;
-		assertThat(defaultScheduler.isDisposed()).isFalse();
-		manager.setScheduler(Schedulers.parallel());
-		assertThat(defaultScheduler.isDisposed())
-				.as("default Scheduler should be disposed")
-				.isTrue();
-	}
-
 }
