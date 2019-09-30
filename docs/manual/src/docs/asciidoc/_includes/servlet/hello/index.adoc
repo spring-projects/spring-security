@@ -1,0 +1,8 @@
+= Hello Spring Security
+
+This section covers a minimal Spring Security application that uses <<servlet-hello-boot,Spring Boot>>, <<servlet-hello-jc,Java Configuration>>, or <<servlet-hello-xml,XML Configuration>>.
+// FIXME add Spring Boot
+
+include::boot.adoc[leveloffset=+1]
+include::java-configuration.adoc[leveloffset=+1]
+include::xml-configuration.adoc[leveloffset=+1]
