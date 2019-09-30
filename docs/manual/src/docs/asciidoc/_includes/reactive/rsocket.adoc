@@ -4,6 +4,12 @@
 Spring Security's RSocket support relies on a `SocketAcceptorInterceptor`.
 The main entry point into security is found in the `PayloadSocketAcceptorInterceptor` which adapts the RSocket APIs to allow intercepting a `PayloadExchange` with `PayloadInterceptor` implementations.
 
+You can find a few sample applications that demonstrate the code below:
+
+* Hello RSocket {gh-samples-url}/boot/hellorsocket[hellorsocket]
+* https://github.com/rwinch/spring-flights/tree/security[Spring Flights]
+
+
 == Minimal RSocket Security Configuration
 
 You can find a minimal RSocket Security configuration below:
@@ -27,6 +33,21 @@ public class HelloRSocketSecurityConfig {
 -----
 
 This configuration enables <<rsocket-authentication-basic,basic authentication>> and sets up <<authorization,rsocket-authorization>> to require an authenticated user for any request.
+
+== Adding SecuritySocketAcceptorInterceptor
+
+For Spring Security to work we need to apply `SecuritySocketAcceptorInterceptor` to the `ServerRSocketFactory`.
+This is what connects our `PayloadSocketAcceptorInterceptor` we created with the RSocket infrastructure.
+In a Spring Boot application this can be done using the following code.
+
+[source,java]
+----
+@Bean
+ServerRSocketFactoryCustomizer springSecurityRSocketSecurity(
+		SecuritySocketAcceptorInterceptor interceptor) {
+	return builder -> builder.addSocketAcceptorPlugin(interceptor);
+}
+----
 
 [[rsocket-authentication]]
 == RSocket Authentication
