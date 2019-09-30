@@ -54,6 +54,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * @author Luis Felipe Vega
  * @author Jesús Ascama Arias
  * @author Manuel Tejeda
+ * @author Ebert Toribio
  */
 @ContextConfiguration
 @RunWith(SpringRunner.class)
@@ -219,6 +220,23 @@ public class RSocketMessageHandlerConnectionITests {
 		assertThat(hiRob).isEqualTo("Hi rob");
 	}
 
+	@Test
+	public void connectWithAnyAuthority() {
+		UsernamePasswordMetadata credentials =
+				new UsernamePasswordMetadata("admin", "password");
+		this.requester = requester()
+				.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.block();
+
+		String hiEbert = this.requester.route("management.users")
+				.data("admin")
+				.retrieveMono(String.class)
+				.block();
+
+		assertThat(hiEbert).isEqualTo("Hi admin");
+	}
+
 	private RSocketRequester.Builder requester() {
 		return RSocketRequester.builder()
 				.rsocketStrategies(this.handler.getRSocketStrategies());
@@ -278,6 +296,7 @@ public class RSocketMessageHandlerConnectionITests {
 						.route("secure.admin.*").hasRole("ADMIN")
 						.route("secure.**").hasRole("USER")
 						.route("secure.authority.*").hasAuthority("ROLE_USER")
+						.route("management.*").hasAnyAuthority("ROLE_ADMIN")
 						.route("prohibit").denyAll()
 						.anyRequest().permitAll()
 				)
