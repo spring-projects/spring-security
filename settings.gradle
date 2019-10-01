@@ -2,7 +2,7 @@ rootProject.name = 'spring-security'
 
 FileTree buildFiles = fileTree(rootDir) {
 	List excludes = gradle.startParameter.projectProperties.get("excludeProjects")?.split(",")
-	include '**/*.gradle'
+	include '**/*.gradle', '**/*.gradle.kts'
 	exclude 'build', '**/gradle', 'settings.gradle', 'buildSrc', '/build.gradle', '.*', 'out'
 	exclude '**/grails3'
 	if(excludes) {
@@ -14,12 +14,18 @@ String rootDirPath = rootDir.absolutePath + File.separator
 buildFiles.each { File buildFile ->
 
 	boolean isDefaultName = 'build.gradle'.equals(buildFile.name)
+	boolean isKotlin = buildFile.name.endsWith(".kts")
 	if(isDefaultName) {
 		String buildFilePath = buildFile.parentFile.absolutePath
 		String projectPath = buildFilePath.replace(rootDirPath, '').replace(File.separator, ':')
 		include projectPath
 	} else {
-		String projectName = buildFile.name.replace('.gradle', '');
+		String projectName
+		if (isKotlin) {
+			projectName = buildFile.name.replace('.gradle.kts', '')
+		} else {
+		 	projectName = buildFile.name.replace('.gradle', '')
+		}
 		String projectPath = ':' + projectName;
 		include projectPath
 		def project = findProject("${projectPath}")

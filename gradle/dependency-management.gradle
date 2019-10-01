@@ -9,6 +9,9 @@ if (!project.hasProperty("springVersion")) {
 if (!project.hasProperty("springDataVersion")) {
 	ext.springDataVersion = "Moore-SR+"
 }
+if (!project.hasProperty("kotlinVersion")) {
+	ext.kotlinVersion = "1.3.61"
+}
 ext.rsocketVersion = "1.+"
 ext.openSamlVersion = "3.+"
 
@@ -29,6 +32,7 @@ dependencies {
 	management platform("org.springframework:spring-framework-bom:$springVersion")
 	management platform("io.projectreactor:reactor-bom:$reactorVersion")
 	management platform("org.springframework.data:spring-data-releasetrain:$springDataVersion")
+	management platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
 	constraints {
 		management "ch.qos.logback:logback-classic:1.+"
 		management "com.fasterxml.jackson.core:jackson-databind:2.+"
