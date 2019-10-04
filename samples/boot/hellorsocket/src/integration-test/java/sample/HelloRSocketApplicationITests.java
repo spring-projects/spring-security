@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 package sample;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.rsocket.context.RSocketServerInitializedEvent;
+import org.springframework.boot.rsocket.context.LocalRSocketServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.security.rsocket.metadata.BasicAuthenticationEncoder;
 import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
@@ -36,6 +34,7 @@ import static org.springframework.security.rsocket.metadata.UsernamePasswordMeta
 
 /**
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 5.0
  */
 @RunWith(SpringRunner.class)
@@ -46,13 +45,16 @@ public class HelloRSocketApplicationITests {
 	@Autowired
 	RSocketRequester.Builder requester;
 
+	@LocalRSocketServerPort
+	int port;
+
 	@Test
 	public void messageWhenAuthenticatedThenSuccess() {
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
 		RSocketRequester requester = this.requester
 				.rsocketStrategies(builder -> builder.encoder(new BasicAuthenticationEncoder()))
 				.setupMetadata(credentials, BASIC_AUTHENTICATION_MIME_TYPE)
-				.connectTcp("localhost", getPort())
+				.connectTcp("localhost", this.port)
 				.block();
 
 		String message = requester.route("message")
@@ -66,7 +68,7 @@ public class HelloRSocketApplicationITests {
 	@Test
 	public void messageWhenNotAuthenticatedThenError() {
 		RSocketRequester requester = this.requester
-				.connectTcp("localhost", getPort())
+				.connectTcp("localhost", this.port)
 				.block();
 
 		assertThatThrownBy(() -> requester.route("message")
@@ -76,23 +78,4 @@ public class HelloRSocketApplicationITests {
 				.isNotNull();
 	}
 
-	// FIXME: Waiting for @LocalRSocketServerPort
-	// https://github.com/spring-projects/spring-boot/pull/18287
-
-	@Autowired
-	Config config;
-
-	private int getPort() {
-		return this.config.port;
-	}
-
-	@TestConfiguration
-	static class Config implements ApplicationListener<RSocketServerInitializedEvent> {
-		private int port;
-
-		@Override
-		public void onApplicationEvent(RSocketServerInitializedEvent event) {
-			this.port = event.getServer().address().getPort();
-		}
-	}
 }
