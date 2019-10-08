@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import org.opensaml.saml.common.xml.SAMLConstants;
 import org.springframework.util.Assert;
 
 import org.joda.time.DateTime;
@@ -32,6 +33,7 @@ import java.util.UUID;
 public class OpenSamlAuthenticationRequestFactory implements Saml2AuthenticationRequestFactory {
 	private Clock clock = Clock.systemUTC();
 	private final OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
+	private String protocolBinding = SAMLConstants.SAML2_POST_BINDING_URI;
 
 	/**
 	 * {@inheritDoc}
@@ -43,7 +45,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		auth.setIssueInstant(new DateTime(this.clock.millis()));
 		auth.setForceAuthn(Boolean.FALSE);
 		auth.setIsPassive(Boolean.FALSE);
-		auth.setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect");
+		auth.setProtocolBinding(protocolBinding);
 		Issuer issuer = this.saml.buildSAMLObject(Issuer.class);
 		issuer.setValue(request.getIssuer());
 		auth.setIssuer(issuer);
@@ -66,5 +68,22 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
+	}
+
+	/**
+	 * Sets the {@code protocolBinding} to use when generating authentication requests
+	 * Acceptable values are {@link SAMLConstants#SAML2_POST_BINDING_URI} and
+	 * {@link SAMLConstants#SAML2_REDIRECT_BINDING_URI}
+	 *
+	 * @param protocolBinding
+	 * @throws IllegalArgumentException if the protocolBinding is not valid
+	 */
+	public void setProtocolBinding(String protocolBinding) {
+		boolean isAllowedBinding = SAMLConstants.SAML2_POST_BINDING_URI.equals(protocolBinding) ||
+				SAMLConstants.SAML2_REDIRECT_BINDING_URI.equals(protocolBinding);
+		if (!isAllowedBinding) {
+			throw new IllegalArgumentException("Invalid protocol binding: " + protocolBinding);
+		}
+		this.protocolBinding = protocolBinding;
 	}
 }
