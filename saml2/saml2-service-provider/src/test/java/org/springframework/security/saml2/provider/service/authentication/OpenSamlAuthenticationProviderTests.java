@@ -32,8 +32,14 @@ import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
+import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.util.Assert;
 
-import static java.util.Collections.emptyList;
+import java.net.InetAddress;
+import java.util.List;
+import java.util.Set;
+
+import static java.util.Collections.*;
 import static org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationObjects.assertion;
 import static org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationObjects.response;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2CryptoTestSupport.encryptAssertion;
@@ -67,7 +73,8 @@ public class OpenSamlAuthenticationProviderTests {
 				recipientUri,
 				idpEntityId,
 				recipientEntityId,
-				relyingPartyCredentials()
+				relyingPartyCredentials(),
+				null
 		);
 	}
 
@@ -103,7 +110,8 @@ public class OpenSamlAuthenticationProviderTests {
 				recipientUri,
 				idpEntityId,
 				recipientEntityId,
-				relyingPartyCredentials()
+				relyingPartyCredentials(),
+				null
 		);
 		exception.expect(authenticationMatcher(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA));
 		provider.authenticate(token);
@@ -139,6 +147,31 @@ public class OpenSamlAuthenticationProviderTests {
 		exception.expect(
 				authenticationMatcher(
 						Saml2ErrorCodes.INVALID_SIGNATURE
+				)
+		);
+		provider.authenticate(token);
+	}
+
+	@Test
+	public void authenticateWhenAcceptableAddressOnAssertionThenReturnAuthentication() throws Exception {
+		Response response = response(recipientUri, idpEntityId);
+		Assertion assertion = assertion(username, idpEntityId, recipientEntityId, recipientUri, "127.0.0.1");
+		response.getAssertions().add(assertion);
+		token = responseXml(response, idpEntityId, assertingPartyCredentials(), singleton(InetAddress.getByName("127.0.0.1")));
+		Authentication authenticate = provider.authenticate(token);
+		Assert.isInstanceOf(Saml2Authentication.class, authenticate);
+	}
+
+	@Test
+	public void authenticateWhenInvalidAddressOnAssertionThenThrowAuthenticationException() throws Exception {
+		Response response = response(recipientUri, idpEntityId);
+		Assertion assertion = assertion(username, idpEntityId, recipientEntityId, recipientUri, "127.0.0.1");
+		response.getAssertions().add(assertion);
+		token = responseXml(response, idpEntityId, assertingPartyCredentials(), null);
+		exception.expect(
+				authenticationMatcher(
+						Saml2ErrorCodes.INVALID_ASSERTION,
+						"No subject confirmation methods were met for assertion with ID '" + assertion.getID() + "'"
 				)
 		);
 		provider.authenticate(token);
@@ -292,7 +325,8 @@ public class OpenSamlAuthenticationProviderTests {
 				recipientUri,
 				idpEntityId,
 				recipientEntityId,
-				emptyList()
+				emptyList(),
+				null
 		);
 
 		exception.expect(
@@ -317,7 +351,8 @@ public class OpenSamlAuthenticationProviderTests {
 				recipientUri,
 				idpEntityId,
 				recipientEntityId,
-				assertingPartyCredentials()
+				assertingPartyCredentials(),
+				null
 		);
 
 		exception.expect(
@@ -334,7 +369,8 @@ public class OpenSamlAuthenticationProviderTests {
 				username,
 				idpEntityId,
 				recipientEntityId,
-				recipientUri
+				recipientUri,
+				null
 		);
 	}
 
@@ -342,13 +378,23 @@ public class OpenSamlAuthenticationProviderTests {
 			XMLObject object,
 			String issuerEntityId
 	) {
-		String xml = saml.toXml(object, emptyList(), issuerEntityId);
+		return responseXml(object, issuerEntityId, emptyList(), null);
+	}
+
+	private Saml2AuthenticationToken responseXml(
+			XMLObject object,
+			String issuerEntityId,
+			List<Saml2X509Credential> credentials,
+			Set<InetAddress> subjectConfirmationAddresses
+	) {
+		String xml = saml.toXml(object, credentials, issuerEntityId);
 		return new Saml2AuthenticationToken(
 				xml,
 				recipientUri,
 				idpEntityId,
 				recipientEntityId,
-				relyingPartyCredentials()
+				relyingPartyCredentials(),
+				subjectConfirmationAddresses
 		);
 
 	}

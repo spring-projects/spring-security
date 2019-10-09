@@ -20,13 +20,15 @@ import org.springframework.security.saml2.credentials.Saml2X509Credential;
 import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType;
 import org.springframework.util.Assert;
 
+import java.net.InetAddress;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.*;
 import static org.springframework.util.Assert.hasText;
 import static org.springframework.util.Assert.notEmpty;
 import static org.springframework.util.Assert.notNull;
@@ -69,9 +71,11 @@ public class RelyingPartyRegistration {
 	private final String idpWebSsoUrl;
 	private final List<Saml2X509Credential> credentials;
 	private final String localEntityIdTemplate;
+	private final Set<InetAddress> subjectConfirmationAddresses;
 
 	private RelyingPartyRegistration(String idpEntityId, String registrationId, String assertionConsumerServiceUrlTemplate,
-			String idpWebSsoUri, List<Saml2X509Credential> credentials, String localEntityIdTemplate) {
+			String idpWebSsoUri, List<Saml2X509Credential> credentials, String localEntityIdTemplate,
+			Set<InetAddress> subjectConfirmationAddresses) {
 		hasText(idpEntityId, "idpEntityId cannot be empty");
 		hasText(registrationId, "registrationId cannot be empty");
 		hasText(assertionConsumerServiceUrlTemplate, "assertionConsumerServiceUrlTemplate cannot be empty");
@@ -87,6 +91,8 @@ public class RelyingPartyRegistration {
 		this.credentials = unmodifiableList(new LinkedList<>(credentials));
 		this.idpWebSsoUrl = idpWebSsoUri;
 		this.localEntityIdTemplate = localEntityIdTemplate;
+		this.subjectConfirmationAddresses =
+				unmodifiableSet(subjectConfirmationAddresses != null ? subjectConfirmationAddresses : emptySet());
 	}
 
 	/**
@@ -180,6 +186,13 @@ public class RelyingPartyRegistration {
 		return filterCredentials(c -> c.isDecryptionCredential());
 	}
 
+	/**
+	 * @return the set of acceptable subject confirmation addresses
+	 */
+	public Set<InetAddress> getSubjectConfirmationAddresses() {
+		return subjectConfirmationAddresses;
+	}
+
 	private List<Saml2X509Credential> filterCredentials(Function<Saml2X509Credential, Boolean> filter) {
 		List<Saml2X509Credential> result = new LinkedList<>();
 		for (Saml2X509Credential c : getCredentials()) {
@@ -207,6 +220,7 @@ public class RelyingPartyRegistration {
 		private String assertionConsumerServiceUrlTemplate;
 		private List<Saml2X509Credential> credentials = new LinkedList<>();
 		private String localEntityIdTemplate = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
+		private Set<InetAddress> subjectConfirmationAddresses;
 
 		private Builder(String registrationId) {
 			this.registrationId = registrationId;
@@ -282,9 +296,18 @@ public class RelyingPartyRegistration {
 		 * {@code {baseUrl}/saml2/service-provider-metadata/{registrationId}}
 		 * @return a string containing the entity ID or entity ID template
 		 */
-
 		public Builder localEntityIdTemplate(String template) {
 			this.localEntityIdTemplate = template;
+			return this;
+		}
+
+		/**
+		 * Sets the acceptable SubjectConfirmationData addresses.
+		 * @param subjectConfirmationAddresses - a set of acceptable SubjectConfirmationData addresses.
+		 * @return this object
+		 */
+		public Builder subjectConfirmationAddresses(Set<InetAddress> subjectConfirmationAddresses) {
+			this.subjectConfirmationAddresses = subjectConfirmationAddresses;
 			return this;
 		}
 
@@ -295,7 +318,8 @@ public class RelyingPartyRegistration {
 					assertionConsumerServiceUrlTemplate,
 					idpWebSsoUrl,
 					credentials,
-					localEntityIdTemplate
+					localEntityIdTemplate,
+					subjectConfirmationAddresses
 			);
 		}
 	}

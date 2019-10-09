@@ -317,6 +317,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		if (hasText(recipient)) {
 			validationParams.put(SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS, singleton(recipient));
 		}
+		validationParams.put(SAML2AssertionValidationParameters.SC_VALID_ADDRESSES, token.getSubjectConfirmationAddresses());
 
 		if (signatureRequired && !hasValidSignature(a, token)) {
 			if (logger.isDebugEnabled()) {

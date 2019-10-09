@@ -19,7 +19,9 @@ package org.springframework.security.saml2.provider.service.authentication;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 
+import java.net.InetAddress;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents an incoming SAML 2.0 response containing an assertion that has not been validated.
@@ -33,6 +35,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	private String idpEntityId;
 	private String localSpEntityId;
 	private List<Saml2X509Credential> credentials;
+	private Set<InetAddress> subjectConfirmationAddresses;
 
 	/**
 	 * Creates an authentication token from an incoming SAML 2 Response object
@@ -41,18 +44,21 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 * @param idpEntityId the entity ID of the asserting entity
 	 * @param localSpEntityId the configured local SP, the relying party, entity ID
 	 * @param credentials the credentials configured for signature verification and decryption
+	 * @param credentials the addresses configured for subject confirmation validation
 	 */
 	public Saml2AuthenticationToken(String saml2Response,
 									String recipientUri,
 									String idpEntityId,
 									String localSpEntityId,
-									List<Saml2X509Credential> credentials) {
+									List<Saml2X509Credential> credentials,
+									Set<InetAddress> subjectConfirmationAddresses) {
 		super(null);
 		this.saml2Response = saml2Response;
 		this.recipientUri = recipientUri;
 		this.idpEntityId = idpEntityId;
 		this.localSpEntityId = localSpEntityId;
 		this.credentials = credentials;
+		this.subjectConfirmationAddresses = subjectConfirmationAddresses;
 	}
 
 	/**
@@ -129,5 +135,13 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 */
 	public String getIdpEntityId() {
 		return this.idpEntityId;
+	}
+
+	/**
+	 * Returns all the acceptable subject confirmation addresses
+	 * @return
+	 */
+	public Set<InetAddress> getSubjectConfirmationAddresses() {
+		return subjectConfirmationAddresses;
 	}
 }

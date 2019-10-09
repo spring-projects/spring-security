@@ -47,7 +47,8 @@ final class TestSaml2AuthenticationObjects {
 			String username,
 			String issuerEntityId,
 			String recipientEntityId,
-			String recipientUri
+			String recipientUri,
+			String address
 	) {
 		Assertion assertion = saml.buildSAMLObject(Assertion.class);
 		assertion.setID("A"+ UUID.randomUUID().toString());
@@ -62,6 +63,7 @@ final class TestSaml2AuthenticationObjects {
 		subjectConfirmation.setMethod(SubjectConfirmation.METHOD_BEARER);
 		SubjectConfirmationData confirmationData = subjectConfirmationData(recipientEntityId);
 		confirmationData.setRecipient(recipientUri);
+		confirmationData.setAddress(address);
 		subjectConfirmation.setSubjectConfirmationData(confirmationData);
 		assertion.getSubject().getSubjectConfirmations().add(subjectConfirmation);
 		return assertion;

@@ -72,7 +72,8 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 				request.getRequestURL().toString(),
 				rp.getRemoteIdpEntityId(),
 				localSpEntityId,
-				rp.getCredentials()
+				rp.getCredentials(),
+				rp.getSubjectConfirmationAddresses()
 		);
 		return getAuthenticationManager().authenticate(authentication);
 	}
