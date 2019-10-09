@@ -399,7 +399,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 	 * {0} are replaced with the {@code username@domain}. Occurrences of {1} are replaced
 	 * with the {@code username} only.
 	 * <p>
-	 * Defaults to: {@code (&(objectClass=user)(userPrincipalName= 0}))}
+	 * Defaults to: {@code (&(objectClass=user)(userPrincipalName={0}))}
 	 * </p>
 	 *
 	 * @param searchFilter the filter string
