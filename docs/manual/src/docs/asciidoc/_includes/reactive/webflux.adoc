@@ -4,9 +4,9 @@
 Spring Security's WebFlux support relies on a `WebFilter` and works the same for Spring WebFlux and Spring WebFlux.Fn.
 You can find a few sample applications that demonstrate the code below:
 
-* Hello WebFlux {gh-samples-url}/javaconfig/hellowebflux[hellowebflux]
-* Hello WebFlux.Fn {gh-samples-url}/javaconfig/hellowebfluxfn[hellowebfluxfn]
-* Hello WebFlux Method {gh-samples-url}/javaconfig/hellowebflux-method[hellowebflux-method]
+* Hello WebFlux {gh-samples-url}/boot/hellowebflux[hellowebflux]
+* Hello WebFlux.Fn {gh-samples-url}/boot/hellowebfluxfn[hellowebfluxfn]
+* Hello WebFlux Method {gh-samples-url}/boot/hellowebflux-method[hellowebflux-method]
 
 
 == Minimal WebFlux Security Configuration
