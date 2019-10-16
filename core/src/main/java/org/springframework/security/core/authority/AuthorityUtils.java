@@ -66,13 +66,19 @@ public abstract class AuthorityUtils {
 		return set;
 	}
 
-	public static List<GrantedAuthority> createAuthorityList(String... roles) {
-		List<GrantedAuthority> authorities = new ArrayList<>(roles.length);
+	/**
+	 * Converts authorities into a List of GrantedAuthority objects.
+	 *
+	 * @param authorities the authorities to convert
+	 * @return a List of GrantedAuthority objects
+	 */
+	public static List<GrantedAuthority> createAuthorityList(String... authorities) {
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>(authorities.length);
 
-		for (String role : roles) {
-			authorities.add(new SimpleGrantedAuthority(role));
+		for (String authority : authorities) {
+			grantedAuthorities.add(new SimpleGrantedAuthority(authority));
 		}
 
-		return authorities;
+		return grantedAuthorities;
 	}
 }
