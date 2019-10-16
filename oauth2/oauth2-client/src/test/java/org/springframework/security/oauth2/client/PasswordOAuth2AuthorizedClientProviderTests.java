@@ -187,4 +187,25 @@ public class PasswordOAuth2AuthorizedClientProviderTests {
 						.build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
 	}
+
+	@Test
+	public void authorizeWhenPasswordAndAuthorizedWithoutRefreshTokenAndTokenNotExpiredByClockSkewThenNotReauthorize() {
+		PasswordOAuth2AuthorizedClientProvider authorizedClientProvider =
+				new PasswordOAuth2AuthorizedClientProvider();
+		authorizedClientProvider.setClockSkew(Duration.ofHours(24));
+		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
+		Instant expiresAt = issuedAt.plus(Duration.ofMinutes(60));
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(
+				OAuth2AccessToken.TokenType.BEARER, "access-token-expired", issuedAt, expiresAt);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.clientRegistration, this.principal.getName(), accessToken);	// without refresh token
+
+		OAuth2AuthorizationContext authorizationContext =
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
+						.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
+						.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
+						.principal(this.principal)
+						.build();
+		assertThat(authorizedClientProvider.authorize(authorizationContext)).isNull();
+	}
 }
