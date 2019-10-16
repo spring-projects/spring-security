@@ -47,6 +47,7 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -407,6 +408,50 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 					.and()
 				.authorizeRequests()
 					.anyRequest().hasIpAddress("192.168.1.0");
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void getWhenHasAnyIpAddressConfiguredAndIpAddressMatchesThenRespondsWithOk() throws Exception {
+		this.spring.register(HasAnyIpAddressConfig.class, BasicController.class).autowire();
+
+		performRequestWithIpAddress("192.168.3.0")
+				.andExpect(status().isOk());
+
+		performRequestWithIpAddress("192.168.3.3")
+				.andExpect(status().isOk());
+
+		performRequestWithIpAddress("192.168.4.123")
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenHasAnyIpAddressConfiguredAndIpAddressDoesNotMatchThenRespondsWithUnauthorized() throws Exception {
+		this.spring.register(HasAnyIpAddressConfig.class, BasicController.class).autowire();
+
+		performRequestWithIpAddress("192.168.5.1")
+				.andExpect(status().isUnauthorized());
+	}
+
+	private ResultActions performRequestWithIpAddress(String ipAddress) throws Exception {
+		return this.mvc.perform(get("/")
+				.with(request -> {
+					request.setRemoteAddr(ipAddress);
+					return request;
+				}));
+	}
+
+	@EnableWebSecurity
+	static class HasAnyIpAddressConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.httpBasic()
+					.and()
+					.authorizeRequests()
+					.anyRequest().hasAnyIpAddress("192.168.3.0/24", "192.168.4.123");
 			// @formatter:on
 		}
 	}

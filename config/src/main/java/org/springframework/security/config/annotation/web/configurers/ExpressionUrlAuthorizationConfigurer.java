@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -265,6 +265,11 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		return "hasIpAddress('" + ipAddressExpression + "')";
 	}
 
+	private static String hasAnyIpAddress(String... ipAddressExpressions) {
+		String anyIpAddress = StringUtils.arrayToDelimitedString(ipAddressExpressions, "','");
+		return "hasAnyIpAddress('" + anyIpAddress + "')";
+	}
+
 	/**
 	 * An {@link AuthorizedUrl} that allows optionally configuring the
 	 * {@link MvcRequestMatcher#setMethod(HttpMethod)}
@@ -382,6 +387,19 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		public ExpressionInterceptUrlRegistry hasIpAddress(String ipaddressExpression) {
 			return access(ExpressionUrlAuthorizationConfigurer
 					.hasIpAddress(ipaddressExpression));
+		}
+
+		/**
+		 * Specify that URLs requires a any of specific IP Addresses.
+		 *
+		 * @param ipAddressExpressions the ipaddresses (i.e. 192.168.1.79) or local subnets
+		 * (i.e. 192.168.0/24)
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public ExpressionInterceptUrlRegistry hasAnyIpAddress(String... ipAddressExpressions) {
+			return access(ExpressionUrlAuthorizationConfigurer
+					.hasAnyIpAddress(ipAddressExpressions));
 		}
 
 		/**

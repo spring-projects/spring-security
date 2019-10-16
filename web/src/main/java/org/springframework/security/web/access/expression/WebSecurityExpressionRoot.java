@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
+import java.util.Arrays;
+
 /**
  *
  * @author Luke Taylor
  * @since 3.0
  */
 public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
-	// private FilterInvocation filterInvocation;
 	/** Allows direct access to the request object */
 	public final HttpServletRequest request;
 
 	public WebSecurityExpressionRoot(Authentication a, FilterInvocation fi) {
 		super(a);
-		// this.filterInvocation = fi;
 		this.request = fi.getRequest();
 	}
 
@@ -47,7 +47,19 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 	 * @return true if the IP address of the current request is in the required range.
 	 */
 	public boolean hasIpAddress(String ipAddress) {
-		return (new IpAddressMatcher(ipAddress).matches(request));
+		return hasAnyIpAddress(ipAddress);
 	}
 
+	/**
+	 * Determines if request come from any of specified IP Addresses/Netmasks.
+	 *
+	 * @param ipAddresses the addresses or ranges of addresses from which the request must
+	 * come (e.g. "192.168.1.0/24", "202.24.0.0/14")
+	 * @return true if the IP address of the current request is in any of required ranges.
+	 */
+	public boolean hasAnyIpAddress(String... ipAddresses) {
+		return Arrays.stream(ipAddresses)
+				.map(ipAddress -> new IpAddressMatcher(ipAddress).matches(request))
+				.anyMatch(b -> b.equals(Boolean.TRUE));
+	}
 }

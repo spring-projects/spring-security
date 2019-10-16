@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
 
 /**
  * Tests for {@link WebSecurityExpressionRoot}.
@@ -41,9 +40,7 @@ public class WebSecurityExpressionRootTests {
 		request.setRequestURI("/test");
 		// IPv4
 		request.setRemoteAddr("192.168.1.1");
-		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(
-				mock(Authentication.class), new FilterInvocation(request,
-						mock(HttpServletResponse.class), mock(FilterChain.class)));
+		WebSecurityExpressionRoot root = getWebSecurityExpressionRoot(request);
 
 		assertThat(root.hasIpAddress("192.168.1.1")).isTrue();
 
@@ -53,12 +50,57 @@ public class WebSecurityExpressionRootTests {
 	}
 
 	@Test
+	public void anyIpAddressMatchesForEqualIpAddresses() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/test");
+		WebSecurityExpressionRoot root = getWebSecurityExpressionRoot(request);
+		// IPv4
+		String ipv4Address1 = "192.168.1.1";
+		String ipv4Address2 = "127.0.0.1";
+
+		request.setRemoteAddr("192.168.1.2");
+		assertThat(root.hasAnyIpAddress(ipv4Address1, ipv4Address2)).isFalse();
+
+		request.setRemoteAddr(ipv4Address1);
+		assertThat(root.hasAnyIpAddress(ipv4Address1, ipv4Address2)).isTrue();
+
+		request.setRemoteAddr(ipv4Address2);
+		assertThat(root.hasAnyIpAddress(ipv4Address1, ipv4Address2)).isTrue();
+
+		// IPv6 Address
+		String ipv6Address1 = "fa:db8:85a3::8a2e:370:7334";
+		String ipv6Address2 = "fa:db8:85a3::8a2e:370:7335";
+
+		request.setRemoteAddr("fa:db8:85a3::8a2e:370:7333");
+		assertThat(root.hasAnyIpAddress(ipv6Address1, ipv6Address2)).isFalse();
+
+		request.setRemoteAddr(ipv6Address1);
+		assertThat(root.hasAnyIpAddress(ipv6Address1, ipv6Address2)).isTrue();
+
+		request.setRemoteAddr(ipv6Address2);
+		assertThat(root.hasAnyIpAddress(ipv6Address1, ipv6Address2)).isTrue();
+	}
+
+	@Test
+	public void anyIpAddressMatchesForIpAddressesRange() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/test");
+		WebSecurityExpressionRoot root = getWebSecurityExpressionRoot(request);
+
+		for (int i = 0; i < 255; i++) {
+			request.setRemoteAddr("192.168.1." + i);
+			assertThat(root.hasAnyIpAddress("192.168.1.0/24", "192.168.2.0/24")).isTrue();
+			assertThat(root.hasAnyIpAddress("192.168.3.0/24", "192.168.4.0/24")).isFalse();
+			request.setRemoteAddr("192.168.2." + i);
+			assertThat(root.hasAnyIpAddress("192.168.1.0/24", "192.168.2.0/24")).isTrue();
+		}
+	}
+
+	@Test
 	public void addressesInIpRangeMatch() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/test");
-		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(
-				mock(Authentication.class), new FilterInvocation(request,
-						mock(HttpServletResponse.class), mock(FilterChain.class)));
+		WebSecurityExpressionRoot root = getWebSecurityExpressionRoot(request);
 		for (int i = 0; i < 255; i++) {
 			request.setRemoteAddr("192.168.1." + i);
 			assertThat(root.hasIpAddress("192.168.1.0/24")).isTrue();
@@ -83,6 +125,12 @@ public class WebSecurityExpressionRootTests {
 		assertThat(root.hasIpAddress("202.24.0.0/14")).isTrue();
 		request.setRemoteAddr("202.26.179.135");
 		assertThat(root.hasIpAddress("202.24.0.0/14")).isTrue();
+	}
+
+	private WebSecurityExpressionRoot getWebSecurityExpressionRoot(MockHttpServletRequest request) {
+		return new WebSecurityExpressionRoot(
+				mock(Authentication.class), new FilterInvocation(request,
+				mock(HttpServletResponse.class), mock(FilterChain.class)));
 	}
 
 }
