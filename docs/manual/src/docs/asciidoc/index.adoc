@@ -4,6 +4,7 @@ Ben Alex; Luke Taylor; Rob Winch; Gunnar Hillert; Joe Grandja; Jay Bryant; Eddú
 :security-api-url: https://docs.spring.io/spring-security/site/docs/current/api/
 :source-indent: 0
 :tabsize: 4
+:toc: left
 
 // FIXME: Add links for authentication, authorization, common attacks
 Spring Security is a framework that provides authentication, authorization, and protection against common attacks.
