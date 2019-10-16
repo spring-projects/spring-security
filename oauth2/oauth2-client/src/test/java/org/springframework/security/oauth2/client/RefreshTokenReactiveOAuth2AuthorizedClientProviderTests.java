@@ -136,6 +136,21 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
+	public void authorizeWhenAuthorizedAndAccessTokenNotExpiredByClockSkewThenNotReauthorize() {
+		RefreshTokenReactiveOAuth2AuthorizedClientProvider authorizedClientProvider
+				= new RefreshTokenReactiveOAuth2AuthorizedClientProvider();
+		authorizedClientProvider.setClockSkew(Duration.ofHours(24));
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration, this.principal.getName(),
+				this.authorizedClient.getAccessToken(), this.authorizedClient.getRefreshToken());
+
+		OAuth2AuthorizationContext authorizationContext =
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
+						.principal(this.principal)
+						.build();
+		assertThat(authorizedClientProvider.authorize(authorizationContext).block()).isNull();
+	}
+
+	@Test
 	public void authorizeWhenAuthorizedAndAccessTokenExpiredThenReauthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
 				.refreshToken("new-refresh-token")
