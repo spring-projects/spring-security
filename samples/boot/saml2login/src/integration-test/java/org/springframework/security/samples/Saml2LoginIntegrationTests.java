@@ -113,6 +113,7 @@ public class Saml2LoginIntegrationTests {
 	@EnableAutoConfiguration
 	@ComponentScan(basePackages = "sample")
 	public static class SpringBootApplicationTestConfig {
+
 	}
 
 	@Test
