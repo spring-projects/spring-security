@@ -17,12 +17,8 @@ package sample;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
-
-import boot.saml2.config.Saml2LoginBootConfiguration;
 
 @SpringBootApplication
-@Import(Saml2LoginBootConfiguration.class)
 public class Saml2LoginApplication {
 
 	public static void main(String[] args) {
