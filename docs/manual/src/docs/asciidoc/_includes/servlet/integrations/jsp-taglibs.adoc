@@ -112,7 +112,7 @@ The `Acl` will be invoked with the required permissions to check if all of them 
 
 This tag also supports the `var` attribute, in the same way as the `authorize` tag.
 
-
+[[taglibs-csrfinput]]
 === The csrfInput Tag
 If CSRF protection is enabled, this tag inserts a hidden form field with the correct name and value for the CSRF protection token.
 If CSRF protection is not enabled, this tag outputs nothing.
@@ -133,7 +133,7 @@ Spring Security handles Spring forms automatically.
 	</form>
 ----
 
-
+[[taglibs-csrfmeta]]
 === The csrfMetaTags Tag
 If CSRF protection is enabled, this tag inserts meta tags containing the CSRF protection token form field and header names and CSRF protection token value.
 These meta tags are useful for employing CSRF protection within JavaScript in your applications.
