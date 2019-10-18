@@ -77,67 +77,6 @@ public class WebAuthn4JWebAuthnManager implements WebAuthnManager {
 		this(new WebAuthnDataConverter());
 	}
 
-	/**
-	 * Wraps WebAuthnAuthentication to proper {@link RuntimeException} (mainly {@link AuthenticationException} subclass.
-	 *
-	 * @param e exception to be wrapped
-	 * @return wrapping exception
-	 */
-	@SuppressWarnings("squid:S3776")
-	static RuntimeException wrapWithAuthenticationException(WebAuthnException e) {
-		// ValidationExceptions
-		if (e instanceof com.webauthn4j.validator.exception.BadAaguidException) {
-			return new BadAaguidException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.BadAlgorithmException) {
-			return new BadAlgorithmException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.BadAttestationStatementException) {
-			if (e instanceof com.webauthn4j.validator.exception.KeyDescriptionValidationException) {
-				return new KeyDescriptionValidationException(e.getMessage(), e);
-			} else {
-				return new BadAttestationStatementException(e.getMessage(), e);
-			}
-		} else if (e instanceof com.webauthn4j.validator.exception.BadChallengeException) {
-			return new BadChallengeException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.BadOriginException) {
-			return new BadOriginException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.BadRpIdException) {
-			return new BadRpIdException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.BadSignatureException) {
-			return new BadSignatureException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.CertificateException) {
-			return new CertificateException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.ConstraintViolationException) {
-			return new ConstraintViolationException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.MaliciousCounterValueException) {
-			return new MaliciousCounterValueException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.MaliciousDataException) {
-			return new MaliciousDataException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.MissingChallengeException) {
-			return new MissingChallengeException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.PublicKeyMismatchException) {
-			return new PublicKeyMismatchException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.SelfAttestationProhibitedException) {
-			return new SelfAttestationProhibitedException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.TokenBindingException) {
-			return new TokenBindingException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.TrustAnchorNotFoundException) {
-			return new TrustAnchorNotFoundException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.UnexpectedExtensionException) {
-			return new UnexpectedExtensionException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.UserNotPresentException) {
-			return new UserNotPresentException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.UserNotVerifiedException) {
-			return new UserNotVerifiedException(e.getMessage(), e);
-		} else if (e instanceof com.webauthn4j.validator.exception.ValidationException) {
-			return new ValidationException("WebAuthn validation error", e);
-		}
-		// DataConversionException
-		else if (e instanceof com.webauthn4j.converter.exception.DataConversionException) {
-			return new DataConversionException("WebAuthn data conversion error", e);
-		} else {
-			return new AuthenticationServiceException(null, e);
-		}
-	}
 
 	public void verifyRegistrationData(
 			WebAuthnRegistrationData registrationData
@@ -152,11 +91,7 @@ public class WebAuthn4JWebAuthnManager implements WebAuthnManager {
 
 		WebAuthnRegistrationContext registrationContext = createRegistrationContext(registrationData);
 
-		try {
-			registrationContextValidator.validate(registrationContext);
-		} catch (WebAuthnException e) {
-			throw wrapWithAuthenticationException(e);
-		}
+		registrationContextValidator.validate(registrationContext);
 	}
 
 	@Override
@@ -184,11 +119,7 @@ public class WebAuthn4JWebAuthnManager implements WebAuthnManager {
 				transports
 		);
 
-		try {
-			authenticationContextValidator.validate(authenticationContext, authenticator);
-		} catch (WebAuthnException e) {
-			throw wrapWithAuthenticationException(e);
-		}
+		authenticationContextValidator.validate(authenticationContext, authenticator);
 
 	}
 

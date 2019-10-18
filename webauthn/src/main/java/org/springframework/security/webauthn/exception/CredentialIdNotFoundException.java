@@ -19,7 +19,7 @@ package org.springframework.security.webauthn.exception;
 /**
  * Thrown if an authentication request is rejected because credentialId is not found.
  */
-public class CredentialIdNotFoundException extends ValidationException {
+public class CredentialIdNotFoundException extends WebAuthnAuthenticationException {
 	public CredentialIdNotFoundException(String message) {
 		super(message);
 	}

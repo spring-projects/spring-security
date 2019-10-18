@@ -18,6 +18,7 @@ package org.springframework.security.webauthn.sample.app.web;
 
 import com.webauthn4j.util.Base64UrlUtil;
 import com.webauthn4j.util.UUIDUtil;
+import com.webauthn4j.util.exception.WebAuthnException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +34,7 @@ import org.springframework.security.webauthn.WebAuthnRegistrationRequestValidato
 import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticator;
 import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticatorImpl;
 import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticatorTransport;
-import org.springframework.security.webauthn.exception.DataConversionException;
-import org.springframework.security.webauthn.exception.ValidationException;
+import org.springframework.security.webauthn.exception.WebAuthnAuthenticationException;
 import org.springframework.security.webauthn.userdetails.InMemoryWebAuthnAndPasswordUserDetailsManager;
 import org.springframework.security.webauthn.userdetails.WebAuthnAndPasswordUser;
 import org.springframework.stereotype.Controller;
@@ -126,12 +126,8 @@ public class WebAuthnSampleController {
 		try {
 			registrationRequestValidator.validate(webAuthnRegistrationRequest);
 		}
-		catch (ValidationException e){
+		catch (WebAuthnException | WebAuthnAuthenticationException e){
 			logger.debug("WebAuthn registration request validation failed.", e);
-			return VIEW_SIGNUP_SIGNUP;
-		}
-		catch (DataConversionException e){
-			logger.debug("WebAuthn registration request data conversion failed.", e);
 			return VIEW_SIGNUP_SIGNUP;
 		}
 
