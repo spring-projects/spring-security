@@ -16,10 +16,13 @@
 
 package org.springframework.security.webauthn.server;
 
-import org.springframework.security.webauthn.challenge.WebAuthnChallenge;
+import com.webauthn4j.data.client.Origin;
+import com.webauthn4j.data.client.challenge.Challenge;
+import com.webauthn4j.server.ServerProperty;
 import org.springframework.security.webauthn.challenge.WebAuthnChallengeRepository;
 import org.springframework.util.Assert;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -41,12 +44,16 @@ public class WebAuthnServerPropertyProviderImpl implements WebAuthnServerPropert
 		this.webAuthnChallengeRepository = webAuthnChallengeRepository;
 	}
 
-	public WebAuthnServerProperty provide(HttpServletRequest request) {
+	public ServerProperty provide(HttpServletRequest request) {
 
-		WebAuthnOrigin origin = WebAuthnOrigin.create(request);
+		Origin origin = createOrigin(request);
 		String effectiveRpId = effectiveRpIdProvider.getEffectiveRpId(request);
-		WebAuthnChallenge challenge = webAuthnChallengeRepository.loadOrGenerateChallenge(request);
+		Challenge challenge = webAuthnChallengeRepository.loadOrGenerateChallenge(request);
 
-		return new WebAuthnServerProperty(origin, effectiveRpId, challenge, null); // tokenBinding is not supported by Servlet API as of 4.0
+		return new ServerProperty(origin, effectiveRpId, challenge, null); // tokenBinding is not supported by Servlet API as of 4.0
+	}
+
+	private static Origin createOrigin(ServletRequest request) {
+		return new Origin(request.getScheme(), request.getServerName(), request.getServerPort());
 	}
 }

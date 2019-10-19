@@ -26,17 +26,12 @@ import com.webauthn4j.data.attestation.AttestationObject;
 import com.webauthn4j.data.client.Origin;
 import com.webauthn4j.data.client.challenge.DefaultChallenge;
 import com.webauthn4j.server.ServerProperty;
-import com.webauthn4j.util.exception.WebAuthnException;
 import com.webauthn4j.validator.WebAuthnAuthenticationContextValidator;
 import com.webauthn4j.validator.WebAuthnRegistrationContextValidator;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticator;
-import org.springframework.security.webauthn.exception.*;
-import org.springframework.security.webauthn.server.WebAuthnOrigin;
-import org.springframework.security.webauthn.server.WebAuthnServerProperty;
 import org.springframework.util.Assert;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Set;
@@ -129,7 +124,7 @@ public class WebAuthn4JWebAuthnManager implements WebAuthnManager {
 		if (this.rpId != null) {
 			effectiveRpId = this.rpId;
 		} else {
-			WebAuthnOrigin origin = WebAuthnOrigin.create(request);
+			Origin origin = createOrigin(request);
 			effectiveRpId = origin.getHost();
 		}
 		return effectiveRpId;
@@ -179,16 +174,20 @@ public class WebAuthn4JWebAuthnManager implements WebAuthnManager {
 		);
 	}
 
-	private Origin convertToOrigin(WebAuthnOrigin webAuthnOrigin) {
+	private Origin convertToOrigin(Origin webAuthnOrigin) {
 		return new Origin(webAuthnOrigin.getScheme(), webAuthnOrigin.getHost(), webAuthnOrigin.getPort());
 	}
 
-	private ServerProperty convertToServerProperty(WebAuthnServerProperty webAuthnServerProperty) {
+	private ServerProperty convertToServerProperty(ServerProperty webAuthnServerProperty) {
 		return new ServerProperty(
 				convertToOrigin(webAuthnServerProperty.getOrigin()),
 				webAuthnServerProperty.getRpId(),
 				new DefaultChallenge(webAuthnServerProperty.getChallenge().getValue()),
 				webAuthnServerProperty.getTokenBindingId());
+	}
+
+	private static Origin createOrigin(ServletRequest request) {
+		return new Origin(request.getScheme(), request.getServerName(), request.getServerPort());
 	}
 
 }

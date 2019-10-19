@@ -16,8 +16,8 @@
 
 package org.springframework.security.webauthn;
 
+import com.webauthn4j.server.ServerProperty;
 import com.webauthn4j.util.ArrayUtil;
-import org.springframework.security.webauthn.server.WebAuthnServerProperty;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,11 +30,11 @@ public class WebAuthnRegistrationData {
 	private final Set<String> transports;
 	private final String clientExtensionsJSON;
 
-	private final WebAuthnServerProperty serverProperty;
+	private final ServerProperty serverProperty;
 	private final List<String> expectedRegistrationExtensionIds;
 
 	public WebAuthnRegistrationData(byte[] clientDataJSON, byte[] attestationObject, Set<String> transports, String clientExtensionsJSON,
-									WebAuthnServerProperty serverProperty,
+									ServerProperty serverProperty,
 									List<String> expectedRegistrationExtensionIds) {
 		this.clientDataJSON = ArrayUtil.clone(clientDataJSON);
 		this.attestationObject = ArrayUtil.clone(attestationObject);
@@ -60,7 +60,7 @@ public class WebAuthnRegistrationData {
 		return clientExtensionsJSON;
 	}
 
-	public WebAuthnServerProperty getServerProperty() {
+	public ServerProperty getServerProperty() {
 		return serverProperty;
 	}
 

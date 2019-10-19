@@ -16,6 +16,7 @@
 
 package org.springframework.security.webauthn;
 
+import com.webauthn4j.server.ServerProperty;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -24,7 +25,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.webauthn.server.WebAuthnServerProperty;
 import org.springframework.security.webauthn.server.WebAuthnServerPropertyProvider;
 import org.springframework.util.Assert;
 import org.springframework.util.Base64Utils;
@@ -135,7 +135,7 @@ public class WebAuthnProcessingFilter extends UsernamePasswordAuthenticationFilt
 			byte[] rawAuthenticatorData = authenticatorData == null ? null : Base64Utils.decodeFromUrlSafeString(authenticatorData);
 			byte[] signatureBytes = signature == null ? null : Base64Utils.decodeFromUrlSafeString(signature);
 
-			WebAuthnServerProperty webAuthnServerProperty = serverPropertyProvider.provide(request);
+			ServerProperty webAuthnServerProperty = serverPropertyProvider.provide(request);
 
 			WebAuthnAuthenticationData webAuthnAuthenticationData = new WebAuthnAuthenticationData(
 					rawId,

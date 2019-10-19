@@ -16,6 +16,8 @@
 
 package org.springframework.security.webauthn.challenge;
 
+import com.webauthn4j.data.client.challenge.Challenge;
+import com.webauthn4j.data.client.challenge.DefaultChallenge;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.util.Assert;
 
@@ -45,12 +47,12 @@ public class HttpSessionWebAuthnChallengeRepository implements WebAuthnChallenge
 	// ========================================================================================================
 
 	@Override
-	public WebAuthnChallenge generateChallenge() {
-		return new WebAuthnChallengeImpl();
+	public Challenge generateChallenge() {
+		return new DefaultChallenge();
 	}
 
 	@Override
-	public void saveChallenge(WebAuthnChallenge challenge, HttpServletRequest request) {
+	public void saveChallenge(Challenge challenge, HttpServletRequest request) {
 		if (challenge == null) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
@@ -63,16 +65,16 @@ public class HttpSessionWebAuthnChallengeRepository implements WebAuthnChallenge
 	}
 
 	@Override
-	public WebAuthnChallenge loadChallenge(HttpServletRequest request) {
+	public Challenge loadChallenge(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
 		if (session == null) {
 			return null;
 		}
-		return (WebAuthnChallenge) session.getAttribute(this.sessionAttributeName);
+		return (Challenge) session.getAttribute(this.sessionAttributeName);
 	}
 
 	/**
-	 * Sets the {@link HttpSession} attribute name that the {@link WebAuthnChallenge} is stored in
+	 * Sets the {@link HttpSession} attribute name that the {@link Challenge} is stored in
 	 *
 	 * @param sessionAttributeName the new attribute name to use
 	 */

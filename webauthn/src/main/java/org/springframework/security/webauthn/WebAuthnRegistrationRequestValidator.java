@@ -16,8 +16,8 @@
 
 package org.springframework.security.webauthn;
 
+import com.webauthn4j.server.ServerProperty;
 import com.webauthn4j.util.Base64UrlUtil;
-import org.springframework.security.webauthn.server.WebAuthnServerProperty;
 import org.springframework.security.webauthn.server.WebAuthnServerPropertyProvider;
 import org.springframework.util.Assert;
 
@@ -43,7 +43,7 @@ public class WebAuthnRegistrationRequestValidator {
 		Assert.notNull(registrationRequest, "target must not be null");
 		Assert.notNull(registrationRequest.getHttpServletRequest(), "httpServletRequest must not be null");
 
-		WebAuthnServerProperty webAuthnServerProperty = webAuthnServerPropertyProvider.provide(registrationRequest.getHttpServletRequest());
+		ServerProperty webAuthnServerProperty = webAuthnServerPropertyProvider.provide(registrationRequest.getHttpServletRequest());
 
 		WebAuthnRegistrationData webAuthnRegistrationData = new WebAuthnRegistrationData(
 				Base64UrlUtil.decode(registrationRequest.getClientDataBase64Url()),

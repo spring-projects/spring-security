@@ -16,6 +16,7 @@
 
 package org.springframework.security.webauthn.authenticator;
 
+import com.webauthn4j.data.AuthenticatorTransport;
 import org.springframework.security.webauthn.userdetails.WebAuthnUserDetailsService;
 
 import java.util.Set;
@@ -36,7 +37,7 @@ public interface WebAuthnAuthenticator {
 
 	void setCounter(long counter);
 
-	Set<WebAuthnAuthenticatorTransport> getTransports();
+	Set<AuthenticatorTransport> getTransports();
 
 	String getClientExtensions();
 

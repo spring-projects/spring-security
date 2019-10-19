@@ -17,6 +17,7 @@
 package org.springframework.security.webauthn.authenticator;
 
 
+import com.webauthn4j.data.AuthenticatorTransport;
 import com.webauthn4j.util.ArrayUtil;
 
 import java.util.Arrays;
@@ -31,7 +32,7 @@ public class WebAuthnAuthenticatorImpl implements WebAuthnAuthenticator {
 	private String name;
 	private byte[] attestationObject;
 	private long counter;
-	private Set<WebAuthnAuthenticatorTransport> transports;
+	private Set<AuthenticatorTransport> transports;
 	private String clientExtensions;
 
 	// ~ Constructor
@@ -51,7 +52,7 @@ public class WebAuthnAuthenticatorImpl implements WebAuthnAuthenticator {
 			String name,
 			byte[] attestationObject,
 			long counter,
-			Set<WebAuthnAuthenticatorTransport> transports,
+			Set<AuthenticatorTransport> transports,
 			String clientExtensions) {
 		this.credentialId = credentialId;
 		this.name = name;
@@ -88,7 +89,7 @@ public class WebAuthnAuthenticatorImpl implements WebAuthnAuthenticator {
 	}
 
 	@Override
-	public Set<WebAuthnAuthenticatorTransport> getTransports() {
+	public Set<AuthenticatorTransport> getTransports() {
 		return transports;
 	}
 

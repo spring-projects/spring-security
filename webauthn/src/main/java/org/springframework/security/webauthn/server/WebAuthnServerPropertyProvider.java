@@ -17,21 +17,23 @@
 package org.springframework.security.webauthn.server;
 
 
+import com.webauthn4j.server.ServerProperty;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Provides {@link WebAuthnServerProperty} instance associated with {@link HttpServletRequest}
+ * Provides {@link ServerProperty} instance associated with {@link HttpServletRequest}
  *
  * @author Yoshikazu Nojima
  */
 public interface WebAuthnServerPropertyProvider {
 
 	/**
-	 * Provides {@link WebAuthnServerProperty}
+	 * Provides {@link ServerProperty}
 	 *
 	 * @param request http servlet request
-	 * @return the {@link WebAuthnServerProperty}
+	 * @return the {@link ServerProperty}
 	 */
-	WebAuthnServerProperty provide(HttpServletRequest request);
+	ServerProperty provide(HttpServletRequest request);
 
 }

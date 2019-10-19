@@ -16,6 +16,7 @@
 
 package org.springframework.security.webauthn.sample.app.web;
 
+import com.webauthn4j.data.AuthenticatorTransport;
 import com.webauthn4j.util.Base64UrlUtil;
 import com.webauthn4j.util.UUIDUtil;
 import com.webauthn4j.util.exception.WebAuthnException;
@@ -33,7 +34,6 @@ import org.springframework.security.webauthn.WebAuthnRegistrationRequest;
 import org.springframework.security.webauthn.WebAuthnRegistrationRequestValidator;
 import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticator;
 import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticatorImpl;
-import org.springframework.security.webauthn.authenticator.WebAuthnAuthenticatorTransport;
 import org.springframework.security.webauthn.exception.WebAuthnAuthenticationException;
 import org.springframework.security.webauthn.userdetails.InMemoryWebAuthnAndPasswordUserDetailsManager;
 import org.springframework.security.webauthn.userdetails.WebAuthnAndPasswordUser;
@@ -138,13 +138,13 @@ public class WebAuthnSampleController {
 		byte[] attestedCredentialData = webAuthnDataConverter.extractAttestedCredentialData(authenticatorData);
 		byte[] credentialId = webAuthnDataConverter.extractCredentialId(attestedCredentialData);
 		long signCount = webAuthnDataConverter.extractSignCount(authenticatorData);
-		Set<WebAuthnAuthenticatorTransport> transports;
+		Set<AuthenticatorTransport> transports;
 		if (sourceAuthenticator.getTransports() == null) {
 			transports = null;
 		}
 		else {
 			transports = sourceAuthenticator.getTransports().stream()
-					.map(WebAuthnAuthenticatorTransport::create)
+					.map(AuthenticatorTransport::create)
 					.collect(Collectors.toSet());
 		}
 
