@@ -16,10 +16,12 @@
 package org.springframework.security.oauth2.jwt;
 
 import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -90,6 +92,15 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 */
 	public NimbusReactiveJwtDecoder(String jwkSetUrl) {
 		this(withJwkSetUri(jwkSetUrl).processor());
+	}
+
+	/**
+	 * Constructs a {@code NimbusReactiveJwtDecoder} using the provided parameters.
+	 *
+	 * @param jwkSetUrls JSON Web Key (JWK) Set {@code URL}s
+	 */
+	public NimbusReactiveJwtDecoder(List<String> jwkSetUrls) {
+		this(withJwkSetUris(jwkSetUrls).processor());
 	}
 
 	/**
@@ -195,6 +206,17 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	/**
+	 * Use the given
+	 * <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uris to validate JWTs.
+	 *
+	 * @param jwkSetUris JWK Set uris to use
+	 * @return a {@link JwkSetUriReactiveJwtDecoderBuilder} for further configurations
+	 */
+	public static JwkSetUriReactiveJwtDecoderBuilder withJwkSetUris(List<String> jwkSetUris) {
+		return new JwkSetUriReactiveJwtDecoderBuilder(jwkSetUris);
+	}
+
+	/**
 	 * Use the given public key to validate JWTs
 	 *
 	 * @param key the public key to use
@@ -231,19 +253,27 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	/**
-	 * A builder for creating {@link NimbusReactiveJwtDecoder} instances based on a
-	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri.
+	 * A builder for creating {@link NimbusReactiveJwtDecoder} instances based on
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uris.
 	 *
 	 * @since 5.2
 	 */
 	public static final class JwkSetUriReactiveJwtDecoderBuilder {
-		private final String jwkSetUri;
+		private final List<String> jwkSetUris;
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 		private WebClient webClient = WebClient.create();
 
 		private JwkSetUriReactiveJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
-			this.jwkSetUri = jwkSetUri;
+			this.jwkSetUris = Arrays.asList(jwkSetUri);
+		}
+
+		private JwkSetUriReactiveJwtDecoderBuilder(List<String> jwkSetUris) {
+			Assert.notEmpty(jwkSetUris, "jwkSetUris cannot be empty");
+			for (String uri : jwkSetUris) {
+				Assert.hasText(uri, "URI in jwkSetUris cannot be empty");
+			}
+			this.jwkSetUris = jwkSetUris;
 		}
 
 		/**
@@ -321,7 +351,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			jwtProcessor.setJWSKeySelector(jwsKeySelector);
 			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
 
-			ReactiveRemoteJWKSource source = new ReactiveRemoteJWKSource(this.jwkSetUri);
+			ReactiveRemoteJWKSource source = new ReactiveRemoteJWKSource(this.jwkSetUris);
 			source.setWebClient(this.webClient);
 
 			Set<JWSAlgorithm> expectedJwsAlgorithms = getExpectedJwsAlgorithms(jwsKeySelector);

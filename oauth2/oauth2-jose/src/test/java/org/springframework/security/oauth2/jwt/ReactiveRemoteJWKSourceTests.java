@@ -21,19 +21,23 @@ import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.KeyType;
 import com.nimbusds.jose.jwk.KeyUse;
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 /**
@@ -89,7 +93,7 @@ public class ReactiveRemoteJWKSourceTests {
 	@Before
 	public void setup() {
 		this.server = new MockWebServer();
-		this.source = new ReactiveRemoteJWKSource(this.server.url("/").toString());
+		this.source = new ReactiveRemoteJWKSource(Arrays.asList(this.server.url("/").toString()));
 
 		this.server.enqueue(new MockResponse().setBody(this.keys));
 		this.selector = new JWKSelector(this.matcher);
@@ -161,5 +165,36 @@ public class ReactiveRemoteJWKSourceTests {
 		when(this.matcher.getKeyIDs()).thenReturn(Collections.singleton("7ddf54d3032d1f0d48c3618892ca74c1ac30ad77"));
 
 		assertThat(this.source.get(this.selector).block()).isEmpty();
+	}
+
+	@Test
+	public void getWhenFirstURLNoMatchAndSecondURLMatchThenFound() {
+		MockWebServer server = new MockWebServer();
+		Dispatcher dispatcher = new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+				switch (request.getPath()) {
+					case "/first":
+						return new MockResponse().setBody(ReactiveRemoteJWKSourceTests.this.keys);
+					case "/second":
+						return new MockResponse().setBody(ReactiveRemoteJWKSourceTests.this.keys2);
+					default:
+						return new MockResponse().setResponseCode(404);
+				}
+			}
+		};
+		server.setDispatcher(dispatcher);
+
+		when(this.matcher.matches(any())).thenReturn(false);
+		when(this.matcher.matches(argThat(jwk -> jwk.getKeyID().equals("rotated")))).thenReturn(true);
+
+		ReactiveRemoteJWKSource source = new ReactiveRemoteJWKSource(Arrays.asList(
+				server.url("/first").toString(),
+				server.url("/second").toString()));
+
+		List<JWK> keys = source.get(this.selector).block();
+
+		assertThat(keys).hasSize(1);
+		assertThat(keys.get(0).getKeyID()).isEqualTo("rotated");
 	}
 }

@@ -1833,6 +1833,17 @@ public class ServerHttpSecurity {
 				return this;
 			}
 
+			/**
+			 * Configures a {@link ReactiveJwtDecoder} using
+			 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a> URLs
+			 * @param jwkSetUris URLs to use.
+			 * @return the {@code JwtSpec} for additional configuration
+			 */
+			public JwtSpec jwkSetUris(List<String> jwkSetUris) {
+				this.jwtDecoder = new NimbusReactiveJwtDecoder(jwkSetUris);
+				return this;
+			}
+
 			public OAuth2ResourceServerSpec and() {
 				return OAuth2ResourceServerSpec.this;
 			}

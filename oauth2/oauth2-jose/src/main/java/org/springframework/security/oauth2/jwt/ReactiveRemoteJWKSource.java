@@ -21,12 +21,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.JWKSet;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.util.Assert;
@@ -44,11 +46,14 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 
 	private WebClient webClient = WebClient.create();
 
-	private final String jwkSetURL;
+	private final List<String> jwkSetURLs;
 
-	ReactiveRemoteJWKSource(String jwkSetURL) {
-		Assert.hasText(jwkSetURL, "jwkSetURL cannot be empty");
-		this.jwkSetURL = jwkSetURL;
+	ReactiveRemoteJWKSource(List<String> jwkSetURLs) {
+		Assert.notEmpty(jwkSetURLs, "jwkSetURLs cannot be empty");
+		for (String url : jwkSetURLs) {
+			Assert.hasText(url, "URL in jwkSetURLs cannot be empty");
+		}
+		this.jwkSetURLs = jwkSetURLs;
 	}
 
 	public Mono<List<JWK>> get(JWKSelector jwkSelector) {
@@ -89,20 +94,38 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	}
 
 	/**
-	 * Updates the cached JWK set from the configured URL.
+	 * Updates the cached JWK set from the configured URLs.
 	 *
 	 * @return The updated JWK set.
 	 *
 	 * @throws RemoteKeySourceException If JWK retrieval failed.
 	 */
 	private Mono<JWKSet> getJWKSet() {
+		Mono<JWKSet> jwkSet;
+
+		if (this.jwkSetURLs.size() == 1) {
+			jwkSet = getJWKSetFromURL(this.jwkSetURLs.get(0));
+		}
+		else {
+			Flux<JWKSet> jwkSets = Flux.empty();
+			for (String url : this.jwkSetURLs) {
+				jwkSets = jwkSets.mergeWith(getJWKSetFromURL(url));
+			}
+			jwkSet = jwkSets.collectList()
+					.map(sets -> sets.stream().flatMap(set -> set.getKeys().stream()).collect(Collectors.toList()))
+					.map(JWKSet::new);
+		}
+
+		return jwkSet.doOnNext(value -> this.cachedJWKSet.set(Mono.just(value)))
+				.cache();
+	}
+
+	private Mono<JWKSet> getJWKSetFromURL(String jwkSetURL) {
 		return this.webClient.get()
-				.uri(this.jwkSetURL)
+				.uri(jwkSetURL)
 				.retrieve()
 				.bodyToMono(String.class)
-				.map(this::parse)
-				.doOnNext(jwkSet -> this.cachedJWKSet.set(Mono.just(jwkSet)))
-				.cache();
+				.map(this::parse);
 	}
 
 	private JWKSet parse(String body) {
