@@ -17,7 +17,6 @@
 package org.springframework.security.saml2.provider.service.authentication;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -37,10 +36,10 @@ import java.util.Collection;
  */
 public class Saml2Authentication extends AbstractAuthenticationToken {
 
-	private final AuthenticatedPrincipal principal;
+	private final Object principal;
 	private final String saml2Response;
 
-	public Saml2Authentication(AuthenticatedPrincipal principal,
+	public Saml2Authentication(Object principal,
 			String saml2Response,
 			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);

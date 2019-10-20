@@ -113,6 +113,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 }
 ----
+Optionally, a `UserDetailsService` can be set, to authorize the SAML user name by a (local) database, add metadata and set authorities like roles.
+[source,java]
+----
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+   @Autowired
+   private CustomUserDetailsService userDetailsServiceImp;
+    
+   @Override
+   protected void configure(HttpSecurity http) throws Exception {
+       http
+           .authorizeRequests()
+           .anyRequest().authenticated()
+               .and()
+           .saml2Login()
+               .userDetailsService(userDetailsServiceImpl)
+                
+        ;
+   }
+}
+----
 
 ==== RelyingPartyRegistration
 The https://github.com/spring-projects/spring-security/blob/5.2.0.RELEASE/saml2/saml2-service-provider/src/main/java/org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistration.java[`RelyingPartyRegistration`]

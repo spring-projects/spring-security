@@ -24,6 +24,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
@@ -103,6 +104,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 
 	private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
+	private UserDetailsService userDetailsService;
+
 	/**
 	 * Sets the {@code RelyingPartyRegistrationRepository} of relying parties, each party representing a
 	 * service provider, SP and this host, and identity provider, IDP pair that communicate with each other.
@@ -141,6 +144,17 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return new AntPathRequestMatcher(loginProcessingUrl);
+	}
+
+	/**
+	 * Set a {@link UserDetailsService} to lookup the SAML user with a local user service.
+	 * The service can look up the SAML user in a local database, reject the authentication, if an exception is thrown and set authorities.
+	 * @param userDetailsService the user details service
+	 */
+	public Saml2LoginConfigurer<B> userDetailsService(UserDetailsService userDetailsService) {
+		Assert.notNull(userDetailsService, "userDetailsService cannot be null");
+		this.userDetailsService = userDetailsService;
+		return this;
 	}
 
 	/**
@@ -211,7 +225,10 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 	}
 
 	private AuthenticationProvider getAuthenticationProvider() {
-		AuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+		OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
+		if (this.userDetailsService != null) {
+			provider.setUserDetailsService(this.userDetailsService);
+		}
 		return postProcess(provider);
 	}
 
@@ -309,6 +326,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 			return resolver;
 		}
 	}
+
 
 
 }

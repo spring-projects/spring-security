@@ -22,6 +22,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 import org.springframework.util.Assert;
@@ -101,9 +104,10 @@ import static org.springframework.util.StringUtils.hasText;
  *   The SAML response object can be signed. If the Response is signed, a signature will not be required on the assertion.
  * </p>
  * <p>
- *   While a response object can contain a list of assertion, this provider will only leverage
- *   the first valid assertion for the purpose of authentication. Assertions that do not pass validation
- *   will be ignored. If no valid assertions are found a {@link Saml2AuthenticationException} is thrown.
+ * While a response object can contain a list of assertion, this provider will only
+ * leverage the first valid assertion for the purpose of authentication. Assertions that
+ * do not pass validation will be ignored. If no valid assertions are found a
+ * {@link Saml2AuthenticationException} is thrown.
  * </p>
  * <p>
  *   This provider supports two types of encrypted SAML elements
@@ -130,6 +134,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			(a -> singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 	private GrantedAuthoritiesMapper authoritiesMapper = (a -> a);
 	private Duration responseTimeValidationSkew = Duration.ofMinutes(5);
+	private UserDetailsService userDetailsService;
 
 	/**
 	 * Sets the {@link Converter} used for extracting assertion attributes that
@@ -162,6 +167,10 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		this.responseTimeValidationSkew = responseTimeValidationSkew;
 	}
 
+	public void setUserDetailsService(UserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
+	}
+
 	/**
 	 * @param authentication the authentication request object, must be of type
 	 *                       {@link Saml2AuthenticationToken}
@@ -176,11 +185,27 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			Response samlResponse = getSaml2Response(token);
 			Assertion assertion = validateSaml2Response(token, token.getRecipientUri(), samlResponse);
 			String username = getUsername(token, assertion);
-			return new Saml2Authentication(
-					() -> username, token.getSaml2Response(),
-					this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion))
-			);
-		} catch (Saml2AuthenticationException e) {
+
+			if (this.userDetailsService != null) {
+				// user details authentication
+				UserDetails userDetails = this.userDetailsService
+						.loadUserByUsername(username);
+				if (userDetails == null) {
+					throw new UsernameNotFoundException(
+							"SAML authenticated user with username '" + username
+									+ "' not found by user details service.");
+				}
+				return new Saml2Authentication(userDetails, token.getSaml2Response(),
+						userDetails.getAuthorities());
+			}
+			else {
+				// original authentication, sent by SAML
+				return new Saml2Authentication(username, token.getSaml2Response(),
+						this.authoritiesMapper
+								.mapAuthorities(getAssertionAuthorities(assertion)));
+			}
+		}
+		catch (Saml2AuthenticationException e) {
 			throw e;
 		} catch (Exception e) {
 			throw authException(Saml2ErrorCodes.INTERNAL_VALIDATION_ERROR, e.getMessage(), e);
