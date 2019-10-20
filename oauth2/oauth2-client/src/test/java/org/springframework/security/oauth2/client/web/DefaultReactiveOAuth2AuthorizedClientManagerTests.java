@@ -36,6 +36,7 @@ import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.test.publisher.PublisherProbe;
 import reactor.util.context.Context;
 
 import java.util.Collections;
@@ -65,6 +66,8 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 	private Context context;
 	private ArgumentCaptor<OAuth2AuthorizationContext> authorizationContextCaptor;
 
+	private PublisherProbe<Void> saveAuthorizedClientProbe;
+
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setup() {
@@ -74,8 +77,9 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		this.authorizedClientRepository = mock(ServerOAuth2AuthorizedClientRepository.class);
 		when(this.authorizedClientRepository.loadAuthorizedClient(
 				anyString(), any(Authentication.class), any(ServerWebExchange.class))).thenReturn(Mono.empty());
+		this.saveAuthorizedClientProbe = PublisherProbe.empty();
 		when(this.authorizedClientRepository.saveAuthorizedClient(
-				any(OAuth2AuthorizedClient.class), any(Authentication.class), any(ServerWebExchange.class))).thenReturn(Mono.empty());
+				any(OAuth2AuthorizedClient.class), any(Authentication.class), any(ServerWebExchange.class))).thenReturn(saveAuthorizedClientProbe.mono());
 		this.authorizedClientProvider = mock(ReactiveOAuth2AuthorizedClientProvider.class);
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.empty());
 		this.contextAttributesMapper = mock(Function.class);
@@ -187,6 +191,8 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		assertThat(authorizedClient).isSameAs(this.authorizedClient);
 		verify(this.authorizedClientRepository).saveAuthorizedClient(
 				eq(this.authorizedClient), eq(this.principal), eq(this.serverWebExchange));
+
+		saveAuthorizedClientProbe.assertWasSubscribed();
 	}
 
 	@Test
@@ -245,6 +251,7 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		assertThat(authorizedClient).isSameAs(reauthorizedClient);
 		verify(this.authorizedClientRepository).saveAuthorizedClient(
 				eq(reauthorizedClient), eq(this.principal), eq(this.serverWebExchange));
+		saveAuthorizedClientProbe.assertWasSubscribed();
 	}
 
 	@Test
@@ -337,6 +344,7 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		assertThat(authorizedClient).isSameAs(reauthorizedClient);
 		verify(this.authorizedClientRepository).saveAuthorizedClient(
 				eq(reauthorizedClient), eq(this.principal), eq(this.serverWebExchange));
+		saveAuthorizedClientProbe.assertWasSubscribed();
 	}
 
 	@Test
