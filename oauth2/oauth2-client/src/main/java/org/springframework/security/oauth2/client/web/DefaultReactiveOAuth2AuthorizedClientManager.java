@@ -105,10 +105,8 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 	private Mono<OAuth2AuthorizedClient> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal, ServerWebExchange serverWebExchange) {
 		return Mono.justOrEmpty(serverWebExchange)
 				.switchIfEmpty(Mono.defer(() -> currentServerWebExchange()))
-				.map(exchange -> {
-					this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, exchange);
-					return authorizedClient;
-				})
+				.flatMap(exchange -> this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, exchange)
+						.thenReturn(authorizedClient))
 				.defaultIfEmpty(authorizedClient);
 	}
 
