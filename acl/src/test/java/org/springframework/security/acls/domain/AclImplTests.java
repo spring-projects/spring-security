@@ -581,7 +581,7 @@ public class AclImplTests {
 	// ==================================================================================================
 
 	private static class MaskPermissionGrantingStrategy extends DefaultPermissionGrantingStrategy {
-		public MaskPermissionGrantingStrategy(AuditLogger auditLogger) {
+		MaskPermissionGrantingStrategy(AuditLogger auditLogger) {
 			super(auditLogger);
 		}
 
