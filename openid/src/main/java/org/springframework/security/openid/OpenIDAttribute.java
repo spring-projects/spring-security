@@ -27,6 +27,9 @@ import org.springframework.util.Assert;
  * should be requested during a fetch request, or to hold values for an attribute which
  * are returned during the authentication process.
  *
+ * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
+ * to <a href="https://openid.net/connect/">OpenID Connect</a>.
  * @author Luke Taylor
  * @since 3.0
  */
