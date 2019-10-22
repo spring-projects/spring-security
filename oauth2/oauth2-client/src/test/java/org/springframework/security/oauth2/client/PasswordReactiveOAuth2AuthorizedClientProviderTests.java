@@ -188,4 +188,35 @@ public class PasswordReactiveOAuth2AuthorizedClientProviderTests {
 						.build();
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext).block()).isNull();
 	}
+
+	// gh-7511
+	@Test
+	public void authorizeWhenPasswordAndAuthorizedAndTokenNotExpiredButClockSkewForcesExpiryThenReauthorize() {
+		Instant now = Instant.now();
+		Instant issuedAt = now.minus(Duration.ofMinutes(60));
+		Instant expiresAt = now.minus(Duration.ofMinutes(1));
+		OAuth2AccessToken expiresInOneMinAccessToken = new OAuth2AccessToken(
+				OAuth2AccessToken.TokenType.BEARER, "access-token-1234", issuedAt, expiresAt);
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.clientRegistration, this.principal.getName(), expiresInOneMinAccessToken);		// without refresh token
+
+		// Shorten the lifespan of the access token by 90 seconds, which will ultimately force it to expire on the client
+		this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(90));
+
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+
+		OAuth2AuthorizationContext authorizationContext =
+				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
+						.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
+						.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
+						.principal(this.principal)
+						.build();
+
+		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext).block();
+
+		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
+		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
+		assertThat(reauthorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+	}
 }

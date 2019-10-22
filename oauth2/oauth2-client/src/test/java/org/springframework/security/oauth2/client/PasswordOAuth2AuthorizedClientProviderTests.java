@@ -188,17 +188,22 @@ public class PasswordOAuth2AuthorizedClientProviderTests {
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
 	}
 
+	// gh-7511
 	@Test
-	public void authorizeWhenPasswordAndAuthorizedWithoutRefreshTokenAndTokenNotExpiredByClockSkewThenNotReauthorize() {
-		PasswordOAuth2AuthorizedClientProvider authorizedClientProvider =
-				new PasswordOAuth2AuthorizedClientProvider();
-		authorizedClientProvider.setClockSkew(Duration.ofHours(24));
-		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
-		Instant expiresAt = issuedAt.plus(Duration.ofMinutes(60));
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(
-				OAuth2AccessToken.TokenType.BEARER, "access-token-expired", issuedAt, expiresAt);
+	public void authorizeWhenPasswordAndAuthorizedAndTokenNotExpiredButClockSkewForcesExpiryThenReauthorize() {
+		Instant now = Instant.now();
+		Instant issuedAt = now.minus(Duration.ofMinutes(60));
+		Instant expiresAt = now.minus(Duration.ofMinutes(1));
+		OAuth2AccessToken expiresInOneMinAccessToken = new OAuth2AccessToken(
+				OAuth2AccessToken.TokenType.BEARER, "access-token-1234", issuedAt, expiresAt);
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
-				this.clientRegistration, this.principal.getName(), accessToken);	// without refresh token
+				this.clientRegistration, this.principal.getName(), expiresInOneMinAccessToken);		// without refresh token
+
+		// Shorten the lifespan of the access token by 90 seconds, which will ultimately force it to expire on the client
+		this.authorizedClientProvider.setClockSkew(Duration.ofSeconds(90));
+
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		OAuth2AuthorizationContext authorizationContext =
 				OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient)
@@ -206,6 +211,11 @@ public class PasswordOAuth2AuthorizedClientProviderTests {
 						.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
 						.principal(this.principal)
 						.build();
-		assertThat(authorizedClientProvider.authorize(authorizationContext)).isNull();
+
+		OAuth2AuthorizedClient reauthorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
+
+		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
+		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
+		assertThat(reauthorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
 	}
 }

@@ -102,7 +102,7 @@ public final class PasswordReactiveOAuth2AuthorizedClientProvider implements Rea
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {
-		return token.getExpiresAt().isBefore(Instant.now(this.clock).minus(this.clockSkew));
+		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
 	}
 
 	/**

@@ -86,7 +86,7 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 	}
 
 	private boolean hasTokenExpired(AbstractOAuth2Token token) {
-		return token.getExpiresAt().isBefore(Instant.now(this.clock).minus(this.clockSkew));
+		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
 	}
 
 	/**
