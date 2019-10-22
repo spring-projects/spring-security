@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
-
+import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -29,7 +29,11 @@ import reactor.core.publisher.Mono;
  * A {@link ReactiveAuthenticationManager} that delegates to other {@link ReactiveAuthenticationManager} instances using
  * the result from the first non empty result.
  *
+ * Any error will delayed until after all {@link ReactiveAuthenticationManager} have completed. In the result of multiple
+ * errors returned from each {@link ReactiveAuthenticationManager} the error will be the last signaled.
+ *
  * @author Rob Winch
+ * @author Darren Forsythe
  * @since 5.1
  */
 public class DelegatingReactiveAuthenticationManager
@@ -49,7 +53,17 @@ public class DelegatingReactiveAuthenticationManager
 
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		return Flux.fromIterable(this.delegates)
-				.concatMap(m -> m.authenticate(authentication))
-				.next();
+				.concatMapDelayError(m -> m.authenticate(authentication))
+				.next()
+				.onErrorMap(DelegatingReactiveAuthenticationManager::lastError);
+	}
+
+	private static Throwable lastError(Throwable throwable){
+		List<Throwable> errors = Exceptions.unwrapMultiple(throwable);
+		Throwable lastError = throwable;
+		for (Throwable error : errors) {
+			lastError = error;
+		}
+		return lastError;
 	}
 }

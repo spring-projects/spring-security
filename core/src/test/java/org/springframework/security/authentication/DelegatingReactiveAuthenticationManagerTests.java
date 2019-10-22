@@ -45,6 +45,9 @@ public class DelegatingReactiveAuthenticationManagerTests {
 	@Mock
 	Authentication authentication;
 
+	@Mock
+	Authentication otherAuthentication;
+
 	@Test
 	public void authenticateWhenEmptyAndNotThenReturnsNotEmpty() {
 		when(this.delegate1.authenticate(any())).thenReturn(Mono.empty());
@@ -70,11 +73,25 @@ public class DelegatingReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenBadCredentialsThenDelegate2NotInvokedAndError() {
 		when(this.delegate1.authenticate(any())).thenReturn(Mono.error(new BadCredentialsException("Test")));
+		when(this.delegate2.authenticate(any())).thenReturn(Mono.just(otherAuthentication));
 
 		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1, this.delegate2);
 
 		StepVerifier.create(manager.authenticate(this.authentication))
-			.expectError(BadCredentialsException.class)
-			.verify();
+			.expectNext(otherAuthentication)
+			.verifyComplete();
+	}
+
+	@Test
+	public void authenticationWhenBadCredentialsThenCredentialsExpiredExceptionIsLastError(){
+		when(this.delegate1.authenticate(any())).thenReturn(Mono.error(new BadCredentialsException("Test")));
+		when(this.delegate2.authenticate(any())).thenReturn(Mono.error(new CredentialsExpiredException("Test2")));
+
+		DelegatingReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1, this.delegate2);
+
+		StepVerifier.create(manager.authenticate(this.authentication))
+				.expectError(CredentialsExpiredException.class)
+				.verifyThenAssertThat()
+				.hasOperatorErrors(2);
 	}
 }
