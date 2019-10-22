@@ -26,6 +26,9 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 /**
  * OpenID Authentication Token
  *
+ * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
+ * to <a href="https://openid.net/connect/">OpenID Connect</a>.
  * @author Robin Bramley
  */
 public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
