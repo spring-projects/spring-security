@@ -135,7 +135,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	 * then
 	 * {@link #defaultAuthenticationEntryPointFor(AuthenticationEntryPoint, RequestMatcher)}
 	 * will be used. The first {@link AuthenticationEntryPoint} will be used as the
-	 * default is no matches were found.
+	 * default if no matches were found.
 	 * </p>
 	 *
 	 * <p>
