@@ -75,10 +75,10 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 				anyString())).thenReturn(Mono.empty());
 		this.authorizedClientRepository = mock(ServerOAuth2AuthorizedClientRepository.class);
 		when(this.authorizedClientRepository.loadAuthorizedClient(
-				anyString(), any(Authentication.class), any(ServerWebExchange.class))).thenReturn(Mono.empty());
+				anyString(), any(Authentication.class), any())).thenReturn(Mono.empty());
 		this.saveAuthorizedClientProbe = PublisherProbe.empty();
 		when(this.authorizedClientRepository.saveAuthorizedClient(
-				any(OAuth2AuthorizedClient.class), any(Authentication.class), any(ServerWebExchange.class))).thenReturn(this.saveAuthorizedClientProbe.mono());
+				any(OAuth2AuthorizedClient.class), any(Authentication.class), any())).thenReturn(this.saveAuthorizedClientProbe.mono());
 		this.authorizedClientProvider = mock(ReactiveOAuth2AuthorizedClientProvider.class);
 		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).thenReturn(Mono.empty());
 		this.contextAttributesMapper = mock(Function.class);
@@ -193,8 +193,18 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		this.saveAuthorizedClientProbe.assertWasSubscribed();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
-	public void authorizeWhenNotAuthorizedAndSupportedProviderAndExchangeUnavailableThenAuthorizedButNotSaved() {
+	public void authorizeWhenNotAuthorizedAndSupportedProviderThenAuthorizedWithExchangeNull() {
+		this.serverWebExchange = null;
+		this.context = Context.empty();
+		authorizeWhenNotAuthorizedAndSupportedProviderThenAuthorized();
+		verify(this.authorizedClientRepository).saveAuthorizedClient(
+				eq(this.authorizedClient), eq(this.principal), eq(null));
+	}
+
+	@Test
+	public void authorizeWhenNotAuthorizedAndSupportedProviderAndExchangeUnavailableThenAuthorizedAndSaved() {
 		when(this.clientRegistrationRepository.findByRegistrationId(
 				eq(this.clientRegistration.getRegistrationId()))).thenReturn(Mono.just(this.clientRegistration));
 
@@ -215,7 +225,7 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
 
 		assertThat(authorizedClient).isSameAs(this.authorizedClient);
-		verify(this.authorizedClientRepository, never()).saveAuthorizedClient(any(), any(), any());
+		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), any(), isNull());
 	}
 
 	@SuppressWarnings("unchecked")

@@ -34,6 +34,7 @@ import reactor.core.publisher.Mono;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -99,13 +100,19 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 	private Mono<OAuth2AuthorizedClient> loadAuthorizedClient(String clientRegistrationId, Authentication principal, ServerWebExchange serverWebExchange) {
 		return Mono.justOrEmpty(serverWebExchange)
 				.switchIfEmpty(Mono.defer(() -> currentServerWebExchange()))
-				.flatMap(exchange -> this.authorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal, exchange));
+				.map(Optional::of)
+				.defaultIfEmpty(Optional.empty())
+				.flatMap(exchange -> this.authorizedClientRepository.loadAuthorizedClient(
+						clientRegistrationId, principal, exchange.orElse(null)));
 	}
 
 	private Mono<OAuth2AuthorizedClient> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal, ServerWebExchange serverWebExchange) {
 		return Mono.justOrEmpty(serverWebExchange)
 				.switchIfEmpty(Mono.defer(() -> currentServerWebExchange()))
-				.flatMap(exchange -> this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, exchange)
+				.map(Optional::of)
+				.defaultIfEmpty(Optional.empty())
+				.flatMap(exchange -> this.authorizedClientRepository.saveAuthorizedClient(
+						authorizedClient, principal, exchange.orElse(null))
 						.thenReturn(authorizedClient))
 				.defaultIfEmpty(authorizedClient);
 	}
