@@ -204,8 +204,8 @@ public final class WebSecurity extends
 	}
 
 	/**
-	 * Set the {@link WebInvocationPrivilegeEvaluator} to be used. If this is null, then a
-	 * {@link DefaultWebInvocationPrivilegeEvaluator} will be created when
+	 * Set the {@link WebInvocationPrivilegeEvaluator} to be used. If this is not specified,
+	 * then a {@link DefaultWebInvocationPrivilegeEvaluator} will be created when
 	 * {@link #securityInterceptor(FilterSecurityInterceptor)} is non null.
 	 *
 	 * @param privilegeEvaluator the {@link WebInvocationPrivilegeEvaluator} to use
@@ -218,8 +218,8 @@ public final class WebSecurity extends
 	}
 
 	/**
-	 * Set the {@link SecurityExpressionHandler} to be used. If this is null, then a
-	 * {@link DefaultWebSecurityExpressionHandler} will be used.
+	 * Set the {@link SecurityExpressionHandler} to be used. If this is not specified,
+	 * then a {@link DefaultWebSecurityExpressionHandler} will be used.
 	 *
 	 * @param expressionHandler the {@link SecurityExpressionHandler} to use
 	 * @return the {@link WebSecurity} for further customizations

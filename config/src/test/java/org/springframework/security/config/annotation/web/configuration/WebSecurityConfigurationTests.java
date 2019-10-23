@@ -254,6 +254,25 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
+	public void loadConfigWhenSecurityExpressionHandlerIsNullThenException() {
+		Throwable thrown = catchThrowable(() ->
+				this.spring.register(NullWebSecurityExpressionHandlerConfig.class).autowire()
+		);
+
+		assertThat(thrown).isInstanceOf(BeanCreationException.class);
+		assertThat(thrown).hasRootCauseExactlyInstanceOf(IllegalArgumentException.class);
+	}
+
+	@EnableWebSecurity
+	static class NullWebSecurityExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		public void configure(WebSecurity web) {
+			web.expressionHandler(null);
+		}
+	}
+
+	@Test
 	public void loadConfigWhenDefaultSecurityExpressionHandlerThenDefaultIsRegistered() {
 		this.spring.register(WebSecurityExpressionHandlerDefaultsConfig.class).autowire();
 
