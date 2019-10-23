@@ -267,10 +267,10 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	}
 
 	/**
-	 * If set to {@code true}, any {@code AuthenticationException} raised by the
+	 * If set to {@code true} (the default), any {@code AuthenticationException} raised by the
 	 * {@code AuthenticationManager} will be swallowed, and the request will be allowed to
-	 * proceed, potentially using alternative authentication mechanisms. If {@code false}
-	 * (the default), authentication failure will result in an immediate exception.
+	 * proceed, potentially using alternative authentication mechanisms. If {@code false},
+	 * authentication failure will result in an immediate exception.
 	 *
 	 * @param shouldContinue set to {@code true} to allow the request to proceed after a
 	 * failed authentication.
