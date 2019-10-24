@@ -15,8 +15,6 @@
  */
 package sample;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.rsocket.context.RSocketServerInitializedEvent;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +25,9 @@ import org.springframework.security.rsocket.metadata.BasicAuthenticationEncoder;
 import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,7 +92,7 @@ public class HelloRSocketApplicationITests {
 
 		@Override
 		public void onApplicationEvent(RSocketServerInitializedEvent event) {
-			this.port = event.getrSocketServer().address().getPort();
+			this.port = event.getServer().address().getPort();
 		}
 	}
 }

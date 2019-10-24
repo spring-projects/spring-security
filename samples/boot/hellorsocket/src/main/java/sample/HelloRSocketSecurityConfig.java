@@ -16,14 +16,12 @@
 
 package sample;
 
-import org.springframework.boot.rsocket.server.ServerRSocketFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.rsocket.EnableRSocketSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.rsocket.core.SecuritySocketAcceptorInterceptor;
 
 /**
  * @author Rob Winch
@@ -43,9 +41,4 @@ public class HelloRSocketSecurityConfig {
 		return new MapReactiveUserDetailsService(user);
 	}
 
-	@Bean
-	ServerRSocketFactoryCustomizer springSecurityRSocketSecurity(
-			SecuritySocketAcceptorInterceptor interceptor) {
-		return builder -> builder.addSocketAcceptorPlugin(interceptor);
-	}
 }
