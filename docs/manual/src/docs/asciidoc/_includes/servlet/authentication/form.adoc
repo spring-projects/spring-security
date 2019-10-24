@@ -77,7 +77,7 @@ We could easily update our configuration if some of the defaults do not meet our
 <3> If the query parameter `logout` exists, the user was successfully logged out
 <4> The username must be present as the HTTP parameter named __username__
 <5> The password must be present as the HTTP parameter named __password__
-<6> We must <<csrf-include-csrf-token>> To learn more read the <<csrf>> section of the reference
+<6> We must <<servlet-csrf-include>> To learn more read the <<csrf>> section of the reference
 
 === Form Login XML Configuration
 

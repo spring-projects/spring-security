@@ -123,6 +123,6 @@ If not configured a status code 200 will be returned by default.
 - <<test-logout, Testing Logout>>
 - <<servletapi-logout, HttpServletRequest.logout()>>
 - <<remember-me-impls>>
-- <<csrf-logout, Logging Out>> in section CSRF Caveats
+- <<servlet-considerations-csrf-logout, Logging Out>> in section CSRF Caveats
 - Section <<cas-singlelogout, Single Logout>> (CAS protocol)
 - Documentation for the <<nsa-logout, logout element>> in the Spring Security XML Namespace section

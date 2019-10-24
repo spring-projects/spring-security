@@ -312,7 +312,7 @@ However, you can still use <<concurrency,Concurrency Support>> to provide transp
 
 ==== Automatic Token Inclusion
 
-Spring Security will automatically <<csrf-include-csrf-token,include the CSRF Token>> within forms that use the https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag].
+Spring Security will automatically <<servlet-csrf-include,include the CSRF Token>> within forms that use the https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag].
 For example, the following JSP:
 
 [source,xml]

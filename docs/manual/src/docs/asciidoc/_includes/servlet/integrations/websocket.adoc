@@ -222,7 +222,7 @@ Typically we need to include the CSRF token in an HTTP header or an HTTP paramet
 However, SockJS does not allow for these options.
 Instead, we must include the token in the Stomp headers
 
-Applications can <<csrf-include-csrf-token,obtain a CSRF token>> by accessing the request attribute named _csrf.
+Applications can <<servlet-csrf-include,obtain a CSRF token>> by accessing the request attribute named _csrf.
 For example, the following will allow accessing the `CsrfToken` in a JSP:
 
 [source,javascript]

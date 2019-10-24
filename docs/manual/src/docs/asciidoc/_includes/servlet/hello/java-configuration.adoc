@@ -9,7 +9,7 @@ NOTE: You can find the completed application at {gh-samples-url}/javaconfig/hell
 
 == Updating Dependencies
 
-The first step is to update the dependencies by using <<getting-maven-without-spring-boot,Maven>> or <<gradle-without-spring-boot,Gradle>>.
+The first step is to update the dependencies by using <<getting-maven-no-boot,Maven>> or <<gradle-without-spring-boot,Gradle>>.
 
 
 [[servlet-hello-jc-ews]]
@@ -96,7 +96,7 @@ public class SecurityInitializer
 
 The `SecurityInitializer` does the following things:
 
-* Adds a `ContextLoaderListener` that loads the <<servlet-hello-ews,`WebSecurityConfig`>>.
+* Adds a `ContextLoaderListener` that loads the <<servlet-hello-jc-ews,`WebSecurityConfig`>>.
 * Finds the bean of type `Filter` named `springSecurityFilterChain` and registers it to process every URL in the application.
 
 
