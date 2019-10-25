@@ -56,7 +56,7 @@ import static org.springframework.util.Assert.notNull;
  * 				.credentials(c -> c.add(signingCredential))
  * 				.credentials(c -> c.add(idpVerificationCertificate))
  * 				.localEntityIdTemplate(localEntityIdTemplate)
- * 				.assertionConsumerServiceUrlTemplate(acsTemplate)
+ * 				.assertionConsumerServiceUrlTemplate(acsUrlTemplate)
  * 				.build();
  * </pre>
  * @since 5.2
