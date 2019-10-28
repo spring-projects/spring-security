@@ -128,6 +128,30 @@ public class CommonOAuth2ProviderTests {
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
 	}
 
+	@Test
+	public void getBuilderWhenLineShouldHavaLineSettings() {
+		ClientRegistration registration = build(CommonOAuth2Provider.LINE);
+		ProviderDetails providerDetails = registration.getProviderDetails();
+		assertThat(providerDetails.getAuthorizationUri())
+				.isEqualTo("https://access.line.me/oauth2/v2.1/authorize");
+		assertThat(providerDetails.getTokenUri())
+				.isEqualTo("https://api.line.me/oauth2/v2.1/token");
+		assertThat(providerDetails.getUserInfoEndpoint()
+				.getUri()).isEqualTo("https://api.line.me/v2/profile");
+		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
+				.isEqualTo("userId");
+		assertThat(providerDetails.getJwkSetUri()).isNull();
+		assertThat(registration.getClientAuthenticationMethod())
+				.isEqualTo(ClientAuthenticationMethod.BASIC);
+		assertThat(registration.getAuthorizationGrantType())
+				.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_REDIRECT_URL);
+		assertThat(registration.getScopes()).containsOnly("profile");
+		assertThat(registration.getClientName()).isEqualTo("LINE");
+		assertThat(registration.getRegistrationId()).isEqualTo("123");
+
+	}
+
 	private ClientRegistration build(CommonOAuth2Provider provider) {
 		return builder(provider).build();
 	}

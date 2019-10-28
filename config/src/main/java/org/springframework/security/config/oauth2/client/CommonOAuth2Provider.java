@@ -91,6 +91,22 @@ public enum CommonOAuth2Provider {
 			builder.clientName("Okta");
 			return builder;
 		}
+	},
+
+	LINE {
+
+		@Override
+		public Builder getBuilder(String registrationId) {
+			ClientRegistration.Builder builder = getBuilder(registrationId,
+					ClientAuthenticationMethod.BASIC, DEFAULT_REDIRECT_URL);
+			builder.scope("profile");
+			builder.authorizationUri("https://access.line.me/oauth2/v2.1/authorize");
+			builder.tokenUri("https://api.line.me/oauth2/v2.1/token");
+			builder.userInfoUri("https://api.line.me/v2/profile");
+			builder.userNameAttributeName("userId");
+			builder.clientName("LINE");
+			return builder;
+		}
 	};
 
 	private static final String DEFAULT_REDIRECT_URL = "{baseUrl}/{action}/oauth2/code/{registrationId}";

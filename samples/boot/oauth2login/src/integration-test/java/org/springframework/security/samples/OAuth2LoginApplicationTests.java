@@ -303,22 +303,26 @@ public class OAuth2LoginApplicationTests {
 		ClientRegistration githubClientRegistration = this.clientRegistrationRepository.findByRegistrationId("github");
 		ClientRegistration facebookClientRegistration = this.clientRegistrationRepository.findByRegistrationId("facebook");
 		ClientRegistration oktaClientRegistration = this.clientRegistrationRepository.findByRegistrationId("okta");
+		ClientRegistration lineClientRegistration = this.clientRegistrationRepository.findByRegistrationId("line");
 
 		String baseAuthorizeUri = AUTHORIZATION_BASE_URI + "/";
 		String googleClientAuthorizeUri = baseAuthorizeUri + googleClientRegistration.getRegistrationId();
 		String githubClientAuthorizeUri = baseAuthorizeUri + githubClientRegistration.getRegistrationId();
 		String facebookClientAuthorizeUri = baseAuthorizeUri + facebookClientRegistration.getRegistrationId();
 		String oktaClientAuthorizeUri = baseAuthorizeUri + oktaClientRegistration.getRegistrationId();
+		String lineClientAuthorizaUri = baseAuthorizeUri + lineClientRegistration.getRegistrationId();
 
-		for (int i=0; i<expectedClients; i++) {
+		for (int i = 0; i < expectedClients; i++) {
 			assertThat(clientAnchorElements.get(i).getAttribute("href")).isIn(
-				googleClientAuthorizeUri, githubClientAuthorizeUri,
-				facebookClientAuthorizeUri, oktaClientAuthorizeUri);
+					googleClientAuthorizeUri, githubClientAuthorizeUri,
+					facebookClientAuthorizeUri, oktaClientAuthorizeUri,
+					lineClientAuthorizaUri);
 			assertThat(clientAnchorElements.get(i).asText()).isIn(
-				googleClientRegistration.getClientName(),
-				githubClientRegistration.getClientName(),
-				facebookClientRegistration.getClientName(),
-				oktaClientRegistration.getClientName());
+					googleClientRegistration.getClientName(),
+					githubClientRegistration.getClientName(),
+					facebookClientRegistration.getClientName(),
+					oktaClientRegistration.getClientName(),
+					lineClientRegistration.getClientName());
 		}
 	}
 
@@ -358,29 +362,29 @@ public class OAuth2LoginApplicationTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests(authorizeRequests ->
-					authorizeRequests
-						.anyRequest().authenticated()
-				)
-				.oauth2Login(oauth2Login ->
-					oauth2Login
-						.tokenEndpoint(tokenEndpoint ->
-							tokenEndpoint
-								.accessTokenResponseClient(this.mockAccessTokenResponseClient())
-						)
-						.userInfoEndpoint(userInfoEndpoint ->
-							userInfoEndpoint
-								.userService(this.mockUserService())
-						)
-				);
+					.authorizeRequests(authorizeRequests ->
+							authorizeRequests
+									.anyRequest().authenticated()
+					)
+					.oauth2Login(oauth2Login ->
+							oauth2Login
+									.tokenEndpoint(tokenEndpoint ->
+											tokenEndpoint
+													.accessTokenResponseClient(this.mockAccessTokenResponseClient())
+									)
+									.userInfoEndpoint(userInfoEndpoint ->
+											userInfoEndpoint
+													.userService(this.mockUserService())
+									)
+					);
 		}
 		// @formatter:on
 
 		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> mockAccessTokenResponseClient() {
 			OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
-				.tokenType(OAuth2AccessToken.TokenType.BEARER)
-				.expiresIn(60 * 1000)
-				.build();
+					.tokenType(OAuth2AccessToken.TokenType.BEARER)
+					.expiresIn(60 * 1000)
+					.build();
 
 			OAuth2AccessTokenResponseClient tokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 			when(tokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);

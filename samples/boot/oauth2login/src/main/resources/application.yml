@@ -27,6 +27,9 @@ spring:
           okta:
             client-id: your-app-client-id
             client-secret: your-app-client-secret
+          line:
+            client-id: your-app-client-id
+            client-secret: your-app-clinet-secret
         provider:
           okta:
             authorization-uri: https://your-subdomain.oktapreview.com/oauth2/v1/authorize

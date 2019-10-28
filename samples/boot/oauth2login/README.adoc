@@ -9,6 +9,7 @@ The following sections provide detailed steps for setting up OAuth 2.0 Login for
 * <<github-login, GitHub>>
 * <<facebook-login, Facebook>>
 * <<okta-login, Okta>>
+* <<line-login, LINE>>
 
 [[google-login]]
 == Login with Google
@@ -319,3 +320,55 @@ Click on the Okta link, and you are then redirected to Okta for authentication.
 
 After authenticating with your Okta account credentials, the OAuth Client retrieves your email address and basic profile information
 from the https://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
+
+[[line-login]]
+== Login with LINE
+
+this section shows how to configure the sample application using LINE Login as Authentication Provider and covers the following topics:
+
+* <<line-register-application, Create a Channel>>
+* <<line-application-config, Configure application.yml>>
+* <<line-boot-application, Boot up the application>>
+
+[[line-register-application]]
+== Create a Channel
+
+To use LINE Login v2.1 for login, you must be create a channel for your application. go to developer console.
+
+A channel forms the connection between your app and the LINE Platform. Each app needs its own channel, with its own unique channel ID.
+Create a LINE Login channel in the console (requires a LINE account).
+
+Notes:
+If you've never logged in to the console, you'll be asked to register as a developer first.
+Channels are grouped under providers. If you haven't created a provider, you'll be asked to do so.
+When entering your channel information, under App type, make sure you select WEB.
+
+[[line-application-confg]]
+=== Configure application.yml
+
+Now that you have created a new application with LINE, you need to configure the sample application to use the application for the _authentication flow_. To do so:
+
+. Go to `application.yml` and set the following configuration:
++
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:   <1>
+          line:	        <2>
+            client-id: line-client-id
+            client-secret: line-client-secret
+----
++
+
+[[line-boot-application]]
+=== Boot up the application
+
+Launch the Spring Boot 2.0 sample and go to `http://localhost:8080`.
+You are then redirected to the default _auto-generated_ login page, which displays a link for LINE.
+
+Click on the LINE link, and you are then redirected to LINE for authentication.
+
+After authenticating with your LINE account credentials, the OAuth Client retrieves your user profile information from your LINE account and establishes an authenticated session.
