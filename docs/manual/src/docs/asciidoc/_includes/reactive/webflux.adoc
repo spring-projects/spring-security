@@ -15,6 +15,7 @@ You can find a minimal WebFlux Security configuration below:
 
 [source,java]
 -----
+
 @EnableWebFluxSecurity
 public class HelloWebfluxSecurityConfig {
 
@@ -38,6 +39,7 @@ You can find an explicit version of the minimal WebFlux Security configuration b
 
 [source,java]
 -----
+@Configuration
 @EnableWebFluxSecurity
 public class HelloWebfluxSecurityConfig {
 
