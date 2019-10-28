@@ -40,10 +40,13 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public final class JwtReactiveAuthenticationManager implements ReactiveAuthenticationManager {
+	private final ReactiveJwtDecoder jwtDecoder;
+
 	private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter
 			= new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter());
 
-	private final ReactiveJwtDecoder jwtDecoder;
+	private static final OAuth2Error DEFAULT_INVALID_TOKEN =
+			invalidToken("An error occurred while attempting to decode the Jwt: Invalid token");
 
 	public JwtReactiveAuthenticationManager(ReactiveJwtDecoder jwtDecoder) {
 		Assert.notNull(jwtDecoder, "jwtDecoder cannot be null");
@@ -80,10 +83,15 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 	}
 
 	private static OAuth2Error invalidToken(String message) {
-		return new BearerTokenError(
-				BearerTokenErrorCodes.INVALID_TOKEN,
-				HttpStatus.UNAUTHORIZED,
-				message,
-				"https://tools.ietf.org/html/rfc6750#section-3.1");
+		try {
+			return new BearerTokenError(
+					BearerTokenErrorCodes.INVALID_TOKEN,
+					HttpStatus.UNAUTHORIZED,
+					message,
+					"https://tools.ietf.org/html/rfc6750#section-3.1");
+		} catch (IllegalArgumentException malformed) {
+			// some third-party library error messages are not suitable for RFC 6750's error message charset
+			return DEFAULT_INVALID_TOKEN;
+		}
 	}
 }

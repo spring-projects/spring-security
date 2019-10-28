@@ -88,6 +88,19 @@ public class JwtReactiveAuthenticationManagerTests {
 				.isInstanceOf(OAuth2AuthenticationException.class);
 	}
 
+	// gh-7549
+	@Test
+	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
+		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
+		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new JwtException("with \"invalid\" chars"));
+
+		assertThatCode(() -> this.manager.authenticate(token).block())
+				.isInstanceOf(OAuth2AuthenticationException.class)
+				.hasFieldOrPropertyWithValue(
+						"error.description",
+						"An error occurred while attempting to decode the Jwt: Invalid token");
+	}
+
 	@Test
 	public void authenticateWhenNotJwtExceptionThenPropagates() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
