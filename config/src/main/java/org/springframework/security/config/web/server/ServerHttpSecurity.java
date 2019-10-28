@@ -2732,6 +2732,19 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Specifies if {@link CsrfWebFilter} should try to resolve the actual CSRF token from the body of multipart
+		 * data requests.
+		 *
+		 * @param enabled true if should read from multipart form body, else false. Default is false
+		 * @return the {@link CsrfSpec} for additional configuration
+		 */
+		public CsrfSpec tokenFromMultipartDataEnabled(boolean enabled) {
+			this.filter.setTokenFromMultipartDataEnabled(enabled);
+			return this;
+		}
+
+
+		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
 		 */

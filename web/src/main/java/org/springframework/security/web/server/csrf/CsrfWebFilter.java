@@ -16,14 +16,12 @@
 
 package org.springframework.security.web.server.csrf;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import reactor.core.publisher.Mono;
-
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.FormFieldPart;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -31,6 +29,11 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static java.lang.Boolean.TRUE;
 
@@ -78,6 +81,8 @@ public class CsrfWebFilter implements WebFilter {
 
 	private ServerAccessDeniedHandler accessDeniedHandler = new HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN);
 
+	private boolean isTokenFromMultipartDataEnabled;
+
 	public void setAccessDeniedHandler(
 		ServerAccessDeniedHandler accessDeniedHandler) {
 		Assert.notNull(accessDeniedHandler, "accessDeniedHandler");
@@ -94,6 +99,15 @@ public class CsrfWebFilter implements WebFilter {
 		ServerWebExchangeMatcher requireCsrfProtectionMatcher) {
 		Assert.notNull(requireCsrfProtectionMatcher, "requireCsrfProtectionMatcher cannot be null");
 		this.requireCsrfProtectionMatcher = requireCsrfProtectionMatcher;
+	}
+
+	/**
+	 * Specifies if the {@code CsrfWebFilter} should try to resolve the actual CSRF token from the body of multipart
+	 * data requests.
+	 * @param tokenFromMultipartDataEnabled true if should read from multipart form body, else false. Default is false
+	 */
+	public void setTokenFromMultipartDataEnabled(boolean tokenFromMultipartDataEnabled) {
+		this.isTokenFromMultipartDataEnabled = tokenFromMultipartDataEnabled;
 	}
 
 	@Override
@@ -128,7 +142,24 @@ public class CsrfWebFilter implements WebFilter {
 		return exchange.getFormData()
 			.flatMap(data -> Mono.justOrEmpty(data.getFirst(expected.getParameterName())))
 			.switchIfEmpty(Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst(expected.getHeaderName())))
+			.switchIfEmpty(tokenFromMultipartData(exchange, expected))
 			.map(actual -> actual.equals(expected.getToken()));
+	}
+
+	private Mono<String> tokenFromMultipartData(ServerWebExchange exchange, CsrfToken expected) {
+		if (!this.isTokenFromMultipartDataEnabled) {
+			return Mono.empty();
+		}
+		ServerHttpRequest request = exchange.getRequest();
+		HttpHeaders headers = request.getHeaders();
+		MediaType contentType = headers.getContentType();
+		if (!contentType.includes(MediaType.MULTIPART_FORM_DATA)) {
+			return Mono.empty();
+		}
+		return exchange.getMultipartData()
+			.map(d -> d.getFirst(expected.getParameterName()))
+			.cast(FormFieldPart.class)
+			.map(FormFieldPart::value);
 	}
 
 	private Mono<Void> continueFilterChain(ServerWebExchange exchange, WebFilterChain chain) {
