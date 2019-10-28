@@ -45,6 +45,7 @@ import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Subject;
+import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.encryption.Decrypter;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.security.credential.Credential;
@@ -326,6 +327,15 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		}
 		//ensure that OpenSAML doesn't attempt signature validation, already performed
 		a.setSignature(null);
+
+		//ensure that we don't validate IP addresses as part of our validation gh-7514
+		if (a.getSubject() != null) {
+			for (SubjectConfirmation sc : a.getSubject().getSubjectConfirmations()) {
+				if (sc.getSubjectConfirmationData() != null) {
+					sc.getSubjectConfirmationData().setAddress(null);
+				}
+			}
+		}
 
 		//remainder of assertion validation
 		ValidationContext vctx = new ValidationContext(validationParams);

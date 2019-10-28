@@ -216,6 +216,23 @@ public class OpenSamlAuthenticationProviderTests {
 	}
 
 	@Test
+	public void authenticateWhenAssertionContainsValidationAddressThenItSucceeds() throws Exception {
+		Response response = response(recipientUri, idpEntityId);
+		Assertion assertion = defaultAssertion();
+		assertion.getSubject().getSubjectConfirmations().forEach(
+				sc -> sc.getSubjectConfirmationData().setAddress("10.10.10.10")
+		);
+		signXmlObject(
+				assertion,
+				assertingPartyCredentials(),
+				recipientEntityId
+		);
+		response.getAssertions().add(assertion);
+		token = responseXml(response, idpEntityId);
+		provider.authenticate(token);
+	}
+
+	@Test
 	public void authenticateWhenEncryptedAssertionWithoutSignatureThenItFails() throws Exception {
 		Response response = response(recipientUri, idpEntityId);
 		Assertion assertion = defaultAssertion();
