@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -100,10 +101,24 @@ public class NimbusOpaqueTokenIntrospectorTests {
 			"     \"iss\" : \"badissuer\"\n" +
 			"    }";
 
+	private static final String MALFORMED_SCOPE_RESPONSE = "{\n" +
+			"      \"active\": true,\n" +
+			"      \"client_id\": \"l238j323ds-23ij4\",\n" +
+			"      \"username\": \"jdoe\",\n" +
+			"      \"scope\": [ \"read\", \"write\", \"dolphin\" ],\n" +
+			"      \"sub\": \"Z5O3upPC88QrAjx00dis\",\n" +
+			"      \"aud\": \"https://protected.example.net/resource\",\n" +
+			"      \"iss\": \"https://server.example.com/\",\n" +
+			"      \"exp\": 1419356238,\n" +
+			"      \"iat\": 1419350238,\n" +
+			"      \"extension_field\": \"twenty-seven\"\n" +
+			"     }";
+
 	private static final ResponseEntity<String> ACTIVE = response(ACTIVE_RESPONSE);
 	private static final ResponseEntity<String> INACTIVE = response(INACTIVE_RESPONSE);
 	private static final ResponseEntity<String> INVALID = response(INVALID_RESPONSE);
 	private static final ResponseEntity<String> MALFORMED_ISSUER = response(MALFORMED_ISSUER_RESPONSE);
+	private static final ResponseEntity<String> MALFORMED_SCOPE = response(MALFORMED_SCOPE_RESPONSE);
 
 	@Test
 	public void introspectWhenActiveTokenThenOk() throws Exception {
@@ -228,6 +243,24 @@ public class NimbusOpaqueTokenIntrospectorTests {
 
 		assertThatCode(() -> introspectionClient.introspect("token"))
 				.isInstanceOf(OAuth2IntrospectionException.class);
+	}
+
+	// gh-7563
+	@Test
+	public void introspectWhenIntrospectionTokenReturnsMalformedScopeThenEmptyAuthorities() {
+		RestOperations restOperations = mock(RestOperations.class);
+		OpaqueTokenIntrospector introspectionClient =
+				new NimbusOpaqueTokenIntrospector(INTROSPECTION_URL, restOperations);
+		when(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+				.thenReturn(MALFORMED_SCOPE);
+
+		OAuth2AuthenticatedPrincipal principal = introspectionClient.introspect("token");
+		assertThat(principal.getAuthorities()).isEmpty();
+		assertThat((Object) principal.getAttribute("scope"))
+				.isNotNull()
+				.isInstanceOf(JSONArray.class);
+		JSONArray scope = principal.getAttribute("scope");
+		assertThat(scope).containsExactly("read", "write", "dolphin");
 	}
 
 	@Test
