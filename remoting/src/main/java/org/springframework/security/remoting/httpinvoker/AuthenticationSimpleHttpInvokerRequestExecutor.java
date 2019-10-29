@@ -58,7 +58,8 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends
 	 * @param contentLength the length of the content to send
 	 *
 	 */
-	protected void doPrepareConnection(HttpURLConnection con, int contentLength) {
+	protected void doPrepareConnection(HttpURLConnection con, int contentLength)
+			throws IOException {
 	}
 
 	/**

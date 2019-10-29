@@ -244,11 +244,11 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	protected void onSuccessfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, Authentication authResult) {
+			HttpServletResponse response, Authentication authResult) throws IOException {
 	}
 
 	protected void onUnsuccessfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException failed) {
+			HttpServletResponse response, AuthenticationException failed) throws IOException {
 	}
 
 	protected AuthenticationEntryPoint getAuthenticationEntryPoint() {
