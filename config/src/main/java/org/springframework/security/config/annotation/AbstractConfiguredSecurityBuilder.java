@@ -343,7 +343,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * method. Subclasses may override this method to hook into the lifecycle without
 	 * using a {@link SecurityConfigurer}.
 	 */
-	protected void beforeInit() {
+	protected void beforeInit() throws Exception {
 	}
 
 	/**

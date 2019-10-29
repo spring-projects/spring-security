@@ -280,7 +280,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * @throws AuthenticationException if authentication fails.
 	 */
 	public abstract Authentication attemptAuthentication(HttpServletRequest request,
-			HttpServletResponse response) throws AuthenticationException, IOException;
+			HttpServletResponse response) throws AuthenticationException, IOException,
+			ServletException;
 
 	/**
 	 * Default behaviour for successful authentication.

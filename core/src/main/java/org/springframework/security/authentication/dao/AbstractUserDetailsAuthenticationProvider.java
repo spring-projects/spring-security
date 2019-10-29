@@ -228,7 +228,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements
 		return result;
 	}
 
-	protected void doAfterPropertiesSet() {
+	protected void doAfterPropertiesSet() throws Exception {
 	}
 
 	public UserCache getUserCache() {
