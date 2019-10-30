@@ -33,6 +33,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -161,6 +166,36 @@ public class JwtDecodersTests {
 		prepareConfigurationResponseOAuth2("{ \"missing_required_keys\" : \"and_values\" }");
 		assertThatCode(() -> JwtDecoders.fromIssuerLocation(this.issuer))
 				.isInstanceOf(RuntimeException.class);
+	}
+
+	// gh-7512
+	@Test
+	public void issuerWhenResponseDoesNotContainJwksUriThenThrowsIllegalArgumentException()
+			throws JsonMappingException, JsonProcessingException {
+		prepareConfigurationResponse(this.buildResponseWithMissingJwksUri());
+		assertThatCode(() -> JwtDecoders.fromOidcIssuerLocation(this.issuer))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("The public JWK set URI must not be null");
+	}
+
+	// gh-7512
+	@Test
+	public void issuerWhenOidcFallbackResponseDoesNotContainJwksUriThenThrowsIllegalArgumentException()
+			throws JsonMappingException, JsonProcessingException {
+		prepareConfigurationResponseOidc(this.buildResponseWithMissingJwksUri());
+		assertThatCode(() -> JwtDecoders.fromIssuerLocation(this.issuer))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("The public JWK set URI must not be null");
+	}
+
+	// gh-7512
+	@Test
+	public void issuerWhenOAuth2ResponseDoesNotContainJwksUriThenThrowsIllegalArgumentException()
+			throws JsonMappingException, JsonProcessingException {
+		prepareConfigurationResponseOAuth2(this.buildResponseWithMissingJwksUri());
+		assertThatCode(() -> JwtDecoders.fromIssuerLocation(this.issuer))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("The public JWK set URI must not be null");
 	}
 
 	@Test
@@ -293,5 +328,13 @@ public class JwtDecodersTests {
 		return new MockResponse()
 				.setBody(body)
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+	}
+
+	public String buildResponseWithMissingJwksUri() throws JsonMappingException, JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, Object> response = mapper.readValue(DEFAULT_RESPONSE_TEMPLATE,
+				new TypeReference<Map<String, Object>>(){});
+		response.remove("jwks_uri");
+		return mapper.writeValueAsString(response);
 	}
 }

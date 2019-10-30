@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -86,10 +87,7 @@ public final class ClientRegistrations {
 	 */
 	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
-		Map<String, Object> configuration = getConfiguration(issuer, oidc(URI.create(issuer)));
-		OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
-		return withProviderConfiguration(metadata, issuer)
-				.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString());
+		return getBuilder(issuer, oidc(URI.create(issuer)));
 	}
 
 	/**
@@ -137,42 +135,68 @@ public final class ClientRegistrations {
 	public static ClientRegistration.Builder fromIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
 		URI uri = URI.create(issuer);
-		Map<String, Object> configuration = getConfiguration(issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
-		AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
-		ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer);
-		String userinfoEndpoint = (String) configuration.get("userinfo_endpoint");
-		if (userinfoEndpoint != null) {
-			builder.userInfoUri(userinfoEndpoint);
-		}
-		return builder;
+		return getBuilder(issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
 	}
 
-	private static URI oidc(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer)
+	private static Supplier<ClientRegistration.Builder> oidc(URI issuer) {
+		URI uri = UriComponentsBuilder.fromUri(issuer)
 				.replacePath(issuer.getPath() + OIDC_METADATA_PATH).build(Collections.emptyMap());
+
+		return () -> {
+			RequestEntity<Void> request = RequestEntity.get(uri).build();
+			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
+			OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
+			return withProviderConfiguration(metadata, issuer.toASCIIString())
+					.jwkSetUri(metadata.getJWKSetURI().toASCIIString())
+					.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString());
+		};
 	}
 
-	private static URI oidcRfc8414(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer)
+	private static Supplier<ClientRegistration.Builder> oidcRfc8414(URI issuer) {
+		URI uri = UriComponentsBuilder.fromUri(issuer)
 				.replacePath(OIDC_METADATA_PATH + issuer.getPath()).build(Collections.emptyMap());
+		return getRfc8414Builder(issuer, uri);
 	}
 
-	private static URI oauth(URI issuer) {
-		return UriComponentsBuilder.fromUri(issuer)
+	private static Supplier<ClientRegistration.Builder> oauth(URI issuer) {
+		URI uri = UriComponentsBuilder.fromUri(issuer)
 				.replacePath(OAUTH_METADATA_PATH + issuer.getPath()).build(Collections.emptyMap());
+		return getRfc8414Builder(issuer, uri);
 	}
 
-	private static Map<String, Object> getConfiguration(String issuer, URI... uris) {
+	private static Supplier<ClientRegistration.Builder> getRfc8414Builder(URI issuer, URI uri) {
+		return () -> {
+			RequestEntity<Void> request = RequestEntity.get(uri).build();
+			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
+			AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
+			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer.toASCIIString());
+
+			URI jwkSetUri = metadata.getJWKSetURI();
+			if (jwkSetUri != null) {
+				builder.jwkSetUri(jwkSetUri.toASCIIString());
+			}
+
+			String userinfoEndpoint = (String) configuration.get("userinfo_endpoint");
+			if (userinfoEndpoint != null) {
+				builder.userInfoUri(userinfoEndpoint);
+			}
+			return builder;
+		};
+	}
+
+	@SafeVarargs
+	private static ClientRegistration.Builder getBuilder(String issuer, Supplier<ClientRegistration.Builder>... suppliers) {
 		String errorMessage = "Unable to resolve Configuration with the provided Issuer of \"" + issuer + "\"";
-		for (URI uri : uris) {
+		for (Supplier<ClientRegistration.Builder> supplier : suppliers) {
 			try {
-				RequestEntity<Void> request = RequestEntity.get(uri).build();
-				return rest.exchange(request, typeReference).getBody();
+				return supplier.get();
 			} catch (HttpClientErrorException e) {
 				if (!e.getStatusCode().is4xxClientError()) {
 					throw e;
 				}
 				// else try another endpoint
+			} catch (IllegalArgumentException | IllegalStateException e) {
+				throw e;
 			} catch (RuntimeException e) {
 				throw new IllegalArgumentException(errorMessage, e);
 			}
@@ -219,7 +243,6 @@ public final class ClientRegistrations {
 				.clientAuthenticationMethod(method)
 				.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
 				.authorizationUri(metadata.getAuthorizationEndpointURI().toASCIIString())
-				.jwkSetUri(metadata.getJWKSetURI().toASCIIString())
 				.providerConfigurationMetadata(configurationMetadata)
 				.tokenUri(metadata.getTokenEndpointURI().toASCIIString())
 				.clientName(issuer);
