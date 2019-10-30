@@ -76,6 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 							getSaml2AuthenticationConfiguration()
 					)
 				)
+				.loginProcessingUrl("/sample/jc/saml2/sso/{registrationId}")
 		;
 		// @formatter:on
 	}

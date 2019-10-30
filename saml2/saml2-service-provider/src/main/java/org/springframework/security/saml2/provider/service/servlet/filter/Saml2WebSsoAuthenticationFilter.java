@@ -44,9 +44,21 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
 	public Saml2WebSsoAuthenticationFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
-		super(DEFAULT_FILTER_PROCESSES_URI);
+		this(relyingPartyRegistrationRepository, DEFAULT_FILTER_PROCESSES_URI);
+	}
+
+	public Saml2WebSsoAuthenticationFilter(
+			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
+			String filterProcessesUrl) {
+		super(filterProcessesUrl);
 		Assert.notNull(relyingPartyRegistrationRepository, "relyingPartyRegistrationRepository cannot be null");
-		this.matcher = new AntPathRequestMatcher(DEFAULT_FILTER_PROCESSES_URI);
+		Assert.hasText(filterProcessesUrl, "filterProcessesUrl must contain a URL pattern");
+		Assert.isTrue(
+				filterProcessesUrl.contains("{registrationId}"),
+				"filterProcessesUrl must contain a {registrationId} match variable"
+		);
+		this.matcher = new AntPathRequestMatcher(filterProcessesUrl);
+		setRequiresAuthenticationRequestMatcher(this.matcher);
 		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
 		setAllowSessionCreation(true);
 		setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
