@@ -164,7 +164,10 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 			this.relyingPartyRegistrationRepository = getSharedOrBean(http, RelyingPartyRegistrationRepository.class);
 		}
 
-		Saml2WebSsoAuthenticationFilter webSsoFilter = new Saml2WebSsoAuthenticationFilter(this.relyingPartyRegistrationRepository);
+		Saml2WebSsoAuthenticationFilter webSsoFilter = new Saml2WebSsoAuthenticationFilter(
+				this.relyingPartyRegistrationRepository,
+				this.loginProcessingUrl
+		);
 		setAuthenticationFilter(webSsoFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 
