@@ -168,6 +168,33 @@ public class ClientRegistrationsTest {
 				"grant_types_supported", "token_endpoint", "token_endpoint_auth_methods_supported", "userinfo_endpoint");
 	}
 
+	// gh-7512
+	@Test
+	public void issuerWhenResponseMissingJwksUriThenThrowsIllegalArgumentException() throws Exception {
+		this.response.remove("jwks_uri");
+		assertThatThrownBy(() -> registration("").build())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("The public JWK set URI must not be null");
+	}
+
+	// gh-7512
+	@Test
+	public void issuerWhenOidcFallbackResponseMissingJwksUriThenThrowsIllegalArgumentException() throws Exception {
+		this.response.remove("jwks_uri");
+		assertThatThrownBy(() -> registrationOidcFallback("issuer1", null).build())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("The public JWK set URI must not be null");
+	}
+
+	// gh-7512
+	@Test
+	public void issuerWhenOAuth2ResponseMissingJwksUriThenThenSuccess() throws Exception {
+		this.response.remove("jwks_uri");
+		ClientRegistration registration = registrationOAuth2("", null).build();
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertThat(provider.getJwkSetUri()).isNull();
+	}
+
 	@Test
 	public void issuerWhenContainsTrailingSlashThenSuccess() throws Exception {
 		assertThat(registration("")).isNotNull();

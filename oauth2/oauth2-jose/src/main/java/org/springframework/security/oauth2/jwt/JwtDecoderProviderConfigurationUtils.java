@@ -33,6 +33,7 @@ import java.util.Map;
  * issuer and method invoked.
  *
  * @author Thomas Vitale
+ * @author Rafiullah Hamedy
  * @since 5.2
  */
 class JwtDecoderProviderConfigurationUtils {
@@ -69,7 +70,15 @@ class JwtDecoderProviderConfigurationUtils {
 			try {
 				RequestEntity<Void> request = RequestEntity.get(uri).build();
 				ResponseEntity<Map<String, Object>> response = rest.exchange(request, typeReference);
-				return response.getBody();
+				Map<String, Object> configuration = response.getBody();
+
+				if (configuration.get("jwks_uri") == null) {
+					throw new IllegalArgumentException("The public JWK set URI must not be null");
+				}
+
+				return configuration;
+			} catch (IllegalArgumentException e) {
+				throw e;
 			} catch (RuntimeException e) {
 				if (!(e instanceof HttpClientErrorException &&
 						((HttpClientErrorException) e).getStatusCode().is4xxClientError())) {
