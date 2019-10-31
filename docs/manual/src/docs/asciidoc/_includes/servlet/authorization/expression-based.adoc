@@ -21,21 +21,31 @@ This provides some common expressions which are available in both web and method
 |===
 | Expression | Description
 
-| `hasRole([role])`
+| `hasRole(String role)`
 | Returns `true` if the current principal has the specified role.
+
+For example, `hasRole('admin')`
+
 By default if the supplied role does not start with 'ROLE_' it will be added.
 This can be customized by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
 
-| `hasAnyRole([role1,role2])`
+| `hasAnyRole(String... roles)`
 | Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings).
+
+For example, `hasAnyRole('admin', 'user')`
+
 By default if the supplied role does not start with 'ROLE_' it will be added.
 This can be customized by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
 
-| `hasAuthority([authority])`
+| `hasAuthority(String authority)`
 | Returns `true` if the current principal has the specified authority.
 
-| `hasAnyAuthority([authority1,authority2])`
+For example, `hasAuthority('read')`
+
+| `hasAnyAuthority(String... authorities)`
 | Returns `true` if the current principal has any of the supplied authorities (given as a comma-separated list of strings)
+
+For example, `hasAnyAuthority('read', 'write')`
 
 | `principal`
 | Allows direct access to the principal object representing the current user
