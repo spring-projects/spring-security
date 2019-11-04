@@ -18,6 +18,7 @@ package sample;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -51,7 +53,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -61,6 +65,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -68,6 +73,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 
 /**
  * Integration tests for the OAuth 2.0 client filters {@link OAuth2AuthorizationRequestRedirectFilter}
@@ -86,6 +95,9 @@ public class OAuth2LoginApplicationTests {
 
 	@Autowired
 	private WebClient webClient;
+
+	@Autowired
+	private MockMvc mvc;
 
 	@Autowired
 	private ClientRegistrationRepository clientRegistrationRepository;
@@ -284,6 +296,15 @@ public class OAuth2LoginApplicationTests {
 		assertThat(errorElement.asText()).contains("invalid_redirect_uri_parameter");
 	}
 
+	@Test
+	public void requestWhenMockOidcLoginThenIndex() throws Exception {
+		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("github");
+		this.mvc.perform(get("/").with(oidcLogin().clientRegistration(clientRegistration)))
+				.andExpect(model().attribute("userName", "test-subject"))
+				.andExpect(model().attribute("clientName", "GitHub"))
+				.andExpect(model().attribute("userAttributes", Collections.singletonMap(SUB, "test-subject")));
+	}
+
 	private void assertLoginPage(HtmlPage page) {
 		assertThat(page.getTitleText()).isEqualTo("Please sign in");
 
@@ -396,6 +417,11 @@ public class OAuth2LoginApplicationTests {
 			OAuth2UserService userService = mock(OAuth2UserService.class);
 			when(userService.loadUser(any())).thenReturn(user);
 			return userService;
+		}
+
+		@Bean
+		OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return new HttpSessionOAuth2AuthorizedClientRepository();
 		}
 	}
 }
