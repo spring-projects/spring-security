@@ -15,13 +15,29 @@
  */
 package org.springframework.security.oauth2.core.oidc;
 
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.util.Assert;
 
-import java.time.Instant;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.ACR;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.AMR;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.AT_HASH;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.AUD;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.AUTH_TIME;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.AZP;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.C_HASH;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.EXP;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.IAT;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.ISS;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.NONCE;
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB;
 
 /**
  * An implementation of an {@link AbstractOAuth2Token} representing an OpenID Connect Core 1.0 ID Token.
@@ -58,5 +74,202 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 	@Override
 	public Map<String, Object> getClaims() {
 		return this.claims;
+	}
+
+	/**
+	 * Create a {@link Builder} based on the given token value
+	 *
+	 * @param tokenValue the token value to use
+	 * @return the {@link Builder} for further configuration
+	 */
+	public static Builder withTokenValue(String tokenValue) {
+		return new Builder(tokenValue);
+	}
+
+	/**
+	 * A builder for {@link OidcIdToken}s
+	 *
+	 * @since 5.3
+	 * @author Josh Cummings
+	 */
+	public static final class Builder {
+		private String tokenValue;
+		private final Map<String, Object> claims = new LinkedHashMap<>();
+
+		private Builder(String tokenValue) {
+			this.tokenValue = tokenValue;
+		}
+
+		/**
+		 * Use this token value in the resulting {@link OidcIdToken}
+		 *
+		 * @param tokenValue The token value to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder tokenValue(String tokenValue) {
+			this.tokenValue = tokenValue;
+			return this;
+		}
+
+		/**
+		 * Use this claim in the resulting {@link OidcIdToken}
+		 *
+		 * @param name The claim name
+		 * @param value The claim value
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder claim(String name, Object value) {
+			this.claims.put(name, value);
+			return this;
+		}
+
+		/**
+		 * Provides access to every {@link #claim(String, Object)}
+		 * declared so far with the possibility to add, replace, or remove.
+		 * @param claimsConsumer the consumer
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder claims(Consumer<Map<String, Object>> claimsConsumer) {
+			claimsConsumer.accept(this.claims);
+			return this;
+		}
+
+		/**
+		 * Use this access token hash in the resulting {@link OidcIdToken}
+		 *
+		 * @param accessTokenHash The access token hash to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder accessTokenHash(String accessTokenHash) {
+			return claim(AT_HASH, accessTokenHash);
+		}
+
+		/**
+		 * Use this audience in the resulting {@link OidcIdToken}
+		 *
+		 * @param audience The audience(s) to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder audience(Collection<String> audience) {
+			return claim(AUD, audience);
+		}
+
+		/**
+		 * Use this authentication {@link Instant} in the resulting {@link OidcIdToken}
+		 *
+		 * @param authenticatedAt The authentication {@link Instant} to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder authTime(Instant authenticatedAt) {
+			return claim(AUTH_TIME, authenticatedAt);
+		}
+
+		/**
+		 * Use this authentication context class reference in the resulting {@link OidcIdToken}
+		 *
+		 * @param authenticationContextClass The authentication context class reference to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder authenticationContextClass(String authenticationContextClass) {
+			return claim(ACR, authenticationContextClass);
+		}
+
+		/**
+		 * Use these authentication methods in the resulting {@link OidcIdToken}
+		 *
+		 * @param authenticationMethods The authentication methods to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder authenticationMethods(List<String> authenticationMethods) {
+			return claim(AMR, authenticationMethods);
+		}
+
+		/**
+		 * Use this authorization code hash in the resulting {@link OidcIdToken}
+		 *
+		 * @param authorizationCodeHash The authorization code hash to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder authorizationCodeHash(String authorizationCodeHash) {
+			return claim(C_HASH, authorizationCodeHash);
+		}
+
+		/**
+		 * Use this authorized party in the resulting {@link OidcIdToken}
+		 *
+		 * @param authorizedParty The authorized party to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder authorizedParty(String authorizedParty) {
+			return claim(AZP, authorizedParty);
+		}
+
+		/**
+		 * Use this expiration in the resulting {@link OidcIdToken}
+		 *
+		 * @param expiresAt The expiration to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder expiresAt(Instant expiresAt) {
+			return this.claim(EXP, expiresAt);
+		}
+
+		/**
+		 * Use this issued-at timestamp in the resulting {@link OidcIdToken}
+		 *
+		 * @param issuedAt The issued-at timestamp to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder issuedAt(Instant issuedAt) {
+			return this.claim(IAT, issuedAt);
+		}
+
+		/**
+		 * Use this issuer in the resulting {@link OidcIdToken}
+		 *
+		 * @param issuer The issuer to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder issuer(String issuer) {
+			return this.claim(ISS, issuer);
+		}
+
+		/**
+		 * Use this nonce in the resulting {@link OidcIdToken}
+		 *
+		 * @param nonce The nonce to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder nonce(String nonce) {
+			return this.claim(NONCE, nonce);
+		}
+
+		/**
+		 * Use this subject in the resulting {@link OidcIdToken}
+		 *
+		 * @param subject The subject to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder subject(String subject) {
+			return this.claim(SUB, subject);
+		}
+
+		/**
+		 * Build the {@link OidcIdToken}
+		 *
+		 * @return The constructed {@link OidcIdToken}
+		 */
+		public OidcIdToken build() {
+			Instant iat = toInstant(this.claims.get(IAT));
+			Instant exp = toInstant(this.claims.get(EXP));
+			return new OidcIdToken(this.tokenValue, iat, exp, this.claims);
+		}
+
+		private Instant toInstant(Object timestamp) {
+			if (timestamp != null) {
+				Assert.isInstanceOf(Instant.class, timestamp, "timestamps must be of type Instant");
+			}
+			return (Instant) timestamp;
+		}
 	}
 }
