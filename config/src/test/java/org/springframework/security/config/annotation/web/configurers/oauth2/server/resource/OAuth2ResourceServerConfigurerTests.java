@@ -76,7 +76,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
@@ -383,7 +382,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/requires-read-scope")
 				.with(bearerToken(token)))
 				.andExpect(status().isOk())
-				.andExpect(content().string("SCOPE_message:read"));
+				.andExpect(content().string("[SCOPE_message:read]"));
 	}
 
 	@Test
@@ -469,7 +468,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/ms-requires-read-scope")
 				.with(bearerToken(token)))
 				.andExpect(status().isOk())
-				.andExpect(content().string("SCOPE_message:read"));
+				.andExpect(content().string("[SCOPE_message:read]"));
 	}
 
 	@Test
@@ -483,7 +482,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/ms-requires-read-scope")
 				.with(bearerToken(token)))
 				.andExpect(status().isOk())
-				.andExpect(content().string("SCOPE_message:read"));
+				.andExpect(content().string("[SCOPE_message:read]"));
 	}
 
 	@Test
@@ -2107,21 +2106,20 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 
 		@RequestMapping(value = "/authenticated", method = { GET, POST })
-		public String authenticated(@AuthenticationPrincipal Authentication authentication) {
+		public String authenticated(Authentication authentication) {
 			return authentication.getName();
 		}
 
 		@GetMapping("/requires-read-scope")
-		public String requiresReadScope(@AuthenticationPrincipal JwtAuthenticationToken token) {
+		public String requiresReadScope(JwtAuthenticationToken token) {
 			return token.getAuthorities().stream()
 					.map(GrantedAuthority::getAuthority)
-					.filter(auth -> auth.endsWith("message:read"))
-					.findFirst().orElse(null);
+					.collect(Collectors.toList()).toString();
 		}
 
 		@GetMapping("/ms-requires-read-scope")
 		@PreAuthorize("hasAuthority('SCOPE_message:read')")
-		public String msRequiresReadScope(@AuthenticationPrincipal JwtAuthenticationToken token) {
+		public String msRequiresReadScope(JwtAuthenticationToken token) {
 			return requiresReadScope(token);
 		}
 
