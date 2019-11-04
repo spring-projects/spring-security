@@ -7,6 +7,7 @@ dependencies {
 	compile 'org.springframework:spring-test'
 
 	optional project(':spring-security-config')
+	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-oauth2-jose')
 	optional project(':spring-security-oauth2-resource-server')
 	optional 'io.projectreactor:reactor-core'
