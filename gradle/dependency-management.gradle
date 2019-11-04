@@ -156,8 +156,8 @@ dependencyManagement {
 		dependency "org.aspectj:aspectjweaver:$aspectjVersion"
 		dependency 'org.assertj:assertj-core:3.12.2'
 		dependency 'org.attoparser:attoparser:2.0.4.RELEASE'
-		dependency 'org.bouncycastle:bcpkix-jdk15on:1.63'
-		dependency 'org.bouncycastle:bcprov-jdk15on:1.63'
+		dependency 'org.bouncycastle:bcpkix-jdk15on:1.64'
+		dependency 'org.bouncycastle:bcprov-jdk15on:1.64'
 		dependency 'org.codehaus.groovy:groovy-all:2.4.17'
 		dependency 'org.codehaus.groovy:groovy-json:2.4.17'
 		dependency 'org.codehaus.groovy:groovy:2.4.17'
