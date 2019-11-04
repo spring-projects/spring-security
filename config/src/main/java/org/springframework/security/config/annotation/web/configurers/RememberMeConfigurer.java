@@ -269,7 +269,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		RememberMeServices rememberMeServices = getRememberMeServices(http, key);
 		if (key == null) {
 			if (rememberMeServices instanceof AbstractRememberMeServices) {
-			    key = ((AbstractRememberMeServices) rememberMeServices).getKey();
+				key = ((AbstractRememberMeServices) rememberMeServices).getKey();
 			}
 		}
 		http.setSharedObject(RememberMeServices.class, rememberMeServices);
