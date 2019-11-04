@@ -72,7 +72,7 @@ dependencyManagement {
 		dependency 'commons-lang:commons-lang:2.6'
 		dependency 'commons-logging:commons-logging:1.2'
 		dependency 'dom4j:dom4j:1.6.1'
-		dependency 'io.projectreactor.tools:blockhound:1.0.0.RC1'
+		dependency 'io.projectreactor.tools:blockhound:1.0.1.RELEASE'
 		dependency "io.rsocket:rsocket-core:${rsocketVersion}"
 		dependency "io.rsocket:rsocket-transport-netty:${rsocketVersion}"
 		dependency 'javax.activation:activation:1.1.1'
