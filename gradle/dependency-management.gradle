@@ -3,7 +3,7 @@ if (!project.hasProperty('reactorVersion')) {
 }
 
 if (!project.hasProperty('springVersion')) {
-	ext.springVersion = '5.2.0.RELEASE'
+	ext.springVersion = '5.2.1.RELEASE'
 }
 
 if (!project.hasProperty('springDataVersion')) {
