@@ -1148,8 +1148,292 @@ OpaqueTokenIntrospector introspector() {
 }
 ----
 
-Thus far we have only taken a look at the most basic authentication configuration.
-Let's take a look at a few slightly more advanced options for configuring authentication.
+[[oauth2reourceserver-opaqueandjwt]]
+=== Supporting both JWT and Opaque Token
+
+In some cases, you may have a need to access both kinds of tokens.
+For example, you may support more than one tenant where one tenant issues JWTs and the other issues opaque tokens.
+
+If this decision must be made at request-time, then you can use an `AuthenticationManagerResolver` to achieve it, like so:
+
+[source,java]
+----
+@Bean
+AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerResolver() {
+    BearerTokenResolver bearerToken = new DefaultBearerTokenResolver();
+    JwtAuthenticationProvider jwt = jwt();
+    OpaqueTokenAuthenticationProvider opaqueToken = opaqueToken();
+
+    return request -> {
+        String token = bearerToken.resolve(request);
+        if (isAJwt(token)) {
+            return jwt::authenticate;
+        } else {
+            return opaqueToken::authenticate;
+        }
+    }
+}
+----
+
+And then specify this `AuthenticationManagerResolver` in the DSL:
+
+[source,java]
+----
+http
+    .authorizeRequests()
+        .anyRequest().authenticated()
+        .and()
+    .oauth2ResourceServer()
+        .authenticationManagerResolver(this.tokenAuthenticationManagerResolver);
+----
+
+[[oauth2resourceserver-multitenancy]]
+=== Multi-tenancy
+
+A resource server is considered multi-tenant when there are multiple strategies for verifying a bearer token, keyed by some tenant identifier.
+
+For example, your resource server may accept bearer tokens from two different authorization servers.
+Or, your authorization server may represent a multiplicity of issuers.
+
+In each case, there are two things that need to be done and trade-offs associated with how you choose to do them:
+
+1. Resolve the tenant
+2. Propagate the tenant
+
+==== Resolving the Tenant By Request Material
+
+Resolving the tenant by request material can be done my implementing an `AuthenticationManagerResolver`, which determines the `AuthenticationManager` at runtime, like so:
+
+[source,java]
+----
+@Component
+public class TenantAuthenticationManagerResolver
+        implements AuthenticationManagerResolver<HttpServletRequest> {
+	private final BearerTokenResolver resolver = new DefaultBearerTokenResolver();
+	private final TenantRepository tenants; <1>
+
+	private final Map<String, AuthenticationManager> authenticationManagers = new ConcurrentHashMap<>(); <2>
+
+	public TenantAuthenticationManagerResolver(TenantRepository tenants) {
+		this.tenants = tenants;
+	}
+
+	@Override
+	public AuthenticationManager resolve(HttpServletRequest request) {
+		return this.authenticationManagers.computeIfAbsent(toTenant(request), this::fromTenant);
+	}
+
+	private String toTenant(HttpServletRequest request) {
+		String[] pathParts = request.getRequestURI().split("/");
+		return pathParts.length > 0 ? pathParts[1] : null;
+	}
+
+	private AuthenticationManager fromTenant(String tenant) {
+		return Optional.ofNullable(this.tenants.get(tenant)) <3>
+				.map(JwtDecoders::fromIssuerLocation) <4>
+				.map(JwtAuthenticationProvider::new)
+				.orElseThrow(() -> new IllegalArgumentException("unknown tenant"))::authenticate;
+	}
+}
+----
+<1> A hypothetical source for tenant information
+<2> A cache for `AuthenticationManager`s, keyed by tenant identifier
+<3> Looking up the tenant is more secure than simply computing the issuer location on the fly - the lookup acts as a tenant whitelist
+<4> Create a `JwtDecoder` via the discovery endpoint - the lazy lookup here means that you don't need to configure all tenants at startup
+
+And then specify this `AuthenticationManagerResolver` in the DSL:
+
+[source,java]
+----
+http
+    .authorizeRequests()
+        .anyRequest().authenticated()
+        .and()
+    .oauth2ResourceServer()
+        .authenticationManagerResolver(this.tenantAuthenticationManagerResolver);
+----
+
+==== Resolving the Tenant By Claim
+
+Resolving the tenant by claim is similar to doing so by request material.
+The only real difference is the `toTenant` method implementation:
+
+[source,java]
+----
+@Component
+public class TenantAuthenticationManagerResolver implements AuthenticationManagerResolver<HttpServletRequest> {
+	private final BearerTokenResolver resolver = new DefaultBearerTokenResolver();
+	private final TenantRepository tenants; <1>
+
+	private final Map<String, AuthenticationManager> authenticationManagers = new ConcurrentHashMap<>(); <2>
+
+	public TenantAuthenticationManagerResolver(TenantRepository tenants) {
+		this.tenants = tenants;
+	}
+
+	@Override
+	public AuthenticationManager resolve(HttpServletRequest request) {
+		return this.authenticationManagers.computeIfAbsent(toTenant(request), this::fromTenant); <3>
+	}
+
+	private String toTenant(HttpServletRequest request) {
+		try {
+			String token = this.resolver.resolve(request);
+			return (String) JWTParser.parse(token).getJWTClaimsSet().getIssuer();
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	private AuthenticationManager fromTenant(String tenant) {
+		return Optional.ofNullable(this.tenants.get(tenant)) <3>
+				.map(JwtDecoders::fromIssuerLocation) <4>
+				.map(JwtAuthenticationProvider::new)
+				.orElseThrow(() -> new IllegalArgumentException("unknown tenant"))::authenticate;
+	}
+}
+----
+<1> A hypothetical source for tenant information
+<2> A cache for `AuthenticationManager`s, keyed by tenant identifier
+<3> Looking up the tenant is more secure than simply computing the issuer location on the fly - the lookup acts as a tenant whitelist
+<4> Create a `JwtDecoder` via the discovery endpoint - the lazy lookup here means that you don't need to configure all tenants at startup
+
+[source,java]
+----
+http
+    .authorizeRequests()
+        .anyRequest().authenticated()
+        .and()
+    .oauth2ResourceServer()
+        .authenticationManagerResolver(this.tenantAuthenticationManagerResolver);
+----
+
+==== Parsing the Claim Only Once
+
+You may have observed that this strategy, while simple, comes with the trade-off that the JWT is parsed once by the `AuthenticationManagerResolver` and then again by the `JwtDecoder`.
+
+This extra parsing can be alleviated by configuring the `JwtDecoder` directly with a `JWTClaimSetAwareJWSKeySelector` from Nimbus:
+
+[source,java]
+----
+@Component
+public class TenantJWSKeySelector
+    implements JWTClaimSetAwareJWSKeySelector<SecurityContext> {
+
+	private final TenantRepository tenants; <1>
+	private final Map<String, JWSKeySelector<SecurityContext>> selectors = new ConcurrentHashMap<>(); <2>
+
+	public TenantJWSKeySelector(TenantRepository tenants) {
+		this.tenants = tenants;
+	}
+
+	@Override
+	public List<? extends Key> selectKeys(JWSHeader jwsHeader, JWTClaimsSet jwtClaimsSet, SecurityContext securityContext)
+			throws KeySourceException {
+		return this.selectors.computeIfAbsent(toTenant(jwtClaimsSet), this::fromTenant)
+				.selectJWSKeys(jwsHeader, securityContext);
+	}
+
+	private String toTenant(JWTClaimsSet claimSet) {
+		return (String) claimSet.getClaim("iss");
+	}
+
+	private JWSKeySelector<SecurityContext> fromTenant(String tenant) {
+		return Optional.ofNullable(this.tenantRepository.findById(tenant)) <3>
+		        .map(t -> t.getAttrbute("jwks_uri"))
+				.map(this::fromUri)
+				.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
+	}
+
+	private JWSKeySelector<SecurityContext> fromUri(String uri) {
+		try {
+			return JWSAlgorithmFamilyJWSKeySelector.fromJWKSetURL(new URL(uri)); <4>
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+}
+----
+<1> A hypothetical source for tenant information
+<2> A cache for `JWKKeySelector`s, keyed by tenant identifier
+<3> Looking up the tenant is more secure than simply calculating the JWK Set endpoint on the fly - the lookup acts as a tenant whitelist
+<4> Create a `JWSKeySelector` via the types of keys that come back from the JWK Set endpoint - the lazy lookup here means that you don't need to configure all tenants at startup
+
+The above key selector is a composition of many key selectors.
+It chooses which key selector to use based on the `iss` claim in the JWT.
+
+NOTE: To use this approach, make sure that the authorization server is configured to include the claim set as part of the token's signature.
+Without this, you have no guarantee that the issuer hasn't been altered by a bad actor.
+
+Next, we can construct a `JWTProcessor`:
+
+[source,java]
+----
+@Bean
+JWTProcessor jwtProcessor(JWTClaimSetJWSKeySelector keySelector) {
+	ConfigurableJWTProcessor<SecurityContext> jwtProcessor =
+            new DefaultJWTProcessor();
+	jwtProcessor.setJWTClaimSetJWSKeySelector(keySelector);
+	return jwtProcessor;
+}
+----
+
+As you are already seeing, the trade-off for moving tenant-awareness down to this level is more configuration.
+We have just a bit more.
+
+Next, we still want to make sure you are validating the issuer.
+But, since the issuer may be different per JWT, then you'll need a tenant-aware validator, too:
+
+[source,java]
+----
+@Component
+public class TenantJwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
+	private final TenantRepository tenants;
+	private final Map<String, JwtIssuerValidator> validators = new ConcurrentHashMap<>();
+
+	public TenantJwtIssuerValidator(TenantRepository tenants) {
+		this.tenants = tenants;
+	}
+
+	@Override
+	public OAuth2TokenValidatorResult validate(Jwt token) {
+		return this.validators.computeIfAbsent(toTenant(token), this::fromTenant)
+				.validate(token);
+	}
+
+	private String toTenant(Jwt jwt) {
+		return jwt.getIssuer();
+	}
+
+	private JwtIssuerValidator fromTenant(String tenant) {
+		return Optional.ofNullable(this.tenants.findById(tenant))
+		        .map(t -> t.getAttribute("issuer"))
+				.map(JwtIssuerValidator::new)
+				.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
+	}
+}
+----
+
+Now that we have a tenant-aware processor and a tenant-aware validator, we can proceed with creating our `JwtDecoder`:
+
+[source,java]
+----
+@Bean
+JwtDecoder jwtDecoder(JWTProcessor jwtProcessor, OAuth2TokenValidator<Jwt> jwtValidator) {
+	NimbusJwtDecoder decoder = new NimbusJwtDecoder(processor);
+	OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>
+			(JwtValidators.createDefault(), this.jwtValidator);
+	decoder.setJwtValidator(validator);
+	return decoder;
+}
+----
+
+We've finished talking about resolving the tenant.
+
+If you've chosen to resolve the tenant by request material, then you'll need to make sure you address your downstream resource servers in the same way.
+For example, if you are resolving it by subdomain, you'll need to address the downstream resource server using the same subdomain.
+
+However, if you resolve it by a claim in the bearer token, read on to learn about <<oauth2resourceserver-bearertoken-resolver,Spring Security's support for bearer token propagation>>.
 
 [[oauth2resourceserver-bearertoken-resolver]]
 === Bearer Token Resolution
