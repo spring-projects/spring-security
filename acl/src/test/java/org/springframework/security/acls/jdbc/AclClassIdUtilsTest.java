@@ -24,6 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.convert.ConversionService;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -40,6 +41,7 @@ public class AclClassIdUtilsTest {
 
 	private static final Long DEFAULT_IDENTIFIER = 999L;
 	private static final String DEFAULT_IDENTIFIER_AS_STRING = DEFAULT_IDENTIFIER.toString();
+	private static final BigInteger DEFAULT_IDENTIFIER_AS_BIGINT = BigInteger.valueOf( DEFAULT_IDENTIFIER );
 
 	@Mock
 	private ResultSet resultSet;
@@ -69,6 +71,15 @@ public class AclClassIdUtilsTest {
 
 		// when
 		Serializable newIdentifier = aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_STRING, resultSet);
+
+		// then
+		assertThat(newIdentifier).isEqualTo(DEFAULT_IDENTIFIER);
+	}
+
+	@Test
+	public void shouldReturnLongIfIdentifierIsBigInteger() throws SQLException {
+		// when
+		Serializable newIdentifier = aclClassIdUtils.identifierFrom(DEFAULT_IDENTIFIER_AS_BIGINT, resultSet);
 
 		// then
 		assertThat(newIdentifier).isEqualTo(DEFAULT_IDENTIFIER);

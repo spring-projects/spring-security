@@ -16,6 +16,7 @@
 package org.springframework.security.acls.jdbc;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -45,6 +46,7 @@ class AclClassIdUtils {
 		GenericConversionService genericConversionService = new GenericConversionService();
 		genericConversionService.addConverter(String.class, Long.class, new StringToLongConverter());
 		genericConversionService.addConverter(String.class, UUID.class, new StringToUUIDConverter());
+		genericConversionService.addConverter(BigInteger.class, Long.class, new BigIntegerToLongConverter());
 		this.conversionService = genericConversionService;
 	}
 
@@ -62,8 +64,9 @@ class AclClassIdUtils {
 	 * @throws SQLException
 	 */
 	Serializable identifierFrom(Serializable identifier, ResultSet resultSet) throws SQLException {
-		if (isString(identifier) && hasValidClassIdType(resultSet)
-			&& canConvertFromStringTo(classIdTypeFrom(resultSet))) {
+		if (isString(identifier)
+				&& hasValidClassIdType(resultSet)
+				&& canConvertFromStringTo(classIdTypeFrom(resultSet))) {
 
 			identifier = convertFromStringTo((String) identifier, classIdTypeFrom(resultSet));
 		} else {
@@ -100,6 +103,10 @@ class AclClassIdUtils {
 		return targetType;
 	}
 
+	private <S, T> boolean canConvert(Class<S> sourceType, Class<T> targetType) {
+		return conversionService.canConvert(sourceType, targetType);
+	}
+
 	private <T> boolean canConvertFromStringTo(Class<T> targetType) {
 		return conversionService.canConvert(String.class, targetType);
 	}
@@ -118,7 +125,7 @@ class AclClassIdUtils {
 	 */
 	private Long convertToLong(Serializable identifier) {
 		Long idAsLong;
-		if (canConvertFromStringTo(Long.class)) {
+		if (canConvert(identifier.getClass(), Long.class)) {
 			idAsLong = conversionService.convert(identifier, Long.class);
 		} else {
 			idAsLong = Long.valueOf(identifier.toString());
@@ -156,6 +163,18 @@ class AclClassIdUtils {
 
 			}
 			return UUID.fromString(identifierAsString);
+		}
+	}
+
+	private static class BigIntegerToLongConverter implements Converter<BigInteger, Long> {
+		@Override
+		public Long convert(BigInteger identifierAsStringBigInteger) {
+			if (identifierAsStringBigInteger == null) {
+				throw new ConversionFailedException(TypeDescriptor.valueOf(BigInteger.class),
+													TypeDescriptor.valueOf(Long.class), null, null);
+
+			}
+			return identifierAsStringBigInteger.longValue();
 		}
 	}
 }
