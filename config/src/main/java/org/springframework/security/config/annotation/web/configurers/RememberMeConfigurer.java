@@ -267,11 +267,6 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		validateInput();
 		String key = getKey();
 		RememberMeServices rememberMeServices = getRememberMeServices(http, key);
-		if (key == null) {
-			if (rememberMeServices instanceof AbstractRememberMeServices) {
-				key = ((AbstractRememberMeServices) rememberMeServices).getKey();
-			}
-		}
 		http.setSharedObject(RememberMeServices.class, rememberMeServices);
 		LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
 		if (logoutConfigurer != null && this.logoutHandler != null) {
@@ -441,6 +436,9 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the remember me key to use
 	 */
 	private String getKey() {
+		if (this.key == null && this.rememberMeServices instanceof AbstractRememberMeServices) {
+			this.key = ((AbstractRememberMeServices) rememberMeServices).getKey();
+		}
 		if (this.key == null) {
 			this.key = UUID.randomUUID().toString();
 		}
