@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@ package org.springframework.security.web.authentication.preauth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -46,10 +45,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  *
  * @author Rob Winch
+ * @author Tadaya Tsuyukubo
  *
  */
 public class AbstractPreAuthenticatedProcessingFilterTests {
@@ -117,7 +118,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 
 	// SEC-2045
 	@Test
-	public void testAfterPropertiesSetInvokesSuper() throws Exception {
+	public void testAfterPropertiesSetInvokesSuper() {
 		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		filter.setAuthenticationManager(am);
@@ -147,7 +148,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
 				new MockFilterChain());
 
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(null);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
@@ -377,6 +378,43 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		verifyZeroInteractions(am);
 	}
 
+	@Test
+	public void requestNotMatchRequestMatcher() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+		filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/no-matching"));
+
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		filter.setAuthenticationManager(am);
+		filter.afterPropertiesSet();
+
+		filter.doFilter(request, response, chain);
+
+		verifyZeroInteractions(am);
+	}
+
+	@Test
+	public void requestMatchesRequestMatcher() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+
+		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+		filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/**"));
+
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		filter.setAuthenticationManager(am);
+		filter.afterPropertiesSet();
+
+		filter.doFilter(request, response, chain);
+
+		verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+
+	}
+
 	private void testDoFilter(boolean grantAccess) throws Exception {
 		MockHttpServletRequest req = new MockHttpServletRequest();
 		MockHttpServletResponse res = new MockHttpServletResponse();
@@ -385,8 +423,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 				grantAccess);
 	}
 
-	private static ConcretePreAuthenticatedProcessingFilter getFilter(boolean grantAccess)
-			throws Exception {
+	private static ConcretePreAuthenticatedProcessingFilter getFilter(boolean grantAccess) {
 		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
 		AuthenticationManager am = mock(AuthenticationManager.class);
 
@@ -396,12 +433,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		}
 		else {
 			when(am.authenticate(any(Authentication.class))).thenAnswer(
-					new Answer<Authentication>() {
-						public Authentication answer(InvocationOnMock invocation)
-								throws Throwable {
-							return (Authentication) invocation.getArguments()[0];
-						}
-					});
+					(Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
 		}
 
 		filter.setAuthenticationManager(am);

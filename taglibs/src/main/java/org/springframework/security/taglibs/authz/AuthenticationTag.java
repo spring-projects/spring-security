@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -149,8 +149,8 @@ public class AuthenticationTag extends TagSupport {
 	/**
 	 * Set HTML escaping for this tag, as boolean value.
 	 */
-	public void setHtmlEscape(String htmlEscape) throws JspException {
-		this.htmlEscape = Boolean.valueOf(htmlEscape);
+	public void setHtmlEscape(String htmlEscape) {
+		this.htmlEscape = Boolean.parseBoolean(htmlEscape);
 	}
 
 	/**

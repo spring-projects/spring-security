@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ public class PortResolverImplTests {
 	// ~ Methods
 	// ========================================================================================================
 	@Test
-	public void testDetectsBuggyIeHttpRequest() throws Exception {
+	public void testDetectsBuggyIeHttpRequest() {
 		PortResolverImpl pr = new PortResolverImpl();
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -42,7 +42,7 @@ public class PortResolverImplTests {
 	}
 
 	@Test
-	public void testDetectsBuggyIeHttpsRequest() throws Exception {
+	public void testDetectsBuggyIeHttpsRequest() {
 		PortResolverImpl pr = new PortResolverImpl();
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -52,7 +52,7 @@ public class PortResolverImplTests {
 	}
 
 	@Test
-	public void testDetectsEmptyPortMapper() throws Exception {
+	public void testDetectsEmptyPortMapper() {
 		PortResolverImpl pr = new PortResolverImpl();
 
 		try {
@@ -65,7 +65,7 @@ public class PortResolverImplTests {
 	}
 
 	@Test
-	public void testGettersSetters() throws Exception {
+	public void testGettersSetters() {
 		PortResolverImpl pr = new PortResolverImpl();
 		assertThat(pr.getPortMapper() != null).isTrue();
 		pr.setPortMapper(new PortMapperImpl());
@@ -73,7 +73,7 @@ public class PortResolverImplTests {
 	}
 
 	@Test
-	public void testNormalOperation() throws Exception {
+	public void testNormalOperation() {
 		PortResolverImpl pr = new PortResolverImpl();
 
 		MockHttpServletRequest request = new MockHttpServletRequest();

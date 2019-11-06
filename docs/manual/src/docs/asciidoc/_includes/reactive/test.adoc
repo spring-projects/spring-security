@@ -1,0 +1,270 @@
+[[test-webflux]]
+= Reactive Test Support
+
+[[test-erms]]
+== Testing Reactive Method Security
+
+For example, we can test our example from <<jc-erms>> using the same setup and annotations we did in <<test-method>>.
+Here is a minimal sample of what we can do:
+
+[source,java]
+----
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = HelloWebfluxMethodApplication.class)
+public class HelloWorldMessageServiceTests {
+	@Autowired
+	HelloWorldMessageService messages;
+
+	@Test
+	public void messagesWhenNotAuthenticatedThenDenied() {
+		StepVerifier.create(this.messages.findMessage())
+			.expectError(AccessDeniedException.class)
+			.verify();
+	}
+
+	@Test
+	@WithMockUser
+	public void messagesWhenUserThenDenied() {
+		StepVerifier.create(this.messages.findMessage())
+			.expectError(AccessDeniedException.class)
+			.verify();
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	public void messagesWhenAdminThenOk() {
+		StepVerifier.create(this.messages.findMessage())
+			.expectNext("Hello World!")
+			.verifyComplete();
+	}
+}
+----
+
+[[test-webtestclient]]
+== WebTestClientSupport
+
+Spring Security provides integration with `WebTestClient`.
+The basic setup looks like this:
+
+[source,java]
+----
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = HelloWebfluxMethodApplication.class)
+public class HelloWebfluxMethodApplicationTests {
+	@Autowired
+	ApplicationContext context;
+
+	WebTestClient rest;
+
+	@Before
+	public void setup() {
+		this.rest = WebTestClient
+			.bindToApplicationContext(this.context)
+			// add Spring Security test Support
+			.apply(springSecurity())
+			.configureClient()
+			.filter(basicAuthentication())
+			.build();
+	}
+	// ...
+}
+----
+
+=== Authentication
+
+After applying the Spring Security support to `WebTestClient` we can use either annotations or `mutateWith` support.
+For example:
+
+[source,java]
+----
+@Test
+public void messageWhenNotAuthenticated() throws Exception {
+	this.rest
+		.get()
+		.uri("/message")
+		.exchange()
+		.expectStatus().isUnauthorized();
+}
+
+// --- WithMockUser ---
+
+@Test
+@WithMockUser
+public void messageWhenWithMockUserThenForbidden() throws Exception {
+	this.rest
+		.get()
+		.uri("/message")
+		.exchange()
+		.expectStatus().isEqualTo(HttpStatus.FORBIDDEN);
+}
+
+@Test
+@WithMockUser(roles = "ADMIN")
+public void messageWhenWithMockAdminThenOk() throws Exception {
+	this.rest
+		.get()
+		.uri("/message")
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody(String.class).isEqualTo("Hello World!");
+}
+
+// --- mutateWith mockUser ---
+
+@Test
+public void messageWhenMutateWithMockUserThenForbidden() throws Exception {
+	this.rest
+		.mutateWith(mockUser())
+		.get()
+		.uri("/message")
+		.exchange()
+		.expectStatus().isEqualTo(HttpStatus.FORBIDDEN);
+}
+
+@Test
+public void messageWhenMutateWithMockAdminThenOk() throws Exception {
+	this.rest
+		.mutateWith(mockUser().roles("ADMIN"))
+		.get()
+		.uri("/message")
+		.exchange()
+		.expectStatus().isOk()
+		.expectBody(String.class).isEqualTo("Hello World!");
+}
+----
+
+
+=== CSRF Support
+
+Spring Security also provides support for CSRF testing with `WebTestClient`.
+For example:
+
+[source,java]
+----
+this.rest
+	// provide a valid CSRF token
+	.mutateWith(csrf())
+	.post()
+	.uri("/login")
+	...
+----
+
+
+=== Testing Bearer Authentication
+
+In order to make an authorized request on a resource server, you need a bearer token.
+If your resource server is configured for JWTs, then this would mean that the bearer token needs to be signed and then encoded according to the JWT specification.
+All of this can be quite daunting, especially when this isn't the focus of your test.
+
+Fortunately, there are a number of simple ways that you can overcome this difficulty and allow your tests to focus on authorization and not on representing bearer tokens.
+We'll look at two of them now:
+
+===== `mockJwt() WebTestClientConfigurer`
+
+The first way is via a `WebTestClientConfigurer`.
+The simplest of these would look something like this:
+
+[source,java]
+----
+client
+    .mutateWith(mockJwt()).get().uri("/endpoint").exchange();
+----
+
+What this will do is create a mock `Jwt`, passing it correctly through any authentication APIs so that it's available for your authorization mechanisms to verify.
+
+By default, the `JWT` that it creates has the following characteristics:
+
+[source,json]
+----
+{
+  "headers" : { "alg" : "none" },
+  "claims" : {
+    "sub" : "user",
+    "scope" : "read"
+  }
+}
+----
+
+And the resulting `Jwt`, were it tested, would pass in the following way:
+
+[source,java]
+----
+assertThat(jwt.getTokenValue()).isEqualTo("token");
+assertThat(jwt.getHeaders().get("alg")).isEqualTo("none");
+assertThat(jwt.getSubject()).isEqualTo("sub");
+GrantedAuthority authority = jwt.getAuthorities().iterator().next();
+assertThat(authority.getAuthority()).isEqualTo("read");
+----
+
+These values can, of course be configured.
+
+Any headers or claims can be configured with their corresponding methods:
+
+[source,java]
+----
+client
+	.mutateWith(jwt(jwt -> jwt.header("kid", "one")
+		.claim("iss", "https://idp.example.org")))
+	.get().uri("/endpoint").exchange();
+----
+
+[source,java]
+----
+client
+	.mutateWith(jwt(jwt -> jwt.claims(claims -> claims.remove("scope"))))
+	.get().uri("/endpoint").exchange();
+----
+
+The `scope` and `scp` claims are processed the same way here as they are in a normal bearer token request.
+However, this can be overridden simply by providing the list of `GrantedAuthority` instances that you need for your test:
+
+[source,java]
+----
+client
+	.mutateWith(jwt().authorities(new SimpleGrantedAuthority("SCOPE_messages")))
+	.get().uri("/endpoint").exchange();
+----
+
+Or, if you have a custom `Jwt` to `Collection<GrantedAuthority>` converter, you can also use that to derive the authorities:
+
+[source,java]
+----
+client
+	.mutateWith(jwt().authorities(new MyConverter()))
+	.get().uri("/endpoint").exchange();
+----
+
+You can also specify a complete `Jwt`, for which `{security-api-url}org/springframework/security/oauth2/jwt/Jwt.Builder.html[Jwt.Builder]` comes quite handy:
+
+[source,java]
+----
+Jwt jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .claim("scope", "read");
+
+client
+	.mutateWith(jwt(jwt))
+	.get().uri("/endpoint").exchange();
+----
+
+===== `authentication()` `WebTestClientConfigurer`
+
+The second way is by using the `authentication()` `Mutator`.
+Essentially, you can instantiate your own `JwtAuthenticationToken` and provide it in your test, like so:
+
+[source,java]
+----
+Jwt jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .build();
+Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("SCOPE_read");
+JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
+
+client
+	.mutateWith(authentication(token))
+	.get().uri("/endpoint").exchange();
+----
+
+Note that as an alternative to these, you can also mock the `ReactiveJwtDecoder` bean itself with a `@MockBean` annotation.

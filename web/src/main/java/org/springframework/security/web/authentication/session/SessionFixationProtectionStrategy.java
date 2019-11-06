@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,8 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
- * The default implementation of {@link SessionAuthenticationStrategy} when using &lt;
- * Servlet 3.1.
+ * Uses {@code HttpServletRequest.invalidate()} to protect against session fixation
+ * attacks.
  * <p>
  * Creates a new session for the newly authenticated user if they already have a session
  * (as a defence against session-fixation protection attacks), and copies their session

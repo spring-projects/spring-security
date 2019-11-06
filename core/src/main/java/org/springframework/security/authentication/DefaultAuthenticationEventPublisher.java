@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,7 +63,7 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private ApplicationEventPublisher applicationEventPublisher;
-	private final HashMap<String, Constructor<? extends AbstractAuthenticationEvent>> exceptionMappings = new HashMap<String, Constructor<? extends AbstractAuthenticationEvent>>();
+	private final HashMap<String, Constructor<? extends AbstractAuthenticationEvent>> exceptionMappings = new HashMap<>();
 
 	public DefaultAuthenticationEventPublisher() {
 		this(null);
@@ -111,11 +111,7 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 			try {
 				event = constructor.newInstance(authentication, exception);
 			}
-			catch (IllegalAccessException ignored) {
-			}
-			catch (InstantiationException ignored) {
-			}
-			catch (InvocationTargetException ignored) {
+			catch (IllegalAccessException | InvocationTargetException | InstantiationException ignored) {
 			}
 		}
 

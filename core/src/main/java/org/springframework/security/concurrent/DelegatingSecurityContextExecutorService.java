@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -131,7 +131,7 @@ public class DelegatingSecurityContextExecutorService extends
 		if (tasks == null) {
 			return null;
 		}
-		List<Callable<T>> results = new ArrayList<Callable<T>>(tasks.size());
+		List<Callable<T>> results = new ArrayList<>(tasks.size());
 		for (Callable<T> task : tasks) {
 			results.add(wrap(task));
 		}

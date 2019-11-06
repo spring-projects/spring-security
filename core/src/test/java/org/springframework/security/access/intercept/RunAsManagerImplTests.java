@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,8 +41,7 @@ public class RunAsManagerImplTests {
 	}
 
 	@Test
-	public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting()
-			throws Exception {
+	public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting() {
 		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
 				"Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
@@ -52,11 +51,11 @@ public class RunAsManagerImplTests {
 
 		Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(),
 				SecurityConfig.createList("SOMETHING_WE_IGNORE"));
-		assertThat(resultingToken).isEqualTo(null);
+		assertThat(resultingToken).isNull();
 	}
 
 	@Test
-	public void testRespectsRolePrefix() throws Exception {
+	public void testRespectsRolePrefix() {
 		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
 				"Test", "Password", AuthorityUtils.createAuthorityList("ONE", "TWO"));
 
@@ -83,7 +82,7 @@ public class RunAsManagerImplTests {
 	}
 
 	@Test
-	public void testReturnsAdditionalGrantedAuthorities() throws Exception {
+	public void testReturnsAdditionalGrantedAuthorities() {
 		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
 				"Test", "Password",
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
@@ -133,7 +132,7 @@ public class RunAsManagerImplTests {
 	}
 
 	@Test
-	public void testSupports() throws Exception {
+	public void testSupports() {
 		RunAsManager runAs = new RunAsManagerImpl();
 		assertThat(runAs.supports(new SecurityConfig("RUN_AS_SOMETHING"))).isTrue();
 		assertThat(!runAs.supports(new SecurityConfig("ROLE_WHICH_IS_IGNORED"))).isTrue();

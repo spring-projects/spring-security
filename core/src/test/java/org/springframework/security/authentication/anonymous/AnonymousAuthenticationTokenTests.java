@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,7 +58,7 @@ public class AnonymousAuthenticationTokenTests {
 
 		try {
 			new AnonymousAuthenticationToken("key", "Test",
-					(List<GrantedAuthority>) null);
+					null);
 			fail("Should have thrown IllegalArgumentException");
 		}
 		catch (IllegalArgumentException expected) {
@@ -149,17 +149,17 @@ public class AnonymousAuthenticationTokenTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenNullAuthoritiesThenThrowIllegalArgumentException() throws Exception {
+	public void constructorWhenNullAuthoritiesThenThrowIllegalArgumentException() {
 		new AnonymousAuthenticationToken("key", "principal", null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenEmptyAuthoritiesThenThrowIllegalArgumentException() throws Exception {
+	public void constructorWhenEmptyAuthoritiesThenThrowIllegalArgumentException() {
 		new AnonymousAuthenticationToken("key", "principal", Collections.<GrantedAuthority>emptyList());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorWhenPrincipalIsEmptyStringThenThrowIllegalArgumentException() throws Exception {
+	public void constructorWhenPrincipalIsEmptyStringThenThrowIllegalArgumentException() {
 		new AnonymousAuthenticationToken("key", "", ROLES_12);
 	}
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -91,10 +91,9 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 
 	/**
 	 * Creates a new instance
-	 * @throws Exception
 	 * @see HttpSecurity#httpBasic()
 	 */
-	public HttpBasicConfigurer() throws Exception {
+	public HttpBasicConfigurer() {
 		realmName(DEFAULT_REALM);
 
 		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
@@ -113,9 +112,8 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	 *
 	 * @param realmName the HTTP Basic realm to use
 	 * @return {@link HttpBasicConfigurer} for additional customization
-	 * @throws Exception
 	 */
-	public HttpBasicConfigurer<B> realmName(String realmName) throws Exception {
+	public HttpBasicConfigurer<B> realmName(String realmName) {
 		this.basicAuthEntryPoint.setRealmName(realmName);
 		this.basicAuthEntryPoint.afterPropertiesSet();
 		return this;
@@ -151,7 +149,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	}
 
 	@Override
-	public void init(B http) throws Exception {
+	public void init(B http) {
 		registerDefaults(http);
 	}
 
@@ -205,7 +203,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 	}
 
 	@Override
-	public void configure(B http) throws Exception {
+	public void configure(B http) {
 		AuthenticationManager authenticationManager = http
 				.getSharedObject(AuthenticationManager.class);
 		BasicAuthenticationFilter basicAuthenticationFilter = new BasicAuthenticationFilter(
@@ -215,7 +213,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 					.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 		}
 		RememberMeServices rememberMeServices = http.getSharedObject(RememberMeServices.class);
-		if(rememberMeServices != null) {
+		if (rememberMeServices != null) {
 			basicAuthenticationFilter.setRememberMeServices(rememberMeServices);
 		}
 		basicAuthenticationFilter = postProcess(basicAuthenticationFilter);

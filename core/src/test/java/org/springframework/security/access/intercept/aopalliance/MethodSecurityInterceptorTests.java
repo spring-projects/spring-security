@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -67,7 +67,7 @@ public class MethodSecurityInterceptorTests {
 	// ========================================================================================================
 
 	@Before
-	public final void setUp() throws Exception {
+	public final void setUp() {
 		SecurityContextHolder.clearContext();
 		token = new TestingAuthenticationToken("Test", "Password");
 		interceptor = new MethodSecurityInterceptor();
@@ -83,7 +83,7 @@ public class MethodSecurityInterceptorTests {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
 
@@ -210,8 +210,7 @@ public class MethodSecurityInterceptorTests {
 	}
 
 	@Test(expected = AuthenticationException.class)
-	public void callIsntMadeWhenAuthenticationManagerRejectsAuthentication()
-			throws Exception {
+	public void callIsntMadeWhenAuthenticationManagerRejectsAuthentication() {
 		final TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
 				"Password");
 		SecurityContextHolder.getContext().setAuthentication(token);
@@ -224,7 +223,7 @@ public class MethodSecurityInterceptorTests {
 	}
 
 	@Test
-	public void callSucceedsIfAccessDecisionManagerGrantsAccess() throws Exception {
+	public void callSucceedsIfAccessDecisionManagerGrantsAccess() {
 		token.setAuthenticated(true);
 		interceptor.setPublishAuthorizationSuccess(true);
 		SecurityContextHolder.getContext().setAuthentication(token);
@@ -238,7 +237,7 @@ public class MethodSecurityInterceptorTests {
 	}
 
 	@Test
-	public void callIsntMadeWhenAccessDecisionManagerRejectsAccess() throws Exception {
+	public void callIsntMadeWhenAccessDecisionManagerRejectsAccess() {
 		SecurityContextHolder.getContext().setAuthentication(token);
 		// Use mocked target to make sure invocation doesn't happen (not in expectations
 		// so test would fail)
@@ -263,7 +262,7 @@ public class MethodSecurityInterceptorTests {
 	}
 
 	@Test
-	public void runAsReplacementIsCorrectlySet() throws Exception {
+	public void runAsReplacementIsCorrectlySet() {
 		SecurityContext ctx = SecurityContextHolder.getContext();
 		ctx.setAuthentication(token);
 		token.setAuthenticated(true);
@@ -284,7 +283,7 @@ public class MethodSecurityInterceptorTests {
 
 	// SEC-1967
 	@Test
-	public void runAsReplacementCleansAfterException() throws Exception {
+	public void runAsReplacementCleansAfterException() {
 		createTarget(true);
 		when(realTarget.makeUpperCase(anyString())).thenThrow(new RuntimeException());
 		SecurityContext ctx = SecurityContextHolder.getContext();
@@ -311,7 +310,7 @@ public class MethodSecurityInterceptorTests {
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
-	public void emptySecurityContextIsRejected() throws Exception {
+	public void emptySecurityContextIsRejected() {
 		mdsReturnsUserRole();
 		advisedTarget.makeUpperCase("hello");
 	}

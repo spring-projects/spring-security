@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,8 +39,7 @@ import org.springframework.security.web.authentication.session.SessionFixationPr
 public class DefaultSessionAuthenticationStrategyTests {
 
 	@Test
-	public void newSessionShouldNotBeCreatedIfNoSessionExistsAndAlwaysCreateIsFalse()
-			throws Exception {
+	public void newSessionShouldNotBeCreatedIfNoSessionExistsAndAlwaysCreateIsFalse() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
 		HttpServletRequest request = new MockHttpServletRequest();
 
@@ -51,7 +50,7 @@ public class DefaultSessionAuthenticationStrategyTests {
 	}
 
 	@Test
-	public void newSessionIsCreatedIfSessionAlreadyExists() throws Exception {
+	public void newSessionIsCreatedIfSessionAlreadyExists() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
 		HttpServletRequest request = new MockHttpServletRequest();
 		String sessionId = request.getSession().getId();
@@ -64,8 +63,7 @@ public class DefaultSessionAuthenticationStrategyTests {
 
 	// SEC-2002
 	@Test
-	public void newSessionIsCreatedIfSessionAlreadyExistsWithEventPublisher()
-			throws Exception {
+	public void newSessionIsCreatedIfSessionAlreadyExistsWithEventPublisher() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
 		HttpServletRequest request = new MockHttpServletRequest();
 		HttpSession session = request.getSession();
@@ -101,8 +99,7 @@ public class DefaultSessionAuthenticationStrategyTests {
 
 	// See SEC-1077
 	@Test
-	public void onlySavedRequestAttributeIsMigratedIfMigrateAttributesIsFalse()
-			throws Exception {
+	public void onlySavedRequestAttributeIsMigratedIfMigrateAttributesIsFalse() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
 		strategy.setMigrateSessionAttributes(false);
 		HttpServletRequest request = new MockHttpServletRequest();
@@ -120,8 +117,7 @@ public class DefaultSessionAuthenticationStrategyTests {
 
 	// SEC-2002
 	@Test
-	public void onlySavedRequestAttributeIsMigratedIfMigrateAttributesIsFalseWithEventPublisher()
-			throws Exception {
+	public void onlySavedRequestAttributeIsMigratedIfMigrateAttributesIsFalseWithEventPublisher() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
 		strategy.setMigrateSessionAttributes(false);
 		HttpServletRequest request = new MockHttpServletRequest();
@@ -156,7 +152,7 @@ public class DefaultSessionAuthenticationStrategyTests {
 	}
 
 	@Test
-	public void sessionIsCreatedIfAlwaysCreateTrue() throws Exception {
+	public void sessionIsCreatedIfAlwaysCreateTrue() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
 		strategy.setAlwaysCreateSession(true);
 		HttpServletRequest request = new MockHttpServletRequest();

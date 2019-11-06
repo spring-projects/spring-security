@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
@@ -86,12 +89,18 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 	}
 
 	@Override
-	public void init(H http) throws Exception {
+	public H disable() {
+		getBuilder().setSharedObject(RequestCache.class, new NullRequestCache());
+		return super.disable();
+	}
+
+	@Override
+	public void init(H http) {
 		http.setSharedObject(RequestCache.class, getRequestCache(http));
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		RequestCache requestCache = getRequestCache(http);
 		RequestCacheAwareFilter requestCacheFilter = new RequestCacheAwareFilter(
 				requestCache);
@@ -113,26 +122,31 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 		if (result != null) {
 			return result;
 		}
+		result = getBeanOrNull(RequestCache.class);
+		if (result != null) {
+			return result;
+		}
 		HttpSessionRequestCache defaultCache = new HttpSessionRequestCache();
 		defaultCache.setRequestMatcher(createDefaultSavedRequestMatcher(http));
 		return defaultCache;
 	}
 
+	private <T> T getBeanOrNull(Class<T> type) {
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		if (context == null) {
+			return null;
+		}
+		try {
+			return context.getBean(type);
+		} catch (NoSuchBeanDefinitionException e) {
+			return null;
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private RequestMatcher createDefaultSavedRequestMatcher(H http) {
-		ContentNegotiationStrategy contentNegotiationStrategy = http
-				.getSharedObject(ContentNegotiationStrategy.class);
-		if (contentNegotiationStrategy == null) {
-			contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
-		}
-
 		RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher(
-				"/**/favicon.ico"));
-
-		MediaTypeRequestMatcher jsonRequest = new MediaTypeRequestMatcher(
-				contentNegotiationStrategy, MediaType.APPLICATION_JSON);
-		jsonRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-		RequestMatcher notJson = new NegatedRequestMatcher(jsonRequest);
+				"/**/favicon.*"));
 
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
@@ -145,9 +159,21 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 			matchers.add(0, getRequests);
 		}
 		matchers.add(notFavIcon);
-		matchers.add(notJson);
+		matchers.add(notMatchingMediaType(http, MediaType.APPLICATION_JSON));
 		matchers.add(notXRequestedWith);
+		matchers.add(notMatchingMediaType(http, MediaType.MULTIPART_FORM_DATA));
 
 		return new AndRequestMatcher(matchers);
+	}
+
+	private RequestMatcher notMatchingMediaType(H http, MediaType mediaType) {
+		ContentNegotiationStrategy contentNegotiationStrategy = http.getSharedObject(ContentNegotiationStrategy.class);
+		if (contentNegotiationStrategy == null) {
+			contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
+		}
+
+		MediaTypeRequestMatcher mediaRequest = new MediaTypeRequestMatcher(contentNegotiationStrategy, mediaType);
+		mediaRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+		return new NegatedRequestMatcher(mediaRequest);
 	}
 }

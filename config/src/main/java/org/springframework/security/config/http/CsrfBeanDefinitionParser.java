@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,6 +45,7 @@ import org.springframework.util.StringUtils;
  * Parser for the {@code CsrfFilter}.
  *
  * @author Rob Winch
+ * @author Ankur Pathak
  * @since 3.2
  */
 public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
@@ -67,11 +68,13 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		boolean webmvcPresent = ClassUtils.isPresent(DISPATCHER_SERVLET_CLASS_NAME,
 				getClass().getClassLoader());
 		if (webmvcPresent) {
-			RootBeanDefinition beanDefinition = new RootBeanDefinition(
-					CsrfRequestDataValueProcessor.class);
-			BeanComponentDefinition componentDefinition = new BeanComponentDefinition(
-					beanDefinition, REQUEST_DATA_VALUE_PROCESSOR);
-			pc.registerBeanComponent(componentDefinition);
+			if (!pc.getRegistry().containsBeanDefinition(REQUEST_DATA_VALUE_PROCESSOR)) {
+				RootBeanDefinition beanDefinition = new RootBeanDefinition(
+						CsrfRequestDataValueProcessor.class);
+				BeanComponentDefinition componentDefinition = new BeanComponentDefinition(
+						beanDefinition, REQUEST_DATA_VALUE_PROCESSOR);
+				pc.registerBeanComponent(componentDefinition);
+			}
 		}
 
 		String matcherRef = null;
@@ -141,7 +144,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		if (invalidSessionStrategy == null) {
 			return defaultDeniedHandler;
 		}
-		ManagedMap<Class<? extends AccessDeniedException>, BeanDefinition> handlers = new ManagedMap<Class<? extends AccessDeniedException>, BeanDefinition>();
+		ManagedMap<Class<? extends AccessDeniedException>, BeanDefinition> handlers = new ManagedMap<>();
 		BeanDefinitionBuilder invalidSessionHandlerBldr = BeanDefinitionBuilder
 				.rootBeanDefinition(InvalidSessionAccessDeniedHandler.class);
 		invalidSessionHandlerBldr.addConstructorArgValue(invalidSessionStrategy);

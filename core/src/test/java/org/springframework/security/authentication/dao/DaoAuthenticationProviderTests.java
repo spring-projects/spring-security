@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,12 +17,16 @@
 package org.springframework.security.authentication.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isA;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.security.SecureRandom;
@@ -43,6 +47,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -53,6 +58,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 
 /**
  * Tests {@link DaoAuthenticationProvider}.
@@ -397,6 +403,80 @@ public class DaoAuthenticationProviderTests {
 		UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
 		assertThat(castResult.getPrincipal().getClass()).isEqualTo(String.class);
 		assertThat(castResult.getPrincipal()).isEqualTo("rod");
+	}
+
+	@Test
+	public void authenticateWhenSuccessAndPasswordManagerThenUpdates() {
+		String password = "password";
+		String encodedPassword = "encoded";
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				"user", password);
+
+		PasswordEncoder encoder = mock(PasswordEncoder.class);
+		UserDetailsService userDetailsService = mock(UserDetailsService.class);
+		UserDetailsPasswordService passwordManager = mock(UserDetailsPasswordService.class);
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setPasswordEncoder(encoder);
+		provider.setUserDetailsService(userDetailsService);
+		provider.setUserDetailsPasswordService(passwordManager);
+
+		UserDetails user = PasswordEncodedUser.user();
+		when(encoder.matches(any(), any())).thenReturn(true);
+		when(encoder.upgradeEncoding(any())).thenReturn(true);
+		when(encoder.encode(any())).thenReturn(encodedPassword);
+		when(userDetailsService.loadUserByUsername(any())).thenReturn(user);
+		when(passwordManager.updatePassword(any(), any())).thenReturn(user);
+
+		Authentication result = provider.authenticate(token);
+
+		verify(encoder).encode(password);
+		verify(passwordManager).updatePassword(eq(user), eq(encodedPassword));
+	}
+
+	@Test
+	public void authenticateWhenBadCredentialsAndPasswordManagerThenNoUpdate() {
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				"user", "password");
+
+		PasswordEncoder encoder = mock(PasswordEncoder.class);
+		UserDetailsService userDetailsService = mock(UserDetailsService.class);
+		UserDetailsPasswordService passwordManager = mock(UserDetailsPasswordService.class);
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setPasswordEncoder(encoder);
+		provider.setUserDetailsService(userDetailsService);
+		provider.setUserDetailsPasswordService(passwordManager);
+
+		UserDetails user = PasswordEncodedUser.user();
+		when(encoder.matches(any(), any())).thenReturn(false);
+		when(userDetailsService.loadUserByUsername(any())).thenReturn(user);
+
+		assertThatThrownBy(() -> provider.authenticate(token))
+			.isInstanceOf(BadCredentialsException.class);
+
+		verifyZeroInteractions(passwordManager);
+	}
+
+	@Test
+	public void authenticateWhenNotUpgradeAndPasswordManagerThenNoUpdate() {
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				"user", "password");
+
+		PasswordEncoder encoder = mock(PasswordEncoder.class);
+		UserDetailsService userDetailsService = mock(UserDetailsService.class);
+		UserDetailsPasswordService passwordManager = mock(UserDetailsPasswordService.class);
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setPasswordEncoder(encoder);
+		provider.setUserDetailsService(userDetailsService);
+		provider.setUserDetailsPasswordService(passwordManager);
+
+		UserDetails user = PasswordEncodedUser.user();
+		when(encoder.matches(any(), any())).thenReturn(true);
+		when(encoder.upgradeEncoding(any())).thenReturn(false);
+		when(userDetailsService.loadUserByUsername(any())).thenReturn(user);
+
+		Authentication result = provider.authenticate(token);
+
+		verifyZeroInteractions(passwordManager);
 	}
 
 	@Test

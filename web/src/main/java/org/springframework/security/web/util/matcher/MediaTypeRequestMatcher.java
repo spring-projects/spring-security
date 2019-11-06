@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,6 +30,7 @@ import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.accept.ContentNegotiationStrategy;
+import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 import org.springframework.web.context.request.ServletWebRequest;
 
 /**
@@ -135,6 +136,7 @@ import org.springframework.web.context.request.ServletWebRequest;
  * </pre>
  *
  * @author Rob Winch
+ * @author Dan Zheng
  * @since 3.2
  */
 
@@ -145,6 +147,23 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 	private boolean useEquals;
 	private Set<MediaType> ignoredMediaTypes = Collections.emptySet();
 
+	/**
+	 * Creates an instance
+	 * @param matchingMediaTypes the {@link MediaType} that will make the http request.
+	 * @since 5.2
+	 */
+	public MediaTypeRequestMatcher(MediaType... matchingMediaTypes) {
+		this(new HeaderContentNegotiationStrategy(), Arrays.asList(matchingMediaTypes));
+	}
+
+	/**
+	 * Creates an instance
+	 * @param matchingMediaTypes the {@link MediaType} that will make the http request.
+	 * @since 5.2
+	 */
+	public MediaTypeRequestMatcher(Collection<MediaType> matchingMediaTypes) {
+		this(new HeaderContentNegotiationStrategy(), matchingMediaTypes);
+	}
 	/**
 	 * Creates an instance
 	 * @param contentNegotiationStrategy the {@link ContentNegotiationStrategy} to use
@@ -164,8 +183,7 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 	 */
 	public MediaTypeRequestMatcher(ContentNegotiationStrategy contentNegotiationStrategy,
 			Collection<MediaType> matchingMediaTypes) {
-		Assert.notNull(contentNegotiationStrategy,
-				"ContentNegotiationStrategy cannot be null");
+		Assert.notNull(contentNegotiationStrategy, "ContentNegotiationStrategy cannot be null");
 		Assert.notEmpty(matchingMediaTypes, "matchingMediaTypes cannot be null or empty");
 		this.contentNegotiationStrategy = contentNegotiationStrategy;
 		this.matchingMediaTypes = matchingMediaTypes;

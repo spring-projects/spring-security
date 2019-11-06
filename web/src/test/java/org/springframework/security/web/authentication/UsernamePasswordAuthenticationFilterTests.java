@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,7 @@ package org.springframework.security.web.authentication;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
 
-import javax.servlet.ServletException;
-
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -41,7 +38,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	// ========================================================================================================
 
 	@Test
-	public void testNormalOperation() throws Exception {
+	public void testNormalOperation() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(
 				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY,
@@ -61,7 +58,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testNullPasswordHandledGracefully() throws Exception {
+	public void testNullPasswordHandledGracefully() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(
 				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY,
@@ -74,7 +71,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testNullUsernameHandledGracefully() throws Exception {
+	public void testNullUsernameHandledGracefully() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(
 				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY,
@@ -87,7 +84,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testUsingDifferentParameterNamesWorksAsExpected() throws ServletException {
+	public void testUsingDifferentParameterNamesWorksAsExpected() {
 		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
 		filter.setAuthenticationManager(createAuthenticationManager());
 		filter.setUsernameParameter("x");
@@ -104,7 +101,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testSpacesAreTrimmedCorrectlyFromUsername() throws Exception {
+	public void testSpacesAreTrimmedCorrectlyFromUsername() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(
 				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY,
@@ -145,7 +142,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	 * SEC-571
 	 */
 	@Test
-	public void noSessionIsCreatedIfAllowSessionCreationIsFalse() throws Exception {
+	public void noSessionIsCreatedIfAllowSessionCreationIsFalse() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("POST");
 
@@ -161,12 +158,7 @@ public class UsernamePasswordAuthenticationFilterTests {
 	private AuthenticationManager createAuthenticationManager() {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		when(am.authenticate(any(Authentication.class))).thenAnswer(
-				new Answer<Authentication>() {
-					public Authentication answer(InvocationOnMock invocation)
-							throws Throwable {
-						return (Authentication) invocation.getArguments()[0];
-					}
-				});
+				(Answer<Authentication>) invocation -> (Authentication) invocation.getArguments()[0]);
 
 		return am;
 	}

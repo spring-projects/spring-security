@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -69,17 +69,17 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
-	public void supportsParameterAuthenticationPrincipal() throws Exception {
+	public void supportsParameterAuthenticationPrincipal() {
 		assertThat(resolver.supportsParameter(this.authenticationPrincipal.arg(String.class))).isTrue();
 	}
 
 	@Test
-	public void supportsParameterCurrentUser() throws Exception {
+	public void supportsParameterCurrentUser() {
 		assertThat(resolver.supportsParameter(this.meta.arg(String.class))).isTrue();
 	}
 
 	@Test
-	public void resolveArgumentWhenIsAuthenticationThenObtainsPrincipal() throws Exception {
+	public void resolveArgumentWhenIsAuthenticationThenObtainsPrincipal() {
 		MethodParameter parameter = this.authenticationPrincipal.arg(String.class);
 		when(authentication.getPrincipal()).thenReturn("user");
 		when(exchange.getPrincipal()).thenReturn(Mono.just(authentication));
@@ -90,7 +90,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWhenIsNotAuthenticationThenMonoEmpty() throws Exception {
+	public void resolveArgumentWhenIsNotAuthenticationThenMonoEmpty() {
 		MethodParameter parameter = this.authenticationPrincipal.arg(String.class);
 		when(exchange.getPrincipal()).thenReturn(Mono.just(() -> ""));
 
@@ -101,7 +101,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWhenIsEmptyThenMonoEmpty() throws Exception {
+	public void resolveArgumentWhenIsEmptyThenMonoEmpty() {
 		MethodParameter parameter = this.authenticationPrincipal.arg(String.class);
 		when(exchange.getPrincipal()).thenReturn(Mono.empty());
 
@@ -112,7 +112,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWhenMonoIsAuthenticationThenObtainsPrincipal() throws Exception {
+	public void resolveArgumentWhenMonoIsAuthenticationThenObtainsPrincipal() {
 		MethodParameter parameter = this.authenticationPrincipal.arg(Mono.class, String.class);
 		when(authentication.getPrincipal()).thenReturn("user");
 		when(exchange.getPrincipal()).thenReturn(Mono.just(authentication));
@@ -123,7 +123,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWhenMonoIsAuthenticationAndNoGenericThenObtainsPrincipal() throws Exception {
+	public void resolveArgumentWhenMonoIsAuthenticationAndNoGenericThenObtainsPrincipal() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("authenticationPrincipalNoGeneric").build().arg(Mono.class);
 		when(authentication.getPrincipal()).thenReturn("user");
 		when(exchange.getPrincipal()).thenReturn(Mono.just(authentication));
@@ -134,7 +134,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWhenSpelThenObtainsPrincipal() throws Exception {
+	public void resolveArgumentWhenSpelThenObtainsPrincipal() {
 		MyUser user = new MyUser(3L);
 		MethodParameter parameter = this.spel.arg(Long.class);
 		when(authentication.getPrincipal()).thenReturn(user);
@@ -159,7 +159,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWhenMetaThenObtainsPrincipal() throws Exception {
+	public void resolveArgumentWhenMetaThenObtainsPrincipal() {
 		MethodParameter parameter = this.meta.arg(String.class);
 		when(authentication.getPrincipal()).thenReturn("user");
 		when(exchange.getPrincipal()).thenReturn(Mono.just(authentication));
@@ -170,7 +170,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWhenErrorOnInvalidTypeImplicit() throws Exception {
+	public void resolveArgumentWhenErrorOnInvalidTypeImplicit() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenImplicit").build().arg(Integer.class);
 		when(authentication.getPrincipal()).thenReturn("user");
 		when(exchange.getPrincipal()).thenReturn(Mono.just(authentication));
@@ -181,7 +181,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWhenErrorOnInvalidTypeExplicitFalse() throws Exception {
+	public void resolveArgumentWhenErrorOnInvalidTypeExplicitFalse() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenExplicitFalse").build().arg(Integer.class);
 		when(authentication.getPrincipal()).thenReturn("user");
 		when(exchange.getPrincipal()).thenReturn(Mono.just(authentication));
@@ -192,7 +192,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	}
 
 	@Test
-	public void resolveArgumentWhenErrorOnInvalidTypeExplicitTrue() throws Exception {
+	public void resolveArgumentWhenErrorOnInvalidTypeExplicitTrue() {
 		MethodParameter parameter = ResolvableMethod.on(getClass()).named("errorOnInvalidTypeWhenExplicitTrue").build().arg(Integer.class);
 		when(authentication.getPrincipal()).thenReturn("user");
 		when(exchange.getPrincipal()).thenReturn(Mono.just(authentication));

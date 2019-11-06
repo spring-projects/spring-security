@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -67,11 +67,7 @@ public class CasAuthenticationFilterTests {
 		request.addParameter("ticket", "ST-0-ER94xMJmn6pha35CQRoZ");
 
 		CasAuthenticationFilter filter = new CasAuthenticationFilter();
-		filter.setAuthenticationManager(new AuthenticationManager() {
-			public Authentication authenticate(Authentication a) {
-				return a;
-			}
-		});
+		filter.setAuthenticationManager(a -> a);
 
 		assertThat(filter.requiresAuthentication(request, new MockHttpServletResponse())).isTrue();
 
@@ -83,10 +79,8 @@ public class CasAuthenticationFilterTests {
 	@Test(expected = AuthenticationException.class)
 	public void testNullServiceTicketHandledGracefully() throws Exception {
 		CasAuthenticationFilter filter = new CasAuthenticationFilter();
-		filter.setAuthenticationManager(new AuthenticationManager() {
-			public Authentication authenticate(Authentication a) {
-				throw new BadCredentialsException("Rejected");
-			}
+		filter.setAuthenticationManager(a -> {
+			throw new BadCredentialsException("Rejected");
 		});
 
 		filter.attemptAuthentication(new MockHttpServletRequest(),

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -178,19 +178,9 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 		return null;
 	}
 
-	private static final ParameterNameFactory<Constructor<?>> CONSTRUCTOR_METHODPARAM_FACTORY = new ParameterNameFactory<Constructor<?>>() {
+	private static final ParameterNameFactory<Constructor<?>> CONSTRUCTOR_METHODPARAM_FACTORY = constructor -> constructor.getParameterAnnotations();
 
-		public Annotation[][] findParameterAnnotations(Constructor<?> constructor) {
-			return constructor.getParameterAnnotations();
-		}
-	};
-
-	private static final ParameterNameFactory<Method> METHOD_METHODPARAM_FACTORY = new ParameterNameFactory<Method>() {
-
-		public Annotation[][] findParameterAnnotations(Method method) {
-			return method.getParameterAnnotations();
-		}
-	};
+	private static final ParameterNameFactory<Method> METHOD_METHODPARAM_FACTORY = method -> method.getParameterAnnotations();
 
 	/**
 	 * Strategy interface for looking up the parameter names.

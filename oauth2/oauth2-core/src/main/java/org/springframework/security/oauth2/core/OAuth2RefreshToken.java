@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,9 +38,8 @@ public class OAuth2RefreshToken extends AbstractOAuth2Token {
 	 *
 	 * @param tokenValue the token value
 	 * @param issuedAt the time at which the token was issued
-	 * @param expiresAt the expiration time on or after which the token MUST NOT be accepted
 	 */
-	public OAuth2RefreshToken(String tokenValue, Instant issuedAt, Instant expiresAt) {
-		super(tokenValue, issuedAt, expiresAt);
+	public OAuth2RefreshToken(String tokenValue, Instant issuedAt) {
+		super(tokenValue, issuedAt, null);
 	}
 }

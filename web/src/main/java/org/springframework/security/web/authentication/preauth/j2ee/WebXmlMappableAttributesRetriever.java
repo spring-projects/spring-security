@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -89,7 +89,7 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 			NodeList roles = secRoleElt.getElementsByTagName("role-name");
 
 			if (roles.getLength() > 0) {
-				String roleName = ((Element) roles.item(0)).getTextContent().trim();
+				String roleName = roles.item(0).getTextContent().trim();
 				roleNames.add(roleName);
 				logger.info("Retrieved role-name '" + roleName + "' from web.xml");
 			}
@@ -114,19 +114,9 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 			doc = db.parse(aStream);
 			return doc;
 		}
-		catch (FactoryConfigurationError e) {
+		catch (FactoryConfigurationError | IOException | SAXException | ParserConfigurationException e) {
 			throw new RuntimeException("Unable to parse document object", e);
-		}
-		catch (ParserConfigurationException e) {
-			throw new RuntimeException("Unable to parse document object", e);
-		}
-		catch (SAXException e) {
-			throw new RuntimeException("Unable to parse document object", e);
-		}
-		catch (IOException e) {
-			throw new RuntimeException("Unable to parse document object", e);
-		}
-		finally {
+		} finally {
 			try {
 				aStream.close();
 			}
@@ -140,8 +130,7 @@ public class WebXmlMappableAttributesRetriever implements ResourceLoaderAware,
 	 * We do not need to resolve external entities, so just return an empty String.
 	 */
 	private static final class MyEntityResolver implements EntityResolver {
-		public InputSource resolveEntity(String publicId, String systemId)
-				throws SAXException, IOException {
+		public InputSource resolveEntity(String publicId, String systemId) {
 			return new InputSource(new StringReader(""));
 		}
 	}

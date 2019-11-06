@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -70,7 +70,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 	}
 
 	public OpenID4JavaConsumer(ConsumerManager consumerManager,
-			AxFetchListFactory attributesToFetchFactory) throws ConsumerException {
+			AxFetchListFactory attributesToFetchFactory) {
 		this.consumerManager = consumerManager;
 		this.attributesToFetchFactory = attributesToFetchFactory;
 	}
@@ -116,11 +116,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 				authReq.addExtension(fetchRequest);
 			}
 		}
-		catch (MessageException e) {
-			throw new OpenIDConsumerException(
-					"Error processing ConsumerManager authentication", e);
-		}
-		catch (ConsumerException e) {
+		catch (MessageException | ConsumerException e) {
 			throw new OpenIDConsumerException(
 					"Error processing ConsumerManager authentication", e);
 		}
@@ -164,13 +160,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 			verification = consumerManager.verify(receivingURL.toString(), openidResp,
 					discovered);
 		}
-		catch (MessageException e) {
-			throw new OpenIDConsumerException("Error verifying openid response", e);
-		}
-		catch (DiscoveryException e) {
-			throw new OpenIDConsumerException("Error verifying openid response", e);
-		}
-		catch (AssociationException e) {
+		catch (MessageException | AssociationException | DiscoveryException e) {
 			throw new OpenIDConsumerException("Error verifying openid response", e);
 		}
 

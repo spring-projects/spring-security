@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -161,7 +161,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 
 	// SEC-1491
 	@Test
-	public void customAnnotationAttributesAreFound() throws Exception {
+	public void customAnnotationAttributesAreFound() {
 		SecuredAnnotationSecurityMetadataSource mds = new SecuredAnnotationSecurityMetadataSource(
 				new CustomSecurityAnnotationMetadataExtractor());
 		Collection<ConfigAttribute> attrs = mds.findAttributes(
@@ -218,7 +218,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	// Inner classes
 	class Department extends Entity {
 
-		public Department(String name) {
+		Department(String name) {
 			super(name);
 		}
 	}
@@ -285,15 +285,15 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
 	public @interface AnnotatedAnnotation {
 	}
 
-	public static interface ReturnVoid {
+	public interface ReturnVoid {
 
-		public void doSomething(List<?> param);
+		void doSomething(List<?> param);
 	}
 
 	@AnnotatedAnnotation
-	public static interface ReturnVoid2 {
+	public interface ReturnVoid2 {
 
-		public void doSomething(List<?> param);
+		void doSomething(List<?> param);
 	}
 
 	@AnnotatedAnnotation

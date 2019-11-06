@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,11 +63,9 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * Populates the {@link DataSource} to be used. This is the only required attribute.
 	 *
 	 * @param dataSource the {@link DataSource} to be used. Cannot be null.
-	 * @return
-	 * @throws Exception
+	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional customizations
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> dataSource(DataSource dataSource)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> dataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 		getUserDetailsService().setDataSource(dataSource);
 		return this;
@@ -83,10 +81,8 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * is enabled by username. Must contain a single parameter for the username.
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
-	 * @throws Exception
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> usersByUsernameQuery(String query)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> usersByUsernameQuery(String query) {
 		getUserDetailsService().setUsersByUsernameQuery(query);
 		return this;
 	}
@@ -103,10 +99,8 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * Must contain a single parameter for the username.
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
-	 * @throws Exception
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> authoritiesByUsernameQuery(String query)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> authoritiesByUsernameQuery(String query) {
 		getUserDetailsService().setAuthoritiesByUsernameQuery(query);
 		return this;
 	}
@@ -127,10 +121,8 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * a single parameter for the username.
 	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional
 	 * customizations
-	 * @throws Exception
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> groupAuthoritiesByUsername(String query)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> groupAuthoritiesByUsername(String query) {
 		JdbcUserDetailsManager userDetailsService = getUserDetailsService();
 		userDetailsService.setEnableGroups(true);
 		userDetailsService.setGroupAuthoritiesByUsernameQuery(query);
@@ -142,11 +134,9 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 * storage (default is "").
 	 *
 	 * @param rolePrefix
-	 * @return
-	 * @throws Exception
+	 * @return The {@link JdbcUserDetailsManagerConfigurer} used for additional customizations
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> rolePrefix(String rolePrefix)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> rolePrefix(String rolePrefix) {
 		getUserDetailsService().setRolePrefix(rolePrefix);
 		return this;
 	}
@@ -156,10 +146,8 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	 *
 	 * @param userCache the {@link UserCache} to use
 	 * @return the {@link JdbcUserDetailsManagerConfigurer} for further customizations
-	 * @throws Exception
 	 */
-	public JdbcUserDetailsManagerConfigurer<B> userCache(UserCache userCache)
-			throws Exception {
+	public JdbcUserDetailsManagerConfigurer<B> userCache(UserCache userCache) {
 		getUserDetailsService().setUserCache(userCache);
 		return this;
 	}
@@ -191,7 +179,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 
 	protected DatabasePopulator getDatabasePopulator() {
 		ResourceDatabasePopulator dbp = new ResourceDatabasePopulator();
-		dbp.setScripts(initScripts.toArray(new Resource[initScripts.size()]));
+		dbp.setScripts(initScripts.toArray(new Resource[0]));
 		return dbp;
 	}
 

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,7 @@ public class PasswordEncoderParser {
 	private static final Map<String, Class<?>> ENCODER_CLASSES;
 
 	static {
-		ENCODER_CLASSES = new HashMap<String, Class<?>>();
+		ENCODER_CLASSES = new HashMap<>();
 		ENCODER_CLASSES.put(OPT_HASH_BCRYPT, BCryptPasswordEncoder.class);
 	}
 
@@ -66,7 +66,7 @@ public class PasswordEncoderParser {
 		boolean useBase64 = false;
 
 		if (StringUtils.hasText(element.getAttribute(ATT_BASE_64))) {
-			useBase64 = Boolean.valueOf(element.getAttribute(ATT_BASE_64)).booleanValue();
+			useBase64 = Boolean.parseBoolean(element.getAttribute(ATT_BASE_64));
 		}
 
 		String ref = element.getAttribute(ATT_REF);

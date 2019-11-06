@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,16 +15,15 @@
  */
 package org.springframework.security.config.annotation.web;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.powermock.api.mockito.PowerMockito.*;
-
 import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,6 +32,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 /**
  *
  * @author Rob Winch
@@ -40,12 +43,13 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ SpringFactoriesLoader.class })
+@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class WebSecurityConfigurerAdapterPowermockTests {
 	ConfigurableWebApplicationContext context;
 
 	@After
 	public void close() {
-		if(context != null) {
+		if (context != null) {
 			context.close();
 		}
 	}
@@ -75,7 +79,7 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 	}
 
@@ -84,12 +88,12 @@ public class WebSecurityConfigurerAdapterPowermockTests {
 		boolean configure;
 
 		@Override
-		public void init(HttpSecurity builder) throws Exception {
+		public void init(HttpSecurity builder) {
 			this.init = true;
 		}
 
 		@Override
-		public void configure(HttpSecurity builder) throws Exception {
+		public void configure(HttpSecurity builder) {
 			this.configure = true;
 		}
 	}

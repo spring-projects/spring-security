@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -69,8 +69,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 	}
 
 	@Override
-	public Object invoke(final MethodInvocation invocation)
-		throws Throwable {
+	public Object invoke(final MethodInvocation invocation) {
 		Method method = invocation.getMethod();
 		Class<?> returnType = method.getReturnType();
 		if (!Publisher.class.isAssignableFrom(returnType)) {
@@ -90,14 +89,14 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 
 		PostInvocationAttribute attr = findPostInvocationAttribute(attributes);
 
-		if(Mono.class.isAssignableFrom(returnType)) {
+		if (Mono.class.isAssignableFrom(returnType)) {
 			return toInvoke
 				.flatMap( auth -> this.<Mono<?>>proceed(invocation)
 					.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))
 				);
 		}
 
-		if(Flux.class.isAssignableFrom(returnType)) {
+		if (Flux.class.isAssignableFrom(returnType)) {
 			return toInvoke
 				.flatMapMany( auth -> this.<Flux<?>>proceed(invocation)
 					.map( r -> attr == null ? r : this.postAdvice.after(auth, invocation, attr, r))

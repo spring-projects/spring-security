@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -51,7 +51,7 @@ public class AbstractAccessDecisionManagerTests {
 	}
 
 	@Test
-	public void testDelegatesSupportsClassRequests() throws Exception {
+	public void testDelegatesSupportsClassRequests() {
 		List list = new Vector();
 		list.add(new DenyVoter());
 		list.add(new MockStringOnlyVoter());
@@ -63,7 +63,7 @@ public class AbstractAccessDecisionManagerTests {
 	}
 
 	@Test
-	public void testDelegatesSupportsRequests() throws Exception {
+	public void testDelegatesSupportsRequests() {
 		List list = new Vector();
 		DenyVoter voter = new DenyVoter();
 		DenyAgainVoter denyVoter = new DenyAgainVoter();
@@ -80,7 +80,7 @@ public class AbstractAccessDecisionManagerTests {
 	}
 
 	@Test
-	public void testProperlyStoresListOfVoters() throws Exception {
+	public void testProperlyStoresListOfVoters() {
 		List list = new Vector();
 		DenyVoter voter = new DenyVoter();
 		DenyAgainVoter denyVoter = new DenyAgainVoter();
@@ -91,7 +91,7 @@ public class AbstractAccessDecisionManagerTests {
 	}
 
 	@Test
-	public void testRejectsEmptyList() throws Exception {
+	public void testRejectsEmptyList() {
 		List list = new Vector();
 
 		try {
@@ -104,7 +104,7 @@ public class AbstractAccessDecisionManagerTests {
 	}
 
 	@Test
-	public void testRejectsNullVotersList() throws Exception {
+	public void testRejectsNullVotersList() {
 		try {
 			new MockDecisionManagerImpl(null);
 			fail("Should have thrown IllegalArgumentException");
@@ -121,7 +121,7 @@ public class AbstractAccessDecisionManagerTests {
 	}
 
 	@Test
-	public void testWillNotStartIfDecisionVotersNotSet() throws Exception {
+	public void testWillNotStartIfDecisionVotersNotSet() {
 		try {
 			new MockDecisionManagerImpl(null);
 			fail("Should have thrown IllegalArgumentException");

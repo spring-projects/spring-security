@@ -7,7 +7,7 @@
    must include the following acknowledgement:
 
      "This product includes software developed by Spring Security
-      Project (http://www.springframework.org/security)."
+      Project (https://www.springframework.org/security)."
 
    Alternately, this acknowledgement may appear in the software itself,
    if and wherever such third-party acknowledgements normally appear.

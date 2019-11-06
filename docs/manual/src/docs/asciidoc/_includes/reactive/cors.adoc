@@ -1,0 +1,37 @@
+
+[[webflux-cors]]
+== CORS
+
+Spring Framework provides https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-cors-intro[first class support for CORS].
+CORS must be processed before Spring Security because the pre-flight request will not contain any cookies (i.e. the `JSESSIONID`).
+If the request does not contain any cookies and Spring Security is first, the request will determine the user is not authenticated (since there are no cookies in the request) and reject it.
+
+The easiest way to ensure that CORS is handled first is to use the `CorsWebFilter`.
+Users can integrate the `CorsWebFilter` with Spring Security by providing a `CorsConfigurationSource`.
+For example, the following will integrate CORS support within Spring Security:
+
+[source,java]
+----
+@Bean
+CorsConfigurationSource corsConfigurationSource() {
+	CorsConfiguration configuration = new CorsConfiguration();
+	configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
+	configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+	UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	source.registerCorsConfiguration("/**", configuration);
+	return source;
+}
+----
+
+The following will disable the CORS integration within Spring Security:
+
+[source,java]
+----
+@Bean
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	http
+		// ...
+		.cors(cors -> cors.disable());
+	return http.build();
+}
+----

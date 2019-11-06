@@ -1,25 +1,20 @@
 = Spring Security Reference
-Ben Alex; Luke Taylor; Rob Winch; Gunnar Hillert; Joe Grandja; Jay Bryant
+Ben Alex; Luke Taylor; Rob Winch; Gunnar Hillert; Joe Grandja; Jay Bryant; Eddú Meléndez; Josh Cummings
 :include-dir: _includes
-:security-api-url: http://docs.spring.io/spring-security/site/docs/current/apidocs/
+:security-api-url: https://docs.spring.io/spring-security/site/docs/current/api/
+:source-indent: 0
+:tabsize: 4
+:toc: left
 
-Spring Security is a powerful and highly customizable authentication and access-control framework.
-It is the de-facto standard for securing Spring-based applications.
+// FIXME: Add links for authentication, authorization, common attacks
+Spring Security is a framework that provides authentication, authorization, and protection against common attacks.
+// FIXME: Add links for imperative and reactive applications
+With first class support for both imperative and reactive applications, it is the de-facto standard for securing Spring-based applications.
 
-include::{include-dir}/preface/index.adoc[]
+include::{include-dir}/about/index.adoc[]
 
-include::{include-dir}/architecture/index.adoc[]
+include::{include-dir}/servlet/index.adoc[]
 
-include::{include-dir}/test/index.adoc[]
-
-include::{include-dir}/web/index.adoc[]
-
-include::{include-dir}/authorization/index.adoc[]
-
-include::{include-dir}/additional-topics/index.adoc[]
-
-include::{include-dir}/data/index.adoc[]
-
-include::{include-dir}/appendix/index.adoc[]
+include::{include-dir}/reactive/index.adoc[]
 
 

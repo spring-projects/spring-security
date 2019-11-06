@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,7 +34,7 @@ public class CommonOAuth2ProviderTests {
 	private static final String DEFAULT_REDIRECT_URL = "{baseUrl}/{action}/oauth2/code/{registrationId}";
 
 	@Test
-	public void getBuilderWhenGoogleShouldHaveGoogleSettings() throws Exception {
+	public void getBuilderWhenGoogleShouldHaveGoogleSettings() {
 		ClientRegistration registration = build(CommonOAuth2Provider.GOOGLE);
 		ProviderDetails providerDetails = registration.getProviderDetails();
 		assertThat(providerDetails.getAuthorizationUri())
@@ -58,7 +58,7 @@ public class CommonOAuth2ProviderTests {
 	}
 
 	@Test
-	public void getBuilderWhenGitHubShouldHaveGitHubSettings() throws Exception {
+	public void getBuilderWhenGitHubShouldHaveGitHubSettings() {
 		ClientRegistration registration = build(CommonOAuth2Provider.GITHUB);
 		ProviderDetails providerDetails = registration.getProviderDetails();
 		assertThat(providerDetails.getAuthorizationUri())
@@ -81,7 +81,7 @@ public class CommonOAuth2ProviderTests {
 	}
 
 	@Test
-	public void getBuilderWhenFacebookShouldHaveFacebookSettings() throws Exception {
+	public void getBuilderWhenFacebookShouldHaveFacebookSettings() {
 		ClientRegistration registration = build(CommonOAuth2Provider.FACEBOOK);
 		ProviderDetails providerDetails = registration.getProviderDetails();
 		assertThat(providerDetails.getAuthorizationUri())
@@ -89,7 +89,7 @@ public class CommonOAuth2ProviderTests {
 		assertThat(providerDetails.getTokenUri())
 			.isEqualTo("https://graph.facebook.com/v2.8/oauth/access_token");
 		assertThat(providerDetails.getUserInfoEndpoint().getUri())
-			.isEqualTo("https://graph.facebook.com/me");
+			.isEqualTo("https://graph.facebook.com/me?fields=id,name,email");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
 			.isEqualTo("id");
 		assertThat(providerDetails.getJwkSetUri()).isNull();
@@ -104,27 +104,26 @@ public class CommonOAuth2ProviderTests {
 	}
 
 	@Test
-	public void getBuilderWhenOktaShouldHaveOktaSettings() throws Exception {
+	public void getBuilderWhenOktaShouldHaveOktaSettings() {
 		ClientRegistration registration = builder(CommonOAuth2Provider.OKTA)
-			.authorizationUri("http://example.com/auth")
-			.tokenUri("http://example.com/token")
-			.userInfoUri("http://example.com/info")
-			.jwkSetUri("http://example.com/jwkset").build();
+			.authorizationUri("https://example.com/auth")
+			.tokenUri("https://example.com/token")
+			.userInfoUri("https://example.com/info")
+			.jwkSetUri("https://example.com/jwkset").build();
 		ProviderDetails providerDetails = registration.getProviderDetails();
 		assertThat(providerDetails.getAuthorizationUri())
-			.isEqualTo("http://example.com/auth");
-		assertThat(providerDetails.getTokenUri()).isEqualTo("http://example.com/token");
-		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("http://example.com/info");
+			.isEqualTo("https://example.com/auth");
+		assertThat(providerDetails.getTokenUri()).isEqualTo("https://example.com/token");
+		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/info");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName())
 			.isEqualTo(IdTokenClaimNames.SUB);
-		assertThat(providerDetails.getJwkSetUri()).isEqualTo("http://example.com/jwkset");
+		assertThat(providerDetails.getJwkSetUri()).isEqualTo("https://example.com/jwkset");
 		assertThat(registration.getClientAuthenticationMethod())
 			.isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(registration.getAuthorizationGrantType())
 			.isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRedirectUriTemplate()).isEqualTo(DEFAULT_REDIRECT_URL);
-		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email",
-			"address", "phone");
+		assertThat(registration.getScopes()).containsOnly("openid", "profile", "email");
 		assertThat(registration.getClientName()).isEqualTo("Okta");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
 	}

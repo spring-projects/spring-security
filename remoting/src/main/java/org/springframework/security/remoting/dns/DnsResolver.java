@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,7 @@ public interface DnsResolver {
 	 * @throws DnsEntryNotFoundException No record found
 	 * @throws DnsLookupException Unknown DNS error
 	 */
-	public String resolveIpAddress(String hostname) throws DnsEntryNotFoundException,
+	String resolveIpAddress(String hostname) throws DnsEntryNotFoundException,
 			DnsLookupException;
 
 	/**
@@ -57,7 +57,7 @@ public interface DnsResolver {
 	 * number in the DNS record) and if there are more than one records with the same
 	 * priority, it will return the one with the highest weight. You will find more
 	 * informatione about DNS service records at <a
-	 * href="http://en.wikipedia.org/wiki/SRV_record">Wikipedia</a>.
+	 * href="https://en.wikipedia.org/wiki/SRV_record">Wikipedia</a>.
 	 *
 	 * @param serviceType The service type you are searching for, e.g. ldap, kerberos, ...
 	 * @param domain The domain, in which you are searching for the service
@@ -65,7 +65,7 @@ public interface DnsResolver {
 	 * @throws DnsEntryNotFoundException No record found
 	 * @throws DnsLookupException Unknown DNS error
 	 */
-	public String resolveServiceEntry(String serviceType, String domain)
+	String resolveServiceEntry(String serviceType, String domain)
 			throws DnsEntryNotFoundException, DnsLookupException;
 
 	/**
@@ -80,7 +80,7 @@ public interface DnsResolver {
 	 * @see #resolveServiceEntry(String, String)
 	 * @see #resolveIpAddress(String)
 	 */
-	public String resolveServiceIpAddress(String serviceType, String domain)
+	String resolveServiceIpAddress(String serviceType, String domain)
 			throws DnsEntryNotFoundException, DnsLookupException;
 
 }

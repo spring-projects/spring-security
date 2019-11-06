@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,12 +50,12 @@ public @interface PreFilter {
 	 * @return the Spring-EL expression to be evaluated before invoking the protected
 	 * method
 	 */
-	public String value();
+	String value();
 
 	/**
 	 * @return the name of the parameter which should be filtered (must be a non-null
 	 * collection instance) If the method contains a single collection argument, then this
 	 * attribute can be omitted.
 	 */
-	public String filterTarget() default "";
+	String filterTarget() default "";
 }

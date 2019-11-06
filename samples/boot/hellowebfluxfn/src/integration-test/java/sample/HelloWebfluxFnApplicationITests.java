@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +15,13 @@
  */
 package sample;
 
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
-
-import java.util.Map;
 import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
@@ -45,7 +43,7 @@ public class HelloWebfluxFnApplicationITests {
 	}
 
 	@Test
-	public void basicWhenNoCredentialsThenUnauthorized() throws Exception {
+	public void basicWhenNoCredentialsThenUnauthorized() {
 		this.rest
 			.get()
 			.uri("/")
@@ -54,32 +52,32 @@ public class HelloWebfluxFnApplicationITests {
 	}
 
 	@Test
-	public void basicWhenValidCredentialsThenOk() throws Exception {
+	public void basicWhenValidCredentialsThenOk() {
 		this.rest
 			.get()
 			.uri("/")
-			.attributes(userCredentials())
+			.headers(userCredentials())
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody().json("{\"message\":\"Hello user!\"}");
 	}
 
 	@Test
-	public void basicWhenInvalidCredentialsThenUnauthorized() throws Exception {
+	public void basicWhenInvalidCredentialsThenUnauthorized() {
 		this.rest
 			.get()
 			.uri("/")
-			.attributes(invalidCredentials())
+			.headers(invalidCredentials())
 			.exchange()
 			.expectStatus().isUnauthorized()
 			.expectBody().isEmpty();
 	}
 
-	private Consumer<Map<String, Object>> userCredentials() {
-		return basicAuthenticationCredentials("user", "user");
+	private Consumer<HttpHeaders> userCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("user", "user");
 	}
 
-	private Consumer<Map<String, Object>> invalidCredentials() {
-		return basicAuthenticationCredentials("user", "INVALID");
+	private Consumer<HttpHeaders> invalidCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("user", "INVALID");
 	}
 }

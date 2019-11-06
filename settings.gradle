@@ -16,7 +16,7 @@ buildFiles.each { File buildFile ->
 	boolean isDefaultName = 'build.gradle'.equals(buildFile.name)
 	if(isDefaultName) {
 		String buildFilePath = buildFile.parentFile.absolutePath
-		String projectPath = buildFilePath.replace(rootDirPath, '').replaceAll(File.separator, ':')
+		String projectPath = buildFilePath.replace(rootDirPath, '').replace(File.separator, ':')
 		include projectPath
 	} else {
 		String projectName = buildFile.name.replace('.gradle', '');

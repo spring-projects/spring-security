@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,7 +45,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -70,7 +72,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -218,7 +220,7 @@ public class OAuth2LoginApplicationTests {
 		page = this.webClient.getPage(new URL(authorizationResponseUri));
 		assertThat(page.getBaseURL()).isEqualTo(loginErrorPageUrl);
 
-		HtmlElement errorElement = page.getBody().getFirstByXPath("p");
+		HtmlElement errorElement = page.getBody().getFirstByXPath("div");
 		assertThat(errorElement).isNotNull();
 		assertThat(errorElement.asText()).contains("authorization_request_not_found");
 	}
@@ -248,7 +250,7 @@ public class OAuth2LoginApplicationTests {
 		page = this.webClient.getPage(new URL(authorizationResponseUri));
 		assertThat(page.getBaseURL()).isEqualTo(loginErrorPageUrl);
 
-		HtmlElement errorElement = page.getBody().getFirstByXPath("p");
+		HtmlElement errorElement = page.getBody().getFirstByXPath("div");
 		assertThat(errorElement).isNotNull();
 		assertThat(errorElement.asText()).contains("authorization_request_not_found");
 	}
@@ -284,13 +286,13 @@ public class OAuth2LoginApplicationTests {
 		page = this.webClient.getPage(new URL(authorizationResponseUri));
 		assertThat(page.getBaseURL()).isEqualTo(loginErrorPageUrl);
 
-		HtmlElement errorElement = page.getBody().getFirstByXPath("p");
+		HtmlElement errorElement = page.getBody().getFirstByXPath("div");
 		assertThat(errorElement).isNotNull();
 		assertThat(errorElement.asText()).contains("invalid_redirect_uri_parameter");
 	}
 
-	private void assertLoginPage(HtmlPage page) throws Exception {
-		assertThat(page.getTitleText()).isEqualTo("Login Page");
+	private void assertLoginPage(HtmlPage page) {
+		assertThat(page.getTitleText()).isEqualTo("Please sign in");
 
 		int expectedClients = 4;
 
@@ -320,7 +322,7 @@ public class OAuth2LoginApplicationTests {
 		}
 	}
 
-	private void assertIndexPage(HtmlPage page) throws Exception {
+	private void assertIndexPage(HtmlPage page) {
 		assertThat(page.getTitleText()).isEqualTo("Spring Security - OAuth 2.0 Login");
 
 		DomNodeList<HtmlElement> divElements = page.getBody().getElementsByTagName("div");
@@ -356,15 +358,21 @@ public class OAuth2LoginApplicationTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.oauth2Login()
-					.tokenEndpoint()
-						.accessTokenResponseClient(this.mockAccessTokenResponseClient())
-						.and()
-					.userInfoEndpoint()
-						.userService(this.mockUserService());
+				.authorizeRequests(authorizeRequests ->
+					authorizeRequests
+						.anyRequest().authenticated()
+				)
+				.oauth2Login(oauth2Login ->
+					oauth2Login
+						.tokenEndpoint(tokenEndpoint ->
+							tokenEndpoint
+								.accessTokenResponseClient(this.mockAccessTokenResponseClient())
+						)
+						.userInfoEndpoint(userInfoEndpoint ->
+							userInfoEndpoint
+								.userService(this.mockUserService())
+						)
+				);
 		}
 		// @formatter:on
 
@@ -403,12 +411,14 @@ public class OAuth2LoginApplicationTests {
 	@ComponentScan(basePackages = "sample.web")
 	public static class SpringBootApplicationTestConfig {
 
-		@Autowired
-		private ClientRegistrationRepository clientRegistrationRepository;
+		@Bean
+		public OAuth2AuthorizedClientService authorizedClientService(ClientRegistrationRepository clientRegistrationRepository) {
+			return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+		}
 
 		@Bean
-		public OAuth2AuthorizedClientService authorizedClientService() {
-			return new InMemoryOAuth2AuthorizedClientService(this.clientRegistrationRepository);
+		public OAuth2AuthorizedClientRepository authorizedClientRepository(OAuth2AuthorizedClientService authorizedClientService) {
+			return new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
 		}
 	}
 }

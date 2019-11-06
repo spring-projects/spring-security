@@ -1,0 +1,14 @@
+apply plugin: 'io.spring.convention.spring-sample-boot'
+
+dependencies {
+	compile 'org.springframework.boot:spring-boot-starter-web'
+	compile 'org.springframework.boot:spring-boot-starter-security'
+	compile "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springBootVersion}"
+
+	compile 'javax.xml.bind:jaxb-api'
+	compile 'com.sun.xml.bind:jaxb-core'
+	compile 'com.sun.xml.bind:jaxb-impl'
+	compile 'com.nimbusds:nimbus-jose-jwt'
+
+	testCompile 'org.springframework.boot:spring-boot-starter-test'
+}

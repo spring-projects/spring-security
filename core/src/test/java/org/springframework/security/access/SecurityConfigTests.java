@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,7 +55,7 @@ public class SecurityConfigTests {
 	}
 
 	@Test
-	public void testObjectEquals() throws Exception {
+	public void testObjectEquals() {
 		SecurityConfig security1 = new SecurityConfig("TEST");
 		SecurityConfig security2 = new SecurityConfig("TEST");
 		assertThat(security2).isEqualTo(security1);
@@ -76,7 +76,7 @@ public class SecurityConfigTests {
 		MockConfigAttribute mock2 = new MockConfigAttribute("NOT_EQUAL");
 		assertThat(security1).isNotEqualTo(mock2);
 
-		Integer int1 = Integer.valueOf(987);
+		Integer int1 = 987;
 		assertThat(security1).isNotEqualTo(int1);
 	}
 
@@ -92,7 +92,7 @@ public class SecurityConfigTests {
 	private class MockConfigAttribute implements ConfigAttribute {
 		private String attribute;
 
-		public MockConfigAttribute(String configuration) {
+		MockConfigAttribute(String configuration) {
 			this.attribute = configuration;
 		}
 

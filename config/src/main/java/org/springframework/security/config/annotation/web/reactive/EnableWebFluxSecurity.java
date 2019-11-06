@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -54,6 +54,7 @@ import java.lang.annotation.Target;
  * <pre class="code">
  * &#064;EnableWebFluxSecurity
  * public class MyExplicitSecurityConfiguration {
+ *     // @formatter:off
  *     &#064;Bean
  *     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
  *          http
@@ -64,7 +65,9 @@ import java.lang.annotation.Target;
  *                    .formLogin();
  *          return http.build();
  *     }
+ *     // @formatter:on
  *
+ *     // @formatter:off
  *     &#064;Bean
  *     public MapReactiveUserDetailsService userDetailsService() {
  *          UserDetails user = User.withDefaultPasswordEncoder()
@@ -74,6 +77,7 @@ import java.lang.annotation.Target;
  *               .build();
  *          return new MapReactiveUserDetailsService(user);
  *     }
+ *     // @formatter:on
  * }
  *
  * @author Rob Winch

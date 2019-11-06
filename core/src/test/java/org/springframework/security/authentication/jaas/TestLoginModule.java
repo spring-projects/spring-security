@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,8 +15,6 @@
  */
 
 package org.springframework.security.authentication.jaas;
-
-import java.security.Principal;
 
 import java.util.Map;
 
@@ -39,11 +37,11 @@ public class TestLoginModule implements LoginModule {
 	// ~ Methods
 	// ========================================================================================================
 
-	public boolean abort() throws LoginException {
+	public boolean abort() {
 		return true;
 	}
 
-	public boolean commit() throws LoginException {
+	public boolean commit() {
 		return true;
 	}
 
@@ -77,22 +75,14 @@ public class TestLoginModule implements LoginModule {
 			throw new LoginException("Bad Password");
 		}
 
-		subject.getPrincipals().add(new Principal() {
-			public String getName() {
-				return "TEST_PRINCIPAL";
-			}
-		});
+		subject.getPrincipals().add(() -> "TEST_PRINCIPAL");
 
-		subject.getPrincipals().add(new Principal() {
-			public String getName() {
-				return "NULL_PRINCIPAL";
-			}
-		});
+		subject.getPrincipals().add(() -> "NULL_PRINCIPAL");
 
 		return true;
 	}
 
-	public boolean logout() throws LoginException {
+	public boolean logout() {
 		return true;
 	}
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,7 +49,7 @@ final class WithUserDetailsSecurityContextFactory implements
 	private BeanFactory beans;
 
 	@Autowired
-	public WithUserDetailsSecurityContextFactory(BeanFactory beans) {
+	WithUserDetailsSecurityContextFactory(BeanFactory beans) {
 		this.beans = beans;
 	}
 
@@ -67,7 +67,7 @@ final class WithUserDetailsSecurityContextFactory implements
 	}
 
 	private UserDetailsService findUserDetailsService(String beanName) {
-		if(reactorPresent) {
+		if (reactorPresent) {
 			UserDetailsService reactive = findAndAdaptReactiveUserDetailsService(beanName);
 			if (reactive != null) {
 				return reactive;

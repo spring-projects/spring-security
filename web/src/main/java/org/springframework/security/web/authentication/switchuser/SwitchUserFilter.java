@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,8 +57,11 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.util.UrlPathHelper;
 
 /**
  * Switch User processing filter responsible for user context switching.
@@ -118,8 +121,8 @@ public class SwitchUserFilter extends GenericFilterBean
 	private ApplicationEventPublisher eventPublisher;
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-	private String exitUserUrl = "/logout/impersonate";
-	private String switchUserUrl = "/login/impersonate";
+	private RequestMatcher exitUserMatcher = createMatcher("/logout/impersonate");
+	private RequestMatcher switchUserMatcher = createMatcher("/login/impersonate");
 	private String targetUrl;
 	private String switchFailureUrl;
 	private String usernameParameter = SPRING_SECURITY_SWITCH_USERNAME_KEY;
@@ -386,12 +389,10 @@ public class SwitchUserFilter extends GenericFilterBean
 	 * @return <code>true</code> if the request requires a exit user, <code>false</code>
 	 * otherwise.
 	 *
-	 * @see SwitchUserFilter#exitUserUrl
+	 * @see SwitchUserFilter#setExitUserUrl(String)
 	 */
 	protected boolean requiresExitUser(HttpServletRequest request) {
-		String uri = stripUri(request);
-
-		return uri.endsWith(request.getContextPath() + this.exitUserUrl);
+		return this.exitUserMatcher.matches(request);
 	}
 
 	/**
@@ -402,12 +403,10 @@ public class SwitchUserFilter extends GenericFilterBean
 	 * @return <code>true</code> if the request requires a switch, <code>false</code>
 	 * otherwise.
 	 *
-	 * @see SwitchUserFilter#switchUserUrl
+	 * @see SwitchUserFilter#setSwitchUserUrl(String)
 	 */
 	protected boolean requiresSwitchUser(HttpServletRequest request) {
-		String uri = stripUri(request);
-
-		return uri.endsWith(request.getContextPath() + this.switchUserUrl);
+		return this.switchUserMatcher.matches(request);
 	}
 
 	public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher)
@@ -445,18 +444,40 @@ public class SwitchUserFilter extends GenericFilterBean
 	public void setExitUserUrl(String exitUserUrl) {
 		Assert.isTrue(UrlUtils.isValidRedirectUrl(exitUserUrl),
 				"exitUserUrl cannot be empty and must be a valid redirect URL");
-		this.exitUserUrl = exitUserUrl;
+		this.exitUserMatcher = createMatcher(exitUserUrl);
 	}
 
 	/**
-	 * Set the URL to respond to switch user processing.
+	 * Set the matcher to respond to exit user processing. This is a shortcut for
+	 * {@link #setExitUserMatcher(RequestMatcher)}
+	 *
+	 * @param exitUserMatcher The exit matcher to use
+	 */
+	public void setExitUserMatcher(RequestMatcher exitUserMatcher) {
+		Assert.notNull(exitUserMatcher, "exitUserMatcher cannot be null");
+		this.exitUserMatcher = exitUserMatcher;
+	}
+
+	/**
+	 * Set the URL to respond to switch user processing. This is a shortcut for
+	 * {@link #setSwitchUserMatcher(RequestMatcher)}
 	 *
 	 * @param switchUserUrl The switch user URL.
 	 */
 	public void setSwitchUserUrl(String switchUserUrl) {
 		Assert.isTrue(UrlUtils.isValidRedirectUrl(switchUserUrl),
 				"switchUserUrl cannot be empty and must be a valid redirect URL");
-		this.switchUserUrl = switchUserUrl;
+		this.switchUserMatcher = createMatcher(switchUserUrl);
+	}
+
+	/**
+	 * Set the matcher to respond to switch user processing.
+	 *
+	 * @param switchUserMatcher The switch user matcher.
+	 */
+	public void setSwitchUserMatcher(RequestMatcher switchUserMatcher) {
+		Assert.notNull(switchUserMatcher, "switchUserMatcher cannot be null");
+		this.switchUserMatcher = switchUserMatcher;
 	}
 
 	/**
@@ -541,21 +562,7 @@ public class SwitchUserFilter extends GenericFilterBean
 		this.switchAuthorityRole = switchAuthorityRole;
 	}
 
-	/**
-	 * Strips any content after the ';' in the request URI
-	 *
-	 * @param request The http request
-	 *
-	 * @return The stripped uri
-	 */
-	private String stripUri(HttpServletRequest request) {
-		String uri = request.getRequestURI();
-		int idx = uri.indexOf(';');
-
-		if (idx > 0) {
-			uri = uri.substring(0, idx);
-		}
-
-		return uri;
+	private static RequestMatcher createMatcher(String pattern) {
+		return new AntPathRequestMatcher(pattern, null, true, new UrlPathHelper());
 	}
 }

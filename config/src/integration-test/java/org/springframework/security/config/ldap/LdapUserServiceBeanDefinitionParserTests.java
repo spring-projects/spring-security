@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -59,7 +59,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void beanClassNamesAreCorrect() throws Exception {
+	public void beanClassNamesAreCorrect() {
 		assertThat(FilterBasedLdapUserSearch.class.getName()).isEqualTo(LDAP_SEARCH_CLASS);
 		assertThat(PersonContextMapper.class.getName()).isEqualTo(PERSON_MAPPER_CLASS);
 		assertThat(InetOrgPersonContextMapper.class.getName()).isEqualTo(INET_ORG_PERSON_MAPPER_CLASS);
@@ -69,12 +69,12 @@ public class LdapUserServiceBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void minimalConfigurationIsParsedOk() throws Exception {
+	public void minimalConfigurationIsParsedOk() {
 		setContext("<ldap-user-service user-search-filter='(uid={0})' /><ldap-server ldif='classpath:test-server.ldif' url='ldap://127.0.0.1:343/dc=springframework,dc=org' />");
 	}
 
 	@Test
-	public void userServiceReturnsExpectedData() throws Exception {
+	public void userServiceReturnsExpectedData() {
 		setContext("<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' group-search-filter='member={0}' /><ldap-server ldif='classpath:test-server.ldif'/>");
 
 		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
@@ -86,7 +86,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void differentUserSearchBaseWorksAsExpected() throws Exception {
+	public void differentUserSearchBaseWorksAsExpected() {
 		setContext("<ldap-user-service id='ldapUDS' "
 				+ "       user-search-base='ou=otherpeople' "
 				+ "       user-search-filter='(cn={0})' "
@@ -99,7 +99,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void rolePrefixIsSupported() throws Exception {
+	public void rolePrefixIsSupported() {
 		setContext("<ldap-user-service id='ldapUDS' "
 				+ "     user-search-filter='(uid={0})' "
 				+ "     group-search-filter='member={0}' role-prefix='PREFIX_'/>"
@@ -117,7 +117,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void differentGroupRoleAttributeWorksAsExpected() throws Exception {
+	public void differentGroupRoleAttributeWorksAsExpected() {
 		setContext("<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' group-role-attribute='ou' group-search-filter='member={0}' /><ldap-server ldif='classpath:test-server.ldif'/>");
 
 		UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,8 +23,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.ArrayList;
 
 /**
  * Delegates to a collection of {@link ServerAuthenticationSuccessHandler} implementations.
@@ -43,7 +42,10 @@ public class DelegatingServerAuthenticationSuccessHandler implements ServerAuthe
 	@Override
 	public Mono<Void> onAuthenticationSuccess(WebFilterExchange exchange,
 			Authentication authentication) {
-		Stream<Mono<Void>> results = this.delegates.stream().map(delegate -> delegate.onAuthenticationSuccess(exchange, authentication));
-		return Mono.when(results.collect(Collectors.toList()));
+		List<Mono<Void>> results = new ArrayList<>();
+		for (ServerAuthenticationSuccessHandler delegate : delegates) {
+			results.add(delegate.onAuthenticationSuccess(exchange, authentication));
+		}
+		return Mono.when(results);
 	}
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -43,13 +42,11 @@ class UnmodifiableListDeserializer extends JsonDeserializer<List> {
 	public List deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode node = mapper.readTree(jp);
-		List<Object> result = new ArrayList<Object>();
+		List<Object> result = new ArrayList<>();
 		if (node != null) {
 			if (node instanceof ArrayNode) {
 				ArrayNode arrayNode = (ArrayNode) node;
-				Iterator<JsonNode> nodeIterator = arrayNode.iterator();
-				while (nodeIterator.hasNext()) {
-					JsonNode elementNode = nodeIterator.next();
+				for (JsonNode elementNode : arrayNode) {
 					result.add(mapper.readValue(elementNode.traverse(mapper), Object.class));
 				}
 			} else {

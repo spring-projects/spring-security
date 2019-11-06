@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -52,14 +52,14 @@ public class SecurityContextLoginModuleTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		this.module = new SecurityContextLoginModule();
 		this.module.initialize(this.subject, null, null, null);
 		SecurityContextHolder.clearContext();
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 		this.module = null;
 	}
@@ -75,7 +75,7 @@ public class SecurityContextLoginModuleTests {
 	}
 
 	@Test
-	public void testLoginException() throws Exception {
+	public void testLoginException() {
 		try {
 			this.module.login();
 			fail("LoginException expected, there is no Authentication in the SecurityContext");
@@ -103,7 +103,7 @@ public class SecurityContextLoginModuleTests {
 		this.module.login();
 		assertThat(this.module.logout()).as("Should return true as it succeeds").isTrue();
 		assertThat(this.module.getAuthentication()).as("Authentication should be null")
-				.isEqualTo(null);
+				.isNull();
 
 		assertThat(this.subject.getPrincipals().contains(this.auth))
 				.withFailMessage(
@@ -112,7 +112,7 @@ public class SecurityContextLoginModuleTests {
 	}
 
 	@Test
-	public void testNullAuthenticationInSecurityContext() throws Exception {
+	public void testNullAuthenticationInSecurityContext() {
 		try {
 			SecurityContextHolder.getContext().setAuthentication(null);
 			this.module.login();

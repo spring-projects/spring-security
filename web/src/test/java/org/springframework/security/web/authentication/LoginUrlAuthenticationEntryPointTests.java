@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,19 +37,19 @@ public class LoginUrlAuthenticationEntryPointTests {
 	// ========================================================================================================
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsMissingLoginFormUrl() throws Exception {
+	public void testDetectsMissingLoginFormUrl() {
 		new LoginUrlAuthenticationEntryPoint(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsMissingPortMapper() throws Exception {
+	public void testDetectsMissingPortMapper() {
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
 				"/login");
 		ep.setPortMapper(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsMissingPortResolver() throws Exception {
+	public void testDetectsMissingPortResolver() {
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
 				"/login");
 		ep.setPortResolver(null);
@@ -166,14 +166,14 @@ public class LoginUrlAuthenticationEntryPointTests {
 		request.setRequestURI("/some_path");
 		request.setContextPath("/bigWebApp");
 		request.setScheme("http");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setContextPath("/bigWebApp");
 		request.setServerPort(80);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://www.example.com/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/bigWebApp/hello");
 	}
 
 	@Test
@@ -188,7 +188,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		request.setRequestURI("/some_path");
 		request.setContextPath("/bigWebApp");
 		request.setScheme("http");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setContextPath("/bigWebApp");
 		request.setServerPort(8888); // NB: Port we can't resolve
 
@@ -198,7 +198,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 		// Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to HTTP port
 		// mapping
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://www.example.com:8888/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost:8888/bigWebApp/hello");
 	}
 
 	@Test
@@ -249,7 +249,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 	// SEC-1498
 	@Test
 	public void absoluteLoginFormUrlIsSupported() throws Exception {
-		final String loginFormUrl = "http://somesite.com/login";
+		final String loginFormUrl = "https://somesite.com/login";
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
 				loginFormUrl);
 		ep.afterPropertiesSet();
@@ -260,9 +260,9 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void absoluteLoginFormUrlCantBeUsedWithForwarding() throws Exception {
-		final String loginFormUrl = "http://somesite.com/login";
+		final String loginFormUrl = "https://somesite.com/login";
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint(
-				"http://somesite.com/login");
+				"https://somesite.com/login");
 		ep.setUseForward(true);
 		ep.afterPropertiesSet();
 	}

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,13 +19,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Internal interface for creating a {@link HttpServletRequest}. This allows for creating
- * a different implementation for Servlet 2.5 and Servlet 3.0 environments.
+ * Internal interface for creating a {@link HttpServletRequest}.
  *
  * @author Rob Winch
  * @since 3.2
  * @see HttpServlet3RequestFactory
- * @see HttpServlet25RequestFactory
  */
 interface HttpServletRequestFactory {
 
@@ -36,6 +34,5 @@ interface HttpServletRequestFactory {
 	 * @param response the original {@link HttpServletResponse}. Cannot be null.
 	 * @return a non-null HttpServletRequest
 	 */
-	public HttpServletRequest create(HttpServletRequest request,
-			HttpServletResponse response);
+	HttpServletRequest create(HttpServletRequest request, HttpServletResponse response);
 }

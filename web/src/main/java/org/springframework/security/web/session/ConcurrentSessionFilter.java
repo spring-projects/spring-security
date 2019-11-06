@@ -1,11 +1,11 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package org.springframework.security.web.session;
 
 import java.io.IOException;
 
+import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -61,6 +62,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @author Eddú Meléndez
  * @author Marten Deinum
+ * @author Onur Kagan Ozcan
  */
 public class ConcurrentSessionFilter extends GenericFilterBean {
 
@@ -96,17 +98,12 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 				() -> expiredUrl + " isn't a valid redirect URL");
 		this.expiredUrl = expiredUrl;
 		this.sessionRegistry = sessionRegistry;
-		this.sessionInformationExpiredStrategy = new SessionInformationExpiredStrategy() {
+		this.sessionInformationExpiredStrategy = event -> {
+			HttpServletRequest request = event.getRequest();
+			HttpServletResponse response = event.getResponse();
+			SessionInformation info = event.getSessionInformation();
 
-			@Override
-			public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException, ServletException {
-				HttpServletRequest request = event.getRequest();
-				HttpServletResponse response = event.getResponse();
-				SessionInformation info = event.getSessionInformation();
-
-				redirectStrategy.sendRedirect(request, response, determineExpiredUrl(request, info));
-			}
-
+			redirectStrategy.sendRedirect(request, response, determineExpiredUrl(request, info));
 		};
 	}
 
@@ -179,6 +176,16 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	}
 
 	/**
+	 * Set list of {@link LogoutHandler}
+	 *
+	 * @param handlers list of {@link LogoutHandler}
+	 * @since 5.2.0
+	 */
+	public void setLogoutHandlers(List<LogoutHandler> handlers) {
+		this.handlers = new CompositeLogoutHandler(handlers);
+	}
+
+	/**
 	 * Sets the {@link RedirectStrategy} used with {@link #ConcurrentSessionFilter(SessionRegistry, String)}
 	 * @param redirectStrategy the {@link RedirectStrategy} to use
 	 * @deprecated use {@link #ConcurrentSessionFilter(SessionRegistry, SessionInformationExpiredStrategy)} instead.
@@ -197,7 +204,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 			implements SessionInformationExpiredStrategy {
 		@Override
 		public void onExpiredSessionDetected(SessionInformationExpiredEvent event)
-				throws IOException, ServletException {
+				throws IOException {
 			HttpServletResponse response = event.getResponse();
 			response.getWriter().print(
 					"This session has been expired (possibly due to multiple concurrent "

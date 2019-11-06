@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,6 +32,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
@@ -65,7 +66,8 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
-	private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+	private SavedRequestAwareAuthenticationSuccessHandler defaultSuccessHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+	private AuthenticationSuccessHandler successHandler = this.defaultSuccessHandler;
 
 	private LoginUrlAuthenticationEntryPoint authenticationEntryPoint;
 
@@ -103,9 +105,9 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Specifies where users will go after authenticating successfully if they have not
-	 * visited a secured page prior to authenticating. This is a shortcut for calling
-	 * {@link #defaultSuccessUrl(String)}.
+	 * Specifies where users will be redirected after authenticating successfully if
+	 * they have not visited a secured page prior to authenticating. This is a shortcut
+	 * for calling {@link #defaultSuccessUrl(String, boolean)}.
 	 *
 	 * @param defaultSuccessUrl the default success url
 	 * @return the {@link FormLoginConfigurer} for additional customization
@@ -115,9 +117,10 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Specifies where users will go after authenticating successfully if they have not
-	 * visited a secured page prior to authenticating or {@code alwaysUse} is true. This
-	 * is a shortcut for calling {@link #successHandler(AuthenticationSuccessHandler)}.
+	 * Specifies where users will be redirected after authenticating successfully if
+	 * they have not visited a secured page prior to authenticating or {@code alwaysUse}
+	 * is true. This is a shortcut for calling
+	 * {@link #successHandler(AuthenticationSuccessHandler)}.
 	 *
 	 * @param defaultSuccessUrl the default success url
 	 * @param alwaysUse true if the {@code defaultSuccesUrl} should be used after
@@ -128,6 +131,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
 		handler.setDefaultTargetUrl(defaultSuccessUrl);
 		handler.setAlwaysUseDefaultTargetUrl(alwaysUse);
+		this.defaultSuccessHandler = handler;
 		return successHandler(handler);
 	}
 
@@ -181,7 +185,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	/**
 	 * Equivalent of invoking permitAll(true)
-	 * @return
+	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
 	public final T permitAll() {
 		return permitAll(true);
@@ -234,20 +238,27 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	@Override
 	public void init(B http) throws Exception {
 		updateAuthenticationDefaults();
-		if (permitAll) {
-			PermitAllSupport.permitAll(http, loginPage, loginProcessingUrl, failureUrl);
-		}
-
+		updateAccessDefaults(http);
 		registerDefaultAuthenticationEntryPoint(http);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void registerDefaultAuthenticationEntryPoint(B http) {
+	protected final void registerDefaultAuthenticationEntryPoint(B http) {
+		registerAuthenticationEntryPoint(http, this.authenticationEntryPoint);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected final void registerAuthenticationEntryPoint(B http, AuthenticationEntryPoint authenticationEntryPoint) {
 		ExceptionHandlingConfigurer<B> exceptionHandling = http
 				.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptionHandling == null) {
 			return;
 		}
+		exceptionHandling.defaultAuthenticationEntryPointFor(
+				postProcess(authenticationEntryPoint), getAuthenticationEntryPointMatcher(http));
+	}
+
+	protected final RequestMatcher getAuthenticationEntryPointMatcher(B http) {
 		ContentNegotiationStrategy contentNegotiationStrategy = http
 				.getSharedObject(ContentNegotiationStrategy.class);
 		if (contentNegotiationStrategy == null) {
@@ -262,10 +273,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
 
-		RequestMatcher preferredMatcher = new AndRequestMatcher(Arrays.asList(notXRequestedWith, mediaMatcher));
-
-		exceptionHandling.defaultAuthenticationEntryPointFor(
-				postProcess(authenticationEntryPoint), preferredMatcher);
+		return new AndRequestMatcher(Arrays.asList(notXRequestedWith, mediaMatcher));
 	}
 
 	@Override
@@ -273,6 +281,11 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		PortMapper portMapper = http.getSharedObject(PortMapper.class);
 		if (portMapper != null) {
 			authenticationEntryPoint.setPortMapper(portMapper);
+		}
+
+		RequestCache requestCache = http.getSharedObject(RequestCache.class);
+		if (requestCache != null) {
+			this.defaultSuccessHandler.setRequestCache(requestCache);
 		}
 
 		authFilter.setAuthenticationManager(http
@@ -352,6 +365,15 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
+	 * Gets the Authentication Entry Point
+	 *
+	 * @return the Authentication Entry Point
+	 */
+	protected final AuthenticationEntryPoint getAuthenticationEntryPoint() {
+		return authenticationEntryPoint;
+	}
+
+	/**
 	 * Gets the URL to submit an authentication request to (i.e. where username/password
 	 * must be submitted)
 	 *
@@ -364,7 +386,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	/**
 	 * Gets the URL to send users to if authentication fails
 	 *
-	 * @return
+	 * @return the URL to send users if authentication fails (e.g. "/login?error").
 	 */
 	protected final String getFailureUrl() {
 		return failureUrl;
@@ -375,7 +397,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 *
 	 * @throws Exception
 	 */
-	private void updateAuthenticationDefaults() {
+	protected final void updateAuthenticationDefaults() {
 		if (loginProcessingUrl == null) {
 			loginProcessingUrl(loginPage);
 		}
@@ -387,6 +409,15 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 				LogoutConfigurer.class);
 		if (logoutConfigurer != null && !logoutConfigurer.isCustomLogoutSuccess()) {
 			logoutConfigurer.logoutSuccessUrl(loginPage + "?logout");
+		}
+	}
+
+	/**
+	 * Updates the default values for access.
+	 */
+	protected final void updateAccessDefaults(B http) {
+		if (permitAll) {
+			PermitAllSupport.permitAll(http, loginPage, loginProcessingUrl, failureUrl);
 		}
 	}
 

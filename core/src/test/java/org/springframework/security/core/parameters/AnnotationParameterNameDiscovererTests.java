@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -78,18 +78,18 @@ public class AnnotationParameterNameDiscovererTests {
 
 	@Test
 	public void getParameterNamesConstructor() throws Exception {
-		assertThat(discoverer.getParameterNames(Impl.class.getConstructor(String.class)))
+		assertThat(discoverer.getParameterNames(Impl.class.getDeclaredConstructor(String.class)))
 				.isEqualTo(new String[] { "id" });
 	}
 
 	@Test
 	public void getParameterNamesConstructorNoAnnotation() throws Exception {
-		assertThat(discoverer.getParameterNames(Impl.class.getConstructor(Long.class)))
+		assertThat(discoverer.getParameterNames(Impl.class.getDeclaredConstructor(Long.class)))
 				.isNull();
 	}
 
 	@Test
-	public void getParameterNamesClassAnnotationOnInterface() throws Exception {
+	public void getParameterNamesClassAnnotationOnInterface() {
 		assertThat(
 				discoverer.getParameterNames(ReflectionUtils.findMethod(DaoImpl.class,
 						"findMessageByTo", String.class))).isEqualTo(
@@ -101,7 +101,7 @@ public class AnnotationParameterNameDiscovererTests {
 	}
 
 	@Test
-	public void getParameterNamesClassAnnotationOnImpl() throws Exception {
+	public void getParameterNamesClassAnnotationOnImpl() {
 		assertThat(
 				discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class,
 						"findMessageByToAndFrom", String.class, String.class)))
@@ -113,7 +113,7 @@ public class AnnotationParameterNameDiscovererTests {
 	}
 
 	@Test
-	public void getParameterNamesClassAnnotationOnBaseClass() throws Exception {
+	public void getParameterNamesClassAnnotationOnBaseClass() {
 		assertThat(
 				discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class,
 						"findMessageByIdNoAnnotation", String.class))).isNull();
@@ -148,10 +148,10 @@ public class AnnotationParameterNameDiscovererTests {
 	}
 
 	static class Impl {
-		public Impl(Long dataSourceId) {
+		Impl(Long dataSourceId) {
 		}
 
-		public Impl(@P("id") String dataSourceId) {
+		Impl(@P("id") String dataSourceId) {
 		}
 
 		String findMessageByTo(@P("to") String to) {

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
@@ -91,13 +90,10 @@ public class SecurityContextPersistenceFilterTests {
 
 		when(repo.loadContext(any(HttpRequestResponseHolder.class))).thenReturn(scBefore);
 
-		final FilterChain chain = new FilterChain() {
-			public void doFilter(ServletRequest request, ServletResponse response)
-					throws IOException, ServletException {
-				assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(beforeAuth);
-				// Change the context here
-				SecurityContextHolder.setContext(scExpectedAfter);
-			}
+		final FilterChain chain = (request1, response1) -> {
+			assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(beforeAuth);
+			// Change the context here
+			SecurityContextHolder.setContext(scExpectedAfter);
 		};
 
 		filter.doFilter(request, response, chain);

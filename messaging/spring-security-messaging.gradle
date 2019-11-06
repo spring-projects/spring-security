@@ -10,6 +10,7 @@ dependencies {
 
 	optional project(':spring-security-web')
 	optional 'org.springframework:spring-websocket'
+	optional 'io.projectreactor:reactor-core'
 	optional 'javax.servlet:javax.servlet-api'
 
 	testCompile project(path: ':spring-security-core', configuration: 'tests')

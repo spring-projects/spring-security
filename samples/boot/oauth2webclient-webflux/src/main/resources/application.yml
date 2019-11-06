@@ -1,0 +1,21 @@
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+#    org.springframework.boot.autoconfigure: DEBUG
+
+spring:
+  thymeleaf:
+    cache: false
+  security:
+    oauth2:
+      client:
+        registration:
+          client-id:
+            client-id: replace-with-client-id
+            client-secret: replace-with-client-secret
+            provider: github
+            scope: read:user,public_repo
+
+resource-uri: https://api.github.com/user/repos

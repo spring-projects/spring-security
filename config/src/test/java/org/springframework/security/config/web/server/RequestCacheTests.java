@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
@@ -81,6 +82,40 @@ public class RequestCacheTests {
 			.requestCache()
 				.requestCache(NoOpServerRequestCache.getInstance())
 				.and()
+			.build();
+
+		WebTestClient webTestClient = WebTestClient
+			.bindToController(new SecuredPageController(), new WebTestClientBuilder.Http200RestController())
+			.webFilter(new WebFilterChainProxy(securityWebFilter))
+			.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+			.webTestClientSetup(webTestClient)
+			.build();
+
+		DefaultLoginPage loginPage = SecuredPage.to(driver, DefaultLoginPage.class)
+			.assertAt();
+
+		HomePage securedPage = loginPage.loginForm()
+			.username("user")
+			.password("password")
+			.submit(HomePage.class);
+
+		securedPage.assertAt();
+	}
+
+	@Test
+	public void requestWhenCustomRequestCacheInLambdaThenCustomCacheUsed() {
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authorizeExchange(authorizeExchange ->
+				authorizeExchange
+					.anyExchange().authenticated()
+			)
+			.formLogin(withDefaults())
+			.requestCache(requestCache ->
+				requestCache
+					.requestCache(NoOpServerRequestCache.getInstance())
+			)
 			.build();
 
 		WebTestClient webTestClient = WebTestClient

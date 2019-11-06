@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -67,14 +67,14 @@ public class FirewalledResponseTests {
 	}
 
 	@Test
-	public void addHeaderWhenValidThenDelegateInvoked() throws Exception {
+	public void addHeaderWhenValidThenDelegateInvoked() {
 		fwResponse.addHeader("foo", "bar");
 
 		verify(response).addHeader("foo", "bar");
 	}
 
 	@Test
-	public void addHeaderWhenNullValueThenDelegateInvoked() throws Exception {
+	public void addHeaderWhenNullValueThenDelegateInvoked() {
 		fwResponse.addHeader("foo", null);
 
 		verify(response).addHeader("foo", null);

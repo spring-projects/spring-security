@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ public class AclFormattingUtilsTests {
 	// ~ Methods
 	// ========================================================================================================
 	@Test
-	public final void testDemergePatternsParametersConstraints() throws Exception {
+	public final void testDemergePatternsParametersConstraints() {
 		try {
 			AclFormattingUtils.demergePatterns(null, "SOME STRING");
 			fail("It should have thrown IllegalArgumentException");
@@ -63,7 +63,7 @@ public class AclFormattingUtilsTests {
 	}
 
 	@Test
-	public final void testDemergePatterns() throws Exception {
+	public final void testDemergePatterns() {
 		String original = "...........................A...R";
 		String removeBits = "...............................R";
 		assertThat(AclFormattingUtils.demergePatterns(original, removeBits)).isEqualTo(
@@ -76,7 +76,7 @@ public class AclFormattingUtilsTests {
 	}
 
 	@Test
-	public final void testMergePatternsParametersConstraints() throws Exception {
+	public final void testMergePatternsParametersConstraints() {
 		try {
 			AclFormattingUtils.mergePatterns(null, "SOME STRING");
 			fail("It should have thrown IllegalArgumentException");
@@ -106,7 +106,7 @@ public class AclFormattingUtilsTests {
 	}
 
 	@Test
-	public final void testMergePatterns() throws Exception {
+	public final void testMergePatterns() {
 		String original = "...............................R";
 		String extraBits = "...........................A....";
 		assertThat(AclFormattingUtils.mergePatterns(original, extraBits)).isEqualTo(
@@ -119,7 +119,7 @@ public class AclFormattingUtilsTests {
 	}
 
 	@Test
-	public final void testBinaryPrints() throws Exception {
+	public final void testBinaryPrints() {
 		assertThat(AclFormattingUtils.printBinary(15)).isEqualTo(
 				"............................****");
 

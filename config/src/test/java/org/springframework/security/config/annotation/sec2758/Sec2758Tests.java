@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -125,13 +125,13 @@ public class Sec2758Tests {
 
 		@Override
 		public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-			if(bean instanceof Jsr250MethodSecurityMetadataSource) {
+			if (bean instanceof Jsr250MethodSecurityMetadataSource) {
 				((Jsr250MethodSecurityMetadataSource) bean).setDefaultRolePrefix(null);
 			}
-			if(bean instanceof DefaultMethodSecurityExpressionHandler) {
+			if (bean instanceof DefaultMethodSecurityExpressionHandler) {
 				((DefaultMethodSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
 			}
-			if(bean instanceof DefaultWebSecurityExpressionHandler) {
+			if (bean instanceof DefaultWebSecurityExpressionHandler) {
 				((DefaultWebSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
 			}
 			return bean;

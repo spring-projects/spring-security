@@ -1,0 +1,17 @@
+= Preface
+
+This section discusses the logistics of Spring Security.
+
+include::prerequisites.adoc[leveloffset=+1]
+
+include::community.adoc[leveloffset=+1]
+
+include::whats-new.adoc[]
+
+include::getting-spring-security.adoc[leveloffset=+1]
+
+include::features.adoc[leveloffset=+1]
+
+include::modules.adoc[leveloffset=+1]
+
+include::samples.adoc[leveloffset=+1]

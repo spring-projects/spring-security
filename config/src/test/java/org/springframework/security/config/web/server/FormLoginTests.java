@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,12 +23,18 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -40,9 +46,17 @@ import reactor.core.publisher.Mono;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 5.0
  */
 public class FormLoginTests {
@@ -55,6 +69,49 @@ public class FormLoginTests {
 				.anyExchange().authenticated()
 				.and()
 			.formLogin().and()
+			.build();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+			.bindToWebFilters(securityWebFilter)
+			.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+			.webTestClientSetup(webTestClient)
+			.build();
+
+		DefaultLoginPage loginPage = HomePage.to(driver, DefaultLoginPage.class)
+			.assertAt();
+
+		loginPage = loginPage.loginForm()
+			.username("user")
+			.password("invalid")
+			.submit(DefaultLoginPage.class)
+			.assertError();
+
+		HomePage homePage = loginPage.loginForm()
+			.username("user")
+			.password("password")
+			.submit(HomePage.class);
+
+		homePage.assertAt();
+
+		loginPage = DefaultLogoutPage.to(driver)
+			.assertAt()
+			.logout();
+
+		loginPage
+			.assertAt()
+			.assertLogout();
+	}
+
+	@Test
+	public void formLoginWhenDefaultsInLambdaThenCreatesDefaultLoginPage() {
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authorizeExchange(exchanges ->
+				exchanges
+					.anyExchange().authenticated()
+			)
+			.formLogin(withDefaults())
 			.build();
 
 		WebTestClient webTestClient = WebTestClientBuilder
@@ -123,6 +180,40 @@ public class FormLoginTests {
 	}
 
 	@Test
+	public void formLoginWhenCustomLoginPageInLambdaThenUsed() {
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authorizeExchange(exchanges ->
+				exchanges
+					.pathMatchers("/login").permitAll()
+					.anyExchange().authenticated()
+			)
+			.formLogin(formLogin ->
+				formLogin
+					.loginPage("/login")
+			)
+			.build();
+
+		WebTestClient webTestClient = WebTestClient
+			.bindToController(new CustomLoginPageController(), new WebTestClientBuilder.Http200RestController())
+			.webFilter(new WebFilterChainProxy(securityWebFilter))
+			.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+			.webTestClientSetup(webTestClient)
+			.build();
+
+		CustomLoginPage loginPage = HomePage.to(driver, CustomLoginPage.class)
+			.assertAt();
+
+		HomePage homePage = loginPage.loginForm()
+			.username("user")
+			.password("password")
+			.submit(HomePage.class);
+
+		homePage.assertAt();
+	}
+
+	@Test
 	public void authenticationSuccess() {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.authorizeExchange()
@@ -150,6 +241,86 @@ public class FormLoginTests {
 			.submit(HomePage.class);
 
 		assertThat(driver.getCurrentUrl()).endsWith("/custom");
+	}
+
+	@Test
+	public void customAuthenticationManager() {
+		ReactiveAuthenticationManager defaultAuthenticationManager = mock(ReactiveAuthenticationManager.class);
+		ReactiveAuthenticationManager customAuthenticationManager = mock(ReactiveAuthenticationManager.class);
+
+		given(defaultAuthenticationManager.authenticate(any())).willThrow(new RuntimeException("should not interact with default auth manager"));
+		given(customAuthenticationManager.authenticate(any())).willReturn(Mono.just(new TestingAuthenticationToken("user", "password", "ROLE_USER", "ROLE_ADMIN")));
+
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authenticationManager(defaultAuthenticationManager)
+			.formLogin()
+				.authenticationManager(customAuthenticationManager)
+				.and()
+			.build();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+			.bindToWebFilters(securityWebFilter)
+			.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+			.webTestClientSetup(webTestClient)
+			.build();
+
+		DefaultLoginPage loginPage = DefaultLoginPage.to(driver)
+			.assertAt();
+
+		HomePage homePage = loginPage.loginForm()
+			.username("user")
+			.password("password")
+			.submit(HomePage.class);
+
+		homePage.assertAt();
+
+		verifyZeroInteractions(defaultAuthenticationManager);
+	}
+
+	@Test
+	public void formLoginSecurityContextRepository() {
+		ServerSecurityContextRepository defaultSecContextRepository = mock(ServerSecurityContextRepository.class);
+		ServerSecurityContextRepository formLoginSecContextRepository = mock(ServerSecurityContextRepository.class);
+
+		TestingAuthenticationToken token = new TestingAuthenticationToken("rob", "rob", "ROLE_USER");
+
+		given(defaultSecContextRepository.save(any(), any())).willReturn(Mono.empty());
+		given(defaultSecContextRepository.load(any())).willReturn(authentication(token));
+		given(formLoginSecContextRepository.save(any(), any())).willReturn(Mono.empty());
+		given(formLoginSecContextRepository.load(any())).willReturn(authentication(token));
+
+		SecurityWebFilterChain securityWebFilter = this.http
+				.authorizeExchange()
+					.anyExchange().authenticated()
+					.and()
+				.securityContextRepository(defaultSecContextRepository)
+				.formLogin()
+					.securityContextRepository(formLoginSecContextRepository)
+					.and()
+				.build();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+
+		DefaultLoginPage loginPage = DefaultLoginPage.to(driver)
+				.assertAt();
+
+		HomePage homePage = loginPage.loginForm()
+				.username("user")
+				.password("password")
+				.submit(HomePage.class);
+
+		homePage.assertAt();
+
+		verify(defaultSecContextRepository, atLeastOnce()).load(any());
+		verify(formLoginSecContextRepository).save(any(), any());
 	}
 
 	public static class CustomLoginPage {
@@ -380,5 +551,11 @@ public class FormLoginTests {
 				+ "  </body>\n"
 				+ "</html>");
 		}
+	}
+
+	Mono<SecurityContext> authentication(Authentication authentication) {
+		SecurityContext context = new SecurityContextImpl();
+		context.setAuthentication(authentication);
+		return Mono.just(context);
 	}
 }

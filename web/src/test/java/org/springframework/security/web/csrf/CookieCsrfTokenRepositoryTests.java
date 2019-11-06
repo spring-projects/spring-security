@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -187,6 +187,20 @@ public class CookieCsrfTokenRepositoryTests {
 				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 
 		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
+	}
+
+	@Test
+	public void saveTokenWithCookieDomain() {
+		String domainName = "example.com";
+		this.repository.setCookieDomain(domainName);
+
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+
+		Cookie tokenCookie = this.response
+				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+
+		assertThat(tokenCookie.getDomain()).isEqualTo(domainName);
 	}
 
 	@Test

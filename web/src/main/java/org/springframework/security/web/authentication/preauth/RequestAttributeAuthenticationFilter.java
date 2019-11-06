@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 /**
  * A simple pre-authenticated filter which obtains the username from request attributes,
  * for use with SSO systems such as
- * <a href="http://webauth.stanford.edu/manual/mod/mod_webauth.html#java">Stanford WebAuth</a> or
+ * <a href="https://webauth.stanford.edu/manual/mod/mod_webauth.html#java">Stanford WebAuth</a> or
  * <a href="https://wiki.shibboleth.net/confluence/display/SHIB2/NativeSPJavaInstall">Shibboleth</a>.
  * <p>
  * As with most pre-authenticated scenarios, it is essential that the external

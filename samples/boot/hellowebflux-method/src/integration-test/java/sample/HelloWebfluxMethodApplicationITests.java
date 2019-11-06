@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,19 +15,16 @@
  */
 package sample;
 
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
-
-import java.util.Map;
 import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 
 /**
  * @author Rob Winch
@@ -37,17 +34,12 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class HelloWebfluxMethodApplicationITests {
 
-	WebTestClient rest;
-
 	@Autowired
-	public void setRest(WebTestClient rest) {
-		this.rest = rest
-				.mutateWith((b, h, c) -> b.filter(ExchangeFilterFunctions.basicAuthentication()));
-	}
+	WebTestClient rest;
 
 
 	@Test
-	public void messageWhenNotAuthenticated() throws Exception {
+	public void messageWhenNotAuthenticated() {
 		this.rest
 				.get()
 				.uri("/message")
@@ -56,32 +48,32 @@ public class HelloWebfluxMethodApplicationITests {
 	}
 
 	@Test
-	public void messageWhenUserThenForbidden() throws Exception {
+	public void messageWhenUserThenForbidden() {
 		this.rest
 				.get()
 				.uri("/message")
-				.attributes(robsCredentials())
+				.headers(robsCredentials())
 				.exchange()
 				.expectStatus().isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
 	@Test
-	public void messageWhenAdminThenOk() throws Exception {
+	public void messageWhenAdminThenOk() {
 		this.rest
 				.get()
 				.uri("/message")
-				.attributes(adminCredentials())
+				.headers(adminCredentials())
 				.exchange()
 				.expectStatus().isOk()
 				.expectBody(String.class).isEqualTo("Hello World!");
 	}
 
-	private Consumer<Map<String, Object>> robsCredentials() {
-		return basicAuthenticationCredentials("rob", "rob");
+	private Consumer<HttpHeaders> robsCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("rob", "rob");
 	}
 
-	private Consumer<Map<String, Object>> adminCredentials() {
-		return basicAuthenticationCredentials("admin", "admin");
+	private Consumer<HttpHeaders> adminCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("admin", "admin");
 	}
 }
 

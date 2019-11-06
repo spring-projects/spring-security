@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,8 +34,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
@@ -65,7 +63,7 @@ public class DataSourcePopulator implements InitializingBean {
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(mutableAclService, "mutableAclService required");
 		Assert.notNull(template, "dataSource required");
 		Assert.notNull(tt, "platformTransactionManager required");
@@ -165,13 +163,11 @@ public class DataSourcePopulator implements InitializingBean {
 		// Create acl_object_identity rows (and also acl_class rows as needed
 		for (int i = 1; i < createEntities; i++) {
 			final ObjectIdentity objectIdentity = new ObjectIdentityImpl(Contact.class,
-					Long.valueOf(i));
-			tt.execute(new TransactionCallback<Object>() {
-				public Object doInTransaction(TransactionStatus arg0) {
-					mutableAclService.createAcl(objectIdentity);
+					(long) i);
+			tt.execute(arg0 -> {
+				mutableAclService.createAcl(objectIdentity);
 
-					return null;
-				}
+				return null;
 			});
 		}
 
@@ -230,7 +226,7 @@ public class DataSourcePopulator implements InitializingBean {
 
 	private void changeOwner(int contactNumber, String newOwnerUsername) {
 		AclImpl acl = (AclImpl) mutableAclService.readAclById(new ObjectIdentityImpl(
-				Contact.class, new Long(contactNumber)));
+				Contact.class, (long) contactNumber));
 		acl.setOwner(new PrincipalSid(newOwnerUsername));
 		updateAclInTransaction(acl);
 	}
@@ -242,7 +238,7 @@ public class DataSourcePopulator implements InitializingBean {
 	private void grantPermissions(int contactNumber, String recipientUsername,
 			Permission permission) {
 		AclImpl acl = (AclImpl) mutableAclService.readAclById(new ObjectIdentityImpl(
-				Contact.class, Long.valueOf(contactNumber)));
+				Contact.class, (long) contactNumber));
 		acl.insertAce(acl.getEntries().size(), permission, new PrincipalSid(
 				recipientUsername), true);
 		updateAclInTransaction(acl);
@@ -273,12 +269,10 @@ public class DataSourcePopulator implements InitializingBean {
 	}
 
 	private void updateAclInTransaction(final MutableAcl acl) {
-		tt.execute(new TransactionCallback<Object>() {
-			public Object doInTransaction(TransactionStatus arg0) {
-				mutableAclService.updateAcl(acl);
+		tt.execute(arg0 -> {
+			mutableAclService.updateAcl(acl);
 
-				return null;
-			}
+			return null;
 		});
 	}
 }

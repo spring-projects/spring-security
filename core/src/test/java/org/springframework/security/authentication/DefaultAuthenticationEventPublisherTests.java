@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,7 +40,7 @@ public class DefaultAuthenticationEventPublisherTests {
 	DefaultAuthenticationEventPublisher publisher;
 
 	@Test
-	public void expectedDefaultMappingsAreSatisfied() throws Exception {
+	public void expectedDefaultMappingsAreSatisfied() {
 		publisher = new DefaultAuthenticationEventPublisher();
 		ApplicationEventPublisher appPublisher = mock(ApplicationEventPublisher.class);
 		publisher.setApplicationEventPublisher(appPublisher);
@@ -123,7 +123,7 @@ public class DefaultAuthenticationEventPublisherTests {
 	}
 
 	@Test
-	public void unknownFailureExceptionIsIgnored() throws Exception {
+	public void unknownFailureExceptionIsIgnored() {
 		publisher = new DefaultAuthenticationEventPublisher();
 		Properties p = new Properties();
 		p.put(MockAuthenticationException.class.getName(),
@@ -139,7 +139,7 @@ public class DefaultAuthenticationEventPublisherTests {
 
 	private static final class MockAuthenticationException extends
 			AuthenticationException {
-		public MockAuthenticationException(String msg) {
+		MockAuthenticationException(String msg) {
 			super(msg);
 		}
 	}

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -84,8 +84,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	}
 
 	@Test
-	public void classLevelPreAnnotationIsPickedUpWhenNoMethodLevelExists()
-			throws Exception {
+	public void classLevelPreAnnotationIsPickedUpWhenNoMethodLevelExists() {
 		ConfigAttribute[] attrs = mds.getAttributes(voidImpl1).toArray(
 				new ConfigAttribute[0]);
 
@@ -167,7 +166,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	}
 
 	@Test
-	public void customAnnotationAtClassLevelIsDetected() throws Exception {
+	public void customAnnotationAtClassLevelIsDetected() {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtClassLevel).toArray(
 				new ConfigAttribute[0]);
 
@@ -175,7 +174,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	}
 
 	@Test
-	public void customAnnotationAtInterfaceLevelIsDetected() throws Exception {
+	public void customAnnotationAtInterfaceLevelIsDetected() {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtInterfaceLevel).toArray(
 				new ConfigAttribute[0]);
 
@@ -183,7 +182,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	}
 
 	@Test
-	public void customAnnotationAtMethodLevelIsDetected() throws Exception {
+	public void customAnnotationAtMethodLevelIsDetected() {
 		ConfigAttribute[] attrs = mds.getAttributes(annotatedAtMethodLevel).toArray(
 				new ConfigAttribute[0]);
 
@@ -203,19 +202,19 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	// ~ Inner Classes
 	// ==================================================================================================
 
-	public static interface ReturnVoid {
-		public void doSomething(List<?> param);
+	public interface ReturnVoid {
+		void doSomething(List<?> param);
 	}
 
-	public static interface ReturnAList {
-		public List<?> doSomething(List<?> param);
+	public interface ReturnAList {
+		List<?> doSomething(List<?> param);
 	}
 
 	@PreAuthorize("interfaceAuthzExpression")
-	public static interface ReturnAnotherList {
+	public interface ReturnAnotherList {
 		@PreAuthorize("interfaceMethodAuthzExpression")
 		@PreFilter(filterTarget = "param", value = "interfacePreFilterExpression")
-		public List<?> doSomething(List<?> param);
+		List<?> doSomething(List<?> param);
 	}
 
 	@PreAuthorize("someExpression")
@@ -275,8 +274,8 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 	}
 
 	@CustomAnnotation
-	public static interface ReturnVoid2 {
-		public void doSomething(List<?> param);
+	public interface ReturnVoid2 {
+		void doSomething(List<?> param);
 	}
 
 	@CustomAnnotation

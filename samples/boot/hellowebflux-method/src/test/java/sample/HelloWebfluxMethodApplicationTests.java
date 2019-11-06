@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,10 +17,7 @@ package sample;
 
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 import org.junit.Test;
@@ -28,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -48,12 +46,11 @@ public class HelloWebfluxMethodApplicationTests {
 				.bindToApplicationContext(context)
 				.apply(springSecurity())
 				.configureClient()
-				.filter(basicAuthentication())
 				.build();
 	}
 
 	@Test
-	public void messageWhenNotAuthenticated() throws Exception {
+	public void messageWhenNotAuthenticated() {
 		this.rest
 			.get()
 			.uri("/message")
@@ -64,21 +61,21 @@ public class HelloWebfluxMethodApplicationTests {
 	// --- Basic Authentication ---
 
 	@Test
-	public void messageWhenUserThenForbidden() throws Exception {
+	public void messageWhenUserThenForbidden() {
 		this.rest
 			.get()
 			.uri("/message")
-			.attributes(robsCredentials())
+			.headers(robsCredentials())
 			.exchange()
 			.expectStatus().isEqualTo(HttpStatus.FORBIDDEN);
 	}
 
 	@Test
-	public void messageWhenAdminThenOk() throws Exception {
+	public void messageWhenAdminThenOk() {
 		this.rest
 			.get()
 			.uri("/message")
-			.attributes(adminCredentials())
+			.headers(adminCredentials())
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody(String.class).isEqualTo("Hello World!");
@@ -88,7 +85,7 @@ public class HelloWebfluxMethodApplicationTests {
 
 	@Test
 	@WithMockUser
-	public void messageWhenWithMockUserThenForbidden() throws Exception {
+	public void messageWhenWithMockUserThenForbidden() {
 		this.rest
 			.get()
 			.uri("/message")
@@ -98,7 +95,7 @@ public class HelloWebfluxMethodApplicationTests {
 
 	@Test
 	@WithMockUser(roles = "ADMIN")
-	public void messageWhenWithMockAdminThenOk() throws Exception {
+	public void messageWhenWithMockAdminThenOk() {
 		this.rest
 			.get()
 			.uri("/message")
@@ -110,7 +107,7 @@ public class HelloWebfluxMethodApplicationTests {
 	// --- mutateWith mockUser ---
 
 	@Test
-	public void messageWhenMutateWithMockUserThenForbidden() throws Exception {
+	public void messageWhenMutateWithMockUserThenForbidden() {
 		this.rest
 			.mutateWith(mockUser())
 			.get()
@@ -120,7 +117,7 @@ public class HelloWebfluxMethodApplicationTests {
 	}
 
 	@Test
-	public void messageWhenMutateWithMockAdminThenOk() throws Exception {
+	public void messageWhenMutateWithMockAdminThenOk() {
 		this.rest
 			.mutateWith(mockUser().roles("ADMIN"))
 			.get()
@@ -130,11 +127,11 @@ public class HelloWebfluxMethodApplicationTests {
 			.expectBody(String.class).isEqualTo("Hello World!");
 	}
 
-	private Consumer<Map<String, Object>> robsCredentials() {
-		return basicAuthenticationCredentials("rob", "rob");
+	private Consumer<HttpHeaders> robsCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("rob", "rob");
 	}
 
-	private Consumer<Map<String, Object>> adminCredentials() {
-		return basicAuthenticationCredentials("admin", "admin");
+	private Consumer<HttpHeaders> adminCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("admin", "admin");
 	}
 }

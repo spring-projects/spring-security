@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -128,8 +128,8 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 
 		Collection<String> expectedRolesColl = Arrays.asList(expectedRoles);
 		Collection<String> gasRolesSet = new HashSet<>();
-		for (int i = 0; i < gas.size(); i++) {
-			gasRolesSet.add(gas.get(i).getAuthority());
+		for (GrantedAuthority grantedAuthority : gas) {
+			gasRolesSet.add(grantedAuthority.getAuthority());
 		}
 		assertThat(expectedRolesColl.containsAll(gasRolesSet)
 				&& gasRolesSet.containsAll(expectedRolesColl)).withFailMessage(
@@ -154,7 +154,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests {
 
 	private MappableAttributesRetriever getMappableRolesRetriever(String[] mappedRoles) {
 		SimpleMappableAttributesRetriever result = new SimpleMappableAttributesRetriever();
-		result.setMappableAttributes(new HashSet<String>(Arrays.asList(mappedRoles)));
+		result.setMappableAttributes(new HashSet<>(Arrays.asList(mappedRoles)));
 		return result;
 	}
 

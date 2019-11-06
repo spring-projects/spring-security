@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,8 +15,6 @@
  */
 package org.springframework.security.web.header.writers;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -25,11 +23,15 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Tim Ysewyn
+ * @author Ankur Pathak
  *
  */
 public class HpkpHeaderWriterTests {
@@ -46,6 +48,10 @@ public class HpkpHeaderWriterTests {
 	private MockHttpServletResponse response;
 
 	private HpkpHeaderWriter writer;
+
+	private static final String HPKP_HEADER_NAME = "Public-Key-Pins";
+
+	private static final String HPKP_RO_HEADER_NAME = "Public-Key-Pins-Report-Only";
 
 	@Before
 	public void setup() {
@@ -142,25 +148,25 @@ public class HpkpHeaderWriterTests {
 	@Test
 	public void writeHeadersTerminateConnectionWithURI() throws URISyntaxException {
 		writer.setReportOnly(false);
-		writer.setReportUri(new URI("http://example.com/pkp-report"));
+		writer.setReportUri(new URI("https://example.com/pkp-report"));
 
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
 		assertThat(response.getHeader("Public-Key-Pins")).isEqualTo(
-				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"http://example.com/pkp-report\"");
+				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.com/pkp-report\"");
 	}
 
 	@Test
-	public void writeHeadersTerminateConnectionWithURIAsString() throws URISyntaxException {
+	public void writeHeadersTerminateConnectionWithURIAsString() {
 		writer.setReportOnly(false);
-		writer.setReportUri("http://example.com/pkp-report");
+		writer.setReportUri("https://example.com/pkp-report");
 
 		writer.writeHeaders(request, response);
 
 		assertThat(response.getHeaderNames()).hasSize(1);
 		assertThat(response.getHeader("Public-Key-Pins")).isEqualTo(
-				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"http://example.com/pkp-report\"");
+				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.com/pkp-report\"");
 	}
 
 	@Test
@@ -195,5 +201,23 @@ public class HpkpHeaderWriterTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void setIncorrectReportUri() {
 		writer.setReportUri("some url here...");
+	}
+
+	@Test
+	public void writePublicKeyPinsHeaderOnlyWhenNotPresent() {
+		String value = new String("value");
+		this.response.setHeader(HPKP_HEADER_NAME, value);
+		this.writer.setReportOnly(false);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeader(HPKP_HEADER_NAME)).isSameAs(value);
+	}
+
+	@Test
+	public void writePublicKeyPinsReportOnlyHeaderWhenNotPresent() {
+		String value = new String("value");
+		this.response.setHeader(HPKP_RO_HEADER_NAME, value);
+		this.writer.setReportOnly(false);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeader(HPKP_RO_HEADER_NAME)).isSameAs(value);
 	}
 }

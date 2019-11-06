@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,7 @@ public class SavedRequestAwareWrapperTests {
 
 	// SEC-2569
 	@Test
-	public void savedRequestCookiesAreIgnored() throws Exception {
+	public void savedRequestCookiesAreIgnored() {
 		MockHttpServletRequest newRequest = new MockHttpServletRequest();
 		newRequest.setCookies(new Cookie[] { new Cookie("cookie", "fromnew") });
 		MockHttpServletRequest savedRequest = new MockHttpServletRequest();
@@ -54,7 +54,7 @@ public class SavedRequestAwareWrapperTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void savedRequesthHeaderIsReturnedIfSavedRequestIsSet() throws Exception {
+	public void savedRequesthHeaderIsReturnedIfSavedRequestIsSet() {
 		MockHttpServletRequest savedRequest = new MockHttpServletRequest();
 		savedRequest.addHeader("header", "savedheader");
 		SavedRequestAwareWrapper wrapper = createWrapper(savedRequest,
@@ -155,7 +155,7 @@ public class SavedRequestAwareWrapperTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void invalidDateHeaderIsRejected() throws Exception {
+	public void invalidDateHeaderIsRejected() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("header", "notadate");
 		SavedRequestAwareWrapper wrapper = createWrapper(request,
@@ -164,7 +164,7 @@ public class SavedRequestAwareWrapperTests {
 	}
 
 	@Test
-	public void correctHttpMethodIsReturned() throws Exception {
+	public void correctHttpMethodIsReturned() {
 		MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/notused");
 		SavedRequestAwareWrapper wrapper = createWrapper(request,
 				new MockHttpServletRequest("GET", "/notused"));
@@ -172,7 +172,7 @@ public class SavedRequestAwareWrapperTests {
 	}
 
 	@Test
-	public void correctIntHeaderIsReturned() throws Exception {
+	public void correctIntHeaderIsReturned() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("header", "999");
 		request.addHeader("header", "1000");

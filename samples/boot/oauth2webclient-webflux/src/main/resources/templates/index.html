@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+	<title>OAuth2 WebClient Showcase</title>
+	<meta charset="utf-8" />
+</head>
+<body>
+<a th:href="@{/logout}">Log Out</a>
+<h1>Examples</h1>
+
+<h2>@RegisteredOAuth2AuthorizedClient</h2>
+<p>
+Examples on RegisteredOAuth2AuthorizedClientController
+<h3>Authenticated</h3>
+<ul>
+	<li><a th:href="@{/annotation/explicit}">Explicit</a> - Explicitly provide a Client Registration Id</li>
+	<li>
+		<a th:href="@{/annotation/implicit}">Implicit</a> - Use the currently logged in user's OAuth Token. This will
+	only work if the user authenticates with oauth2Login and the token provided is the correct token provided at
+	log in is authorized.</li>
+</ul>
+<h3>Public</h3>
+<ul>
+	<li><a th:href="@{/public/annotation/explicit}">Explicit</a> - Explicitly provide a Client Registration Id</li>
+	<li>
+		<a th:href="@{/public/annotation/implicit}">Implicit</a> - This will fail if the user is not authenticated.
+	Since it is mapped to permitAll, it is going to fail unless the user already took an action to log in and then
+	authenticates with oauth2Login()</li>
+</ul>
+
+<h2>ServerOAuth2AuthorizedClientExchangeFilterFunction</h2>
+<p>
+	Examples on OAuth2WebClientController that demonstrate how to use ServerOAuth2AuthorizedClientExchangeFilterFunction
+<h3>Authenticated</h3>
+<ul>
+	<li><a th:href="@{/webclient/explicit}">Explicit</a> - Explicitly provide a Client Registration Id</li>
+	<li>
+		<a th:href="@{/webclient/implicit}">Implicit</a> - Use the currently logged in user's OAuth Token. This will
+		only work if the user authenticates with oauth2Login and the token provided is the correct token provided at
+		log in is authorized.</li>
+</ul>
+<h3>Public</h3>
+<ul>
+	<li><a th:href="@{/public/webclient/explicit}">Explicit</a> - Explicitly provide a Client Registration Id</li>
+	<li>
+		<a th:href="@{/public/webclient/implicit}">Implicit</a> - This will fail if the user is not authenticated.
+		Since it is mapped to permitAll, it is going to fail unless the user already took an action to log in and then
+		authenticates with oauth2Login()</li>
+</ul>
+</body>
+</html>

@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,8 +26,6 @@ import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AclService;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.Authentication;
 
@@ -39,18 +37,18 @@ import org.springframework.security.core.Authentication;
 public class AclPermissionEvaluatorTests {
 
 	@Test
-	public void hasPermissionReturnsTrueIfAclGrantsPermission() throws Exception {
+	public void hasPermissionReturnsTrueIfAclGrantsPermission() {
 		AclService service = mock(AclService.class);
 		AclPermissionEvaluator pe = new AclPermissionEvaluator(service);
 		ObjectIdentity oid = mock(ObjectIdentity.class);
 		ObjectIdentityRetrievalStrategy oidStrategy = mock(ObjectIdentityRetrievalStrategy.class);
-		when(oidStrategy.getObjectIdentity(anyObject())).thenReturn(oid);
+		when(oidStrategy.getObjectIdentity(any(Object.class))).thenReturn(oid);
 		pe.setObjectIdentityRetrievalStrategy(oidStrategy);
 		pe.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
 		Acl acl = mock(Acl.class);
 
-		when(service.readAclById(any(ObjectIdentity.class), anyListOf(Sid.class))).thenReturn(acl);
-		when(acl.isGranted(anyListOf(Permission.class), anyListOf(Sid.class), eq(false))).thenReturn(true);
+		when(service.readAclById(any(ObjectIdentity.class), anyList())).thenReturn(acl);
+		when(acl.isGranted(anyList(), anyList(), eq(false))).thenReturn(true);
 
 		assertThat(pe.hasPermission(mock(Authentication.class), new Object(), "READ")).isTrue();
 	}
@@ -64,13 +62,13 @@ public class AclPermissionEvaluatorTests {
 		AclPermissionEvaluator pe = new AclPermissionEvaluator(service);
 		ObjectIdentity oid = mock(ObjectIdentity.class);
 		ObjectIdentityRetrievalStrategy oidStrategy = mock(ObjectIdentityRetrievalStrategy.class);
-		when(oidStrategy.getObjectIdentity(anyObject())).thenReturn(oid);
+		when(oidStrategy.getObjectIdentity(any(Object.class))).thenReturn(oid);
 		pe.setObjectIdentityRetrievalStrategy(oidStrategy);
 		pe.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
 		Acl acl = mock(Acl.class);
 
-		when(service.readAclById(any(ObjectIdentity.class), anyListOf(Sid.class))).thenReturn(acl);
-		when(acl.isGranted(anyListOf(Permission.class), anyListOf(Sid.class), eq(false))).thenReturn(true);
+		when(service.readAclById(any(ObjectIdentity.class), anyList())).thenReturn(acl);
+		when(acl.isGranted(anyList(), anyList(), eq(false))).thenReturn(true);
 
 		assertThat(pe.hasPermission(mock(Authentication.class), new Object(), "write")).isTrue();
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http;
 
 import java.net.URI;
@@ -47,6 +48,8 @@ import org.w3c.dom.Node;
  * @author Marten Deinum
  * @author Tim Ysewyn
  * @author Eddú Meléndez
+ * @author Vedran Pavic
+ * @author Rafiullah Hamedy
  * @since 3.2
  */
 public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
@@ -66,6 +69,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String ATT_INCLUDE_SUBDOMAINS = "include-subdomains";
 	private static final String ATT_MAX_AGE_SECONDS = "max-age-seconds";
 	private static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
+	private static final String ATT_PRELOAD = "preload";
 	private static final String ATT_REPORT_ONLY = "report-only";
 	private static final String ATT_REPORT_URI = "report-uri";
 	private static final String ATT_ALGORITHM = "algorithm";
@@ -85,20 +89,22 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String CONTENT_SECURITY_POLICY_ELEMENT = "content-security-policy";
 	private static final String REFERRER_POLICY_ELEMENT = "referrer-policy";
+	private static final String FEATURE_POLICY_ELEMENT = "feature-policy";
 
 	private static final String ALLOW_FROM = "ALLOW-FROM";
 
 	private ManagedList<BeanMetadataElement> headerWriters;
 
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+
 		headerWriters = new ManagedList<>();
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder
 				.rootBeanDefinition(HeaderWriterFilter.class);
 
 		boolean disabled = element != null
-				&& "true".equals(element.getAttribute("disabled"));
+				&& "true".equals(resolveAttribute(parserContext, element, "disabled"));
 		boolean defaultsDisabled = element != null
-				&& "true".equals(element.getAttribute("defaults-disabled"));
+				&& "true".equals(resolveAttribute(parserContext, element, "defaults-disabled"));
 
 		boolean addIfNotPresent = element == null || !disabled && !defaultsDisabled;
 
@@ -114,6 +120,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 		parseReferrerPolicyElement(element, parserContext);
 
+		parseFeaturePolicyElement(element, parserContext);
+
 		parseHeaderElements(element);
 
 		boolean noWriters = headerWriters.isEmpty();
@@ -128,6 +136,19 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 		builder.addConstructorArgValue(headerWriters);
 		return builder.getBeanDefinition();
+	}
+
+	/**
+	 *
+	 * Resolve the placeholder for a given attribute on a element.
+	 *
+	 * @param pc
+	 * @param element
+	 * @param attributeName
+	 * @return Resolved value of the placeholder
+	 */
+	private String resolveAttribute(ParserContext pc, Element element, String attributeName) {
+		return pc.getReaderContext().getEnvironment().resolvePlaceholders(element.getAttribute(attributeName));
 	}
 
 	private void parseCacheControlElement(boolean addIfNotPresent, Element element) {
@@ -188,6 +209,14 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 							hstsElement);
 				}
 				headersWriter.addPropertyReference("requestMatcher", requestMatcherRef);
+			}
+			String preload = hstsElement.getAttribute(ATT_PRELOAD);
+			if (StringUtils.hasText(preload)) {
+				if (disabled) {
+					attrNotAllowed(context, ATT_PRELOAD, ATT_DISABLED,
+							hstsElement);
+				}
+				headersWriter.addPropertyValue("preload", preload);
 			}
 
 			if (disabled == true) {
@@ -310,6 +339,32 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasLength(policy)) {
 			headersWriter.addConstructorArgValue(ReferrerPolicy.get(policy));
 		}
+		headerWriters.add(headersWriter.getBeanDefinition());
+	}
+
+	private void parseFeaturePolicyElement(Element element, ParserContext context) {
+		Element featurePolicyElement = (element == null) ? null
+				: DomUtils.getChildElementByTagName(element, FEATURE_POLICY_ELEMENT);
+		if (featurePolicyElement != null) {
+			addFeaturePolicy(featurePolicyElement, context);
+		}
+	}
+
+	private void addFeaturePolicy(Element featurePolicyElement, ParserContext context) {
+		BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder
+				.genericBeanDefinition(FeaturePolicyHeaderWriter.class);
+
+		String policyDirectives = featurePolicyElement
+				.getAttribute(ATT_POLICY_DIRECTIVES);
+		if (!StringUtils.hasText(policyDirectives)) {
+			context.getReaderContext().error(
+					ATT_POLICY_DIRECTIVES + " requires a 'value' to be set.",
+					featurePolicyElement);
+		}
+		else {
+			headersWriter.addConstructorArgValue(policyDirectives);
+		}
+
 		headerWriters.add(headersWriter.getBeanDefinition());
 	}
 

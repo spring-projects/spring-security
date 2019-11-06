@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 package org.springframework.security.crypto.password;
 
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
@@ -92,7 +93,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * Sets the algorithm to use. See
-	 * <a href="http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SecretKeyFactory">SecretKeyFactory Algorithms</a>
+	 * <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SecretKeyFactory">SecretKeyFactory Algorithms</a>
 	 * @param secretKeyFactoryAlgorithm the algorithm to use (i.e.
 	 * {@code SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1},
 	 * {@code SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256},
@@ -100,7 +101,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	 * @since 5.0
 	 */
 	public void setAlgorithm(SecretKeyFactoryAlgorithm secretKeyFactoryAlgorithm) {
-		if(secretKeyFactoryAlgorithm == null) {
+		if (secretKeyFactoryAlgorithm == null) {
 			throw new IllegalArgumentException("secretKeyFactoryAlgorithm cannot be null");
 		}
 		String algorithmName = secretKeyFactoryAlgorithm.name();
@@ -131,7 +132,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	}
 
 	private String encode(byte[] bytes) {
-		if(this.encodeHashAsBase64) {
+		if (this.encodeHashAsBase64) {
 			return Base64.getEncoder().encodeToString(bytes);
 		}
 		return String.valueOf(Hex.encode(bytes));
@@ -141,26 +142,11 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		byte[] digested = decode(encodedPassword);
 		byte[] salt = subArray(digested, 0, this.saltGenerator.getKeyLength());
-		return matches(digested, encode(rawPassword, salt));
-	}
-
-	/**
-	 * Constant time comparison to prevent against timing attacks.
-	 */
-	private static boolean matches(byte[] expected, byte[] actual) {
-		if (expected.length != actual.length) {
-			return false;
-		}
-
-		int result = 0;
-		for (int i = 0; i < expected.length; i++) {
-			result |= expected[i] ^ actual[i];
-		}
-		return result == 0;
+		return MessageDigest.isEqual(digested, encode(rawPassword, salt));
 	}
 
 	private byte[] decode(String encodedBytes) {
-		if(this.encodeHashAsBase64) {
+		if (this.encodeHashAsBase64) {
 			return Base64.getDecoder().decode(encodedBytes);
 		}
 		return Hex.decode(encodedBytes);

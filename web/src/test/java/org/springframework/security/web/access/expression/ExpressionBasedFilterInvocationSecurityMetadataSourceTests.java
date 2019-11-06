@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,7 +35,7 @@ public class ExpressionBasedFilterInvocationSecurityMetadataSourceTests {
 	@Test
 	public void expectedAttributeIsReturned() {
 		final String expression = "hasRole('X')";
-		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
+		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 		requestMap.put(AnyRequestMatcher.INSTANCE, SecurityConfig.createList(expression));
 		ExpressionBasedFilterInvocationSecurityMetadataSource mds = new ExpressionBasedFilterInvocationSecurityMetadataSource(
 				requestMap, new DefaultWebSecurityExpressionHandler());
@@ -51,8 +51,8 @@ public class ExpressionBasedFilterInvocationSecurityMetadataSourceTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void invalidExpressionIsRejected() throws Exception {
-		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
+	public void invalidExpressionIsRejected() {
+		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 		requestMap.put(AnyRequestMatcher.INSTANCE,
 				SecurityConfig.createList("hasRole('X'"));
 		ExpressionBasedFilterInvocationSecurityMetadataSource mds = new ExpressionBasedFilterInvocationSecurityMetadataSource(

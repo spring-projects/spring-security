@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,20 +34,20 @@ public class PortMapperImplTests {
 	// ~ Methods
 	// ========================================================================================================
 	@Test
-	public void testDefaultMappingsAreKnown() throws Exception {
+	public void testDefaultMappingsAreKnown() {
 		PortMapperImpl portMapper = new PortMapperImpl();
-		assertThat(portMapper.lookupHttpPort(Integer.valueOf(443))).isEqualTo(
+		assertThat(portMapper.lookupHttpPort(443)).isEqualTo(
 				Integer.valueOf(80));
 		assertThat(Integer.valueOf(8080)).isEqualTo(
-				portMapper.lookupHttpPort(Integer.valueOf(8443)));
+				portMapper.lookupHttpPort(8443));
 		assertThat(Integer.valueOf(443)).isEqualTo(
-				portMapper.lookupHttpsPort(Integer.valueOf(80)));
+				portMapper.lookupHttpsPort(80));
 		assertThat(Integer.valueOf(8443)).isEqualTo(
-				portMapper.lookupHttpsPort(Integer.valueOf(8080)));
+				portMapper.lookupHttpsPort(8080));
 	}
 
 	@Test
-	public void testDetectsEmptyMap() throws Exception {
+	public void testDetectsEmptyMap() {
 		PortMapperImpl portMapper = new PortMapperImpl();
 
 		try {
@@ -60,7 +60,7 @@ public class PortMapperImplTests {
 	}
 
 	@Test
-	public void testDetectsNullMap() throws Exception {
+	public void testDetectsNullMap() {
 		PortMapperImpl portMapper = new PortMapperImpl();
 
 		try {
@@ -107,9 +107,9 @@ public class PortMapperImplTests {
 
 		portMapper.setPortMappings(map);
 
-		assertThat(portMapper.lookupHttpPort(Integer.valueOf(442))).isEqualTo(
+		assertThat(portMapper.lookupHttpPort(442)).isEqualTo(
 				Integer.valueOf(79));
 		assertThat(Integer.valueOf(442)).isEqualTo(
-				portMapper.lookupHttpsPort(Integer.valueOf(79)));
+				portMapper.lookupHttpsPort(79));
 	}
 }

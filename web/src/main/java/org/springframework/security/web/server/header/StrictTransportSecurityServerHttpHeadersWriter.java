@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,6 +34,8 @@ public final class StrictTransportSecurityServerHttpHeadersWriter
 
 	private String subdomain;
 
+	private String preload;
+
 	private ServerHttpHeadersWriter delegate;
 
 	/**
@@ -42,6 +44,7 @@ public final class StrictTransportSecurityServerHttpHeadersWriter
 	public StrictTransportSecurityServerHttpHeadersWriter() {
 		setIncludeSubDomains(true);
 		setMaxAge(Duration.ofDays(365L));
+		setPreload(false);
 		updateDelegate();
 	}
 
@@ -63,6 +66,24 @@ public final class StrictTransportSecurityServerHttpHeadersWriter
 	}
 
 	/**
+	 * <p>
+     * Sets if preload should be included. Default is false
+     * </p>
+	 *
+	 * <p>
+	 * See <a href="https://hstspreload.org/">Website hstspreload.org</a>
+	 * for additional details.
+	 * </p>
+	 * @param preload if preload should be included
+	 * @since 5.2.0
+	 * @author Ankur Pathak
+	 */
+	public void setPreload(boolean preload) {
+		this.preload = preload ? " ; preload" : "";
+		updateDelegate();
+	}
+
+	/**
 	 * Sets the max age of the header. Default is a year.
 	 * @param maxAge the max age of the header
 	 */
@@ -73,7 +94,7 @@ public final class StrictTransportSecurityServerHttpHeadersWriter
 
 	private void updateDelegate() {
 		delegate = StaticServerHttpHeadersWriter.builder()
-				.header(STRICT_TRANSPORT_SECURITY, maxAge + subdomain)
+				.header(STRICT_TRANSPORT_SECURITY, maxAge + subdomain + preload)
 				.build();
 	}
 

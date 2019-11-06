@@ -1,7 +1,5 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
-ext['thymeleaf.version'] = '3.0.9.RELEASE'
-
 dependencies {
 	compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	compile 'org.springframework.boot:spring-boot-starter-web'

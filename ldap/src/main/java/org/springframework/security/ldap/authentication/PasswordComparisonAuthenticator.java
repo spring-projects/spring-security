@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -123,10 +123,10 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
 	private String getPassword(DirContextOperations user) {
 		Object passwordAttrValue = user.getObjectAttribute(this.passwordAttributeName);
-		if(passwordAttrValue == null) {
+		if (passwordAttrValue == null) {
 			return null;
 		}
-		if(passwordAttrValue instanceof byte[]) {
+		if (passwordAttrValue instanceof byte[]) {
 			return new String((byte[]) passwordAttrValue);
 		}
 		return String.valueOf(passwordAttrValue);

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@ package org.springframework.security.web.authentication.preauth.j2ee;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.security.Principal;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -49,7 +48,7 @@ public class J2eePreAuthenticatedProcessingFilterTests {
 						getRequest("testUser", new String[] {})));
 	}
 
-	private final HttpServletRequest getRequest(final String aUserName,
+	private HttpServletRequest getRequest(final String aUserName,
 			final String[] aRoles) {
 		MockHttpServletRequest req = new MockHttpServletRequest() {
 
@@ -60,12 +59,7 @@ public class J2eePreAuthenticatedProcessingFilterTests {
 			}
 		};
 		req.setRemoteUser(aUserName);
-		req.setUserPrincipal(new Principal() {
-
-			public String getName() {
-				return aUserName;
-			}
-		});
+		req.setUserPrincipal(() -> aUserName);
 		return req;
 	}
 

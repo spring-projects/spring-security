@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,11 +24,11 @@ import com.fasterxml.jackson.annotation.*;
  *
  * <pre>
  * 		ObjectMapper mapper = new ObjectMapper();
- *		mapper.registerModule(new WebJackson2Module());
+ *		mapper.registerModule(new WebServletJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh.
- * @see WebJackson2Module
+ * @see WebServletJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
  * @since 4.2
  */
@@ -39,7 +39,7 @@ import com.fasterxml.jackson.annotation.*;
 abstract class SavedCookieMixin {
 
 	@JsonCreator
-	public SavedCookieMixin(@JsonProperty("name") String name, @JsonProperty("value") String value,
+	SavedCookieMixin(@JsonProperty("name") String name, @JsonProperty("value") String value,
 							@JsonProperty("comment") String comment, @JsonProperty("domain") String domain,
 							@JsonProperty("maxAge") int maxAge, @JsonProperty("path") String path,
 							@JsonProperty("secure") boolean secure, @JsonProperty("version") int version) {

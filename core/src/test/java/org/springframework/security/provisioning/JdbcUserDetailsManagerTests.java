@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -106,6 +106,19 @@ public class JdbcUserDetailsManagerTests {
 		SecurityContextHolder.clearContext();
 	}
 
+	private void setUpAccLockingColumns() {
+		template.execute("alter table users add column acc_locked boolean default false not null");
+		template.execute("alter table users add column acc_expired boolean default false not null");
+		template.execute("alter table users add column creds_expired boolean default false not null");
+
+		manager.setUsersByUsernameQuery(
+				"select username,password,enabled, acc_locked, acc_expired, creds_expired from users where username = ?");
+		manager.setCreateUserSql(
+				"insert into users (username, password, enabled, acc_locked, acc_expired, creds_expired) values (?,?,?,?,?,?)");
+		manager.setUpdateUserSql(
+				"update users set password = ?, enabled = ?, acc_locked=?, acc_expired=?, creds_expired=? where username = ?");
+	}
+
 	@Test
 	public void createUserInsertsCorrectData() {
 		manager.createUser(joe);
@@ -113,6 +126,19 @@ public class JdbcUserDetailsManagerTests {
 		UserDetails joe2 = manager.loadUserByUsername("joe");
 
 		assertThat(joe2).isEqualTo(joe);
+	}
+
+	@Test
+	public void createUserInsertsCorrectDataWithLocking() {
+		setUpAccLockingColumns();
+
+		UserDetails user = new User("joe", "pass", true, false, true, false,
+				AuthorityUtils.createAuthorityList("A", "B"));
+		manager.createUser(user);
+
+		UserDetails user2 = manager.loadUserByUsername(user.getUsername());
+
+		assertThat(user2).isEqualToComparingFieldByField(user);
 	}
 
 	@Test
@@ -138,6 +164,24 @@ public class JdbcUserDetailsManagerTests {
 		assertThat(joe).isEqualTo(newJoe);
 		assertThat(cache.getUserMap().containsKey("joe")).isFalse();
 	}
+
+	@Test
+	public void updateUserChangesDataCorrectlyAndClearsCacheWithLocking() {
+		setUpAccLockingColumns();
+
+		insertJoe();
+
+		User newJoe = new User("joe", "newpassword", false, false, false, true,
+				AuthorityUtils.createAuthorityList("D", "F", "E"));
+
+		manager.updateUser(newJoe);
+
+		UserDetails joe = manager.loadUserByUsername(newJoe.getUsername());
+
+		assertThat(joe).isEqualToComparingFieldByField(newJoe);
+		assertThat(cache.getUserMap().containsKey(newJoe.getUsername())).isFalse();
+	}
+
 
 	@Test
 	public void userExistsReturnsFalseForNonExistentUsername() {
@@ -246,7 +290,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void deleteGroupRemovesData() throws Exception {
+	public void deleteGroupRemovesData() {
 		manager.deleteGroup("GROUP_0");
 		manager.deleteGroup("GROUP_1");
 		manager.deleteGroup("GROUP_2");
@@ -258,7 +302,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void renameGroupIsSuccessful() throws Exception {
+	public void renameGroupIsSuccessful() {
 		manager.renameGroup("GROUP_0", "GROUP_X");
 
 		assertThat(template.queryForObject("select id from groups where group_name = 'GROUP_X'",
@@ -266,7 +310,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void addingGroupUserSetsCorrectData() throws Exception {
+	public void addingGroupUserSetsCorrectData() {
 		manager.addUserToGroup("tom", "GROUP_0");
 
 		assertThat(
@@ -275,7 +319,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void removeUserFromGroupDeletesGroupMemberRow() throws Exception {
+	public void removeUserFromGroupDeletesGroupMemberRow() {
 		manager.removeUserFromGroup("jerry", "GROUP_1");
 
 		assertThat(
@@ -284,12 +328,12 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void findGroupAuthoritiesReturnsCorrectAuthorities() throws Exception {
+	public void findGroupAuthoritiesReturnsCorrectAuthorities() {
 		assertThat(AuthorityUtils.createAuthorityList("ROLE_A")).isEqualTo(manager.findGroupAuthorities("GROUP_0"));
 	}
 
 	@Test
-	public void addGroupAuthorityInsertsCorrectGroupAuthorityRow() throws Exception {
+	public void addGroupAuthorityInsertsCorrectGroupAuthorityRow() {
 		GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_X");
 		manager.addGroupAuthority("GROUP_0", auth);
 
@@ -299,7 +343,7 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	public void deleteGroupAuthorityRemovesCorrectRows() throws Exception {
+	public void deleteGroupAuthorityRemovesCorrectRows() {
 		GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_A");
 		manager.removeGroupAuthority("GROUP_0", auth);
 		assertThat(
@@ -314,8 +358,7 @@ public class JdbcUserDetailsManagerTests {
 
 	// SEC-1156
 	@Test
-	public void createUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse()
-			throws Exception {
+	public void createUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse() {
 		manager.setEnableAuthorities(false);
 		manager.createUser(joe);
 		assertThat(template.queryForList(SELECT_JOE_AUTHORITIES_SQL)).isEmpty();
@@ -323,8 +366,7 @@ public class JdbcUserDetailsManagerTests {
 
 	// SEC-1156
 	@Test
-	public void updateUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse()
-			throws Exception {
+	public void updateUserDoesNotSaveAuthoritiesIfEnableAuthoritiesIsFalse() {
 		manager.setEnableAuthorities(false);
 		insertJoe();
 		template.execute("delete from authorities where username='joe'");
@@ -362,7 +404,7 @@ public class JdbcUserDetailsManagerTests {
 		private Map<String, UserDetails> cache = new HashMap<>();
 
 		public UserDetails getUserFromCache(String username) {
-			return (User) cache.get(username);
+			return cache.get(username);
 		}
 
 		public void putUserInCache(UserDetails user) {

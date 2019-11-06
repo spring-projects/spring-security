@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,7 @@ import java.util.*;
  * and extra consecutive '/' characters.
  *
  * <h3>Path Parameters</h3> Parameters (as defined in <a
- * href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>) are stripped from the path
+ * href="https://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>) are stripped from the path
  * segments of the {@code servletPath} and {@code pathInfo} values of the request.
  * <p>
  * The parameter sequence is demarcated by a semi-colon, so each segment is checked for
@@ -48,7 +48,7 @@ final class RequestWrapper extends FirewalledRequest {
 	private final String strippedPathInfo;
 	private boolean stripPaths = true;
 
-	public RequestWrapper(HttpServletRequest request) {
+	RequestWrapper(HttpServletRequest request) {
 		super(request);
 		strippedServletPath = strip(request.getServletPath());
 		String pathInfo = strip(request.getPathInfo());
@@ -144,7 +144,7 @@ final class RequestWrapper extends FirewalledRequest {
 		 * @param path the {@code path} that will be used to obtain the delegate
 		 * {@link RequestDispatcher} from the original {@link HttpServletRequest}.
 		 */
-		public FirewalledRequestAwareRequestDispatcher(String path) {
+		FirewalledRequestAwareRequestDispatcher(String path) {
 			this.path = path;
 		}
 

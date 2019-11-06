@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,19 @@ package org.springframework.security.ldap.authentication;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.ldap.AbstractLdapIntegrationTests;
+import org.springframework.security.ldap.ApacheDsContainerConfig;
+import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -35,11 +40,16 @@ import static org.assertj.core.api.Assertions.fail;
  * Tests for {@link BindAuthenticator}.
  *
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
-public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ApacheDsContainerConfig.class)
+public class BindAuthenticatorTests {
 	// ~ Instance fields
 	// ================================================================================================
 
+	@Autowired
+	private DefaultSpringSecurityContextSource contextSource;
 	private BindAuthenticator authenticator;
 	private Authentication bob;
 
@@ -48,7 +58,7 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
 	@Before
 	public void setUp() {
-		this.authenticator = new BindAuthenticator(getContextSource());
+		this.authenticator = new BindAuthenticator(this.contextSource);
 		this.authenticator.setMessageSource(new SpringSecurityMessageSource());
 		this.bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
 
@@ -89,25 +99,25 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 		// DirContextAdapter ctx = new DirContextAdapter(new
 		// DistinguishedName("uid=bob,ou=people"));
 		this.authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people",
-				"(uid={0})", getContextSource()));
+				"(uid={0})", this.contextSource));
 		this.authenticator.afterPropertiesSet();
 		DirContextOperations result = this.authenticator.authenticate(this.bob);
 		//ensure we are getting the same attributes back
 		assertThat(result.getStringAttribute("cn")).isEqualTo("Bob Hamilton");
 		// SEC-1444
 		this.authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people",
-				"(cn={0})", getContextSource()));
+				"(cn={0})", this.contextSource));
 		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken(
 				"mouse, jerry", "jerryspassword"));
 		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken(
 				"slash/guy", "slashguyspassword"));
 		// SEC-1661
 		this.authenticator.setUserSearch(new FilterBasedLdapUserSearch(
-				"ou=\\\"quoted people\\\"", "(cn={0})", getContextSource()));
+				"ou=\\\"quoted people\\\"", "(cn={0})", this.contextSource));
 		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken(
 				"quote\"guy", "quoteguyspassword"));
 		this.authenticator.setUserSearch(
-				new FilterBasedLdapUserSearch("", "(cn={0})", getContextSource()));
+				new FilterBasedLdapUserSearch("", "(cn={0})", this.contextSource));
 		this.authenticator.authenticate(new UsernamePasswordAuthenticationToken(
 				"quote\"guy", "quoteguyspassword"));
 	}

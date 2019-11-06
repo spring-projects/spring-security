@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -99,7 +99,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.isTrue(
 				StringUtils.hasText(loginFormUrl)
 						&& UrlUtils.isValidRedirectUrl(loginFormUrl),
@@ -191,12 +191,12 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		urlBuilder.setPathInfo(loginForm);
 
 		if (forceHttps && "http".equals(scheme)) {
-			Integer httpsPort = portMapper.lookupHttpsPort(Integer.valueOf(serverPort));
+			Integer httpsPort = portMapper.lookupHttpsPort(serverPort);
 
 			if (httpsPort != null) {
 				// Overwrite scheme and port in the redirect URL
 				urlBuilder.setScheme("https");
-				urlBuilder.setPort(httpsPort.intValue());
+				urlBuilder.setPort(httpsPort);
 			}
 			else {
 				logger.warn("Unable to redirect to HTTPS as no port mapping found for HTTP port "
@@ -215,13 +215,13 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 			throws IOException, ServletException {
 
 		int serverPort = portResolver.getServerPort(request);
-		Integer httpsPort = portMapper.lookupHttpsPort(Integer.valueOf(serverPort));
+		Integer httpsPort = portMapper.lookupHttpsPort(serverPort);
 
 		if (httpsPort != null) {
 			RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
 			urlBuilder.setScheme("https");
 			urlBuilder.setServerName(request.getServerName());
-			urlBuilder.setPort(httpsPort.intValue());
+			urlBuilder.setPort(httpsPort);
 			urlBuilder.setContextPath(request.getContextPath());
 			urlBuilder.setServletPath(request.getServletPath());
 			urlBuilder.setPathInfo(request.getPathInfo());

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,7 @@ final class MockWebResponseBuilder {
 	private final FluxExchangeResult<String> exchangeResult;
 
 
-	public MockWebResponseBuilder(long startTime, WebRequest webRequest, FluxExchangeResult<String> exchangeResult) {
+	MockWebResponseBuilder(long startTime, WebRequest webRequest, FluxExchangeResult<String> exchangeResult) {
 		Assert.notNull(webRequest, "WebRequest must not be null");
 		Assert.notNull(exchangeResult, "FluxExchangeResult must not be null");
 		this.startTime = startTime;
@@ -57,7 +57,7 @@ final class MockWebResponseBuilder {
 		return new WebResponse(webResponseData, this.webRequest, endTime - this.startTime);
 	}
 
-	private WebResponseData webResponseData() throws IOException {
+	private WebResponseData webResponseData() {
 		List<NameValuePair> responseHeaders = responseHeaders();
 		HttpStatus status = this.exchangeResult.getStatus();
 		return new WebResponseData(this.exchangeResult.getResponseBodyContent(), status.value(), status.getReasonPhrase(), responseHeaders);

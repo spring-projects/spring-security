@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,7 @@ public class UnanimousBasedTests {
 		RoleVoter roleVoter = new RoleVoter();
 		DenyVoter denyForSureVoter = new DenyVoter();
 		DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
-		List<AccessDecisionVoter<? extends Object>> voters = new Vector<AccessDecisionVoter<? extends Object>>();
+		List<AccessDecisionVoter<? extends Object>> voters = new Vector<>();
 		voters.add(roleVoter);
 		voters.add(denyForSureVoter);
 		voters.add(denyAgainForSureVoter);
@@ -56,7 +56,7 @@ public class UnanimousBasedTests {
 
 		DenyVoter denyForSureVoter = new DenyVoter();
 		DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
-		List<AccessDecisionVoter<? extends Object>> voters = new Vector<AccessDecisionVoter<? extends Object>>();
+		List<AccessDecisionVoter<? extends Object>> voters = new Vector<>();
 		voters.add(roleVoter);
 		voters.add(denyForSureVoter);
 		voters.add(denyAgainForSureVoter);
@@ -73,8 +73,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccess()
-			throws Exception {
+	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 
@@ -90,7 +89,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
+	public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 
@@ -100,7 +99,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testOneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
+	public void testOneDenyVoteTwoAbstainVotesDeniesAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 
@@ -115,7 +114,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testRoleVoterPrefixObserved() throws Exception {
+	public void testRoleVoterPrefixObserved() {
 		TestingAuthenticationToken auth = makeTestTokenWithFooBarPrefix();
 		UnanimousBased mgr = makeDecisionManagerWithFooBarPrefix();
 
@@ -126,7 +125,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testThreeAbstainVotesDeniesAccessWithDefault() throws Exception {
+	public void testThreeAbstainVotesDeniesAccessWithDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 
@@ -143,7 +142,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testThreeAbstainVotesGrantsAccessWithoutDefault() throws Exception {
+	public void testThreeAbstainVotesGrantsAccessWithoutDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 		mgr.setAllowIfAllAbstainDecisions(true);
@@ -155,7 +154,7 @@ public class UnanimousBasedTests {
 	}
 
 	@Test
-	public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() throws Exception {
+	public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		UnanimousBased mgr = makeDecisionManager();
 

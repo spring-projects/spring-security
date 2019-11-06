@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,12 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.FilterChain;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.web.util.OnCommittedResponseWrapper;
@@ -33,16 +37,23 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * and X-Content-Type-Options.
  *
  * @author Marten Deinum
+ * @author Josh Cummings
+ * @author Ankur Pathak
  * @since 3.2
- *
  */
 public class HeaderWriterFilter extends OncePerRequestFilter {
 
+
 	/**
-	 * Collection of {@link HeaderWriter} instances to write out the headers to the
-	 * response.
+	 * The {@link HeaderWriter} to write headers to the response.
+	 * {@see CompositeHeaderWriter}
 	 */
 	private final List<HeaderWriter> headerWriters;
+
+	/**
+	 * Indicates whether to write the headers at the beginning of the request.
+	 */
+	private boolean shouldWriteHeadersEagerly = false;
 
 	/**
 	 * Creates a new instance.
@@ -58,27 +69,55 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
 			HttpServletResponse response, FilterChain filterChain)
-					throws ServletException, IOException {
+			throws ServletException, IOException {
 
-		HeaderWriterResponse headerWriterResponse = new HeaderWriterResponse(request,
-				response, this.headerWriters);
-		try {
-			filterChain.doFilter(request, headerWriterResponse);
+		if (this.shouldWriteHeadersEagerly) {
+			doHeadersBefore(request, response, filterChain);
+		} else {
+			doHeadersAfter(request, response, filterChain);
 		}
-		finally {
+	}
+
+	private void doHeadersBefore(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+		writeHeaders(request, response);
+		filterChain.doFilter(request, response);
+	}
+
+	private void doHeadersAfter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+		HeaderWriterResponse headerWriterResponse = new HeaderWriterResponse(request,
+				response);
+		HeaderWriterRequest headerWriterRequest = new HeaderWriterRequest(request,
+				headerWriterResponse);
+		try {
+			filterChain.doFilter(headerWriterRequest, headerWriterResponse);
+		} finally {
 			headerWriterResponse.writeHeaders();
 		}
 	}
 
-	static class HeaderWriterResponse extends OnCommittedResponseWrapper {
-		private final HttpServletRequest request;
-		private final List<HeaderWriter> headerWriters;
+	void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
+		for (HeaderWriter writer : this.headerWriters) {
+			writer.writeHeaders(request, response);
+		}
+	}
 
-		HeaderWriterResponse(HttpServletRequest request, HttpServletResponse response,
-				List<HeaderWriter> headerWriters) {
+	/**
+	 * Allow writing headers at the beginning of the request.
+	 *
+	 * @param shouldWriteHeadersEagerly boolean to allow writing headers at the beginning of the request.
+	 * @author Ankur Pathak
+	 * @since 5.2
+	 */
+	public void setShouldWriteHeadersEagerly(boolean shouldWriteHeadersEagerly) {
+		this.shouldWriteHeadersEagerly = shouldWriteHeadersEagerly;
+	}
+
+	class HeaderWriterResponse extends OnCommittedResponseWrapper {
+		private final HttpServletRequest request;
+
+		HeaderWriterResponse(HttpServletRequest request, HttpServletResponse response) {
 			super(response);
 			this.request = request;
-			this.headerWriters = headerWriters;
 		}
 
 		/*
@@ -97,13 +136,46 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 			if (isDisableOnResponseCommitted()) {
 				return;
 			}
-			for (HeaderWriter headerWriter : this.headerWriters) {
-				headerWriter.writeHeaders(this.request, getHttpResponse());
-			}
+			HeaderWriterFilter.this.writeHeaders(this.request, getHttpResponse());
 		}
 
 		private HttpServletResponse getHttpResponse() {
 			return (HttpServletResponse) getResponse();
+		}
+	}
+
+	static class HeaderWriterRequest extends HttpServletRequestWrapper {
+		private final HeaderWriterResponse response;
+
+		HeaderWriterRequest(HttpServletRequest request, HeaderWriterResponse response) {
+			super(request);
+			this.response = response;
+		}
+
+		@Override
+		public RequestDispatcher getRequestDispatcher(String path) {
+			return new HeaderWriterRequestDispatcher(super.getRequestDispatcher(path), this.response);
+		}
+	}
+
+	static class HeaderWriterRequestDispatcher implements RequestDispatcher {
+		private final RequestDispatcher delegate;
+		private final HeaderWriterResponse response;
+
+		HeaderWriterRequestDispatcher(RequestDispatcher delegate, HeaderWriterResponse response) {
+			this.delegate = delegate;
+			this.response = response;
+		}
+
+		@Override
+		public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+			this.delegate.forward(request, response);
+		}
+
+		@Override
+		public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+			this.response.onResponseCommitted();
+			this.delegate.include(request, response);
 		}
 	}
 }

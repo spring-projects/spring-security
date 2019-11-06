@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 package org.springframework.security.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -59,7 +59,7 @@ public class SpringSecurityCoreVersionTests {
 	}
 
 	@Test
-	public void springVersionIsUpToDate() throws Exception {
+	public void springVersionIsUpToDate() {
 		// Property is set by the build script
 		String springVersion = System.getProperty("springVersion");
 
@@ -67,7 +67,7 @@ public class SpringSecurityCoreVersionTests {
 	}
 
 	@Test
-	public void serialVersionMajorAndMinorVersionMatchBuildVersion() throws Exception {
+	public void serialVersionMajorAndMinorVersionMatchBuildVersion() {
 		String version = System.getProperty("springSecurityVersion");
 
 		// Strip patch version
@@ -156,7 +156,7 @@ public class SpringSecurityCoreVersionTests {
 		verifyZeroInteractions(logger);
 	}
 
-	private String getDisableChecksProperty() throws Exception {
+	private String getDisableChecksProperty() {
 		return SpringSecurityCoreVersion.class.getName().concat(".DISABLE_CHECKS");
 	}
 

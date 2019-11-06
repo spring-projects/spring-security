@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,8 +15,10 @@
  */
 package org.springframework.security.oauth2.core;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
@@ -90,7 +92,8 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 	 *
 	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-7.1">Section 7.1 Access Token Types</a>
 	 */
-	public static final class TokenType {
+	public static final class TokenType implements Serializable {
+		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 		public static final TokenType BEARER = new TokenType("Bearer");
 		private final String value;
 

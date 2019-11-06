@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -77,10 +77,7 @@ public class ClientApplication {
 				System.out
 						.println("This client proxy factory does not have a setUsername(String) method");
 			}
-			catch (IllegalAccessException ignored) {
-				ignored.printStackTrace();
-			}
-			catch (InvocationTargetException ignored) {
+			catch (IllegalAccessException | InvocationTargetException ignored) {
 				ignored.printStackTrace();
 			}
 
@@ -98,9 +95,7 @@ public class ClientApplication {
 				System.out
 						.println("This client proxy factory does not have a setPassword(String) method");
 			}
-			catch (IllegalAccessException ignored) {
-			}
-			catch (InvocationTargetException ignored) {
+			catch (IllegalAccessException | InvocationTargetException ignored) {
 			}
 
 			System.out.println("Calling ContactManager '" + beanName + "'");

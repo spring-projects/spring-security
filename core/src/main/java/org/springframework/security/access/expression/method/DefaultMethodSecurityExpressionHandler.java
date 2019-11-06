@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.*;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -86,8 +87,8 @@ public class DefaultMethodSecurityExpressionHandler extends
 	}
 
 	/**
-	 * Filters the {@code filterTarget} object (which must be either a collection or an
-	 * array), by evaluating the supplied expression.
+	 * Filters the {@code filterTarget} object (which must be either a collection, array,
+	 * or stream), by evaluating the supplied expression.
 	 * <p>
 	 * If a {@code Collection} is used, the original instance will be modified to contain
 	 * the elements for which the permission expression evaluates to {@code true}. For an
@@ -172,8 +173,18 @@ public class DefaultMethodSecurityExpressionHandler extends
 			return filtered;
 		}
 
+		if (filterTarget instanceof Stream) {
+			final Stream<?> original = (Stream<?>) filterTarget;
+
+			return original.filter(filterObject -> {
+				rootObject.setFilterObject(filterObject);
+				return ExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
+			})
+					.onClose(original::close);
+		}
+
 		throw new IllegalArgumentException(
-				"Filter target must be a collection or array type, but was "
+				"Filter target must be a collection, array, or stream type, but was "
 						+ filterTarget);
 	}
 

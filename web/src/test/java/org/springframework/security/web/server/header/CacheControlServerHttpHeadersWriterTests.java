@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
@@ -81,6 +82,16 @@ public class CacheControlServerHttpHeadersWriterTests {
 
 		assertThat(headers).hasSize(1);
 		assertThat(headers.get(HttpHeaders.EXPIRES)).containsOnly(expires);
+	}
+
+	@Test
+	// gh-5534
+	public void writeHeadersWhenNotModifiedThenNoCacheControlHeaders() {
+		exchange.getResponse().setStatusCode(HttpStatus.NOT_MODIFIED);
+
+		writer.writeHttpHeaders(exchange);
+
+		assertThat(headers).isEmpty();
 	}
 
 }

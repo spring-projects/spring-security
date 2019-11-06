@@ -36,7 +36,7 @@ dependencies {
 
 task springVersion(type: versions.VersionsResourceTasks) {
 	versionsFile = file("${buildDir}/versions/spring-security.versions")
-	versions = { project.dependencyManagement.managedVersions }
+	versions = provider { project.dependencyManagement.managedVersions }
 }
 
 tasks.processResources {

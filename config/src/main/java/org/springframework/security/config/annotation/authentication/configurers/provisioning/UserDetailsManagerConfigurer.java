@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -69,7 +69,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 	 * method can be invoked multiple times to add multiple users.
 	 *
 	 * @param userDetails the user to add. Cannot be null.
-	 * @return
+	 * @return the {@link UserDetailsBuilder} for further customizations
 	 */
 	@SuppressWarnings("unchecked")
 	public final C withUser(UserDetails userDetails) {
@@ -82,7 +82,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 	 * method can be invoked multiple times to add multiple users.
 	 *
 	 * @param userBuilder the user to add. Cannot be null.
-	 * @return
+	 * @return the {@link UserDetailsBuilder} for further customizations
 	 */
 	@SuppressWarnings("unchecked")
 	public final C withUser(User.UserBuilder userBuilder) {
@@ -95,7 +95,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 	 * method can be invoked multiple times to add multiple users.
 	 *
 	 * @param username the username for the user being added. Cannot be null.
-	 * @return
+	 * @return the {@link UserDetailsBuilder} for further customizations
 	 */
 	@SuppressWarnings("unchecked")
 	public final UserDetailsBuilder withUser(String username) {

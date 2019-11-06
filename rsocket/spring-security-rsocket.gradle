@@ -1,0 +1,9 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+dependencies {
+	compile project(':spring-security-core')
+	compile 'io.rsocket:rsocket-core'
+	optional project(':spring-security-oauth2-resource-server')
+	optional 'org.springframework:spring-messaging'
+	testCompile 'io.projectreactor:reactor-test'
+}

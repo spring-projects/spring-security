@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,13 +33,13 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.security.web.util.matcher.RequestVariablesExtractor;
 import org.springframework.util.Assert;
 
 /**
  * Expression-based {@code FilterInvocationSecurityMetadataSource}.
  *
  * @author Luke Taylor
+ * @author Eddú Meléndez
  * @since 3.0
  */
 public final class ExpressionBasedFilterInvocationSecurityMetadataSource
@@ -60,7 +60,7 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 			ExpressionParser parser) {
 		Assert.notNull(parser, "SecurityExpressionHandler returned a null parser object");
 
-		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestToExpressionAttributesMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>(
+		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestToExpressionAttributesMap = new LinkedHashMap<>(
 				requestMap);
 
 		for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : requestMap
@@ -91,42 +91,37 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 		return requestToExpressionAttributesMap;
 	}
 
-	private static AbstractVariableEvaluationContextPostProcessor createPostProcessor(
-			Object request) {
-		if (request instanceof RequestVariablesExtractor) {
-			return new RequestVariablesExtractorEvaluationContextPostProcessor(
-					(RequestVariablesExtractor) request);
-		}
-		return null;
+	private static AbstractVariableEvaluationContextPostProcessor createPostProcessor(RequestMatcher request) {
+		return new RequestVariablesExtractorEvaluationContextPostProcessor(request);
 	}
 
 	static class AntPathMatcherEvaluationContextPostProcessor
 			extends AbstractVariableEvaluationContextPostProcessor {
 		private final AntPathRequestMatcher matcher;
 
-		public AntPathMatcherEvaluationContextPostProcessor(
+		AntPathMatcherEvaluationContextPostProcessor(
 				AntPathRequestMatcher matcher) {
 			this.matcher = matcher;
 		}
 
 		@Override
 		Map<String, String> extractVariables(HttpServletRequest request) {
-			return this.matcher.extractUriTemplateVariables(request);
+			return this.matcher.matcher(request).getVariables();
 		}
 	}
 
 	static class RequestVariablesExtractorEvaluationContextPostProcessor
 			extends AbstractVariableEvaluationContextPostProcessor {
-		private final RequestVariablesExtractor matcher;
+		private final RequestMatcher matcher;
 
-		public RequestVariablesExtractorEvaluationContextPostProcessor(
-				RequestVariablesExtractor matcher) {
+		RequestVariablesExtractorEvaluationContextPostProcessor(
+				RequestMatcher matcher) {
 			this.matcher = matcher;
 		}
 
 		@Override
 		Map<String, String> extractVariables(HttpServletRequest request) {
-			return this.matcher.extractUriTemplateVariables(request);
+			return this.matcher.matcher(request).getVariables();
 		}
 	}
 

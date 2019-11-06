@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -92,7 +92,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 				.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
 					@Override
 					public <T> void postProcess(NativeWebRequest request,
-							Callable<T> task, Object concurrentResult) throws Exception {
+							Callable<T> task, Object concurrentResult) {
 						assertThat(SecurityContextHolder.getContext()).isNotSameAs(
 								securityContext);
 					}
@@ -113,7 +113,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 				.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
 					@Override
 					public <T> void postProcess(NativeWebRequest request,
-							Callable<T> task, Object concurrentResult) throws Exception {
+							Callable<T> task, Object concurrentResult) {
 						assertThat(SecurityContextHolder.getContext()).isNotSameAs(
 								securityContext);
 					}
@@ -142,7 +142,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 
 	private class VerifyingCallable implements Callable<SecurityContext> {
 
-		public SecurityContext call() throws Exception {
+		public SecurityContext call() {
 			return SecurityContextHolder.getContext();
 		}
 

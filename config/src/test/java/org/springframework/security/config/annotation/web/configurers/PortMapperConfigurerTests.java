@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.web.PortMapperImpl;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Collections;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -59,6 +62,60 @@ public class PortMapperConfigurerTests {
 					.http(543).mapsTo(123)
 					.and()
 				.portMapper();
+		}
+	}
+
+	@Test
+	public void requestWhenPortMapperHttpMapsToInLambdaThenRedirectsToHttpsPort() throws Exception {
+		this.spring.register(HttpMapsToInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(get("http://localhost:543"))
+				.andExpect(redirectedUrl("https://localhost:123"));
+	}
+
+	@EnableWebSecurity
+	static class HttpMapsToInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.requiresChannel(requiresChannel ->
+					requiresChannel
+					.anyRequest().requiresSecure()
+				)
+				.portMapper(portMapper ->
+					portMapper
+						.http(543).mapsTo(123)
+				);
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void requestWhenCustomPortMapperInLambdaThenRedirectsToHttpsPort() throws Exception {
+		this.spring.register(CustomPortMapperInLambdaConfig.class).autowire();
+
+		this.mockMvc.perform(get("http://localhost:543"))
+				.andExpect(redirectedUrl("https://localhost:123"));
+	}
+
+	@EnableWebSecurity
+	static class CustomPortMapperInLambdaConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			PortMapperImpl customPortMapper = new PortMapperImpl();
+			customPortMapper.setPortMappings(Collections.singletonMap("543", "123"));
+			// @formatter:off
+			http
+				.requiresChannel(requiresChannel ->
+					requiresChannel
+						.anyRequest().requiresSecure()
+				)
+				.portMapper(portMapper ->
+					portMapper
+						.portMapper(customPortMapper)
+				);
+			// @formatter:on
 		}
 	}
 }

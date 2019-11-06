@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,24 +15,16 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -50,6 +42,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * A {@code Filter} for the OAuth 2.0 Authorization Code Grant,
@@ -74,7 +72,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  *  Upon a successful authentication, an {@link OAuth2AuthorizedClient Authorized Client} is created by associating the
  *  {@link OAuth2AuthorizationCodeAuthenticationToken#getClientRegistration() client} to the
  *  {@link OAuth2AuthorizationCodeAuthenticationToken#getAccessToken() access token} and current {@code Principal}
- *  and saving it via the {@link OAuth2AuthorizedClientService}.
+ *  and saving it via the {@link OAuth2AuthorizedClientRepository}.
  * </li>
  * </ul>
  *
@@ -88,13 +86,13 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see ClientRegistrationRepository
  * @see OAuth2AuthorizedClient
- * @see OAuth2AuthorizedClientService
+ * @see OAuth2AuthorizedClientRepository
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.2">Section 4.1.2 Authorization Response</a>
  */
 public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	private final ClientRegistrationRepository clientRegistrationRepository;
-	private final OAuth2AuthorizedClientService authorizedClientService;
+	private final OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private final AuthenticationManager authenticationManager;
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
@@ -106,17 +104,17 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	 * Constructs an {@code OAuth2AuthorizationCodeGrantFilter} using the provided parameters.
 	 *
 	 * @param clientRegistrationRepository the repository of client registrations
-	 * @param authorizedClientService the authorized client service
+	 * @param authorizedClientRepository the authorized client repository
 	 * @param authenticationManager the authentication manager
 	 */
 	public OAuth2AuthorizationCodeGrantFilter(ClientRegistrationRepository clientRegistrationRepository,
-												OAuth2AuthorizedClientService authorizedClientService,
+												OAuth2AuthorizedClientRepository authorizedClientRepository,
 												AuthenticationManager authenticationManager) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
+		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
-		this.authorizedClientService = authorizedClientService;
+		this.authorizedClientRepository = authorizedClientRepository;
 		this.authenticationManager = authenticationManager;
 	}
 
@@ -158,15 +156,19 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	}
 
 	private void processAuthorizationResponse(HttpServletRequest request, HttpServletResponse response)
-		throws ServletException, IOException {
+		throws IOException {
 
-		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.removeAuthorizationRequest(request);
+		OAuth2AuthorizationRequest authorizationRequest =
+				this.authorizationRequestRepository.removeAuthorizationRequest(request, response);
 
-		String registrationId = (String) authorizationRequest.getAdditionalParameters().get(OAuth2ParameterNames.REGISTRATION_ID);
+		String registrationId = authorizationRequest.getAttribute(OAuth2ParameterNames.REGISTRATION_ID);
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 
 		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
-		String redirectUri = request.getRequestURL().toString();
+		String redirectUri = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+				.replaceQuery(null)
+				.build()
+				.toUriString();
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(params, redirectUri);
 
 		OAuth2AuthorizationCodeAuthenticationToken authenticationRequest = new OAuth2AuthorizationCodeAuthenticationToken(
@@ -178,7 +180,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		try {
 			authenticationResult = (OAuth2AuthorizationCodeAuthenticationToken)
 				this.authenticationManager.authenticate(authenticationRequest);
-		} catch (OAuth2AuthenticationException ex) {
+		} catch (OAuth2AuthorizationException ex) {
 			OAuth2Error error = ex.getError();
 			UriComponentsBuilder uriBuilder = UriComponentsBuilder
 				.fromUriString(authorizationResponse.getRedirectUri())
@@ -194,14 +196,15 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		}
 
 		Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+		String principalName = currentAuthentication != null ? currentAuthentication.getName() : "anonymousUser";
 
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 			authenticationResult.getClientRegistration(),
-			currentAuthentication.getName(),
+			principalName,
 			authenticationResult.getAccessToken(),
 			authenticationResult.getRefreshToken());
 
-		this.authorizedClientService.saveAuthorizedClient(authorizedClient, currentAuthentication);
+		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, currentAuthentication, request, response);
 
 		String redirectUrl = authorizationResponse.getRedirectUri();
 		SavedRequest savedRequest = this.requestCache.getRequest(request, response);

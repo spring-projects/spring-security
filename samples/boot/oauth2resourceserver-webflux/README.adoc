@@ -1,0 +1,112 @@
+= OAuth 2.0 Resource Server Sample
+
+This sample demonstrates integrating Resource Server with a mock Authorization Server, though it can be modified to integrate
+with your favorite Authorization Server.
+
+With it, you can run the integration tests or run the application as a stand-alone service to explore how you can
+secure your own service with OAuth 2.0 Bearer Tokens using Spring Security.
+
+== 1. Running the tests
+
+To run the tests, do:
+
+```bash
+./gradlew integrationTest
+```
+
+Or import the project into your IDE and run `ServerOAuth2ResourceServerApplicationTests` from there.
+
+=== What is it doing?
+
+By default, the tests are pointing at a mock Authorization Server instance.
+
+The tests are configured with a set of hard-coded tokens originally obtained from the mock Authorization Server,
+and each makes a query to the Resource Server with their corresponding token.
+
+The Resource Server subsquently verifies with the Authorization Server and authorizes the request, returning the phrase
+
+```bash
+Hello, subject!
+```
+
+where "subject" is the value of the `sub` field in the JWT returned by the Authorization Server.
+
+== 2. Running the app
+
+To run as a stand-alone application, do:
+
+```bash
+./gradlew bootRun
+```
+
+Or import the project into your IDE and run `ServerOAuth2ResourceServerApplication` from there.
+
+Once it is up, you can use the following token:
+
+```bash
+export TOKEN=eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzdWJqZWN0IiwiZXhwIjo0NjgzODA1MTI4fQ.ULEPdHG-MK5GlrTQMhgqcyug2brTIZaJIrahUeq9zaiwUSdW83fJ7W1IDd2Z3n4a25JY2uhEcoV95lMfccHR6y_2DLrNvfta22SumY9PEDF2pido54LXG6edIGgarnUbJdR4rpRe_5oRGVa8gDx8FnuZsNv6StSZHAzw5OsuevSTJ1UbJm4UfX3wiahFOQ2OI6G-r5TB2rQNdiPHuNyzG5yznUqRIZ7-GCoMqHMaC-1epKxiX8gYXRROuUYTtcMNa86wh7OVDmvwVmFioRcR58UWBRoO1XQexTtOQq_t8KYsrPZhb9gkyW8x2bAQF-d0J0EJY8JslaH6n4RBaZISww
+```
+
+And then make this request:
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" localhost:8080
+```
+
+Which will respond with the phrase:
+
+```bash
+Hello, subject!
+```
+
+where `subject` is the value of the `sub` field in the JWT returned by the Authorization Server.
+
+Or this:
+
+```bash
+export TOKEN=eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzdWJqZWN0Iiwic2NvcGUiOiJtZXNzYWdlOnJlYWQiLCJleHAiOjQ2ODM4MDUxNDF9.h-j6FKRFdnTdmAueTZCdep45e6DPwqM68ZQ8doIJ1exi9YxAlbWzOwId6Bd0L5YmCmp63gGQgsBUBLzwnZQ8kLUgUOBEC3UzSWGRqMskCY9_k9pX0iomX6IfF3N0PaYs0WPC4hO1s8wfZQ-6hKQ4KigFi13G9LMLdH58PRMK0pKEvs3gCbHJuEPw-K5ORlpdnleUTQIwINafU57cmK3KocTeknPAM_L716sCuSYGvDl6xUTXO7oPdrXhS_EhxLP6KxrpI1uD4Ea_5OWTh7S0Wx5LLDfU6wBG1DowN20d374zepOIEkR-Jnmr_QlR44vmRqS5ncrF-1R0EGcPX49U6A
+
+curl -H "Authorization: Bearer $TOKEN" localhost:8080/message
+```
+
+Will respond with:
+
+```bash
+secret message
+```
+
+== 2. Testing against other Authorization Servers
+
+_In order to use this sample, your Authorization Server must support JWTs that either use the "scope" or "scp" attribute._
+
+To change the sample to point at your Authorization Server, simply find this property in the `application.yml`:
+
+```yaml
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${mockwebserver.url}/.well-known/jwks.json
+```
+
+And change the property to your Authorization Server's JWK set endpoint:
+
+```yaml
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://dev-123456.oktapreview.com/oauth2/default/v1/keys
+```
+
+And then you can run the app the same as before:
+
+```bash
+./gradlew bootRun
+```
+
+Make sure to obtain valid tokens from your Authorization Server in order to play with the sample Resource Server.
+To use the `/` endpoint, any valid token from your Authorization Server will do.
+To use the `/message` endpoint, the token should have the `message:read` scope.

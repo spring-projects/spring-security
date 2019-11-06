@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,8 +25,8 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Denys Ivano
@@ -44,6 +44,28 @@ public class ExceptionHandlingSpecTests {
 				.and()
 			.exceptionHandling()
 				.and()
+			.build();
+
+		WebTestClient client = WebTestClientBuilder
+			.bindToWebFilters(securityWebFilter)
+			.build();
+
+		client
+			.get()
+			.uri("/test")
+			.exchange()
+			.expectStatus().isUnauthorized()
+			.expectHeader().valueMatches("WWW-Authenticate", "Basic.*");
+	}
+
+	@Test
+	public void requestWhenExceptionHandlingWithDefaultsInLambdaThenDefaultAuthenticationEntryPointUsed() {
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authorizeExchange(exchanges ->
+				exchanges
+					.anyExchange().authenticated()
+			)
+			.exceptionHandling(withDefaults())
 			.build();
 
 		WebTestClient client = WebTestClientBuilder
@@ -83,6 +105,31 @@ public class ExceptionHandlingSpecTests {
 	}
 
 	@Test
+	public void requestWhenCustomAuthenticationEntryPointInLambdaThenCustomAuthenticationEntryPointUsed() {
+		SecurityWebFilterChain securityWebFilter = this.http
+				.authorizeExchange(exchanges ->
+					exchanges
+						.anyExchange().authenticated()
+				)
+				.exceptionHandling(exceptionHandling ->
+					exceptionHandling
+						.authenticationEntryPoint(redirectServerAuthenticationEntryPoint("/auth"))
+				)
+				.build();
+
+		WebTestClient client = WebTestClientBuilder
+			.bindToWebFilters(securityWebFilter)
+			.build();
+
+		client
+			.get()
+			.uri("/test")
+			.exchange()
+			.expectStatus().isFound()
+			.expectHeader().valueMatches("Location", ".*");
+	}
+
+	@Test
 	public void defaultAccessDeniedHandler() {
 		SecurityWebFilterChain securityWebFilter = this.http
 			.csrf().disable()
@@ -96,15 +143,37 @@ public class ExceptionHandlingSpecTests {
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(securityWebFilter)
-			.filter(basicAuthentication())
 			.build();
 
 		client
 			.get()
 			.uri("/admin")
-			.attributes(basicAuthenticationCredentials("user", "password"))
+			.headers(headers -> headers.setBasicAuth("user", "password"))
 			.exchange()
 			.expectStatus().isForbidden();
+	}
+
+	@Test
+	public void requestWhenExceptionHandlingWithDefaultsInLambdaThenDefaultAccessDeniedHandlerUsed() {
+		SecurityWebFilterChain securityWebFilter = this.http
+				.httpBasic(withDefaults())
+				.authorizeExchange(exchanges ->
+					exchanges
+						.anyExchange().hasRole("ADMIN")
+				)
+				.exceptionHandling(withDefaults())
+				.build();
+
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+
+		client
+				.get()
+				.uri("/admin")
+				.headers(headers -> headers.setBasicAuth("user", "password"))
+				.exchange()
+				.expectStatus().isForbidden();
 	}
 
 	@Test
@@ -122,15 +191,40 @@ public class ExceptionHandlingSpecTests {
 
 		WebTestClient client = WebTestClientBuilder
 			.bindToWebFilters(securityWebFilter)
-			.filter(basicAuthentication())
 			.build();
 
 		client
 			.get()
 			.uri("/admin")
-			.attributes(basicAuthenticationCredentials("user", "password"))
+			.headers(headers -> headers.setBasicAuth("user", "password"))
 			.exchange()
 			.expectStatus().isBadRequest();
+	}
+
+	@Test
+	public void requestWhenCustomAccessDeniedHandlerInLambdaThenCustomAccessDeniedHandlerUsed() {
+		SecurityWebFilterChain securityWebFilter = this.http
+				.httpBasic(withDefaults())
+				.authorizeExchange(exchanges ->
+						exchanges
+								.anyExchange().hasRole("ADMIN")
+				)
+				.exceptionHandling(exceptionHandling ->
+					exceptionHandling
+						.accessDeniedHandler(httpStatusServerAccessDeniedHandler(HttpStatus.BAD_REQUEST))
+				)
+				.build();
+
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+
+		client
+				.get()
+				.uri("/admin")
+				.headers(headers -> headers.setBasicAuth("user", "password"))
+				.exchange()
+				.expectStatus().isBadRequest();
 	}
 
 	private ServerAuthenticationEntryPoint redirectServerAuthenticationEntryPoint(String location) {

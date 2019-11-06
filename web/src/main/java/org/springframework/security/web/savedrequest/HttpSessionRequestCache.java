@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -88,13 +89,9 @@ public class HttpSessionRequestCache implements RequestCache {
 
 	public HttpServletRequest getMatchingRequest(HttpServletRequest request,
 			HttpServletResponse response) {
-		DefaultSavedRequest saved = (DefaultSavedRequest) getRequest(request, response);
+		SavedRequest saved = getRequest(request, response);
 
-		if (saved == null) {
-			return null;
-		}
-
-		if (!saved.doesRequestMatch(request, portResolver)) {
+		if (!matchesSavedRequest(request, saved)) {
 			logger.debug("saved request doesn't match");
 			return null;
 		}
@@ -102,6 +99,20 @@ public class HttpSessionRequestCache implements RequestCache {
 		removeRequest(request, response);
 
 		return new SavedRequestAwareWrapper(saved, request);
+	}
+
+	private boolean matchesSavedRequest(HttpServletRequest request, SavedRequest savedRequest) {
+		if (savedRequest == null) {
+			return false;
+		}
+
+		if (savedRequest instanceof DefaultSavedRequest) {
+			DefaultSavedRequest defaultSavedRequest = (DefaultSavedRequest) savedRequest;
+			return defaultSavedRequest.doesRequestMatch(request, this.portResolver);
+		}
+
+		String currentUrl = UrlUtils.buildFullRequestUrl(request);
+		return savedRequest.getRedirectUrl().equals(currentUrl);
 	}
 
 	/**

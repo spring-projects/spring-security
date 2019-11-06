@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,6 +28,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -197,5 +198,43 @@ public class DelegatingPasswordEncoderTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void matchesWhenRawPasswordNotNullAndEncodedPasswordNullThenThrowsIllegalArgumentException() {
 		this.passwordEncoder.matches(this.rawPassword, null);
+	}
+
+	@Test
+	public void upgradeEncodingWhenEncodedPasswordNullThenTrue() {
+		assertThat(this.passwordEncoder.upgradeEncoding(null)).isTrue();
+	}
+
+	@Test
+	public void upgradeEncodingWhenNullIdThenTrue() {
+		assertThat(this.passwordEncoder.upgradeEncoding(this.encodedPassword)).isTrue();
+	}
+
+	@Test
+	public void upgradeEncodingWhenIdInvalidFormatThenTrue() {
+		assertThat(this.passwordEncoder.upgradeEncoding("{bcrypt"+ this.encodedPassword)).isTrue();
+	}
+
+	@Test
+	public void upgradeEncodingWhenSameIdAndEncoderFalseThenEncoderDecidesFalse() {
+		assertThat(this.passwordEncoder.upgradeEncoding(this.bcryptEncodedPassword)).isFalse();
+
+		verify(bcrypt).upgradeEncoding(this.encodedPassword);
+	}
+
+	@Test
+	public void upgradeEncodingWhenSameIdAndEncoderTrueThenEncoderDecidesTrue() {
+		when(this.bcrypt.upgradeEncoding(any())).thenReturn(true);
+
+		assertThat(this.passwordEncoder.upgradeEncoding(this.bcryptEncodedPassword)).isTrue();
+
+		verify(bcrypt).upgradeEncoding(this.encodedPassword);
+	}
+
+	@Test
+	public void upgradeEncodingWhenDifferentIdThenTrue() {
+		assertThat(this.passwordEncoder.upgradeEncoding(this.noopEncodedPassword)).isTrue();
+
+		verifyZeroInteractions(bcrypt);
 	}
 }

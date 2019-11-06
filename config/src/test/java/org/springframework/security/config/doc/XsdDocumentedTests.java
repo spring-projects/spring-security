@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,10 +47,10 @@ public class XsdDocumentedTests {
 		"nsa-method-security",
 		"nsa-web");
 
-	String referenceLocation = "../docs/manual/src/docs/asciidoc/_includes/appendix/namespace.adoc";
+	String referenceLocation = "../docs/manual/src/docs/asciidoc/_includes/servlet/appendix/namespace.adoc";
 
 	String schema31xDocumentLocation = "org/springframework/security/config/spring-security-3.1.xsd";
-	String schemaDocumentLocation = "org/springframework/security/config/spring-security-5.0.xsd";
+	String schemaDocumentLocation = "org/springframework/security/config/spring-security-5.2.xsd";
 
 	XmlSupport xml = new XmlSupport();
 
@@ -142,8 +142,8 @@ public class XsdDocumentedTests {
 
 		String[] schemas = resource.getFile().getParentFile().list((dir, name) -> name.endsWith(".xsd"));
 
-		assertThat(schemas.length).isEqualTo(12)
-			.withFailMessage("the count is equal to 12, if not then schemaDocument needs updating");
+		assertThat(schemas.length).isEqualTo(14)
+			.withFailMessage("the count is equal to 14, if not then schemaDocument needs updating");
 	}
 
 	/**
@@ -193,24 +193,24 @@ public class XsdDocumentedTests {
 
 		List<String> lines = Files.readAllLines(Paths.get(this.referenceLocation));
 		for ( String line : lines ) {
-			if(line.matches("^\\[\\[.*\\]\\]$")) {
+			if (line.matches("^\\[\\[.*\\]\\]$")) {
 				String id = line.substring(2, line.length() - 2);
 
-				if(id.endsWith("-children")) {
+				if (id.endsWith("-children")) {
 					docAttrName = id.substring(0, id.length() - 9);
 					currentDocAttrNameToElmt = docAttrNameToChildren;
-				} else if(id.endsWith("-parents")) {
+				} else if (id.endsWith("-parents")) {
 					docAttrName = id.substring(0, id.length() - 8);
 					currentDocAttrNameToElmt = docAttrNameToParents;
-				} else if(docAttrName != null && !id.startsWith(docAttrName)) {
+				} else if (docAttrName != null && !id.startsWith(docAttrName)) {
 					currentDocAttrNameToElmt = null;
 					docAttrName = null;
 				}
 			}
 
-			if(docAttrName != null && currentDocAttrNameToElmt != null) {
+			if (docAttrName != null && currentDocAttrNameToElmt != null) {
 				String expression = "^\\* <<(nsa-.*),.*>>$";
-				if(line.matches(expression)) {
+				if (line.matches(expression)) {
 					String elmtId = line.replaceAll(expression, "$1");
 					currentDocAttrNameToElmt
 							.computeIfAbsent(docAttrName, key -> new ArrayList<>())

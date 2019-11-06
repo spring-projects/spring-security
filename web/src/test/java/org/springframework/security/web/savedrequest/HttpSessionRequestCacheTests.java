@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  *
@@ -60,14 +59,9 @@ public class HttpSessionRequestCacheTests {
 	}
 
 	@Test
-	public void requestMatcherDefinesCorrectSubsetOfCachedRequests() throws Exception {
+	public void requestMatcherDefinesCorrectSubsetOfCachedRequests() {
 		HttpSessionRequestCache cache = new HttpSessionRequestCache();
-		cache.setRequestMatcher(new RequestMatcher() {
-
-			public boolean matches(HttpServletRequest request) {
-				return request.getMethod().equals("GET");
-			}
-		});
+		cache.setRequestMatcher(request -> request.getMethod().equals("GET"));
 
 		MockHttpServletRequest request = new MockHttpServletRequest("POST",
 				"/destination");
@@ -81,7 +75,7 @@ public class HttpSessionRequestCacheTests {
 
 	// SEC-2246
 	@Test
-	public void getRequestCustomNoClassCastException() throws Exception {
+	public void getRequestCustomNoClassCastException() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST",
 				"/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();

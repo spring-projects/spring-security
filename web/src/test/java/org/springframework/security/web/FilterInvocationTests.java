@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,7 +45,7 @@ public class FilterInvocationTests {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
 		request.setServletPath("/HelloWorld");
 		request.setPathInfo("/some/more/segments.html");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setScheme("http");
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
@@ -61,7 +61,7 @@ public class FilterInvocationTests {
 		assertThat(fi.getChain()).isEqualTo(chain);
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld/some/more/segments.html");
 		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld/some/more/segments.html");
-		assertThat(fi.getFullRequestUrl()).isEqualTo("http://www.example.com/mycontext/HelloWorld/some/more/segments.html");
+		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld/some/more/segments.html");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -91,7 +91,7 @@ public class FilterInvocationTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("foo=bar");
 		request.setServletPath("/HelloWorld");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setScheme("http");
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
@@ -102,14 +102,14 @@ public class FilterInvocationTests {
 				mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld?foo=bar");
 		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld?foo=bar");
-		assertThat(fi.getFullRequestUrl()).isEqualTo("http://www.example.com/mycontext/HelloWorld?foo=bar");
+		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld?foo=bar");
 	}
 
 	@Test
 	public void testStringMethodsWithoutAnyQueryString() {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
 		request.setServletPath("/HelloWorld");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setScheme("http");
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
@@ -120,7 +120,7 @@ public class FilterInvocationTests {
 				mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld");
 		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld");
-		assertThat(fi.getFullRequestUrl()).isEqualTo("http://www.example.com/mycontext/HelloWorld");
+		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld");
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
@@ -130,7 +130,7 @@ public class FilterInvocationTests {
 	}
 
 	@Test
-	public void dummyRequestIsSupportedByUrlUtils() throws Exception {
+	public void dummyRequestIsSupportedByUrlUtils() {
 		DummyRequest request = new DummyRequest();
 		request.setContextPath("");
 		request.setRequestURI("/something");

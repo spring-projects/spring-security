@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,10 +20,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.crypto.RsaKeyConversionServicePostProcessor;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -36,7 +38,7 @@ import org.springframework.web.reactive.result.view.AbstractView;
  * @author Rob Winch
  * @since 5.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class WebFluxSecurityConfiguration {
 	public static final int WEB_FILTER_CHAIN_FILTER_ORDER = 0 - 100;
 
@@ -49,11 +51,15 @@ class WebFluxSecurityConfiguration {
 	private static final boolean isOAuth2Present = ClassUtils.isPresent(
 			REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, WebFluxSecurityConfiguration.class.getClassLoader());
 
-	@Autowired(required = false)
 	private List<SecurityWebFilterChain> securityWebFilterChains;
 
 	@Autowired
 	ApplicationContext context;
+
+	@Autowired(required = false)
+	void setSecurityWebFilterChains(List<SecurityWebFilterChain> securityWebFilterChains) {
+		this.securityWebFilterChains = securityWebFilterChains;
+	}
 
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
 	@Order(value = WEB_FILTER_CHAIN_FILTER_ORDER)
@@ -66,9 +72,14 @@ class WebFluxSecurityConfiguration {
 		return new CsrfRequestDataValueProcessor();
 	}
 
+	@Bean
+	public static BeanFactoryPostProcessor conversionServicePostProcessor() {
+		return new RsaKeyConversionServicePostProcessor();
+	}
+
 	private List<SecurityWebFilterChain> getSecurityWebFilterChains() {
 		List<SecurityWebFilterChain> result = this.securityWebFilterChains;
-		if(ObjectUtils.isEmpty(result)) {
+		if (ObjectUtils.isEmpty(result)) {
 			return Arrays.asList(springSecurityFilterChain());
 		}
 		return result;
@@ -103,7 +114,9 @@ class WebFluxSecurityConfiguration {
 
 	private static class OAuth2ClasspathGuard {
 		static void configure(ApplicationContext context, ServerHttpSecurity http) {
-			http.oauth2Login();
+			http
+				.oauth2Login().and()
+				.oauth2Client();
 		}
 
 		static boolean shouldConfigure(ApplicationContext context) {

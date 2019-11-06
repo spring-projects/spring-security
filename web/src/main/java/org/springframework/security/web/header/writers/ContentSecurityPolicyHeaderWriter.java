@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -73,6 +73,7 @@ import javax.servlet.http.HttpServletResponse;
  * </p>
  *
  * @author Joe Grandja
+ * @author Ankur Pathak
  * @since 4.1
  */
 public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
@@ -80,9 +81,19 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
 	private static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER = "Content-Security-Policy-Report-Only";
 
+	private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
+
 	private String policyDirectives;
 
 	private boolean reportOnly;
+
+	/**
+	 * Creates a new instance. Default value: default-src 'self'
+	 */
+	public ContentSecurityPolicyHeaderWriter() {
+		setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
+		this.reportOnly = false;
+	}
 
 	/**
 	 * Creates a new instance
@@ -100,7 +111,10 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	 */
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader((!reportOnly ? CONTENT_SECURITY_POLICY_HEADER : CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER), policyDirectives);
+		String headerName = !reportOnly ? CONTENT_SECURITY_POLICY_HEADER : CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER;
+		if (!response.containsHeader(headerName)) {
+			response.setHeader(headerName, policyDirectives);
+		}
 	}
 
 	/**

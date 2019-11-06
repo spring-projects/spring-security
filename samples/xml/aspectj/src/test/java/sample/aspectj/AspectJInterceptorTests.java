@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,46 +43,46 @@ public class AspectJInterceptorTests {
 	private SecuredService securedService;
 
 	@Test
-	public void testPublicMethod() throws Exception {
+	public void testPublicMethod() {
 		service.publicMethod();
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
-	public void testSecuredMethodNotAuthenticated() throws Exception {
+	public void testSecuredMethodNotAuthenticated() {
 		service.secureMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void testSecuredMethodWrongRole() throws Exception {
+	public void testSecuredMethodWrongRole() {
 		SecurityContextHolder.getContext().setAuthentication(admin);
 		service.secureMethod();
 	}
 
 	@Test
-	public void testSecuredMethodEverythingOk() throws Exception {
+	public void testSecuredMethodEverythingOk() {
 		SecurityContextHolder.getContext().setAuthentication(user);
 		service.secureMethod();
 	}
 
 	@Test(expected = AuthenticationCredentialsNotFoundException.class)
-	public void testSecuredClassNotAuthenticated() throws Exception {
+	public void testSecuredClassNotAuthenticated() {
 		securedService.secureMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void testSecuredClassWrongRole() throws Exception {
+	public void testSecuredClassWrongRole() {
 		SecurityContextHolder.getContext().setAuthentication(admin);
 		securedService.secureMethod();
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void testSecuredClassWrongRoleOnNewedInstance() throws Exception {
+	public void testSecuredClassWrongRoleOnNewedInstance() {
 		SecurityContextHolder.getContext().setAuthentication(admin);
 		new SecuredService().secureMethod();
 	}
 
 	@Test
-	public void testSecuredClassEverythingOk() throws Exception {
+	public void testSecuredClassEverythingOk() {
 		SecurityContextHolder.getContext().setAuthentication(user);
 		securedService.secureMethod();
 		new SecuredService().secureMethod();

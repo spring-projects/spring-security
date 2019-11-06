@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,21 +15,15 @@
  */
 package org.springframework.security.config.annotation.authentication.configuration;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.target.LazyInitTargetSource;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -49,6 +43,12 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Exports the authentication {@link Configuration}
  *
@@ -56,7 +56,7 @@ import org.springframework.util.Assert;
  * @since 3.2
  *
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @Import(ObjectPostProcessorConfiguration.class)
 public class AuthenticationConfiguration {
 
@@ -106,8 +106,7 @@ public class AuthenticationConfiguration {
 		if (this.authenticationManagerInitialized) {
 			return this.authenticationManager;
 		}
-		AuthenticationManagerBuilder authBuilder = authenticationManagerBuilder(
-				this.objectPostProcessor, this.applicationContext);
+		AuthenticationManagerBuilder authBuilder = this.applicationContext.getBean(AuthenticationManagerBuilder.class);
 		if (this.buildingAuthenticationManager.getAndSet(true)) {
 			return new AuthenticationManagerDelegator(authBuilder);
 		}
@@ -128,8 +127,8 @@ public class AuthenticationConfiguration {
 
 	@Autowired(required = false)
 	public void setGlobalAuthenticationConfigurers(
-			List<GlobalAuthenticationConfigurerAdapter> configurers) throws Exception {
-		Collections.sort(configurers, AnnotationAwareOrderComparator.INSTANCE);
+			List<GlobalAuthenticationConfigurerAdapter> configurers) {
+		configurers.sort(AnnotationAwareOrderComparator.INSTANCE);
 		this.globalAuthConfigurers = configurers;
 	}
 
@@ -151,15 +150,39 @@ public class AuthenticationConfiguration {
 		if (beanNamesForType.length == 0) {
 			return null;
 		}
-		Assert.isTrue(beanNamesForType.length == 1,
-				() -> "Expecting to only find a single bean for type " + interfaceName
-						+ ", but found " + Arrays.asList(beanNamesForType));
-		lazyTargetSource.setTargetBeanName(beanNamesForType[0]);
+		String beanName;
+		if (beanNamesForType.length > 1) {
+			List<String> primaryBeanNames = getPrimaryBeanNames(beanNamesForType);
+
+			Assert.isTrue(primaryBeanNames.size() != 0, () -> "Found " + beanNamesForType.length
+					+ " beans for type " + interfaceName + ", but none marked as primary");
+			Assert.isTrue(primaryBeanNames.size() == 1, () -> "Found " + primaryBeanNames.size()
+					+ " beans for type " + interfaceName + " marked as primary");
+			beanName = primaryBeanNames.get(0);
+		} else {
+			beanName = beanNamesForType[0];
+		}
+
+		lazyTargetSource.setTargetBeanName(beanName);
 		lazyTargetSource.setBeanFactory(applicationContext);
 		ProxyFactoryBean proxyFactory = new ProxyFactoryBean();
 		proxyFactory = objectPostProcessor.postProcess(proxyFactory);
 		proxyFactory.setTargetSource(lazyTargetSource);
 		return (T) proxyFactory.getObject();
+	}
+
+	private List<String> getPrimaryBeanNames(String[] beanNamesForType) {
+		List<String> list = new ArrayList<>();
+		if (!(applicationContext instanceof ConfigurableApplicationContext)) {
+			return Collections.emptyList();
+		}
+		for (String beanName : beanNamesForType) {
+			if (((ConfigurableApplicationContext) applicationContext).getBeanFactory()
+					.getBeanDefinition(beanName).isPrimary()) {
+				list.add(beanName);
+			}
+		}
+		return list;
 	}
 
 	private AuthenticationManager getAuthenticationManagerBean() {
@@ -180,7 +203,7 @@ public class AuthenticationConfiguration {
 		private static final Log logger = LogFactory
 				.getLog(EnableGlobalAuthenticationAutowiredConfigurer.class);
 
-		public EnableGlobalAuthenticationAutowiredConfigurer(ApplicationContext context) {
+		EnableGlobalAuthenticationAutowiredConfigurer(ApplicationContext context) {
 			this.context = context;
 		}
 
@@ -287,6 +310,11 @@ public class AuthenticationConfiguration {
 		public boolean matches(CharSequence rawPassword,
 			String encodedPassword) {
 			return getPasswordEncoder().matches(rawPassword, encodedPassword);
+		}
+
+		@Override
+		public boolean upgradeEncoding(String encodedPassword) {
+			return getPasswordEncoder().upgradeEncoding(encodedPassword);
 		}
 
 		private PasswordEncoder getPasswordEncoder() {

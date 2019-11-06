@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
 package org.springframework.security.web.authentication.rememberme;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
 import java.util.Base64;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -46,7 +45,6 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -86,7 +84,6 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 	private String key;
 	private int tokenValiditySeconds = TWO_WEEKS_S;
 	private Boolean useSecureCookie = null;
-	private Method setHttpOnlyMethod;
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
 	protected AbstractRememberMeServices(String key, UserDetailsService userDetailsService) {
@@ -94,12 +91,10 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 		Assert.notNull(userDetailsService, "UserDetailsService cannot be null");
 		this.key = key;
 		this.userDetailsService = userDetailsService;
-		this.setHttpOnlyMethod = ReflectionUtils.findMethod(Cookie.class, "setHttpOnly",
-				boolean.class);
 	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.hasLength(key, "key cannot be empty or null");
 		Assert.notNull(userDetailsService, "A UserDetailsService is required");
 	}
@@ -396,8 +391,8 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 	 *
 	 * By default a secure cookie will be used if the connection is secure. You can set
 	 * the {@code useSecureCookie} property to {@code false} to override this. If you set
-	 * it to {@code true}, the cookie will always be flagged as secure. If Servlet 3.0 is
-	 * used, the cookie will be marked as HttpOnly.
+	 * it to {@code true}, the cookie will always be flagged as secure. By default the cookie
+	 * will be marked as HttpOnly.
 	 *
 	 * @param tokens the tokens which will be encoded to make the cookie value.
 	 * @param maxAge the value passed to {@link Cookie#setMaxAge(int)}
@@ -424,12 +419,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 			cookie.setSecure(useSecureCookie);
 		}
 
-		if (setHttpOnlyMethod != null) {
-			ReflectionUtils.invokeMethod(setHttpOnlyMethod, cookie, Boolean.TRUE);
-		}
-		else if (logger.isDebugEnabled()) {
-			logger.debug("Note: Cookie will not be marked as HttpOnly because you are not using Servlet 3.0 (Cookie#setHttpOnly(boolean) was not found).");
-		}
+		cookie.setHttpOnly(true);
 
 		response.addCookie(cookie);
 	}

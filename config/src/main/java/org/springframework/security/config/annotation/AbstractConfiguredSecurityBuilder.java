@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,10 +55,10 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		extends AbstractSecurityBuilder<O> {
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers = new LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>>();
-	private final List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<SecurityConfigurer<O, B>>();
+	private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers = new LinkedHashMap<>();
+	private final List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<>();
 
-	private final Map<Class<? extends Object>, Object> sharedObjects = new HashMap<Class<? extends Object>, Object>();
+	private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
 
 	private final boolean allowConfigurersOfSameType;
 
@@ -122,7 +122,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * invokes {@link SecurityConfigurerAdapter#setBuilder(SecurityBuilder)}.
 	 *
 	 * @param configurer
-	 * @return
+	 * @return the {@link SecurityConfigurerAdapter} for further customizations
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
@@ -140,7 +140,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * are not considered.
 	 *
 	 * @param configurer
-	 * @return
+	 * @return the {@link SecurityConfigurerAdapter} for further customizations
 	 * @throws Exception
 	 */
 	public <C extends SecurityConfigurer<O, B>> C apply(C configurer) throws Exception {
@@ -172,9 +172,9 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 	/**
 	 * Gets the shared objects
-	 * @return
+	 * @return the shared Objects
 	 */
-	public Map<Class<? extends Object>, Object> getSharedObjects() {
+	public Map<Class<?>, Object> getSharedObjects() {
 		return Collections.unmodifiableMap(this.sharedObjects);
 	}
 
@@ -183,10 +183,9 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * {@link SecurityConfigurer#init(SecurityBuilder)} immediately if necessary.
 	 *
 	 * @param configurer the {@link SecurityConfigurer} to add
-	 * @throws Exception if an error occurs
 	 */
 	@SuppressWarnings("unchecked")
-	private <C extends SecurityConfigurer<O, B>> void add(C configurer) throws Exception {
+	private <C extends SecurityConfigurer<O, B>> void add(C configurer) {
 		Assert.notNull(configurer, "configurer cannot be null");
 
 		Class<? extends SecurityConfigurer<O, B>> clazz = (Class<? extends SecurityConfigurer<O, B>>) configurer
@@ -199,7 +198,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 			List<SecurityConfigurer<O, B>> configs = allowConfigurersOfSameType ? this.configurers
 					.get(clazz) : null;
 			if (configs == null) {
-				configs = new ArrayList<SecurityConfigurer<O, B>>(1);
+				configs = new ArrayList<>(1);
 			}
 			configs.add(configurer);
 			this.configurers.put(clazz, configs);
@@ -214,7 +213,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * List if not found. Note that object hierarchies are not considered.
 	 *
 	 * @param clazz the {@link SecurityConfigurer} class to look for
-	 * @return
+	 * @return a list of {@link SecurityConfigurer}s for further customization
 	 */
 	@SuppressWarnings("unchecked")
 	public <C extends SecurityConfigurer<O, B>> List<C> getConfigurers(Class<C> clazz) {
@@ -230,7 +229,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * List if not found. Note that object hierarchies are not considered.
 	 *
 	 * @param clazz the {@link SecurityConfigurer} class to look for
-	 * @return
+	 * @return a list of {@link SecurityConfigurer}s for further customization
 	 */
 	@SuppressWarnings("unchecked")
 	public <C extends SecurityConfigurer<O, B>> List<C> removeConfigurers(Class<C> clazz) {
@@ -246,7 +245,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * found. Note that object hierarchies are not considered.
 	 *
 	 * @param clazz
-	 * @return
+	 * @return the {@link SecurityConfigurer} for further customizations
 	 */
 	@SuppressWarnings("unchecked")
 	public <C extends SecurityConfigurer<O, B>> C getConfigurer(Class<C> clazz) {
@@ -359,7 +358,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	/**
 	 * Subclasses must implement this method to build the object that is being returned.
 	 *
-	 * @return
+	 * @return the Object to be buit or null if the implementation allows it
 	 */
 	protected abstract O performBuild() throws Exception;
 
@@ -386,7 +385,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	}
 
 	private Collection<SecurityConfigurer<O, B>> getConfigurers() {
-		List<SecurityConfigurer<O, B>> result = new ArrayList<SecurityConfigurer<O, B>>();
+		List<SecurityConfigurer<O, B>> result = new ArrayList<>();
 		for (List<SecurityConfigurer<O, B>> configs : this.configurers.values()) {
 			result.addAll(configs);
 		}
@@ -409,7 +408,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @author Rob Winch
 	 * @since 3.2
 	 */
-	private static enum BuildState {
+	private enum BuildState {
 		/**
 		 * This is the state before the {@link Builder#build()} is invoked
 		 */

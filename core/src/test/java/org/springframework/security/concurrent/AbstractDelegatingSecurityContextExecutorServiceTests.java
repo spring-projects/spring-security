@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -94,7 +94,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests exte
 	}
 
 	@Test
-	public void submitCallable() throws Exception {
+	public void submitCallable() {
 		when(delegate.submit(wrappedCallable)).thenReturn(expectedFutureObject);
 		Future<Object> result = executor.submit(callable);
 		verify(delegate).submit(wrappedCallable);
@@ -102,7 +102,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests exte
 	}
 
 	@Test
-	public void submitRunnableWithResult() throws Exception {
+	public void submitRunnableWithResult() {
 		when(delegate.submit(wrappedRunnable, resultArg))
 				.thenReturn(expectedFutureObject);
 		Future<Object> result = executor.submit(runnable, resultArg);
@@ -112,7 +112,7 @@ public abstract class AbstractDelegatingSecurityContextExecutorServiceTests exte
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void submitRunnable() throws Exception {
+	public void submitRunnable() {
 		when((Future<Object>) delegate.submit(wrappedRunnable)).thenReturn(
 				expectedFutureObject);
 		Future<?> result = executor.submit(runnable);

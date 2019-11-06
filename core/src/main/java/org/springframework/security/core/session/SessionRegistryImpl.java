@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -120,35 +120,30 @@ public class SessionRegistryImpl implements SessionRegistry,
 		Assert.hasText(sessionId, "SessionId required as per interface contract");
 		Assert.notNull(principal, "Principal required as per interface contract");
 
+		if (getSessionInformation(sessionId) != null) {
+			removeSessionInformation(sessionId);
+		}
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("Registering session " + sessionId + ", for principal "
 					+ principal);
 		}
 
-		if (getSessionInformation(sessionId) != null) {
-			removeSessionInformation(sessionId);
-		}
-
 		sessionIds.put(sessionId,
 				new SessionInformation(principal, sessionId, new Date()));
 
-		Set<String> sessionsUsedByPrincipal = principals.get(principal);
-
-		if (sessionsUsedByPrincipal == null) {
-			sessionsUsedByPrincipal = new CopyOnWriteArraySet<>();
-			Set<String> prevSessionsUsedByPrincipal = principals.putIfAbsent(principal,
-					sessionsUsedByPrincipal);
-			if (prevSessionsUsedByPrincipal != null) {
-				sessionsUsedByPrincipal = prevSessionsUsedByPrincipal;
+		principals.compute(principal, (key, sessionsUsedByPrincipal) -> {
+			if (sessionsUsedByPrincipal == null) {
+				sessionsUsedByPrincipal = new CopyOnWriteArraySet<>();
 			}
-		}
+			sessionsUsedByPrincipal.add(sessionId);
 
-		sessionsUsedByPrincipal.add(sessionId);
-
-		if (logger.isTraceEnabled()) {
-			logger.trace("Sessions used by '" + principal + "' : "
-					+ sessionsUsedByPrincipal);
-		}
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sessions used by '" + principal + "' : "
+						+ sessionsUsedByPrincipal);
+			}
+			return sessionsUsedByPrincipal;
+		});
 	}
 
 	public void removeSessionInformation(String sessionId) {
@@ -167,32 +162,29 @@ public class SessionRegistryImpl implements SessionRegistry,
 
 		sessionIds.remove(sessionId);
 
-		Set<String> sessionsUsedByPrincipal = principals.get(info.getPrincipal());
-
-		if (sessionsUsedByPrincipal == null) {
-			return;
-		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Removing session " + sessionId
-					+ " from principal's set of registered sessions");
-		}
-
-		sessionsUsedByPrincipal.remove(sessionId);
-
-		if (sessionsUsedByPrincipal.isEmpty()) {
-			// No need to keep object in principals Map anymore
+		principals.computeIfPresent(info.getPrincipal(), (key, sessionsUsedByPrincipal) -> {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Removing principal " + info.getPrincipal()
-						+ " from registry");
+				logger.debug("Removing session " + sessionId
+						+ " from principal's set of registered sessions");
 			}
-			principals.remove(info.getPrincipal());
-		}
 
-		if (logger.isTraceEnabled()) {
-			logger.trace("Sessions used by '" + info.getPrincipal() + "' : "
-					+ sessionsUsedByPrincipal);
-		}
+			sessionsUsedByPrincipal.remove(sessionId);
+
+			if (sessionsUsedByPrincipal.isEmpty()) {
+				// No need to keep object in principals Map anymore
+				if (logger.isDebugEnabled()) {
+					logger.debug("Removing principal " + info.getPrincipal()
+							+ " from registry");
+				}
+				sessionsUsedByPrincipal = null;
+			}
+
+			if (logger.isTraceEnabled()) {
+				logger.trace("Sessions used by '" + info.getPrincipal() + "' : "
+						+ sessionsUsedByPrincipal);
+			}
+			return sessionsUsedByPrincipal;
+		});
 	}
 
 }

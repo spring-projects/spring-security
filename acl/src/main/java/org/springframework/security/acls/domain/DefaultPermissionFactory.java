@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -100,7 +100,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
 		Assert.notNull(perm, "Permission required");
 		Assert.hasText(permissionName, "Permission name required");
 
-		Integer mask = Integer.valueOf(perm.getMask());
+		Integer mask = perm.getMask();
 
 		// Ensure no existing Permission uses this integer or code
 		Assert.isTrue(!registeredPermissionsByInteger.containsKey(mask),
@@ -114,10 +114,10 @@ public class DefaultPermissionFactory implements PermissionFactory {
 	}
 
 	public Permission buildFromMask(int mask) {
-		if (registeredPermissionsByInteger.containsKey(Integer.valueOf(mask))) {
+		if (registeredPermissionsByInteger.containsKey(mask)) {
 			// The requested mask has an exact match against a statically-defined
 			// Permission, so return it
-			return registeredPermissionsByInteger.get(Integer.valueOf(mask));
+			return registeredPermissionsByInteger.get(mask);
 		}
 
 		// To get this far, we have to use a CumulativePermission
@@ -127,8 +127,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
 			int permissionToCheck = 1 << i;
 
 			if ((mask & permissionToCheck) == permissionToCheck) {
-				Permission p = registeredPermissionsByInteger.get(Integer
-						.valueOf(permissionToCheck));
+				Permission p = registeredPermissionsByInteger.get(permissionToCheck);
 
 				if (p == null) {
 					throw new IllegalStateException("Mask '" + permissionToCheck

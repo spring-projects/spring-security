@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,7 @@ package org.springframework.security.core.userdetails;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
@@ -31,7 +30,7 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class MapReactiveUserDetailsService implements ReactiveUserDetailsService {
+public class MapReactiveUserDetailsService implements ReactiveUserDetailsService, ReactiveUserDetailsPasswordService {
 	private final Map<String, UserDetails> users;
 
 	/**
@@ -56,7 +55,10 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	 */
 	public MapReactiveUserDetailsService(Collection<UserDetails> users) {
 		Assert.notEmpty(users, "users cannot be null or empty");
-		this.users = users.stream().collect(Collectors.toConcurrentMap( u -> getKey(u.getUsername()), Function.identity()));
+		this.users = new ConcurrentHashMap<>();
+		for (UserDetails user : users) {
+			this.users.put(getKey(user.getUsername()), user);
+		}
 	}
 
 	@Override
@@ -64,6 +66,20 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 		String key = getKey(username);
 		UserDetails result = users.get(key);
 		return result == null ? Mono.empty() : Mono.just(User.withUserDetails(result).build());
+	}
+
+	@Override
+	public Mono<UserDetails> updatePassword(UserDetails user, String newPassword) {
+		return Mono.just(user)
+				.map(u ->
+					User.withUserDetails(u)
+						.password(newPassword)
+						.build()
+				)
+				.doOnNext(u -> {
+					String key = getKey(user.getUsername());
+					this.users.put(key, u);
+				});
 	}
 
 	private String getKey(String username) {

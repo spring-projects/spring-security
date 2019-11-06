@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.authentication;
 
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -109,6 +110,7 @@ public class UsernamePasswordAuthenticationFilter extends
 	 * @return the password that will be presented in the <code>Authentication</code>
 	 * request token to the <code>AuthenticationManager</code>
 	 */
+	@Nullable
 	protected String obtainPassword(HttpServletRequest request) {
 		return request.getParameter(passwordParameter);
 	}
@@ -122,6 +124,7 @@ public class UsernamePasswordAuthenticationFilter extends
 	 * @return the username that will be presented in the <code>Authentication</code>
 	 * request token to the <code>AuthenticationManager</code>
 	 */
+	@Nullable
 	protected String obtainUsername(HttpServletRequest request) {
 		return request.getParameter(usernameParameter);
 	}

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -154,7 +154,7 @@ public class AutowireBeanFactoryObjectPostProcessorTests {
 
 	@Test
 	// SEC-2382
-	public void autowireBeanFactoryWhenBeanNameAutoProxyCreatorThenWorks() throws Exception {
+	public void autowireBeanFactoryWhenBeanNameAutoProxyCreatorThenWorks() {
 		this.spring.testConfigLocations("AutowireBeanFactoryObjectPostProcessorTests-aopconfig.xml").autowire();
 
 		MyAdvisedBean bean = this.spring.getContext().getBean(MyAdvisedBean.class);

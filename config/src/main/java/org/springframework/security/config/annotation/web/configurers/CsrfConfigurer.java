@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,6 +30,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
@@ -81,6 +82,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 			new HttpSessionCsrfTokenRepository());
 	private RequestMatcher requireCsrfProtectionMatcher = CsrfFilter.DEFAULT_CSRF_MATCHER;
 	private List<RequestMatcher> ignoredCsrfProtectionMatchers = new ArrayList<>();
+	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
 	private final ApplicationContext context;
 
 	/**
@@ -128,7 +130,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </p>
 	 *
 	 * <p>
-	 * The following will ensure CSRF protection ignores:
+	 * For example, the following configuration will ensure CSRF protection ignores:
 	 * </p>
 	 * <ul>
 	 * <li>Any GET, HEAD, TRACE, OPTIONS (this is the default)</li>
@@ -150,9 +152,58 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 				.and();
 	}
 
+	/**
+	 * <p>
+	 * Allows specifying {@link HttpServletRequest}s that should not use CSRF Protection
+	 * even if they match the {@link #requireCsrfProtectionMatcher(RequestMatcher)}.
+	 * </p>
+	 *
+	 * <p>
+	 * For example, the following configuration will ensure CSRF protection ignores:
+	 * </p>
+	 * <ul>
+	 * <li>Any GET, HEAD, TRACE, OPTIONS (this is the default)</li>
+	 * <li>We also explicitly state to ignore any request that has a "X-Requested-With: XMLHttpRequest" header</li>
+	 * </ul>
+	 *
+	 * <pre>
+	 * http
+	 *     .csrf()
+	 *         .ignoringRequestMatchers(request -> "XMLHttpRequest".equals(request.getHeader("X-Requested-With")))
+	 *         .and()
+	 *     ...
+	 * </pre>
+	 *
+	 * @since 5.1
+	 */
+	public CsrfConfigurer<H> ignoringRequestMatchers(RequestMatcher... requestMatchers) {
+		return new IgnoreCsrfProtectionRegistry(this.context).requestMatchers(requestMatchers)
+				.and();
+	}
+
+	/**
+	 * <p>
+	 * Specify the {@link SessionAuthenticationStrategy} to use. The default is a
+	 * {@link CsrfAuthenticationStrategy}.
+	 * </p>
+	 *
+	 * @author Michael Vitz
+	 * @since 5.2
+	 *
+	 * @param sessionAuthenticationStrategy the {@link SessionAuthenticationStrategy} to use
+	 * @return the {@link CsrfConfigurer} for further customizations
+	 */
+	public CsrfConfigurer<H> sessionAuthenticationStrategy(
+			SessionAuthenticationStrategy sessionAuthenticationStrategy) {
+		Assert.notNull(sessionAuthenticationStrategy,
+				"sessionAuthenticationStrategy cannot be null");
+		this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
+		return this;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		CsrfFilter filter = new CsrfFilter(this.csrfTokenRepository);
 		RequestMatcher requireCsrfProtectionMatcher = getRequireCsrfProtectionMatcher();
 		if (requireCsrfProtectionMatcher != null) {
@@ -171,7 +222,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 				.getConfigurer(SessionManagementConfigurer.class);
 		if (sessionConfigurer != null) {
 			sessionConfigurer.addSessionAuthenticationStrategy(
-					new CsrfAuthenticationStrategy(this.csrfTokenRepository));
+					getSessionAuthenticationStrategy());
 		}
 		filter = postProcess(filter);
 		http.addFilter(filter);
@@ -255,9 +306,26 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 
 		InvalidSessionAccessDeniedHandler invalidSessionDeniedHandler = new InvalidSessionAccessDeniedHandler(
 				invalidSessionStrategy);
-		LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers = new LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler>();
+		LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers = new LinkedHashMap<>();
 		handlers.put(MissingCsrfTokenException.class, invalidSessionDeniedHandler);
 		return new DelegatingAccessDeniedHandler(handlers, defaultAccessDeniedHandler);
+	}
+
+	/**
+	 * Gets the {@link SessionAuthenticationStrategy} to use. If none was set by the user a
+	 * {@link CsrfAuthenticationStrategy} is created.
+	 *
+	 * @author Michael Vitz
+	 * @since 5.2
+	 *
+	 * @return the {@link SessionAuthenticationStrategy}
+	 */
+	private SessionAuthenticationStrategy getSessionAuthenticationStrategy() {
+		if (sessionAuthenticationStrategy != null) {
+			return sessionAuthenticationStrategy;
+		} else {
+			return new CsrfAuthenticationStrategy(this.csrfTokenRepository);
+		}
 	}
 
 	/**

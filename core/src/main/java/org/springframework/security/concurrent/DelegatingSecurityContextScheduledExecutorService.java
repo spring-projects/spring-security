@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,24 +61,24 @@ public final class DelegatingSecurityContextScheduledExecutorService extends
 		this(delegate, null);
 	}
 
-	public final ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+	public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
 		command = wrap(command);
 		return getDelegate().schedule(command, delay, unit);
 	}
 
-	public final <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay,
+	public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay,
 			TimeUnit unit) {
 		callable = wrap(callable);
 		return getDelegate().schedule(callable, delay, unit);
 	}
 
-	public final ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
+	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
 			long initialDelay, long period, TimeUnit unit) {
 		command = wrap(command);
 		return getDelegate().scheduleAtFixedRate(command, initialDelay, period, unit);
 	}
 
-	public final ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
+	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
 			long initialDelay, long delay, TimeUnit unit) {
 		command = wrap(command);
 		return getDelegate().scheduleWithFixedDelay(command, initialDelay, delay, unit);

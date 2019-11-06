@@ -1,11 +1,11 @@
 /*
- * Copyright 2004, 2005, 2006, 2017 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2017, 2018 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,6 @@
 package org.springframework.security.acls.jdbc;
 
 import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +24,9 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AclService;
@@ -66,7 +65,7 @@ public class JdbcAclService implements AclService {
 	// ~ Instance fields
 	// ================================================================================================
 
-	protected final JdbcTemplate jdbcTemplate;
+	protected final JdbcOperations jdbcOperations;
 	private final LookupStrategy lookupStrategy;
 	private boolean aclClassIdSupported;
 	private String findChildrenSql = DEFAULT_SELECT_ACL_WITH_PARENT_SQL;
@@ -76,9 +75,13 @@ public class JdbcAclService implements AclService {
 	// ===================================================================================================
 
 	public JdbcAclService(DataSource dataSource, LookupStrategy lookupStrategy) {
-		Assert.notNull(dataSource, "DataSource required");
+		this(new JdbcTemplate(dataSource), lookupStrategy);
+	}
+
+	public JdbcAclService(JdbcOperations jdbcOperations, LookupStrategy lookupStrategy) {
+		Assert.notNull(jdbcOperations, "JdbcOperations required");
 		Assert.notNull(lookupStrategy, "LookupStrategy required");
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		this.jdbcOperations = jdbcOperations;
 		this.lookupStrategy = lookupStrategy;
 		this.aclClassIdUtils = new AclClassIdUtils();
 	}
@@ -87,17 +90,13 @@ public class JdbcAclService implements AclService {
 	// ========================================================================================================
 
 	public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
-		Object[] args = { parentIdentity.getIdentifier(), parentIdentity.getType() };
-		List<ObjectIdentity> objects = jdbcTemplate.query(findChildrenSql, args,
-				new RowMapper<ObjectIdentity>() {
-					public ObjectIdentity mapRow(ResultSet rs, int rowNum)
-							throws SQLException {
-						String javaType = rs.getString("class");
-						Serializable identifier = (Serializable) rs.getObject("obj_id");
-						identifier = aclClassIdUtils.identifierFrom(identifier, rs);
-
-						return new ObjectIdentityImpl(javaType, identifier);
-					}
+		Object[] args = { parentIdentity.getIdentifier().toString(), parentIdentity.getType() };
+		List<ObjectIdentity> objects = jdbcOperations.query(findChildrenSql, args,
+				(rs, rowNum) -> {
+					String javaType = rs.getString("class");
+					Serializable identifier = (Serializable) rs.getObject("obj_id");
+					identifier = aclClassIdUtils.identifierFrom(identifier, rs);
+					return new ObjectIdentityImpl(javaType, identifier);
 				});
 
 		if (objects.size() == 0) {
@@ -113,7 +112,7 @@ public class JdbcAclService implements AclService {
 		Assert.isTrue(map.containsKey(object),
 				() -> "There should have been an Acl entry for ObjectIdentity " + object);
 
-		return (Acl) map.get(object);
+		return map.get(object);
 	}
 
 	public Acl readAclById(ObjectIdentity object) throws NotFoundException {
@@ -154,7 +153,7 @@ public class JdbcAclService implements AclService {
 	public void setAclClassIdSupported(boolean aclClassIdSupported) {
 		this.aclClassIdSupported = aclClassIdSupported;
 		if (aclClassIdSupported) {
-			// Change the default insert if it hasn't been overridden
+			// Change the default children select if it hasn't been overridden
 			if (this.findChildrenSql.equals(DEFAULT_SELECT_ACL_WITH_PARENT_SQL)) {
 				this.findChildrenSql = DEFAULT_SELECT_ACL_WITH_PARENT_SQL_WITH_CLASS_ID_TYPE;
 			} else {
@@ -163,8 +162,8 @@ public class JdbcAclService implements AclService {
 		}
 	}
 
-	public void setAclClassIdUtils(AclClassIdUtils aclClassIdUtils) {
-		this.aclClassIdUtils = aclClassIdUtils;
+	public void setConversionService(ConversionService conversionService) {
+		this.aclClassIdUtils = new AclClassIdUtils(conversionService);
 	}
 
 	protected boolean isAclClassIdSupported() {

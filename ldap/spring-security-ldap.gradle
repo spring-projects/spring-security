@@ -20,19 +20,12 @@ dependencies {
 		exclude(group: 'org.springframework.data', module: 'spring-data-commons')
 	}
 
+	testCompile project(':spring-security-test')
 	testCompile 'org.slf4j:jcl-over-slf4j'
 	testCompile 'org.slf4j:slf4j-api'
 }
 
 integrationTest {
-	include('**/ApacheDSServerIntegrationTests.class', '**/ApacheDSEmbeddedLdifTests.class')
 //	  exclude('**/OpenLDAPIntegrationTestSuite.class')
 	maxParallelForks = 1
 }
-
-// Runs a server for running the integration tests against (from an IDE, for example)
-task(ldapServer, dependsOn: 'integrationTestClasses', type: JavaExec) {
-	classpath = sourceSets.integrationTest.runtimeClasspath
-	main = 'org.springframework.security.ldap.ApacheDSServerIntegrationTests'
-}
-

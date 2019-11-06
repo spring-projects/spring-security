@@ -1509,7 +1509,7 @@
       </xs:attribute>
       <xs:attribute name="type" use="required" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Specifies the attribute type. For example, http://axschema.org/contact/email. See your
+            <xs:documentation>Specifies the attribute type. For example, https://axschema.org/contact/email. See your
                 OP's documentation for valid attribute types.
                 </xs:documentation>
          </xs:annotation>
@@ -2358,7 +2358,7 @@
       </xs:attribute>
       <xs:attribute name="max-age-seconds" type="xs:integer">
          <xs:annotation>
-            <xs:documentation>Specifies the maximum ammount of time the host should be considered a Known HSTS Host.
+            <xs:documentation>Specifies the maximum amount of time the host should be considered a Known HSTS Host.
                 Default one year.
                 </xs:documentation>
          </xs:annotation>

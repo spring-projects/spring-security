@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,38 +44,38 @@ public class WhiteListedAllowFromStrategyTests {
 	@Test
 	public void listWithSingleElementShouldMatch() {
 		List<String> allowed = new ArrayList<>();
-		allowed.add("http://www.test.com");
+		allowed.add("https://www.test.com");
 		WhiteListedAllowFromStrategy strategy = new WhiteListedAllowFromStrategy(allowed);
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setParameter("from", "http://www.test.com");
+		request.setParameter("from", "https://www.test.com");
 
 		String result = strategy.getAllowFromValue(request);
-		assertThat(result).isEqualTo("http://www.test.com");
+		assertThat(result).isEqualTo("https://www.test.com");
 	}
 
 	@Test
 	public void listWithMultipleElementShouldMatch() {
 		List<String> allowed = new ArrayList<>();
-		allowed.add("http://www.test.com");
-		allowed.add("http://www.springsource.org");
+		allowed.add("https://www.test.com");
+		allowed.add("https://www.springsource.org");
 		WhiteListedAllowFromStrategy strategy = new WhiteListedAllowFromStrategy(allowed);
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setParameter("from", "http://www.test.com");
+		request.setParameter("from", "https://www.test.com");
 
 		String result = strategy.getAllowFromValue(request);
-		assertThat(result).isEqualTo("http://www.test.com");
+		assertThat(result).isEqualTo("https://www.test.com");
 	}
 
 	@Test
 	public void listWithSingleElementShouldNotMatch() {
 		List<String> allowed = new ArrayList<>();
-		allowed.add("http://www.test.com");
+		allowed.add("https://www.test.com");
 		WhiteListedAllowFromStrategy strategy = new WhiteListedAllowFromStrategy(allowed);
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setParameter("from", "http://www.test123.com");
+		request.setParameter("from", "https://www.test123.com");
 
 		String result = strategy.getAllowFromValue(request);
 		assertThat(result).isEqualTo("DENY");
@@ -84,7 +84,7 @@ public class WhiteListedAllowFromStrategyTests {
 	@Test
 	public void requestWithoutParameterShouldNotMatch() {
 		List<String> allowed = new ArrayList<>();
-		allowed.add("http://www.test.com");
+		allowed.add("https://www.test.com");
 		WhiteListedAllowFromStrategy strategy = new WhiteListedAllowFromStrategy(allowed);
 		strategy.setAllowFromParameterName("from");
 		MockHttpServletRequest request = new MockHttpServletRequest();

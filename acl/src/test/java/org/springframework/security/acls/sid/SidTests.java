@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ public class SidTests {
 	// ~ Methods
 	// ========================================================================================================
 	@Test
-	public void testPrincipalSidConstructorsRequiredFields() throws Exception {
+	public void testPrincipalSidConstructorsRequiredFields() {
 		// Check one String-argument constructor
 		try {
 			String string = null;
@@ -77,7 +77,7 @@ public class SidTests {
 	}
 
 	@Test
-	public void testGrantedAuthoritySidConstructorsRequiredFields() throws Exception {
+	public void testGrantedAuthoritySidConstructorsRequiredFields() {
 		// Check one String-argument constructor
 		try {
 			String string = null;
@@ -134,7 +134,7 @@ public class SidTests {
 	}
 
 	@Test
-	public void testPrincipalSidEquals() throws Exception {
+	public void testPrincipalSidEquals() {
 		Authentication authentication = new TestingAuthenticationToken("johndoe",
 				"password");
 		Sid principalSid = new PrincipalSid(authentication);
@@ -152,7 +152,7 @@ public class SidTests {
 	}
 
 	@Test
-	public void testGrantedAuthoritySidEquals() throws Exception {
+	public void testGrantedAuthoritySidEquals() {
 		GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
 		Sid gaSid = new GrantedAuthoritySid(ga);
 
@@ -169,7 +169,7 @@ public class SidTests {
 	}
 
 	@Test
-	public void testPrincipalSidHashCode() throws Exception {
+	public void testPrincipalSidHashCode() {
 		Authentication authentication = new TestingAuthenticationToken("johndoe",
 				"password");
 		Sid principalSid = new PrincipalSid(authentication);
@@ -184,7 +184,7 @@ public class SidTests {
 	}
 
 	@Test
-	public void testGrantedAuthoritySidHashCode() throws Exception {
+	public void testGrantedAuthoritySidHashCode() {
 		GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
 		Sid gaSid = new GrantedAuthoritySid(ga);
 
@@ -198,7 +198,7 @@ public class SidTests {
 	}
 
 	@Test
-	public void testGetters() throws Exception {
+	public void testGetters() {
 		Authentication authentication = new TestingAuthenticationToken("johndoe",
 				"password");
 		PrincipalSid principalSid = new PrincipalSid(authentication);

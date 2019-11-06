@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -139,7 +139,7 @@ public class SessionManagementFilter extends GenericFilterBean {
 
 	/**
 	 * Sets the strategy which will be invoked instead of allowing the filter chain to
-	 * prceed, if the user agent requests an invalid session Id. If the property is not
+	 * proceed, if the user agent requests an invalid session ID. If the property is not
 	 * set, no action will be taken.
 	 *
 	 * @param invalidSessionStrategy the strategy to invoke. Typically a

@@ -11,13 +11,17 @@ dependencies {
 
 	optional project(':spring-security-ldap')
 	optional project(':spring-security-messaging')
+	optional project(':spring-security-saml2-service-provider')
 	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-oauth2-jose')
+	optional project(':spring-security-oauth2-resource-server')
 	optional project(':spring-security-openid')
+	optional project(':spring-security-rsocket')
 	optional project(':spring-security-web')
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.aspectj:aspectjweaver'
 	optional 'org.springframework:spring-jdbc'
+	optional 'org.springframework:spring-messaging'
 	optional 'org.springframework:spring-tx'
 	optional 'org.springframework:spring-webmvc'
 	optional'org.springframework:spring-web'
@@ -30,6 +34,8 @@ dependencies {
 	testCompile project(':spring-security-cas')
 	testCompile project(':spring-security-test')
 	testCompile project(path : ':spring-security-core', configuration : 'tests')
+	testCompile project(path : ':spring-security-oauth2-client', configuration : 'tests')
+	testCompile project(path : ':spring-security-oauth2-resource-server', configuration : 'tests')
 	testCompile project(path : ':spring-security-web', configuration : 'tests')
 	testCompile apachedsDependencies
 	testCompile powerMock2Dependencies
@@ -37,6 +43,7 @@ dependencies {
 	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'ch.qos.logback:logback-classic'
 	testCompile 'io.projectreactor.netty:reactor-netty'
+	testCompile 'io.rsocket:rsocket-transport-netty'
 	testCompile 'javax.annotation:jsr250-api:1.0'
 	testCompile 'javax.xml.bind:jaxb-api'
 	testCompile 'ldapsdk:ldapsdk:4.1'
@@ -71,9 +78,6 @@ dependencies {
 	testRuntime 'org.hsqldb:hsqldb'
 }
 
-test {
-	inputs.file file("$rootDir/docs/manual/src/docbook/appendix-namespace.xml")
-}
 
 rncToXsd {
 	rncDir = file('src/main/resources/org/springframework/security/config/')

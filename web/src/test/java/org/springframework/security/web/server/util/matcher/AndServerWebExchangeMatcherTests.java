@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,12 +47,12 @@ public class AndServerWebExchangeMatcherTests {
 	AndServerWebExchangeMatcher matcher;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		matcher = new AndServerWebExchangeMatcher(matcher1, matcher2);
 	}
 
 	@Test
-	public void matchesWhenTrueTrueThenTrue() throws Exception {
+	public void matchesWhenTrueTrueThenTrue() {
 		Map<String, Object> params1 = Collections.singletonMap("foo", "bar");
 		Map<String, Object> params2 = Collections.singletonMap("x", "y");
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params1));
@@ -70,7 +70,7 @@ public class AndServerWebExchangeMatcherTests {
 	}
 
 	@Test
-	public void matchesWhenFalseFalseThenFalseAndMatcher2NotInvoked() throws Exception {
+	public void matchesWhenFalseFalseThenFalseAndMatcher2NotInvoked() {
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
 		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
@@ -83,7 +83,7 @@ public class AndServerWebExchangeMatcherTests {
 	}
 
 	@Test
-	public void matchesWhenTrueFalseThenFalse() throws Exception {
+	public void matchesWhenTrueFalseThenFalse() {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
 		when(matcher2.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
@@ -98,7 +98,7 @@ public class AndServerWebExchangeMatcherTests {
 	}
 
 	@Test
-	public void matchesWhenFalseTrueThenFalse() throws Exception {
+	public void matchesWhenFalseTrueThenFalse() {
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
 		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();

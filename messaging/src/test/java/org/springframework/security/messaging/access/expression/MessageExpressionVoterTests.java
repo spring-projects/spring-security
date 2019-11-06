@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.messaging.util.matcher.MessageMatcher;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,6 +46,8 @@ public class MessageExpressionVoterTests {
 	@Mock
 	Expression expression;
 	@Mock
+	MessageMatcher<?> matcher;
+	@Mock
 	SecurityExpressionHandler<Message> expressionHandler;
 	@Mock
 	EvaluationContext evaluationContext;
@@ -54,7 +57,7 @@ public class MessageExpressionVoterTests {
 	@Before
 	public void setup() {
 		attributes = Arrays
-				.<ConfigAttribute> asList(new MessageExpressionConfigAttribute(expression));
+				.<ConfigAttribute> asList(new MessageExpressionConfigAttribute(expression, matcher));
 
 		voter = new MessageExpressionVoter();
 	}
@@ -99,7 +102,7 @@ public class MessageExpressionVoterTests {
 
 	@Test
 	public void supportsMessageExpressionConfigAttributeTrue() {
-		assertThat(voter.supports(new MessageExpressionConfigAttribute(expression)))
+		assertThat(voter.supports(new MessageExpressionConfigAttribute(expression, matcher)))
 				.isTrue();
 	}
 
@@ -119,5 +122,21 @@ public class MessageExpressionVoterTests {
 				ACCESS_GRANTED);
 
 		verify(expressionHandler).createEvaluationContext(authentication, message);
+	}
+
+	@Test
+	public void postProcessEvaluationContext(){
+		final MessageExpressionConfigAttribute configAttribute = mock(MessageExpressionConfigAttribute.class);
+		voter.setExpressionHandler(expressionHandler);
+		when(expressionHandler.createEvaluationContext(authentication, message)).thenReturn(evaluationContext);
+		when(configAttribute.getAuthorizeExpression()).thenReturn(expression);
+		attributes = Arrays.<ConfigAttribute> asList(configAttribute);
+		when(configAttribute.postProcess(evaluationContext, message)).thenReturn(evaluationContext);
+		when(expression.getValue(any(EvaluationContext.class), eq(Boolean.class)))
+				.thenReturn(true);
+
+		assertThat(voter.vote(authentication, message, attributes)).isEqualTo(
+				ACCESS_GRANTED);
+		verify(configAttribute).postProcess(evaluationContext, message);
 	}
 }

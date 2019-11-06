@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.util.UrlPathHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -37,6 +38,14 @@ public class AntPathRequestMatcherTests {
 
 	@Mock
 	private HttpServletRequest request;
+
+	@Test
+	public void matchesWhenUrlPathHelperThenMatchesOnRequestUri() {
+		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/foo/bar", null, true, new UrlPathHelper());
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo/bar");
+
+		assertThat(matcher.matches(request)).isTrue();
+	}
 
 	@Test
 	public void singleWildcardMatchesAnyPath() {
@@ -130,7 +139,7 @@ public class AntPathRequestMatcherTests {
 	}
 
 	@Test
-	public void exactMatchOnlyMatchesIdenticalPath() throws Exception {
+	public void exactMatchOnlyMatchesIdenticalPath() {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/login.html");
 		assertThat(matcher.matches(createRequest("/login.html"))).isTrue();
 		assertThat(matcher.matches(createRequest("/login.html/"))).isFalse();
@@ -138,8 +147,7 @@ public class AntPathRequestMatcherTests {
 	}
 
 	@Test
-	public void httpMethodSpecificMatchOnlyMatchesRequestsWithCorrectMethod()
-			throws Exception {
+	public void httpMethodSpecificMatchOnlyMatchesRequestsWithCorrectMethod() {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/blah", "GET");
 		MockHttpServletRequest request = createRequest("/blah");
 		request.setMethod("GET");
@@ -149,7 +157,7 @@ public class AntPathRequestMatcherTests {
 	}
 
 	@Test
-	public void caseSensitive() throws Exception {
+	public void caseSensitive() {
 		MockHttpServletRequest request = createRequest("/UPPER");
 		assertThat(new AntPathRequestMatcher("/upper", null, true).matches(request))
 				.isFalse();
@@ -176,7 +184,7 @@ public class AntPathRequestMatcherTests {
 	}
 
 	@Test
-	public void equalsBehavesCorrectly() throws Exception {
+	public void equalsBehavesCorrectly() {
 		// Both universal wildcard options should be equal
 		assertThat(new AntPathRequestMatcher("**"))
 				.isEqualTo(new AntPathRequestMatcher("/**"));
@@ -195,7 +203,7 @@ public class AntPathRequestMatcherTests {
 	}
 
 	@Test
-	public void toStringIsOk() throws Exception {
+	public void toStringIsOk() {
 		new AntPathRequestMatcher("/blah").toString();
 		new AntPathRequestMatcher("/blah", "GET").toString();
 	}

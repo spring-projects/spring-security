@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,16 +15,25 @@
  */
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.AdviceMode;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.Ordered;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.AccessDecisionManager;
@@ -46,12 +55,9 @@ import org.springframework.security.test.context.annotation.SecurityTestExecutio
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  *
@@ -157,8 +163,8 @@ public class NamespaceGlobalMethodSecurityTests {
 	public static class CustomAuthenticationConfig extends GlobalMethodSecurityConfiguration {
 
 		@Override
-		public MethodInterceptor methodSecurityInterceptor() throws Exception {
-			MethodInterceptor interceptor = super.methodSecurityInterceptor();
+		public MethodInterceptor methodSecurityInterceptor(MethodSecurityMetadataSource methodSecurityMetadataSource) {
+			MethodInterceptor interceptor = super.methodSecurityInterceptor(methodSecurityMetadataSource);
 			((MethodSecurityInterceptor) interceptor).setAlwaysReauthenticate(true);
 			return interceptor;
 		}
@@ -263,7 +269,7 @@ public class NamespaceGlobalMethodSecurityTests {
 
 	}
 
-	@EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ)
+	@EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ, securedEnabled = true)
 	public static class AspectJModeExtendsGMSCConfig extends GlobalMethodSecurityConfiguration {
 	}
 

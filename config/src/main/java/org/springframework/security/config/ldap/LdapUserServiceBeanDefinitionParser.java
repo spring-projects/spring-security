@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -131,14 +131,14 @@ public class LdapUserServiceBeanDefinitionParser extends
 				BeanDefinition bd = registry
 						.getBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR);
 				bd.getPropertyValues().addPropertyValue("defaultNameRequired",
-						Boolean.valueOf(defaultNameRequired));
+						defaultNameRequired);
 			}
 			return;
 		}
 
 		BeanDefinitionBuilder bdb = BeanDefinitionBuilder
 				.rootBeanDefinition(ContextSourceSettingPostProcessor.class);
-		bdb.addPropertyValue("defaultNameRequired", Boolean.valueOf(defaultNameRequired));
+		bdb.addPropertyValue("defaultNameRequired", defaultNameRequired);
 		registry.registerBeanDefinition(BeanIds.CONTEXT_SOURCE_SETTING_POST_PROCESSOR,
 				bdb.getBeanDefinition());
 	}

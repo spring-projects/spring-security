@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,11 +19,8 @@ package org.springframework.security.authentication.jaas;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.IOException;
-
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
  * The most basic Callbacks to be handled when using a LoginContext from JAAS, are the
@@ -33,9 +30,9 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  * @author Ray Krueger
  *
  * @see <a
- * href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
+ * href="https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
  * @see <a
- * href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/NameCallback.html">NameCallback</a>
+ * href="https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/NameCallback.html">NameCallback</a>
  */
 public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandler {
 	// ~ Methods
@@ -49,11 +46,8 @@ public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandle
 	 * @param callback
 	 * @param authentication
 	 *
-	 * @throws IOException
-	 * @throws UnsupportedCallbackException
 	 */
-	public void handle(Callback callback, Authentication authentication)
-			throws IOException, UnsupportedCallbackException {
+	public void handle(Callback callback, Authentication authentication) {
 		if (callback instanceof NameCallback) {
 			NameCallback ncb = (NameCallback) callback;
 			String username;

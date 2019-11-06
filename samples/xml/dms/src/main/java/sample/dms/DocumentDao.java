@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,21 +27,21 @@ public interface DocumentDao {
 	 * @param element an unsaved element (the "id" will be updated after method is
 	 * invoked)
 	 */
-	public void create(AbstractElement element);
+	void create(AbstractElement element);
 
 	/**
 	 * Removes a file from the database for the specified element.
 	 *
 	 * @param file the file to remove (cannot be null)
 	 */
-	public void delete(File file);
+	void delete(File file);
 
 	/**
 	 * Modifies a file in the database.
 	 *
 	 * @param file the file to update (cannot be null)
 	 */
-	public void update(File file);
+	void update(File file);
 
 	/**
 	 * Locates elements in the database which appear under the presented directory
@@ -51,5 +51,5 @@ public interface DocumentDao {
 	 * @return zero or more elements in the directory (an empty array may be returned -
 	 * never null)
 	 */
-	public AbstractElement[] findElements(Directory directory);
+	AbstractElement[] findElements(Directory directory);
 }

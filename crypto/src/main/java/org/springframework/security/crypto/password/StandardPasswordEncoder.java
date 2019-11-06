@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,8 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
+
+import java.security.MessageDigest;
 
 /**
  * This {@link PasswordEncoder} is provided for legacy purposes only and is not considered
@@ -79,7 +81,7 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		byte[] digested = decode(encodedPassword);
 		byte[] salt = subArray(digested, 0, saltGenerator.getKeyLength());
-		return matches(digested, digest(rawPassword, salt));
+		return MessageDigest.isEqual(digested, digest(rawPassword, salt));
 	}
 
 	// internal helpers
@@ -103,21 +105,6 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 
 	private byte[] decode(CharSequence encodedPassword) {
 		return Hex.decode(encodedPassword);
-	}
-
-	/**
-	 * Constant time comparison to prevent against timing attacks.
-	 */
-	private boolean matches(byte[] expected, byte[] actual) {
-		if (expected.length != actual.length) {
-			return false;
-		}
-
-		int result = 0;
-		for (int i = 0; i < expected.length; i++) {
-			result |= expected[i] ^ actual[i];
-		}
-		return result == 0;
 	}
 
 	private static final int DEFAULT_ITERATIONS = 1024;

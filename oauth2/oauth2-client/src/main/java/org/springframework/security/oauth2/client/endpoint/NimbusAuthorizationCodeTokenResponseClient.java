@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,12 +31,12 @@ import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.CollectionUtils;
 
@@ -57,6 +57,7 @@ import java.util.Set;
  *
  * @author Joe Grandja
  * @since 5.0
+ * @deprecated Use {@link DefaultAuthorizationCodeTokenResponseClient}
  * @see OAuth2AccessTokenResponseClient
  * @see OAuth2AuthorizationCodeGrantRequest
  * @see OAuth2AccessTokenResponse
@@ -64,13 +65,12 @@ import java.util.Set;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request (Authorization Code Grant)</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response (Authorization Code Grant)</a>
  */
+@Deprecated
 public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
 	@Override
-	public OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest)
-			throws OAuth2AuthenticationException {
-
+	public OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizationCodeGrantRequest authorizationGrantRequest) {
 		ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
 
 		// Build the authorization code grant request for the token endpoint
@@ -99,21 +99,25 @@ public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessT
 			httpRequest.setConnectTimeout(30000);
 			httpRequest.setReadTimeout(30000);
 			tokenResponse = com.nimbusds.oauth2.sdk.TokenResponse.parse(httpRequest.send());
-		} catch (ParseException pe) {
+		} catch (ParseException | IOException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
-				"An error occurred parsing the Access Token response: " + pe.getMessage(), null);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), pe);
-		} catch (IOException ioe) {
-			throw new AuthenticationServiceException("An error occurred while sending the Access Token Request: " +
-					ioe.getMessage(), ioe);
+					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: " + ex.getMessage(), null);
+			throw new OAuth2AuthorizationException(oauth2Error, ex);
 		}
 
 		if (!tokenResponse.indicatesSuccess()) {
 			TokenErrorResponse tokenErrorResponse = (TokenErrorResponse) tokenResponse;
 			ErrorObject errorObject = tokenErrorResponse.getErrorObject();
-			OAuth2Error oauth2Error = new OAuth2Error(errorObject.getCode(), errorObject.getDescription(),
-				(errorObject.getURI() != null ? errorObject.getURI().toString() : null));
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+			OAuth2Error oauth2Error;
+			if (errorObject == null) {
+				oauth2Error = new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR);
+			} else {
+				oauth2Error = new OAuth2Error(
+						errorObject.getCode() != null ? errorObject.getCode() : OAuth2ErrorCodes.SERVER_ERROR,
+						errorObject.getDescription(),
+						errorObject.getURI() != null ? errorObject.getURI().toString() : null);
+			}
+			throw new OAuth2AuthorizationException(oauth2Error);
 		}
 
 		AccessTokenResponse accessTokenResponse = (AccessTokenResponse) tokenResponse;

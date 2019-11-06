@@ -1,34 +1,21 @@
-apply plugin: 'groovy'
+apply plugin: "java-gradle-plugin"
 
 repositories {
 	mavenCentral()
-	maven {
-		name = 'SpringSource Enterprise Release'
-		url = 'http://repository.springsource.com/maven/bundles/release'
+}
+
+gradlePlugin {
+	plugins {
+		trang {
+			id = "trang"
+			implementationClass = "trang.TrangPlugin"
+		}
 	}
-	maven {
-		name = 'SpringSource Enterprise External'
-		url = 'http://repository.springsource.com/maven/bundles/external'
-	}
 }
 
 dependencies {
-	compile gradleApi()
-}
-
-// GAE
-dependencies {
-	compile 'com.google.appengine:appengine-tools-sdk:1.4.2'
-}
-
-dependencies{
-	compile "emma:emma:2.0.5312"
-}
-
-// Trang
-dependencies {
-	compile 'com.thaiopensource:trang:20091111',
-			'net.sourceforge.saxon:saxon:9.1.0.8'
+	compile 'com.thaiopensource:trang:20091111'
+	compile 'net.sourceforge.saxon:saxon:9.1.0.8'
 }
 
 task ide(type: Copy)  {

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,7 @@ public class RetryWithHttpEntryPointTests {
 	// ~ Methods
 	// ========================================================================================================
 	@Test
-	public void testDetectsMissingPortMapper() throws Exception {
+	public void testDetectsMissingPortMapper() {
 		RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
 
 		try {
@@ -54,7 +54,7 @@ public class RetryWithHttpEntryPointTests {
 	}
 
 	@Test
-	public void testDetectsMissingPortResolver() throws Exception {
+	public void testDetectsMissingPortResolver() {
 		RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
 
 		try {
@@ -85,7 +85,7 @@ public class RetryWithHttpEntryPointTests {
 				"/bigWebApp/hello/pathInfo.html");
 		request.setQueryString("open=true");
 		request.setScheme("https");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setServerPort(443);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -96,7 +96,7 @@ public class RetryWithHttpEntryPointTests {
 
 		ep.commence(request, response);
 		assertThat(response.getRedirectedUrl()).isEqualTo(
-				"http://www.example.com/bigWebApp/hello/pathInfo.html?open=true");
+				"http://localhost/bigWebApp/hello/pathInfo.html?open=true");
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class RetryWithHttpEntryPointTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET",
 				"/bigWebApp/hello");
 		request.setScheme("https");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setServerPort(443);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -115,7 +115,7 @@ public class RetryWithHttpEntryPointTests {
 
 		ep.commence(request, response);
 		assertThat(response.getRedirectedUrl())
-				.isEqualTo("http://www.example.com/bigWebApp/hello");
+				.isEqualTo("http://localhost/bigWebApp/hello");
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class RetryWithHttpEntryPointTests {
 				"/bigWebApp/hello/pathInfo.html");
 		request.setQueryString("open=true");
 		request.setScheme("https");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setServerPort(9999);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -158,6 +158,6 @@ public class RetryWithHttpEntryPointTests {
 
 		ep.commence(request, response);
 		assertThat(response.getRedirectedUrl()).isEqualTo(
-				"http://www.example.com:8888/bigWebApp/hello/pathInfo.html?open=true");
+				"http://localhost:8888/bigWebApp/hello/pathInfo.html?open=true");
 	}
 }

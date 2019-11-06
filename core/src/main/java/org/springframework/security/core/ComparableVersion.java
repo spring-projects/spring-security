@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,7 @@ package org.springframework.security.core;
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *  https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -92,9 +92,9 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 	private ListItem items;
 
 	private interface Item {
-		final int INTEGER_ITEM = 0;
-		final int STRING_ITEM = 1;
-		final int LIST_ITEM = 2;
+		int INTEGER_ITEM = 0;
+		int STRING_ITEM = 1;
+		int LIST_ITEM = 2;
 
 		int compareTo(Item item);
 
@@ -117,7 +117,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 			this.value = BigInteger_ZERO;
 		}
 
-		public IntegerItem(String str) {
+		IntegerItem(String str) {
 			this.value = new BigInteger(str);
 		}
 
@@ -184,7 +184,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		private String value;
 
-		public StringItem(String value, boolean followedByDigit) {
+		StringItem(String value, boolean followedByDigit) {
 			if (followedByDigit && value.length() == 1) {
 				// a1 = alpha-1, b1 = beta-1, m1 = milestone-1
 				switch (value.charAt(0)) {
@@ -341,7 +341,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 	}
 
-	public ComparableVersion(String version) {
+	ComparableVersion(String version) {
 		parseVersion(version);
 	}
 

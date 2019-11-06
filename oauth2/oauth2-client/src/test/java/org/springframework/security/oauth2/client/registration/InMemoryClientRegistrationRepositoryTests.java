@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,12 +17,12 @@
 package org.springframework.security.oauth2.client.registration;
 
 import org.junit.Test;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,20 +30,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link InMemoryClientRegistrationRepository}.
  *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 5.0
  */
 public class InMemoryClientRegistrationRepositoryTests {
-	private ClientRegistration registration = ClientRegistration.withRegistrationId("id")
-		.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-		.authorizationUri("https://example.com/oauth2/authorize")
-		.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-		.clientId("client-id")
-		.clientName("client-name")
-		.clientSecret("client-secret")
-		.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
-		.scope("user")
-		.tokenUri("https://example.com/oauth/access_token")
-		.build();
+	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
 	private InMemoryClientRegistrationRepository clients = new InMemoryClientRegistrationRepository(this.registration);
 
@@ -57,6 +48,17 @@ public class InMemoryClientRegistrationRepositoryTests {
 	public void constructorListClientRegistrationWhenEmptyThenIllegalArgumentException() {
 		List<ClientRegistration> registrations = Collections.emptyList();
 		new InMemoryClientRegistrationRepository(registrations);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorMapClientRegistrationWhenNullThenIllegalArgumentException() {
+		new InMemoryClientRegistrationRepository((Map<String, ClientRegistration>) null);
+	}
+
+	@Test
+	public void constructorMapClientRegistrationWhenEmptyMapThenRepositoryIsEmpty() {
+		InMemoryClientRegistrationRepository clients = new InMemoryClientRegistrationRepository(new HashMap<>());
+		assertThat(clients).isEmpty();
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -90,6 +92,6 @@ public class InMemoryClientRegistrationRepositoryTests {
 
 	@Test
 	public void iteratorWhenGetThenContainsAll() {
-		assertThat(this.clients.iterator()).containsOnly(this.registration);
+		assertThat(this.clients).containsOnly(this.registration);
 	}
 }

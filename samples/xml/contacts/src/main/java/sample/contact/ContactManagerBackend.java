@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -59,7 +59,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements
 	// ~ Methods
 	// ========================================================================================================
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.notNull(contactDao, "contactDao required");
 		Assert.notNull(mutableAclService, "mutableAclService required");
 	}
@@ -84,7 +84,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements
 
 	public void create(Contact contact) {
 		// Create the Contact itself
-		contact.setId(Long.valueOf(counter++));
+		contact.setId((long) counter++);
 		contactDao.create(contact);
 
 		// Grant the current principal administrative permission to the contact

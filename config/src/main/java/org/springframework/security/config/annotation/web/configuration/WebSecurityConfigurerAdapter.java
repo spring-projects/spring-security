@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -200,7 +200,8 @@ public abstract class WebSecurityConfigurerAdapter implements
 
 		AuthenticationManager authenticationManager = authenticationManager();
 		authenticationBuilder.parentAuthenticationManager(authenticationManager);
-		Map<Class<? extends Object>, Object> sharedObjects = createSharedObjects();
+		authenticationBuilder.authenticationEventPublisher(eventPublisher);
+		Map<Class<?>, Object> sharedObjects = createSharedObjects();
 
 		http = new HttpSecurity(objectPostProcessor, authenticationBuilder,
 				sharedObjects);
@@ -223,7 +224,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 			List<AbstractHttpConfigurer> defaultHttpConfigurers =
 					SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, classLoader);
 
-			for(AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
+			for (AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
 				http.apply(configurer);
 			}
 		}
@@ -257,7 +258,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * {@link AuthenticationManagerBuilder} that was passed in. Otherwise, autowire the
 	 * {@link AuthenticationManager} by type.
 	 *
-	 * @return
+	 * @return the {@link AuthenticationManager} to use
 	 * @throws Exception
 	 */
 	protected AuthenticationManager authenticationManager() throws Exception {
@@ -291,7 +292,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 *
 	 * To change the instance returned, developers should change
 	 * {@link #userDetailsService()} instead
-	 * @return
+	 * @return the {@link UserDetailsService}
 	 * @throws Exception
 	 * @see #userDetailsService()
 	 */
@@ -308,7 +309,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * {@link ApplicationContext}. Developers should override this method when changing
 	 * the instance of {@link #userDetailsServiceBean()}.
 	 *
-	 * @return
+	 * @return the {@link UserDetailsService} to use
 	 */
 	protected UserDetailsService userDetailsService() {
 		AuthenticationManagerBuilder globalAuthBuilder = context
@@ -319,12 +320,10 @@ public abstract class WebSecurityConfigurerAdapter implements
 
 	public void init(final WebSecurity web) throws Exception {
 		final HttpSecurity http = getHttp();
-		web.addSecurityFilterChainBuilder(http).postBuildAction(new Runnable() {
-			public void run() {
-				FilterSecurityInterceptor securityInterceptor = http
-						.getSharedObject(FilterSecurityInterceptor.class);
-				web.securityInterceptor(securityInterceptor);
-			}
+		web.addSecurityFilterChainBuilder(http).postBuildAction(() -> {
+			FilterSecurityInterceptor securityInterceptor = http
+					.getSharedObject(FilterSecurityInterceptor.class);
+			web.securityInterceptor(securityInterceptor);
 		});
 	}
 
@@ -413,8 +412,8 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 *
 	 * @return the shared Objects
 	 */
-	private Map<Class<? extends Object>, Object> createSharedObjects() {
-		Map<Class<? extends Object>, Object> sharedObjects = new HashMap<Class<? extends Object>, Object>();
+	private Map<Class<?>, Object> createSharedObjects() {
+		Map<Class<?>, Object> sharedObjects = new HashMap<>();
 		sharedObjects.putAll(localConfigureAuthenticationBldr.getSharedObjects());
 		sharedObjects.put(UserDetailsService.class, userDetailsService());
 		sharedObjects.put(ApplicationContext.class, context);
@@ -591,6 +590,11 @@ public abstract class WebSecurityConfigurerAdapter implements
 		public boolean matches(CharSequence rawPassword,
 			String encodedPassword) {
 			return getPasswordEncoder().matches(rawPassword, encodedPassword);
+		}
+
+		@Override
+		public boolean upgradeEncoding(String encodedPassword) {
+			return getPasswordEncoder().upgradeEncoding(encodedPassword);
 		}
 
 		private PasswordEncoder getPasswordEncoder() {

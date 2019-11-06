@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,7 +34,7 @@ public interface SecurityConfigurer<O, B extends SecurityBuilder<O>> {
 	 * Initialize the {@link SecurityBuilder}. Here only shared state should be created
 	 * and modified, but not properties on the {@link SecurityBuilder} used for building
 	 * the object. This ensures that the {@link #configure(SecurityBuilder)} method uses
-	 * the correct shared objects when building.
+	 * the correct shared objects when building. Configurers should be applied here.
 	 *
 	 * @param builder
 	 * @throws Exception

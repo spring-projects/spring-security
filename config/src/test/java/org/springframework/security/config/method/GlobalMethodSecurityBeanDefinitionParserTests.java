@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -314,7 +314,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
 	// SEC-1392
 	@Test
-	public void customPermissionEvaluatorIsSupported() throws Exception {
+	public void customPermissionEvaluatorIsSupported() {
 		setContext("<global-method-security pre-post-annotations='enabled'>"
 				+ "   <expression-handler ref='expressionHandler'/>"
 				+ "</global-method-security>"
@@ -328,7 +328,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	// SEC-1450
 	@Test(expected = AuthenticationException.class)
 	@SuppressWarnings("unchecked")
-	public void genericsAreMatchedByProtectPointcut() throws Exception {
+	public void genericsAreMatchedByProtectPointcut() {
 		setContext("<b:bean id='target' class='org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParserTests$ConcreteFoo'/>"
 				+ "<global-method-security>"
 				+ "   <protect-pointcut expression='execution(* org..*Foo.foo(..))' access='ROLE_USER'/>"
@@ -340,7 +340,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	// SEC-1448
 	@Test
 	@SuppressWarnings("unchecked")
-	public void genericsMethodArgumentNamesAreResolved() throws Exception {
+	public void genericsMethodArgumentNamesAreResolved() {
 		setContext("<b:bean id='target' class='" + ConcreteFoo.class.getName() + "'/>"
 				+ "<global-method-security pre-post-annotations='enabled'/>"
 				+ AUTH_PROVIDER_XML);
@@ -368,7 +368,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void supportsExternalMetadataSource() throws Exception {
+	public void supportsExternalMetadataSource() {
 		setContext("<b:bean id='target' class='"
 				+ ConcreteFoo.class.getName()
 				+ "'/>"
@@ -394,7 +394,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void supportsCustomAuthenticationManager() throws Exception {
+	public void supportsCustomAuthenticationManager() {
 		setContext("<b:bean id='target' class='"
 				+ ConcreteFoo.class.getName()
 				+ "'/>"

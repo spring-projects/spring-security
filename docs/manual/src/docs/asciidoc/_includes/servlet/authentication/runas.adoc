@@ -1,0 +1,66 @@
+[[runas]]
+== Run-As Authentication Replacement
+
+[[runas-overview]]
+=== Overview
+The `AbstractSecurityInterceptor` is able to temporarily replace the `Authentication` object in the `SecurityContext` and `SecurityContextHolder` during the secure object callback phase.
+This only occurs if the original `Authentication` object was successfully processed by the `AuthenticationManager` and `AccessDecisionManager`.
+The `RunAsManager` will indicate the replacement `Authentication` object, if any, that should be used during the `SecurityInterceptorCallback`.
+
+By temporarily replacing the `Authentication` object during the secure object callback phase, the secured invocation will be able to call other objects which require different authentication and authorization credentials.
+It will also be able to perform any internal security checks for specific `GrantedAuthority` objects.
+Because Spring Security provides a number of helper classes that automatically configure remoting protocols based on the contents of the `SecurityContextHolder`, these run-as replacements are particularly useful when calling remote web services
+
+[[runas-config]]
+=== Configuration
+A `RunAsManager` interface is provided by Spring Security:
+
+[source,java]
+----
+Authentication buildRunAs(Authentication authentication, Object object,
+	List<ConfigAttribute> config);
+
+boolean supports(ConfigAttribute attribute);
+
+boolean supports(Class clazz);
+----
+
+
+
+The first method returns the `Authentication` object that should replace the existing `Authentication` object for the duration of the method invocation.
+If the method returns `null`, it indicates no replacement should be made.
+The second method is used by the `AbstractSecurityInterceptor` as part of its startup validation of configuration attributes.
+The `supports(Class)` method is called by a security interceptor implementation to ensure the configured `RunAsManager` supports the type of secure object that the security interceptor will present.
+
+One concrete implementation of a `RunAsManager` is provided with Spring Security.
+The `RunAsManagerImpl` class returns a replacement `RunAsUserToken` if any `ConfigAttribute` starts with `RUN_AS_`.
+If any such `ConfigAttribute` is found, the replacement `RunAsUserToken` will contain the same principal, credentials and granted authorities as the original `Authentication` object, along with a new `SimpleGrantedAuthority` for each `RUN_AS_` `ConfigAttribute`.
+Each new `SimpleGrantedAuthority` will be prefixed with `ROLE_`, followed by the `RUN_AS` `ConfigAttribute`.
+For example, a `RUN_AS_SERVER` will result in the replacement `RunAsUserToken` containing a `ROLE_RUN_AS_SERVER` granted authority.
+
+The replacement `RunAsUserToken` is just like any other `Authentication` object.
+It needs to be authenticated by the `AuthenticationManager`, probably via delegation to a suitable `AuthenticationProvider`.
+The `RunAsImplAuthenticationProvider` performs such authentication.
+It simply accepts as valid any `RunAsUserToken` presented.
+
+To ensure malicious code does not create a `RunAsUserToken` and present it for guaranteed acceptance by the `RunAsImplAuthenticationProvider`, the hash of a key is stored in all generated tokens.
+The `RunAsManagerImpl` and `RunAsImplAuthenticationProvider` is created in the bean context with the same key:
+
+[source,xml]
+----
+
+<bean id="runAsManager"
+	class="org.springframework.security.access.intercept.RunAsManagerImpl">
+<property name="key" value="my_run_as_password"/>
+</bean>
+
+<bean id="runAsAuthenticationProvider"
+	class="org.springframework.security.access.intercept.RunAsImplAuthenticationProvider">
+<property name="key" value="my_run_as_password"/>
+</bean>
+----
+
+
+
+By using the same key, each `RunAsUserToken` can be validated it was created by an approved `RunAsManagerImpl`.
+The `RunAsUserToken` is immutable after creation for security reasons

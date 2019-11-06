@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,7 +57,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * <code>SecurityContextHolder</code>.
  * <p>
  * For a detailed background on what this filter is designed to process, refer to
- * <a href="http://www.ietf.org/rfc/rfc2617.txt">RFC 2617</a> (which superseded RFC 2069,
+ * <a href="https://www.ietf.org/rfc/rfc2617.txt">RFC 2617</a> (which superseded RFC 2069,
  * although this filter support clients that implement either RFC 2617 or RFC 2069).
  * <p>
  * This filter can be used to provide Digest authentication services to both remoting
@@ -417,7 +417,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean
 			// Extract expiry time from nonce
 
 			try {
-				this.nonceExpiryTime = new Long(nonceTokens[0]).longValue();
+				this.nonceExpiryTime = new Long(nonceTokens[0]);
 			}
 			catch (NumberFormatException nfe) {
 				throw new BadCredentialsException(DigestAuthenticationFilter.this.messages
@@ -431,7 +431,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean
 					.md5Hex(this.nonceExpiryTime + ":" + entryPointKey);
 
 			if (!expectedNonceSignature.equals(nonceTokens[1])) {
-				new BadCredentialsException(DigestAuthenticationFilter.this.messages
+				throw new BadCredentialsException(DigestAuthenticationFilter.this.messages
 						.getMessage("DigestAuthenticationFilter.nonceCompromised",
 								new Object[] { nonceAsPlainText },
 								"Nonce token compromised {0}"));

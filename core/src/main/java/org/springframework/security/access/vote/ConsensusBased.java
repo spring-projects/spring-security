@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,7 +38,7 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 
 	private boolean allowIfEqualGrantedDeniedDecisions = true;
 
-	public ConsensusBased(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
+	public ConsensusBased(List<AccessDecisionVoter<?>> decisionVoters) {
 		super(decisionVoters);
 	}
 
@@ -68,7 +68,6 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 			Collection<ConfigAttribute> configAttributes) throws AccessDeniedException {
 		int grant = 0;
 		int deny = 0;
-		int abstain = 0;
 
 		for (AccessDecisionVoter voter : getDecisionVoters()) {
 			int result = voter.vote(authentication, object, configAttributes);
@@ -89,8 +88,6 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 				break;
 
 			default:
-				abstain++;
-
 				break;
 			}
 		}

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,17 +16,15 @@
 
 package org.springframework.security.oauth2.client.registration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-
 import reactor.test.StepVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Rob Winch
@@ -34,25 +32,13 @@ import reactor.test.StepVerifier;
  */
 public class InMemoryReactiveClientRegistrationRepositoryTests {
 
-	private ClientRegistration github = ClientRegistration.withRegistrationId("github")
-			.redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.scope("read:user")
-			.authorizationUri("https://github.com/login/oauth/authorize")
-			.tokenUri("https://github.com/login/oauth/access_token")
-			.userInfoUri("https://api.github.com/user")
-			.userNameAttributeName("id")
-			.clientName("GitHub")
-			.clientId("clientId")
-			.clientSecret("clientSecret")
-			.build();
+	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
 	private InMemoryReactiveClientRegistrationRepository repository;
 
 	@Before
 	public void setup() {
-		this.repository = new InMemoryReactiveClientRegistrationRepository(this.github);
+		this.repository = new InMemoryReactiveClientRegistrationRepository(this.registration);
 	}
 
 	@Test
@@ -75,6 +61,12 @@ public class InMemoryReactiveClientRegistrationRepositoryTests {
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
+	@Test(expected = IllegalStateException.class)
+	public void constructorListClientRegistrationWhenDuplicateIdThenIllegalArgumentException() {
+		List<ClientRegistration> registrations = Arrays.asList(this.registration, this.registration);
+		new InMemoryReactiveClientRegistrationRepository(registrations);
+	}
+
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenIllegalArgumentException() {
 		ClientRegistration registration = null;
@@ -84,20 +76,19 @@ public class InMemoryReactiveClientRegistrationRepositoryTests {
 
 	@Test
 	public void findByRegistrationIdWhenValidIdThenFound() {
-		StepVerifier.create(this.repository.findByRegistrationId(this.github.getRegistrationId()))
-				.expectNext(this.github)
+		StepVerifier.create(this.repository.findByRegistrationId(this.registration.getRegistrationId()))
+				.expectNext(this.registration)
 				.verifyComplete();
 	}
 
 	@Test
 	public void findByRegistrationIdWhenNotValidIdThenEmpty() {
-		StepVerifier.create(this.repository.findByRegistrationId(this.github.getRegistrationId() + "invalid"))
+		StepVerifier.create(this.repository.findByRegistrationId(this.registration.getRegistrationId() + "invalid"))
 				.verifyComplete();
 	}
 
 	@Test
 	public void iteratorWhenContainsGithubThenContains() {
-		assertThat(this.repository.iterator())
-			.containsOnly(this.github);
+		assertThat(this.repository).containsOnly(this.registration);
 	}
 }

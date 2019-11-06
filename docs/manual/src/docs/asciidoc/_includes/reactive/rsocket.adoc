@@ -1,0 +1,232 @@
+[[rsocket]]
+= RSocket Security
+
+Spring Security's RSocket support relies on a `SocketAcceptorInterceptor`.
+The main entry point into security is found in the `PayloadSocketAcceptorInterceptor` which adapts the RSocket APIs to allow intercepting a `PayloadExchange` with `PayloadInterceptor` implementations.
+
+You can find a few sample applications that demonstrate the code below:
+
+* Hello RSocket {gh-samples-url}/boot/hellorsocket[hellorsocket]
+* https://github.com/rwinch/spring-flights/tree/security[Spring Flights]
+
+
+== Minimal RSocket Security Configuration
+
+You can find a minimal RSocket Security configuration below:
+
+[source,java]
+-----
+@Configuration
+@EnableRSocketSecurity
+public class HelloRSocketSecurityConfig {
+
+	@Bean
+	public MapReactiveUserDetailsService userDetailsService() {
+		UserDetails user = User.withDefaultPasswordEncoder()
+			.username("user")
+			.password("user")
+			.roles("USER")
+			.build();
+		return new MapReactiveUserDetailsService(user);
+	}
+}
+-----
+
+This configuration enables <<rsocket-authentication-basic,basic authentication>> and sets up <<authorization,rsocket-authorization>> to require an authenticated user for any request.
+
+== Adding SecuritySocketAcceptorInterceptor
+
+For Spring Security to work we need to apply `SecuritySocketAcceptorInterceptor` to the `ServerRSocketFactory`.
+This is what connects our `PayloadSocketAcceptorInterceptor` we created with the RSocket infrastructure.
+In a Spring Boot application this can be done using the following code.
+
+[source,java]
+----
+@Bean
+ServerRSocketFactoryCustomizer springSecurityRSocketSecurity(
+		SecuritySocketAcceptorInterceptor interceptor) {
+	return builder -> builder.addSocketAcceptorPlugin(interceptor);
+}
+----
+
+[[rsocket-authentication]]
+== RSocket Authentication
+
+RSocket authentication is performed with `AuthenticationPayloadInterceptor` which acts as a controller to invoke a `ReactiveAuthenticationManager` instance.
+
+[[rsocket-authentication-setup-vs-request]]
+=== Authentication at Setup vs Request Time
+
+Generally, authentication can occur at setup time and/or request time.
+
+Authentication at setup time makes sense in a few scenarios.
+A common scenarios is when a single user (i.e. mobile connection) is leveraging an RSocket connection.
+In this case only a single user is leveraging the connection, so authentication can be done once at connection time.
+
+In a scenario where the RSocket connection is shared it makes sense to send credentials on each request.
+For example, a web application that connects to an RSocket server as a downstream service would make a single connection that all users leverage.
+In this case, if the RSocket server needs to perform authorization based on the web application's users credentials per request makes sense.
+
+In some scenarios authentication at setup and per request makes sense.
+Consider a web application as described previously.
+If we need to restrict the connection to the web application itself, we can provide a credential with a `SETUP` authority at connection time.
+Then each user would have different authorities but not the `SETUP` authority.
+This means that individual users can make requests but not make additional connections.
+
+[[rsocket-authentication-basic]]
+=== Basic Authentication
+
+Spring Security has early support for https://github.com/rsocket/rsocket/issues/272[RSocket's Basic Authentication Metadata Extension].
+
+The RSocket receiver can decode the credentials using `BasicAuthenticationPayloadExchangeConverter` which is automatically setup using the `basicAuthentication` portion of the DSL.
+An explicit configuration can be found below.
+
+[source,java]
+----
+@Bean
+PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
+	rsocket
+		.authorizePayload(authorize ->
+			authorize
+					.anyRequest().authenticated()
+					.anyExchange().permitAll()
+		)
+		.basicAuthentication(Customizer.withDefaults());
+	return rsocket.build();
+}
+----
+
+The RSocket sender can send credentials using `BasicAuthenticationEncoder` which can be added to Spring's `RSocketStrategies`.
+
+[source,java]
+----
+RSocketStrategies.Builder strategies = ...;
+strategies.encoder(new BasicAuthenticationEncoder());
+----
+
+It can then be used to send a username and password to the receiver in the setup:
+
+[source,java]
+----
+UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
+Mono<RSocketRequester> requester = RSocketRequester.builder()
+	.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+	.rsocketStrategies(strategies.build())
+	.connectTcp(host, port);
+----
+
+Alternatively or additionally, a username and password can be sent in a request.
+
+[source,java]
+----
+Mono<RSocketRequester> requester;
+UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
+
+public Mono<AirportLocation> findRadar(String code) {
+	return this.requester.flatMap(req ->
+		req.route("find.radar.{code}", code)
+			.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+			.retrieveMono(AirportLocation.class)
+	);
+}
+----
+
+[[rsocket-authentication-jwt]]
+=== JWT
+
+Spring Security has early support for https://github.com/rsocket/rsocket/issues/272[RSocket's Bearer Token Authentication Metadata Extension].
+The support comes in the form of authenticating a JWT (determining the JWT is valid) and then using the JWT to make authorization decisions.
+
+The RSocket receiver can decode the credentials using `BearerPayloadExchangeConverter` which is automatically setup using the `jwt` portion of the DSL.
+An example configuration can be found below:
+
+[source,java]
+----
+@Bean
+PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
+	rsocket
+		.authorizePayload(authorize ->
+			authorize
+				.anyRequest().authenticated()
+				.anyExchange().permitAll()
+		)
+		.jwt(Customizer.withDefaults());
+	return rsocket.build();
+}
+----
+
+The configuration above relies on the existence of a `ReactiveJwtDecoder` `@Bean` being present.
+An example of creating one from the issuer can be found below:
+
+[source,java]
+----
+@Bean
+ReactiveJwtDecoder jwtDecoder() {
+	return ReactiveJwtDecoders
+		.fromIssuerLocation("https://example.com/auth/realms/demo");
+}
+----
+
+The RSocket sender does not need to do anything special to send the token because the value is just a simple String.
+For example, the token can be sent at setup time:
+
+[source,java]
+----
+String token = ...;
+Mono<RSocketRequester> requester = RSocketRequester.builder()
+	.setupMetadata(token, BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE)
+	.connectTcp(host, port);
+----
+
+Alternatively or additionally, the token can be sent in a request.
+
+[source,java]
+----
+Mono<RSocketRequester> requester;
+String token = ...;
+
+public Mono<AirportLocation> findRadar(String code) {
+	return this.requester.flatMap(req ->
+		req.route("find.radar.{code}", code)
+	        .metadata(token, BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE)
+			.retrieveMono(AirportLocation.class)
+	);
+}
+----
+
+[[rsocket-authorization]]
+== RSocket Authorization
+
+RSocket authorization is performed with `AuthorizationPayloadInterceptor` which acts as a controller to invoke a `ReactiveAuthorizationManager` instance.
+The DSL can be used to setup authorization rules based upon the `PayloadExchange`.
+An example configuration can be found below:
+
+[[source,java]]
+----
+rsocket
+	.authorizePayload(authorize ->
+		authz
+			.setup().hasRole("SETUP") // <1>
+			.route("fetch.profile.me").authenticated() // <2>
+			.matcher(payloadExchange -> isMatch(payloadExchange)) // <3>
+				.hasRole("CUSTOM")
+			.route("fetch.profile.{username}") // <4>
+				.access((authentication, context) -> checkFriends(authentication, context))
+			.anyRequest().authenticated() // <5>
+			.anyExchange().permitAll() // <6>
+	)
+----
+<1> Setting up a connection requires the authority `ROLE_SETUP`
+<2> If the route is `fetch.profile.me` authorization only requires the user be authenticated
+<3> In this rule we setup a custom matcher where authorization requires the user to have the authority `ROLE_CUSTOM`
+<4> This rule leverages custom authorization.
+The matcher expresses a variable with the name `username` that is made available in the `context`.
+A custom authorization rule is exposed in the `checkFriends` method.
+<5> This rule ensures that request that does not already have a rule will require the user to be authenticated.
+A request is where the metadata is included.
+It would not include additional payloads.
+<6> This rule ensures that any exchange that does not already have a rule is allowed for anyone.
+In this example, it means that payloads that have no metadata have no authorization rules.
+
+It is important to understand that authorization rules are performed in order.
+Only the first authorization rule that matches will be invoked.

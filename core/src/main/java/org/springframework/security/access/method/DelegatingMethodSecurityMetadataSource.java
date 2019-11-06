@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,7 @@ public final class DelegatingMethodSecurityMetadataSource extends
 			.emptyList();
 
 	private final List<MethodSecurityMetadataSource> methodSecurityMetadataSources;
-	private final Map<DefaultCacheKey, Collection<ConfigAttribute>> attributeCache = new HashMap<DefaultCacheKey, Collection<ConfigAttribute>>();
+	private final Map<DefaultCacheKey, Collection<ConfigAttribute>> attributeCache = new HashMap<>();
 
 	// ~ Constructor
 	// ====================================================================================================
@@ -116,7 +116,7 @@ public final class DelegatingMethodSecurityMetadataSource extends
 		private final Method method;
 		private final Class<?> targetClass;
 
-		public DefaultCacheKey(Method method, Class<?> targetClass) {
+		DefaultCacheKey(Method method, Class<?> targetClass) {
 			this.method = method;
 			this.targetClass = targetClass;
 		}

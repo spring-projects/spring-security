@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -282,7 +282,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		RememberMeAuthenticationFilter rememberMeFilter = new RememberMeAuthenticationFilter(
 				http.getSharedObject(AuthenticationManager.class),
 				this.rememberMeServices);
@@ -373,10 +373,8 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @param http the {@link HttpSecurity} to lookup shared objects
 	 * @param key the {@link #key(String)}
 	 * @return the {@link RememberMeServices} to use
-	 * @throws Exception
 	 */
-	private AbstractRememberMeServices createRememberMeServices(H http, String key)
-			throws Exception {
+	private AbstractRememberMeServices createRememberMeServices(H http, String key) {
 		return this.tokenRepository == null
 				? createTokenBasedRememberMeServices(http, key)
 				: createPersistentRememberMeServices(http, key);

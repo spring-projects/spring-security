@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,7 +38,7 @@ abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 	 *
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
-	public AbstractMessageMatcherComposite(List<MessageMatcher<T>> messageMatchers) {
+	AbstractMessageMatcherComposite(List<MessageMatcher<T>> messageMatchers) {
 		notEmpty(messageMatchers, "messageMatchers must contain a value");
 		if (messageMatchers.contains(null)) {
 			throw new IllegalArgumentException(
@@ -54,7 +54,7 @@ abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	@SafeVarargs
-	public AbstractMessageMatcherComposite(MessageMatcher<T>... messageMatchers) {
+	AbstractMessageMatcherComposite(MessageMatcher<T>... messageMatchers) {
 		this(asList(messageMatchers));
 	}
 

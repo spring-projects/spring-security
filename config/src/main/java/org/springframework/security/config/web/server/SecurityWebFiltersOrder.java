@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,14 @@ public enum SecurityWebFiltersOrder {
 	FIRST(Integer.MIN_VALUE),
 	HTTP_HEADERS_WRITER,
 	/**
+	 * {@link org.springframework.security.web.server.transport.HttpsRedirectWebFilter}
+	 */
+	HTTPS_REDIRECT,
+	/**
+	 * {@link org.springframework.web.cors.reactive.CorsWebFilter}
+	 */
+	CORS,
+	/**
 	 * {@link org.springframework.security.web.server.csrf.CsrfWebFilter}
 	 */
 	CSRF,
@@ -40,6 +48,11 @@ public enum SecurityWebFiltersOrder {
 	 */
 	FORM_LOGIN,
 	AUTHENTICATION,
+	/**
+	 * Instance of AnonymousAuthenticationWebFilter
+	 */
+	ANONYMOUS_AUTHENTICATION,
+	OAUTH2_AUTHORIZATION_CODE,
 	LOGIN_PAGE_GENERATING,
 	LOGOUT_PAGE_GENERATING,
 	/**
@@ -59,11 +72,11 @@ public enum SecurityWebFiltersOrder {
 
 	private final int order;
 
-	private SecurityWebFiltersOrder() {
+	SecurityWebFiltersOrder() {
 		this.order = ordinal() * INTERVAL;
 	}
 
-	private SecurityWebFiltersOrder(int order) {
+	SecurityWebFiltersOrder(int order) {
 		this.order = order;
 	}
 

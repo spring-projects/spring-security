@@ -1,0 +1,39 @@
+[[webflux-roac]]
+= @RegisteredOAuth2AuthorizedClient
+
+Spring Security allows resolving an access token using `@RegisteredOAuth2AuthorizedClient`.
+
+[NOTE]
+====
+A working example can be found in {gh-samples-url}/boot/oauth2webclient-webflux[*OAuth 2.0 WebClient WebFlux sample*].
+====
+
+After configuring Spring Security for <<webflux-oauth2-login,OAuth2 Login>> or as an <<webflux-oauth2-client,OAuth2 Client>>, an `OAuth2AuthorizedClient` can be resolved using the following:
+
+[source,java]
+----
+@GetMapping("/explicit")
+Mono<String> explicit(@RegisteredOAuth2AuthorizedClient("client-id") OAuth2AuthorizedClient authorizedClient) {
+	// ...
+}
+----
+
+This integrates into Spring Security to provide the following features:
+
+* Spring Security will automatically refresh expired tokens (if a refresh token is present)
+* If an access token is requested and not present, Spring Security will automatically request the access token.
+** For `authorization_code` this involves performing the redirect and then replaying the original request
+** For `client_credentials` the token is simply requested and saved
+
+If the user authenticated using `oauth2Login()`, then the `client-id` is optional.
+For example, the following would work:
+
+[source,java]
+----
+@GetMapping("/implicit")
+Mono<String> implicit(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
+	// ...
+}
+----
+
+This is convenient if the user always authenticates with OAuth2 Login and an access token from the same authorization server is needed.

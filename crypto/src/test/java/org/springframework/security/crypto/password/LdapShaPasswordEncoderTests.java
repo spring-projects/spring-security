@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -75,7 +75,7 @@ public class LdapShaPasswordEncoderTests {
 
 	@Test
 	// SEC-1031
-	public void fullLengthOfHashIsUsedInComparison() throws Exception {
+	public void fullLengthOfHashIsUsedInComparison() {
 		assertThat(this.sha.matches("boabspasswurd", "{SSHA}25ro4PKC8jhQZ26jVsozhX/xaP0suHgX")).isTrue();
 		// Change the first hash character from '2' to '3'
 		assertThat(this.sha.matches("boabspasswurd", "{SSHA}35ro4PKC8jhQZ26jVsozhX/xaP0suHgX")).isFalse();

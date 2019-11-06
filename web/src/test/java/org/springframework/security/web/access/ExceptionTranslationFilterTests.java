@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,7 @@ package org.springframework.security.web.access;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -44,7 +44,6 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,7 +61,7 @@ public class ExceptionTranslationFilterTests {
 
 	@After
 	@Before
-	public void clearContext() throws Exception {
+	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
@@ -86,7 +85,7 @@ public class ExceptionTranslationFilterTests {
 		request.setServletPath("/secure/page.html");
 		request.setServerPort(80);
 		request.setScheme("http");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/secure/page.html");
 
@@ -109,7 +108,7 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com/mycontext/secure/page.html");
+		assertThat(getSavedRequestUrl(request)).isEqualTo("http://localhost/mycontext/secure/page.html");
 	}
 
 	@Test
@@ -119,7 +118,7 @@ public class ExceptionTranslationFilterTests {
 		request.setServletPath("/secure/page.html");
 		request.setServerPort(80);
 		request.setScheme("http");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/secure/page.html");
 
@@ -139,7 +138,7 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com/mycontext/secure/page.html");
+		assertThat(getSavedRequestUrl(request)).isEqualTo("http://localhost/mycontext/secure/page.html");
 	}
 
 
@@ -210,7 +209,7 @@ public class ExceptionTranslationFilterTests {
 		request.setServletPath("/secure/page.html");
 		request.setServerPort(80);
 		request.setScheme("http");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/secure/page.html");
 
@@ -225,7 +224,7 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com/mycontext/secure/page.html");
+		assertThat(getSavedRequestUrl(request)).isEqualTo("http://localhost/mycontext/secure/page.html");
 	}
 
 	@Test
@@ -236,7 +235,7 @@ public class ExceptionTranslationFilterTests {
 		request.setServletPath("/secure/page.html");
 		request.setServerPort(8080);
 		request.setScheme("http");
-		request.setServerName("www.example.com");
+		request.setServerName("localhost");
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/secure/page.html");
 
@@ -254,16 +253,16 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://www.example.com:8080/mycontext/secure/page.html");
+		assertThat(getSavedRequestUrl(request)).isEqualTo("http://localhost:8080/mycontext/secure/page.html");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void startupDetectsMissingAuthenticationEntryPoint() throws Exception {
+	public void startupDetectsMissingAuthenticationEntryPoint() {
 		new ExceptionTranslationFilter(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void startupDetectsMissingRequestCache() throws Exception {
+	public void startupDetectsMissingRequestCache() {
 		new ExceptionTranslationFilter(mockEntryPoint, null);
 	}
 
@@ -306,7 +305,7 @@ public class ExceptionTranslationFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenResponseCommittedThenRethrowsException() throws Exception {
+	public void doFilterWhenResponseCommittedThenRethrowsException() {
 		this.mockEntryPoint = mock(AuthenticationEntryPoint.class);
 		FilterChain chain = (request, response) -> {
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -324,11 +323,5 @@ public class ExceptionTranslationFilterTests {
 		verifyZeroInteractions(mockEntryPoint);
 	}
 
-	private AuthenticationEntryPoint mockEntryPoint = new AuthenticationEntryPoint() {
-		public void commence(HttpServletRequest request, HttpServletResponse response,
-				AuthenticationException authException) throws IOException,
-				ServletException {
-			response.sendRedirect(request.getContextPath() + "/login.jsp");
-		}
-	};
+	private AuthenticationEntryPoint mockEntryPoint = (request, response, authException) -> response.sendRedirect(request.getContextPath() + "/login.jsp");
 }

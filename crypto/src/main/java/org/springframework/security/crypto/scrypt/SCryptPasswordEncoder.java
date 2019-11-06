@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
  */
 package org.springframework.security.crypto.scrypt;
 
+import java.security.MessageDigest;
 import java.util.Base64;
 
 import org.apache.commons.logging.Log;
@@ -45,7 +46,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * <li>Scrypt is based on Salsa20 which performs poorly in Java (on par with
  * AES) but performs awesome (~4-5x faster) on SIMD capable platforms</li>
  * <li>While there are some that would disagree, consider reading -
- * <a href="http://blog.ircmaxell.com/2014/03/why-i-dont-recommend-scrypt.html">
+ * <a href="https://blog.ircmaxell.com/2014/03/why-i-dont-recommend-scrypt.html">
  * Why I Don't Recommend Scrypt</a> (for password storage)</li>
  * </ul>
  *
@@ -76,7 +77,7 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	 *
 	 * @param cpuCost
 	 *            cpu cost of the algorithm (as defined in scrypt this is N).
-	 *            must be power of 2 greater than 1. Default is currently 16,348
+	 *            must be power of 2 greater than 1. Default is currently 16,384
 	 *            or 2^14)
 	 * @param memoryCost
 	 *            memory cost of the algorithm (as defined in scrypt this is r)
@@ -134,6 +135,29 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		return decodeAndCheckMatches(rawPassword, encodedPassword);
 	}
 
+	@Override
+	public boolean upgradeEncoding(String encodedPassword) {
+		if (encodedPassword == null || encodedPassword.isEmpty()) {
+			return false;
+		}
+
+		String[] parts = encodedPassword.split("\\$");
+
+		if (parts.length != 4) {
+			throw new IllegalArgumentException("Encoded password does not look like SCrypt: " + encodedPassword);
+		}
+
+		long params = Long.parseLong(parts[1], 16);
+
+		int cpuCost = (int) Math.pow(2, params >> 16 & 0xffff);
+		int memoryCost = (int) params >> 8 & 0xff;
+		int parallelization = (int) params & 0xff;
+
+		return cpuCost < this.cpuCost
+				|| memoryCost < this.memoryCost
+				|| parallelization < this.parallelization;
+	}
+
 	private boolean decodeAndCheckMatches(CharSequence rawPassword, String encodedPassword) {
 		String[] parts = encodedPassword.split("\\$");
 
@@ -152,15 +176,7 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		byte[] generated = SCrypt.generate(Utf8.encode(rawPassword), salt, cpuCost, memoryCost, parallelization,
 				keyLength);
 
-		if (derived.length != generated.length) {
-			return false;
-		}
-
-		int result = 0;
-		for (int i = 0; i < derived.length; i++) {
-			result |= derived[i] ^ generated[i];
-		}
-		return result == 0;
+		return MessageDigest.isEqual(derived, generated);
 	}
 
 	private String digest(CharSequence rawPassword, byte[] salt) {

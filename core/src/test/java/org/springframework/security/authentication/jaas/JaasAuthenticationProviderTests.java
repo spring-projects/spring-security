@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,7 +62,7 @@ public class JaasAuthenticationProviderTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
 		context = new ClassPathXmlApplicationContext(resName);
 		eventCheck = (JaasEventCheck) context.getBean("eventCheck");
@@ -190,7 +190,7 @@ public class JaasAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testFull() throws Exception {
+	public void testFull() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"user", "password", AuthorityUtils.createAuthorityList("ROLE_ONE"));
 
@@ -227,18 +227,14 @@ public class JaasAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testGetApplicationEventPublisher() throws Exception {
+	public void testGetApplicationEventPublisher() {
 		assertThat(jaasProvider.getApplicationEventPublisher()).isNotNull();
 	}
 
 	@Test
 	public void testLoginExceptionResolver() {
 		assertThat(jaasProvider.getLoginExceptionResolver()).isNotNull();
-		jaasProvider.setLoginExceptionResolver(new LoginExceptionResolver() {
-			public AuthenticationException resolveException(LoginException e) {
-				return new LockedException("This is just a test!");
-			}
-		});
+		jaasProvider.setLoginExceptionResolver(e -> new LockedException("This is just a test!"));
 
 		try {
 			jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user",
@@ -294,11 +290,11 @@ public class JaasAuthenticationProviderTests {
 	private static class MockLoginContext extends LoginContext {
 		boolean loggedOut = false;
 
-		public MockLoginContext(String loginModule) throws LoginException {
+		MockLoginContext(String loginModule) throws LoginException {
 			super(loginModule);
 		}
 
-		public void logout() throws LoginException {
+		public void logout() {
 			this.loggedOut = true;
 		}
 	}

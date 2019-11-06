@@ -1,0 +1,73 @@
+[[jc-authentication-authenticationprovider]]
+== AuthenticationProvider
+
+=== AuthenticationProvider Java Configuration
+You can define custom authentication by exposing a custom `AuthenticationProvider` as a bean.
+For example, the following will customize authentication assuming that `SpringAuthenticationProvider` implements `AuthenticationProvider`:
+
+NOTE: This is only used if the `AuthenticationManagerBuilder` has not been populated
+
+[source,java]
+----
+@Bean
+public SpringAuthenticationProvider springAuthenticationProvider() {
+	return new SpringAuthenticationProvider();
+}
+----
+
+[[ns-auth-providers]]
+=== AuthenticationProvider XML Configuration
+In practice you will need a more scalable source of user information than a few names added to the application context file.
+Most likely you will want to store your user information in something like a database or an LDAP server.
+LDAP namespace configuration is dealt with in the <<ldap,LDAP chapter>>, so we won't cover it here.
+If you have a custom implementation of Spring Security's `UserDetailsService`, called "myUserDetailsService" in your application context, then you can authenticate against this using
+
+[source,xml]
+----
+
+<authentication-manager>
+	<authentication-provider user-service-ref='myUserDetailsService'/>
+</authentication-manager>
+
+----
+
+If you want to use a database, then you can use
+
+[source,xml]
+----
+<authentication-manager>
+<authentication-provider>
+	<jdbc-user-service data-source-ref="securityDataSource"/>
+</authentication-provider>
+</authentication-manager>
+----
+
+Where "securityDataSource" is the name of a `DataSource` bean in the application context, pointing at a database containing the standard Spring Security <<user-schema,user data tables>>.
+Alternatively, you could configure a Spring Security `JdbcDaoImpl` bean and point at that using the `user-service-ref` attribute:
+
+[source,xml]
+----
+<authentication-manager>
+<authentication-provider user-service-ref='myUserDetailsService'/>
+</authentication-manager>
+
+<beans:bean id="myUserDetailsService"
+	class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+<beans:property name="dataSource" ref="dataSource"/>
+</beans:bean>
+----
+
+You can also use standard `AuthenticationProvider` beans as follows
+
+[source,xml]
+----
+
+<authentication-manager>
+	<authentication-provider ref='myAuthenticationProvider'/>
+</authentication-manager>
+
+----
+
+where `myAuthenticationProvider` is the name of a bean in your application context which implements `AuthenticationProvider`.
+You can use multiple `authentication-provider` elements, in which case the providers will be queried in the order they are declared.
+See <<ns-auth-manager>> for more information on how the Spring Security `AuthenticationManager` is configured using the namespace.

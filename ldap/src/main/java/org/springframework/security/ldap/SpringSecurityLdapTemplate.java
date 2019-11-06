@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -110,7 +110,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 				NamingEnumeration<SearchResult> results = ctx.search(dn,
 						comparisonFilter, new Object[] { value }, ctls);
 
-				Boolean match = Boolean.valueOf(results.hasMore());
+				Boolean match = results.hasMore();
 				LdapUtils.closeEnumeration(results);
 
 				return match;
@@ -119,7 +119,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
 		Boolean matches = (Boolean) executeReadOnly(new LdapCompareCallback());
 
-		return matches.booleanValue();
+		return matches;
 	}
 
 	/**
@@ -134,15 +134,13 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	public DirContextOperations retrieveEntry(final String dn,
 			final String[] attributesToRetrieve) {
 
-		return (DirContextOperations) executeReadOnly(new ContextExecutor() {
-			public Object executeWithContext(DirContext ctx) throws NamingException {
-				Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
+		return (DirContextOperations) executeReadOnly((ContextExecutor) ctx -> {
+			Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
 
-				// Object object = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
+			// Object object = ctx.lookup(LdapUtils.getRelativeName(dn, ctx));
 
-				return new DirContextAdapter(attrs, new DistinguishedName(dn),
-						new DistinguishedName(ctx.getNameInNamespace()));
-			}
+			return new DirContextAdapter(attrs, new DistinguishedName(dn),
+					new DistinguishedName(ctx.getNameInNamespace()));
 		});
 	}
 
@@ -203,34 +201,32 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 		String formattedFilter = MessageFormat.format(filter, encodedParams);
 		logger.debug("Using filter: " + formattedFilter);
 
-		final HashSet<Map<String, List<String>>> set = new HashSet<Map<String, List<String>>>();
+		final HashSet<Map<String, List<String>>> set = new HashSet<>();
 
-		ContextMapper roleMapper = new ContextMapper() {
-			public Object mapFromContext(Object ctx) {
-				DirContextAdapter adapter = (DirContextAdapter) ctx;
-				Map<String, List<String>> record = new HashMap<String, List<String>>();
-				if (attributeNames == null || attributeNames.length == 0) {
-					try {
-						for (NamingEnumeration ae = adapter.getAttributes().getAll(); ae
-								.hasMore();) {
-							Attribute attr = (Attribute) ae.next();
-							extractStringAttributeValues(adapter, record, attr.getID());
-						}
-					}
-					catch (NamingException x) {
-						org.springframework.ldap.support.LdapUtils
-								.convertLdapException(x);
+		ContextMapper roleMapper = ctx -> {
+			DirContextAdapter adapter = (DirContextAdapter) ctx;
+			Map<String, List<String>> record = new HashMap<>();
+			if (attributeNames == null || attributeNames.length == 0) {
+				try {
+					for (NamingEnumeration ae = adapter.getAttributes().getAll(); ae
+							.hasMore();) {
+						Attribute attr = (Attribute) ae.next();
+						extractStringAttributeValues(adapter, record, attr.getID());
 					}
 				}
-				else {
-					for (String attributeName : attributeNames) {
-						extractStringAttributeValues(adapter, record, attributeName);
-					}
+				catch (NamingException x) {
+					org.springframework.ldap.support.LdapUtils
+							.convertLdapException(x);
 				}
-				record.put(DN_KEY, Arrays.asList(getAdapterDN(adapter)));
-				set.add(record);
-				return null;
 			}
+			else {
+				for (String attributeName : attributeNames) {
+					extractStringAttributeValues(adapter, record, attributeName);
+				}
+			}
+			record.put(DN_KEY, Arrays.asList(getAdapterDN(adapter)));
+			set.add(record);
+			return null;
 		};
 
 		SearchControls ctls = new SearchControls();
@@ -313,12 +309,8 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	public DirContextOperations searchForSingleEntry(final String base,
 			final String filter, final Object[] params) {
 
-		return (DirContextOperations) executeReadOnly(new ContextExecutor() {
-			public Object executeWithContext(DirContext ctx) throws NamingException {
-				return searchForSingleEntryInternal(ctx, searchControls, base, filter,
-						params);
-			}
-		});
+		return (DirContextOperations) executeReadOnly((ContextExecutor) ctx -> searchForSingleEntryInternal(ctx, searchControls, base, filter,
+				params));
 	}
 
 	/**

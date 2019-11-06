@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,7 +60,7 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 
 	/**
 	 * Does nothing if the {@link CsrfToken} is not null. Saving is done only when the
-	 * {@link CsrfToken#getToken()} iis accessed from
+	 * {@link CsrfToken#getToken()} is accessed from
 	 * {@link #generateToken(HttpServletRequest)}. If it is null, then the save is
 	 * performed immediately.
 	 */

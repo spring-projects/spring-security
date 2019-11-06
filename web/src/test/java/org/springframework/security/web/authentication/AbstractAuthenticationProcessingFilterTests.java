@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,16 +18,13 @@ package org.springframework.security.web.authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.io.IOException;
-
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -85,7 +82,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 		successHandler.setDefaultTargetUrl("/logged_in.jsp");
 		failureHandler = new SimpleUrlAuthenticationFailureHandler();
@@ -94,7 +91,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
 
@@ -143,7 +140,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	@Test
-	public void testGettersSetters() throws Exception {
+	public void testGettersSetters() {
 		AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
 		filter.setFilterProcessesUrl("/p");
@@ -216,7 +213,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	@Test
-	public void testStartupDetectsInvalidAuthenticationManager() throws Exception {
+	public void testStartupDetectsInvalidAuthenticationManager() {
 		AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
 		filter.setAuthenticationFailureHandler(failureHandler);
 		successHandler.setDefaultTargetUrl("/");
@@ -234,7 +231,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 	}
 
 	@Test
-	public void testStartupDetectsInvalidFilterProcessesUrl() throws Exception {
+	public void testStartupDetectsInvalidFilterProcessesUrl() {
 		AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
 		filter.setAuthenticationFailureHandler(failureHandler);
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
@@ -385,7 +382,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
-		successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+		successHandler.setDefaultTargetUrl("https://monkeymachine.co.uk/");
 		filter.setAuthenticationSuccessHandler(successHandler);
 
 		filter.doFilter(request, response, chain);
@@ -409,7 +406,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		ReflectionTestUtils.setField(filter, "logger", logger);
 		filter.exceptionToThrow = new InternalAuthenticationServiceException(
 				"Mock requested to do so");
-		successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+		successHandler.setDefaultTargetUrl("https://monkeymachine.co.uk/");
 		filter.setAuthenticationSuccessHandler(successHandler);
 
 		filter.doFilter(request, response, chain);
@@ -437,7 +434,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		private boolean grantAccess;
 
-		public MockAuthenticationFilter(boolean grantAccess) {
+		MockAuthenticationFilter(boolean grantAccess) {
 			this();
 			setRememberMeServices(new NullRememberMeServices());
 			this.grantAccess = grantAccess;
@@ -465,12 +462,11 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		private boolean expectToProceed;
 
-		public MockFilterChain(boolean expectToProceed) {
+		MockFilterChain(boolean expectToProceed) {
 			this.expectToProceed = expectToProceed;
 		}
 
-		public void doFilter(ServletRequest request, ServletResponse response)
-				throws IOException, ServletException {
+		public void doFilter(ServletRequest request, ServletResponse response) {
 			if (expectToProceed) {
 
 			}

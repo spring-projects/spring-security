@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,11 +18,17 @@ package org.springframework.security.acls.jdbc;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.util.Assert;
 
 /**
  * Utility class for helping convert database representations of {@link ObjectIdentity#getIdentifier()} into
@@ -35,7 +41,16 @@ class AclClassIdUtils {
 
 	private ConversionService conversionService;
 
-	public AclClassIdUtils() {
+	AclClassIdUtils() {
+		GenericConversionService genericConversionService = new GenericConversionService();
+		genericConversionService.addConverter(String.class, Long.class, new StringToLongConverter());
+		genericConversionService.addConverter(String.class, UUID.class, new StringToUUIDConverter());
+		this.conversionService = genericConversionService;
+	}
+
+	AclClassIdUtils(ConversionService conversionService) {
+		Assert.notNull(conversionService, "conversionService must not be null");
+		this.conversionService = conversionService;
 	}
 
 	/**
@@ -59,7 +74,7 @@ class AclClassIdUtils {
 		return identifier;
 	}
 
-	private boolean hasValidClassIdType(ResultSet resultSet) throws SQLException {
+	private boolean hasValidClassIdType(ResultSet resultSet) {
 		boolean hasClassIdType = false;
 		try {
 			hasClassIdType = classIdTypeFrom(resultSet) != null;
@@ -86,15 +101,11 @@ class AclClassIdUtils {
 	}
 
 	private <T> boolean canConvertFromStringTo(Class<T> targetType) {
-		return hasConversionService() && conversionService.canConvert(String.class, targetType);
+		return conversionService.canConvert(String.class, targetType);
 	}
 
 	private <T extends Serializable> T convertFromStringTo(String identifier, Class<T> targetType) {
 		return conversionService.convert(identifier, targetType);
-	}
-
-	private boolean hasConversionService() {
-		return conversionService != null;
 	}
 
 	/**
@@ -107,7 +118,7 @@ class AclClassIdUtils {
 	 */
 	private Long convertToLong(Serializable identifier) {
 		Long idAsLong;
-		if (hasConversionService()) {
+		if (canConvertFromStringTo(Long.class)) {
 			idAsLong = conversionService.convert(identifier, Long.class);
 		} else {
 			idAsLong = Long.valueOf(identifier.toString());
@@ -120,6 +131,31 @@ class AclClassIdUtils {
 	}
 
 	public void setConversionService(ConversionService conversionService) {
+		Assert.notNull(conversionService, "conversionService must not be null");
 		this.conversionService = conversionService;
+	}
+
+	private static class StringToLongConverter implements Converter<String, Long> {
+		@Override
+		public Long convert(String identifierAsString) {
+			if (identifierAsString == null) {
+				throw new ConversionFailedException(TypeDescriptor.valueOf(String.class),
+						TypeDescriptor.valueOf(Long.class), null, null);
+
+			}
+			return Long.parseLong(identifierAsString);
+		}
+	}
+
+	private static class StringToUUIDConverter implements Converter<String, UUID> {
+		@Override
+		public UUID convert(String identifierAsString) {
+			if (identifierAsString == null) {
+				throw new ConversionFailedException(TypeDescriptor.valueOf(String.class),
+						TypeDescriptor.valueOf(UUID.class), null, null);
+
+			}
+			return UUID.fromString(identifierAsString);
+		}
 	}
 }

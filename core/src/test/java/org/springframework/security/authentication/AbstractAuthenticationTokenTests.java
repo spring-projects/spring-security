@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,7 @@ public class AbstractAuthenticationTokenTests {
 	// ========================================================================================================
 
 	@Before
-	public final void setUp() throws Exception {
+	public final void setUp() {
 		authorities = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 	}
 
@@ -58,7 +58,7 @@ public class AbstractAuthenticationTokenTests {
 	}
 
 	@Test
-	public void testGetters() throws Exception {
+	public void testGetters() {
 		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password",
 				authorities);
 		assertThat(token.getPrincipal()).isEqualTo("Test");
@@ -67,7 +67,7 @@ public class AbstractAuthenticationTokenTests {
 	}
 
 	@Test
-	public void testHashCode() throws Exception {
+	public void testHashCode() {
 		MockAuthenticationImpl token1 = new MockAuthenticationImpl("Test", "Password",
 				authorities);
 		MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test", "Password",
@@ -83,7 +83,7 @@ public class AbstractAuthenticationTokenTests {
 	}
 
 	@Test
-	public void testObjectsEquals() throws Exception {
+	public void testObjectsEquals() {
 		MockAuthenticationImpl token1 = new MockAuthenticationImpl("Test", "Password",
 				authorities);
 		MockAuthenticationImpl token2 = new MockAuthenticationImpl("Test", "Password",
@@ -111,11 +111,11 @@ public class AbstractAuthenticationTokenTests {
 		assertThat(!token1.equals(token7)).isTrue();
 		assertThat(!token7.equals(token1)).isTrue();
 
-		assertThat(!token1.equals(Integer.valueOf(100))).isTrue();
+		assertThat(!token1.equals(100)).isTrue();
 	}
 
 	@Test
-	public void testSetAuthenticated() throws Exception {
+	public void testSetAuthenticated() {
 		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password",
 				authorities);
 		assertThat(!token.isAuthenticated()).isTrue();
@@ -156,8 +156,7 @@ public class AbstractAuthenticationTokenTests {
 		private Object credentials;
 		private Object principal;
 
-		public MockAuthenticationImpl(Object principal, Object credentials,
-				List<GrantedAuthority> authorities) {
+		MockAuthenticationImpl(Object principal, Object credentials, List<GrantedAuthority> authorities) {
 			super(authorities);
 			this.principal = principal;
 			this.credentials = credentials;

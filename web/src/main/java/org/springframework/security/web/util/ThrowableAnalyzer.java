@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,22 +40,16 @@ public class ThrowableAnalyzer {
 	 *
 	 * @see Throwable#getCause()
 	 */
-	public static final ThrowableCauseExtractor DEFAULT_EXTRACTOR = new ThrowableCauseExtractor() {
-		public Throwable extractCause(Throwable throwable) {
-			return throwable.getCause();
-		}
-	};
+	public static final ThrowableCauseExtractor DEFAULT_EXTRACTOR = throwable -> throwable.getCause();
 
 	/**
 	 * Default extractor for {@link InvocationTargetException} instances.
 	 *
 	 * @see InvocationTargetException#getTargetException()
 	 */
-	public static final ThrowableCauseExtractor INVOCATIONTARGET_EXTRACTOR = new ThrowableCauseExtractor() {
-		public Throwable extractCause(Throwable throwable) {
-			verifyThrowableHierarchy(throwable, InvocationTargetException.class);
-			return ((InvocationTargetException) throwable).getTargetException();
-		}
+	public static final ThrowableCauseExtractor INVOCATIONTARGET_EXTRACTOR = throwable -> {
+		verifyThrowableHierarchy(throwable, InvocationTargetException.class);
+		return ((InvocationTargetException) throwable).getTargetException();
 	};
 
 	/**
@@ -64,21 +58,16 @@ public class ThrowableAnalyzer {
 	 * greater by this comparator.<br>
 	 * For hierarchically unrelated classes their fully qualified name will be compared.
 	 */
-	private static final Comparator<Class<? extends Throwable>> CLASS_HIERARCHY_COMPARATOR = new Comparator<Class<? extends Throwable>>() {
-
-		public int compare(Class<? extends Throwable> class1,
-				Class<? extends Throwable> class2) {
-			if (class1.isAssignableFrom(class2)) {
-				return 1;
-			}
-			else if (class2.isAssignableFrom(class1)) {
-				return -1;
-			}
-			else {
-				return class1.getName().compareTo(class2.getName());
-			}
+	private static final Comparator<Class<? extends Throwable>> CLASS_HIERARCHY_COMPARATOR = (class1, class2) -> {
+		if (class1.isAssignableFrom(class2)) {
+			return 1;
 		}
-
+		else if (class2.isAssignableFrom(class1)) {
+			return -1;
+		}
+		else {
+			return class1.getName().compareTo(class2.getName());
+		}
 	};
 
 	/**
@@ -91,7 +80,7 @@ public class ThrowableAnalyzer {
 	 * Creates a new <code>ThrowableAnalyzer</code> instance.
 	 */
 	public ThrowableAnalyzer() {
-		this.extractorMap = new TreeMap<Class<? extends Throwable>, ThrowableCauseExtractor>(
+		this.extractorMap = new TreeMap<>(
 				CLASS_HIERARCHY_COMPARATOR);
 
 		initExtractorMap();
@@ -149,7 +138,7 @@ public class ThrowableAnalyzer {
 	@SuppressWarnings("unchecked")
 	final Class<? extends Throwable>[] getRegisteredTypes() {
 		Set<Class<? extends Throwable>> typeList = this.extractorMap.keySet();
-		return typeList.toArray(new Class[typeList.size()]);
+		return typeList.toArray(new Class[0]);
 	}
 
 	/**
@@ -182,7 +171,7 @@ public class ThrowableAnalyzer {
 			currentThrowable = extractCause(currentThrowable);
 		}
 
-		return chain.toArray(new Throwable[chain.size()]);
+		return chain.toArray(new Throwable[0]);
 	}
 
 	/**

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,7 +55,7 @@ public class ContactManagerTests {
 
 	void assertContainsContact(long id, List<Contact> contacts) {
 		for (Contact contact : contacts) {
-			if (contact.getId().equals(Long.valueOf(id))) {
+			if (contact.getId().equals(id)) {
 				return;
 			}
 		}
@@ -65,7 +65,7 @@ public class ContactManagerTests {
 
 	void assertDoestNotContainContact(long id, List<Contact> contacts) {
 		for (Contact contact : contacts) {
-			if (contact.getId().equals(Long.valueOf(id))) {
+			if (contact.getId().equals(id)) {
 				fail("List of contact should NOT (but did) contain: " + id);
 			}
 		}
@@ -148,7 +148,7 @@ public class ContactManagerTests {
 
 		assertDoestNotContainContact(5, contacts);
 
-		Contact c1 = contactManager.getById(new Long(4));
+		Contact c1 = contactManager.getById(4L);
 
 		contactManager.deletePermission(c1, new PrincipalSid("bob"),
 				BasePermission.ADMINISTRATION);

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -98,7 +98,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 			Class<?> clazz) {
 		RegisteredMethod registeredMethod = new RegisteredMethod(method, clazz);
 		if (methodMap.containsKey(registeredMethod)) {
-			return (List<ConfigAttribute>) methodMap.get(registeredMethod);
+			return methodMap.get(registeredMethod);
 		}
 		// Search superclass
 		if (clazz.getSuperclass() != null) {
@@ -166,7 +166,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 		// register all matching methods
 		for (Method method : matchingMethods) {
 			RegisteredMethod registeredMethod = new RegisteredMethod(method, javaType);
-			String regMethodName = (String) this.nameMap.get(registeredMethod);
+			String regMethodName = this.nameMap.get(registeredMethod);
 
 			if ((regMethodName == null)
 					|| (!regMethodName.equals(name) && (regMethodName.length() <= name
@@ -287,7 +287,7 @@ public class MapBasedMethodSecurityMetadataSource extends
 		private final Method method;
 		private final Class<?> registeredJavaType;
 
-		public RegisteredMethod(Method method, Class<?> registeredJavaType) {
+		RegisteredMethod(Method method, Class<?> registeredJavaType) {
 			Assert.notNull(method, "Method required");
 			Assert.notNull(registeredJavaType, "Registered Java Type required");
 			this.method = method;

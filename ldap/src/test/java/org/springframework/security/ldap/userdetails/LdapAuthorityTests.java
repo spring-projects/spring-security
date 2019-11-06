@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +36,7 @@ public class LdapAuthorityTests {
 
 	@Before
 	public void setUp() {
-		Map<String, List<String>> attributes = new HashMap<String, List<String>>();
+		Map<String, List<String>> attributes = new HashMap<>();
 		attributes.put(SpringSecurityLdapTemplate.DN_KEY, Arrays.asList(DN));
 		attributes.put("mail",
 				Arrays.asList("filip@ldap.test.org", "filip@ldap.test2.org"));
@@ -44,7 +44,7 @@ public class LdapAuthorityTests {
 	}
 
 	@Test
-	public void testGetDn() throws Exception {
+	public void testGetDn() {
 		assertThat(authority.getDn()).isEqualTo(DN);
 		assertThat(authority.getAttributeValues(SpringSecurityLdapTemplate.DN_KEY)).isNotNull();
 		assertThat(authority.getAttributeValues(SpringSecurityLdapTemplate.DN_KEY)).hasSize(1);
@@ -52,7 +52,7 @@ public class LdapAuthorityTests {
 	}
 
 	@Test
-	public void testGetAttributes() throws Exception {
+	public void testGetAttributes() {
 		assertThat(authority.getAttributes()).isNotNull();
 		assertThat(authority.getAttributeValues("mail")).isNotNull();
 		assertThat(authority.getAttributeValues("mail")).hasSize(2);
@@ -62,7 +62,7 @@ public class LdapAuthorityTests {
 	}
 
 	@Test
-	public void testGetAuthority() throws Exception {
+	public void testGetAuthority() {
 		assertThat(authority.getAuthority()).isNotNull();
 		assertThat(authority.getAuthority()).isEqualTo("testRole");
 	}

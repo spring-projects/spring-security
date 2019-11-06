@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package org.springframework.security.config.annotation.web.configurers;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,6 +30,9 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
+import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Adds X509 based pre authentication to an application. Since validating the certificate
@@ -40,7 +41,7 @@ import org.springframework.security.web.authentication.preauth.x509.X509Authenti
  * certificate to look up the {@link Authentication} for the user.
  *
  * <h2>Security Filters</h2>
- *
+ * <p>
  * The following Filters are populated
  *
  * <ul>
@@ -48,7 +49,7 @@ import org.springframework.security.web.authentication.preauth.x509.X509Authenti
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
- *
+ * <p>
  * The following shared objects are created
  *
  * <ul>
@@ -61,7 +62,7 @@ import org.springframework.security.web.authentication.preauth.x509.X509Authenti
  * </ul>
  *
  * <h2>Shared Objects Used</h2>
- *
+ * <p>
  * The following shared objects are used:
  *
  * <ul>
@@ -75,12 +76,13 @@ import org.springframework.security.web.authentication.preauth.x509.X509Authenti
 public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractHttpConfigurer<X509Configurer<H>, H> {
 	private X509AuthenticationFilter x509AuthenticationFilter;
+	private X509PrincipalExtractor x509PrincipalExtractor;
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService;
-	private String subjectPrincipalRegex;
 	private AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> authenticationDetailsSource;
 
 	/**
 	 * Creates a new instance
+	 *
 	 * @see HttpSecurity#x509()
 	 */
 	public X509Configurer() {
@@ -97,6 +99,17 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 	public X509Configurer<H> x509AuthenticationFilter(
 			X509AuthenticationFilter x509AuthenticationFilter) {
 		this.x509AuthenticationFilter = x509AuthenticationFilter;
+		return this;
+	}
+
+	/**
+	 * Specifies the {@link X509PrincipalExtractor}
+	 *
+	 * @param x509PrincipalExtractor the {@link X509PrincipalExtractor} to use
+	 * @return the {@link X509Configurer} to use
+	 */
+	public X509Configurer<H> x509PrincipalExtractor(X509PrincipalExtractor x509PrincipalExtractor) {
+		this.x509PrincipalExtractor = x509PrincipalExtractor;
 		return this;
 	}
 
@@ -131,8 +144,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 	 * the shared {@link UserDetailsService} will be used to create a
 	 * {@link UserDetailsByNameServiceWrapper}.
 	 *
-	 * @param authenticationUserDetailsService the
-	 * {@link AuthenticationUserDetailsService} to use
+	 * @param authenticationUserDetailsService the {@link AuthenticationUserDetailsService} to use
 	 * @return the {@link X509Configurer} for further customizations
 	 */
 	public X509Configurer<H> authenticationUserDetailsService(
@@ -147,17 +159,19 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 	 * used.
 	 *
 	 * @param subjectPrincipalRegex the regex to extract the user principal from the
-	 * certificate (i.e. "CN=(.*?)(?:,|$)").
+	 *                              certificate (i.e. "CN=(.*?)(?:,|$)").
 	 * @return the {@link X509Configurer} for further customizations
 	 */
 	public X509Configurer<H> subjectPrincipalRegex(String subjectPrincipalRegex) {
-		this.subjectPrincipalRegex = subjectPrincipalRegex;
+		SubjectDnX509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
+		principalExtractor.setSubjectDnRegex(subjectPrincipalRegex);
+		this.x509PrincipalExtractor = principalExtractor;
 		return this;
 	}
 
 	// @formatter:off
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
 		authenticationProvider.setPreAuthenticatedUserDetailsService(getAuthenticationUserDetailsService(http));
 
@@ -168,7 +182,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 	// @formatter:on
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		X509AuthenticationFilter filter = getFilter(http
 				.getSharedObject(AuthenticationManager.class));
 		http.addFilter(filter);
@@ -178,10 +192,8 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
 		if (x509AuthenticationFilter == null) {
 			x509AuthenticationFilter = new X509AuthenticationFilter();
 			x509AuthenticationFilter.setAuthenticationManager(authenticationManager);
-			if (subjectPrincipalRegex != null) {
-				SubjectDnX509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
-				principalExtractor.setSubjectDnRegex(subjectPrincipalRegex);
-				x509AuthenticationFilter.setPrincipalExtractor(principalExtractor);
+			if (x509PrincipalExtractor != null) {
+				x509AuthenticationFilter.setPrincipalExtractor(x509PrincipalExtractor);
 			}
 			if (authenticationDetailsSource != null) {
 				x509AuthenticationFilter

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,8 +34,8 @@ import org.springframework.security.core.Authentication;
  * <p>
  * Implementations may implement any type of remember-me capability they wish. Rolling
  * cookies (as per <a
- * href="http://fishbowl.pastiche.org/2004/01/19/persistent_login_cookie_best_practice">
- * http://fishbowl.pastiche.org/2004/01/19/persistent_login_cookie_best_practice</a>) can
+ * href="https://fishbowl.pastiche.org/2004/01/19/persistent_login_cookie_best_practice">
+ * https://fishbowl.pastiche.org/2004/01/19/persistent_login_cookie_best_practice</a>) can
  * be used, as can simple implementations that don't require a persistent store.
  * Implementations also determine the validity period of a remember-me cookie. This
  * interface has been designed to accommodate any of these remember-me models.

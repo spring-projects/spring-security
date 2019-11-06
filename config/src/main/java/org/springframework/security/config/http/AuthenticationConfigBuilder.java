@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,6 +48,7 @@ import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthe
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -123,6 +124,7 @@ final class AuthenticationConfigBuilder {
 	@SuppressWarnings("rawtypes")
 	private ManagedList logoutHandlers;
 	private BeanDefinition loginPageGenerationFilter;
+	private BeanDefinition logoutPageGenerationFilter;
 	private BeanDefinition etf;
 	private final BeanReference requestCache;
 	private final BeanReference portMapper;
@@ -136,7 +138,7 @@ final class AuthenticationConfigBuilder {
 
 	private String openIDLoginPage;
 
-	public AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
+	AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
 			ParserContext pc, SessionCreationPolicy sessionPolicy,
 			BeanReference requestCache, BeanReference authenticationManager,
 			BeanReference sessionStrategy, BeanReference portMapper,
@@ -259,7 +261,7 @@ final class AuthenticationConfigBuilder {
 						.rootBeanDefinition(OPEN_ID_CONSUMER_CLASS);
 				BeanDefinitionBuilder axFactory = BeanDefinitionBuilder
 						.rootBeanDefinition(OPEN_ID_ATTRIBUTE_FACTORY_CLASS);
-				ManagedMap<String, ManagedList<BeanDefinition>> axMap = new ManagedMap<String, ManagedList<BeanDefinition>>();
+				ManagedMap<String, ManagedList<BeanDefinition>> axMap = new ManagedMap<>();
 
 				for (Element attrExElt : attrExElts) {
 					String identifierMatch = attrExElt.getAttribute("identifier-match");
@@ -544,6 +546,10 @@ final class AuthenticationConfigBuilder {
 					.rootBeanDefinition(DefaultLoginPageGeneratingFilter.class);
 			loginPageFilter.addPropertyValue("resolveHiddenInputs", new CsrfTokenHiddenInputFunction());
 
+			BeanDefinitionBuilder logoutPageFilter = BeanDefinitionBuilder
+					.rootBeanDefinition(DefaultLogoutPageGeneratingFilter.class);
+			logoutPageFilter.addPropertyValue("resolveHiddenInputs", new CsrfTokenHiddenInputFunction());
+
 			if (formFilterId != null) {
 				loginPageFilter.addConstructorArgReference(formFilterId);
 				loginPageFilter.addPropertyValue("authenticationUrl", loginProcessingUrl);
@@ -556,6 +562,7 @@ final class AuthenticationConfigBuilder {
 			}
 
 			loginPageGenerationFilter = loginPageFilter.getBeanDefinition();
+			this.logoutPageGenerationFilter = logoutPageFilter.getBeanDefinition();
 		}
 	}
 
@@ -798,6 +805,7 @@ final class AuthenticationConfigBuilder {
 
 		if (loginPageGenerationFilter != null) {
 			filters.add(new OrderDecorator(loginPageGenerationFilter, LOGIN_PAGE_FILTER));
+			filters.add(new OrderDecorator(this.logoutPageGenerationFilter, LOGOUT_PAGE_FILTER));
 		}
 
 		if (basicFilter != null) {
@@ -841,7 +849,7 @@ final class AuthenticationConfigBuilder {
 		@Override
 		public Map<String, String> apply(HttpServletRequest request) {
 			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-			if(token == null) {
+			if (token == null) {
 				return Collections.emptyMap();
 			}
 			return Collections.singletonMap(token.getParameterName(), token.getToken());

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -83,7 +83,7 @@ public final class WebSecurity extends
 
 	private final List<RequestMatcher> ignoredRequests = new ArrayList<>();
 
-	private final List<SecurityBuilder<? extends SecurityFilterChain>> securityFilterChainBuilders = new ArrayList<SecurityBuilder<? extends SecurityFilterChain>>();
+	private final List<SecurityBuilder<? extends SecurityFilterChain>> securityFilterChainBuilders = new ArrayList<>();
 
 	private IgnoredRequestConfigurer ignoredRequestRegistry;
 
@@ -99,9 +99,7 @@ public final class WebSecurity extends
 
 	private SecurityExpressionHandler<FilterInvocation> expressionHandler = defaultWebSecurityExpressionHandler;
 
-	private Runnable postBuildAction = new Runnable() {
-		public void run() {
-		}
+	private Runnable postBuildAction = () -> {
 	};
 
 	/**
@@ -206,8 +204,8 @@ public final class WebSecurity extends
 	}
 
 	/**
-	 * Set the {@link WebInvocationPrivilegeEvaluator} to be used. If this is null, then a
-	 * {@link DefaultWebInvocationPrivilegeEvaluator} will be created when
+	 * Set the {@link WebInvocationPrivilegeEvaluator} to be used. If this is not specified,
+	 * then a {@link DefaultWebInvocationPrivilegeEvaluator} will be created when
 	 * {@link #securityInterceptor(FilterSecurityInterceptor)} is non null.
 	 *
 	 * @param privilegeEvaluator the {@link WebInvocationPrivilegeEvaluator} to use
@@ -220,8 +218,8 @@ public final class WebSecurity extends
 	}
 
 	/**
-	 * Set the {@link SecurityExpressionHandler} to be used. If this is null, then a
-	 * {@link DefaultWebSecurityExpressionHandler} will be used.
+	 * Set the {@link SecurityExpressionHandler} to be used. If this is not specified,
+	 * then a {@link DefaultWebSecurityExpressionHandler} will be used.
 	 *
 	 * @param expressionHandler the {@link SecurityExpressionHandler} to use
 	 * @return the {@link WebSecurity} for further customizations
@@ -235,7 +233,7 @@ public final class WebSecurity extends
 
 	/**
 	 * Gets the {@link SecurityExpressionHandler} to be used.
-	 * @return
+	 * @return the {@link SecurityExpressionHandler} for further customizations
 	 */
 	public SecurityExpressionHandler<FilterInvocation> getExpressionHandler() {
 		return expressionHandler;
@@ -243,7 +241,7 @@ public final class WebSecurity extends
 
 	/**
 	 * Gets the {@link WebInvocationPrivilegeEvaluator} to be used.
-	 * @return
+	 * @return the {@link WebInvocationPrivilegeEvaluator} for further customizations
 	 */
 	public WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() {
 		if (privilegeEvaluator != null) {

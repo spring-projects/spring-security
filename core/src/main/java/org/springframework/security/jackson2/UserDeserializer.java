@@ -1,11 +1,11 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,8 +56,11 @@ class UserDeserializer extends JsonDeserializer<User> {
 	public User deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode jsonNode = mapper.readTree(jp);
-		Set<GrantedAuthority> authorities = mapper.convertValue(jsonNode.get("authorities"), new TypeReference<Set<SimpleGrantedAuthority>>() {
-		});
+		Set<? extends GrantedAuthority> authorities =
+				mapper.convertValue(
+						jsonNode.get("authorities"),
+						new TypeReference<Set<SimpleGrantedAuthority>>() {}
+				);
 		JsonNode password = readJsonNode(jsonNode, "password");
 		User result =  new User(
 				readJsonNode(jsonNode, "username").asText(), password.asText(""),
@@ -66,7 +69,7 @@ class UserDeserializer extends JsonDeserializer<User> {
 				readJsonNode(jsonNode, "accountNonLocked").asBoolean(), authorities
 		);
 
-		if(password.asText(null) == null) {
+		if (password.asText(null) == null) {
 			result.eraseCredentials();
 		}
 		return result;

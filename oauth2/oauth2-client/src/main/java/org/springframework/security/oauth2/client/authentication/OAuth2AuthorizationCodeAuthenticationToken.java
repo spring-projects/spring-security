@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExch
 import org.springframework.util.Assert;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An {@link AbstractAuthenticationToken} for the OAuth 2.0 Authorization Code Grant.
@@ -39,6 +41,7 @@ import java.util.Collections;
  */
 public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenticationToken {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private Map<String, Object> additionalParameters = new HashMap<>();
 	private ClientRegistration clientRegistration;
 	private OAuth2AuthorizationExchange authorizationExchange;
 	private OAuth2AccessToken accessToken;
@@ -86,11 +89,17 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenti
 														OAuth2AuthorizationExchange authorizationExchange,
 														OAuth2AccessToken accessToken,
 														@Nullable OAuth2RefreshToken refreshToken) {
+		this(clientRegistration, authorizationExchange, accessToken, refreshToken, Collections.emptyMap());
+	}
+
+	public OAuth2AuthorizationCodeAuthenticationToken(ClientRegistration clientRegistration, OAuth2AuthorizationExchange authorizationExchange, OAuth2AccessToken accessToken, OAuth2RefreshToken refreshToken,
+			Map<String, Object> additionalParameters) {
 		this(clientRegistration, authorizationExchange);
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.setAuthenticated(true);
+		this.additionalParameters.putAll(additionalParameters);
 	}
 
 	@Override
@@ -139,5 +148,14 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenti
 	 */
 	public @Nullable OAuth2RefreshToken getRefreshToken() {
 		return this.refreshToken;
+	}
+
+	/**
+	 * Returns the additional parameters
+	 *
+	 * @return the additional parameters
+	 */
+	public Map<String, Object> getAdditionalParameters() {
+		return this.additionalParameters;
 	}
 }

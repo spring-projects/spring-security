@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,17 +27,17 @@ public interface ContactDao {
 	// ~ Methods
 	// ========================================================================================================
 
-	public void create(Contact contact);
+	void create(Contact contact);
 
-	public void delete(Long contactId);
+	void delete(Long contactId);
 
-	public List<Contact> findAll();
+	List<Contact> findAll();
 
-	public List<String> findAllPrincipals();
+	List<String> findAllPrincipals();
 
-	public List<String> findAllRoles();
+	List<String> findAllRoles();
 
-	public Contact getById(Long id);
+	Contact getById(Long id);
 
-	public void update(Contact contact);
+	void update(Contact contact);
 }

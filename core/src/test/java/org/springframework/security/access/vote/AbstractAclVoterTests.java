@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,14 +42,13 @@ public class AbstractAclVoterTests {
 	};
 
 	@Test
-	public void supportsMethodInvocations() throws Exception {
+	public void supportsMethodInvocations() {
 		assertThat(voter.supports(MethodInvocation.class)).isTrue();
 		assertThat(voter.supports(String.class)).isFalse();
 	}
 
 	@Test
-	public void expectedDomainObjectArgumentIsReturnedFromMethodInvocation()
-			throws Exception {
+	public void expectedDomainObjectArgumentIsReturnedFromMethodInvocation() {
 		voter.setProcessDomainObjectClass(String.class);
 		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(),
 				"methodTakingAString", "The Argument");
@@ -57,7 +56,7 @@ public class AbstractAclVoterTests {
 	}
 
 	@Test
-	public void correctArgumentIsSelectedFromMultipleArgs() throws Exception {
+	public void correctArgumentIsSelectedFromMultipleArgs() {
 		voter.setProcessDomainObjectClass(String.class);
 		MethodInvocation mi = MethodInvocationUtils.create(new TestClass(),
 				"methodTakingAListAndAString", new ArrayList<>(), "The Argument");

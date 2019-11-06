@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,12 +41,12 @@ public class NegatedServerWebExchangeMatcherTests {
 	NegatedServerWebExchangeMatcher matcher;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		matcher = new NegatedServerWebExchangeMatcher(matcher1);
 	}
 
 	@Test
-	public void matchesWhenFalseThenTrue() throws Exception {
+	public void matchesWhenFalseThenTrue() {
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
 		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
@@ -58,7 +58,7 @@ public class NegatedServerWebExchangeMatcherTests {
 	}
 
 	@Test
-	public void matchesWhenTrueThenFalse() throws Exception {
+	public void matchesWhenTrueThenFalse() {
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match());
 
 		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();

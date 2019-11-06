@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -172,7 +172,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 	static class CsrfParamResultMatcher implements ResultMatcher {
 
 		@Override
-		public void match(MvcResult result) throws Exception {
+		public void match(MvcResult result) {
 			MockHttpServletRequest request = result.getRequest();
 			assertThat(request.getParameter("_csrf")).isNotNull();
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNull();
@@ -186,7 +186,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 	static class CsrfHeaderResultMatcher implements ResultMatcher {
 
 		@Override
-		public void match(MvcResult result) throws Exception {
+		public void match(MvcResult result) {
 			MockHttpServletRequest request = result.getRequest();
 			assertThat(request.getParameter("_csrf")).isNull();
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNotNull();
@@ -205,7 +205,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 		static class SessionRequestWrapper extends HttpServletRequestWrapper {
 			HttpSession session = new MockHttpSession();
 
-			public SessionRequestWrapper(HttpServletRequest request) {
+			SessionRequestWrapper(HttpServletRequest request) {
 				super(request);
 			}
 
@@ -224,7 +224,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
 		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) {
 		}
 
 		@RestController

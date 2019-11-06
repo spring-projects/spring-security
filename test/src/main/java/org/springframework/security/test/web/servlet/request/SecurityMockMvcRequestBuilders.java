@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -139,7 +139,7 @@ public final class SecurityMockMvcRequestBuilders {
 		 * Specifies the URL to POST to. Default is "/login"
 		 *
 		 * @param loginProcessingUrl the URL to POST to. Default is "/login"
-		 * @return
+		 * @return the {@link FormLoginRequestBuilder} for additional customizations
 		 */
 		public FormLoginRequestBuilder loginProcessingUrl(String loginProcessingUrl) {
 			this.loginProcessingUrl = loginProcessingUrl;

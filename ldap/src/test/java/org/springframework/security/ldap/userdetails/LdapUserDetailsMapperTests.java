@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LdapUserDetailsMapperTests {
 
 	@Test
-	public void testMultipleRoleAttributeValuesAreMappedToAuthorities() throws Exception {
+	public void testMultipleRoleAttributeValuesAreMappedToAuthorities() {
 		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 		mapper.setConvertToUpperCase(false);
 		mapper.setRolePrefix("");
@@ -58,7 +58,7 @@ public class LdapUserDetailsMapperTests {
 	 * SEC-303. Non-retrieved role attribute causes NullPointerException
 	 */
 	@Test
-	public void testNonRetrievedRoleAttributeIsIgnored() throws Exception {
+	public void testNonRetrievedRoleAttributeIsIgnored() {
 		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 
 		mapper.setRoleAttributes(new String[] { "userRole", "nonRetrievedAttribute" });
@@ -78,7 +78,7 @@ public class LdapUserDetailsMapperTests {
 	}
 
 	@Test
-	public void testPasswordAttributeIsMappedCorrectly() throws Exception {
+	public void testPasswordAttributeIsMappedCorrectly() {
 		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 
 		mapper.setPasswordAttributeName("myappsPassword");

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,7 @@ public class MessageDigestPasswordEncoderTests {
 	}
 
 	@Test
-	public void md5NonAsciiPasswordHasCorrectHash() throws Exception {
+	public void md5NonAsciiPasswordHasCorrectHash() {
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("MD5");
 		// $ echo -n "??" | md5
 		// 7eca689f0d3389d9dea66ae112e5cfd7
@@ -51,14 +51,14 @@ public class MessageDigestPasswordEncoderTests {
 	}
 
 	@Test
-	public void md5Base64() throws Exception {
+	public void md5Base64() {
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("MD5");
 		pe.setEncodeHashAsBase64(true);
 		assertThat(pe.matches("abc123", "{THIS_IS_A_SALT}poqv2QKZ0LE33ij7S7aFcw==")).isTrue();
 	}
 
 	@Test
-	public void md5StretchFactorIsProcessedCorrectly() throws Exception {
+	public void md5StretchFactorIsProcessedCorrectly() {
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("MD5");
 		pe.setIterations(2);
 		// Calculate value using:
@@ -101,7 +101,7 @@ public class MessageDigestPasswordEncoderTests {
 	}
 
 	@Test
-	public void testBase64() throws Exception {
+	public void testBase64() {
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("SHA-1");
 		pe.setEncodeHashAsBase64(true);
 		String raw = "abc123";
@@ -109,14 +109,14 @@ public class MessageDigestPasswordEncoderTests {
 	}
 
 	@Test
-	public void test256() throws Exception {
+	public void test256() {
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("SHA-1");
 		String raw = "abc123";
 		assertThat(pe.matches(raw, "{THIS_IS_A_SALT}4b79b7de23eb23b78cc5ede227d532b8a51f89b2ec166f808af76b0dbedc47d7"));
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void testInvalidStrength() throws Exception {
+	public void testInvalidStrength() {
 		new MessageDigestPasswordEncoder("SHA-666");
 	}
 }

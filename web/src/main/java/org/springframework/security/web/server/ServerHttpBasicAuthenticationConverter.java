@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Mono;
@@ -31,27 +32,32 @@ import reactor.core.publisher.Mono;
  *
  * @author Rob Winch
  * @since 5.0
+ * @deprecated Use {@link org.springframework.security.web.server.authentication.ServerHttpBasicAuthenticationConverter}
+ * instead.
  */
-public class ServerHttpBasicAuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
+@Deprecated
+public class ServerHttpBasicAuthenticationConverter implements
+		Function<ServerWebExchange, Mono<Authentication>> {
 
 	public static final String BASIC = "Basic ";
 
 	@Override
+	@Deprecated
 	public Mono<Authentication> apply(ServerWebExchange exchange) {
 		ServerHttpRequest request = exchange.getRequest();
 
 		String authorization = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-		if(authorization == null) {
+		if (!StringUtils.startsWithIgnoreCase(authorization, "basic ")) {
 			return Mono.empty();
 		}
 
 		String credentials = authorization.length() <= BASIC.length() ?
-			"" : authorization.substring(BASIC.length(), authorization.length());
+				"" : authorization.substring(BASIC.length(), authorization.length());
 		byte[] decodedCredentials = base64Decode(credentials);
 		String decodedAuthz = new String(decodedCredentials);
-		String[] userParts = decodedAuthz.split(":");
+		String[] userParts = decodedAuthz.split(":", 2);
 
-		if(userParts.length != 2) {
+		if (userParts.length != 2) {
 			return Mono.empty();
 		}
 

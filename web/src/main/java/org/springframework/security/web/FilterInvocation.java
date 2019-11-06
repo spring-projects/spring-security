@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,11 @@
 
 package org.springframework.security.web;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -48,11 +46,8 @@ import org.springframework.security.web.util.UrlUtils;
 public class FilterInvocation {
 	// ~ Static fields
 	// ==================================================================================================
-	static final FilterChain DUMMY_CHAIN = new FilterChain() {
-		public void doFilter(ServletRequest req, ServletResponse res)
-				throws IOException, ServletException {
-			throw new UnsupportedOperationException("Dummy filter chain");
-		}
+	static final FilterChain DUMMY_CHAIN = (req, res) -> {
+		throw new UnsupportedOperationException("Dummy filter chain");
 	};
 
 	// ~ Instance fields
@@ -163,7 +158,7 @@ class DummyRequest extends HttpServletRequestWrapper {
 	private String queryString;
 	private String method;
 
-	public DummyRequest() {
+	DummyRequest() {
 		super(UNSUPPORTED_REQUEST);
 	}
 
@@ -228,10 +223,15 @@ class DummyRequest extends HttpServletRequestWrapper {
 	public void setQueryString(String queryString) {
 		this.queryString = queryString;
 	}
+
+	@Override
+	public String getServerName() {
+		return null;
+	}
 }
 
 final class UnsupportedOperationExceptionInvocationHandler implements InvocationHandler {
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+	public Object invoke(Object proxy, Method method, Object[] args) {
 		throw new UnsupportedOperationException(method + " is not supported");
 	}
 }

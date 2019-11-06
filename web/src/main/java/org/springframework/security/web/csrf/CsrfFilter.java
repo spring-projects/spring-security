@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,6 +35,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import static java.lang.Boolean.TRUE;
+
 /**
  * <p>
  * Applies
@@ -63,6 +65,16 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	 */
 	public static final RequestMatcher DEFAULT_CSRF_MATCHER = new DefaultRequiresCsrfMatcher();
 
+	/**
+	 * The attribute name to use when marking a given request as one that should not be filtered.
+	 *
+	 * To use, set the attribute on your {@link HttpServletRequest}:
+	 * <pre>
+	 * 	CsrfFilter.skipRequest(request);
+	 * </pre>
+	 */
+	private static final String SHOULD_NOT_FILTER = "SHOULD_NOT_FILTER" + CsrfFilter.class.getName();
+
 	private final Log logger = LogFactory.getLog(getClass());
 	private final CsrfTokenRepository tokenRepository;
 	private RequestMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
@@ -71,6 +83,11 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
 		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
 		this.tokenRepository = csrfTokenRepository;
+	}
+
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+		return TRUE.equals(request.getAttribute(SHOULD_NOT_FILTER));
 	}
 
 	/*
@@ -122,6 +139,10 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		}
 
 		filterChain.doFilter(request, response);
+	}
+
+	public static void skipRequest(HttpServletRequest request) {
+		request.setAttribute(SHOULD_NOT_FILTER, TRUE);
 	}
 
 	/**

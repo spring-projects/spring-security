@@ -6,7 +6,7 @@
  ~ you may not use this file except in compliance with the License.
  ~ You may obtain a copy of the License at
  ~
- ~      http://www.apache.org/licenses/LICENSE-2.0
+ ~      https://www.apache.org/licenses/LICENSE-2.0
  ~
  ~ Unless required by applicable law or agreed to in writing, software
  ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,11 @@
 -->
 <taglib xmlns="http://java.sun.com/xml/ns/j2ee"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee https://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
         version="2.0">
     <description>Spring Security Authorization Tag Library</description>
 
-    <tlib-version>5.1</tlib-version>
+    <tlib-version>5.2</tlib-version>
     <short-name>security</short-name>
     <uri>http://www.springframework.org/security/tags</uri>
 

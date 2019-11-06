@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,21 +15,22 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.springframework.util.Assert;
-import org.springframework.util.ConcurrentReferenceHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import reactor.core.publisher.Mono;
+
+import org.springframework.util.Assert;
 
 /**
  * A Reactive {@link ClientRegistrationRepository} that stores {@link ClientRegistration}(s) in-memory.
  *
  * @author Rob Winch
+ * @author Ebert Toribio
  * @since 5.1
  * @see ClientRegistrationRepository
  * @see ClientRegistration
@@ -45,12 +46,12 @@ public final class InMemoryReactiveClientRegistrationRepository
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryReactiveClientRegistrationRepository(ClientRegistration... registrations) {
-		Assert.notEmpty(registrations, "registrations cannot be empty");
-		this.clientIdToClientRegistration = new ConcurrentReferenceHashMap<>();
-		for (ClientRegistration registration : registrations) {
-			Assert.notNull(registration, "registrations cannot contain null values");
-			this.clientIdToClientRegistration.put(registration.getRegistrationId(), registration);
-		}
+		this(toList(registrations));
+	}
+
+	private static List<ClientRegistration> toList(ClientRegistration... registrations) {
+		Assert.notEmpty(registrations, "registrations cannot be null or empty");
+		return Arrays.asList(registrations);
 	}
 
 	/**
@@ -59,11 +60,8 @@ public final class InMemoryReactiveClientRegistrationRepository
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryReactiveClientRegistrationRepository(List<ClientRegistration> registrations) {
-		Assert.notEmpty(registrations, "registrations cannot be null or empty");
-		this.clientIdToClientRegistration = registrations.stream()
-				.collect(Collectors.toConcurrentMap(ClientRegistration::getRegistrationId, Function.identity()));
+		this.clientIdToClientRegistration = toUnmodifiableConcurrentMap(registrations);
 	}
-
 
 	@Override
 	public Mono<ClientRegistration> findByRegistrationId(String registrationId) {
@@ -78,5 +76,19 @@ public final class InMemoryReactiveClientRegistrationRepository
 	@Override
 	public Iterator<ClientRegistration> iterator() {
 		return this.clientIdToClientRegistration.values().iterator();
+	}
+
+	private static Map<String, ClientRegistration> toUnmodifiableConcurrentMap(List<ClientRegistration> registrations) {
+		Assert.notEmpty(registrations, "registrations cannot be null or empty");
+		ConcurrentHashMap<String, ClientRegistration> result = new ConcurrentHashMap<>();
+		for (ClientRegistration registration : registrations) {
+			Assert.notNull(registration, "no registration can be null");
+			if (result.containsKey(registration.getRegistrationId())) {
+				throw new IllegalStateException(String.format("Duplicate key %s",
+						registration.getRegistrationId()));
+			}
+			result.put(registration.getRegistrationId(), registration);
+		}
+		return Collections.unmodifiableMap(result);
 	}
 }

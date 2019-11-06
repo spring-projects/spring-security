@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ import org.springframework.security.core.Authentication;
  */
 public class UnanimousBased extends AbstractAccessDecisionManager {
 
-	public UnanimousBased(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
+	public UnanimousBased(List<AccessDecisionVoter<?>> decisionVoters) {
 		super(decisionVoters);
 	}
 
@@ -64,7 +64,6 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 			Collection<ConfigAttribute> attributes) throws AccessDeniedException {
 
 		int grant = 0;
-		int abstain = 0;
 
 		List<ConfigAttribute> singleAttributeList = new ArrayList<>(1);
 		singleAttributeList.add(null);
@@ -91,8 +90,6 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 							"Access is denied"));
 
 				default:
-					abstain++;
-
 					break;
 				}
 			}

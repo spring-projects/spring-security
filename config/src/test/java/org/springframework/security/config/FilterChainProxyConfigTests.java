@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -105,15 +105,15 @@ public class FilterChainProxyConfigTests {
 	}
 
 	@Test
-	public void pathWithNoMatchHasNoFilters() throws Exception {
+	public void pathWithNoMatchHasNoFilters() {
 		FilterChainProxy filterChainProxy = appCtx.getBean(
 				"newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
-		assertThat(filterChainProxy.getFilters("/nomatch")).isEqualTo(null);
+		assertThat(filterChainProxy.getFilters("/nomatch")).isNull();
 	}
 
 	// SEC-1235
 	@Test
-	public void mixingPatternsAndPlaceholdersDoesntCauseOrderingIssues() throws Exception {
+	public void mixingPatternsAndPlaceholdersDoesntCauseOrderingIssues() {
 		FilterChainProxy fcp = appCtx.getBean("sec1235FilterChainProxy",
 				FilterChainProxy.class);
 
@@ -128,8 +128,7 @@ public class FilterChainProxyConfigTests {
 				.getRequestMatcher()).getPattern();
 	}
 
-	private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy)
-			throws Exception {
+	private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) {
 		List<Filter> filters = filterChainProxy.getFilters("/foo/blah;x=1");
 		assertThat(filters).hasSize(1);
 		assertThat(filters.get(0) instanceof SecurityContextHolderAwareRequestFilter).isTrue();

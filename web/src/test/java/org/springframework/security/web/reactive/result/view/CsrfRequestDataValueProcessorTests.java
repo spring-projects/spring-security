@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -124,7 +124,7 @@ public class CsrfRequestDataValueProcessorTests {
 	public void createGetExtraHiddenFieldsHasCsrfToken() {
 		CsrfToken token = new DefaultCsrfToken("1", "a", "b");
 		this.exchange.getAttributes().put(DEFAULT_CSRF_ATTR_NAME, token);
-		Map<String, String> expected = new HashMap<String, String>();
+		Map<String, String> expected = new HashMap<>();
 		expected.put(token.getParameterName(), token.getToken());
 
 		CsrfRequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();

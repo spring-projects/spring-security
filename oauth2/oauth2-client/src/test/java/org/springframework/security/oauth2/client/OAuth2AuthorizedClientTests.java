@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,22 +17,19 @@ package org.springframework.security.oauth2.client;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 
 /**
  * Tests for {@link OAuth2AuthorizedClient}.
  *
  * @author Joe Grandja
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(ClientRegistration.class)
 public class OAuth2AuthorizedClientTests {
 	private ClientRegistration clientRegistration;
 	private String principalName;
@@ -40,9 +37,9 @@ public class OAuth2AuthorizedClientTests {
 
 	@Before
 	public void setUp() {
-		this.clientRegistration = mock(ClientRegistration.class);
+		this.clientRegistration = clientRegistration().build();
 		this.principalName = "principal";
-		this.accessToken = mock(OAuth2AccessToken.class);
+		this.accessToken = noScopes();
 	}
 
 	@Test(expected = IllegalArgumentException.class)

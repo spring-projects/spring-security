@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,28 +41,28 @@ public class AclImplementationSecurityCheckTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		SecurityContextHolder.clearContext();
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
 
 	@Test
-	public void testSecurityCheckNoACEs() throws Exception {
+	public void testSecurityCheckNoACEs() {
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				"ROLE_GENERAL", "ROLE_AUDITING", "ROLE_OWNERSHIP");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
-		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
 						"ROLE_AUDITING"), new SimpleGrantedAuthority("ROLE_GENERAL"));
 
-		Acl acl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy,
+		Acl acl = new AclImpl(identity, 1L, aclAuthorizationStrategy,
 				new ConsoleAuditLogger());
 
 		aclAuthorizationStrategy.securityCheck(acl,
@@ -76,7 +76,7 @@ public class AclImplementationSecurityCheckTests {
 		AclAuthorizationStrategy aclAuthorizationStrategy2 = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_ONE"), new SimpleGrantedAuthority(
 						"ROLE_TWO"), new SimpleGrantedAuthority("ROLE_THREE"));
-		Acl acl2 = new AclImpl(identity, new Long(1), aclAuthorizationStrategy2,
+		Acl acl2 = new AclImpl(identity, 1L, aclAuthorizationStrategy2,
 				new ConsoleAuditLogger());
 		// Check access in case the principal has no authorization rights
 		try {
@@ -103,14 +103,14 @@ public class AclImplementationSecurityCheckTests {
 	}
 
 	@Test
-	public void testSecurityCheckWithMultipleACEs() throws Exception {
+	public void testSecurityCheckWithMultipleACEs() {
 		// Create a simple authentication with ROLE_GENERAL
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				"ROLE_GENERAL");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
-		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		// Authorization strategy will require a different role for each access
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
@@ -118,7 +118,7 @@ public class AclImplementationSecurityCheckTests {
 
 		// Let's give the principal the ADMINISTRATION permission, without
 		// granting access
-		MutableAcl aclFirstDeny = new AclImpl(identity, new Long(1),
+		MutableAcl aclFirstDeny = new AclImpl(identity, 1L,
 				aclAuthorizationStrategy, new ConsoleAuditLogger());
 		aclFirstDeny.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth),
 				false);
@@ -160,7 +160,7 @@ public class AclImplementationSecurityCheckTests {
 
 		// Create another ACL and give the principal the ADMINISTRATION
 		// permission, with granting access
-		MutableAcl aclFirstAllow = new AclImpl(identity, new Long(1),
+		MutableAcl aclFirstAllow = new AclImpl(identity, 1L,
 				aclAuthorizationStrategy, new ConsoleAuditLogger());
 		aclFirstAllow.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth),
 				true);
@@ -184,7 +184,7 @@ public class AclImplementationSecurityCheckTests {
 		}
 
 		// Create an ACL with no ACE
-		MutableAcl aclNoACE = new AclImpl(identity, new Long(1),
+		MutableAcl aclNoACE = new AclImpl(identity, 1L,
 				aclAuthorizationStrategy, new ConsoleAuditLogger());
 		try {
 			aclAuthorizationStrategy.securityCheck(aclNoACE,
@@ -206,7 +206,7 @@ public class AclImplementationSecurityCheckTests {
 	}
 
 	@Test
-	public void testSecurityCheckWithInheritableACEs() throws Exception {
+	public void testSecurityCheckWithInheritableACEs() {
 		// Create a simple authentication with ROLE_GENERAL
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				"ROLE_GENERAL");
@@ -273,7 +273,7 @@ public class AclImplementationSecurityCheckTests {
 	}
 
 	@Test
-	public void testSecurityCheckPrincipalOwner() throws Exception {
+	public void testSecurityCheckPrincipalOwner() {
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				"ROLE_ONE");
 		auth.setAuthenticated(true);

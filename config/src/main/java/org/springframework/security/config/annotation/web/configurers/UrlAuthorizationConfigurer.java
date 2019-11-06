@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -99,7 +99,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	 * The StandardInterceptUrlRegistry is what users will interact with after applying
 	 * the {@link UrlAuthorizationConfigurer}.
 	 *
-	 * @return
+	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 */
 	public StandardInterceptUrlRegistry getRegistry() {
 		return REGISTRY;
@@ -172,8 +172,8 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	 */
 	@Override
 	@SuppressWarnings("rawtypes")
-	final List<AccessDecisionVoter<? extends Object>> getDecisionVoters(H http) {
-		List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
+	List<AccessDecisionVoter<?>> getDecisionVoters(H http) {
+		List<AccessDecisionVoter<?>> decisionVoters = new ArrayList<>();
 		decisionVoters.add(new RoleVoter());
 		decisionVoters.add(new AuthenticatedVoter());
 		return decisionVoters;
@@ -198,7 +198,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 	 * provided {@link ConfigAttribute} instances
 	 * @param configAttributes the {@link ConfigAttribute} instances that should be mapped
 	 * by the {@link RequestMatcher} instances
-	 * @return the {@link UrlAuthorizationConfigurer} for further customizations
+	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 */
 	private StandardInterceptUrlRegistry addMapping(
 			Iterable<? extends RequestMatcher> requestMatchers,
@@ -344,7 +344,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 		 * @return the {@link UrlAuthorizationConfigurer} for further customization
 		 */
 		public StandardInterceptUrlRegistry anonymous() {
-			return hasRole("ROLE_ANONYMOUS");
+			return hasRole("ANONYMOUS");
 		}
 
 		/**

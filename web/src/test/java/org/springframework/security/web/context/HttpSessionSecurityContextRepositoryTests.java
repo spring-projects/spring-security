@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,18 +16,11 @@
 
 package org.springframework.security.web.context;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
-
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
@@ -36,25 +29,32 @@ import javax.servlet.http.HttpSession;
 
 import org.junit.After;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Transient;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.ClassUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 /**
  * @author Luke Taylor
  * @author Rob Winch
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ ClassUtils.class })
 public class HttpSessionSecurityContextRepositoryTests {
 
 	private final TestingAuthenticationToken testToken = new TestingAuthenticationToken(
@@ -63,20 +63,6 @@ public class HttpSessionSecurityContextRepositoryTests {
 	@After
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
-	}
-
-	@Test
-	public void servlet25Compatability() throws Exception {
-		spy(ClassUtils.class);
-		when(ClassUtils.class, "hasMethod", ServletRequest.class, "startAsync",
-				new Class[] {}).thenReturn(false);
-		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
-		repo.loadContext(holder);
-		assertThat(holder.getRequest()).isSameAs(request);
 	}
 
 	@Test
@@ -116,7 +102,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void sessionIsntCreatedIfContextDoesntChange() throws Exception {
+	public void sessionIsntCreatedIfContextDoesntChange() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -129,7 +115,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void sessionIsntCreatedIfAllowSessionCreationIsFalse() throws Exception {
+	public void sessionIsntCreatedIfAllowSessionCreationIsFalse() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		repo.setAllowSessionCreation(false);
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -144,8 +130,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void existingContextIsSuccessFullyLoadedFromSessionAndSavedBack()
-			throws Exception {
+	public void existingContextIsSuccessFullyLoadedFromSessionAndSavedBack() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -166,8 +151,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	// SEC-1528
 	@Test
-	public void saveContextCallsSetAttributeIfContextIsModifiedDirectlyDuringRequest()
-			throws Exception {
+	public void saveContextCallsSetAttributeIfContextIsModifiedDirectlyDuringRequest() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		// Set up an existing authenticated context, mocking that it is in the session
@@ -191,7 +175,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void nonSecurityContextInSessionIsIgnored() throws Exception {
+	public void nonSecurityContextInSessionIsIgnored() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		SecurityContextHolder.getContext().setAuthentication(testToken);
@@ -206,7 +190,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void sessionIsCreatedAndContextStoredWhenContextChanges() throws Exception {
+	public void sessionIsCreatedAndContextStoredWhenContextChanges() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -418,8 +402,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void noSessionIsCreatedIfSessionWasInvalidatedDuringTheRequest()
-			throws Exception {
+	public void noSessionIsCreatedIfSessionWasInvalidatedDuringTheRequest() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.getSession();
@@ -436,7 +419,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	// SEC-1315
 	@Test
-	public void noSessionIsCreatedIfAnonymousTokenIsUsed() throws Exception {
+	public void noSessionIsCreatedIfAnonymousTokenIsUsed() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -453,8 +436,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	// SEC-1587
 	@Test
-	public void contextIsRemovedFromSessionIfCurrentContextIsAnonymous()
-			throws Exception {
+	public void contextIsRemovedFromSessionIfCurrentContextIsAnonymous() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
@@ -472,7 +454,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void contextIsRemovedFromSessionIfCurrentContextIsEmpty() throws Exception {
+	public void contextIsRemovedFromSessionIfCurrentContextIsEmpty() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		repo.setSpringSecurityContextKey("imTheContext");
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -490,8 +472,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	// SEC-1735
 	@Test
-	public void contextIsNotRemovedFromSessionIfContextBeforeExecutionDefault()
-			throws Exception {
+	public void contextIsNotRemovedFromSessionIfContextBeforeExecutionDefault() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
@@ -511,7 +492,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	// SEC-3070
 	@Test
-	public void logoutInvalidateSessionFalseFails() throws Exception {
+	public void logoutInvalidateSessionFalseFails() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
@@ -531,8 +512,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 
 	@Test
 	@SuppressWarnings("deprecation")
-	public void sessionDisableUrlRewritingPreventsSessionIdBeingWrittenToUrl()
-			throws Exception {
+	public void sessionDisableUrlRewritingPreventsSessionIdBeingWrittenToUrl() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		final String sessionId = ";jsessionid=id";
@@ -632,5 +612,103 @@ public class HttpSessionSecurityContextRepositoryTests {
 		context.setAuthentication(testToken);
 
 		repo.saveContext(context, request, response);
+	}
+
+	@Test
+	public void saveContextWhenTransientAuthenticationThenSkipped() {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
+				response);
+		SecurityContext context = repo.loadContext(holder);
+
+		SomeTransientAuthentication authentication = new SomeTransientAuthentication();
+		context.setAuthentication(authentication);
+
+		repo.saveContext(context, holder.getRequest(), holder.getResponse());
+
+		MockHttpSession session = (MockHttpSession) request.getSession(false);
+		assertThat(session).isNull();
+	}
+
+	@Test
+	public void saveContextWhenTransientAuthenticationSubclassThenSkipped() {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
+				response);
+		SecurityContext context = repo.loadContext(holder);
+
+		SomeTransientAuthenticationSubclass authentication = new SomeTransientAuthenticationSubclass();
+		context.setAuthentication(authentication);
+
+		repo.saveContext(context, holder.getRequest(), holder.getResponse());
+
+		MockHttpSession session = (MockHttpSession) request.getSession(false);
+		assertThat(session).isNull();
+	}
+
+	@Test
+	public void saveContextWhenTransientAuthenticationWithCustomAnnotationThenSkipped() {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
+				response);
+		SecurityContext context = repo.loadContext(holder);
+
+		SomeOtherTransientAuthentication authentication = new SomeOtherTransientAuthentication();
+		context.setAuthentication(authentication);
+
+		repo.saveContext(context, holder.getRequest(), holder.getResponse());
+
+		MockHttpSession session = (MockHttpSession) request.getSession(false);
+		assertThat(session).isNull();
+	}
+
+	@Transient
+	private static class SomeTransientAuthentication extends AbstractAuthenticationToken {
+		SomeTransientAuthentication() {
+			super(null);
+		}
+
+		@Override
+		public Object getCredentials() {
+			return null;
+		}
+
+		@Override
+		public Object getPrincipal() {
+			return null;
+		}
+	}
+
+	private static class SomeTransientAuthenticationSubclass extends SomeTransientAuthentication {
+
+	}
+
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Transient
+	public @interface TestTransientAuthentication {
+	}
+
+	@TestTransientAuthentication
+	private static class SomeOtherTransientAuthentication extends AbstractAuthenticationToken {
+		SomeOtherTransientAuthentication() {
+			super(null);
+		}
+
+		@Override
+		public Object getCredentials() {
+			return null;
+		}
+
+		@Override
+		public Object getPrincipal() {
+			return null;
+		}
 	}
 }

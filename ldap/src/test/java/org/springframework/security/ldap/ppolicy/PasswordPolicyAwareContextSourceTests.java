@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +36,7 @@ public class PasswordPolicyAwareContextSourceTests {
 	private final LdapContext ctx = mock(LdapContext.class);
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		reset(ctx);
 		ctxSource = new PasswordPolicyAwareContextSource(
 				"ldap://blah:789/dc=springframework,dc=org") {
@@ -55,8 +55,7 @@ public class PasswordPolicyAwareContextSourceTests {
 	}
 
 	@Test
-	public void contextIsReturnedWhenNoControlsAreSetAndReconnectIsSuccessful()
-			throws Exception {
+	public void contextIsReturnedWhenNoControlsAreSetAndReconnectIsSuccessful() {
 		assertThat(ctxSource.getContext("user", "ignored")).isNotNull();
 	}
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,9 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import org.apache.commons.logging.Log;
@@ -57,6 +59,8 @@ import java.util.Set;
  *     mapper.registerModule(new CoreJackson2Module());
  *     mapper.registerModule(new CasJackson2Module());
  *     mapper.registerModule(new WebJackson2Module());
+ *     mapper.registerModule(new WebServletJackson2Module());
+ *     mapper.registerModule(new WebServerJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh.
@@ -68,14 +72,17 @@ public final class SecurityJackson2Modules {
 	private static final List<String> securityJackson2ModuleClasses = Arrays.asList(
 			"org.springframework.security.jackson2.CoreJackson2Module",
 			"org.springframework.security.cas.jackson2.CasJackson2Module",
-			"org.springframework.security.web.jackson2.WebJackson2Module"
+			"org.springframework.security.web.jackson2.WebJackson2Module",
+			"org.springframework.security.web.server.jackson2.WebServerJackson2Module"
 	);
+	private static final String webServletJackson2ModuleClass =
+			"org.springframework.security.web.jackson2.WebServletJackson2Module";
 
 	private SecurityJackson2Modules() {
 	}
 
 	public static void enableDefaultTyping(ObjectMapper mapper) {
-		if(mapper != null) {
+		if (mapper != null) {
 			TypeResolverBuilder<?> typeBuilder = mapper.getDeserializationConfig().getDefaultTyper(null);
 			if (typeBuilder == null) {
 				mapper.setDefaultTyping(createWhitelistedDefaultTyping());
@@ -89,13 +96,13 @@ public final class SecurityJackson2Modules {
 		try {
 			Class<? extends Module> securityModule = (Class<? extends Module>) ClassUtils.forName(className, loader);
 			if (securityModule != null) {
-				if(logger.isDebugEnabled()) {
+				if (logger.isDebugEnabled()) {
 					logger.debug("Loaded module " + className + ", now registering");
 				}
 				instance = securityModule.newInstance();
 			}
 		} catch (Exception e) {
-			if(logger.isDebugEnabled()) {
+			if (logger.isDebugEnabled()) {
 				logger.debug("Cannot load module " + className, e);
 			}
 		}
@@ -109,12 +116,24 @@ public final class SecurityJackson2Modules {
 	public static List<Module> getModules(ClassLoader loader) {
 		List<Module> modules = new ArrayList<>();
 		for (String className : securityJackson2ModuleClasses) {
-			Module module = loadAndGetInstance(className, loader);
-			if (module != null) {
-				modules.add(module);
-			}
+			addToModulesList(loader, modules, className);
+		}
+		if (ClassUtils.isPresent("javax.servlet.http.Cookie", loader)) {
+			addToModulesList(loader, modules, webServletJackson2ModuleClass);
 		}
 		return modules;
+	}
+
+	/**
+	 * @param loader    the ClassLoader to use
+	 * @param modules   list of the modules to add
+	 * @param className name of the class to instantiate
+	 */
+	private static void addToModulesList(ClassLoader loader, List<Module> modules, String className) {
+		Module module = loadAndGetInstance(className, loader);
+		if (module != null) {
+			modules.add(module);
+		}
 	}
 
 	/**
@@ -129,19 +148,29 @@ public final class SecurityJackson2Modules {
 	}
 
 	/**
-	 * An implementation of {@link ObjectMapper.DefaultTypeResolverBuilder} that overrides the {@link TypeIdResolver}
-	 * with {@link WhitelistTypeIdResolver}.
+	 * An implementation of {@link ObjectMapper.DefaultTypeResolverBuilder}
+	 * that inserts an {@code allow all} {@link PolymorphicTypeValidator}
+	 * and overrides the {@code TypeIdResolver}
 	 * @author Rob Winch
 	 */
 	static class WhitelistTypeResolverBuilder extends ObjectMapper.DefaultTypeResolverBuilder {
 
-		public WhitelistTypeResolverBuilder(ObjectMapper.DefaultTyping defaultTyping) {
-			super(defaultTyping);
+		WhitelistTypeResolverBuilder(ObjectMapper.DefaultTyping defaultTyping) {
+			super(
+					defaultTyping,
+					//we do explicit validation in the TypeIdResolver
+					BasicPolymorphicTypeValidator.builder()
+							.allowIfSubType(Object.class)
+							.build()
+			);
 		}
 
+		@Override
 		protected TypeIdResolver idResolver(MapperConfig<?> config,
-											JavaType baseType, Collection<NamedType> subtypes, boolean forSer, boolean forDeser) {
-			TypeIdResolver result = super.idResolver(config, baseType, subtypes, forSer, forDeser);
+				JavaType baseType,
+				PolymorphicTypeValidator subtypeValidator,
+				Collection<NamedType> subtypes, boolean forSer, boolean forDeser) {
+			TypeIdResolver result = super.idResolver(config, baseType, subtypeValidator, subtypes, forSer, forDeser);
 			return new WhitelistTypeIdResolver(result);
 		}
 	}
@@ -195,15 +224,15 @@ public final class SecurityJackson2Modules {
 			DeserializationConfig config = (DeserializationConfig) context.getConfig();
 			JavaType result = delegate.typeFromId(context, id);
 			String className = result.getRawClass().getName();
-			if(isWhitelisted(className)) {
+			if (isWhitelisted(className)) {
 				return delegate.typeFromId(context, id);
 			}
 			boolean isExplicitMixin = config.findMixInClassFor(result.getRawClass()) != null;
-			if(isExplicitMixin) {
+			if (isExplicitMixin) {
 				return result;
 			}
 			JacksonAnnotation jacksonAnnotation = AnnotationUtils.findAnnotation(result.getRawClass(), JacksonAnnotation.class);
-			if(jacksonAnnotation != null) {
+			if (jacksonAnnotation != null) {
 				return result;
 			}
 			throw new IllegalArgumentException("The class with " + id + " and name of " + className + " is not whitelisted. " +

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,8 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
-import static org.springframework.security.web.http.SecurityHeaders.bearerToken;
 
-import java.net.UnknownHostException;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -26,8 +25,12 @@ import java.util.Set;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.AuthenticationMethod;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -99,30 +102,45 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 			ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
 			};
 
-			Mono<Map<String, Object>> userAttributes = this.webClient.get()
-					.uri(userInfoUri)
-					.headers(bearerToken(userRequest.getAccessToken().getTokenValue()))
+			AuthenticationMethod authenticationMethod = userRequest.getClientRegistration().getProviderDetails()
+					.getUserInfoEndpoint().getAuthenticationMethod();
+			WebClient.RequestHeadersSpec<?> requestHeadersSpec;
+			if (AuthenticationMethod.FORM.equals(authenticationMethod)) {
+				requestHeadersSpec = this.webClient.post()
+						.uri(userInfoUri)
+						.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+						.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+						.syncBody("access_token=" + userRequest.getAccessToken().getTokenValue());
+			} else {
+				requestHeadersSpec = this.webClient.get()
+						.uri(userInfoUri)
+						.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+						.headers(headers -> headers.setBearerAuth(userRequest.getAccessToken().getTokenValue()));
+			}
+			Mono<Map<String, Object>> userAttributes = requestHeadersSpec
 					.retrieve()
-					.onStatus(s -> s != HttpStatus.OK, response -> {
-						return parse(response).map(userInfoErrorResponse -> {
-							String description = userInfoErrorResponse.getErrorObject().getDescription();
-							OAuth2Error oauth2Error = new OAuth2Error(
-									INVALID_USER_INFO_RESPONSE_ERROR_CODE, description,
-									null);
-							throw new OAuth2AuthenticationException(oauth2Error,
-									oauth2Error.toString());
-						});
-					})
+					.onStatus(s -> s != HttpStatus.OK, response -> parse(response).map(userInfoErrorResponse -> {
+						String description = userInfoErrorResponse.getErrorObject().getDescription();
+						OAuth2Error oauth2Error = new OAuth2Error(
+								INVALID_USER_INFO_RESPONSE_ERROR_CODE, description,
+								null);
+						throw new OAuth2AuthenticationException(oauth2Error,
+								oauth2Error.toString());
+					}))
 					.bodyToMono(typeReference);
 
 			return userAttributes.map(attrs -> {
 				GrantedAuthority authority = new OAuth2UserAuthority(attrs);
 				Set<GrantedAuthority> authorities = new HashSet<>();
 				authorities.add(authority);
+				OAuth2AccessToken token = userRequest.getAccessToken();
+				for (String scope : token.getScopes()) {
+					authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
+				}
 
 				return new DefaultOAuth2User(authorities, attrs, userNameAttributeName);
 			})
-			.onErrorMap(UnknownHostException.class, t -> new AuthenticationServiceException("Unable to access the userInfoEndpoint " + userInfoUri, t))
+			.onErrorMap(e -> e instanceof IOException, t -> new AuthenticationServiceException("Unable to access the userInfoEndpoint " + userInfoUri, t))
 			.onErrorMap(t -> !(t instanceof AuthenticationServiceException), t -> {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,  "An error occurred reading the UserInfo Success response: " + t.getMessage(), null);
 				return new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), t);

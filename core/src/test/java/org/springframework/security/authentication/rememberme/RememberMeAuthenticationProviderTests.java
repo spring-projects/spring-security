@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,7 +37,7 @@ public class RememberMeAuthenticationProviderTests {
 	// ~ Methods
 	// ========================================================================================================
 	@Test
-	public void testDetectsAnInvalidKey() throws Exception {
+	public void testDetectsAnInvalidKey() {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
 
@@ -54,7 +54,7 @@ public class RememberMeAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testDetectsMissingKey() throws Exception {
+	public void testDetectsMissingKey() {
 		try {
 			new RememberMeAuthenticationProvider(null);
 			fail("Should have thrown IllegalArgumentException");
@@ -73,7 +73,7 @@ public class RememberMeAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testIgnoresClassesItDoesNotSupport() throws Exception {
+	public void testIgnoresClassesItDoesNotSupport() {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
 
@@ -86,7 +86,7 @@ public class RememberMeAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testNormalOperation() throws Exception {
+	public void testNormalOperation() {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
 				"qwerty");
 

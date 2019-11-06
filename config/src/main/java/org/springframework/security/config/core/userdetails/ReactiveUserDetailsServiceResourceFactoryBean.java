@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,7 +57,6 @@ public class ReactiveUserDetailsServiceResourceFactoryBean
 	 * Sets the location of a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}.
 	 *
 	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
-	 * @return the UserDetailsResourceFactoryBean
 	 */
 	public void setResourceLocation(String resourceLocation) {
 		this.userDetails.setResourceLocation(resourceLocation);

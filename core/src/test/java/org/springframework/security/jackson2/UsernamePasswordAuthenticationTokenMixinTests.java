@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,11 +29,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
-import static org.assertj.core.api.Assertions.*;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_ABSENT;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static com.fasterxml.jackson.annotation.JsonInclude.Value.construct;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jitendra Singh
  * @author Greg Turnquist
+ * @author Onur Kagan Ozcan
  * @since 4.2
  */
 public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixinTests {
@@ -88,7 +93,7 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 	}
 
 	@Test
-	public void deserializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws IOException, JSONException {
+	public void deserializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest() throws IOException {
 		UsernamePasswordAuthenticationToken token = mapper
 				.readValue(UNAUTHENTICATED_STRINGPRINCIPAL_JSON, UsernamePasswordAuthenticationToken.class);
 		assertThat(token).isNotNull();
@@ -163,6 +168,20 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 		assertThat(deserialized).isEqualTo(original);
 	}
 
+	@Test
+	public void serializingThenDeserializingWithConfiguredObjectMapperShouldWork() throws IOException {
+		// given
+		this.mapper.setDefaultPropertyInclusion(construct(ALWAYS, NON_NULL)).setSerializationInclusion(NON_ABSENT);
+		UsernamePasswordAuthenticationToken original = new UsernamePasswordAuthenticationToken("Frodo", null);
+
+		// when
+		String serialized = this.mapper.writeValueAsString(original);
+		UsernamePasswordAuthenticationToken deserialized =
+				this.mapper.readValue(serialized, UsernamePasswordAuthenticationToken.class);
+
+		// then
+		assertThat(deserialized).isEqualTo(original);
+	}
 
 	private UsernamePasswordAuthenticationToken createToken() {
 		User user = createDefaultUser();

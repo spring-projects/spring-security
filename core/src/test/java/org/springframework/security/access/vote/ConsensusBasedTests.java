@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,8 +35,7 @@ import java.util.*;
 public class ConsensusBasedTests {
 
 	@Test(expected = AccessDeniedException.class)
-	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccessWithoutDefault()
-			throws Exception {
+	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteDeniesAccessWithoutDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 		mgr.setAllowIfEqualGrantedDeniedDecisions(false);
@@ -49,8 +48,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test
-	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccessWithDefault()
-			throws Exception {
+	public void testOneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccessWithDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 
@@ -64,7 +62,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test
-	public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
+	public void testOneAffirmativeVoteTwoAbstainVotesGrantsAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 
@@ -73,7 +71,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void testOneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
+	public void testOneDenyVoteTwoAbstainVotesDeniesAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 
@@ -82,7 +80,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void testThreeAbstainVotesDeniesAccessWithDefault() throws Exception {
+	public void testThreeAbstainVotesDeniesAccessWithDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 
@@ -92,7 +90,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test
-	public void testThreeAbstainVotesGrantsAccessWithoutDefault() throws Exception {
+	public void testThreeAbstainVotesGrantsAccessWithoutDefault() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 		mgr.setAllowIfAllAbstainDecisions(true);
@@ -102,7 +100,7 @@ public class ConsensusBasedTests {
 	}
 
 	@Test
-	public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() throws Exception {
+	public void testTwoAffirmativeVotesTwoAbstainVotesGrantsAccess() {
 		TestingAuthenticationToken auth = makeTestToken();
 		ConsensusBased mgr = makeDecisionManager();
 
@@ -113,7 +111,7 @@ public class ConsensusBasedTests {
 		RoleVoter roleVoter = new RoleVoter();
 		DenyVoter denyForSureVoter = new DenyVoter();
 		DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
-		List<AccessDecisionVoter<? extends Object>> voters = new Vector<AccessDecisionVoter<? extends Object>>();
+		List<AccessDecisionVoter<? extends Object>> voters = new Vector<>();
 		voters.add(roleVoter);
 		voters.add(denyForSureVoter);
 		voters.add(denyAgainForSureVoter);

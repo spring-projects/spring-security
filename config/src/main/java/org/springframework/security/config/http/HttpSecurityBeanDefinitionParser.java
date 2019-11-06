@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -164,7 +164,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		unorderedFilterChain.addAll(authBldr.getFilters());
 		unorderedFilterChain.addAll(buildCustomFilterList(element, pc));
 
-		Collections.sort(unorderedFilterChain, new OrderComparator());
+		unorderedFilterChain.sort(new OrderComparator());
 		checkFilterChainOrder(unorderedFilterChain, pc, pc.extractSource(element));
 
 		// The list of filter beans
@@ -415,12 +415,12 @@ class OrderDecorator implements Ordered {
 	final BeanMetadataElement bean;
 	final int order;
 
-	public OrderDecorator(BeanMetadataElement bean, SecurityFilters filterOrder) {
+	OrderDecorator(BeanMetadataElement bean, SecurityFilters filterOrder) {
 		this.bean = bean;
 		this.order = filterOrder.getOrder();
 	}
 
-	public OrderDecorator(BeanMetadataElement bean, int order) {
+	OrderDecorator(BeanMetadataElement bean, int order) {
 		this.bean = bean;
 		this.order = order;
 	}

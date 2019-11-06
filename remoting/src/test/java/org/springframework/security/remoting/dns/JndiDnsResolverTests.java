@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -113,7 +113,7 @@ public class JndiDnsResolverTests {
 		BasicAttribute record = new BasicAttribute("SRV");
 		// the structure of the service records is:
 		// priority weight port hostname
-		// for more information: http://en.wikipedia.org/wiki/SRV_record
+		// for more information: https://en.wikipedia.org/wiki/SRV_record
 		record.add("20 80 389 kdc3.springsource.com.");
 		record.add("10 70 389 kdc.springsource.com.");
 		record.add("20 20 389 kdc4.springsource.com.");

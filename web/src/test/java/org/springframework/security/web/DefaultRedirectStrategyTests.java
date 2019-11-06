@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +36,7 @@ public class DefaultRedirectStrategyTests {
 		request.setContextPath("/context");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		rds.sendRedirect(request, response, "http://context.blah.com/context/remainder");
+		rds.sendRedirect(request, response, "https://context.blah.com/context/remainder");
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("remainder");
 	}
@@ -52,8 +52,23 @@ public class DefaultRedirectStrategyTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		rds.sendRedirect(request, response,
-				"http://http://context.blah.com/context/remainder");
+				"https://https://context.blah.com/context/remainder");
 
 		assertThat(response.getRedirectedUrl()).isEqualTo("remainder");
+	}
+
+	@Test
+	public void contextRelativeShouldRedirectToRootIfURLDoesNotContainContextPath()
+		throws Exception {
+		DefaultRedirectStrategy rds = new DefaultRedirectStrategy();
+		rds.setContextRelative(true);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setContextPath("/context");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		rds.sendRedirect(request, response,
+			"https://redirectme.somewhere.else");
+
+		assertThat(response.getRedirectedUrl()).isEqualTo("");
 	}
 }

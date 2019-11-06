@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,14 +25,16 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.Transient;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.util.WebUtils;
 
 /**
@@ -92,7 +94,6 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	private final Object contextObject = SecurityContextHolder.createEmptyContext();
 	private boolean allowSessionCreation = true;
 	private boolean disableUrlRewriting = false;
-	private boolean isServlet3 = ClassUtils.hasMethod(ServletRequest.class, "startAsync");
 	private String springSecurityContextKey = SPRING_SECURITY_CONTEXT_KEY;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
@@ -124,10 +125,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 				response, request, httpSession != null, context);
 		requestResponseHolder.setResponse(wrappedResponse);
 
-		if (isServlet3) {
-			requestResponseHolder.setRequest(new Servlet3SaveToSessionRequestWrapper(
-					request, wrappedResponse));
-		}
+		requestResponseHolder.setRequest(new SaveToSessionRequestWrapper(
+				request, wrappedResponse));
 
 		return context;
 	}
@@ -266,11 +265,11 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	// ~ Inner Classes
 	// ==================================================================================================
 
-	private static class Servlet3SaveToSessionRequestWrapper extends
+	private static class SaveToSessionRequestWrapper extends
 			HttpServletRequestWrapper {
 		private final SaveContextOnUpdateOrErrorResponseWrapper response;
 
-		public Servlet3SaveToSessionRequestWrapper(HttpServletRequest request,
+		SaveToSessionRequestWrapper(HttpServletRequest request,
 				SaveContextOnUpdateOrErrorResponseWrapper response) {
 			super(request);
 			this.response = response;
@@ -387,6 +386,10 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		}
 
 		private HttpSession createNewSessionIfAllowed(SecurityContext context) {
+			if (isTransientAuthentication(context.getAuthentication())) {
+				return null;
+			}
+
 			if (httpSessionExistedAtStartOfRequest) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("HttpSession is now null, but was not null at start of request; "
@@ -435,6 +438,10 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
 			return null;
 		}
+	}
+
+	private boolean isTransientAuthentication(Authentication authentication) {
+		return AnnotationUtils.getAnnotation(authentication.getClass(), Transient.class) != null;
 	}
 
 	/**

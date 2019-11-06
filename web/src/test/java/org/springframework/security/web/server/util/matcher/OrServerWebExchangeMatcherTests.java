@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,12 +48,12 @@ public class OrServerWebExchangeMatcherTests {
 	OrServerWebExchangeMatcher matcher;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		matcher = new OrServerWebExchangeMatcher(matcher1, matcher2);
 	}
 
 	@Test
-	public void matchesWhenFalseFalseThenFalse() throws Exception {
+	public void matchesWhenFalseFalseThenFalse() {
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		when(matcher2.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 
@@ -67,7 +67,7 @@ public class OrServerWebExchangeMatcherTests {
 	}
 
 	@Test
-	public void matchesWhenTrueFalseThenTrueAndMatcher2NotInvoked() throws Exception {
+	public void matchesWhenTrueFalseThenTrueAndMatcher2NotInvoked() {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
 
@@ -81,7 +81,7 @@ public class OrServerWebExchangeMatcherTests {
 	}
 
 	@Test
-	public void matchesWhenFalseTrueThenTrue() throws Exception {
+	public void matchesWhenFalseTrueThenTrue() {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
 		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		when(matcher2.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,9 +18,7 @@ package org.springframework.security.taglibs.authz;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -146,11 +144,8 @@ public abstract class AbstractAuthorizeTag {
 	protected EvaluationContext createExpressionEvaluationContext(
 			SecurityExpressionHandler<FilterInvocation> handler) {
 		FilterInvocation f = new FilterInvocation(getRequest(), getResponse(),
-				new FilterChain() {
-					public void doFilter(ServletRequest request, ServletResponse response)
-							throws IOException, ServletException {
-						throw new UnsupportedOperationException();
-					}
+				(request, response) -> {
+					throw new UnsupportedOperationException();
 				});
 
 		return handler.createEvaluationContext(SecurityContextHolder.getContext()

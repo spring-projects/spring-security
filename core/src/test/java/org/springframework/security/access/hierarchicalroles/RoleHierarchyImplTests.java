@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -168,6 +168,12 @@ public class RoleHierarchyImplTests {
 		}
 		catch (CycleInRoleHierarchyException e) {
 		}
+
+		try {
+			roleHierarchyImpl.setHierarchy("ROLE_C > ROLE_B\nROLE_B > ROLE_A\nROLE_A > ROLE_B");
+			fail("Cycle in role hierarchy was not detected!");
+		} catch (CycleInRoleHierarchyException e) {
+		}
 	}
 
 	@Test
@@ -232,5 +238,48 @@ public class RoleHierarchyImplTests {
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchyImpl.getReachableGrantedAuthorities(authorities1),
 				authorities3)).isTrue();
+	}
+
+	// gh-6954
+	@Test
+	public void testJavadoc() {
+		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_A");
+		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_A", "ROLE_B", "ROLE_AUTHENTICATED", "ROLE_UNAUTHENTICATED");
+		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+		roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B\n"
+				+ "ROLE_B > ROLE_AUTHENTICATED\n"
+				+ "ROLE_AUTHENTICATED > ROLE_UNAUTHENTICATED");
+
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities)).containsExactlyInAnyOrderElementsOf(allAuthorities);
+	}
+
+	// gh-6954
+	@Test
+	public void testInterfaceJavadoc() {
+		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_HIGHEST");
+		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_HIGHEST", "ROLE_HIGHER", "ROLE_LOW", "ROLE_LOWER");
+		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+		roleHierarchyImpl.setHierarchy("ROLE_HIGHEST > ROLE_HIGHER\n"
+				+ "ROLE_HIGHER > ROLE_LOW\n"
+				+ "ROLE_LOW > ROLE_LOWER");
+
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities)).containsExactlyInAnyOrderElementsOf(allAuthorities);
+	}
+
+	// gh-6954
+	@Test
+	public void singleLineLargeHierarchy() {
+		List<GrantedAuthority> flatAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_HIGHEST");
+		List<GrantedAuthority> allAuthorities = AuthorityUtils.createAuthorityList(
+				"ROLE_HIGHEST", "ROLE_HIGHER", "ROLE_LOW", "ROLE_LOWER");
+		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+		roleHierarchyImpl.setHierarchy("ROLE_HIGHEST > ROLE_HIGHER > ROLE_LOW > ROLE_LOWER");
+
+		assertThat(roleHierarchyImpl.getReachableGrantedAuthorities(flatAuthorities)).containsExactlyInAnyOrderElementsOf(allAuthorities);
 	}
 }

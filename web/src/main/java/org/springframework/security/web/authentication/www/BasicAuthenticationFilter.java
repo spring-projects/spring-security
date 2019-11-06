@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@
 package org.springframework.security.web.authentication.www;
 
 import java.io.IOException;
-import java.util.Base64;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -27,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -35,7 +33,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -45,7 +42,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  * <p>
  * For a detailed background on what this filter is designed to process, refer to
- * <a href="http://www.faqs.org/rfcs/rfc1945.html">RFC 1945, Section 11.1</a>. Any realm
+ * <a href="https://tools.ietf.org/html/rfc1945">RFC 1945, Section 11.1</a>. Any realm
  * name presented in the HTTP request is ignored.
  *
  * <p>
@@ -94,12 +91,12 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	// ~ Instance fields
 	// ================================================================================================
 
-	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 	private AuthenticationEntryPoint authenticationEntryPoint;
 	private AuthenticationManager authenticationManager;
 	private RememberMeServices rememberMeServices = new NullRememberMeServices();
 	private boolean ignoreFailure = false;
 	private String credentialsCharset = "UTF-8";
+	private BasicAuthenticationConverter authenticationConverter = new BasicAuthenticationConverter();
 
 	/**
 	 * Creates an instance which will authenticate against the supplied
@@ -151,19 +148,14 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			HttpServletResponse response, FilterChain chain)
 					throws IOException, ServletException {
 		final boolean debug = this.logger.isDebugEnabled();
-
-		String header = request.getHeader("Authorization");
-
-		if (header == null || !header.startsWith("Basic ")) {
-			chain.doFilter(request, response);
-			return;
-		}
-
 		try {
-			String[] tokens = extractAndDecodeHeader(header, request);
-			assert tokens.length == 2;
+			UsernamePasswordAuthenticationToken authRequest = authenticationConverter.convert(request);
+			if (authRequest == null) {
+				chain.doFilter(request, response);
+				return;
+			}
 
-			String username = tokens[0];
+			String username = authRequest.getName();
 
 			if (debug) {
 				this.logger
@@ -172,10 +164,6 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			}
 
 			if (authenticationIsRequired(username)) {
-				UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(
-						username, tokens[1]);
-				authRequest.setDetails(
-						this.authenticationDetailsSource.buildDetails(request));
 				Authentication authResult = this.authenticationManager
 						.authenticate(authRequest);
 
@@ -213,35 +201,6 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		chain.doFilter(request, response);
-	}
-
-	/**
-	 * Decodes the header into a username and password.
-	 *
-	 * @throws BadCredentialsException if the Basic header is not present or is not valid
-	 * Base64
-	 */
-	private String[] extractAndDecodeHeader(String header, HttpServletRequest request)
-			throws IOException {
-
-		byte[] base64Token = header.substring(6).getBytes("UTF-8");
-		byte[] decoded;
-		try {
-			decoded = Base64.getDecoder().decode(base64Token);
-		}
-		catch (IllegalArgumentException e) {
-			throw new BadCredentialsException(
-					"Failed to decode basic authentication token");
-		}
-
-		String token = new String(decoded, getCredentialsCharset(request));
-
-		int delim = token.indexOf(":");
-
-		if (delim == -1) {
-			throw new BadCredentialsException("Invalid basic authentication token");
-		}
-		return new String[] { token.substring(0, delim), token.substring(delim + 1) };
 	}
 
 	private boolean authenticationIsRequired(String username) {
@@ -289,8 +248,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	protected void onUnsuccessfulAuthentication(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException failed)
-					throws IOException {
+			HttpServletResponse response, AuthenticationException failed) throws IOException {
 	}
 
 	protected AuthenticationEntryPoint getAuthenticationEntryPoint() {
@@ -307,9 +265,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 	public void setAuthenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
-		Assert.notNull(authenticationDetailsSource,
-				"AuthenticationDetailsSource required");
-		this.authenticationDetailsSource = authenticationDetailsSource;
+		authenticationConverter.setAuthenticationDetailsSource(authenticationDetailsSource);
 	}
 
 	public void setRememberMeServices(RememberMeServices rememberMeServices) {

@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,7 +41,7 @@ import org.springframework.web.context.request.async.CallableProcessingIntercept
  */
 public final class SecurityContextCallableProcessingInterceptor extends
 		CallableProcessingInterceptorAdapter {
-	private SecurityContext securityContext;
+	private volatile SecurityContext securityContext;
 
 	/**
 	 * Create a new {@link SecurityContextCallableProcessingInterceptor} that uses the
@@ -65,22 +65,20 @@ public final class SecurityContextCallableProcessingInterceptor extends
 	}
 
 	@Override
-	public <T> void beforeConcurrentHandling(NativeWebRequest request, Callable<T> task)
-			throws Exception {
+	public <T> void beforeConcurrentHandling(NativeWebRequest request, Callable<T> task) {
 		if (securityContext == null) {
 			setSecurityContext(SecurityContextHolder.getContext());
 		}
 	}
 
 	@Override
-	public <T> void preProcess(NativeWebRequest request, Callable<T> task)
-			throws Exception {
+	public <T> void preProcess(NativeWebRequest request, Callable<T> task) {
 		SecurityContextHolder.setContext(securityContext);
 	}
 
 	@Override
 	public <T> void postProcess(NativeWebRequest request, Callable<T> task,
-			Object concurrentResult) throws Exception {
+			Object concurrentResult) {
 		SecurityContextHolder.clearContext();
 	}
 

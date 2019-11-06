@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -102,12 +102,10 @@ public class ServletApiController {
 	 * @param loginForm
 	 * @param result
 	 * @return
-	 * @throws ServletException
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String login(HttpServletRequest request, HttpServletResponse response,
-			@ModelAttribute LoginForm loginForm, BindingResult result)
-			throws ServletException {
+			@ModelAttribute LoginForm loginForm, BindingResult result) {
 		try {
 			request.login(loginForm.getUsername(), loginForm.getPassword());
 		}
@@ -147,20 +145,18 @@ public class ServletApiController {
 	@RequestMapping("/async")
 	public void asynch(HttpServletRequest request, HttpServletResponse response) {
 		final AsyncContext async = request.startAsync();
-		async.start(new Runnable() {
-			public void run() {
-				Authentication authentication = SecurityContextHolder.getContext()
-						.getAuthentication();
-				try {
-					final HttpServletResponse asyncResponse = (HttpServletResponse) async
-							.getResponse();
-					asyncResponse.setStatus(HttpServletResponse.SC_OK);
-					asyncResponse.getWriter().write(String.valueOf(authentication));
-					async.complete();
-				}
-				catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+		async.start(() -> {
+			Authentication authentication = SecurityContextHolder.getContext()
+					.getAuthentication();
+			try {
+				final HttpServletResponse asyncResponse = (HttpServletResponse) async
+						.getResponse();
+				asyncResponse.setStatus(HttpServletResponse.SC_OK);
+				asyncResponse.getWriter().write(String.valueOf(authentication));
+				async.complete();
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		});
 	}

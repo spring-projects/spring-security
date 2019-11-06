@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
+import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
@@ -49,15 +55,40 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 			new String[] {};
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	static class OAuth2ClientWebFluxSecurityConfiguration implements WebFluxConfigurer {
+		private ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
+
 		private ReactiveOAuth2AuthorizedClientService authorizedClientService;
 
 		@Override
 		public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
-			if (this.authorizedClientService != null) {
-				configurer.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(this.authorizedClientService));
+			if (this.authorizedClientRepository != null && this.clientRegistrationRepository != null) {
+				ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+						ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+								.authorizationCode()
+								.refreshToken()
+								.clientCredentials()
+								.password()
+								.build();
+				DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
+						this.clientRegistrationRepository, getAuthorizedClientRepository());
+				authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+				configurer.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager));
 			}
+		}
+
+		@Autowired(required = false)
+		public void setClientRegistrationRepository(
+				ReactiveClientRegistrationRepository clientRegistrationRepository) {
+			this.clientRegistrationRepository = clientRegistrationRepository;
+		}
+
+		@Autowired(required = false)
+		public void setAuthorizedClientRepository(ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+			this.authorizedClientRepository = authorizedClientRepository;
 		}
 
 		@Autowired(required = false)
@@ -65,6 +96,16 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 			if (authorizedClientService.size() == 1) {
 				this.authorizedClientService = authorizedClientService.get(0);
 			}
+		}
+
+		private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
+			if (this.authorizedClientRepository != null) {
+				return this.authorizedClientRepository;
+			}
+			if (this.authorizedClientService != null) {
+				return new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(this.authorizedClientService);
+			}
+			return null;
 		}
 	}
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -42,7 +42,7 @@ class InitializeAuthenticationProviderBeanManagerConfigurer
 	/**
 	 * @param context the ApplicationContext to look up beans.
 	 */
-	public InitializeAuthenticationProviderBeanManagerConfigurer(
+	InitializeAuthenticationProviderBeanManagerConfigurer(
 			ApplicationContext context) {
 		this.context = context;
 	}
@@ -55,7 +55,7 @@ class InitializeAuthenticationProviderBeanManagerConfigurer
 	class InitializeUserDetailsManagerConfigurer
 			extends GlobalAuthenticationConfigurerAdapter {
 		@Override
-		public void configure(AuthenticationManagerBuilder auth) throws Exception {
+		public void configure(AuthenticationManagerBuilder auth) {
 			if (auth.isConfigured()) {
 				return;
 			}

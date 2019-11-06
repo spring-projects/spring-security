@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 
 /**
  * Lazily initializes the global authentication with a {@link UserDetailsService} if it is
@@ -42,7 +43,7 @@ class InitializeUserDetailsBeanManagerConfigurer
 	/**
 	 * @param context
 	 */
-	public InitializeUserDetailsBeanManagerConfigurer(ApplicationContext context) {
+	InitializeUserDetailsBeanManagerConfigurer(ApplicationContext context) {
 		this.context = context;
 	}
 
@@ -65,11 +66,15 @@ class InitializeUserDetailsBeanManagerConfigurer
 			}
 
 			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
+			UserDetailsPasswordService passwordManager = getBeanOrNull(UserDetailsPasswordService.class);
 
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 			provider.setUserDetailsService(userDetailsService);
 			if (passwordEncoder != null) {
 				provider.setPasswordEncoder(passwordEncoder);
+			}
+			if (passwordManager != null) {
+				provider.setUserDetailsPasswordService(passwordManager);
 			}
 			provider.afterPropertiesSet();
 

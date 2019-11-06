@@ -1,11 +1,11 @@
 /*
- * Copyright 2009-2013 the original author or authors.
+ * Copyright 2009-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,7 @@ import org.springframework.security.util.InMemoryResource;
 
 /**
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
 public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext {
 	static final String BEANS_OPENING = "<b:beans xmlns='http://www.springframework.org/schema/security'\n"
@@ -32,15 +33,15 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
 			+ "    xmlns:mvc='http://www.springframework.org/schema/mvc'\n"
 			+ "    xmlns:websocket='http://www.springframework.org/schema/websocket'\n"
 			+ "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n"
-			+ "    xsi:schemaLocation='http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd\n"
-			+ "http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd\n"
-			+ "http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd\n"
-			+ "http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd\n"
-			+ "http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd\n"
-			+ "http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-";
+			+ "    xsi:schemaLocation='http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-2.5.xsd\n"
+			+ "http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop-2.5.xsd\n"
+			+ "http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd\n"
+			+ "http://www.springframework.org/schema/websocket https://www.springframework.org/schema/websocket/spring-websocket.xsd\n"
+			+ "http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-2.5.xsd\n"
+			+ "http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-";
 	static final String BEANS_CLOSE = "</b:beans>\n";
 
-	static final String SPRING_SECURITY_VERSION = "4.2";
+	static final String SPRING_SECURITY_VERSION = "5.2";
 
 	Resource inMemoryXml;
 

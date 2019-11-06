@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -83,7 +83,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		long creationTime = new Date().getTime();
 		String serverSecret = computeServerSecretApplicableAt(creationTime);
 		String pseudoRandomNumber = generatePseudoRandomNumber();
-		String content = Long.toString(creationTime) + ":" + pseudoRandomNumber + ":"
+		String content = creationTime + ":" + pseudoRandomNumber + ":"
 				+ extendedInformation;
 
 		// Compute key
@@ -105,7 +105,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 
 		long creationTime;
 		try {
-			creationTime = Long.decode(tokens[0]).longValue();
+			creationTime = Long.decode(tokens[0]);
 		}
 		catch (NumberFormatException nfe) {
 			throw new IllegalArgumentException("Expected number but found " + tokens[0]);
@@ -126,7 +126,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		String sha1Hex = tokens[tokens.length - 1];
 
 		// Verification
-		String content = Long.toString(creationTime) + ":" + pseudoRandomNumber + ":"
+		String content = creationTime + ":" + pseudoRandomNumber + ":"
 				+ extendedInfo.toString();
 		String expectedSha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
 		Assert.isTrue(expectedSha512Hex.equals(sha1Hex), "Key verification failure");
@@ -144,7 +144,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	private String computeServerSecretApplicableAt(long time) {
-		return serverSecret + ":" + new Long(time % serverInteger.intValue()).intValue();
+		return serverSecret + ":" + new Long(time % serverInteger).intValue();
 	}
 
 	/**
@@ -173,7 +173,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		this.serverInteger = serverInteger;
 	}
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		Assert.hasText(serverSecret, "Server secret required");
 		Assert.notNull(serverInteger, "Server integer required");
 		Assert.notNull(secureRandom, "SecureRandom instance required");

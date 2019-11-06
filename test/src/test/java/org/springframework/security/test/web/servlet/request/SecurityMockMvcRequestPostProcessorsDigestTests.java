@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,9 +25,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
 
@@ -59,13 +56,8 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 		entryPoint.setKey("key");
 		entryPoint.setRealmName("Spring Security");
 		filter = new DigestAuthenticationFilter();
-		filter.setUserDetailsService(new UserDetailsService() {
-			public UserDetails loadUserByUsername(String username)
-					throws UsernameNotFoundException {
-				return new User(username, password, AuthorityUtils
-						.createAuthorityList("ROLE_USER"));
-			}
-		});
+		filter.setUserDetailsService(username -> new User(username, password, AuthorityUtils
+				.createAuthorityList("ROLE_USER")));
 		filter.setAuthenticationEntryPoint(entryPoint);
 		filter.afterPropertiesSet();
 	}
@@ -124,8 +116,7 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
 	private String extractUser() throws IOException, ServletException {
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain() {
 			@Override
-			public void doFilter(ServletRequest request, ServletResponse response)
-					throws IOException, ServletException {
+			public void doFilter(ServletRequest request, ServletResponse response) {
 				Authentication authentication = SecurityContextHolder.getContext()
 						.getAuthentication();
 				username = authentication == null ? null : authentication.getName();

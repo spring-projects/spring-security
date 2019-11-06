@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,49 +15,39 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
+import java.time.Instant;
+
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
 
 /**
  * Tests for {@link NimbusAuthorizationCodeTokenResponseClient}.
  *
  * @author Joe Grandja
  */
-@PowerMockIgnore("okhttp3.*")
-@PrepareForTest({ClientRegistration.class, OAuth2AuthorizationRequest.class, OAuth2AuthorizationResponse.class, OAuth2AuthorizationExchange.class})
-@RunWith(PowerMockRunner.class)
 public class NimbusAuthorizationCodeTokenResponseClientTests {
-	private ClientRegistration clientRegistration;
-	private ClientRegistration.ProviderDetails providerDetails;
+	private ClientRegistration.Builder clientRegistrationBuilder;
 	private OAuth2AuthorizationRequest authorizationRequest;
 	private OAuth2AuthorizationResponse authorizationResponse;
 	private OAuth2AuthorizationExchange authorizationExchange;
@@ -67,19 +57,12 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	public ExpectedException exception = ExpectedException.none();
 
 	@Before
-	public void setUp() throws Exception {
-		this.clientRegistration = mock(ClientRegistration.class);
-		this.providerDetails = mock(ClientRegistration.ProviderDetails.class);
-		this.authorizationRequest = mock(OAuth2AuthorizationRequest.class);
-		this.authorizationResponse = mock(OAuth2AuthorizationResponse.class);
+	public void setUp() {
+		this.clientRegistrationBuilder = clientRegistration()
+				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC);
+		this.authorizationRequest = request().build();
+		this.authorizationResponse = success().build();
 		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest, this.authorizationResponse);
-
-		when(this.clientRegistration.getProviderDetails()).thenReturn(this.providerDetails);
-		when(this.clientRegistration.getClientId()).thenReturn("client-id");
-		when(this.clientRegistration.getClientSecret()).thenReturn("secret");
-		when(this.clientRegistration.getClientAuthenticationMethod()).thenReturn(ClientAuthenticationMethod.BASIC);
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
-		when(this.authorizationResponse.getCode()).thenReturn("code");
 	}
 
 	@Test
@@ -101,12 +84,13 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
-		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
+		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
 		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
 
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));
+			new OAuth2AuthorizationCodeGrantRequest(
+					this.clientRegistrationBuilder.build(), this.authorizationExchange));
 
 		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
 
@@ -123,30 +107,34 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenRedirectUriMalformedThenThrowIllegalArgumentException() throws Exception {
+	public void getTokenResponseWhenRedirectUriMalformedThenThrowIllegalArgumentException() {
 		this.exception.expect(IllegalArgumentException.class);
 
 		String redirectUri = "http:\\example.com";
-		when(this.clientRegistration.getRedirectUriTemplate()).thenReturn(redirectUri);
+		OAuth2AuthorizationRequest authorizationRequest = request().redirectUri(redirectUri).build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
+				authorizationRequest, this.authorizationResponse);
 
 		this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));
+			new OAuth2AuthorizationCodeGrantRequest(
+					this.clientRegistrationBuilder.build(), authorizationExchange));
 	}
 
 	@Test
-	public void getTokenResponseWhenTokenUriMalformedThenThrowIllegalArgumentException() throws Exception {
+	public void getTokenResponseWhenTokenUriMalformedThenThrowIllegalArgumentException() {
 		this.exception.expect(IllegalArgumentException.class);
 
 		String tokenUri = "http:\\provider.com\\oauth2\\token";
-		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
+		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
 		this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));
+			new OAuth2AuthorizationCodeGrantRequest(
+					this.clientRegistrationBuilder.build(), this.authorizationExchange));
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseInvalidThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
+	public void getTokenResponseWhenSuccessResponseInvalidThenThrowOAuth2AuthorizationException() throws Exception {
+		this.exception.expect(OAuth2AuthorizationException.class);
 		this.exception.expectMessage(containsString("invalid_token_response"));
 
 		MockWebServer server = new MockWebServer();
@@ -166,30 +154,32 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
-		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
+		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
 		try {
 			this.tokenResponseClient.getTokenResponse(
-				new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));
+				new OAuth2AuthorizationCodeGrantRequest(
+						this.clientRegistrationBuilder.build(), this.authorizationExchange));
 		} finally {
 			server.shutdown();
 		}
 	}
 
 	@Test
-	public void getTokenResponseWhenTokenUriInvalidThenThrowAuthenticationServiceException() throws Exception {
-		this.exception.expect(AuthenticationServiceException.class);
+	public void getTokenResponseWhenTokenUriInvalidThenThrowOAuth2AuthorizationException() {
+		this.exception.expect(OAuth2AuthorizationException.class);
 
-		String tokenUri = "http://invalid-provider.com/oauth2/token";
-		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
+		String tokenUri = "https://invalid-provider.com/oauth2/token";
+		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
 		this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));
+			new OAuth2AuthorizationCodeGrantRequest(
+					this.clientRegistrationBuilder.build(), this.authorizationExchange));
 	}
 
 	@Test
-	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
+	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() throws Exception {
+		this.exception.expect(OAuth2AuthorizationException.class);
 		this.exception.expectMessage(containsString("unauthorized_client"));
 
 		MockWebServer server = new MockWebServer();
@@ -204,19 +194,43 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
-		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
+		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
 		try {
 			this.tokenResponseClient.getTokenResponse(
-				new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));
+				new OAuth2AuthorizationCodeGrantRequest(
+						this.clientRegistrationBuilder.build(), this.authorizationExchange));
+		} finally {
+			server.shutdown();
+		}
+	}
+
+	// gh-5594
+	@Test
+	public void getTokenResponseWhenServerErrorResponseThenThrowOAuth2AuthorizationException() throws Exception {
+		this.exception.expect(OAuth2AuthorizationException.class);
+		this.exception.expectMessage(containsString("server_error"));
+
+		MockWebServer server = new MockWebServer();
+
+		server.enqueue(new MockResponse().setResponseCode(500));
+		server.start();
+
+		String tokenUri = server.url("/oauth2/token").toString();
+		this.clientRegistrationBuilder.tokenUri(tokenUri);
+
+		try {
+			this.tokenResponseClient.getTokenResponse(
+					new OAuth2AuthorizationCodeGrantRequest(
+							this.clientRegistrationBuilder.build(), this.authorizationExchange));
 		} finally {
 			server.shutdown();
 		}
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
+	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() throws Exception {
+		this.exception.expect(OAuth2AuthorizationException.class);
 		this.exception.expectMessage(containsString("invalid_token_response"));
 
 		MockWebServer server = new MockWebServer();
@@ -233,11 +247,12 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
-		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
+		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
 		try {
 			this.tokenResponseClient.getTokenResponse(
-				new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));
+				new OAuth2AuthorizationCodeGrantRequest(
+						this.clientRegistrationBuilder.build(), this.authorizationExchange));
 		} finally {
 			server.shutdown();
 		}
@@ -259,13 +274,16 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
-		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
+		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
-		Set<String> requestedScopes = new LinkedHashSet<>(Arrays.asList("openid", "profile", "email", "address"));
-		when(this.authorizationRequest.getScopes()).thenReturn(requestedScopes);
+		OAuth2AuthorizationRequest authorizationRequest =
+				request().scope("openid", "profile", "email", "address").build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
+				authorizationRequest, this.authorizationResponse);
 
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));
+			new OAuth2AuthorizationCodeGrantRequest(
+					this.clientRegistrationBuilder.build(), authorizationExchange));
 
 		server.shutdown();
 
@@ -287,13 +305,16 @@ public class NimbusAuthorizationCodeTokenResponseClientTests {
 		server.start();
 
 		String tokenUri = server.url("/oauth2/token").toString();
-		when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
+		this.clientRegistrationBuilder.tokenUri(tokenUri);
 
-		Set<String> requestedScopes = new LinkedHashSet<>(Arrays.asList("openid", "profile", "email", "address"));
-		when(this.authorizationRequest.getScopes()).thenReturn(requestedScopes);
+		OAuth2AuthorizationRequest authorizationRequest =
+				request().scope("openid", "profile", "email", "address").build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
+				authorizationRequest, this.authorizationResponse);
 
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(
-			new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange));
+			new OAuth2AuthorizationCodeGrantRequest(
+					this.clientRegistrationBuilder.build(), authorizationExchange));
 
 		server.shutdown();
 

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,14 +48,12 @@ public class UserDetailsByNameServiceWrapperTests  {
 		UserDetailsByNameServiceWrapper svc = new UserDetailsByNameServiceWrapper();
 		final User user = new User("dummy", "dummy", true, true, true, true,
 				AuthorityUtils.NO_AUTHORITIES);
-		svc.setUserDetailsService(new UserDetailsService() {
-			public UserDetails loadUserByUsername(String name) {
-				if (user != null && user.getUsername().equals(name)) {
-					return user;
-				}
-				else {
-					return null;
-				}
+		svc.setUserDetailsService(name -> {
+			if (user != null && user.getUsername().equals(name)) {
+				return user;
+			}
+			else {
+				return null;
 			}
 		});
 		svc.afterPropertiesSet();

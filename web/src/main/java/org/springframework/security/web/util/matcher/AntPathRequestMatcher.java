@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UrlPathHelper;
 
 /**
  * Matcher which compares a pre-defined ant-style pattern against the URL (
@@ -48,6 +49,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 3.1
  *
  * @see org.springframework.util.AntPathMatcher
@@ -61,6 +63,8 @@ public final class AntPathRequestMatcher
 	private final String pattern;
 	private final HttpMethod httpMethod;
 	private final boolean caseSensitive;
+
+	private final UrlPathHelper urlPathHelper;
 
 	/**
 	 * Creates a matcher with the specific pattern which will match all HTTP methods in a
@@ -95,6 +99,21 @@ public final class AntPathRequestMatcher
 	 */
 	public AntPathRequestMatcher(String pattern, String httpMethod,
 			boolean caseSensitive) {
+		this(pattern, httpMethod, caseSensitive, null);
+	}
+
+	/**
+	 * Creates a matcher with the supplied pattern which will match the specified Http
+	 * method
+	 *
+	 * @param pattern the ant pattern to use for matching
+	 * @param httpMethod the HTTP method. The {@code matches} method will return false if
+	 * the incoming request doesn't doesn't have the same method.
+	 * @param caseSensitive true if the matcher should consider case, else false
+	 * @param urlPathHelper if non-null, will be used for extracting the path from the HttpServletRequest
+	 */
+	public AntPathRequestMatcher(String pattern, String httpMethod,
+			boolean caseSensitive, UrlPathHelper urlPathHelper) {
 		Assert.hasText(pattern, "Pattern cannot be null or empty");
 		this.caseSensitive = caseSensitive;
 
@@ -120,6 +139,7 @@ public final class AntPathRequestMatcher
 		this.pattern = pattern;
 		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod)
 				: null;
+		this.urlPathHelper = urlPathHelper;
 	}
 
 	/**
@@ -162,19 +182,29 @@ public final class AntPathRequestMatcher
 	}
 
 	@Override
+	@Deprecated
 	public Map<String, String> extractUriTemplateVariables(HttpServletRequest request) {
+		return matcher(request).getVariables();
+	}
+
+	@Override
+	public MatchResult matcher(HttpServletRequest request) {
 		if (this.matcher == null || !matches(request)) {
-			return Collections.emptyMap();
+			return MatchResult.notMatch();
 		}
 		String url = getRequestPath(request);
-		return this.matcher.extractUriTemplateVariables(url);
+		return MatchResult.match(this.matcher.extractUriTemplateVariables(url));
 	}
 
 	private String getRequestPath(HttpServletRequest request) {
+		if (this.urlPathHelper != null) {
+			return this.urlPathHelper.getPathWithinApplication(request);
+		}
 		String url = request.getServletPath();
 
-		if (request.getPathInfo() != null) {
-			url += request.getPathInfo();
+		String pathInfo = request.getPathInfo();
+		if (pathInfo != null) {
+			url = StringUtils.hasLength(url) ? url + pathInfo : pathInfo;
 		}
 
 		return url;
@@ -197,11 +227,10 @@ public final class AntPathRequestMatcher
 
 	@Override
 	public int hashCode() {
-		int code = 31 ^ this.pattern.hashCode();
-		if (this.httpMethod != null) {
-			code ^= this.httpMethod.hashCode();
-		}
-		return code;
+		int result = this.pattern != null ? this.pattern.hashCode() : 0;
+		result = 31 * result + (this.httpMethod != null ? this.httpMethod.hashCode() : 0);
+		result = 31 * result + (this.caseSensitive ? 1231 : 1237);
+		return result;
 	}
 
 	@Override
@@ -236,7 +265,7 @@ public final class AntPathRequestMatcher
 		return null;
 	}
 
-	private static interface Matcher {
+	private interface Matcher {
 		boolean matches(String path);
 
 		Map<String, String> extractUriTemplateVariables(String path);

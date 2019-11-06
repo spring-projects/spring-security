@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,8 +22,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.security.util.InMemoryResource;
 import org.springframework.web.context.support.AbstractRefreshableWebApplicationContext;
-
-import java.io.IOException;
 
 import static org.springframework.security.config.util.InMemoryXmlApplicationContext.BEANS_CLOSE;
 import static org.springframework.security.config.util.InMemoryXmlApplicationContext.BEANS_OPENING;
@@ -52,7 +50,7 @@ public class InMemoryXmlWebApplicationContext extends AbstractRefreshableWebAppl
 	}
 
 	@Override
-	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
+	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException {
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
 		reader.loadBeanDefinitions(new Resource[] { inMemoryXml });
 	}

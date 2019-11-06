@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import org.openid4java.consumer.ConsumerManager;
 
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -146,6 +147,22 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 				identifierPattern);
 		this.attributeExchangeConfigurers.add(attributeExchangeConfigurer);
 		return attributeExchangeConfigurer;
+	}
+
+	/**
+	 * Sets up OpenID attribute exchange for OpenIDs matching the specified pattern.
+	 * The default pattern is &quot;.*&quot;, it can be specified using
+	 * {@link AttributeExchangeConfigurer#identifierPattern(String)}
+	 *
+	 * @param attributeExchangeCustomizer the {@link Customizer} to provide more options for
+	 * the {@link AttributeExchangeConfigurer}
+	 * @return a {@link OpenIDLoginConfigurer} for further customizations
+	 */
+	public OpenIDLoginConfigurer<H> attributeExchange(Customizer<AttributeExchangeConfigurer> attributeExchangeCustomizer) {
+		AttributeExchangeConfigurer attributeExchangeConfigurer = new AttributeExchangeConfigurer(".*");
+		attributeExchangeCustomizer.customize(attributeExchangeConfigurer);
+		this.attributeExchangeConfigurers.add(attributeExchangeConfigurer);
+		return this;
 	}
 
 	/**
@@ -321,7 +338,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 * @return the {@link AxFetchListFactory} to use
 	 */
 	private AxFetchListFactory attributesToFetchFactory() {
-		Map<String, List<OpenIDAttribute>> identityToAttrs = new HashMap<String, List<OpenIDAttribute>>();
+		Map<String, List<OpenIDAttribute>> identityToAttrs = new HashMap<>();
 		for (AttributeExchangeConfigurer conf : this.attributeExchangeConfigurers) {
 			identityToAttrs.put(conf.identifier, conf.getAttributes());
 		}
@@ -373,7 +390,7 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 	 * @author Rob Winch
 	 */
 	public final class AttributeExchangeConfigurer {
-		private final String identifier;
+		private String identifier;
 		private List<OpenIDAttribute> attributes = new ArrayList<>();
 		private List<AttributeConfigurer> attributeConfigurers = new ArrayList<>();
 
@@ -393,6 +410,19 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 		 */
 		public OpenIDLoginConfigurer<H> and() {
 			return OpenIDLoginConfigurer.this;
+		}
+
+		/**
+		 * Sets the regular expression for matching on OpenID's (i.e.
+		 * "https://www.google.com/.*", ".*yahoo.com.*", etc)
+		 *
+		 * @param identifierPattern the regular expression for matching on OpenID's
+		 * @return the {@link AttributeExchangeConfigurer} for further customization of
+		 * attribute exchange
+		 */
+		public AttributeExchangeConfigurer identifierPattern(String identifierPattern) {
+			this.identifier = identifierPattern;
+			return this;
 		}
 
 		/**
@@ -420,6 +450,21 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 		}
 
 		/**
+		 * Adds an {@link OpenIDAttribute} named &quot;default-attribute&quot;.
+		 * The name can by updated using {@link AttributeConfigurer#name(String)}.
+		 *
+		 * @param attributeCustomizer the {@link Customizer} to provide more options for
+		 * the {@link AttributeConfigurer}
+		 * @return a {@link AttributeExchangeConfigurer} for further customizations
+		 */
+		public AttributeExchangeConfigurer attribute(Customizer<AttributeConfigurer> attributeCustomizer) {
+			AttributeConfigurer attributeConfigurer = new AttributeConfigurer();
+			attributeCustomizer.customize(attributeConfigurer);
+			this.attributeConfigurers.add(attributeConfigurer);
+			return this;
+		}
+
+		/**
 		 * Gets the {@link OpenIDAttribute}'s for the configured OpenID pattern
 		 * @return
 		 */
@@ -442,6 +487,16 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 			private int count = 1;
 			private boolean required = false;
 			private String type;
+
+			/**
+			 * Creates a new instance named "default-attribute".
+			 * The name can by updated using {@link #name(String)}.
+			 *
+			 * @see AttributeExchangeConfigurer#attribute(String)
+			 */
+			private AttributeConfigurer() {
+				this.name = "default-attribute";
+			}
 
 			/**
 			 * Creates a new instance
@@ -479,10 +534,20 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
 			/**
 			 * The OpenID attribute type.
 			 * @param type
-			 * @return
+			 * @return the {@link AttributeConfigurer} for further customizations
 			 */
 			public AttributeConfigurer type(String type) {
 				this.type = type;
+				return this;
+			}
+
+			/**
+			 * The OpenID attribute name.
+			 * @param name
+			 * @return the {@link AttributeConfigurer} for further customizations
+			 */
+			public AttributeConfigurer name(String name) {
+				this.name = name;
 				return this;
 			}
 

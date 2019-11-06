@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,9 @@
  */
 package org.springframework.security.access.expression.method;
 
-import static org.mockito.Mockito.verify;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.After;
@@ -24,11 +26,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMethodSecurityExpressionHandlerTests {
@@ -67,5 +76,36 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		expression.getValue(context, Boolean.class);
 
 		verify(trustResolver).isAnonymous(authentication);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void filterWhenUsingStreamThenFiltersStream() {
+		final Stream<String> stream = Stream.of("1", "2", "3");
+
+		Expression expression = handler.getExpressionParser().parseExpression("filterObject ne '2'");
+
+		EvaluationContext context = handler.createEvaluationContext(authentication,
+				methodInvocation);
+
+		Object filtered = handler.filter(stream, expression, context);
+
+		assertThat(filtered).isInstanceOf(Stream.class);
+		List<String> list = ((Stream<String>) filtered).collect(Collectors.toList());
+		assertThat(list).containsExactly("1", "3");
+	}
+
+	@Test
+	public void filterStreamWhenClosedThenUpstreamGetsClosed() {
+		final Stream<?> upstream = mock(Stream.class);
+		doReturn(Stream.<String>empty()).when(upstream).filter(any());
+
+		Expression expression = handler.getExpressionParser().parseExpression("true");
+
+		EvaluationContext context = handler.createEvaluationContext(authentication,
+				methodInvocation);
+
+		((Stream) handler.filter(upstream, expression, context)).close();
+		verify(upstream).close();
 	}
 }

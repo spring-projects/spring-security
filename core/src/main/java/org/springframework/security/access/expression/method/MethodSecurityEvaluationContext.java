@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,11 +48,11 @@ class MethodSecurityEvaluationContext extends StandardEvaluationContext {
 	 * for each instance. Use the constructor which takes the resolver, as an argument
 	 * thus allowing for caching.
 	 */
-	public MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi) {
+	MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi) {
 		this(user, mi, new DefaultSecurityParameterNameDiscoverer());
 	}
 
-	public MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi,
+	MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi,
 			ParameterNameDiscoverer parameterNameDiscoverer) {
 		this.mi = mi;
 		this.parameterNameDiscoverer = parameterNameDiscoverer;
@@ -112,7 +112,9 @@ class MethodSecurityEvaluationContext extends StandardEvaluationContext {
 		}
 
 		for (int i = 0; i < args.length; i++) {
-			super.setVariable(paramNames[i], args[i]);
+			if (paramNames[i] != null) {
+				setVariable(paramNames[i], args[i]);
+			}
 		}
 	}
 

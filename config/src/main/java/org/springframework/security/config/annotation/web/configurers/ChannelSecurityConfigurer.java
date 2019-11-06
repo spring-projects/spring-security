@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -80,7 +80,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractHttpConfigurer<ChannelSecurityConfigurer<H>, H> {
 	private ChannelProcessingFilter channelFilter = new ChannelProcessingFilter();
-	private LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
+	private LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 	private List<ChannelProcessor> channelProcessors;
 
 	private final ChannelRequestMatcherRegistry REGISTRY;
@@ -98,7 +98,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		ChannelDecisionManagerImpl channelDecisionManager = new ChannelDecisionManagerImpl();
 		channelDecisionManager.setChannelProcessors(getChannelProcessors(http));
 		channelDecisionManager = postProcess(channelDecisionManager);
@@ -188,7 +188,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 		 * Sets the {@link ChannelProcessor} instances to use in
 		 * {@link ChannelDecisionManagerImpl}
 		 * @param channelProcessors
-		 * @return
+		 * @return the {@link ChannelSecurityConfigurer} for further customizations
 		 */
 		public ChannelRequestMatcherRegistry channelProcessors(
 				List<ChannelProcessor> channelProcessors) {
@@ -200,7 +200,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 		 * Return the {@link SecurityBuilder} when done using the
 		 * {@link SecurityConfigurer}. This is useful for method chaining.
 		 *
-		 * @return
+		 * @return the type of {@link HttpSecurityBuilder} that is being configured
 		 */
 		public H and() {
 			return ChannelSecurityConfigurer.this.and();

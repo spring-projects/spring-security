@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,7 +40,7 @@ final class AutowiredWebSecurityConfigurersIgnoreParents {
 
 	private final ConfigurableListableBeanFactory beanFactory;
 
-	public AutowiredWebSecurityConfigurersIgnoreParents(
+	AutowiredWebSecurityConfigurersIgnoreParents(
 			ConfigurableListableBeanFactory beanFactory) {
 		Assert.notNull(beanFactory, "beanFactory cannot be null");
 		this.beanFactory = beanFactory;
@@ -48,7 +48,7 @@ final class AutowiredWebSecurityConfigurersIgnoreParents {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<SecurityConfigurer<Filter, WebSecurity>> getWebSecurityConfigurers() {
-		List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers = new ArrayList<SecurityConfigurer<Filter, WebSecurity>>();
+		List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers = new ArrayList<>();
 		Map<String, WebSecurityConfigurer> beansOfType = beanFactory
 				.getBeansOfType(WebSecurityConfigurer.class);
 		for (Entry<String, WebSecurityConfigurer> entry : beansOfType.entrySet()) {

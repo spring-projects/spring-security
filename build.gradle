@@ -1,12 +1,16 @@
 buildscript {
 	dependencies {
-		classpath 'io.spring.gradle:spring-build-conventions:0.0.16.RELEASE'
+		classpath 'io.spring.gradle:spring-build-conventions:0.0.23.RELEASE'
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+		classpath 'io.spring.nohttp:nohttp-gradle:0.0.2.RELEASE'
+		classpath "io.freefair.gradle:aspectj-plugin:4.0.2"
 	}
 	repositories {
 		maven { url 'https://repo.spring.io/plugins-snapshot' }
+		maven { url 'https://plugins.gradle.org/m2/' }
 	}
 }
+apply plugin: 'io.spring.nohttp'
 apply plugin: 'io.spring.convention.root'
 
 group = 'org.springframework.security'
@@ -18,23 +22,16 @@ ext.milestoneBuild = !(snapshotBuild || releaseBuild)
 
 dependencyManagementExport.projects = subprojects.findAll { !it.name.contains('-boot') }
 
-// Disable JaCoCo when not explicitly requested to enable caching of test
-// See https://discuss.gradle.org/t/do-not-cache-if-condition-matched-jacoco-agent-configured-with-append-true-satisfied/23504
-gradle.taskGraph.whenReady { graph ->
-	def enabled = graph.allTasks.any { it instanceof JacocoReport }
-	subprojects { project ->
-		project.plugins.withType(JacocoPlugin) {
-		    project.tasks.withType(Test) {
-		        jacoco.enabled = enabled
-		    }
-		}
-	}
+repositories {
+	mavenCentral()
 }
-
 
 subprojects {
 	plugins.withType(JavaPlugin) {
 		project.sourceCompatibility='1.8'
 	}
-}
 
+	tasks.withType(JavaCompile) {
+		options.encoding = "UTF-8"
+	}
+}

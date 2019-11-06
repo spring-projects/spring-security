@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@ package org.springframework.security.acls.jdbc;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,8 +30,8 @@ import java.util.Set;
 import javax.sql.DataSource;
 
 import org.springframework.core.convert.ConversionException;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.security.acls.domain.AccessControlEntryImpl;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
@@ -247,14 +246,12 @@ public class BasicLookupStrategy implements LookupStrategy {
 		String sql = computeRepeatingSql(lookupPrimaryKeysWhereClause, findNow.size());
 
 		Set<Long> parentsToLookup = jdbcTemplate.query(sql,
-				new PreparedStatementSetter() {
-					public void setValues(PreparedStatement ps) throws SQLException {
-						int i = 0;
+				ps -> {
+					int i = 0;
 
-						for (Long toFind : findNow) {
-							i++;
-							ps.setLong(i, toFind);
-						}
+					for (Long toFind : findNow) {
+						i++;
+						ps.setLong(i, toFind);
 					}
 				}, new ProcessResultSet(acls, sids));
 
@@ -382,22 +379,20 @@ public class BasicLookupStrategy implements LookupStrategy {
 				objectIdentities.size());
 
 		Set<Long> parentsToLookup = jdbcTemplate.query(sql,
-				new PreparedStatementSetter() {
-					public void setValues(PreparedStatement ps) throws SQLException {
-						int i = 0;
-						for (ObjectIdentity oid : objectIdentities) {
-							// Determine prepared statement values for this iteration
-							String type = oid.getType();
+				ps -> {
+					int i = 0;
+					for (ObjectIdentity oid : objectIdentities) {
+						// Determine prepared statement values for this iteration
+						String type = oid.getType();
 
-							// No need to check for nulls, as guaranteed non-null by
-							// ObjectIdentity.getIdentifier() interface contract
-							String identifier = oid.getIdentifier().toString();
+						// No need to check for nulls, as guaranteed non-null by
+						// ObjectIdentity.getIdentifier() interface contract
+						String identifier = oid.getIdentifier().toString();
 
-							// Inject values
-							ps.setString((2 * i) + 1, identifier);
-							ps.setString((2 * i) + 2, type);
-							i++;
-						}
+						// Inject values
+						ps.setString((2 * i) + 1, identifier);
+						ps.setString((2 * i) + 2, type);
+						i++;
 					}
 				}, new ProcessResultSet(acls, sids));
 
@@ -454,7 +449,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 		// Now we have the parent (if there is one), create the true AclImpl
 		AclImpl result = new AclImpl(inputAcl.getObjectIdentity(),
-				(Long) inputAcl.getId(), aclAuthorizationStrategy, grantingStrategy,
+				inputAcl.getId(), aclAuthorizationStrategy, grantingStrategy,
 				parent, null, inputAcl.isEntriesInheriting(), inputAcl.getOwner());
 
 		// Copy the "aces" from the input to the destination
@@ -553,8 +548,8 @@ public class BasicLookupStrategy implements LookupStrategy {
 		}
 	}
 
-	public final void setAclClassIdUtils(AclClassIdUtils aclClassIdUtils) {
-		this.aclClassIdUtils = aclClassIdUtils;
+	public final void setConversionService(ConversionService conversionService) {
+		this.aclClassIdUtils = new AclClassIdUtils(conversionService);
 	}
 
 	// ~ Inner Classes
@@ -564,7 +559,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		private final Map<Serializable, Acl> acls;
 		private final List<Sid> sids;
 
-		public ProcessResultSet(Map<Serializable, Acl> acls, List<Sid> sids) {
+		ProcessResultSet(Map<Serializable, Acl> acls, List<Sid> sids) {
 			Assert.notNull(acls, "ACLs cannot be null");
 			this.acls = acls;
 			this.sids = sids; // can be null
@@ -592,15 +587,15 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 				if (parentId != 0) {
 					// See if it's already in the "acls"
-					if (acls.containsKey(new Long(parentId))) {
+					if (acls.containsKey(parentId)) {
 						continue; // skip this while iteration
 					}
 
 					// Now try to find it in the cache
-					MutableAcl cached = aclCache.getFromCache(new Long(parentId));
+					MutableAcl cached = aclCache.getFromCache(parentId);
 
 					if ((cached == null) || !cached.isSidLoaded(sids)) {
-						parentIdsToLookup.add(new Long(parentId));
+						parentIdsToLookup.add(parentId);
 					}
 					else {
 						// Pop into the acls map, so our convert method doesn't
@@ -626,7 +621,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 		 */
 		private void convertCurrentResultIntoObject(Map<Serializable, Acl> acls,
 				ResultSet rs) throws SQLException {
-			Long id = new Long(rs.getLong("acl_id"));
+			Long id = rs.getLong("acl_id");
 
 			// If we already have an ACL for this ID, just create the ACE
 			Acl acl = acls.get(id);
@@ -644,7 +639,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 				long parentAclId = rs.getLong("parent_object");
 
 				if (parentAclId != 0) {
-					parentAcl = new StubAclParent(Long.valueOf(parentAclId));
+					parentAcl = new StubAclParent(parentAclId);
 				}
 
 				boolean entriesInheriting = rs.getBoolean("entries_inheriting");
@@ -661,7 +656,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 			// It is permissible to have no ACEs in an ACL (which is detected by a null
 			// ACE_SID)
 			if (rs.getString("ace_sid") != null) {
-				Long aceId = new Long(rs.getLong("ace_id"));
+				Long aceId = rs.getLong("ace_id");
 				Sid recipient = createSid(rs.getBoolean("ace_principal"),
 						rs.getString("ace_sid"));
 
@@ -688,7 +683,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 	private static class StubAclParent implements Acl {
 		private final Long id;
 
-		public StubAclParent(Long id) {
+		StubAclParent(Long id) {
 			this.id = id;
 		}
 

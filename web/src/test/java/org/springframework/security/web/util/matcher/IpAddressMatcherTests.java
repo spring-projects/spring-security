@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,7 +53,7 @@ public class IpAddressMatcherTests {
 	}
 
 	@Test
-	public void ipv4SubnetMatchesCorrectly() throws Exception {
+	public void ipv4SubnetMatchesCorrectly() {
 		IpAddressMatcher matcher = new IpAddressMatcher("192.168.1.0/24");
 		assertThat(matcher.matches(ipv4Request)).isTrue();
 		matcher = new IpAddressMatcher("192.168.1.128/25");
@@ -63,7 +63,7 @@ public class IpAddressMatcherTests {
 	}
 
 	@Test
-	public void ipv6RangeMatches() throws Exception {
+	public void ipv6RangeMatches() {
 		IpAddressMatcher matcher = new IpAddressMatcher("2001:DB8::/48");
 
 		assertThat(matcher.matches("2001:DB8:0:0:0:0:0:0")).isTrue();
@@ -74,7 +74,7 @@ public class IpAddressMatcherTests {
 
 	// SEC-1733
 	@Test
-	public void zeroMaskMatchesAnything() throws Exception {
+	public void zeroMaskMatchesAnything() {
 		IpAddressMatcher matcher = new IpAddressMatcher("0.0.0.0/0");
 
 		assertThat(matcher.matches("123.4.5.6")).isTrue();
@@ -83,5 +83,25 @@ public class IpAddressMatcherTests {
 		matcher = new IpAddressMatcher("192.168.0.159/0");
 		assertThat(matcher.matches("123.4.5.6")).isTrue();
 		assertThat(matcher.matches("192.168.0.159")).isTrue();
+	}
+
+	// SEC-2576
+	@Test
+	public void ipv4RequiredAddressMaskTooLongThenIllegalArgumentException() {
+		String ipv4AddressWithTooLongMask = "192.168.1.104/33";
+		assertThatCode(() -> new IpAddressMatcher(ipv4AddressWithTooLongMask))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage(String.format("IP address %s is too short for bitmask of " +
+						"length %d", "192.168.1.104", 33));
+	}
+
+	// SEC-2576
+	@Test
+	public void ipv6RequiredAddressMaskTooLongThenIllegalArgumentException() {
+		String ipv6AddressWithTooLongMask = "fe80::21f:5bff:fe33:bd68/129";
+		assertThatCode(() -> new IpAddressMatcher(ipv6AddressWithTooLongMask))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage(String.format("IP address %s is too short for bitmask of " +
+						"length %d", "fe80::21f:5bff:fe33:bd68", 129));
 	}
 }

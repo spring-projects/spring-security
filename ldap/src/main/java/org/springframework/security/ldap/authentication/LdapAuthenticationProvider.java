@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -108,7 +108,7 @@ import org.springframework.util.Assert;
  * this means that if the LDAP directory is configured to allow unauthenticated access, it
  * might be possible to authenticate as <i>any</i> user just by supplying an empty
  * password. More information on the misuse of unauthenticated access can be found in
- * <a href="http://www.ietf.org/internet-drafts/draft-ietf-ldapbis-authmeth-19.txt"> draft
+ * <a href="https://www.ietf.org/internet-drafts/draft-ietf-ldapbis-authmeth-19.txt"> draft
  * -ietf-ldapbis-authmeth-19.txt</a>.
  *
  *

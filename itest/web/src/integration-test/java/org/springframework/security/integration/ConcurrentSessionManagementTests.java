@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,8 +33,6 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 /**
@@ -70,23 +68,17 @@ public class ConcurrentSessionManagementTests extends AbstractWebServerIntegrati
 		// Now logout to kill first session
 		mockMvc.perform(post("/logout").with(csrf()))
 			.andExpect(status().is3xxRedirection())
-			.andDo(new ResultHandler() {
-				@SuppressWarnings("serial")
+			.andDo(result -> context.publishEvent(new SessionDestroyedEvent(session1) {
 				@Override
-				public void handle(MvcResult result) throws Exception {
-					context.publishEvent(new SessionDestroyedEvent(session1) {
-						@Override
-						public List<SecurityContext> getSecurityContexts() {
-							return Collections.emptyList();
-						}
-
-						@Override
-						public String getId() {
-							return session1.getId();
-						}
-					});
+				public List<SecurityContext> getSecurityContexts() {
+					return Collections.emptyList();
 				}
-			});
+
+				@Override
+				public String getId() {
+					return session1.getId();
+				}
+			}));
 
 		// Try second session again
 		login2 = login()

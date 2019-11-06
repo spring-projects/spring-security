@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -116,5 +116,50 @@ public class SCryptPasswordEncoderTests {
 		new SCryptPasswordEncoder(2, 8, 1, -1, 16);
 	}
 
+	@Test
+	public void upgradeEncodingWhenNullThenFalse() {
+		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		assertThat(encoder.upgradeEncoding(null)).isFalse();
+	}
+
+	@Test
+	public void upgradeEncodingWhenEmptyThenFalse() {
+		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		assertThat(encoder.upgradeEncoding("")).isFalse();
+	}
+
+	@Test
+	public void upgradeEncodingWhenSameEncoderThenFalse() {
+		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		String encoded = encoder.encode("password");
+		assertThat(encoder.upgradeEncoding(encoded)).isFalse();
+	}
+
+	@Test
+	public void upgradeEncodingWhenWeakerToStrongerThenFalse() {
+		SCryptPasswordEncoder weakEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 10), 4, 1, 32, 64);
+		SCryptPasswordEncoder strongEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 16), 8, 1, 32, 64);
+
+		String weakPassword = weakEncoder.encode("password");
+		String strongPassword = strongEncoder.encode("password");
+
+		assertThat(weakEncoder.upgradeEncoding(strongPassword)).isFalse();
+	}
+
+	@Test
+	public void upgradeEncodingWhenStrongerToWeakerThenTrue() {
+		SCryptPasswordEncoder weakEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 10), 4, 1, 32, 64);
+		SCryptPasswordEncoder strongEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 16), 8, 1, 32, 64);
+
+		String weakPassword = weakEncoder.encode("password");
+		String strongPassword = strongEncoder.encode("password");
+
+		assertThat(strongEncoder.upgradeEncoding(weakPassword)).isTrue();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void upgradeEncodingWhenInvalidInputThenException() {
+		new SCryptPasswordEncoder().upgradeEncoding("not-a-scrypt-password");
+	}
 }
 

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /**
- * Spring Security support for Jasig's Central Authentication Service (<a href="http://www.jasig.org/cas">CAS</a>).
+ * Spring Security support for Jasig's Central Authentication Service (<a href="https://www.jasig.org/cas">CAS</a>).
  */
 package org.springframework.security.cas;
 

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 package org.springframework.security.web.access.expression;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +46,7 @@ public class WebExpressionVoterTests {
 	private Authentication user = new TestingAuthenticationToken("user", "pass", "X");
 
 	@Test
-	public void supportsWebConfigAttributeAndFilterInvocation() throws Exception {
+	public void supportsWebConfigAttributeAndFilterInvocation() {
 		WebExpressionVoter voter = new WebExpressionVoter();
 		assertThat(voter.supports(new WebExpressionConfigAttribute(mock(Expression.class),
 				mock(EvaluationContextPostProcessor.class)))).isTrue();
@@ -101,7 +101,7 @@ public class WebExpressionVoterTests {
 
 	private static class FilterInvocationChild extends FilterInvocation {
 
-		public FilterInvocationChild(ServletRequest request, ServletResponse response,
+		FilterInvocationChild(ServletRequest request, ServletResponse response,
 				FilterChain chain) {
 			super(request, response, chain);
 		}

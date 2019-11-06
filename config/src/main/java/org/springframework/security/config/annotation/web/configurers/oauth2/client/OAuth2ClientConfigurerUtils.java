@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
 import org.springframework.beans.factory.BeanFactoryUtils;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -24,6 +23,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
@@ -49,26 +50,38 @@ final class OAuth2ClientConfigurerUtils {
 	}
 
 	private static <B extends HttpSecurityBuilder<B>> ClientRegistrationRepository getClientRegistrationRepositoryBean(B builder) {
-		Map<String, ClientRegistrationRepository> clientRegistrationRepositoryMap = BeanFactoryUtils.beansOfTypeIncludingAncestors(
-				builder.getSharedObject(ApplicationContext.class), ClientRegistrationRepository.class);
-		if (clientRegistrationRepositoryMap.isEmpty()) {
-			throw new NoSuchBeanDefinitionException(ClientRegistrationRepository.class);
-		} else if (clientRegistrationRepositoryMap.size() > 1) {
-			throw new NoUniqueBeanDefinitionException(ClientRegistrationRepository.class, clientRegistrationRepositoryMap.size(),
-					"Expected single matching bean of type '" + ClientRegistrationRepository.class.getName() + "' but found " +
-							clientRegistrationRepositoryMap.size() + ": " + StringUtils.collectionToCommaDelimitedString(clientRegistrationRepositoryMap.keySet()));
-		}
-		return clientRegistrationRepositoryMap.values().iterator().next();
+		return builder.getSharedObject(ApplicationContext.class).getBean(ClientRegistrationRepository.class);
 	}
 
-	static <B extends HttpSecurityBuilder<B>> OAuth2AuthorizedClientService getAuthorizedClientService(B builder) {
-		OAuth2AuthorizedClientService authorizedClientService = builder.getSharedObject(OAuth2AuthorizedClientService.class);
-		if (authorizedClientService == null) {
-			authorizedClientService = getAuthorizedClientServiceBean(builder);
-			if (authorizedClientService == null) {
-				authorizedClientService = new InMemoryOAuth2AuthorizedClientService(getClientRegistrationRepository(builder));
+	static <B extends HttpSecurityBuilder<B>> OAuth2AuthorizedClientRepository getAuthorizedClientRepository(B builder) {
+		OAuth2AuthorizedClientRepository authorizedClientRepository = builder.getSharedObject(OAuth2AuthorizedClientRepository.class);
+		if (authorizedClientRepository == null) {
+			authorizedClientRepository = getAuthorizedClientRepositoryBean(builder);
+			if (authorizedClientRepository == null) {
+				authorizedClientRepository = new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(
+						getAuthorizedClientService((builder)));
 			}
-			builder.setSharedObject(OAuth2AuthorizedClientService.class, authorizedClientService);
+			builder.setSharedObject(OAuth2AuthorizedClientRepository.class, authorizedClientRepository);
+		}
+		return authorizedClientRepository;
+	}
+
+	private static <B extends HttpSecurityBuilder<B>> OAuth2AuthorizedClientRepository getAuthorizedClientRepositoryBean(B builder) {
+		Map<String, OAuth2AuthorizedClientRepository> authorizedClientRepositoryMap = BeanFactoryUtils.beansOfTypeIncludingAncestors(
+				builder.getSharedObject(ApplicationContext.class), OAuth2AuthorizedClientRepository.class);
+		if (authorizedClientRepositoryMap.size() > 1) {
+			throw new NoUniqueBeanDefinitionException(OAuth2AuthorizedClientRepository.class, authorizedClientRepositoryMap.size(),
+					"Expected single matching bean of type '" + OAuth2AuthorizedClientRepository.class.getName() + "' but found " +
+							authorizedClientRepositoryMap.size() + ": " + StringUtils.collectionToCommaDelimitedString(authorizedClientRepositoryMap.keySet()));
+		}
+		return (!authorizedClientRepositoryMap.isEmpty() ? authorizedClientRepositoryMap.values().iterator().next() : null);
+	}
+
+
+	private static <B extends HttpSecurityBuilder<B>> OAuth2AuthorizedClientService getAuthorizedClientService(B builder) {
+		OAuth2AuthorizedClientService authorizedClientService = getAuthorizedClientServiceBean(builder);
+		if (authorizedClientService == null) {
+			authorizedClientService = new InMemoryOAuth2AuthorizedClientService(getClientRegistrationRepository(builder));
 		}
 		return authorizedClientService;
 	}

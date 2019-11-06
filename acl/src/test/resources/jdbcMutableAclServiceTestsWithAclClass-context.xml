@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <import resource="jdbcMutableAclServiceTests-context.xml"/>
 
-  <bean id="aclClassIdUtils" class="org.springframework.security.acls.jdbc.AclClassIdUtils">
-    <property name="conversionService">
-      <bean class="org.springframework.core.convert.support.DefaultConversionService"/>
-    </property>
-  </bean>
+  <bean id="conversionService" class="org.springframework.core.convert.support.DefaultConversionService"/>
+
   <!-- Overridden bean definitions -->
 
   <bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
@@ -17,7 +14,7 @@
     <constructor-arg ref="lookupStrategy"/>
     <constructor-arg ref="aclCache"/>
     <property name="aclClassIdSupported" value="true"/>
-    <property name="aclClassIdUtils" ref="aclClassIdUtils"/>
+    <property name="conversionService" ref="conversionService"/>
   </bean>
 
   <bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
@@ -28,6 +25,6 @@
       <bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
     </constructor-arg>
     <property name="aclClassIdSupported" value="true"/>
-    <property name="aclClassIdUtils" ref="aclClassIdUtils"/>
+    <property name="conversionService" ref="conversionService"/>
   </bean>
 </beans>

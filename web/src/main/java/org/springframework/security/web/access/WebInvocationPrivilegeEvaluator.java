@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,7 @@ public interface WebInvocationPrivilegeEvaluator {
 	 * @param uri the URI excluding the context path (a default context path setting will
 	 * be used)
 	 */
-	public boolean isAllowed(String uri, Authentication authentication);
+	boolean isAllowed(String uri, Authentication authentication);
 
 	/**
 	 * Determines whether the user represented by the supplied <tt>Authentication</tt>
@@ -52,6 +52,5 @@ public interface WebInvocationPrivilegeEvaluator {
 	 * be used in evaluation whether access should be granted.
 	 * @return true if access is allowed, false if denied
 	 */
-	public boolean isAllowed(String contextPath, String uri, String method,
-			Authentication authentication);
+	boolean isAllowed(String contextPath, String uri, String method, Authentication authentication);
 }

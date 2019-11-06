@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,9 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * <p>
  * MessageMatcher which compares a pre-defined pattern against the destination of a
@@ -33,12 +36,10 @@ import org.springframework.util.PathMatcher;
  * @author Rob Winch
  */
 public final class SimpDestinationMessageMatcher implements MessageMatcher<Object> {
-	public static final MessageMatcher<Object> NULL_DESTINATION_MATCHER = new MessageMatcher<Object>() {
-		public boolean matches(Message<? extends Object> message) {
-			String destination = SimpMessageHeaderAccessor.getDestination(message
-					.getHeaders());
-			return destination == null;
-		}
+	public static final MessageMatcher<Object> NULL_DESTINATION_MATCHER = message -> {
+		String destination = SimpMessageHeaderAccessor.getDestination(message
+				.getHeaders());
+		return destination == null;
 	};
 
 	private final PathMatcher matcher;
@@ -119,7 +120,7 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 		this.pattern = pattern;
 	}
 
-	public boolean matches(Message<? extends Object> message) {
+	public boolean matches(Message<?> message) {
 		if (!messageTypeMatcher.matches(message)) {
 			return false;
 		}
@@ -127,6 +128,14 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 		String destination = SimpMessageHeaderAccessor.getDestination(message
 				.getHeaders());
 		return destination != null && matcher.match(pattern, destination);
+	}
+
+
+	public Map<String, String> extractPathVariables(Message<?> message){
+		final String destination = SimpMessageHeaderAccessor.getDestination(message
+				.getHeaders());
+		return destination != null ? matcher.extractUriTemplateVariables(pattern, destination)
+				: Collections.emptyMap();
 	}
 
 	public MessageMatcher<Object> getMessageTypeMatcher() {

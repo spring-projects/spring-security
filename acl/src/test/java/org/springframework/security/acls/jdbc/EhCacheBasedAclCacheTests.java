@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -71,12 +71,12 @@ public class EhCacheBasedAclCacheTests {
 				new ConsoleAuditLogger()), new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_USER")));
 
-		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(100));
+		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
 						"ROLE_AUDITING"), new SimpleGrantedAuthority("ROLE_GENERAL"));
 
-		acl = new AclImpl(identity, Long.valueOf(1), aclAuthorizationStrategy,
+		acl = new AclImpl(identity, 1L, aclAuthorizationStrategy,
 				new ConsoleAuditLogger());
 	}
 
@@ -86,14 +86,14 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorRejectsNullParameters() throws Exception {
+	public void constructorRejectsNullParameters() {
 		new EhCacheBasedAclCache(null, new DefaultPermissionGrantingStrategy(
 				new ConsoleAuditLogger()), new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_USER")));
 	}
 
 	@Test
-	public void methodsRejectNullParameters() throws Exception {
+	public void methodsRejectNullParameters() {
 		try {
 			Serializable id = null;
 			myCache.evictFromCache(id);
@@ -154,22 +154,22 @@ public class EhCacheBasedAclCacheTests {
 
 		Object retrieved1 = FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy",
 				retrieved);
-		assertThat(retrieved1).isEqualTo(null);
+		assertThat(retrieved1).isNull();
 
 		Object retrieved2 = FieldUtils.getProtectedFieldValue(
 				"permissionGrantingStrategy", retrieved);
-		assertThat(retrieved2).isEqualTo(null);
+		assertThat(retrieved2).isNull();
 	}
 
 	@Test
-	public void clearCache() throws Exception {
+	public void clearCache() {
 		myCache.clearCache();
 
 		verify(cache).removeAll();
 	}
 
 	@Test
-	public void putInCache() throws Exception {
+	public void putInCache() {
 		myCache.putInCache(acl);
 
 		verify(cache, times(2)).put(element.capture());
@@ -181,18 +181,18 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test
-	public void putInCacheAclWithParent() throws Exception {
+	public void putInCacheAclWithParent() {
 		Authentication auth = new TestingAuthenticationToken("user", "password",
 				"ROLE_GENERAL");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
 		ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS,
-				Long.valueOf(2));
+				2L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority(
 						"ROLE_AUDITING"), new SimpleGrantedAuthority("ROLE_GENERAL"));
-		MutableAcl parentAcl = new AclImpl(identityParent, Long.valueOf(2),
+		MutableAcl parentAcl = new AclImpl(identityParent, 2L,
 				aclAuthorizationStrategy, new ConsoleAuditLogger());
 		acl.setParent(parentAcl);
 
@@ -216,14 +216,14 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test
-	public void getFromCacheSerializable() throws Exception {
+	public void getFromCacheSerializable() {
 		when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(), acl));
 
 		assertThat(myCache.getFromCache(acl.getId())).isEqualTo(acl);
 	}
 
 	@Test
-	public void getFromCacheSerializablePopulatesTransient() throws Exception {
+	public void getFromCacheSerializablePopulatesTransient() {
 		when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(), acl));
 
 		myCache.putInCache(acl);
@@ -240,14 +240,14 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test
-	public void getFromCacheObjectIdentity() throws Exception {
+	public void getFromCacheObjectIdentity() {
 		when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(), acl));
 
 		assertThat(myCache.getFromCache(acl.getId())).isEqualTo(acl);
 	}
 
 	@Test
-	public void getFromCacheObjectIdentityPopulatesTransient() throws Exception {
+	public void getFromCacheObjectIdentityPopulatesTransient() {
 		when(cache.get(acl.getObjectIdentity()))
 				.thenReturn(new Element(acl.getId(), acl));
 
@@ -265,7 +265,7 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test
-	public void evictCacheSerializable() throws Exception {
+	public void evictCacheSerializable() {
 		when(cache.get(acl.getObjectIdentity()))
 				.thenReturn(new Element(acl.getId(), acl));
 
@@ -276,7 +276,7 @@ public class EhCacheBasedAclCacheTests {
 	}
 
 	@Test
-	public void evictCacheObjectIdentity() throws Exception {
+	public void evictCacheObjectIdentity() {
 		when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(), acl));
 
 		myCache.evictFromCache(acl.getId());

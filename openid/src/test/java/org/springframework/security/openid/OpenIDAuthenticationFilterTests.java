@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,32 +29,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 public class OpenIDAuthenticationFilterTests {
 
 	OpenIDAuthenticationFilter filter;
-	private static final String REDIRECT_URL = "http://www.example.com/redirect";
-	private static final String CLAIMED_IDENTITY_URL = "http://www.example.com/identity";
+	private static final String REDIRECT_URL = "https://www.example.com/redirect";
+	private static final String CLAIMED_IDENTITY_URL = "https://www.example.com/identity";
 	private static final String REQUEST_PATH = "/login/openid";
 	private static final String FILTER_PROCESS_URL = "http://localhost:8080"
 			+ REQUEST_PATH;
 	private static final String DEFAULT_TARGET_URL = FILTER_PROCESS_URL;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		filter = new OpenIDAuthenticationFilter();
 		filter.setConsumer(new MockOpenIDConsumer(REDIRECT_URL));
 		SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 		filter.setAuthenticationSuccessHandler(new SavedRequestAwareAuthenticationSuccessHandler());
 		successHandler.setDefaultTargetUrl(DEFAULT_TARGET_URL);
-		filter.setAuthenticationManager(new AuthenticationManager() {
-			public Authentication authenticate(Authentication a) {
-				return a;
-			}
-		});
+		filter.setAuthenticationManager(a -> a);
 		filter.afterPropertiesSet();
 	}
 
@@ -71,8 +65,7 @@ public class OpenIDAuthenticationFilterTests {
 
 		filter.setConsumer(new MockOpenIDConsumer() {
 			public String beginConsumption(HttpServletRequest req,
-					String claimedIdentity, String returnToUrl, String realm)
-					throws OpenIDConsumerException {
+					String claimedIdentity, String returnToUrl, String realm) {
 				assertThat(claimedIdentity).isEqualTo(CLAIMED_IDENTITY_URL);
 				assertThat(returnToUrl).isEqualTo(DEFAULT_TARGET_URL);
 				assertThat(realm).isEqualTo("http://localhost:8080/");
@@ -95,7 +88,7 @@ public class OpenIDAuthenticationFilterTests {
 	public void encodesUrlParameters() throws Exception {
 		// Arbitrary parameter name and value that will both need to be encoded:
 		String paramName = "foo&bar";
-		String paramValue = "http://example.com/path?a=b&c=d";
+		String paramValue = "https://example.com/path?a=b&c=d";
 		MockHttpServletRequest req = new MockHttpServletRequest("GET", REQUEST_PATH);
 		req.addParameter(paramName, paramValue);
 		filter.setReturnToUrlParameters(Collections.singleton(paramName));

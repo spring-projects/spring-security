@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,6 @@ import org.springframework.util.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -58,16 +57,16 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	// ========================================================================================================
 
 	public void commence(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+			throws IOException {
 		String queryString = request.getQueryString();
 		String redirectUrl = request.getRequestURI()
 				+ ((queryString == null) ? "" : ("?" + queryString));
 
-		Integer currentPort = Integer.valueOf(portResolver.getServerPort(request));
+		Integer currentPort = portResolver.getServerPort(request);
 		Integer redirectPort = getMappedPort(currentPort);
 
 		if (redirectPort != null) {
-			boolean includePort = redirectPort.intValue() != standardPort;
+			boolean includePort = redirectPort != standardPort;
 
 			redirectUrl = scheme + request.getServerName()
 					+ ((includePort) ? (":" + redirectPort) : "") + redirectUrl;

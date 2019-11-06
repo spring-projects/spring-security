@@ -1,11 +1,11 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.servlet.util.matcher;
 
-import java.util.Collections;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +42,7 @@ import org.springframework.web.util.UrlPathHelper;
  * </p>
  *
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 4.1.1
  */
 public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
@@ -92,14 +92,20 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 	 * extractUriTemplateVariables(javax.servlet.http.HttpServletRequest)
 	 */
 	@Override
+	@Deprecated
 	public Map<String, String> extractUriTemplateVariables(HttpServletRequest request) {
+		return matcher(request).getVariables();
+	}
+
+	@Override
+	public MatchResult matcher(HttpServletRequest request) {
 		MatchableHandlerMapping mapping = getMapping(request);
 		if (mapping == null) {
-			return this.defaultMatcher.extractUriTemplateVariables(request);
+			return this.defaultMatcher.matcher(request);
 		}
 		RequestMatchResult result = mapping.match(request, this.pattern);
-		return result == null ? Collections.<String, String>emptyMap()
-				: result.extractUriTemplateVariables();
+		return result == null ? MatchResult.notMatch()
+				: MatchResult.match(result.extractUriTemplateVariables());
 	}
 
 	/**
@@ -141,7 +147,7 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		return sb.toString();
 	}
 
-	private class DefaultMatcher implements RequestMatcher, RequestVariablesExtractor {
+	private class DefaultMatcher implements RequestMatcher {
 
 		private final UrlPathHelper pathHelper = new UrlPathHelper();
 
@@ -158,14 +164,14 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 		}
 
 		@Override
-		public Map<String, String> extractUriTemplateVariables(
-				HttpServletRequest request) {
+		public MatchResult matcher(HttpServletRequest request) {
 			String lookupPath = this.pathHelper.getLookupPathForRequest(request);
 			if (matches(lookupPath)) {
-				return this.pathMatcher.extractUriTemplateVariables(
+				Map<String, String> variables = this.pathMatcher.extractUriTemplateVariables(
 						MvcRequestMatcher.this.pattern, lookupPath);
+				return MatchResult.match(variables);
 			}
-			return Collections.emptyMap();
+			return MatchResult.notMatch();
 		}
 	}
 }

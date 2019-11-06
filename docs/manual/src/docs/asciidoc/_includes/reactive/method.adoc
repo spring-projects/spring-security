@@ -1,0 +1,116 @@
+[[jc-erms]]
+= EnableReactiveMethodSecurity
+
+Spring Security supports method security using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] which is setup using `ReactiveSecurityContextHolder`.
+For example, this demonstrates how to retrieve the currently logged in user's message.
+
+[NOTE]
+====
+For this to work the return type of the method must be a `org.reactivestreams.Publisher` (i.e. `Mono`/`Flux`).
+This is necessary to integrate with Reactor's `Context`.
+====
+
+[source,java]
+----
+Authentication authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+
+Mono<String> messageByUsername = ReactiveSecurityContextHolder.getContext()
+	.map(SecurityContext::getAuthentication)
+	.map(Authentication::getName)
+	.flatMap(this::findMessageByUsername)
+	// In a WebFlux application the `subscriberContext` is automatically setup using `ReactorContextWebFilter`
+	.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication));
+
+StepVerifier.create(messageByUsername)
+	.expectNext("Hi user")
+	.verifyComplete();
+----
+
+with `this::findMessageByUsername` defined as:
+
+[source,java]
+----
+Mono<String> findMessageByUsername(String username) {
+	return Mono.just("Hi " + username);
+}
+----
+
+Below is a minimal method security configuration when using method security in reactive applications.
+
+[source,java]
+----
+@EnableReactiveMethodSecurity
+public class SecurityConfig {
+	@Bean
+	public MapReactiveUserDetailsService userDetailsService() {
+		User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
+		UserDetails rob = userBuilder.username("rob")
+			.password("rob")
+			.roles("USER")
+			.build();
+		UserDetails admin = userBuilder.username("admin")
+			.password("admin")
+			.roles("USER","ADMIN")
+			.build();
+		return new MapReactiveUserDetailsService(rob, admin);
+	}
+}
+----
+
+Consider the following class:
+
+[source,java]
+----
+@Component
+public class HelloWorldMessageService {
+	@PreAuthorize("hasRole('ADMIN')")
+	public Mono<String> findMessage() {
+		return Mono.just("Hello World!");
+	}
+}
+----
+
+Combined with our configuration above, `@PreAuthorize("hasRole('ADMIN')")` will ensure that `findByMessage` is only invoked by a user with the role `ADMIN`.
+It is important to note that any of the expressions in standard method security work for `@EnableReactiveMethodSecurity`.
+However, at this time we only support return type of `Boolean` or `boolean` of the expression.
+This means that the expression must not block.
+
+When integrating with <<jc-webflux>>, the Reactor Context is automatically established by Spring Security according to the authenticated user.
+
+[source,java]
+----
+@EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
+public class SecurityConfig {
+
+	@Bean
+	SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) throws Exception {
+		return http
+			// Demonstrate that method security works
+			// Best practice to use both for defense in depth
+			.authorizeExchange(exchanges ->
+				exchanges
+					.anyExchange().permitAll()
+			)
+			.httpBasic(withDefaults())
+			.build();
+	}
+
+	@Bean
+	MapReactiveUserDetailsService userDetailsService() {
+		User.UserBuilder userBuilder = User.withDefaultPasswordEncoder();
+		UserDetails rob = userBuilder.username("rob")
+			.password("rob")
+			.roles("USER")
+			.build();
+		UserDetails admin = userBuilder.username("admin")
+			.password("admin")
+			.roles("USER","ADMIN")
+			.build();
+		return new MapReactiveUserDetailsService(rob, admin);
+	}
+}
+
+----
+
+You can find a complete sample in {gh-samples-url}/javaconfig/hellowebflux-method[hellowebflux-method]

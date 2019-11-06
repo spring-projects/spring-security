@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,6 +48,7 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 *     LinkedHashMap&lt;MessageMatcher&lt;?&gt;,String&gt; matcherToExpression = new LinkedHashMap&lt;MessageMatcher&lt;Object&gt;,String&gt;();
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/public/**"), "permitAll");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/admin/**"), "hasRole('ROLE_ADMIN')");
+	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/topics/{name}/**"), "@someBean.customLogic(authentication, #name)");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/**"), "authenticated");
 	 *
 	 *     MessageSecurityMetadataSource metadataSource = createExpressionMessageMetadataSource(matcherToExpression);
@@ -82,6 +83,7 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 *     LinkedHashMap&lt;MessageMatcher&lt;?&gt;,String&gt; matcherToExpression = new LinkedHashMap&lt;MessageMatcher&lt;Object&gt;,String&gt;();
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/public/**"), "permitAll");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/admin/**"), "hasRole('ROLE_ADMIN')");
+	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/topics/{name}/**"), "@someBean.customLogic(authentication, #name)");
 	 *     matcherToExpression.put(new SimDestinationMessageMatcher("/**"), "authenticated");
 	 *
 	 *     MessageSecurityMetadataSource metadataSource = createExpressionMessageMetadataSource(matcherToExpression);
@@ -106,14 +108,14 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	public static MessageSecurityMetadataSource createExpressionMessageMetadataSource(
 			LinkedHashMap<MessageMatcher<?>, String> matcherToExpression, SecurityExpressionHandler<Message<Object>> handler) {
 
-		LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>> matcherToAttrs = new LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>>();
+		LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>> matcherToAttrs = new LinkedHashMap<>();
 
 		for (Map.Entry<MessageMatcher<?>, String> entry : matcherToExpression.entrySet()) {
 			MessageMatcher<?> matcher = entry.getKey();
 			String rawExpression = entry.getValue();
 			Expression expression = handler.getExpressionParser().parseExpression(
 					rawExpression);
-			ConfigAttribute attribute = new MessageExpressionConfigAttribute(expression);
+			ConfigAttribute attribute = new MessageExpressionConfigAttribute(expression, matcher);
 			matcherToAttrs.put(matcher, Arrays.asList(attribute));
 		}
 		return new DefaultMessageSecurityMetadataSource(matcherToAttrs);

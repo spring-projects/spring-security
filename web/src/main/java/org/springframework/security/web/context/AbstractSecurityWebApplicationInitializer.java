@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,6 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.SessionTrackingMode;
 
 import org.springframework.context.ApplicationContext;
@@ -109,7 +108,7 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * @see org.springframework.web.WebApplicationInitializer#onStartup(javax.servlet.
 	 * ServletContext)
 	 */
-	public final void onStartup(ServletContext servletContext) throws ServletException {
+	public final void onStartup(ServletContext servletContext) {
 		beforeSpringSecurityFilterChain(servletContext);
 		if (this.configurationClasses != null) {
 			AnnotationConfigWebApplicationContext rootAppContext = new AnnotationConfigWebApplicationContext();
@@ -210,8 +209,8 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 * @param filterName
 	 * @param filter
 	 */
-	private final void registerFilter(ServletContext servletContext,
-			boolean insertBeforeOtherFilters, String filterName, Filter filter) {
+	private void registerFilter(ServletContext servletContext,
+								boolean insertBeforeOtherFilters, String filterName, Filter filter) {
 		Dynamic registration = servletContext.addFilter(filterName, filter);
 		if (registration == null) {
 			throw new IllegalStateException(
@@ -252,7 +251,7 @@ public abstract class AbstractSecurityWebApplicationInitializer
 	 *
 	 * <p>
 	 * Note that {@link SessionTrackingMode#URL} is intentionally omitted to help
-	 * protected against <a href="http://en.wikipedia.org/wiki/Session_fixation">session
+	 * protected against <a href="https://en.wikipedia.org/wiki/Session_fixation">session
 	 * fixation attacks</a>. {@link SessionTrackingMode#SSL} is omitted because SSL
 	 * configuration is required for this to work.
 	 * </p>

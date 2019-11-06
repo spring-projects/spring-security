@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,10 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,14 +35,22 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.ldap.AbstractLdapIntegrationTests;
+import org.springframework.security.ldap.ApacheDsContainerConfig;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
-public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ApacheDsContainerConfig.class)
+public class LdapUserDetailsManagerTests {
+
+	@Autowired
+	private ContextSource contextSource;
 
 	private static final List<GrantedAuthority> TEST_AUTHORITIES = AuthorityUtils.createAuthorityList(
 			"ROLE_CLOWNS", "ROLE_ACROBATS");
@@ -48,9 +60,9 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 	private SpringSecurityLdapTemplate template;
 
 	@Before
-	public void setUp() throws Exception {
-		mgr = new LdapUserDetailsManager(getContextSource());
-		template = new SpringSecurityLdapTemplate(getContextSource());
+	public void setUp() {
+		mgr = new LdapUserDetailsManager(this.contextSource);
+		template = new SpringSecurityLdapTemplate(this.contextSource);
 		DirContextAdapter ctx = new DirContextAdapter();
 
 		ctx.setAttributeValue("objectclass", "organizationalUnit");
@@ -79,7 +91,7 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
 	}
 
 	@After
-	public void onTearDown() throws Exception {
+	public void onTearDown() {
 		// Iterator people = template.list("ou=testpeople").iterator();
 
 		// DirContext rootCtx = new DirContextAdapter(new

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,13 +44,13 @@ public class BouncyCastleAesBytesEncryptorTest {
 	}
 
 	@Test
-	public void bcCbcWithSecureIvGeneratesDifferentMessages() throws Exception {
+	public void bcCbcWithSecureIvGeneratesDifferentMessages() {
 		BytesEncryptor bcEncryptor = new BouncyCastleAesCbcBytesEncryptor(password, salt);
 		generatesDifferentCipherTexts(bcEncryptor);
 	}
 
 	@Test
-	public void bcGcmWithSecureIvGeneratesDifferentMessages() throws Exception {
+	public void bcGcmWithSecureIvGeneratesDifferentMessages() {
 		BytesEncryptor bcEncryptor = new BouncyCastleAesGcmBytesEncryptor(password, salt);
 		generatesDifferentCipherTexts(bcEncryptor);
 	}
@@ -66,13 +66,13 @@ public class BouncyCastleAesBytesEncryptorTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void bcCbcWithWrongLengthIv() throws Exception {
+	public void bcCbcWithWrongLengthIv() {
 		new BouncyCastleAesCbcBytesEncryptor(password, salt,
 				KeyGenerators.secureRandom(8));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void bcGcmWithWrongLengthIv() throws Exception {
+	public void bcGcmWithWrongLengthIv() {
 		new BouncyCastleAesGcmBytesEncryptor(password, salt,
 				KeyGenerators.secureRandom(8));
 	}

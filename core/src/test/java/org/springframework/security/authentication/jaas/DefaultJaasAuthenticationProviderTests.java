@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,9 +17,9 @@ package org.springframework.security.authentication.jaas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -96,7 +96,7 @@ public class DefaultJaasAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateSuccess() throws Exception {
+	public void authenticateSuccess() {
 		Authentication auth = provider.authenticate(token);
 		assertThat(auth.getPrincipal()).isEqualTo(token.getPrincipal());
 		assertThat(auth.getCredentials()).isEqualTo(token.getCredentials());
@@ -194,7 +194,7 @@ public class DefaultJaasAuthenticationProviderTests {
 	}
 
 	@Test
-	public void logoutNullLoginContext() throws Exception {
+	public void logoutNullLoginContext() {
 		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
 		SecurityContext securityContext = mock(SecurityContext.class);
 		JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);

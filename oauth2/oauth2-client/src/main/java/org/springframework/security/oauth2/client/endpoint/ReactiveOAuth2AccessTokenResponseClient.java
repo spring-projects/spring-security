@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,8 @@
 package org.springframework.security.oauth2.client.endpoint;
 
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-
 import reactor.core.publisher.Mono;
 
 /**
@@ -43,8 +42,8 @@ public interface ReactiveOAuth2AccessTokenResponseClient<T extends AbstractOAuth
 	 *
 	 * @param authorizationGrantRequest the authorization grant request that contains the authorization grant credential
 	 * @return an {@link OAuth2AccessTokenResponse} that contains the {@link OAuth2AccessTokenResponse#getAccessToken() access token} credential
-	 * @throws OAuth2AuthenticationException if an error occurs while attempting to exchange for the access token credential
+	 * @throws OAuth2AuthorizationException if an error occurs while attempting to exchange for the access token credential
 	 */
-	Mono<OAuth2AccessTokenResponse> getTokenResponse(T authorizationGrantRequest) throws OAuth2AuthenticationException;
+	Mono<OAuth2AccessTokenResponse> getTokenResponse(T authorizationGrantRequest);
 
 }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,8 +27,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Michael Simons
  */
 public class LogoutPage extends LoginPage {
-	@FindBy(css = "p")
-	private WebElement p;
+	@FindBy(css = "div[role=alert]")
+	private WebElement alert;
 
 	public LogoutPage(WebDriver webDriver) {
 		super(webDriver);
@@ -38,7 +38,7 @@ public class LogoutPage extends LoginPage {
 	public LogoutPage assertAt() {
 		super.assertAt();
 
-		assertThat(p.getText()).isEqualTo("You have been logged out");
+		assertThat(this.alert.getText()).isEqualTo("You have been signed out");
 		return this;
 	}
 }

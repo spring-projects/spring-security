@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,13 +23,13 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AdviceMode;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportAware;
+import org.springframework.context.annotation.*;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
@@ -79,9 +79,9 @@ import org.springframework.util.Assert;
  * @since 3.2
  * @see EnableGlobalMethodSecurity
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class GlobalMethodSecurityConfiguration
-		implements ImportAware, SmartInitializingSingleton {
+		implements ImportAware, SmartInitializingSingleton, BeanFactoryAware {
 	private static final Log logger = LogFactory
 			.getLog(GlobalMethodSecurityConfiguration.class);
 	private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
@@ -96,9 +96,8 @@ public class GlobalMethodSecurityConfiguration
 	private AuthenticationManagerBuilder auth;
 	private boolean disableAuthenticationRegistry;
 	private AnnotationAttributes enableMethodSecurity;
-	private ApplicationContext context;
+	private BeanFactory context;
 	private MethodSecurityExpressionHandler expressionHandler;
-	private Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource;
 	private MethodSecurityInterceptor methodSecurityInterceptor;
 
 	/**
@@ -108,7 +107,6 @@ public class GlobalMethodSecurityConfiguration
 	 * <li>{@link #accessDecisionManager()}</li>
 	 * <li>{@link #afterInvocationManager()}</li>
 	 * <li>{@link #authenticationManager()}</li>
-	 * <li>{@link #methodSecurityMetadataSource()}</li>
 	 * <li>{@link #runAsManager()}</li>
 	 *
 	 * </ul>
@@ -117,19 +115,19 @@ public class GlobalMethodSecurityConfiguration
 	 * Subclasses can override this method to provide a different
 	 * {@link MethodInterceptor}.
 	 * </p>
+	 * @param methodSecurityMetadataSource the default {@link MethodSecurityMetadataSource}.
 	 *
-	 * @return
-	 * @throws Exception
+	 * @return the {@link MethodInterceptor}.
 	 */
 	@Bean
-	public MethodInterceptor methodSecurityInterceptor() throws Exception {
+	public MethodInterceptor methodSecurityInterceptor(MethodSecurityMetadataSource methodSecurityMetadataSource) {
 		this.methodSecurityInterceptor = isAspectJ()
 				? new AspectJMethodSecurityInterceptor()
 				: new MethodSecurityInterceptor();
 		methodSecurityInterceptor.setAccessDecisionManager(accessDecisionManager());
 		methodSecurityInterceptor.setAfterInvocationManager(afterInvocationManager());
 		methodSecurityInterceptor
-				.setSecurityMetadataSource(methodSecurityMetadataSource());
+				.setSecurityMetadataSource(methodSecurityMetadataSource);
 		RunAsManager runAsManager = runAsManager();
 		if (runAsManager != null) {
 			methodSecurityInterceptor.setRunAsManager(runAsManager);
@@ -180,15 +178,14 @@ public class GlobalMethodSecurityConfiguration
 	}
 
 	private <T> T getSingleBeanOrNull(Class<T> type) {
-		String[] beanNamesForType = this.context.getBeanNamesForType(type);
-		if (beanNamesForType == null || beanNamesForType.length != 1) {
-			return null;
-		}
-		return this.context.getBean(beanNamesForType[0], type);
+		try {
+			return context.getBean(type);
+		} catch (NoSuchBeanDefinitionException e) {}
+		return null;
 	}
 
 	private void initializeMethodSecurityInterceptor() throws Exception {
-		if(this.methodSecurityInterceptor == null) {
+		if (this.methodSecurityInterceptor == null) {
 			return;
 		}
 		this.methodSecurityInterceptor.setAuthenticationManager(authenticationManager());
@@ -196,15 +193,15 @@ public class GlobalMethodSecurityConfiguration
 
 	/**
 	 * Provide a custom {@link AfterInvocationManager} for the default implementation of
-	 * {@link #methodSecurityInterceptor()}. The default is null if pre post is not
-	 * enabled. Otherwise, it returns a {@link AfterInvocationProviderManager}.
+	 * {@link #methodSecurityInterceptor(MethodSecurityMetadataSource)}. The default is null
+	 * if pre post is not enabled. Otherwise, it returns a {@link AfterInvocationProviderManager}.
 	 *
 	 * <p>
 	 * Subclasses should override this method to provide a custom
 	 * {@link AfterInvocationManager}
 	 * </p>
 	 *
-	 * @return
+	 * @return the {@link AfterInvocationManager} to use
 	 */
 	protected AfterInvocationManager afterInvocationManager() {
 		if (prePostEnabled()) {
@@ -223,9 +220,9 @@ public class GlobalMethodSecurityConfiguration
 
 	/**
 	 * Provide a custom {@link RunAsManager} for the default implementation of
-	 * {@link #methodSecurityInterceptor()}. The default is null.
+	 * {@link #methodSecurityInterceptor(MethodSecurityMetadataSource)}. The default is null.
 	 *
-	 * @return
+	 * @return the {@link RunAsManager} to use
 	 */
 	protected RunAsManager runAsManager() {
 		return null;
@@ -241,20 +238,27 @@ public class GlobalMethodSecurityConfiguration
 	 * <li>{@link AuthenticatedVoter}</li>
 	 * </ul>
 	 *
-	 * @return
+	 * @return the {@link AccessDecisionManager} to use
 	 */
 	protected AccessDecisionManager accessDecisionManager() {
-		List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
-		ExpressionBasedPreInvocationAdvice expressionAdvice = new ExpressionBasedPreInvocationAdvice();
-		expressionAdvice.setExpressionHandler(getExpressionHandler());
+		List<AccessDecisionVoter<?>> decisionVoters = new ArrayList<>();
 		if (prePostEnabled()) {
+			ExpressionBasedPreInvocationAdvice expressionAdvice =
+					new ExpressionBasedPreInvocationAdvice();
+			expressionAdvice.setExpressionHandler(getExpressionHandler());
 			decisionVoters
 					.add(new PreInvocationAuthorizationAdviceVoter(expressionAdvice));
 		}
 		if (jsr250Enabled()) {
 			decisionVoters.add(new Jsr250Voter());
 		}
-		decisionVoters.add(new RoleVoter());
+		RoleVoter roleVoter = new RoleVoter();
+		GrantedAuthorityDefaults grantedAuthorityDefaults =
+				getSingleBeanOrNull(GrantedAuthorityDefaults.class);
+		if (grantedAuthorityDefaults != null) {
+			roleVoter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
+		}
+		decisionVoters.add(roleVoter);
 		decisionVoters.add(new AuthenticatedVoter());
 		return new AffirmativeBased(decisionVoters);
 	}
@@ -270,7 +274,7 @@ public class GlobalMethodSecurityConfiguration
 	 * {@link MethodSecurityExpressionHandler}
 	 * </p>
 	 *
-	 * @return
+	 * @return the {@link MethodSecurityExpressionHandler} to use
 	 */
 	protected MethodSecurityExpressionHandler createExpressionHandler() {
 		return defaultMethodExpressionHandler;
@@ -307,7 +311,7 @@ public class GlobalMethodSecurityConfiguration
 	 * {@link #configure(AuthenticationManagerBuilder)} was not overridden, then an
 	 * {@link AuthenticationManager} is attempted to be autowired by type.
 	 *
-	 * @return
+	 * @return the {@link AuthenticationManager} to use
 	 */
 	protected AuthenticationManager authenticationManager() throws Exception {
 		if (authenticationManager == null) {
@@ -346,7 +350,7 @@ public class GlobalMethodSecurityConfiguration
 	 * {@link #customMethodSecurityMetadataSource()} and the attributes on
 	 * {@link EnableGlobalMethodSecurity}.
 	 *
-	 * @return
+	 * @return the {@link MethodSecurityMetadataSource}
 	 */
 	@Bean
 	public MethodSecurityMetadataSource methodSecurityMetadataSource() {
@@ -357,17 +361,29 @@ public class GlobalMethodSecurityConfiguration
 		if (customMethodSecurityMetadataSource != null) {
 			sources.add(customMethodSecurityMetadataSource);
 		}
-		if (prePostEnabled()) {
+
+		boolean hasCustom = customMethodSecurityMetadataSource != null;
+		boolean isPrePostEnabled = prePostEnabled();
+		boolean isSecuredEnabled = securedEnabled();
+		boolean isJsr250Enabled = jsr250Enabled();
+
+		if (!isPrePostEnabled && !isSecuredEnabled && !isJsr250Enabled && !hasCustom) {
+			throw new IllegalStateException("In the composition of all global method configuration, " +
+					"no annotation support was actually activated");
+		}
+
+		if (isPrePostEnabled) {
 			sources.add(new PrePostAnnotationSecurityMetadataSource(attributeFactory));
 		}
-		if (securedEnabled()) {
+		if (isSecuredEnabled) {
 			sources.add(new SecuredAnnotationSecurityMetadataSource());
 		}
-		if (jsr250Enabled()) {
+		if (isJsr250Enabled) {
 			GrantedAuthorityDefaults grantedAuthorityDefaults =
 					getSingleBeanOrNull(GrantedAuthorityDefaults.class);
+			Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource = this.context.getBean(Jsr250MethodSecurityMetadataSource.class);
 			if (grantedAuthorityDefaults != null) {
-				this.jsr250MethodSecurityMetadataSource.setDefaultRolePrefix(
+				jsr250MethodSecurityMetadataSource.setDefaultRolePrefix(
 						grantedAuthorityDefaults.getRolePrefix());
 			}
 			sources.add(jsr250MethodSecurityMetadataSource);
@@ -379,7 +395,7 @@ public class GlobalMethodSecurityConfiguration
 	 * Creates the {@link PreInvocationAuthorizationAdvice} to be used. The default is
 	 * {@link ExpressionBasedPreInvocationAdvice}.
 	 *
-	 * @return
+	 * @return the {@link PreInvocationAuthorizationAdvice}
 	 */
 	@Bean
 	public PreInvocationAuthorizationAdvice preInvocationAuthorizationAdvice() {
@@ -406,12 +422,6 @@ public class GlobalMethodSecurityConfiguration
 	}
 
 	@Autowired(required = false)
-	public void setJsr250MethodSecurityMetadataSource(
-			Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource) {
-		this.jsr250MethodSecurityMetadataSource = jsr250MethodSecurityMetadataSource;
-	}
-
-	@Autowired(required = false)
 	public void setMethodSecurityExpressionHandler(
 			List<MethodSecurityExpressionHandler> handlers) {
 		if (handlers.size() != 1) {
@@ -422,9 +432,9 @@ public class GlobalMethodSecurityConfiguration
 		this.expressionHandler = handlers.get(0);
 	}
 
-	@Autowired
-	public void setApplicationContext(ApplicationContext context) {
-		this.context = context;
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		this.context = beanFactory;
 	}
 
 	private AuthenticationConfiguration getAuthenticationConfiguration() {

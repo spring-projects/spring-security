@@ -1,5 +1,3 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
 apply plugin: 'io.spring.convention.spring-sample-war'
 
 def keystore = "$rootDir/samples/certificates/server.jks"
@@ -8,6 +6,9 @@ def password = 'password'
 dependencies {
 	compile "org.jasig.cas:cas-server-webapp:4.0.0@war"
 	compile slf4jDependencies
+	runtime 'org.aspectj:aspectjrt'
+	runtime 'org.aspectj:aspectjtools'
+	runtime 'org.aspectj:aspectjweaver'
 }
 
 project.tasks.withType(org.gradle.api.tasks.bundling.War) { war ->

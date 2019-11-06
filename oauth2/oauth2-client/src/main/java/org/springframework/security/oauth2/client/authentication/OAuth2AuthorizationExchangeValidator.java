@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -37,18 +37,17 @@ final class OAuth2AuthorizationExchangeValidator {
 		OAuth2AuthorizationResponse authorizationResponse = authorizationExchange.getAuthorizationResponse();
 
 		if (authorizationResponse.statusError()) {
-			throw new OAuth2AuthenticationException(
-				authorizationResponse.getError(), authorizationResponse.getError().toString());
+			throw new OAuth2AuthorizationException(authorizationResponse.getError());
 		}
 
 		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+			throw new OAuth2AuthorizationException(oauth2Error);
 		}
 
 		if (!authorizationResponse.getRedirectUri().equals(authorizationRequest.getRedirectUri())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+			throw new OAuth2AuthorizationException(oauth2Error);
 		}
 	}
 }

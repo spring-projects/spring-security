@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,7 +56,7 @@ public class BasicAuthenticationFilterTests {
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		SecurityContextHolder.clearContext();
 		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken(
 				"rod", "koala");
@@ -74,7 +74,7 @@ public class BasicAuthenticationFilterTests {
 	}
 
 	@After
-	public void clearContext() throws Exception {
+	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
@@ -156,6 +156,44 @@ public class BasicAuthenticationFilterTests {
 				.isEqualTo("rod");
 	}
 
+	// gh-5586
+	@Test
+	public void doFilterWhenSchemeLowercaseThenCaseInsensitveMatchWorks() throws Exception {
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
+
+		// Test
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+				.isEqualTo("rod");
+	}
+
+	@Test
+	public void doFilterWhenSchemeMixedCaseThenCaseInsensitiveMatchWorks() throws Exception {
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"BaSiC " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
+
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+				.isEqualTo("rod");
+	}
+
 	@Test
 	public void testOtherAuthorizationSchemeIsIgnored() throws Exception {
 
@@ -170,12 +208,12 @@ public class BasicAuthenticationFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
+	public void testStartupDetectsMissingAuthenticationEntryPoint() {
 		new BasicAuthenticationFilter(manager, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testStartupDetectsMissingAuthenticationManager() throws Exception {
+	public void testStartupDetectsMissingAuthenticationManager() {
 		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(null);
 	}
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2012-2017 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,17 @@
 
 package org.springframework.security.web.firewall;
 
-import org.springframework.http.HttpMethod;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.HttpMethod;
 
 /**
  * <p>
@@ -66,10 +67,15 @@ import java.util.Set;
  * Rejects URLs that contain a URL encoded percent. See
  * {@link #setAllowUrlEncodedPercent(boolean)}
  * </li>
+ * <li>
+ * Rejects hosts that are not allowed. See
+ * {@link #setAllowedHostnames(Predicate)}
+ * </li>
  * </ul>
  *
  * @see DefaultHttpFirewall
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 4.2.4
  */
 public class StrictHttpFirewall implements HttpFirewall {
@@ -88,17 +94,22 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final List<String> FORBIDDEN_FORWARDSLASH = Collections.unmodifiableList(Arrays.asList("%2f", "%2F"));
 
+	private static final List<String> FORBIDDEN_DOUBLE_FORWARDSLASH = Collections.unmodifiableList(Arrays.asList("//", "%2f%2f", "%2f%2F", "%2F%2f", "%2F%2F"));
+
 	private static final List<String> FORBIDDEN_BACKSLASH = Collections.unmodifiableList(Arrays.asList("\\", "%5c", "%5C"));
 
-	private Set<String> encodedUrlBlacklist = new HashSet<String>();
+	private Set<String> encodedUrlBlacklist = new HashSet<>();
 
-	private Set<String> decodedUrlBlacklist = new HashSet<String>();
+	private Set<String> decodedUrlBlacklist = new HashSet<>();
 
 	private Set<String> allowedHttpMethods = createDefaultAllowedHttpMethods();
+
+	private Predicate<String> allowedHostnames = hostname -> true;
 
 	public StrictHttpFirewall() {
 		urlBlacklistsAddAll(FORBIDDEN_SEMICOLON);
 		urlBlacklistsAddAll(FORBIDDEN_FORWARDSLASH);
+		urlBlacklistsAddAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
 		urlBlacklistsAddAll(FORBIDDEN_BACKSLASH);
 
 		this.encodedUrlBlacklist.add(ENCODED_PERCENT);
@@ -205,6 +216,23 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	/**
 	 * <p>
+	 * Determines if double slash "//" that is URL encoded "%2F%2F" should be allowed in the path or
+	 * not. The default is to not allow.
+	 * </p>
+	 *
+	 * @param allowUrlEncodedDoubleSlash should a slash "//" that is URL encoded "%2F%2F" be allowed
+	 *        in the path or not. Default is false.
+	 */
+	public void setAllowUrlEncodedDoubleSlash(boolean allowUrlEncodedDoubleSlash) {
+		if (allowUrlEncodedDoubleSlash) {
+			urlBlacklistsRemoveAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
+		} else {
+			urlBlacklistsAddAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
+		}
+	}
+
+	/**
+	 * <p>
 	 * Determines if a period "." that is URL encoded "%2E" should be allowed in the path
 	 * or not. The default is to not allow this behavior because it is a frequent source
 	 * of security exploits.
@@ -277,6 +305,21 @@ public class StrictHttpFirewall implements HttpFirewall {
 		}
 	}
 
+	/**
+	 * <p>
+	 * Determines which hostnames should be allowed. The default is to allow any hostname.
+	 * </p>
+	 *
+	 * @param allowedHostnames the predicate for testing hostnames
+	 * @since 5.2
+	 */
+	public void setAllowedHostnames(Predicate<String> allowedHostnames) {
+		if (allowedHostnames == null) {
+			throw new IllegalArgumentException("allowedHostnames cannot be null");
+		}
+		this.allowedHostnames = allowedHostnames;
+	}
+
 	private void urlBlacklistsAddAll(Collection<String> values) {
 		this.encodedUrlBlacklist.addAll(values);
 		this.decodedUrlBlacklist.addAll(values);
@@ -291,6 +334,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 	public FirewalledRequest getFirewalledRequest(HttpServletRequest request) throws RequestRejectedException {
 		rejectForbiddenHttpMethod(request);
 		rejectedBlacklistedUrls(request);
+		rejectedUntrustedHosts(request);
 
 		if (!isNormalized(request)) {
 			throw new RequestRejectedException("The request was rejected because the URL was not normalized.");
@@ -329,6 +373,13 @@ public class StrictHttpFirewall implements HttpFirewall {
 			if (decodedUrlContains(request, forbidden)) {
 				throw new RequestRejectedException("The request was rejected because the URL contained a potentially malicious String \"" + forbidden + "\"");
 			}
+		}
+	}
+
+	private void rejectedUntrustedHosts(HttpServletRequest request) {
+		String serverName = request.getServerName();
+		if (serverName != null && !this.allowedHostnames.test(serverName)) {
+			throw new RequestRejectedException("The request was rejected because the domain " + serverName + " is untrusted.");
 		}
 	}
 
@@ -412,10 +463,6 @@ public class StrictHttpFirewall implements HttpFirewall {
 			return true;
 		}
 
-		if (path.indexOf("//") > -1) {
-			return false;
-		}
-
 		for (int j = path.length(); j > 0;) {
 			int i = path.lastIndexOf('/', j - 1);
 			int gap = j - i;
@@ -433,4 +480,21 @@ public class StrictHttpFirewall implements HttpFirewall {
 		return true;
 	}
 
+	/**
+	 * Provides the existing encoded url blacklist which can add/remove entries from
+	 *
+	 * @return the existing encoded url blacklist, never null
+	 */
+	public Set<String> getEncodedUrlBlacklist() {
+		return encodedUrlBlacklist;
+	}
+
+	/**
+	 * Provides the existing decoded url blacklist which can add/remove entries from
+	 *
+	 * @return the existing decoded url blacklist, never null
+	 */
+	public Set<String> getDecodedUrlBlacklist() {
+		return decodedUrlBlacklist;
+	}
 }

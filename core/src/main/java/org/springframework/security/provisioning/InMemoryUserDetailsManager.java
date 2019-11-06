@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,6 +30,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.memory.UserAttribute;
 import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
@@ -45,7 +46,8 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.1
  */
-public class InMemoryUserDetailsManager implements UserDetailsManager {
+public class InMemoryUserDetailsManager implements UserDetailsManager,
+		UserDetailsPasswordService {
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final Map<String, MutableUserDetails> users = new HashMap<>();
@@ -136,6 +138,14 @@ public class InMemoryUserDetailsManager implements UserDetailsManager {
 		}
 
 		user.setPassword(newPassword);
+	}
+
+	@Override
+	public UserDetails updatePassword(UserDetails user, String newPassword) {
+		String username = user.getUsername();
+		MutableUserDetails mutableUser = this.users.get(username.toLowerCase());
+		mutableUser.setPassword(newPassword);
+		return mutableUser;
 	}
 
 	public UserDetails loadUserByUsername(String username)

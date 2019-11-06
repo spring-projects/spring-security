@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,8 @@
 
 package org.springframework.security.web.authentication.www;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import java.io.IOException;
 import java.util.Map;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -34,6 +28,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -43,9 +38,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.util.StringUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests {@link DigestAuthenticationFilter}.
@@ -110,8 +109,12 @@ public class DigestAuthenticationFilterTests {
 	}
 
 	private static String generateNonce(int validitySeconds) {
+		return generateNonce(validitySeconds, KEY);
+	}
+
+	private static String generateNonce(int validitySeconds, String key) {
 		long expiryTime = System.currentTimeMillis() + (validitySeconds * 1000);
-		String signatureValue = DigestUtils.md5Hex(expiryTime + ":" + KEY);
+		String signatureValue = DigestUtils.md5Hex(expiryTime + ":" + key);
 		String nonceValue = expiryTime + ":" + signatureValue;
 
 		return new String(Base64.encodeBase64(nonceValue.getBytes()));
@@ -127,14 +130,8 @@ public class DigestAuthenticationFilterTests {
 		SecurityContextHolder.clearContext();
 
 		// Create User Details Service
-		UserDetailsService uds = new UserDetailsService() {
-
-			public UserDetails loadUserByUsername(String username)
-					throws UsernameNotFoundException {
-				return new User("rod,ok", "koala",
-						AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
-			}
-		};
+		UserDetailsService uds = username -> new User("rod,ok", "koala",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
 		DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
 		ep.setRealmName(REALM);
@@ -170,6 +167,22 @@ public class DigestAuthenticationFilterTests {
 		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(
 				headerEntries, "=", "\"");
 		assertThat(headerMap.get("stale")).isEqualTo("true");
+	}
+
+	@Test
+	public void doFilterWhenNonceHasBadKeyThenGeneratesError() throws Exception {
+		String badNonce = generateNonce(60, "badkey");
+		String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM,
+				PASSWORD, "GET", REQUEST_URI, QOP, badNonce, NC, CNONCE);
+
+		request.addHeader("Authorization", createAuthorizationHeader(USERNAME, REALM,
+				badNonce, REQUEST_URI, responseDigest, QOP, NC, CNONCE));
+
+		MockHttpServletResponse response =
+				executeFilterInContainerSimulator(filter, request, false);
+
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
 	@Test
@@ -359,14 +372,14 @@ public class DigestAuthenticationFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void startupDetectsMissingAuthenticationEntryPoint() throws Exception {
+	public void startupDetectsMissingAuthenticationEntryPoint() {
 		DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
 		filter.setUserDetailsService(mock(UserDetailsService.class));
 		filter.afterPropertiesSet();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void startupDetectsMissingUserDetailsService() throws Exception {
+	public void startupDetectsMissingUserDetailsService() {
 		DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
 		filter.setAuthenticationEntryPoint(new DigestAuthenticationEntryPoint());
 		filter.afterPropertiesSet();

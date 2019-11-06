@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -183,8 +183,8 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	final List<AccessDecisionVoter<? extends Object>> getDecisionVoters(H http) {
-		List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
+	List<AccessDecisionVoter<?>> getDecisionVoters(H http) {
+		List<AccessDecisionVoter<?>> decisionVoters = new ArrayList<>();
 		WebExpressionVoter expressionVoter = new WebExpressionVoter();
 		expressionVoter.setExpressionHandler(getExpressionHandler(http));
 		decisionVoters.add(expressionVoter);
@@ -192,7 +192,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	}
 
 	@Override
-	final ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource(
+	ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource(
 			H http) {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = REGISTRY
 				.createRequestMap();
@@ -213,18 +213,18 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 				defaultHandler.setTrustResolver(trustResolver);
 			}
 			ApplicationContext context = http.getSharedObject(ApplicationContext.class);
-			if(context != null) {
+			if (context != null) {
 				String[] roleHiearchyBeanNames = context.getBeanNamesForType(RoleHierarchy.class);
-				if(roleHiearchyBeanNames.length == 1) {
+				if (roleHiearchyBeanNames.length == 1) {
 					defaultHandler.setRoleHierarchy(context.getBean(roleHiearchyBeanNames[0], RoleHierarchy.class));
 				}
 				String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
-				if(grantedAuthorityDefaultsBeanNames.length == 1) {
+				if (grantedAuthorityDefaultsBeanNames.length == 1) {
 					GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
 					defaultHandler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 				}
 				String[] permissionEvaluatorBeanNames = context.getBeanNamesForType(PermissionEvaluator.class);
-				if(permissionEvaluatorBeanNames.length == 1) {
+				if (permissionEvaluatorBeanNames.length == 1) {
 					PermissionEvaluator permissionEvaluator = context.getBean(permissionEvaluatorBeanNames[0], PermissionEvaluator.class);
 					defaultHandler.setPermissionEvaluator(permissionEvaluator);
 				}
@@ -371,7 +371,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 		/**
 		 * Specify that URLs requires a specific IP Address or <a href=
-		 * "http://forum.springsource.org/showthread.php?102783-How-to-use-hasIpAddress&p=343971#post343971"
+		 * "https://forum.spring.io/showthread.php?102783-How-to-use-hasIpAddress&p=343971#post343971"
 		 * >subnet</a>.
 		 *
 		 * @param ipaddressExpression the ipaddress (i.e. 192.168.1.79) or local subnet

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 package org.springframework.security.crypto.password;
 
 import org.springframework.security.crypto.codec.Utf8;
+
+import java.security.MessageDigest;
 
 /**
  * Utility for constant time comparison to prevent against timing attacks.
@@ -33,16 +35,8 @@ class PasswordEncoderUtils {
 	static boolean equals(String expected, String actual) {
 		byte[] expectedBytes = bytesUtf8(expected);
 		byte[] actualBytes = bytesUtf8(actual);
-		int expectedLength = expectedBytes == null ? -1 : expectedBytes.length;
-		int actualLength = actualBytes == null ? -1 : actualBytes.length;
 
-		int result = expectedLength == actualLength ? 0 : 1;
-		for (int i = 0; i < actualLength; i++) {
-			byte expectedByte = expectedLength <= 0 ? 0 : expectedBytes[i % expectedLength];
-			byte actualByte = actualBytes[i % actualLength];
-			result |= expectedByte ^ actualByte;
-		}
-		return result == 0;
+		return MessageDigest.isEqual(expectedBytes, actualBytes);
 	}
 
 	private static byte[] bytesUtf8(String s) {

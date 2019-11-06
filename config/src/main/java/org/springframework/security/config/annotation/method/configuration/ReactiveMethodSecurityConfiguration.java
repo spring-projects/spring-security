@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,20 +29,24 @@ import org.springframework.security.access.method.AbstractMethodSecurityMetadata
 import org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource;
 import org.springframework.security.access.prepost.PrePostAdviceReactiveMethodInterceptor;
 import org.springframework.security.access.prepost.PrePostAnnotationSecurityMetadataSource;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 import java.util.Arrays;
 
 /**
  * @author Rob Winch
+ * @author Tadaya Tsuyukubo
  * @since 5.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class ReactiveMethodSecurityConfiguration implements ImportAware {
 	private int advisorOrder;
 
+	private GrantedAuthorityDefaults grantedAuthorityDefaults;
+
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	public MethodSecurityMetadataSourceAdvisor methodSecurityInterceptor(AbstractMethodSecurityMetadataSource source) throws Exception {
+	public MethodSecurityMetadataSourceAdvisor methodSecurityInterceptor(AbstractMethodSecurityMetadataSource source) {
 		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor(
 			"securityMethodInterceptor", source, "methodMetadataSource");
 		advisor.setOrder(advisorOrder);
@@ -49,9 +54,9 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	}
 
 	@Bean
-	public DelegatingMethodSecurityMetadataSource methodMetadataSource() {
+	public DelegatingMethodSecurityMetadataSource methodMetadataSource(MethodSecurityExpressionHandler methodSecurityExpressionHandler) {
 		ExpressionBasedAnnotationAttributeFactory attributeFactory = new ExpressionBasedAnnotationAttributeFactory(
-				new DefaultMethodSecurityExpressionHandler());
+				methodSecurityExpressionHandler);
 		PrePostAnnotationSecurityMetadataSource prePostSource = new PrePostAnnotationSecurityMetadataSource(
 			attributeFactory);
 		return new DelegatingMethodSecurityMetadataSource(Arrays.asList(prePostSource));
@@ -70,11 +75,21 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 
 	@Bean
 	public DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
-		return new DefaultMethodSecurityExpressionHandler();
+		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+		if (this.grantedAuthorityDefaults != null) {
+			handler.setDefaultRolePrefix(this.grantedAuthorityDefaults.getRolePrefix());
+		}
+		return handler;
 	}
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		this.advisorOrder = (int) importMetadata.getAnnotationAttributes(EnableReactiveMethodSecurity.class.getName()).get("order");
 	}
+
+	@Autowired(required = false)
+	void setGrantedAuthorityDefaults(GrantedAuthorityDefaults grantedAuthorityDefaults) {
+		this.grantedAuthorityDefaults = grantedAuthorityDefaults;
+	}
+
 }

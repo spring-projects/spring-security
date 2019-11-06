@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,10 +17,7 @@ package sample;
 
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
-import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.Credentials.basicAuthenticationCredentials;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 import org.junit.Test;
@@ -29,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -50,12 +48,11 @@ public class HelloWebfluxFnApplicationTests {
 				.bindToApplicationContext(context)
 				.apply(springSecurity())
 				.configureClient()
-				.filter(basicAuthentication())
 				.build();
 	}
 
 	@Test
-	public void basicWhenNoCredentialsThenUnauthorized() throws Exception {
+	public void basicWhenNoCredentialsThenUnauthorized() {
 		this.rest
 			.get()
 			.uri("/")
@@ -64,29 +61,29 @@ public class HelloWebfluxFnApplicationTests {
 	}
 
 	@Test
-	public void basicWhenValidCredentialsThenOk() throws Exception {
+	public void basicWhenValidCredentialsThenOk() {
 		this.rest
 			.get()
 			.uri("/")
-			.attributes(userCredentials())
+			.headers(userCredentials())
 			.exchange()
 			.expectStatus().isOk()
 			.expectBody().json("{\"message\":\"Hello user!\"}");
 	}
 
 	@Test
-	public void basicWhenInvalidCredentialsThenUnauthorized() throws Exception {
+	public void basicWhenInvalidCredentialsThenUnauthorized() {
 		this.rest
 			.get()
 			.uri("/")
-			.attributes(invalidCredentials())
+			.headers(invalidCredentials())
 			.exchange()
 			.expectStatus().isUnauthorized()
 			.expectBody().isEmpty();
 	}
 
 	@Test
-	public void mockSupportWhenMutateWithMockUserThenOk() throws Exception {
+	public void mockSupportWhenMutateWithMockUserThenOk() {
 		this.rest
 			.mutateWith(mockUser())
 			.get()
@@ -98,7 +95,7 @@ public class HelloWebfluxFnApplicationTests {
 
 	@Test
 	@WithMockUser
-	public void mockSupportWhenWithMockUserThenOk() throws Exception {
+	public void mockSupportWhenWithMockUserThenOk() {
 		this.rest
 			.get()
 			.uri("/")
@@ -107,11 +104,11 @@ public class HelloWebfluxFnApplicationTests {
 			.expectBody().json("{\"message\":\"Hello user!\"}");
 	}
 
-	private Consumer<Map<String, Object>> userCredentials() {
-		return basicAuthenticationCredentials("user", "user");
+	private Consumer<HttpHeaders> userCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("user", "user");
 	}
 
-	private Consumer<Map<String, Object>> invalidCredentials() {
-		return basicAuthenticationCredentials("user", "INVALID");
+	private Consumer<HttpHeaders> invalidCredentials() {
+		return httpHeaders -> httpHeaders.setBasicAuth("user", "INVALID");
 	}
 }

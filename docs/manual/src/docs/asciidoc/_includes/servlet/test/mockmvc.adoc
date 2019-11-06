@@ -1,0 +1,495 @@
+
+[[test-mockmvc]]
+== Spring MVC Test Integration
+
+Spring Security provides comprehensive integration with https://docs.spring.io/spring/docs/current/spring-framework-reference/html/testing.html#spring-mvc-test-framework[Spring MVC Test]
+
+[[test-mockmvc-setup]]
+=== Setting Up MockMvc and Spring Security
+
+In order to use Spring Security with Spring MVC Test it is necessary to add the Spring Security `FilterChainProxy` as a `Filter`.
+It is also necessary to add Spring Security's `TestSecurityContextHolderPostProcessor` to support <<Running as a User in Spring MVC Test with Annotations,Running as a User in Spring MVC Test with Annotations>>.
+This can be done using Spring Security's `SecurityMockMvcConfigurers.springSecurity()`.
+For example:
+
+NOTE: Spring Security's testing support requires spring-test-4.1.3.RELEASE or greater.
+
+[source,java]
+----
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
+@WebAppConfiguration
+public class CsrfShowcaseTests {
+
+	@Autowired
+	private WebApplicationContext context;
+
+	private MockMvc mvc;
+
+	@Before
+	public void setup() {
+		mvc = MockMvcBuilders
+				.webAppContextSetup(context)
+				.apply(springSecurity()) // <1>
+				.build();
+	}
+
+...
+----
+
+<1> `SecurityMockMvcConfigurers.springSecurity()` will perform all of the initial setup we need to integrate Spring Security with Spring MVC Test
+
+[[test-mockmvc-smmrpp]]
+=== SecurityMockMvcRequestPostProcessors
+
+Spring MVC Test provides a convenient interface called a `RequestPostProcessor` that can be used to modify a request.
+Spring Security provides a number of `RequestPostProcessor` implementations that make testing easier.
+In order to use Spring Security's `RequestPostProcessor` implementations ensure the following static import is used:
+
+[source,java]
+----
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+----
+
+[[test-mockmvc-csrf]]
+==== Testing with CSRF Protection
+
+When testing any non-safe HTTP methods and using Spring Security's CSRF protection, you must be sure to include a valid CSRF Token in the request.
+To specify a valid CSRF token as a request parameter using the following:
+
+[source,java]
+----
+mvc
+	.perform(post("/").with(csrf()))
+----
+
+If you like you can include CSRF token in the header instead:
+
+[source,java]
+----
+mvc
+	.perform(post("/").with(csrf().asHeader()))
+----
+
+You can also test providing an invalid CSRF token using the following:
+
+[source,java]
+----
+mvc
+	.perform(post("/").with(csrf().useInvalidToken()))
+----
+
+[[test-mockmvc-securitycontextholder]]
+==== Running a Test as a User in Spring MVC Test
+
+It is often desirable to run tests as a specific user.
+There are two simple ways of populating the user:
+
+* <<Running as a User in Spring MVC Test with RequestPostProcessor,Running as a User in Spring MVC Test with RequestPostProcessor>>
+* <<Running as a User in Spring MVC Test with Annotations,Running as a User in Spring MVC Test with Annotations>>
+
+[[test-mockmvc-securitycontextholder-rpp]]
+==== Running as a User in Spring MVC Test with RequestPostProcessor
+
+There are a number of options available to associate a user to the current `HttpServletRequest`.
+For example, the following will run as a user (which does not need to exist) with the username "user", the password "password", and the role "ROLE_USER":
+
+[NOTE]
+====
+The support works by associating the user to the `HttpServletRequest`.
+To associate the request to the `SecurityContextHolder` you need to ensure that the `SecurityContextPersistenceFilter` is associated with the `MockMvc` instance.
+A few ways to do this are:
+
+* Invoking <<test-mockmvc-setup,apply(springSecurity())>>
+* Adding Spring Security's `FilterChainProxy` to `MockMvc`
+* Manually adding `SecurityContextPersistenceFilter` to the `MockMvc` instance may make sense when using `MockMvcBuilders.standaloneSetup`
+====
+
+[source,java]
+----
+mvc
+	.perform(get("/").with(user("user")))
+----
+
+You can easily make customizations.
+For example, the following will run as a user (which does not need to exist) with the username "admin", the password "pass", and the roles "ROLE_USER" and "ROLE_ADMIN".
+
+[source,java]
+----
+mvc
+	.perform(get("/admin").with(user("admin").password("pass").roles("USER","ADMIN")))
+----
+
+If you have a custom `UserDetails` that you would like to use, you can easily specify that as well.
+For example, the following will use the specified `UserDetails` (which does not need to exist) to run with a `UsernamePasswordAuthenticationToken` that has a principal of the specified `UserDetails`:
+
+[source,java]
+----
+mvc
+	.perform(get("/").with(user(userDetails)))
+----
+
+You can run as anonymous user using the following:
+
+[source,java]
+----
+mvc
+	.perform(get("/").with(anonymous()))
+----
+
+This is especially useful if you are running with a default user and wish to execute a few requests as an anonymous user.
+
+If you want a custom `Authentication` (which does not need to exist) you can do so using the following:
+
+[source,java]
+----
+mvc
+	.perform(get("/").with(authentication(authentication)))
+----
+
+You can even customize the `SecurityContext` using the following:
+
+[source,java]
+----
+mvc
+	.perform(get("/").with(securityContext(securityContext)))
+----
+
+We can also ensure to run as a specific user for every request by using ``MockMvcBuilders``'s default request.
+For example, the following will run as a user (which does not need to exist) with the username "admin", the password "password", and the role "ROLE_ADMIN":
+
+[source,java]
+----
+mvc = MockMvcBuilders
+		.webAppContextSetup(context)
+		.defaultRequest(get("/").with(user("user").roles("ADMIN")))
+		.apply(springSecurity())
+		.build();
+----
+
+If you find you are using the same user in many of your tests, it is recommended to move the user to a method.
+For example, you can specify the following in your own class named `CustomSecurityMockMvcRequestPostProcessors`:
+
+[source,java]
+----
+public static RequestPostProcessor rob() {
+	return user("rob").roles("ADMIN");
+}
+----
+
+Now you can perform a static import on `SecurityMockMvcRequestPostProcessors` and use that within your tests:
+
+[source,java]
+----
+import static sample.CustomSecurityMockMvcRequestPostProcessors.*;
+
+...
+
+mvc
+	.perform(get("/").with(rob()))
+----
+
+===== Running as a User in Spring MVC Test with Annotations
+
+As an alternative to using a `RequestPostProcessor` to create your user, you can use annotations described in <<Testing Method Security>>.
+For example, the following will run the test with the user with username "user", password "password", and role "ROLE_USER":
+
+[source,java]
+----
+@Test
+@WithMockUser
+public void requestProtectedUrlWithUser() throws Exception {
+mvc
+		.perform(get("/"))
+		...
+}
+----
+
+Alternatively, the following will run the test with the user with username "user", password "password", and role "ROLE_ADMIN":
+
+[source,java]
+----
+@Test
+@WithMockUser(roles="ADMIN")
+public void requestProtectedUrlWithUser() throws Exception {
+mvc
+		.perform(get("/"))
+		...
+}
+----
+
+==== Testing HTTP Basic Authentication
+
+While it has always been possible to authenticate with HTTP Basic, it was a bit tedious to remember the header name, format, and encode the values.
+Now this can be done using Spring Security's `httpBasic` `RequestPostProcessor`.
+For example, the snippet below:
+
+[source,java]
+----
+mvc
+	.perform(get("/").with(httpBasic("user","password")))
+----
+
+will attempt to use HTTP Basic to authenticate a user with the username "user" and the password "password" by ensuring the following header is populated on the HTTP Request:
+
+[source,text]
+----
+Authorization: Basic dXNlcjpwYXNzd29yZA==
+----
+
+=== SecurityMockMvcRequestBuilders
+
+Spring MVC Test also provides a `RequestBuilder` interface that can be used to create the `MockHttpServletRequest` used in your test.
+Spring Security provides a few `RequestBuilder` implementations that can be used to make testing easier.
+In order to use Spring Security's `RequestBuilder` implementations ensure the following static import is used:
+
+[source,java]
+----
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
+----
+
+==== Testing Form Based Authentication
+
+You can easily create a request to test a form based authentication using Spring Security's testing support.
+For example, the following will submit a POST to "/login" with the username "user", the password "password", and a valid CSRF token:
+
+[source,java]
+----
+mvc
+	.perform(formLogin())
+----
+
+It is easy to customize the request.
+For example, the following will submit a POST to "/auth" with the username "admin", the password "pass", and a valid CSRF token:
+
+[source,java]
+----
+mvc
+	.perform(formLogin("/auth").user("admin").password("pass"))
+----
+
+We can also customize the parameters names that the username and password are included on.
+For example, this is the above request modified to include the username on the HTTP parameter "u" and the password on the HTTP parameter "p".
+
+[source,java]
+----
+mvc
+	.perform(formLogin("/auth").user("u","admin").password("p","pass"))
+----
+
+
+==== Testing Bearer Authentication
+
+In order to make an authorized request on a resource server, you need a bearer token.
+If your resource server is configured for JWTs, then this would mean that the bearer token needs to be signed and then encoded according to the JWT specification.
+All of this can be quite daunting, especially when this isn't the focus of your test.
+
+Fortunately, there are a number of simple ways that you can overcome this difficulty and allow your tests to focus on authorization and not on representing bearer tokens.
+We'll look at two of them now:
+
+===== `jwt() RequestPostProcessor`
+
+The first way is via a `RequestPostProcessor`.
+The simplest of these would look something like this:
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint").with(jwt()));
+----
+
+What this will do is create a mock `Jwt`, passing it correctly through any authentication APIs so that it's available for your authorization mechanisms to verify.
+
+By default, the `JWT` that it creates has the following characteristics:
+
+[source,json]
+----
+{
+  "headers" : { "alg" : "none" },
+  "claims" : {
+    "sub" : "user",
+    "scope" : "read"
+  }
+}
+----
+
+And the resulting `Jwt`, were it tested, would pass in the following way:
+
+[source,java]
+----
+assertThat(jwt.getTokenValue()).isEqualTo("token");
+assertThat(jwt.getHeaders().get("alg")).isEqualTo("none");
+assertThat(jwt.getSubject()).isEqualTo("sub");
+GrantedAuthority authority = jwt.getAuthorities().iterator().next();
+assertThat(authority.getAuthority()).isEqualTo("read");
+----
+
+These values can, of course be configured.
+
+Any headers or claims can be configured with their corresponding methods:
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt(jwt -> jwt.header("kid", "one").claim("iss", "https://idp.example.org"))));
+----
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt(jwt -> jwt.claims(claims -> claims.remove("scope")))));
+----
+
+The `scope` and `scp` claims are processed the same way here as they are in a normal bearer token request.
+However, this can be overridden simply by providing the list of `GrantedAuthority` instances that you need for your test:
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_messages"))));
+----
+
+Or, if you have a custom `Jwt` to `Collection<GrantedAuthority>` converter, you can also use that to derive the authorities:
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt().authorities(new MyConverter())));
+----
+
+You can also specify a complete `Jwt`, for which `{security-api-url}org/springframework/security/oauth2/jwt/Jwt.Builder.html[Jwt.Builder]` comes quite handy:
+
+[source,java]
+----
+Jwt jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .claim("scope", "read");
+
+mvc
+    .perform(get("/endpoint")
+        .with(jwt(jwt)));
+----
+
+===== `authentication()` `RequestPostProcessor`
+
+The second way is by using the `authentication()` `RequestPostProcessor`.
+Essentially, you can instantiate your own `JwtAuthenticationToken` and provide it in your test, like so:
+
+[source,java]
+----
+Jwt jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .build();
+Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("SCOPE_read");
+JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
+
+mvc
+    .perform(get("/endpoint")
+        .with(authentication(token)));
+----
+
+Note that as an alternative to these, you can also mock the `JwtDecoder` bean itself with a `@MockBean` annotation.
+
+[[test-logout]]
+==== Testing Logout
+
+While fairly trivial using standard Spring MVC Test, you can use Spring Security's testing support to make testing log out easier.
+For example, the following will submit a POST to "/logout" with a valid CSRF token:
+
+[source,java]
+----
+mvc
+	.perform(logout())
+----
+
+You can also customize the URL to post to.
+For example, the snippet below will submit a POST to "/signout" with a valid CSRF token:
+
+[source,java]
+----
+mvc
+	.perform(logout("/signout"))
+----
+
+=== SecurityMockMvcResultMatchers
+
+At times it is desirable to make various security related assertions about a request.
+To accommodate this need, Spring Security Test support implements Spring MVC Test's `ResultMatcher` interface.
+In order to use Spring Security's `ResultMatcher` implementations ensure the following static import is used:
+
+[source,java]
+----
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
+----
+
+==== Unauthenticated Assertion
+
+At times it may be valuable to assert that there is no authenticated user associated with the result of a `MockMvc` invocation.
+For example, you might want to test submitting an invalid username and password and verify that no user is authenticated.
+You can easily do this with Spring Security's testing support using something like the following:
+
+[source,java]
+----
+mvc
+	.perform(formLogin().password("invalid"))
+	.andExpect(unauthenticated());
+----
+
+==== Authenticated Assertion
+
+It is often times that we must assert that an authenticated user exists.
+For example, we may want to verify that we authenticated successfully.
+We could verify that a form based login was successful with the following snippet of code:
+
+[source,java]
+----
+mvc
+	.perform(formLogin())
+	.andExpect(authenticated());
+----
+
+If we wanted to assert the roles of the user, we could refine our previous code as shown below:
+
+[source,java]
+----
+mvc
+	.perform(formLogin().user("admin"))
+	.andExpect(authenticated().withRoles("USER","ADMIN"));
+----
+
+Alternatively, we could verify the username:
+
+[source,java]
+----
+mvc
+	.perform(formLogin().user("admin"))
+	.andExpect(authenticated().withUsername("admin"));
+----
+
+We can also combine the assertions:
+
+[source,java]
+----
+mvc
+	.perform(formLogin().user("admin").roles("USER","ADMIN"))
+	.andExpect(authenticated().withUsername("admin"));
+----
+
+We can also make arbitrary assertions on the authentication
+
+[source,java]
+----
+mvc
+	.perform(formLogin())
+	.andExpect(authenticated().withAuthentication(auth ->
+		assertThat(auth).isInstanceOf(UsernamePasswordAuthenticationToken.class)));
+----

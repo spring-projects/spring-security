@@ -9,7 +9,7 @@
 	except in compliance with the License.	You may obtain a
 	copy of the License at the following location:
 
-	  http://www.apache.org/licenses/LICENSE-2.0
+	  https://www.apache.org/licenses/LICENSE-2.0
 
 	Unless required by applicable law or agreed to in writing,
 	software distributed under the License is distributed on an
@@ -25,9 +25,9 @@
 	   xmlns:c="http://www.springframework.org/schema/c"
 	   xmlns:util="http://www.springframework.org/schema/util"
 	   xmlns:aop="http://www.springframework.org/schema/aop"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
 	<description>
 		This is the main Spring configuration file with some of the main "core" classes defined. You shouldn't really
 		modify this unless you

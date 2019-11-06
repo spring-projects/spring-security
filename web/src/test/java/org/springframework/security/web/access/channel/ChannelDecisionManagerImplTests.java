@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 
 import org.junit.Test;
 
@@ -62,8 +61,7 @@ public class ChannelDecisionManagerImplTests {
 	}
 
 	@Test
-	public void testCannotSetIncorrectObjectTypesIntoChannelProcessorsList()
-			throws Exception {
+	public void testCannotSetIncorrectObjectTypesIntoChannelProcessorsList() {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		List list = new Vector();
 		list.add("THIS IS NOT A CHANNELPROCESSOR");
@@ -204,13 +202,13 @@ public class ChannelDecisionManagerImplTests {
 		private String configAttribute;
 		private boolean failIfCalled;
 
-		public MockChannelProcessor(String configAttribute, boolean failIfCalled) {
+		MockChannelProcessor(String configAttribute, boolean failIfCalled) {
 			this.configAttribute = configAttribute;
 			this.failIfCalled = failIfCalled;
 		}
 
 		public void decide(FilterInvocation invocation,
-				Collection<ConfigAttribute> config) throws IOException, ServletException {
+				Collection<ConfigAttribute> config) throws IOException {
 			Iterator iter = config.iterator();
 
 			if (this.failIfCalled) {

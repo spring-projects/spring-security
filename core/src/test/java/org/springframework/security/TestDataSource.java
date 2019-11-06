@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,7 +37,7 @@ public class TestDataSource extends DriverManagerDataSource implements Disposabl
 		setPassword("");
 	}
 
-	public void destroy() throws Exception {
+	public void destroy() {
 		System.out.println("Shutting down database: " + name);
 		new JdbcTemplate(this).execute("SHUTDOWN");
 	}

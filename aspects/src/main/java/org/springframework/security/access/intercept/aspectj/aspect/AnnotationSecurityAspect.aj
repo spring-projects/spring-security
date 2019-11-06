@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -72,11 +72,7 @@ public aspect AnnotationSecurityAspect implements InitializingBean {
 						return proceed();
 				}
 
-				AspectJCallback callback = new AspectJCallback() {
-						public Object proceedWithObject() {
-								return proceed();
-						}
-				};
+				AspectJCallback callback = () -> proceed();
 
 				return this.securityInterceptor.invoke(thisJoinPoint, callback);
 		}
@@ -85,7 +81,7 @@ public aspect AnnotationSecurityAspect implements InitializingBean {
 				this.securityInterceptor = securityInterceptor;
 		}
 
-		public void afterPropertiesSet() throws Exception {
+		public void afterPropertiesSet() {
 				if (this.securityInterceptor == null) {
 						throw new IllegalArgumentException("securityInterceptor required");
 				}

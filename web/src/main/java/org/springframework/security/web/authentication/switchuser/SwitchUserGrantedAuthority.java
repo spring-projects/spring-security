@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package org.springframework.security.web.authentication.switchuser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.util.Assert;
 
 /**
  * Custom {@code GrantedAuthority} used by
@@ -44,6 +45,8 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 	// ===================================================================================================
 
 	public SwitchUserGrantedAuthority(String role, Authentication source) {
+		Assert.notNull(role, "role cannot be null");
+		Assert.notNull(source, "source cannot be null");
 		this.role = role;
 		this.source = source;
 	}
@@ -67,7 +70,9 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 
 	@Override
 	public int hashCode() {
-		return 31 ^ source.hashCode() ^ role.hashCode();
+		int result = this.role.hashCode();
+		result = 31 * result + this.source.hashCode();
+		return result;
 	}
 
 	@Override

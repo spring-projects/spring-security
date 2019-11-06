@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,13 +24,24 @@ import java.util.List;
 import javax.naming.directory.DirContext;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.AuthenticationException;
 import org.springframework.ldap.core.support.AbstractContextSource;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
-public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegrationTests {
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ApacheDsContainerConfig.class)
+public class DefaultSpringSecurityContextSourceTests {
+
+	@Autowired
+	private DefaultSpringSecurityContextSource contextSource;
 
 	@Test
 	public void instantiationSucceedsWithExpectedProperties() {
@@ -47,8 +58,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 	}
 
 	@Test
-	public void poolingFlagIsSetWhenAuthenticationDnMatchesManagerUserDn()
-			throws Exception {
+	public void poolingFlagIsSetWhenAuthenticationDnMatchesManagerUserDn() {
 		EnvExposingDefaultSpringSecurityContextSource ctxSrc = new EnvExposingDefaultSpringSecurityContextSource(
 				"ldap://blah:789/dc=springframework,dc=org");
 		ctxSrc.setUserDn("manager");
@@ -59,8 +69,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 	}
 
 	@Test
-	public void poolingFlagIsNotSetWhenAuthenticationDnIsNotManagerUserDn()
-			throws Exception {
+	public void poolingFlagIsNotSetWhenAuthenticationDnIsNotManagerUserDn() {
 		EnvExposingDefaultSpringSecurityContextSource ctxSrc = new EnvExposingDefaultSpringSecurityContextSource(
 				"ldap://blah:789/dc=springframework,dc=org");
 		ctxSrc.setUserDn("manager");
@@ -76,7 +85,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 			throws Exception {
 		DirContext ctx = null;
 		try {
-			ctx = getContextSource().getContext(
+			ctx = this.contextSource.getContext(
 					"uid=Bob,ou=people,dc=springframework,dc=org", "bobspassword");
 		}
 		catch (Exception e) {
@@ -86,16 +95,16 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 		ctx.close();
 		// com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
 		// Now get it gain, with wrong password. Should fail.
-		ctx = getContextSource().getContext(
+		ctx = this.contextSource.getContext(
 				"uid=Bob,ou=people,dc=springframework,dc=org", "wrongpassword");
 		ctx.close();
 	}
 
 	@Test
-	public void serverUrlWithSpacesIsSupported() throws Exception {
+	public void serverUrlWithSpacesIsSupported() {
 		DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
-				"ldap://127.0.0.1:" + ApacheDSServerIntegrationTests.getServerPort()
-						+ "/ou=space%20cadets,dc=springframework,dc=org");
+				this.contextSource.getUrls()[0]
+						+ "ou=space%20cadets,dc=springframework,dc=org");
 		contextSource.afterPropertiesSet();
 		contextSource.getContext(
 				"uid=space cadet,ou=space cadets,dc=springframework,dc=org",
@@ -103,7 +112,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void instantiationFailsWithEmptyServerList() throws Exception {
+	public void instantiationFailsWithEmptyServerList() {
 		List<String> serverUrls = new ArrayList<>();
 		DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(
 				serverUrls, "dc=springframework,dc=org");
@@ -111,7 +120,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 	}
 
 	@Test
-	public void instantiationSuceedsWithProperServerList() throws Exception {
+	public void instantiationSuceedsWithProperServerList() {
 		List<String> serverUrls = new ArrayList<>();
 		serverUrls.add("ldap://foo:789");
 		serverUrls.add("ldap://bar:389");
@@ -125,7 +134,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 
 	// SEC-2308
 	@Test
-	public void instantiationSuceedsWithEmtpyBaseDn() throws Exception {
+	public void instantiationSuceedsWithEmtpyBaseDn() {
 		String baseDn = "";
 		List<String> serverUrls = new ArrayList<>();
 		serverUrls.add("ldap://foo:789");
@@ -139,7 +148,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void instantiationFailsWithIncorrectServerUrl() throws Exception {
+	public void instantiationFailsWithIncorrectServerUrl() {
 		List<String> serverUrls = new ArrayList<>();
 		// a simple trailing slash should be ok
 		serverUrls.add("ldaps://blah:636/");
@@ -151,7 +160,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 
 	static class EnvExposingDefaultSpringSecurityContextSource extends
 			DefaultSpringSecurityContextSource {
-		public EnvExposingDefaultSpringSecurityContextSource(String providerUrl) {
+		EnvExposingDefaultSpringSecurityContextSource(String providerUrl) {
 			super(providerUrl);
 		}
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,14 +19,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
+import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
@@ -35,9 +34,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
-import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -47,75 +44,77 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider.createHash;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.error;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
+import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link OidcAuthorizationCodeAuthenticationProvider}.
  *
  * @author Joe Grandja
+ * @author Mark Heckler
  */
-@PrepareForTest({ClientRegistration.class, OAuth2AuthorizationRequest.class, OAuth2AuthorizationResponse.class,
-	OAuth2AccessTokenResponse.class, OidcAuthorizationCodeAuthenticationProvider.class})
-@RunWith(PowerMockRunner.class)
 public class OidcAuthorizationCodeAuthenticationProviderTests {
 	private ClientRegistration clientRegistration;
-	private ClientRegistration.ProviderDetails providerDetails;
 	private OAuth2AuthorizationRequest authorizationRequest;
 	private OAuth2AuthorizationResponse authorizationResponse;
 	private OAuth2AuthorizationExchange authorizationExchange;
 	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 	private OAuth2AccessTokenResponse accessTokenResponse;
-	private OAuth2AccessToken accessToken;
-	private OAuth2RefreshToken refreshToken;
 	private OAuth2UserService<OidcUserRequest, OidcUser> userService;
 	private OidcAuthorizationCodeAuthenticationProvider authenticationProvider;
+	private StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+	private String nonceHash;
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
 	@Before
 	@SuppressWarnings("unchecked")
-	public void setUp() throws Exception {
-		this.clientRegistration = mock(ClientRegistration.class);
-		this.providerDetails = mock(ClientRegistration.ProviderDetails.class);
-		this.authorizationRequest = mock(OAuth2AuthorizationRequest.class);
-		this.authorizationResponse = mock(OAuth2AuthorizationResponse.class);
+	public void setUp() {
+		this.clientRegistration = clientRegistration().clientId("client1").build();
+		Map<String, Object> attributes = new HashMap<>();
+		Map<String, Object> additionalParameters = new HashMap<>();
+		try {
+			String nonce = this.secureKeyGenerator.generateKey();
+			this.nonceHash = createHash(nonce);
+			attributes.put(OidcParameterNames.NONCE, nonce);
+			additionalParameters.put(OidcParameterNames.NONCE, this.nonceHash);
+		} catch (NoSuchAlgorithmException e) { }
+		this.authorizationRequest = request()
+				.scope("openid", "profile", "email")
+				.attributes(attributes)
+				.additionalParameters(additionalParameters)
+				.build();
+		this.authorizationResponse = success().build();
 		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest, this.authorizationResponse);
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
-		this.accessTokenResponse = mock(OAuth2AccessTokenResponse.class);
-		this.accessToken = mock(OAuth2AccessToken.class);
-		this.refreshToken = mock(OAuth2RefreshToken.class);
+		this.accessTokenResponse = this.accessTokenSuccessResponse();
 		this.userService = mock(OAuth2UserService.class);
-		this.authenticationProvider = PowerMockito.spy(
-			new OidcAuthorizationCodeAuthenticationProvider(this.accessTokenResponseClient, this.userService));
+		this.authenticationProvider =
+			new OidcAuthorizationCodeAuthenticationProvider(this.accessTokenResponseClient, this.userService);
 
-		when(this.clientRegistration.getRegistrationId()).thenReturn("client-registration-id-1");
-		when(this.clientRegistration.getClientId()).thenReturn("client1");
-		when(this.clientRegistration.getProviderDetails()).thenReturn(this.providerDetails);
-		when(this.providerDetails.getJwkSetUri()).thenReturn("https://provider.com/oauth2/keys");
-		when(this.authorizationRequest.getScopes()).thenReturn(new LinkedHashSet<>(Arrays.asList("openid", "profile", "email")));
-		when(this.authorizationRequest.getState()).thenReturn("12345");
-		when(this.authorizationResponse.getState()).thenReturn("12345");
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example.com");
-		when(this.accessTokenResponse.getAccessToken()).thenReturn(this.accessToken);
-		when(this.accessTokenResponse.getRefreshToken()).thenReturn(this.refreshToken);
-		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
-		when(this.accessTokenResponse.getAdditionalParameters()).thenReturn(additionalParameters);
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(this.accessTokenResponse);
 	}
 
@@ -132,6 +131,12 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	}
 
 	@Test
+	public void setJwtDecoderFactoryWhenNullThenThrowIllegalArgumentException() {
+		this.exception.expect(IllegalArgumentException.class);
+		this.authenticationProvider.setJwtDecoderFactory(null);
+	}
+
+	@Test
 	public void setAuthoritiesMapperWhenAuthoritiesMapperIsNullThenThrowIllegalArgumentException() {
 		this.exception.expect(IllegalArgumentException.class);
 		this.authenticationProvider.setAuthoritiesMapper(null);
@@ -144,11 +149,13 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAuthorizationRequestDoesNotContainOpenidScopeThenReturnNull() {
-		when(this.authorizationRequest.getScopes()).thenReturn(new LinkedHashSet<>(Collections.singleton("scope1")));
+		OAuth2AuthorizationRequest authorizationRequest = request().scope("scope1").build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(authorizationRequest, this.authorizationResponse);
 
 		OAuth2LoginAuthenticationToken authentication =
 			(OAuth2LoginAuthenticationToken) this.authenticationProvider.authenticate(
-				new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+				new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 
 		assertThat(authentication).isNull();
 	}
@@ -158,11 +165,12 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString(OAuth2ErrorCodes.INVALID_SCOPE));
 
-		when(this.authorizationResponse.statusError()).thenReturn(true);
-		when(this.authorizationResponse.getError()).thenReturn(new OAuth2Error(OAuth2ErrorCodes.INVALID_SCOPE));
+		OAuth2AuthorizationResponse authorizationResponse = error().errorCode(OAuth2ErrorCodes.INVALID_SCOPE).build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+			new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 	}
 
 	@Test
@@ -170,11 +178,12 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_state_parameter"));
 
-		when(this.authorizationRequest.getState()).thenReturn("34567");
-		when(this.authorizationResponse.getState()).thenReturn("89012");
+		OAuth2AuthorizationResponse authorizationResponse = success().state("89012").build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+			new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 	}
 
 	@Test
@@ -182,11 +191,12 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_redirect_uri_parameter"));
 
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example1.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example2.com");
+		OAuth2AuthorizationResponse authorizationResponse = success().redirectUri("https://example2.com").build();
+		OAuth2AuthorizationExchange authorizationExchange =
+				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+			new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
 	}
 
 	@Test
@@ -194,7 +204,11 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_id_token"));
 
-		when(this.accessTokenResponse.getAdditionalParameters()).thenReturn(Collections.emptyMap());
+		OAuth2AccessTokenResponse accessTokenResponse =
+				OAuth2AccessTokenResponse.withResponse(this.accessTokenSuccessResponse())
+						.additionalParameters(Collections.emptyMap())
+						.build();
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
 		this.authenticationProvider.authenticate(
 			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
@@ -205,151 +219,50 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("missing_signature_verifier"));
 
-		when(this.providerDetails.getJwkSetUri()).thenReturn(null);
+		ClientRegistration clientRegistration = clientRegistration().jwkSetUri(null).build();
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+			new OAuth2LoginAuthenticationToken(clientRegistration, this.authorizationExchange));
 	}
 
 	@Test
-	public void authenticateWhenIdTokenIssuerClaimIsNullThenThrowOAuth2AuthenticationException() throws Exception {
+	public void authenticateWhenIdTokenValidationErrorThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
+		this.exception.expectMessage(containsString("[invalid_id_token] ID Token Validation Error"));
 
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-
-		this.setUpIdToken(claims);
+		JwtDecoder jwtDecoder = mock(JwtDecoder.class);
+		when(jwtDecoder.decode(anyString())).thenThrow(new JwtException("ID Token Validation Error"));
+		this.authenticationProvider.setJwtDecoderFactory(registration -> jwtDecoder);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+				new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
 	}
 
 	@Test
-	public void authenticateWhenIdTokenSubjectClaimIsNullThenThrowOAuth2AuthenticationException() throws Exception {
+	public void authenticateWhenIdTokenInvalidNonceThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-
-		this.setUpIdToken(claims);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenIdTokenAudienceClaimIsNullThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-
-		this.setUpIdToken(claims);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenIdTokenAudienceClaimDoesNotContainClientIdThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-		claims.put(IdTokenClaimNames.AUD, Collections.singletonList("other-client"));
-
-		this.setUpIdToken(claims);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenIdTokenMultipleAudienceClaimAndAuthorizedPartyClaimIsNullThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
-
-		this.setUpIdToken(claims);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenIdTokenAuthorizedPartyClaimNotEqualToClientIdThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
-		claims.put(IdTokenClaimNames.AZP, "other-client");
-
-		this.setUpIdToken(claims);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenIdTokenExpiresAtIsBeforeNowThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
+		this.exception.expectMessage(containsString("[invalid_nonce]"));
 
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
 		claims.put(IdTokenClaimNames.SUB, "subject1");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
 		claims.put(IdTokenClaimNames.AZP, "client1");
-
-		Instant issuedAt = Instant.now().minusSeconds(10);
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(5);
-
-		this.setUpIdToken(claims, issuedAt, expiresAt);
+		claims.put(IdTokenClaimNames.NONCE, "invalid-nonce-hash");
+		this.setUpIdToken(claims);
 
 		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+				new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
 	}
 
 	@Test
-	public void authenticateWhenIdTokenIssuedAtIsAfterMaxIssuedAtThenThrowOAuth2AuthenticationException() throws Exception {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_id_token"));
-
+	public void authenticateWhenLoginSuccessThenReturnAuthentication() {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
 		claims.put(IdTokenClaimNames.SUB, "subject1");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
 		claims.put(IdTokenClaimNames.AZP, "client1");
-
-		Instant issuedAt = Instant.now().plusSeconds(35);
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(60);
-
-		this.setUpIdToken(claims, issuedAt, expiresAt);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenLoginSuccessThenReturnAuthentication() throws Exception {
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
-		claims.put(IdTokenClaimNames.AZP, "client1");
+		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
 		this.setUpIdToken(claims);
 
 		OidcUser principal = mock(OidcUser.class);
@@ -368,17 +281,18 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		assertThat(authentication.getAuthorities()).isEqualTo(authorities);
 		assertThat(authentication.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authentication.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
-		assertThat(authentication.getAccessToken()).isEqualTo(this.accessToken);
-		assertThat(authentication.getRefreshToken()).isEqualTo(this.refreshToken);
+		assertThat(authentication.getAccessToken()).isEqualTo(this.accessTokenResponse.getAccessToken());
+		assertThat(authentication.getRefreshToken()).isEqualTo(this.accessTokenResponse.getRefreshToken());
 	}
 
 	@Test
-	public void authenticateWhenAuthoritiesMapperSetThenReturnMappedAuthorities() throws Exception {
+	public void authenticateWhenAuthoritiesMapperSetThenReturnMappedAuthorities() {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
 		claims.put(IdTokenClaimNames.SUB, "subject1");
 		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
 		claims.put(IdTokenClaimNames.AZP, "client1");
+		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
 		this.setUpIdToken(claims);
 
 		OidcUser principal = mock(OidcUser.class);
@@ -400,20 +314,54 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		assertThat(authentication.getAuthorities()).isEqualTo(mappedAuthorities);
 	}
 
-	private void setUpIdToken(Map<String, Object> claims) throws Exception {
-		Instant issuedAt = Instant.now();
-		Instant expiresAt = Instant.from(issuedAt).plusSeconds(3600);
-		this.setUpIdToken(claims, issuedAt, expiresAt);
+	// gh-5368
+	@Test
+	public void authenticateWhenTokenSuccessResponseThenAdditionalParametersAddedToUserRequest() {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
+		claims.put(IdTokenClaimNames.SUB, "subject1");
+		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
+		claims.put(IdTokenClaimNames.AZP, "client1");
+		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
+		this.setUpIdToken(claims);
+
+		OidcUser principal = mock(OidcUser.class);
+		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+		when(principal.getAuthorities()).thenAnswer(
+				(Answer<List<GrantedAuthority>>) invocation -> authorities);
+		ArgumentCaptor<OidcUserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OidcUserRequest.class);
+		when(this.userService.loadUser(userRequestArgCaptor.capture())).thenReturn(principal);
+
+		this.authenticationProvider.authenticate(new OAuth2LoginAuthenticationToken(
+				this.clientRegistration, this.authorizationExchange));
+
+		assertThat(userRequestArgCaptor.getValue().getAdditionalParameters()).containsAllEntriesOf(
+				this.accessTokenResponse.getAdditionalParameters());
 	}
 
-	private void setUpIdToken(Map<String, Object> claims, Instant issuedAt, Instant expiresAt) throws Exception {
-		Map<String, Object> headers = new HashMap<>();
-		headers.put("alg", "RS256");
-
-		Jwt idToken = new Jwt("id-token", issuedAt, expiresAt, headers, claims);
-
+	private void setUpIdToken(Map<String, Object> claims) {
+		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
 		JwtDecoder jwtDecoder = mock(JwtDecoder.class);
 		when(jwtDecoder.decode(anyString())).thenReturn(idToken);
-		PowerMockito.doReturn(jwtDecoder).when(this.authenticationProvider, "getJwtDecoder", any(ClientRegistration.class));
+		this.authenticationProvider.setJwtDecoderFactory(registration -> jwtDecoder);
+	}
+
+	private OAuth2AccessTokenResponse accessTokenSuccessResponse() {
+		Instant expiresAt = Instant.now().plusSeconds(5);
+		Set<String> scopes = new LinkedHashSet<>(Arrays.asList("openid", "profile", "email"));
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("param1", "value1");
+		additionalParameters.put("param2", "value2");
+		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
+
+		return OAuth2AccessTokenResponse
+				.withToken("access-token-1234")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(expiresAt.getEpochSecond())
+				.scopes(scopes)
+				.refreshToken("refresh-token-1234")
+				.additionalParameters(additionalParameters)
+				.build();
+
 	}
 }

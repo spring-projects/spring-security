@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -102,7 +103,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		long tokenExpiryTime;
 
 		try {
-			tokenExpiryTime = new Long(cookieTokens[1]).longValue();
+			tokenExpiryTime = new Long(cookieTokens[1]);
 		}
 		catch (NumberFormatException nfe) {
 			throw new InvalidCookieException(
@@ -122,6 +123,10 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
 		UserDetails userDetails = getUserDetailsService().loadUserByUsername(
 				cookieTokens[0]);
+
+		Assert.notNull(userDetails, () -> "UserDetailsService " + getUserDetailsService()
+				+ " returned null for username " + cookieTokens[0] + ". "
+				+ "This is an interface contract violation");
 
 		// Check signature of token matches remaining details.
 		// Must do this after user lookup, as we need the DAO-derived password.
@@ -256,15 +261,8 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	private static boolean equals(String expected, String actual) {
 		byte[] expectedBytes = bytesUtf8(expected);
 		byte[] actualBytes = bytesUtf8(actual);
-		if (expectedBytes.length != actualBytes.length) {
-			return false;
-		}
 
-		int result = 0;
-		for (int i = 0; i < expectedBytes.length; i++) {
-			result |= expectedBytes[i] ^ actualBytes[i];
-		}
-		return result == 0;
+		return MessageDigest.isEqual(expectedBytes, actualBytes);
 	}
 
 	private static byte[] bytesUtf8(String s) {

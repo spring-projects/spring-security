@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,12 @@
 
 package org.springframework.security.web.server.csrf;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.FormFieldPart;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -30,6 +34,8 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import static java.lang.Boolean.TRUE;
 
 /**
  * <p>
@@ -57,11 +63,25 @@ import java.util.Set;
  * @since 5.0
  */
 public class CsrfWebFilter implements WebFilter {
-	private ServerWebExchangeMatcher requireCsrfProtectionMatcher = new DefaultRequireCsrfProtectionMatcher();
+	public static final ServerWebExchangeMatcher DEFAULT_CSRF_MATCHER = new DefaultRequireCsrfProtectionMatcher();
+
+	/**
+	 * The attribute name to use when marking a given request as one that should not be filtered.
+	 *
+	 * To use, set the attribute on your {@link ServerWebExchange}:
+	 * <pre>
+	 * 	CsrfWebFilter.skipExchange(exchange);
+	 * </pre>
+	 */
+	private static final String SHOULD_NOT_FILTER = "SHOULD_NOT_FILTER" + CsrfWebFilter.class.getName();
+
+	private ServerWebExchangeMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
 
 	private ServerCsrfTokenRepository csrfTokenRepository = new WebSessionServerCsrfTokenRepository();
 
 	private ServerAccessDeniedHandler accessDeniedHandler = new HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN);
+
+	private boolean isTokenFromMultipartDataEnabled;
 
 	public void setAccessDeniedHandler(
 		ServerAccessDeniedHandler accessDeniedHandler) {
@@ -81,8 +101,21 @@ public class CsrfWebFilter implements WebFilter {
 		this.requireCsrfProtectionMatcher = requireCsrfProtectionMatcher;
 	}
 
+	/**
+	 * Specifies if the {@code CsrfWebFilter} should try to resolve the actual CSRF token from the body of multipart
+	 * data requests.
+	 * @param tokenFromMultipartDataEnabled true if should read from multipart form body, else false. Default is false
+	 */
+	public void setTokenFromMultipartDataEnabled(boolean tokenFromMultipartDataEnabled) {
+		this.isTokenFromMultipartDataEnabled = tokenFromMultipartDataEnabled;
+	}
+
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+		if (TRUE.equals(exchange.getAttribute(SHOULD_NOT_FILTER))) {
+			return chain.filter(exchange).then(Mono.empty());
+		}
+
 		return this.requireCsrfProtectionMatcher.matches(exchange)
 			.filter( matchResult -> matchResult.isMatch())
 			.filter( matchResult -> !exchange.getAttributes().containsKey(CsrfToken.class.getName()))
@@ -91,6 +124,10 @@ public class CsrfWebFilter implements WebFilter {
 			.switchIfEmpty(continueFilterChain(exchange, chain).then(Mono.empty()))
 			.onErrorResume(CsrfException.class, e -> this.accessDeniedHandler
 				.handle(exchange, e));
+	}
+
+	public static void skipExchange(ServerWebExchange exchange) {
+		exchange.getAttributes().put(SHOULD_NOT_FILTER, TRUE);
 	}
 
 	private Mono<Void> validateToken(ServerWebExchange exchange) {
@@ -105,7 +142,24 @@ public class CsrfWebFilter implements WebFilter {
 		return exchange.getFormData()
 			.flatMap(data -> Mono.justOrEmpty(data.getFirst(expected.getParameterName())))
 			.switchIfEmpty(Mono.justOrEmpty(exchange.getRequest().getHeaders().getFirst(expected.getHeaderName())))
+			.switchIfEmpty(tokenFromMultipartData(exchange, expected))
 			.map(actual -> actual.equals(expected.getToken()));
+	}
+
+	private Mono<String> tokenFromMultipartData(ServerWebExchange exchange, CsrfToken expected) {
+		if (!this.isTokenFromMultipartDataEnabled) {
+			return Mono.empty();
+		}
+		ServerHttpRequest request = exchange.getRequest();
+		HttpHeaders headers = request.getHeaders();
+		MediaType contentType = headers.getContentType();
+		if (!contentType.includes(MediaType.MULTIPART_FORM_DATA)) {
+			return Mono.empty();
+		}
+		return exchange.getMultipartData()
+			.map(d -> d.getFirst(expected.getParameterName()))
+			.cast(FormFieldPart.class)
+			.map(FormFieldPart::value);
 	}
 
 	private Mono<Void> continueFilterChain(ServerWebExchange exchange, WebFilterChain chain) {

@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,14 +15,14 @@
  */
 package org.springframework.security.core.token;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.security.SecureRandom;
 
 import org.junit.Test;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.security.core.token.SecureRandomFactoryBean;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests {@link SecureRandomFactoryBean}.
@@ -59,10 +59,11 @@ public class SecureRandomFactoryBeanTests {
 				"org/springframework/security/core/token/SecureRandomFactoryBeanTests.class");
 		assertThat(resource).isNotNull();
 		factory.setSeed(resource);
-		Object result = factory.getObject();
-		assertThat(result).isInstanceOf(SecureRandom.class);
-		int rnd = ((SecureRandom) result).nextInt();
-		assertThat(rnd).isNotEqualTo(0);
+		SecureRandom first = factory.getObject();
+		SecureRandom second = factory.getObject();
+		assertThat(first.nextInt())
+				.isNotEqualTo(0)
+				.isNotEqualTo(second.nextInt());
 	}
 
 }

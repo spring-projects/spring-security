@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,8 +22,9 @@ import java.util.List;
 
 import org.junit.Test;
 
+import org.springframework.context.support.GenericApplicationContext;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 /**
  * @author Eddú Meléndez
@@ -31,17 +32,31 @@ import static org.junit.Assert.fail;
 public class UnboundIdContainerTests {
 
 	@Test
-	public void startLdapServer() throws IOException {
+	public void startLdapServer() throws Exception {
 		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org",
 				"classpath:test-server.ldif");
+		server.setApplicationContext(new GenericApplicationContext());
 		List<Integer> ports = getDefaultPorts(1);
 		server.setPort(ports.get(0));
 
 		try {
 			server.afterPropertiesSet();
-			fail("Expected a RuntimeException to be thrown.");
-		} catch (Exception ex) {
-			assertThat(ex).hasMessage("Server startup failed");
+			assertThat(server.getPort()).isEqualTo(ports.get(0));
+		} finally {
+			server.destroy();
+		}
+	}
+
+	@Test
+	public void afterPropertiesSetWhenPortIsZeroThenRandomPortIsSelected() throws Exception {
+		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org", null);
+		server.setPort(0);
+
+		try {
+			server.afterPropertiesSet();
+			assertThat(server.getPort()).isNotEqualTo(0);
+		} finally {
+			server.destroy();
 		}
 	}
 

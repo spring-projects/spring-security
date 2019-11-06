@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,14 +31,17 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -330,7 +333,7 @@ public class CsrfFilterTests {
 
 	/**
 	 * SEC-2292 Should not allow other cases through since spec states HTTP method is case
-	 * sensitive http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.1.1
+	 * sensitive https://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.1.1
 	 * @throws Exception if an error occurs
 	 *
 	 */
@@ -390,6 +393,22 @@ public class CsrfFilterTests {
 		verifyZeroInteractions(this.filterChain);
 	}
 
+	@Test
+	public void doFilterWhenSkipRequestInvokedThenSkips()
+			throws Exception {
+
+		CsrfTokenRepository repository = mock(CsrfTokenRepository.class);
+		CsrfFilter filter = new CsrfFilter(repository);
+
+		lenient().when(repository.loadToken(any(HttpServletRequest.class))).thenReturn(this.token);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		CsrfFilter.skipRequest(request);
+		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+
+		verifyZeroInteractions(repository);
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void setRequireCsrfProtectionMatcherNull() {
 		this.filter.setRequireCsrfProtectionMatcher(null);
@@ -400,7 +419,7 @@ public class CsrfFilterTests {
 		this.filter.setAccessDeniedHandler(null);
 	}
 
-	private static final CsrfTokenAssert assertToken(Object token) {
+	private static CsrfTokenAssert assertToken(Object token) {
 		return new CsrfTokenAssert((CsrfToken) token);
 	}
 

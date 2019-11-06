@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
  */
 package org.springframework.security.web.authentication.session;
 
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,8 +46,9 @@ import org.springframework.util.Assert;
  * </p>
  * <p>
  * If a user has reached the maximum number of permitted sessions, the behaviour depends
- * on the <tt>exceptionIfMaxExceeded</tt> property. The default behaviour is to expired
- * the least recently used session, which will be invalidated by the
+ * on the <tt>exceptionIfMaxExceeded</tt> property. The default behaviour is to expire
+ * any sessions that exceed the maximum number of permitted sessions, starting with the
+ * least recently used sessions. The expired sessions will be invalidated by the
  * {@link ConcurrentSessionFilter} if accessed again. If <tt>exceptionIfMaxExceeded</tt>
  * is set to <tt>true</tt>, however, the user will be prevented from starting a new
  * authenticated session.
@@ -152,22 +154,17 @@ public class ConcurrentSessionControlAuthenticationStrategy implements
 		if (exceptionIfMaximumExceeded || (sessions == null)) {
 			throw new SessionAuthenticationException(messages.getMessage(
 					"ConcurrentSessionControlAuthenticationStrategy.exceededAllowed",
-					new Object[] { Integer.valueOf(allowableSessions) },
+					new Object[] {allowableSessions},
 					"Maximum sessions of {0} for this principal exceeded"));
 		}
 
-		// Determine least recently used session, and mark it for invalidation
-		SessionInformation leastRecentlyUsed = null;
-
-		for (SessionInformation session : sessions) {
-			if ((leastRecentlyUsed == null)
-					|| session.getLastRequest()
-							.before(leastRecentlyUsed.getLastRequest())) {
-				leastRecentlyUsed = session;
-			}
+		// Determine least recently used sessions, and mark them for invalidation
+		sessions.sort(Comparator.comparing(SessionInformation::getLastRequest));
+		int maximumSessionsExceededBy = sessions.size() - allowableSessions + 1;
+		List<SessionInformation> sessionsToBeExpired = sessions.subList(0, maximumSessionsExceededBy);
+		for (SessionInformation session: sessionsToBeExpired) {
+			session.expireNow();
 		}
-
-		leastRecentlyUsed.expireNow();
 	}
 
 	/**

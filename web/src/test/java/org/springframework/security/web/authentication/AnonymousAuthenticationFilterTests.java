@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -59,17 +59,17 @@ public class AnonymousAuthenticationFilterTests {
 
 	@Before
 	@After
-	public void clearContext() throws Exception {
+	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsMissingKey() throws Exception {
+	public void testDetectsMissingKey() {
 		new AnonymousAuthenticationFilter(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testDetectsUserAttribute() throws Exception {
+	public void testDetectsUserAttribute() {
 		new AnonymousAuthenticationFilter("qwerty", null, null);
 	}
 
@@ -120,12 +120,11 @@ public class AnonymousAuthenticationFilterTests {
 	private class MockFilterChain implements FilterChain {
 		private boolean expectToProceed;
 
-		public MockFilterChain(boolean expectToProceed) {
+		MockFilterChain(boolean expectToProceed) {
 			this.expectToProceed = expectToProceed;
 		}
 
-		public void doFilter(ServletRequest request, ServletResponse response)
-				throws IOException, ServletException {
+		public void doFilter(ServletRequest request, ServletResponse response) {
 			if (!expectToProceed) {
 				fail("Did not expect filter chain to proceed");
 			}

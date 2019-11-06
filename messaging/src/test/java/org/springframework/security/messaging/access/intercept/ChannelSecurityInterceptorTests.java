@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,8 +37,8 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -85,22 +85,22 @@ public class ChannelSecurityInterceptorTests {
 	}
 
 	@Test
-	public void getSecureObjectClass() throws Exception {
+	public void getSecureObjectClass() {
 		assertThat(interceptor.getSecureObjectClass()).isEqualTo(Message.class);
 	}
 
 	@Test
-	public void obtainSecurityMetadataSource() throws Exception {
+	public void obtainSecurityMetadataSource() {
 		assertThat(interceptor.obtainSecurityMetadataSource()).isEqualTo(source);
 	}
 
 	@Test
-	public void preSendNullAttributes() throws Exception {
+	public void preSendNullAttributes() {
 		assertThat(interceptor.preSend(message, channel)).isSameAs(message);
 	}
 
 	@Test
-	public void preSendGrant() throws Exception {
+	public void preSendGrant() {
 		when(source.getAttributes(message)).thenReturn(attrs);
 
 		Message<?> result = interceptor.preSend(message, channel);
@@ -109,7 +109,7 @@ public class ChannelSecurityInterceptorTests {
 	}
 
 	@Test(expected = AccessDeniedException.class)
-	public void preSendDeny() throws Exception {
+	public void preSendDeny() {
 		when(source.getAttributes(message)).thenReturn(attrs);
 		doThrow(new AccessDeniedException("")).when(accessDecisionManager).decide(
 				any(Authentication.class), eq(message), eq(attrs));
@@ -119,7 +119,7 @@ public class ChannelSecurityInterceptorTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void preSendPostSendRunAs() throws Exception {
+	public void preSendPostSendRunAs() {
 		when(source.getAttributes(message)).thenReturn(attrs);
 		when(
 				runAsManager.buildRunAs(any(Authentication.class), any(),
@@ -137,13 +137,13 @@ public class ChannelSecurityInterceptorTests {
 	}
 
 	@Test
-	public void afterSendCompletionNotTokenMessageNoExceptionThrown() throws Exception {
+	public void afterSendCompletionNotTokenMessageNoExceptionThrown() {
 		interceptor.afterSendCompletion(message, channel, true, null);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void preSendFinallySendRunAs() throws Exception {
+	public void preSendFinallySendRunAs() {
 		when(source.getAttributes(message)).thenReturn(attrs);
 		when(
 				runAsManager.buildRunAs(any(Authentication.class), any(),
@@ -161,17 +161,17 @@ public class ChannelSecurityInterceptorTests {
 	}
 
 	@Test
-	public void preReceive() throws Exception {
+	public void preReceive() {
 		assertThat(interceptor.preReceive(channel)).isTrue();
 	}
 
 	@Test
-	public void postReceive() throws Exception {
+	public void postReceive() {
 		assertThat(interceptor.postReceive(message, channel)).isSameAs(message);
 	}
 
 	@Test
-	public void afterReceiveCompletionNullExceptionNoExceptionThrown() throws Exception {
+	public void afterReceiveCompletionNullExceptionNoExceptionThrown() {
 		interceptor.afterReceiveCompletion(message, channel, null);
 	}
 }

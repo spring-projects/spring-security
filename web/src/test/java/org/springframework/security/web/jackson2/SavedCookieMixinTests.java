@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -83,7 +83,7 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void deserializeSavedCookieWithList() throws IOException, JSONException {
+	public void deserializeSavedCookieWithList() throws IOException {
 		List<SavedCookie> savedCookies = (List<SavedCookie>) mapper.readValue(COOKIES_JSON, Object.class);
 		assertThat(savedCookies).isNotNull().hasSize(1);
 		assertThat(savedCookies.get(0).getName()).isEqualTo("SESSION");

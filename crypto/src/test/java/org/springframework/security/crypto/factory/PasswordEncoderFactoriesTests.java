@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@ package org.springframework.security.crypto.factory;
 import org.junit.Test;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
@@ -95,6 +95,12 @@ public class PasswordEncoderFactoriesTests {
 	@Test
 	public void matchesWhenSha256ThenWorks() {
 		String encodedPassword = "{sha256}97cde38028ad898ebc02e690819fa220e88c62e0699403e94fff291cfffaf8410849f27605abcbc0";
+		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
+	public void matchesWhenArgon2ThenWorks() {
+		String encodedPassword = "{argon2}$argon2d$v=19$m=1024,t=1,p=1$c29tZXNhbHQ$Li5eBf5XrCz0cuzQRe9oflYqmA/VAzmzichw4ZYrvEU";
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
 	}
 

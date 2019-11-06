@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  */
 public class OAuth2AuthorizationResponseTests {
 	private static final String AUTH_CODE = "auth-code";
-	private static final String REDIRECT_URI = "http://example.com";
+	private static final String REDIRECT_URI = "https://example.com";
 	private static final String STATE = "state";
 	private static final String ERROR_CODE = "error-code";
 	private static final String ERROR_DESCRIPTION = "error-description";

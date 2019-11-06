@@ -1,11 +1,11 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package org.springframework.security.web.concurrent;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -40,9 +41,9 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -53,6 +54,7 @@ import static org.mockito.Mockito.when;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Onur Kagan Ozcan
  */
 public class ConcurrentSessionFilterTests {
 
@@ -134,7 +136,7 @@ public class ConcurrentSessionFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void detectsMissingSessionRegistry() throws Exception {
+	public void detectsMissingSessionRegistry() {
 		new ConcurrentSessionFilter(null);
 	}
 
@@ -315,7 +317,7 @@ public class ConcurrentSessionFilterTests {
 	public void setLogoutHandlersWhenNullThenThrowsException() {
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(new SessionRegistryImpl());
 
-		filter.setLogoutHandlers(null);
+		filter.setLogoutHandlers((List<LogoutHandler>) null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

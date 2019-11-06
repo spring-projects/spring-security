@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -76,7 +76,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 *
 	 * @exception LoginException if the abort fails
 	 */
-	public boolean abort() throws LoginException {
+	public boolean abort() {
 		if (authen == null) {
 			return false;
 		}
@@ -95,7 +95,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 *
 	 * @exception LoginException if the commit fails
 	 */
-	public boolean commit() throws LoginException {
+	public boolean commit() {
 		if (authen == null) {
 			return false;
 		}
@@ -171,7 +171,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 *
 	 * @exception LoginException if the logout fails
 	 */
-	public boolean logout() throws LoginException {
+	public boolean logout() {
 		if (authen == null) {
 			return false;
 		}

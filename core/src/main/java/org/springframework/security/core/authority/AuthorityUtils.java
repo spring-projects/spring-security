@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.StringUtils;
+import org.springframework.util.Assert;
 
 /**
  * Utility method for manipulating <tt>GrantedAuthority</tt> collections etc.
@@ -55,6 +56,7 @@ public abstract class AuthorityUtils {
 	 */
 	public static Set<String> authorityListToSet(
 			Collection<? extends GrantedAuthority> userAuthorities) {
+		Assert.notNull(userAuthorities, "userAuthorities cannot be null");
 		Set<String> set = new HashSet<>(userAuthorities.size());
 
 		for (GrantedAuthority authority : userAuthorities) {
@@ -64,13 +66,19 @@ public abstract class AuthorityUtils {
 		return set;
 	}
 
-	public static List<GrantedAuthority> createAuthorityList(String... roles) {
-		List<GrantedAuthority> authorities = new ArrayList<>(roles.length);
+	/**
+	 * Converts authorities into a List of GrantedAuthority objects.
+	 *
+	 * @param authorities the authorities to convert
+	 * @return a List of GrantedAuthority objects
+	 */
+	public static List<GrantedAuthority> createAuthorityList(String... authorities) {
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>(authorities.length);
 
-		for (String role : roles) {
-			authorities.add(new SimpleGrantedAuthority(role));
+		for (String authority : authorities) {
+			grantedAuthorities.add(new SimpleGrantedAuthority(authority));
 		}
 
-		return authorities;
+		return grantedAuthorities;
 	}
 }

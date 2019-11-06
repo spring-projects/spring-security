@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,6 +34,7 @@ import org.springframework.security.access.expression.AbstractSecurityExpression
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.test.SpringTestRule;
@@ -77,7 +78,7 @@ public class WebSecurityConfigurationTests {
 	private MockMvc mockMvc;
 
 	@Test
-	public void loadConfigWhenWebSecurityConfigurersHaveOrderThenFilterChainsOrdered() throws Exception {
+	public void loadConfigWhenWebSecurityConfigurersHaveOrderThenFilterChainsOrdered() {
 		this.spring.register(SortedWebSecurityConfigurerAdaptersConfig.class).autowire();
 
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
@@ -115,7 +116,7 @@ public class WebSecurityConfigurationTests {
 		@Order(1)
 		static class WebConfigurer1 extends WebSecurityConfigurerAdapter {
 			@Override
-			public void configure(WebSecurity web)	throws Exception {
+			public void configure(WebSecurity web) {
 				web
 					.ignoring()
 						.antMatchers("/ignore1", "/ignore2");
@@ -167,7 +168,7 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenWebSecurityConfigurersHaveSameOrderThenThrowBeanCreationException() throws Exception {
+	public void loadConfigWhenWebSecurityConfigurersHaveSameOrderThenThrowBeanCreationException() {
 		Throwable thrown = catchThrowable(() -> this.spring.register(DuplicateOrderConfig.class).autowire());
 
 		assertThat(thrown).isInstanceOf(BeanCreationException.class)
@@ -204,7 +205,7 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenWebInvocationPrivilegeEvaluatorSetThenIsRegistered() throws Exception {
+	public void loadConfigWhenWebInvocationPrivilegeEvaluatorSetThenIsRegistered() {
 		PrivilegeEvaluatorConfigurerAdapterConfig.PRIVILEGE_EVALUATOR = mock(WebInvocationPrivilegeEvaluator.class);
 
 		this.spring.register(PrivilegeEvaluatorConfigurerAdapterConfig.class).autowire();
@@ -218,13 +219,13 @@ public class WebSecurityConfigurationTests {
 		static WebInvocationPrivilegeEvaluator PRIVILEGE_EVALUATOR;
 
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			web.privilegeEvaluator(PRIVILEGE_EVALUATOR);
 		}
 	}
 
 	@Test
-	public void loadConfigWhenSecurityExpressionHandlerSetThenIsRegistered() throws Exception {
+	public void loadConfigWhenSecurityExpressionHandlerSetThenIsRegistered() {
 		WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER = mock(SecurityExpressionHandler.class);
 		when(WebSecurityExpressionHandlerConfig.EXPRESSION_HANDLER.getExpressionParser()).thenReturn(mock(ExpressionParser.class));
 
@@ -239,7 +240,7 @@ public class WebSecurityConfigurationTests {
 		static SecurityExpressionHandler EXPRESSION_HANDLER;
 
 		@Override
-		public void configure(WebSecurity web) throws Exception {
+		public void configure(WebSecurity web) {
 			web.expressionHandler(EXPRESSION_HANDLER);
 		}
 
@@ -253,7 +254,26 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenDefaultSecurityExpressionHandlerThenDefaultIsRegistered() throws Exception {
+	public void loadConfigWhenSecurityExpressionHandlerIsNullThenException() {
+		Throwable thrown = catchThrowable(() ->
+				this.spring.register(NullWebSecurityExpressionHandlerConfig.class).autowire()
+		);
+
+		assertThat(thrown).isInstanceOf(BeanCreationException.class);
+		assertThat(thrown).hasRootCauseExactlyInstanceOf(IllegalArgumentException.class);
+	}
+
+	@EnableWebSecurity
+	static class NullWebSecurityExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		public void configure(WebSecurity web) {
+			web.expressionHandler(null);
+		}
+	}
+
+	@Test
+	public void loadConfigWhenDefaultSecurityExpressionHandlerThenDefaultIsRegistered() {
 		this.spring.register(WebSecurityExpressionHandlerDefaultsConfig.class).autowire();
 
 		assertThat(this.spring.getContext().getBean(SecurityExpressionHandler.class))
@@ -271,7 +291,7 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void securityExpressionHandlerWhenPermissionEvaluatorBeanThenPermissionEvaluatorUsed() throws Exception {
+	public void securityExpressionHandlerWhenPermissionEvaluatorBeanThenPermissionEvaluatorUsed() {
 		this.spring.register(WebSecurityExpressionHandlerPermissionEvaluatorBeanConfig.class).autowire();
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "notused");
 		FilterInvocation invocation = new FilterInvocation(new MockHttpServletRequest("GET", ""), new MockHttpServletResponse(), new MockFilterChain());
@@ -307,7 +327,7 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenDefaultWebInvocationPrivilegeEvaluatorThenDefaultIsRegistered() throws Exception {
+	public void loadConfigWhenDefaultWebInvocationPrivilegeEvaluatorThenDefaultIsRegistered() {
 		this.spring.register(WebInvocationPrivilegeEvaluatorDefaultsConfig.class).autowire();
 
 		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
@@ -371,7 +391,7 @@ public class WebSecurityConfigurationTests {
 
 	// SEC-2461
 	@Test
-	public void loadConfigWhenMultipleWebSecurityConfigurationThenContextLoads() throws Exception {
+	public void loadConfigWhenMultipleWebSecurityConfigurationThenContextLoads() {
 		this.spring.register(ParentConfig.class).autowire();
 
 		this.child.register(ChildConfig.class);
@@ -399,8 +419,56 @@ public class WebSecurityConfigurationTests {
 
 	// SEC-2773
 	@Test
-	public void getMethodDelegatingApplicationListenerWhenWebSecurityConfigurationThenIsStatic() throws Exception {
+	public void getMethodDelegatingApplicationListenerWhenWebSecurityConfigurationThenIsStatic() {
 		Method method = ClassUtils.getMethod(WebSecurityConfiguration.class, "delegatingApplicationListener", null);
 		assertThat(Modifier.isStatic(method.getModifiers())).isTrue();
+	}
+
+	@Test
+	public void loadConfigWhenBeanProxyingEnabledAndSubclassThenFilterChainsCreated() {
+		this.spring.register(GlobalAuthenticationWebSecurityConfigurerAdaptersConfig.class, SubclassConfig.class).autowire();
+
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+
+		assertThat(filterChains).hasSize(4);
+	}
+
+	@Configuration
+	static class SubclassConfig extends WebSecurityConfiguration {
+	}
+
+	@Import(AuthenticationTestConfiguration.class)
+	@EnableGlobalAuthentication
+	static class GlobalAuthenticationWebSecurityConfigurerAdaptersConfig {
+		@Configuration
+		@Order(1)
+		static class WebConfigurer1 extends WebSecurityConfigurerAdapter {
+			@Override
+			public void configure(WebSecurity web) {
+				web
+						.ignoring()
+						.antMatchers("/ignore1", "/ignore2");
+			}
+
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+						.antMatcher("/anonymous/**")
+						.authorizeRequests()
+						.anyRequest().anonymous();
+			}
+		}
+
+		@Configuration
+		static class WebConfigurer2 extends WebSecurityConfigurerAdapter {
+
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+						.authorizeRequests()
+						.anyRequest().authenticated();
+			}
+		}
 	}
 }

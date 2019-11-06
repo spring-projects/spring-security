@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,25 +29,35 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.junit.*;
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.UncategorizedLdapException;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author Luke Taylor
+ * @author Eddú Meléndez
  */
-public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTests {
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ApacheDsContainerConfig.class)
+public class SpringSecurityLdapTemplateITests {
 	// ~ Instance fields
 	// ================================================================================================
 
+	@Autowired
+	private DefaultSpringSecurityContextSource contextSource;
 	private SpringSecurityLdapTemplate template;
 
 	// ~ Methods
 	// ========================================================================================================
 
 	@Before
-	public void setUp() throws Exception {
-		template = new SpringSecurityLdapTemplate(getContextSource());
+	public void setUp() {
+		template = new SpringSecurityLdapTemplate(this.contextSource);
 	}
 
 	@Test
@@ -85,11 +95,8 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 	@Test
 	public void namingExceptionIsTranslatedCorrectly() {
 		try {
-			template.executeReadOnly(new ContextExecutor() {
-				public Object executeWithContext(DirContext dirContext)
-						throws NamingException {
-					throw new NamingException();
-				}
+			template.executeReadOnly((ContextExecutor) dirContext -> {
+				throw new NamingException();
 			});
 			fail("Expected UncategorizedLdapException on NamingException");
 		}
@@ -174,7 +181,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 	}
 
 	@Test
-	public void roleSearchWithEscapedCharacterSucceeds() throws Exception {
+	public void roleSearchWithEscapedCharacterSucceeds() {
 		String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
 
 		Set<String> values = template.searchForSingleAttributeValues("ou=groups",
@@ -187,8 +194,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 	public void nonSpringLdapSearchCodeTestMethod() throws Exception {
 		java.util.Hashtable<String, String> env = new java.util.Hashtable<>();
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, "ldap://localhost:"
-				+ ApacheDSServerIntegrationTests.getServerPort());
+		env.put(Context.PROVIDER_URL, this.contextSource.getUrls()[0]);
 		env.put(Context.SECURITY_PRINCIPAL, "");
 		env.put(Context.SECURITY_CREDENTIALS, "");
 

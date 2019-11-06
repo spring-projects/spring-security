@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,62 +15,50 @@
  */
 package org.springframework.security.oauth2.client.authentication;
 
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
-import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses.accessTokenResponse;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.error;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeAuthenticationProvider}.
  *
  * @author Joe Grandja
  */
-@PrepareForTest({ClientRegistration.class, OAuth2AuthorizationRequest.class,
-	OAuth2AuthorizationResponse.class, OAuth2AccessTokenResponse.class})
-@RunWith(PowerMockRunner.class)
 public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 	private ClientRegistration clientRegistration;
 	private OAuth2AuthorizationRequest authorizationRequest;
-	private OAuth2AuthorizationResponse authorizationResponse;
-	private OAuth2AuthorizationExchange authorizationExchange;
 	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 	private OAuth2AuthorizationCodeAuthenticationProvider authenticationProvider;
 
 	@Before
 	@SuppressWarnings("unchecked")
-	public void setUp() throws Exception {
-		this.clientRegistration = mock(ClientRegistration.class);
-		this.authorizationRequest = mock(OAuth2AuthorizationRequest.class);
-		this.authorizationResponse = mock(OAuth2AuthorizationResponse.class);
-		this.authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest, this.authorizationResponse);
+	public void setUp() {
+		this.clientRegistration = clientRegistration().build();
+		this.authorizationRequest = request().build();
 		this.accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
 		this.authenticationProvider = new OAuth2AuthorizationCodeAuthenticationProvider(this.accessTokenResponseClient);
-
-		when(this.authorizationRequest.getState()).thenReturn("12345");
-		when(this.authorizationResponse.getState()).thenReturn("12345");
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example.com");
 	}
 
 	@Test
@@ -85,61 +73,63 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateWhenAuthorizationErrorResponseThenThrowOAuth2AuthenticationException() {
-		when(this.authorizationResponse.statusError()).thenReturn(true);
-		when(this.authorizationResponse.getError()).thenReturn(new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST));
+	public void authenticateWhenAuthorizationErrorResponseThenThrowOAuth2AuthorizationException() {
+		OAuth2AuthorizationResponse authorizationResponse = error().errorCode(OAuth2ErrorCodes.INVALID_REQUEST).build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
+				this.authorizationRequest, authorizationResponse);
 
 		assertThatThrownBy(() -> {
 			this.authenticationProvider.authenticate(
 					new OAuth2AuthorizationCodeAuthenticationToken(
-							this.clientRegistration, this.authorizationExchange));
-		}).isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining(OAuth2ErrorCodes.INVALID_REQUEST);
+							this.clientRegistration, authorizationExchange));
+		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining(OAuth2ErrorCodes.INVALID_REQUEST);
 	}
 
 	@Test
-	public void authenticateWhenAuthorizationResponseStateNotEqualAuthorizationRequestStateThenThrowOAuth2AuthenticationException() {
-		when(this.authorizationRequest.getState()).thenReturn("12345");
-		when(this.authorizationResponse.getState()).thenReturn("67890");
+	public void authenticateWhenAuthorizationResponseStateNotEqualAuthorizationRequestStateThenThrowOAuth2AuthorizationException() {
+		OAuth2AuthorizationResponse authorizationResponse = success().state("67890").build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
+				this.authorizationRequest, authorizationResponse);
 
 		assertThatThrownBy(() -> {
 			this.authenticationProvider.authenticate(
 					new OAuth2AuthorizationCodeAuthenticationToken(
-							this.clientRegistration, this.authorizationExchange));
-		}).isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("invalid_state_parameter");
+							this.clientRegistration, authorizationExchange));
+		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("invalid_state_parameter");
 	}
 
 	@Test
-	public void authenticateWhenAuthorizationResponseRedirectUriNotEqualAuthorizationRequestRedirectUriThenThrowOAuth2AuthenticationException() {
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("http://example.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("http://example2.com");
+	public void authenticateWhenAuthorizationResponseRedirectUriNotEqualAuthorizationRequestRedirectUriThenThrowOAuth2AuthorizationException() {
+		OAuth2AuthorizationResponse authorizationResponse = success().redirectUri("https://example2.com").build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
+				this.authorizationRequest, authorizationResponse);
 
 		assertThatThrownBy(() -> {
 			this.authenticationProvider.authenticate(
 					new OAuth2AuthorizationCodeAuthenticationToken(
-							this.clientRegistration, this.authorizationExchange));
-		}).isInstanceOf(OAuth2AuthenticationException.class).hasMessageContaining("invalid_redirect_uri_parameter");
+							this.clientRegistration, authorizationExchange));
+		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("invalid_redirect_uri_parameter");
 	}
 
 	@Test
 	public void authenticateWhenAuthorizationSuccessResponseThenExchangedForAccessToken() {
-		OAuth2AccessToken accessToken = mock(OAuth2AccessToken.class);
-		OAuth2RefreshToken refreshToken = mock(OAuth2RefreshToken.class);
-		OAuth2AccessTokenResponse accessTokenResponse = mock(OAuth2AccessTokenResponse.class);
-		when(accessTokenResponse.getAccessToken()).thenReturn(accessToken);
-		when(accessTokenResponse.getRefreshToken()).thenReturn(refreshToken);
+		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().refreshToken("refresh").build();
 		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
 
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
+				this.authorizationRequest, success().build());
 		OAuth2AuthorizationCodeAuthenticationToken authenticationResult =
 			(OAuth2AuthorizationCodeAuthenticationToken) this.authenticationProvider.authenticate(
-				new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, this.authorizationExchange));
+				new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
 
 		assertThat(authenticationResult.isAuthenticated()).isTrue();
 		assertThat(authenticationResult.getPrincipal()).isEqualTo(this.clientRegistration.getClientId());
-		assertThat(authenticationResult.getCredentials()).isEqualTo(accessToken.getTokenValue());
+		assertThat(authenticationResult.getCredentials())
+				.isEqualTo(accessTokenResponse.getAccessToken().getTokenValue());
 		assertThat(authenticationResult.getAuthorities()).isEqualTo(Collections.emptyList());
 		assertThat(authenticationResult.getClientRegistration()).isEqualTo(this.clientRegistration);
-		assertThat(authenticationResult.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
-		assertThat(authenticationResult.getAccessToken()).isEqualTo(accessToken);
-		assertThat(authenticationResult.getRefreshToken()).isEqualTo(refreshToken);
+		assertThat(authenticationResult.getAuthorizationExchange()).isEqualTo(authorizationExchange);
+		assertThat(authenticationResult.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+		assertThat(authenticationResult.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
 	}
 }

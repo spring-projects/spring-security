@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,7 @@ public class SavedCookieTests {
 	SavedCookie savedCookie;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		cookie = new Cookie("name", "value");
 		cookie.setComment("comment");
 		cookie.setDomain("domain");
@@ -43,42 +43,42 @@ public class SavedCookieTests {
 	}
 
 	@Test
-	public void testGetName() throws Exception {
+	public void testGetName() {
 		assertThat(savedCookie.getName()).isEqualTo(cookie.getName());
 	}
 
 	@Test
-	public void testGetValue() throws Exception {
+	public void testGetValue() {
 		assertThat(savedCookie.getValue()).isEqualTo(cookie.getValue());
 	}
 
 	@Test
-	public void testGetComment() throws Exception {
+	public void testGetComment() {
 		assertThat(savedCookie.getComment()).isEqualTo(cookie.getComment());
 	}
 
 	@Test
-	public void testGetDomain() throws Exception {
+	public void testGetDomain() {
 		assertThat(savedCookie.getDomain()).isEqualTo(cookie.getDomain());
 	}
 
 	@Test
-	public void testGetMaxAge() throws Exception {
+	public void testGetMaxAge() {
 		assertThat(savedCookie.getMaxAge()).isEqualTo(cookie.getMaxAge());
 	}
 
 	@Test
-	public void testGetPath() throws Exception {
+	public void testGetPath() {
 		assertThat(savedCookie.getPath()).isEqualTo(cookie.getPath());
 	}
 
 	@Test
-	public void testGetVersion() throws Exception {
+	public void testGetVersion() {
 		assertThat(savedCookie.getVersion()).isEqualTo(cookie.getVersion());
 	}
 
 	@Test
-	public void testGetCookie() throws Exception {
+	public void testGetCookie() {
 		Cookie other = savedCookie.getCookie();
 		assertThat(other.getComment()).isEqualTo(cookie.getComment());
 		assertThat(other.getDomain()).isEqualTo(cookie.getDomain());
@@ -91,7 +91,7 @@ public class SavedCookieTests {
 	}
 
 	@Test
-	public void testSerializable() throws Exception {
+	public void testSerializable() {
 		assertThat(savedCookie instanceof Serializable).isTrue();
 	}
 }

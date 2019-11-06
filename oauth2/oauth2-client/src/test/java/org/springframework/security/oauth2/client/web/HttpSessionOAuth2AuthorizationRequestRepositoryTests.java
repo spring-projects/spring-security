@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -217,9 +217,16 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 		assertThat(loadedAuthorizationRequest).isNull();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void removeAuthorizationRequestWhenHttpServletRequestIsNullThenThrowIllegalArgumentException() {
-		this.authorizationRequestRepository.removeAuthorizationRequest(null);
+		assertThatThrownBy(() -> this.authorizationRequestRepository.removeAuthorizationRequest(
+				null, new MockHttpServletResponse())).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void removeAuthorizationRequestWhenHttpServletResponseIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.authorizationRequestRepository.removeAuthorizationRequest(
+				new MockHttpServletRequest(), null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -234,7 +241,7 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 
 		request.addParameter(OAuth2ParameterNames.STATE, authorizationRequest.getState());
 		OAuth2AuthorizationRequest removedAuthorizationRequest =
-			this.authorizationRequestRepository.removeAuthorizationRequest(request);
+			this.authorizationRequestRepository.removeAuthorizationRequest(request, response);
 		OAuth2AuthorizationRequest loadedAuthorizationRequest =
 			this.authorizationRequestRepository.loadAuthorizationRequest(request);
 
@@ -255,7 +262,7 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 
 		request.addParameter(OAuth2ParameterNames.STATE, authorizationRequest.getState());
 		OAuth2AuthorizationRequest removedAuthorizationRequest =
-				this.authorizationRequestRepository.removeAuthorizationRequest(request);
+				this.authorizationRequestRepository.removeAuthorizationRequest(request, response);
 
 		String sessionAttributeName = HttpSessionOAuth2AuthorizationRequestRepository.class.getName() +
 				".AUTHORIZATION_REQUEST";
@@ -269,8 +276,10 @@ public class HttpSessionOAuth2AuthorizationRequestRepositoryTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter(OAuth2ParameterNames.STATE, "state-1234");
 
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
 		OAuth2AuthorizationRequest removedAuthorizationRequest =
-			this.authorizationRequestRepository.removeAuthorizationRequest(request);
+			this.authorizationRequestRepository.removeAuthorizationRequest(request, response);
 
 		assertThat(removedAuthorizationRequest).isNull();
 	}

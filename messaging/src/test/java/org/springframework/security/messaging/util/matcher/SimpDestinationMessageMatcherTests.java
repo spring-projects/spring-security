@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,12 +49,12 @@ public class SimpDestinationMessageMatcherTests {
 	}
 
 	@Test
-	public void matchesDoesNotMatchNullDestination() throws Exception {
+	public void matchesDoesNotMatchNullDestination() {
 		assertThat(matcher.matches(messageBuilder.build())).isFalse();
 	}
 
 	@Test
-	public void matchesAllWithDestination() throws Exception {
+	public void matchesAllWithDestination() {
 		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER,
 				"/destination/1");
 
@@ -62,7 +62,7 @@ public class SimpDestinationMessageMatcherTests {
 	}
 
 	@Test
-	public void matchesSpecificWithDestination() throws Exception {
+	public void matchesSpecificWithDestination() {
 		matcher = new SimpDestinationMessageMatcher("/destination/1");
 
 		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER,
@@ -72,7 +72,7 @@ public class SimpDestinationMessageMatcherTests {
 	}
 
 	@Test
-	public void matchesFalseWithDestination() throws Exception {
+	public void matchesFalseWithDestination() {
 		matcher = new SimpDestinationMessageMatcher("/nomatch");
 
 		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER,
@@ -82,7 +82,7 @@ public class SimpDestinationMessageMatcherTests {
 	}
 
 	@Test
-	public void matchesFalseMessageTypeNotDisconnectType() throws Exception {
+	public void matchesFalseMessageTypeNotDisconnectType() {
 		matcher = SimpDestinationMessageMatcher.createMessageMatcher("/match",
 				pathMatcher);
 
@@ -93,7 +93,7 @@ public class SimpDestinationMessageMatcherTests {
 	}
 
 	@Test
-	public void matchesTrueMessageType() throws Exception {
+	public void matchesTrueMessageType() {
 		matcher = SimpDestinationMessageMatcher.createMessageMatcher("/match",
 				pathMatcher);
 
@@ -105,7 +105,7 @@ public class SimpDestinationMessageMatcherTests {
 	}
 
 	@Test
-	public void matchesTrueSubscribeType() throws Exception {
+	public void matchesTrueSubscribeType() {
 		matcher = SimpDestinationMessageMatcher.createSubscribeMatcher("/match",
 				pathMatcher);
 
@@ -117,7 +117,7 @@ public class SimpDestinationMessageMatcherTests {
 	}
 
 	@Test
-	public void matchesNullMessageType() throws Exception {
+	public void matchesNullMessageType() {
 		matcher = new SimpDestinationMessageMatcher("/match");
 
 		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/match");
@@ -128,7 +128,24 @@ public class SimpDestinationMessageMatcherTests {
 	}
 
 	@Test
-	public void typeConstructorParameterIsTransmitted() throws Exception {
+	public void extractPathVariablesFromDestination() {
+		matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
+
+		messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1");
+		messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER,
+				SimpMessageType.MESSAGE);
+
+		assertThat(matcher.extractPathVariables(messageBuilder.build()).get("topic")).isEqualTo("someTopic");
+	}
+
+	@Test
+	public void extractedVariablesAreEmptyInNullDestination() {
+		matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
+		assertThat(matcher.extractPathVariables(messageBuilder.build())).isEmpty();
+	}
+
+	@Test
+	public void typeConstructorParameterIsTransmitted() {
 		matcher = SimpDestinationMessageMatcher.createMessageMatcher("/match",
 				pathMatcher);
 

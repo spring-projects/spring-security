@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,22 +15,30 @@
  */
 package org.springframework.security.config;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Matchers.*;
-import static org.powermock.api.mockito.PowerMockito.*;
-
 import org.apache.commons.logging.Log;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.messaging.Message;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ClassUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.powermock.api.mockito.PowerMockito.doThrow;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
+import static org.powermock.api.mockito.PowerMockito.verifyZeroInteractions;
 
 /**
  *
@@ -40,6 +48,7 @@ import org.springframework.util.ClassUtils;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ ClassUtils.class })
+@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class SecurityNamespaceHandlerTests {
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -63,7 +72,7 @@ public class SecurityNamespaceHandlerTests {
 	}
 
 	@Test
-	public void pre32SchemaAreNotSupported() throws Exception {
+	public void pre32SchemaAreNotSupported() {
 		try {
 			new InMemoryXmlApplicationContext(
 					"<user-service id='us'>"

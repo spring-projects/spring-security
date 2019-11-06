@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -528,7 +528,8 @@ public class CsrfConfigTests {
 				this.xml("CsrfEnabled")
 			).autowire();
 
-		this.mvc.perform(get("/logout")).andExpect(status().isNotFound());
+		this.mvc.perform(get("/logout"))
+			.andExpect(status().isOk()); // renders form to log out but does not perform a redirect
 
 		// still logged in
 		this.mvc.perform(get("/authenticated")).andExpect(status().isOk());
@@ -620,7 +621,7 @@ public class CsrfConfigTests {
 
 	static class CsrfCreatedResultMatcher implements ResultMatcher {
 		@Override
-		public void match(MvcResult result) throws Exception {
+		public void match(MvcResult result) {
 			MockHttpServletRequest request = result.getRequest();
 			CsrfToken token = WebTestUtils.getCsrfTokenRepository(request).loadToken(request);
 			assertThat(token).isNotNull();
@@ -630,7 +631,7 @@ public class CsrfConfigTests {
 	static class CsrfReturnedResultMatcher implements ResultMatcher {
 		ExceptionalFunction<MvcResult, String> token;
 
-		public CsrfReturnedResultMatcher(ExceptionalFunction<MvcResult, String> token) {
+		CsrfReturnedResultMatcher(ExceptionalFunction<MvcResult, String> token) {
 			this.token = token;
 		}
 

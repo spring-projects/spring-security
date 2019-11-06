@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,13 +66,13 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 			"joe", "password");
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		provider = new ActiveDirectoryLdapAuthenticationProvider("mydomain.eu",
 				"ldap://192.168.1.200/");
 	}
 
 	@Test
-	public void bindPrincipalIsCreatedCorrectly() throws Exception {
+	public void bindPrincipalIsCreatedCorrectly() {
 		assertThat(provider.createBindPrincipal("joe")).isEqualTo("joe@mydomain.eu");
 		assertThat(provider.createBindPrincipal("joe@mydomain.eu")).isEqualTo("joe@mydomain.eu");
 	}
@@ -370,7 +370,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	}
 
 	@Test(expected = BadCredentialsException.class)
-	public void errorWithNoSubcodeIsHandledCleanly() throws Exception {
+	public void errorWithNoSubcodeIsHandledCleanly() {
 		provider.contextFactory = createContextFactoryThrowing(new AuthenticationException(
 				msg));
 		provider.setConvertSubErrorCodesToExceptions(true);
@@ -378,8 +378,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	}
 
 	@Test(expected = org.springframework.ldap.CommunicationException.class)
-	public void nonAuthenticationExceptionIsConvertedToSpringLdapException()
-			throws Exception {
+	public void nonAuthenticationExceptionIsConvertedToSpringLdapException() {
 		provider.contextFactory = createContextFactoryThrowing(new CommunicationException(
 				msg));
 		provider.authenticate(joe);
@@ -391,6 +390,32 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 				"mydomain.eu", "ldap://192.168.1.200/", "dc=ad,dc=eu,dc=mydomain");
 		checkAuthentication("dc=ad,dc=eu,dc=mydomain", provider);
 
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void setContextEnvironmentPropertiesNull() {
+		provider.setContextEnvironmentProperties(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void setContextEnvironmentPropertiesEmpty() {
+		provider.setContextEnvironmentProperties(new Hashtable<>());
+	}
+
+	@Test
+	public void contextEnvironmentPropertiesUsed() {
+		Hashtable<String, Object> env = new Hashtable<>();
+
+		env.put("java.naming.ldap.factory.socket", "unknown.package.NonExistingSocketFactory");
+		provider.setContextEnvironmentProperties(env);
+
+		try {
+			provider.authenticate(joe);
+			fail("CommunicationException was expected with a root cause of ClassNotFoundException");
+		}
+		catch (org.springframework.ldap.CommunicationException expected) {
+			assertThat(expected.getRootCause()).isInstanceOf(ClassNotFoundException.class);
+		}
 	}
 
 	ContextFactory createContextFactoryThrowing(final NamingException e) {
@@ -405,7 +430,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	ContextFactory createContextFactoryReturning(final DirContext ctx) {
 		return new ContextFactory() {
 			@Override
-			DirContext createContext(Hashtable<?, ?> env) throws NamingException {
+			DirContext createContext(Hashtable<?, ?> env) {
 				return ctx;
 			}
 		};
@@ -442,7 +467,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	static class MockNamingEnumeration implements NamingEnumeration<SearchResult> {
 		private SearchResult sr;
 
-		public MockNamingEnumeration(SearchResult sr) {
+		MockNamingEnumeration(SearchResult sr) {
 			this.sr = sr;
 		}
 

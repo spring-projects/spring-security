@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@ package org.springframework.security.test.web.servlet.request;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -26,10 +26,11 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
-
+import java.util.function.Consumer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -45,12 +46,16 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -58,6 +63,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.Assert;
 import org.springframework.util.DigestUtils;
+
+import static java.lang.Boolean.TRUE;
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
 
 /**
  * Contains {@link MockMvc} {@link RequestPostProcessor} implementations for Spring
@@ -193,6 +201,96 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 */
 	public static RequestPostProcessor user(UserDetails user) {
 		return new UserDetailsRequestPostProcessor(user);
+	}
+
+	/**
+	 * Establish a {@link SecurityContext} that has a
+	 * {@link JwtAuthenticationToken} for the
+	 * {@link Authentication} and a {@link Jwt} for the
+	 * {@link Authentication#getPrincipal()}. All details are
+	 * declarative and do not require the JWT to be valid.
+	 *
+	 * <p>
+	 * The support works by associating the authentication to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
+	 * @return the {@link JwtRequestPostProcessor} for additional customization
+	 */
+	public static JwtRequestPostProcessor jwt() {
+		return jwt(jwt -> {});
+	}
+
+	/**
+	 * Establish a {@link SecurityContext} that has a
+	 * {@link JwtAuthenticationToken} for the
+	 * {@link Authentication} and a {@link Jwt} for the
+	 * {@link Authentication#getPrincipal()}. All details are
+	 * declarative and do not require the JWT to be valid.
+	 *
+	 * <p>
+	 * The support works by associating the authentication to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
+	 * @param jwtBuilderConsumer For configuring the underlying {@link Jwt}
+	 * @return the {@link JwtRequestPostProcessor} for additional customization
+	 * @since 5.2
+	 */
+	public static JwtRequestPostProcessor jwt(Consumer<Jwt.Builder> jwtBuilderConsumer) {
+		Jwt.Builder jwtBuilder = Jwt.withTokenValue("token")
+				.header("alg", "none")
+				.claim(SUB, "user")
+				.claim("scope", "read");
+		jwtBuilderConsumer.accept(jwtBuilder);
+		return new JwtRequestPostProcessor(jwtBuilder.build());
+	}
+
+	/**
+	 * Establish a {@link SecurityContext} that has a
+	 * {@link JwtAuthenticationToken} for the
+	 * {@link Authentication} and a {@link Jwt} for the
+	 * {@link Authentication#getPrincipal()}. All details are
+	 * declarative and do not require the JWT to be valid.
+	 *
+	 * <p>
+	 * The support works by associating the authentication to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
+	 * @param jwt The preliminary constructed {@link Jwt}
+	 * @return the {@link JwtRequestPostProcessor} for additional customization
+	 * @since 5.2
+	 */
+	public static JwtRequestPostProcessor jwt(Jwt jwt) {
+		return new JwtRequestPostProcessor(jwt);
 	}
 
 	/**
@@ -406,11 +504,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 			}
 
 			public static void enable(HttpServletRequest request) {
-				request.setAttribute(ENABLED_ATTR_NAME, Boolean.TRUE);
+				request.setAttribute(ENABLED_ATTR_NAME, TRUE);
 			}
 
 			public boolean isEnabled(HttpServletRequest request) {
-				return Boolean.TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
+				return TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
 			}
 		}
 	}
@@ -542,12 +640,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		private static String md5Hex(String a2) {
-			try {
-				return DigestUtils.md5DigestAsHex(a2.getBytes("UTF-8"));
-			}
-			catch (UnsupportedEncodingException e) {
-				throw new RuntimeException(e);
-			}
+			return DigestUtils.md5DigestAsHex(a2.getBytes(StandardCharsets.UTF_8));
 		}
 	}
 
@@ -735,7 +828,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			implements RequestPostProcessor {
 		private final RequestPostProcessor delegate;
 
-		public UserDetailsRequestPostProcessor(UserDetails user) {
+		UserDetailsRequestPostProcessor(UserDetails user) {
 			Authentication token = new UsernamePasswordAuthenticationToken(user,
 					user.getPassword(), user.getAuthorities());
 
@@ -889,12 +982,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private HttpBasicRequestPostProcessor(String username, String password) {
 			byte[] toEncode;
-			try {
-				toEncode = (username + ":" + password).getBytes("UTF-8");
-			}
-			catch (UnsupportedEncodingException e) {
-				throw new RuntimeException(e);
-			}
+			toEncode = (username + ":" + password).getBytes(StandardCharsets.UTF_8);
 			this.headerValue = "Basic " + new String(Base64.getEncoder().encode(toEncode));
 		}
 
@@ -903,6 +991,65 @@ public final class SecurityMockMvcRequestPostProcessors {
 			request.addHeader("Authorization", this.headerValue);
 			return request;
 		}
+	}
+
+	/**
+	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
+	 * @author Josh Cummings
+	 * @since 5.2
+	 */
+	public final static class JwtRequestPostProcessor implements RequestPostProcessor {
+		private Jwt jwt;
+		private Collection<? extends GrantedAuthority> authorities;
+
+		private JwtRequestPostProcessor(Jwt jwt) {
+			this.jwt = jwt;
+			this.authorities = new JwtGrantedAuthoritiesConverter().convert(jwt);
+		}
+
+		/**
+		 * Use the provided authorities in the token
+		 * @param authorities the authorities to use
+		 * @return the {@link JwtRequestPostProcessor} for further configuration
+		 */
+		public JwtRequestPostProcessor authorities(Collection<GrantedAuthority> authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = authorities;
+			return this;
+		}
+
+		/**
+		 * Use the provided authorities in the token
+		 * @param authorities the authorities to use
+		 * @return the {@link JwtRequestPostProcessor} for further configuration
+		 */
+		public JwtRequestPostProcessor authorities(GrantedAuthority... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = Arrays.asList(authorities);
+			return this;
+		}
+
+		/**
+		 * Provides the configured {@link Jwt} so that custom authorities can be derived
+		 * from it
+		 *
+		 * @param authoritiesConverter the conversion strategy from {@link Jwt} to a {@link Collection}
+		 * of {@link GrantedAuthority}s
+		 * @return the {@link JwtRequestPostProcessor} for further configuration
+		 */
+		public JwtRequestPostProcessor authorities(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
+			Assert.notNull(authoritiesConverter, "authoritiesConverter cannot be null");
+			this.authorities = authoritiesConverter.convert(this.jwt);
+			return this;
+		}
+
+		@Override
+		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			CsrfFilter.skipRequest(request);
+			JwtAuthenticationToken token = new JwtAuthenticationToken(this.jwt, this.authorities);
+			return new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
+		}
+
 	}
 
 	private SecurityMockMvcRequestPostProcessors() {

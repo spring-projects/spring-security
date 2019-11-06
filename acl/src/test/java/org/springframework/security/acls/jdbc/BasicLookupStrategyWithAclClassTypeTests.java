@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,20 +63,18 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 	}
 
 	@AfterClass
-	public static void dropDatabase() throws Exception {
+	public static void dropDatabase() {
 		DATABASE_HELPER.getDataSource().destroy();
 	}
 
 	@Before
 	public void initializeBeans() {
 		super.initializeBeans();
-		AclClassIdUtils aclClassIdUtils = new AclClassIdUtils();
-		aclClassIdUtils.setConversionService(new DefaultConversionService());
 		uuidEnabledStrategy = new BasicLookupStrategy(getDataSource(), aclCache(), aclAuthStrategy(),
 			new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()));
 		uuidEnabledStrategy.setPermissionFactory(new DefaultPermissionFactory());
 		uuidEnabledStrategy.setAclClassIdSupported(true);
-		uuidEnabledStrategy.setAclClassIdUtils(aclClassIdUtils);
+		uuidEnabledStrategy.setConversionService(new DefaultConversionService());
 	}
 
 	@Before
@@ -103,7 +101,7 @@ public class BasicLookupStrategyWithAclClassTypeTests extends AbstractBasicLooku
 
 	@Test
 	public void testReadObjectIdentityUsingLongTypeWithConversionServiceEnabled() {
-		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		Map<ObjectIdentity, Acl> foundAcls = uuidEnabledStrategy.readAclsById(Arrays.asList(oid), Arrays.asList(BEN_SID));
 		Assert.assertEquals(1, foundAcls.size());
 		Assert.assertNotNull(foundAcls.get(oid));

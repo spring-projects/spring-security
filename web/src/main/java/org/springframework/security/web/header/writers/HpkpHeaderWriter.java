@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,16 +29,16 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Provides support for <a href="http://tools.ietf.org/html/rfc7469">HTTP Public Key Pinning (HPKP)</a>.
+ * Provides support for <a href="https://tools.ietf.org/html/rfc7469">HTTP Public Key Pinning (HPKP)</a>.
  *
  * <p>
- * Since <a href="http://tools.ietf.org/html/rfc7469#section-4.1">Section 4.1</a> states
+ * Since <a href="https://tools.ietf.org/html/rfc7469#section-4.1">Section 4.1</a> states
  * that a value on the order of 60 days (5,184,000 seconds) may be considered a good balance,
  * we use this value as the default. This can be customized using {@link #setMaxAgeInSeconds(long)}.
  * </p>
  *
  * <p>
- * Because <a href="http://tools.ietf.org/html/rfc7469#appendix-B">Appendix B</a> recommends
+ * Because <a href="https://tools.ietf.org/html/rfc7469#appendix-B">Appendix B</a> recommends
  * that operators should first deploy public key pinning by using the report-only mode,
  * we opted to use this mode as default. This can be customized using {@link #setReportOnly(boolean)}.
  * </p>
@@ -84,7 +84,7 @@ import java.util.Map;
  * Public-Key-Pins: max-age=5184000;
  * 		pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";
  * 		pin-sha256="LPJNul+wow4m6DsqxbninhsWHlwfp0JecwQzYpOLmCQ=";
- * 		report-uri="http://example.com/pkp-report"
+ * 		report-uri="https://example.com/pkp-report"
  *
  * Public-Key-Pins-Report-Only: max-age=5184000;
  * 		pin-sha256="E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=";
@@ -100,6 +100,7 @@ import java.util.Map;
  * </p>
  *
  * @author Tim Ysewyn
+ * @author Ankur Pathak
  * @since 4.1
  */
 public final class HpkpHeaderWriter implements HeaderWriter {
@@ -174,7 +175,10 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (requestMatcher.matches(request)) {
 			if (!pins.isEmpty()) {
-				response.setHeader(reportOnly ? HPKP_RO_HEADER_NAME : HPKP_HEADER_NAME, hpkpHeaderValue);
+				String headerName = reportOnly ? HPKP_RO_HEADER_NAME : HPKP_HEADER_NAME;
+				if (!response.containsHeader(headerName)) {
+					response.setHeader(headerName, hpkpHeaderValue);
+				}
 			} if (logger.isDebugEnabled()) {
 				logger.debug("Not injecting HPKP header since there aren't any pins");
 			}
@@ -192,7 +196,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * <p>
 	 * The pin directive specifies a way for web host operators to indicate
 	 * a cryptographic identity that should be bound to a given web host.
-	 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for additional details.
+	 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for additional details.
 	 * </p>
 	 *
 	 * <p>
@@ -228,7 +232,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * <p>
 	 * The pin directive specifies a way for web host operators to indicate
 	 * a cryptographic identity that should be bound to a given web host.
-	 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for additional details.
+	 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.1">Section 2.1.1</a> for additional details.
 	 * </p>
 	 *
 	 * <p>
@@ -262,7 +266,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 *
 	 * <p>
 	 * This instructs browsers how long they should regard the host (from whom the message was received)
-	 * as a known pinned host. See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.2">Section
+	 * as a known pinned host. See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.2">Section
 	 * 2.1.2</a> for additional details.
 	 * </p>
 	 *
@@ -299,7 +303,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * </p>
 	 *
 	 * <p>
-	 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.3">Section 2.1.3</a>
+	 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.3">Section 2.1.3</a>
 	 * for additional details.
 	 * </p>
 	 *
@@ -329,7 +333,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * </p>
 	 *
 	 * <p>
-	 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1">Section 2.1</a>
+	 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1">Section 2.1</a>
 	 * for additional details.
 	 * </p>
 	 *
@@ -355,7 +359,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * </p>
 	 *
 	 * <p>
-	 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.4">Section 2.1.4</a>
+	 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.4">Section 2.1.4</a>
 	 * for additional details.
 	 * </p>
 	 *
@@ -386,7 +390,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	 * </p>
 	 *
 	 * <p>
-	 * See <a href="http://tools.ietf.org/html/rfc7469#section-2.1.4">Section 2.1.4</a>
+	 * See <a href="https://tools.ietf.org/html/rfc7469#section-2.1.4">Section 2.1.4</a>
 	 * for additional details.
 	 * </p>
 	 *

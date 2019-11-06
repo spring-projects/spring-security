@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -54,16 +54,16 @@ public class PortResolverImpl implements PortResolver {
 		String scheme = request.getScheme().toLowerCase();
 
 		if ("http".equals(scheme)) {
-			portLookup = portMapper.lookupHttpPort(Integer.valueOf(serverPort));
+			portLookup = portMapper.lookupHttpPort(serverPort);
 
 		}
 		else if ("https".equals(scheme)) {
-			portLookup = portMapper.lookupHttpsPort(Integer.valueOf(serverPort));
+			portLookup = portMapper.lookupHttpsPort(serverPort);
 		}
 
 		if (portLookup != null) {
 			// IE 6 bug
-			serverPort = portLookup.intValue();
+			serverPort = portLookup;
 		}
 
 		return serverPort;

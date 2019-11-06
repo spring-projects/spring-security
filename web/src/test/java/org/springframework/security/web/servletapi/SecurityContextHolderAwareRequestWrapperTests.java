@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,12 +36,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SecurityContextHolderAwareRequestWrapperTests {
 
 	@Before
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
 
 	@Test
-	public void testCorrectOperationWithStringBasedPrincipal() throws Exception {
+	public void testCorrectOperationWithStringBasedPrincipal() {
 		Authentication auth = new TestingAuthenticationToken("rod", "koala", "ROLE_FOO");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -72,7 +72,7 @@ public class SecurityContextHolderAwareRequestWrapperTests {
 	}
 
 	@Test
-	public void testCorrectOperationWithUserDetailsBasedPrincipal() throws Exception {
+	public void testCorrectOperationWithUserDetailsBasedPrincipal() {
 		Authentication auth = new TestingAuthenticationToken(
 				new User("rodAsUserDetails", "koala", true, true, true, true,
 						AuthorityUtils.NO_AUTHORITIES),
@@ -94,7 +94,7 @@ public class SecurityContextHolderAwareRequestWrapperTests {
 	}
 
 	@Test
-	public void testRoleIsntHeldIfAuthenticationIsNull() throws Exception {
+	public void testRoleIsntHeldIfAuthenticationIsNull() {
 		SecurityContextHolder.getContext().setAuthentication(null);
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -108,7 +108,7 @@ public class SecurityContextHolderAwareRequestWrapperTests {
 	}
 
 	@Test
-	public void testRolesArentHeldIfAuthenticationPrincipalIsNull() throws Exception {
+	public void testRolesArentHeldIfAuthenticationPrincipalIsNull() {
 		Authentication auth = new TestingAuthenticationToken(null, "koala", "ROLE_HELLO",
 				"ROLE_FOOBAR");
 		SecurityContextHolder.getContext().setAuthentication(auth);
