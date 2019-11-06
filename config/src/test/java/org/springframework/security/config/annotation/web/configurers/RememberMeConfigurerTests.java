@@ -33,6 +33,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
@@ -190,7 +191,8 @@ public class RememberMeConfigurerTests {
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
-					User.withDefaultPasswordEncoder()
+					User.builder()
+							.passwordEncoder(it-> PasswordEncoderFactories.createDelegatingPasswordEncoder().encode(it))
 							.username("user")
 							.password("password")
 							.roles("USER")
