@@ -481,6 +481,7 @@ public class RememberMeConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			super.configure(http);
 			// @formatter:off
 			http.rememberMe()
 					.rememberMeServices(new TokenBasedRememberMeServices("key", userDetailsService()));
