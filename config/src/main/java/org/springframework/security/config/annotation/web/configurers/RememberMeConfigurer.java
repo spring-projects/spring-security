@@ -167,6 +167,9 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Sets the key to identify tokens created for remember me authentication. Default is
 	 * a secure randomly generated key.
+	 * If {@link #rememberMeServices(RememberMeServices)} is specified and is of type
+	 * {@link AbstractRememberMeServices}, then the default is the key set in
+	 * {@link AbstractRememberMeServices}.
 	 *
 	 * @param key the key to identify tokens created for remember me authentication
 	 * @return the {@link RememberMeConfigurer} for further customization
@@ -428,8 +431,12 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Gets the key to use for validating remember me tokens. Either the value passed into
-	 * {@link #key(String)}, or a secure random string if none was specified.
+	 * Gets the key to use for validating remember me tokens. If a value was passed into
+	 * {@link #key(String)}, then that is returned.
+	 * Alternatively, if a key was specified in the
+	 * {@link #rememberMeServices(RememberMeServices)}}, then that is returned.
+	 * If no key was specified in either of those cases, then a secure random string is
+	 * generated.
 	 *
 	 * @return the remember me key to use
 	 */

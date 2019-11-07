@@ -456,7 +456,7 @@ public class RememberMeConfigurerTests {
 	}
 
 	@Test
-	public void getWhenRememberMeCookieThenAuthenticationIsRememberMeAuthenticationTokenWithFallbackKeyConfiguration()
+	public void getWhenRememberMeCookieAndNoKeyConfiguredThenKeyFromRememberMeServicesIsUsed()
 			throws Exception {
 		this.spring.register(FallbackRememberMeKeyConfig.class).autowire();
 
