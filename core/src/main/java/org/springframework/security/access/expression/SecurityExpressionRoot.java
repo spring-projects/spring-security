@@ -17,7 +17,6 @@ package org.springframework.security.access.expression;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.security.access.PermissionEvaluator;
