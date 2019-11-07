@@ -158,7 +158,6 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 
 	private Set<String> getAuthoritySet() {
 		if (roles == null) {
-			roles = new HashSet<>();
 			Collection<? extends GrantedAuthority> userAuthorities = authentication
 					.getAuthorities();
 
