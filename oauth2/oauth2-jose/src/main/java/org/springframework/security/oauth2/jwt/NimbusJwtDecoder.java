@@ -33,6 +33,8 @@ import javax.crypto.SecretKey;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
+import com.nimbusds.jose.jwk.source.DefaultJWKSetCache;
+import com.nimbusds.jose.jwk.source.JWKSetCache;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -212,10 +214,17 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		private String jwkSetUri;
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 		private RestOperations restOperations = new RestTemplate();
+		private JWKSetCache jwkSetCache = new DefaultJWKSetCache();
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
 			this.jwkSetUri = jwkSetUri;
+		}
+
+		public JwkSetUriJwtDecoderBuilder jwkSetCache(JWKSetCache jwkSetCache) {
+			Assert.notNull(jwkSetCache, "jwkSetCache cannot be null");
+			this.jwkSetCache = jwkSetCache;
+			return this;
 		}
 
 		/**
@@ -279,7 +288,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		JWTProcessor<SecurityContext> processor() {
 			ResourceRetriever jwkSetRetriever = new RestOperationsResourceRetriever(this.restOperations);
-			JWKSource<SecurityContext> jwkSource = new RemoteJWKSet<>(toURL(this.jwkSetUri), jwkSetRetriever);
+			JWKSource<SecurityContext> jwkSource = new RemoteJWKSet<>(toURL(this.jwkSetUri), jwkSetRetriever, jwkSetCache);
 			ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSKeySelector(jwsKeySelector(jwkSource));
 

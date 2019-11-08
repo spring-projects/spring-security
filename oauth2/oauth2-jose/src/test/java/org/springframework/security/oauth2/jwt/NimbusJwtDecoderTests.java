@@ -245,6 +245,12 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	public void jwkSetCacheWhenNullThenThrowsException() {
+		NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = withJwkSetUri(JWK_SET_URI);
+		Assertions.assertThatCode(() -> builder.jwkSetCache(null)).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
 	public void restOperationsWhenNullThenThrowsException() {
 		NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = withJwkSetUri(JWK_SET_URI);
 		Assertions.assertThatCode(() -> builder.restOperations(null)).isInstanceOf(IllegalArgumentException.class);
