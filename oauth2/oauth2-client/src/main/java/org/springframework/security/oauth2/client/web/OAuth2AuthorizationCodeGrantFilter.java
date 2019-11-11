@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.FilterChain;
@@ -48,6 +49,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * A {@code Filter} for the OAuth 2.0 Authorization Code Grant,
@@ -132,24 +138,39 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 		throws ServletException, IOException {
 
-		if (this.shouldProcessAuthorizationResponse(request)) {
-			this.processAuthorizationResponse(request, response);
+		if (matchesAuthorizationResponse(request)) {
+			processAuthorizationResponse(request, response);
 			return;
 		}
 
 		filterChain.doFilter(request, response);
 	}
 
-	private boolean shouldProcessAuthorizationResponse(HttpServletRequest request) {
+	private boolean matchesAuthorizationResponse(HttpServletRequest request) {
+		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
+		if (!OAuth2AuthorizationResponseUtils.isAuthorizationResponse(params)) {
+			return false;
+		}
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository.loadAuthorizationRequest(request);
 		if (authorizationRequest == null) {
 			return false;
 		}
-		String requestUrl = UrlUtils.buildFullRequestUrl(request.getScheme(), request.getServerName(),
-				request.getServerPort(), request.getRequestURI(), null);
-		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
-		if (requestUrl.equals(authorizationRequest.getRedirectUri()) &&
-				OAuth2AuthorizationResponseUtils.isAuthorizationResponse(params)) {
+
+		// Compare redirect_uri
+		UriComponents requestUri = UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request)).build();
+		UriComponents redirectUri = UriComponentsBuilder.fromUriString(authorizationRequest.getRedirectUri()).build();
+		Set<Map.Entry<String, List<String>>> requestUriParameters = new LinkedHashSet<>(requestUri.getQueryParams().entrySet());
+		Set<Map.Entry<String, List<String>>> redirectUriParameters = new LinkedHashSet<>(redirectUri.getQueryParams().entrySet());
+		// Remove the additional request parameters (if any) from the authorization response (request)
+		// before doing an exact comparison with the authorizationRequest.getRedirectUri() parameters (if any)
+		requestUriParameters.retainAll(redirectUriParameters);
+
+		if (Objects.equals(requestUri.getScheme(), redirectUri.getScheme()) &&
+				Objects.equals(requestUri.getUserInfo(), redirectUri.getUserInfo()) &&
+				Objects.equals(requestUri.getHost(), redirectUri.getHost()) &&
+				Objects.equals(requestUri.getPort(), redirectUri.getPort()) &&
+				Objects.equals(requestUri.getPath(), redirectUri.getPath()) &&
+				Objects.equals(requestUriParameters.toString(), redirectUriParameters.toString())) {
 			return true;
 		}
 		return false;
@@ -165,10 +186,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 
 		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
-		String redirectUri = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
-				.replaceQuery(null)
-				.build()
-				.toUriString();
+		String redirectUri = UrlUtils.buildFullRequestUrl(request);
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(params, redirectUri);
 
 		OAuth2AuthorizationCodeAuthenticationToken authenticationRequest = new OAuth2AuthorizationCodeAuthenticationToken(
@@ -183,7 +201,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		} catch (OAuth2AuthorizationException ex) {
 			OAuth2Error error = ex.getError();
 			UriComponentsBuilder uriBuilder = UriComponentsBuilder
-				.fromUriString(authorizationResponse.getRedirectUri())
+				.fromUriString(authorizationRequest.getRedirectUri())
 				.queryParam(OAuth2ParameterNames.ERROR, error.getErrorCode());
 			if (!StringUtils.isEmpty(error.getDescription())) {
 				uriBuilder.queryParam(OAuth2ParameterNames.ERROR_DESCRIPTION, error.getDescription());
@@ -206,7 +224,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, currentAuthentication, request, response);
 
-		String redirectUrl = authorizationResponse.getRedirectUri();
+		String redirectUrl = authorizationRequest.getRedirectUri();
 		SavedRequest savedRequest = this.requestCache.getRequest(request, response);
 		if (savedRequest != null) {
 			redirectUrl = savedRequest.getRedirectUrl();
