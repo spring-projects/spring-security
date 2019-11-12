@@ -1261,6 +1261,29 @@ The only real difference is the `toTenant` method implementation:
 [source,java]
 ----
 @Component
+public class TenantRepository {
+	@Autowired
+	private AuthenticationProperties properties;
+
+	/**
+	* return issuer location
+	*
+	* @param tenant
+	* @return
+	*/
+	public String get(String tenant) {
+		if (Arrays.asList(properties.getTenants()).contains(tenant)) {
+    			return tenant;
+		}
+		return null;
+	}
+}
+----
+An example source for a tenant, the repository check and return the tenant from a tenant whitelist in the properties.
+
+[source,java]
+----
+@Component
 public class TenantAuthenticationManagerResolver implements AuthenticationManagerResolver<HttpServletRequest> {
 	private final BearerTokenResolver resolver = new DefaultBearerTokenResolver();
 	private final TenantRepository tenants; <1>
@@ -1273,13 +1296,13 @@ public class TenantAuthenticationManagerResolver implements AuthenticationManage
 
 	@Override
 	public AuthenticationManager resolve(HttpServletRequest request) {
-		return this.authenticationManagers.computeIfAbsent(toTenant(request), this::fromTenant); <3>
+		return this.authenticationManagers.computeIfAbsent(toTenant(request), this::fromTenant);
 	}
 
 	private String toTenant(HttpServletRequest request) {
 		try {
 			String token = this.resolver.resolve(request);
-			return (String) JWTParser.parse(token).getJWTClaimsSet().getIssuer();
+			return JWTParser.parse(token).getJWTClaimsSet().getIssuer();
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -1318,13 +1341,13 @@ This extra parsing can be alleviated by configuring the `JwtDecoder` directly wi
 ----
 @Component
 public class TenantJWSKeySelector
-    implements JWTClaimSetAwareJWSKeySelector<SecurityContext> {
+	implements JWTClaimsSetAwareJWSKeySelector<SecurityContext> {
 
-	private final TenantRepository tenants; <1>
+	private final TenantRepository tenantRepository; <1>
 	private final Map<String, JWSKeySelector<SecurityContext>> selectors = new ConcurrentHashMap<>(); <2>
 
 	public TenantJWSKeySelector(TenantRepository tenants) {
-		this.tenants = tenants;
+		this.tenantRepository = tenants;
 	}
 
 	@Override
@@ -1339,10 +1362,9 @@ public class TenantJWSKeySelector
 	}
 
 	private JWSKeySelector<SecurityContext> fromTenant(String tenant) {
-		return Optional.ofNullable(this.tenantRepository.findById(tenant)) <3>
-		        .map(t -> t.getAttrbute("jwks_uri"))
-				.map(this::fromUri)
-				.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
+		return Optional.ofNullable(this.tenantRepository.get(tenant)) <3>
+			.map(this::fromUri)
+			.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
 	}
 
 	private JWSKeySelector<SecurityContext> fromUri(String uri) {
@@ -1370,10 +1392,10 @@ Next, we can construct a `JWTProcessor`:
 [source,java]
 ----
 @Bean
-JWTProcessor jwtProcessor(JWTClaimSetJWSKeySelector keySelector) {
+JWTProcessor jwtProcessor(JWTClaimsSetAwareJWSKeySelector<SecurityContext> keySelector) {
 	ConfigurableJWTProcessor<SecurityContext> jwtProcessor =
-            new DefaultJWTProcessor();
-	jwtProcessor.setJWTClaimSetJWSKeySelector(keySelector);
+		new DefaultJWTProcessor<>();
+	jwtProcessor.setJWTClaimsSetAwareJWSKeySelector(keySelector);
 	return jwtProcessor;
 }
 ----
@@ -1402,14 +1424,13 @@ public class TenantJwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	private String toTenant(Jwt jwt) {
-		return jwt.getIssuer();
+		return jwt.getIssuer().toString();
 	}
 
 	private JwtIssuerValidator fromTenant(String tenant) {
-		return Optional.ofNullable(this.tenants.findById(tenant))
-		        .map(t -> t.getAttribute("issuer"))
-				.map(JwtIssuerValidator::new)
-				.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
+		return Optional.ofNullable(this.tenants.get(tenant))
+			.map(JwtIssuerValidator::new)
+			.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
 	}
 }
 ----
@@ -1419,10 +1440,10 @@ Now that we have a tenant-aware processor and a tenant-aware validator, we can p
 [source,java]
 ----
 @Bean
-JwtDecoder jwtDecoder(JWTProcessor jwtProcessor, OAuth2TokenValidator<Jwt> jwtValidator) {
-	NimbusJwtDecoder decoder = new NimbusJwtDecoder(processor);
+JwtDecoder jwtDecoder(JWTProcessor<SecurityContext> jwtProcessor, OAuth2TokenValidator<Jwt> jwtValidator) {
+	NimbusJwtDecoder decoder = new NimbusJwtDecoder(jwtProcessor);
 	OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>
-			(JwtValidators.createDefault(), this.jwtValidator);
+			(JwtValidators.createDefault(), jwtValidator);
 	decoder.setJwtValidator(validator);
 	return decoder;
 }
