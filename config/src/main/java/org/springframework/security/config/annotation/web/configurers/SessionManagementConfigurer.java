@@ -185,8 +185,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * If set to true, allows HTTP sessions to be rewritten in the URLs when using
 	 * {@link HttpServletResponse#encodeRedirectURL(String)} or
-	 * {@link HttpServletResponse#encodeURL(String)}, otherwise disallows HTTP sessions to
-	 * be included in the URL. This prevents leaking information to external domains.
+	 * {@link HttpServletResponse#encodeURL(String)}, otherwise disallows all URL
+	 * rewriting, including resource chain functionality.
+	 * This prevents leaking information to external domains.
 	 *
 	 * @param enableSessionUrlRewriting true if should allow the JSESSIONID to be
 	 * rewritten into the URLs, else false (default)
