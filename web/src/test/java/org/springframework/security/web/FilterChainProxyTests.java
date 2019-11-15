@@ -28,6 +28,8 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.RequestRejectedException;
+import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.Filter;
@@ -242,5 +244,22 @@ public class FilterChainProxyTests {
 		verify(innerChain).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void setRequestRejectedHandlerDoesNotAcceptNull() {
+		fcp.setRequestRejectedHandler(null);
+	}
+
+	@Test
+	public void requestRejectedHandlerIsCalledIfFirewallThrowsRequestRejectedException() throws Exception {
+		HttpFirewall fw = mock(HttpFirewall.class);
+		RequestRejectedHandler rjh = mock(RequestRejectedHandler.class);
+		fcp.setFirewall(fw);
+		fcp.setRequestRejectedHandler(rjh);
+		RequestRejectedException requestRejectedException = new RequestRejectedException("Contains illegal chars");
+		when(fw.getFirewalledRequest(request)).thenThrow(requestRejectedException);
+		fcp.doFilter(request, response, chain);
+		verify(rjh).handle(eq(request), eq(response), eq((requestRejectedException)));
 	}
 }
