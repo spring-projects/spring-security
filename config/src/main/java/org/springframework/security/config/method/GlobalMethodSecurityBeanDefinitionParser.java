@@ -208,7 +208,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 					pc.registerBeanComponent(new BeanComponentDefinition(
 							expressionHandler, expressionHandlerRef));
 					logger.info("Expressions were enabled for method security but no SecurityExpressionHandler was configured. "
-							+ "All hasPermision() expressions will evaluate to false.");
+							+ "All hasPermission() expressions will evaluate to false.");
 				}
 
 				BeanDefinitionBuilder expressionPreAdviceBldr = BeanDefinitionBuilder
