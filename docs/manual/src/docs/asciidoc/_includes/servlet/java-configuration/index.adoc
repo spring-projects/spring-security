@@ -133,7 +133,7 @@ public class MvcWebApplicationInitializer extends
 Thus far our <<jc-hello-wsca,WebSecurityConfig>> only contains information about how to authenticate our users.
 How does Spring Security know that we want to require all users to be authenticated?
 How does Spring Security know we want to support form based authentication?
-Actually, there is an configuration class that is being invoked behind the scenes called `WebSecurityConfigurerAdapter`.
+Actually, there is a configuration class that is being invoked behind the scenes called `WebSecurityConfigurerAdapter`.
 It has a method called `configure` with the following default implementation:
 
 [source,java]
