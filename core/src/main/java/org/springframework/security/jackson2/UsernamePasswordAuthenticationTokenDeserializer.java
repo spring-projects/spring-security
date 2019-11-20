@@ -87,7 +87,8 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 		if (detailsNode.isNull() || detailsNode.isMissingNode()) {
 			token.setDetails(null);
 		} else {
-			token.setDetails(detailsNode);
+			Object details = mapper.readValue(detailsNode.toString(), new TypeReference<Object>() {});
+			token.setDetails(details);
 		}
 		return token;
 	}
