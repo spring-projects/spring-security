@@ -85,14 +85,14 @@ class InitializeUserDetailsBeanManagerConfigurer
 		 * @return a bean of the requested class if there's just a single registered component, null otherwise.
 		 */
 		private <T> T getBeanOrNull(Class<T> type) {
-			String[] userDetailsBeanNames = InitializeUserDetailsBeanManagerConfigurer.this.context
+			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context
 					.getBeanNamesForType(type);
-			if (userDetailsBeanNames.length != 1) {
+			if (beanNames.length != 1) {
 				return null;
 			}
 
 			return InitializeUserDetailsBeanManagerConfigurer.this.context
-					.getBean(userDetailsBeanNames[0], type);
+					.getBean(beanNames[0], type);
 		}
 	}
 }
