@@ -19,13 +19,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * Lazily initializes the global authentication with a {@link UserDetailsService} if it is
- * not yet configured and there is only a single Bean of that type. Optionally, if a
- * {@link PasswordEncoder} is defined will wire this up too.
+ * Lazily initializes the global authentication with an {@link AuthenticationProvider} if it is
+ * not yet configured and there is only a single Bean of that type.
  *
  * @author Rob Winch
  * @since 4.1
