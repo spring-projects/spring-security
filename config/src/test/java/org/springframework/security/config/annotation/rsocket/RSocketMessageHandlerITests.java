@@ -186,19 +186,6 @@ public class RSocketMessageHandlerITests {
 	}
 
 	@Test
-	public void retrieveFluxWhenDataStringAndPublicThenGranted() throws Exception {
-		String data = "a";
-		List<String> hi = this.requester.route("retrieve-flux")
-				.data(data)
-				.retrieveFlux(String.class)
-				.collectList()
-				.block();
-
-		assertThat(hi).contains("hello a");
-		assertThat(this.controller.payloads).containsOnly(data);
-	}
-
-	@Test
 	public void sendWhenSecureThenDenied() throws Exception {
 		String data = "hi";
 		this.requester.route("secure.send")
@@ -287,7 +274,7 @@ public class RSocketMessageHandlerITests {
 		}
 
 		@MessageMapping({"secure.send", "send"})
-		Mono<Void> send(Flux<String> payload) {
+		Mono<Void> send(Mono<String> payload) {
 			return payload
 					.doOnNext(this::add)
 					.then(Mono.fromRunnable(() -> {
