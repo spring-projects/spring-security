@@ -50,14 +50,14 @@ public class OAuth2ResourceServerControllerTests {
 
 		@Test
 		public void indexGreetsAuthenticatedUser() {
-			this.rest.mutateWith(mockJwt(jwt -> jwt.subject("test-subject")))
+			this.rest.mutateWith(mockJwt().jwt(jwt -> jwt.subject("test-subject")))
 					.get().uri("/").exchange()
 					.expectBody(String.class).isEqualTo("Hello, test-subject!");
 		}
 
 		@Test
 		public void messageCanBeReadWithScopeMessageReadAuthority() {
-			this.rest.mutateWith(mockJwt(jwt -> jwt.claim("scope", "message:read")))
+			this.rest.mutateWith(mockJwt().jwt(jwt -> jwt.claim("scope", "message:read")))
 					.get().uri("/message").exchange()
 					.expectBody(String.class).isEqualTo("secret message");
 

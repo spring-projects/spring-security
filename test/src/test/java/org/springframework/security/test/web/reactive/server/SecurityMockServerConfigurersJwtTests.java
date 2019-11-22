@@ -85,7 +85,7 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 	public void mockJwtWhenProvidingBuilderConsumerThenProducesJwtAuthentication() {
 		String name = new String("user");
 		client
-				.mutateWith(mockJwt(jwt -> jwt.subject(name)))
+				.mutateWith(mockJwt().jwt(jwt -> jwt.subject(name)))
 				.get()
 				.exchange()
 				.expectStatus().isOk();
@@ -100,7 +100,7 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 	@Test
 	public void mockJwtWhenProvidingCustomAuthoritiesThenProducesJwtAuthentication() {
 		client
-				.mutateWith(mockJwt(jwt -> jwt.claim("scope", "ignored authorities"))
+				.mutateWith(mockJwt().jwt(jwt -> jwt.claim("scope", "ignored authorities"))
 						.authorities(this.authority1, this.authority2))
 				.get()
 				.exchange()
@@ -114,7 +114,7 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 	@Test
 	public void mockJwtWhenProvidingScopedAuthoritiesThenProducesJwtAuthentication() {
 		client
-				.mutateWith(mockJwt(jwt -> jwt.claim("scope", "scoped authorities")))
+				.mutateWith(mockJwt().jwt(jwt -> jwt.claim("scope", "scoped authorities")))
 				.get()
 				.exchange()
 				.expectStatus().isOk();
@@ -128,7 +128,7 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 	@Test
 	public void mockJwtWhenProvidingGrantedAuthoritiesThenProducesJwtAuthentication() {
 		client
-				.mutateWith(mockJwt(jwt -> jwt.claim("scope", "ignored authorities"))
+				.mutateWith(mockJwt().jwt(jwt -> jwt.claim("scope", "ignored authorities"))
 						.authorities(jwt -> Arrays.asList(this.authority1)))
 						.get()
 						.exchange()
@@ -146,7 +146,7 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 				.subject("some_user")
 				.build();
 		this.client
-				.mutateWith(mockJwt(originalToken))
+				.mutateWith(mockJwt().jwt(originalToken))
 				.get()
 				.exchange()
 				.expectStatus().isOk();

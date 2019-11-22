@@ -335,14 +335,14 @@ Any headers or claims can be configured with their corresponding methods:
 ----
 mvc
     .perform(get("/endpoint")
-        .with(jwt(jwt -> jwt.header("kid", "one").claim("iss", "https://idp.example.org"))));
+        .with(jwt().jwt(jwt -> jwt.header("kid", "one").claim("iss", "https://idp.example.org"))));
 ----
 
 [source,java]
 ----
 mvc
     .perform(get("/endpoint")
-        .with(jwt(jwt -> jwt.claims(claims -> claims.remove("scope")))));
+        .with(jwt().jwt(jwt -> jwt.claims(claims -> claims.remove("scope")))));
 ----
 
 The `scope` and `scp` claims are processed the same way here as they are in a normal bearer token request.
@@ -375,7 +375,7 @@ Jwt jwt = Jwt.withTokenValue("token")
 
 mvc
     .perform(get("/endpoint")
-        .with(jwt(jwt)));
+        .with(jwt().jwt(jwt)));
 ----
 
 ===== `authentication()` `RequestPostProcessor`

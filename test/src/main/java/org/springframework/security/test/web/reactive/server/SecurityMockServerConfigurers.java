@@ -127,42 +127,7 @@ public class SecurityMockServerConfigurers {
 	 * @since 5.2
 	 */
 	public static JwtMutator mockJwt() {
-		return mockJwt(jwt -> {});
-	}
-
-	/**
-	 * Updates the ServerWebExchange to establish a {@link SecurityContext} that has a
-	 * {@link JwtAuthenticationToken} for the
-	 * {@link Authentication} and a {@link Jwt} for the
-	 * {@link Authentication#getPrincipal()}. All details are
-	 * declarative and do not require the JWT to be valid.
-	 *
-	 * @param jwtBuilderConsumer For configuring the underlying {@link Jwt}
-	 * @return the {@link JwtMutator} to further configure or use
-	 * @since 5.2
-	 */
-	public static JwtMutator mockJwt(Consumer<Jwt.Builder> jwtBuilderConsumer) {
-		Jwt.Builder jwtBuilder = Jwt.withTokenValue("token")
-				.header("alg", "none")
-				.claim(SUB, "user")
-				.claim("scope", "read");
-		jwtBuilderConsumer.accept(jwtBuilder);
-		return new JwtMutator(jwtBuilder.build());
-	}
-
-	/**
-	 * Updates the ServerWebExchange to establish a {@link SecurityContext} that has a
-	 * {@link JwtAuthenticationToken} for the
-	 * {@link Authentication} and a {@link Jwt} for the
-	 * {@link Authentication#getPrincipal()}. All details are
-	 * declarative and do not require the JWT to be valid.
-	 *
-	 * @param jwt The preliminary constructed {@link Jwt}
-	 * @return the {@link JwtMutator} to further configure or use
-	 * @since 5.2
-	 */
-	public static JwtMutator mockJwt(Jwt jwt) {
-		return new JwtMutator(jwt);
+		return new JwtMutator();
 	}
 
 	public static CsrfMutator csrf() {
@@ -361,11 +326,45 @@ public class SecurityMockServerConfigurers {
 	 */
 	public static class JwtMutator implements WebTestClientConfigurer, MockServerConfigurer {
 		private Jwt jwt;
-		private Collection<GrantedAuthority> authorities;
+		private Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter =
+				new JwtGrantedAuthoritiesConverter();
 
-		private JwtMutator(Jwt jwt) {
+		private JwtMutator() {
+			jwt((jwt) -> {});
+		}
+
+		/**
+		 * Use the given {@link Jwt.Builder} {@link Consumer} to configure the underlying {@link Jwt}
+		 *
+		 * This method first creates a default {@link Jwt.Builder} instance with default values for
+		 * the {@code alg}, {@code sub}, and {@code scope} claims. The {@link Consumer} can then modify
+		 * these or provide additional configuration.
+		 *
+		 * Calling {@link SecurityMockServerConfigurers#mockJwt()} is the equivalent of calling
+		 * {@code SecurityMockMvcRequestPostProcessors.mockJwt().jwt(() -> {})}.
+		 *
+		 * @param jwtBuilderConsumer For configuring the underlying {@link Jwt}
+		 * @return the {@link JwtMutator} for further configuration
+		 */
+		public JwtMutator jwt(Consumer<Jwt.Builder> jwtBuilderConsumer) {
+			Jwt.Builder jwtBuilder = Jwt.withTokenValue("token")
+					.header("alg", "none")
+					.claim(SUB, "user")
+					.claim("scope", "read");
+			jwtBuilderConsumer.accept(jwtBuilder);
+			this.jwt = jwtBuilder.build();
+			return this;
+		}
+
+		/**
+		 * Use the given {@link Jwt}
+		 *
+		 * @param jwt The {@link Jwt} to use
+		 * @return the {@link JwtMutator} for further configuration
+		 */
+		public JwtMutator jwt(Jwt jwt) {
 			this.jwt = jwt;
-			this.authorities = new JwtGrantedAuthoritiesConverter().convert(jwt);
+			return this;
 		}
 
 		/**
@@ -375,7 +374,7 @@ public class SecurityMockServerConfigurers {
 		 */
 		public JwtMutator authorities(Collection<GrantedAuthority> authorities) {
 			Assert.notNull(authorities, "authorities cannot be null");
-			this.authorities = authorities;
+			this.authoritiesConverter = jwt -> authorities;
 			return this;
 		}
 
@@ -386,7 +385,7 @@ public class SecurityMockServerConfigurers {
 		 */
 		public JwtMutator authorities(GrantedAuthority... authorities) {
 			Assert.notNull(authorities, "authorities cannot be null");
-			this.authorities = Arrays.asList(authorities);
+			this.authoritiesConverter = jwt -> Arrays.asList(authorities);
 			return this;
 		}
 
@@ -400,7 +399,7 @@ public class SecurityMockServerConfigurers {
 		 */
 		public JwtMutator authorities(Converter<Jwt, Collection<GrantedAuthority>> authoritiesConverter) {
 			Assert.notNull(authoritiesConverter, "authoritiesConverter cannot be null");
-			this.authorities = authoritiesConverter.convert(this.jwt);
+			this.authoritiesConverter = authoritiesConverter;
 			return this;
 		}
 
@@ -427,7 +426,7 @@ public class SecurityMockServerConfigurers {
 		}
 
 		private <T extends WebTestClientConfigurer & MockServerConfigurer> T configurer() {
-			return mockAuthentication(new JwtAuthenticationToken(this.jwt, this.authorities));
+			return mockAuthentication(new JwtAuthenticationToken(this.jwt, this.authoritiesConverter.convert(this.jwt)));
 		}
 	}
 }

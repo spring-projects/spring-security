@@ -203,7 +203,7 @@ Any headers or claims can be configured with their corresponding methods:
 [source,java]
 ----
 client
-	.mutateWith(jwt(jwt -> jwt.header("kid", "one")
+	.mutateWith(mockJwt().jwt(jwt -> jwt.header("kid", "one")
 		.claim("iss", "https://idp.example.org")))
 	.get().uri("/endpoint").exchange();
 ----
@@ -211,7 +211,7 @@ client
 [source,java]
 ----
 client
-	.mutateWith(jwt(jwt -> jwt.claims(claims -> claims.remove("scope"))))
+	.mutateWith(mockJwt().jwt(jwt -> jwt.claims(claims -> claims.remove("scope"))))
 	.get().uri("/endpoint").exchange();
 ----
 
@@ -244,7 +244,7 @@ Jwt jwt = Jwt.withTokenValue("token")
     .claim("scope", "read");
 
 client
-	.mutateWith(jwt(jwt))
+	.mutateWith(mockJwt().jwt(jwt))
 	.get().uri("/endpoint").exchange();
 ----
 
