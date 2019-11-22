@@ -22,10 +22,15 @@ import org.junit.Test;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Sid;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+
+import java.util.Collection;
+import java.util.Collections;
 
 public class SidTests {
 
@@ -210,5 +215,66 @@ public class SidTests {
 
 		assertThat("ROLE_TEST".equals(gaSid.getGrantedAuthority())).isTrue();
 		assertThat("ROLE_TEST2".equals(gaSid.getGrantedAuthority())).isFalse();
+	}
+
+	@Test
+	public void getPrincipalWhenPrincipalInstanceOfUserDetailsThenReturnsUsername() {
+		User user = new User("user", "password", Collections.singletonList(new SimpleGrantedAuthority("ROLE_TEST")));
+		Authentication authentication = new TestingAuthenticationToken(user, "password");
+		PrincipalSid principalSid = new PrincipalSid(authentication);
+
+		assertThat("user").isEqualTo(principalSid.getPrincipal());
+	}
+
+	@Test
+	public void getPrincipalWhenPrincipalNotInstanceOfUserDetailsThenReturnsPrincipalName() {
+		Authentication authentication = new TestingAuthenticationToken("token", "password");
+		PrincipalSid principalSid = new PrincipalSid(authentication);
+
+		assertThat("token").isEqualTo(principalSid.getPrincipal());
+	}
+
+	@Test
+	public void getPrincipalWhenCustomAuthenticationPrincipalThenReturnsPrincipalName() {
+		Authentication authentication = new CustomAuthenticationToken(new CustomToken("token"), null);
+		PrincipalSid principalSid = new PrincipalSid(authentication);
+
+		assertThat("token").isEqualTo(principalSid.getPrincipal());
+	}
+
+	static class CustomAuthenticationToken extends AbstractAuthenticationToken {
+		private CustomToken principal;
+
+		CustomAuthenticationToken(CustomToken principal, Collection<GrantedAuthority> authorities) {
+			super(authorities);
+			this.principal = principal;
+		}
+
+		@Override
+		public Object getCredentials() {
+			return null;
+		}
+
+		@Override
+		public CustomToken getPrincipal() {
+			return this.principal;
+		}
+
+		@Override
+		public String getName() {
+			return principal.getName();
+		}
+	}
+
+	static class CustomToken {
+		private String name;
+
+		CustomToken(String name) {
+			this.name = name;
+		}
+
+		String getName() {
+			return name;
+		}
 	}
 }

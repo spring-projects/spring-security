@@ -17,7 +17,6 @@ package org.springframework.security.acls.domain;
 
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import org.springframework.util.Assert;
 
@@ -49,12 +48,7 @@ public class PrincipalSid implements Sid {
 		Assert.notNull(authentication, "Authentication required");
 		Assert.notNull(authentication.getPrincipal(), "Principal required");
 
-		if (authentication.getPrincipal() instanceof UserDetails) {
-			this.principal = ((UserDetails) authentication.getPrincipal()).getUsername();
-		}
-		else {
-			this.principal = authentication.getName();
-		}
+		this.principal = authentication.getName();
 	}
 
 	// ~ Methods
