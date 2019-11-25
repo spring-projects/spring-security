@@ -7,6 +7,4 @@ include::namespace.adoc[]
 
 include::dependencies.adoc[]
 
-include::proxy-server.adoc[]
-
 include::faq.adoc[]
