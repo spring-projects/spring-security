@@ -25,6 +25,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher.MatchResult;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
@@ -94,13 +95,17 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 		String xml = this.authenticationRequestFactory.createAuthenticationRequest(authNRequest);
 		String encoded = encode(deflate(xml));
 		String relayState = request.getParameter("RelayState");
-		String redirect = UriComponentsBuilder
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder
 				.fromUriString(relyingParty.getIdpWebSsoUrl())
-				.queryParam("SAMLRequest", UriUtils.encode(encoded, StandardCharsets.ISO_8859_1))
-				.queryParam("RelayState", UriUtils.encode(relayState, StandardCharsets.ISO_8859_1))
+				.queryParam("SAMLRequest", UriUtils.encode(encoded, StandardCharsets.ISO_8859_1));
+
+		if (StringUtils.hasText(relayState)) {
+			uriBuilder.queryParam("RelayState", UriUtils.encode(relayState, StandardCharsets.ISO_8859_1));
+		}
+
+		return uriBuilder
 				.build(true)
 				.toUriString();
-		return redirect;
 	}
 
 	private Saml2AuthenticationRequest createAuthenticationRequest(RelyingPartyRegistration relyingParty, HttpServletRequest request) {
