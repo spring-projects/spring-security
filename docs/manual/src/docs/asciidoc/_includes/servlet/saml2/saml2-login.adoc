@@ -226,7 +226,7 @@ public interface Saml2AuthenticationRequestFactory {
 [[samllogin-sample-boot]]
 === Spring Boot 2.x Sample
 
-We are currently working with the the Spring Boot team on the
+We are currently working with the Spring Boot team on the
 https://github.com/spring-projects/spring-boot/issues/18260[Auto Configuration for Spring Security SAML Login].
 In the meantime, we have provided a Spring Boot sample that supports a Yaml configuration.
 
