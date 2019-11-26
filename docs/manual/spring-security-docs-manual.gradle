@@ -5,6 +5,7 @@ asciidoctor {
 	def ghUrl = "https://github.com/spring-projects/spring-security/tree/$ghTag"
 	attributes 'spring-security-version' : project.version,
 		'spring-version' : project(':spring-security-core').dependencyManagement.managedVersions['org.springframework:spring-core'],
+		'spring-boot-version' : springBootVersion,
 		revnumber : project.version,
 		'gh-url': ghUrl,
 		'gh-samples-url': "$ghUrl/samples"
