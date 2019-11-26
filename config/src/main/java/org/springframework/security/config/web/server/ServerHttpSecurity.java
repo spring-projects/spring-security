@@ -1084,7 +1084,9 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationConverter getAuthenticationConverter(ReactiveClientRegistrationRepository clientRegistrationRepository) {
 			if (this.authenticationConverter == null) {
-				this.authenticationConverter = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository);
+				ServerOAuth2AuthorizationCodeAuthenticationTokenConverter authenticationConverter = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository);
+				authenticationConverter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+				this.authenticationConverter = authenticationConverter;
 			}
 			return this.authenticationConverter;
 		}
