@@ -39,6 +39,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.server.authentication.ServerX509AuthenticationConverter;
 import reactor.core.publisher.Mono;
@@ -473,6 +476,33 @@ public class ServerHttpSecurityTests {
 				.expectStatus().isForbidden();
 
 		verify(customServerCsrfTokenRepository).loadToken(any());
+	}
+
+	@Test
+	public void shouldConfigureAuthorizationRequestRepositoryForOAuth2Login() {
+		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> mockRepository = mock(ServerAuthorizationRequestRepository.class);
+		ReactiveClientRegistrationRepository clientRegistrationRepository = mock(ReactiveClientRegistrationRepository.class);
+
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri("https://example.com/auth")
+				.redirectUri("https://example.com/redirect")
+				.clientId("test")
+				.build();
+
+		when(mockRepository.removeAuthorizationRequest(any())).thenReturn(Mono.just(authorizationRequest));
+
+		SecurityWebFilterChain securityFilterChain = this.http
+				.oauth2Login()
+				.clientRegistrationRepository(clientRegistrationRepository)
+				.authorizationRequestRepository(mockRepository)
+				.and()
+				.build();
+
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
+		client.get().uri("/login/oauth2/code/test")
+				.exchange();
+
+		verify(mockRepository).removeAuthorizationRequest(any());
 	}
 
 	private boolean isX509Filter(WebFilter filter) {
