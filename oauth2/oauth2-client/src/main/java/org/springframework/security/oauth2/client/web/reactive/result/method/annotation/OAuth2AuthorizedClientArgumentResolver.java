@@ -137,13 +137,11 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 				.switchIfEmpty(currentServerWebExchange());
 
 		return Mono.zip(defaultedRegistrationId, defaultedAuthentication, defaultedExchange)
-				.map(t3 -> {
-					OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withClientRegistrationId(t3.getT1()).principal(t3.getT2());
-					if (t3.getT3() != null) {
-						builder.attribute(ServerWebExchange.class.getName(), t3.getT3());
-					}
-					return builder.build();
-				});
+				.map(t3 -> OAuth2AuthorizeRequest.withClientRegistrationId(t3.getT1())
+						.principal(t3.getT2())
+						.attribute(ServerWebExchange.class.getName(), t3.getT3())
+						.build()
+				);
 	}
 
 	private Mono<Authentication> currentAuthentication() {
