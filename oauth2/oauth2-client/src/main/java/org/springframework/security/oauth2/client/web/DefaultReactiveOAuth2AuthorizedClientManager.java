@@ -99,15 +99,16 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 	private Mono<OAuth2AuthorizedClient> loadAuthorizedClient(String clientRegistrationId, Authentication principal, ServerWebExchange serverWebExchange) {
 		return Mono.justOrEmpty(serverWebExchange)
 				.switchIfEmpty(Mono.defer(() -> currentServerWebExchange()))
+				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException("serverWebExchange cannot be null")))
 				.flatMap(exchange -> this.authorizedClientRepository.loadAuthorizedClient(clientRegistrationId, principal, exchange));
 	}
 
 	private Mono<OAuth2AuthorizedClient> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal, ServerWebExchange serverWebExchange) {
 		return Mono.justOrEmpty(serverWebExchange)
 				.switchIfEmpty(Mono.defer(() -> currentServerWebExchange()))
+				.switchIfEmpty(Mono.error(() -> new IllegalArgumentException("serverWebExchange cannot be null")))
 				.flatMap(exchange -> this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, exchange)
-						.thenReturn(authorizedClient))
-				.defaultIfEmpty(authorizedClient);
+						.thenReturn(authorizedClient));
 	}
 
 	private static Mono<ServerWebExchange> currentServerWebExchange() {
