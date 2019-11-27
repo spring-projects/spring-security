@@ -65,6 +65,7 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 	private MockServerWebExchange serverWebExchange;
 	private Context context;
 	private ArgumentCaptor<OAuth2AuthorizationContext> authorizationContextCaptor;
+	private PublisherProbe<OAuth2AuthorizedClient> loadAuthorizedClientProbe;
 	private PublisherProbe<Void> saveAuthorizedClientProbe;
 
 	@SuppressWarnings("unchecked")
@@ -74,8 +75,9 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		when(this.clientRegistrationRepository.findByRegistrationId(
 				anyString())).thenReturn(Mono.empty());
 		this.authorizedClientRepository = mock(ServerOAuth2AuthorizedClientRepository.class);
+		this.loadAuthorizedClientProbe = PublisherProbe.empty();
 		when(this.authorizedClientRepository.loadAuthorizedClient(
-				anyString(), any(Authentication.class), any(ServerWebExchange.class))).thenReturn(Mono.empty());
+				anyString(), any(Authentication.class), any(ServerWebExchange.class))).thenReturn(this.loadAuthorizedClientProbe.mono());
 		this.saveAuthorizedClientProbe = PublisherProbe.empty();
 		when(this.authorizedClientRepository.saveAuthorizedClient(
 				any(OAuth2AuthorizedClient.class), any(Authentication.class), any(ServerWebExchange.class))).thenReturn(this.saveAuthorizedClientProbe.mono());
@@ -132,6 +134,16 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 	}
 
 	@Test
+	public void authorizeWhenExchangeIsNullThenThrowIllegalArgumentException() {
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal(this.principal)
+				.build();
+		assertThatThrownBy(() -> this.authorizedClientManager.authorize(authorizeRequest).block())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("serverWebExchange cannot be null");
+	}
+
+	@Test
 	public void authorizeWhenClientRegistrationNotFoundThenThrowIllegalArgumentException() {
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("invalid-registration-id")
 				.principal(this.principal)
@@ -162,7 +174,8 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
 
 		assertThat(authorizedClient).isNull();
-		verify(this.authorizedClientRepository, never()).saveAuthorizedClient(any(), any(), any());
+		this.loadAuthorizedClientProbe.assertWasSubscribed();
+		this.saveAuthorizedClientProbe.assertWasNotSubscribed();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -193,38 +206,14 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		this.saveAuthorizedClientProbe.assertWasSubscribed();
 	}
 
-	@Test
-	public void authorizeWhenNotAuthorizedAndSupportedProviderAndExchangeUnavailableThenAuthorizedButNotSaved() {
-		when(this.clientRegistrationRepository.findByRegistrationId(
-				eq(this.clientRegistration.getRegistrationId()))).thenReturn(Mono.just(this.clientRegistration));
-
-		when(this.authorizedClientProvider.authorize(
-				any(OAuth2AuthorizationContext.class))).thenReturn(Mono.just(this.authorizedClient));
-
-		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
-				.principal(this.principal)
-				.build();
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest).block();
-
-		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
-		verify(this.contextAttributesMapper).apply(eq(authorizeRequest));
-
-		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
-		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
-		assertThat(authorizationContext.getAuthorizedClient()).isNull();
-		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
-
-		assertThat(authorizedClient).isSameAs(this.authorizedClient);
-		verify(this.authorizedClientRepository, never()).saveAuthorizedClient(any(), any(), any());
-	}
-
 	@SuppressWarnings("unchecked")
 	@Test
 	public void authorizeWhenAuthorizedAndSupportedProviderThenReauthorized() {
 		when(this.clientRegistrationRepository.findByRegistrationId(
 				eq(this.clientRegistration.getRegistrationId()))).thenReturn(Mono.just(this.clientRegistration));
+		this.loadAuthorizedClientProbe = PublisherProbe.of(Mono.just(this.authorizedClient));
 		when(this.authorizedClientRepository.loadAuthorizedClient(
-				eq(this.clientRegistration.getRegistrationId()), eq(this.principal), eq(this.serverWebExchange))).thenReturn(Mono.just(this.authorizedClient));
+				eq(this.clientRegistration.getRegistrationId()), eq(this.principal), eq(this.serverWebExchange))).thenReturn(this.loadAuthorizedClientProbe.mono());
 
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(
 				this.clientRegistration, this.principal.getName(),
@@ -313,7 +302,7 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
 
 		assertThat(authorizedClient).isSameAs(this.authorizedClient);
-		verify(this.authorizedClientRepository, never()).saveAuthorizedClient(any(), any(), any());
+		this.saveAuthorizedClientProbe.assertWasNotSubscribed();
 	}
 
 	@SuppressWarnings("unchecked")
