@@ -183,7 +183,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			SecurityContextHolder.clearContext();
 
 			if (debug) {
-				this.logger.debug("Authentication request for failed: " + failed, failed);
+				this.logger.debug("Authentication request for failed!", failed);
 			}
 
 			this.rememberMeServices.loginFail(request, response);
