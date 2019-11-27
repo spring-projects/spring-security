@@ -57,6 +57,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.server.UnAuthenticatedServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -585,6 +586,43 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.block();
 
 		verify(this.authorizedClientRepository).loadAuthorizedClient(eq(this.registration.getRegistrationId()), any(), eq(this.serverWebExchange));
+	}
+
+	// gh-7544
+	@Test
+	public void filterWhenClientCredentialsClientNotAuthorizedAndOutsideRequestContextThenGetNewToken() {
+		// Use UnAuthenticatedServerOAuth2AuthorizedClientRepository when operating outside of a request context
+		ServerOAuth2AuthorizedClientRepository unauthenticatedAuthorizedClientRepository = spy(new UnAuthenticatedServerOAuth2AuthorizedClientRepository());
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(
+				this.clientRegistrationRepository, unauthenticatedAuthorizedClientRepository);
+		this.function.setClientCredentialsTokenResponseClient(this.clientCredentialsTokenResponseClient);
+
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("new-token")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(360)
+				.build();
+		when(this.clientCredentialsTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+
+		ClientRegistration registration = TestClientRegistrations.clientCredentials().build();
+		when(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId()))).thenReturn(Mono.just(registration));
+
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(clientRegistrationId(registration.getRegistrationId()))
+				.build();
+
+		this.function.filter(request, this.exchange).block();
+
+		verify(unauthenticatedAuthorizedClientRepository).loadAuthorizedClient(any(), any(), any());
+		verify(this.clientCredentialsTokenResponseClient).getTokenResponse(any());
+		verify(unauthenticatedAuthorizedClientRepository).saveAuthorizedClient(any(), any(), any());
+
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(1);
+		ClientRequest request1 = requests.get(0);
+		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer new-token");
+		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request1)).isEmpty();
 	}
 
 	private Context serverWebExchange() {
