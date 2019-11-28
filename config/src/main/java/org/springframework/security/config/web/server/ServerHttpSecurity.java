@@ -2775,7 +2775,9 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			if (this.csrfTokenRepository != null) {
 				this.filter.setCsrfTokenRepository(this.csrfTokenRepository);
-				http.logout().addLogoutHandler(new CsrfServerLogoutHandler(this.csrfTokenRepository));
+				if (ServerHttpSecurity.this.logout != null) {
+					ServerHttpSecurity.this.logout.addLogoutHandler(new CsrfServerLogoutHandler(this.csrfTokenRepository));
+				}
 			}
 			http.addFilterAt(this.filter, SecurityWebFiltersOrder.CSRF);
 		}

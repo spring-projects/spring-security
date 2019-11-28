@@ -164,4 +164,40 @@ public class LogoutSpecTests {
 			.assertAt()
 			.assertLogout();
 	}
+
+	@Test
+	public void logoutWhenDisabledThenPostToLogoutDoesNothing() {
+		SecurityWebFilterChain securityWebFilter = this.http
+				.authorizeExchange()
+				.anyExchange().authenticated()
+				.and()
+				.formLogin().and()
+				.logout().disable()
+				.build();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+
+		FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage.to(driver, FormLoginTests.DefaultLoginPage.class)
+				.assertAt();
+
+		FormLoginTests.HomePage homePage = loginPage.loginForm()
+				.username("user")
+				.password("password")
+				.submit(FormLoginTests.HomePage.class);
+
+		homePage.assertAt();
+
+		FormLoginTests.DefaultLogoutPage.to(driver)
+				.assertAt()
+				.logout();
+
+		homePage
+				.assertAt();
+	}
 }
