@@ -178,7 +178,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			Assertion assertion = validateSaml2Response(token, token.getRecipientUri(), samlResponse);
 			String username = getUsername(token, assertion);
 			return new Saml2Authentication(
-					() -> username, token.getSaml2Response(),
+					new SimpleSaml2AuthenticatedPrincipal(username), token.getSaml2Response(),
 					this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion))
 			);
 		} catch (Saml2AuthenticationException e) {

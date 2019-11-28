@@ -16,6 +16,10 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
 import org.springframework.security.core.Authentication;
 
 import org.hamcrest.BaseMatcher;
@@ -344,6 +348,28 @@ public class OpenSamlAuthenticationProviderTests {
 				)
 		);
 		provider.authenticate(token);
+	}
+
+	@Test
+	public void writeObjectWhenTypeIsSaml2AuthenticationThenNoException() throws IOException {
+		Response response = response(recipientUri, idpEntityId);
+		Assertion assertion = defaultAssertion();
+		signXmlObject(
+				assertion,
+				assertingPartyCredentials(),
+				recipientEntityId
+		);
+		EncryptedAssertion encryptedAssertion = encryptAssertion(assertion, assertingPartyCredentials());
+		response.getEncryptedAssertions().add(encryptedAssertion);
+		token = responseXml(response, idpEntityId);
+
+		Saml2Authentication authentication = (Saml2Authentication) provider.authenticate(token);
+
+		// the following code will throw an exception if authentication isn't serializable
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream(1024);
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream);
+		objectOutputStream.writeObject(authentication);
+		objectOutputStream.flush();
 	}
 
 	private Assertion defaultAssertion() {
