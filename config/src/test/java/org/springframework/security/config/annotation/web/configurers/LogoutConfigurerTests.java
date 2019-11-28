@@ -458,4 +458,25 @@ public class LogoutConfigurerTests {
 	@EnableWebSecurity
 	static class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
+
+	@Test
+	public void logoutWhenDisabledThenLogoutUrlNotFound() throws Exception {
+		this.spring.register(LogoutDisabledConfig.class).autowire();
+
+		this.mvc.perform(post("/logout")
+				.with(csrf()))
+				.andExpect(status().isNotFound());
+	}
+
+	@EnableWebSecurity
+	static class LogoutDisabledConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout()
+					.disable();
+			// @formatter:on
+		}
+	}
 }
