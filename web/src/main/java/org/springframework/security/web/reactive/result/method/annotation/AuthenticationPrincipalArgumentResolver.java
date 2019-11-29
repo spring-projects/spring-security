@@ -28,8 +28,9 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.BindingContext;
 import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolverSupport;
@@ -69,9 +70,9 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 	public Mono<Object> resolveArgument(MethodParameter parameter, BindingContext bindingContext,
 			ServerWebExchange exchange) {
 		ReactiveAdapter adapter = getAdapterRegistry().getAdapter(parameter.getParameterType());
-		return exchange.getPrincipal()
-			.ofType(Authentication.class)
-			.flatMap( a -> {
+		return ReactiveSecurityContextHolder.getContext()
+			.map(SecurityContext::getAuthentication)
+			.flatMap(a -> {
 				Object p = resolvePrincipal(parameter, a.getPrincipal());
 				Mono<Object> principal = Mono.justOrEmpty(p);
 				return adapter == null ? principal : Mono.just(adapter.fromPublisher(principal));
