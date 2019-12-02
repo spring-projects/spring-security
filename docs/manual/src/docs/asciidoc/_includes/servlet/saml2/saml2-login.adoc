@@ -223,6 +223,96 @@ public interface Saml2AuthenticationRequestFactory {
 }
 ----
 
+=== Customizing Authentication Logic
+
+By default Spring Security configures the `OpenSamlAuthenticationProvider`
+to validate and parse the SAML 2 response and assertions that are received.
+This provider has three configuration options
+
+1. An authorities extractor - extract group information from the assertion
+2. An authorities mapper - map extracted group information to internal authorities
+3. Response time validation duration - the built in tolerances for timestamp validation
+should be used when there may be a time synchronization issue.
+
+One customization strategy is to use an `ObjectPostProcessor`, which allows you to modify the
+objects created by the implementation. Another option is to override the authentication
+manager for the filter that intercepts the SAMLResponse.
+
+==== OpenSamlAuthenticationProvider ObjectPostProcessor
+
+[source,java]
+----
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        ObjectPostProcessor<OpenSamlAuthenticationProvider> processor = new ObjectPostProcessor<>() {
+            @Override
+            public <O extends OpenSamlAuthenticationProvider> O postProcess(O provider) {
+                provider.setResponseTimeValidationSkew(RESPONSE_TIME_VALIDATION_SKEW);
+                provider.setAuthoritiesMapper(AUTHORITIES_MAPPER);
+                provider.setAuthoritiesExtractor(AUTHORITIES_EXTRACTOR);
+                return provider;
+            }
+        };
+
+        http
+            .saml2Login()
+            .addObjectPostProcessor(processor)
+        ;
+        super.configure(http);
+    }
+}
+----
+
+==== Configure OpenSamlAuthenticationProvider as an Authentication Manager
+We can leverage the same method, `authenticationManager`, to override and customize the default
+`OpenSamlAuthenticationProvider`.
+
+[source,java]
+----
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        OpenSamlAuthenticationProvider authProvider = new OpenSamlAuthenticationProvider();
+        authProvider.setResponseTimeValidationSkew(RESPONSE_TIME_VALIDATION_SKEW);
+        authProvider.setAuthoritiesMapper(AUTHORITIES_MAPPER);
+        authProvider.setAuthoritiesExtractor(AUTHORITIES_EXTRACTOR);
+        http
+            .saml2Login()
+            .authenticationManager(new ProviderManager(asList(authProvider)))
+        ;
+        super.configure(http);
+    }
+}
+----
+
+==== Custom Authentication Manager
+The authentication manager for the security filter can also be overwritten, using your own
+custom `AuthenticationManager` implementation.
+This authentication manager should expect a `Saml2AuthenticationToken` object
+containing the SAML 2 Response XML data.
+
+[source,java]
+----
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        AuthenticationManager authenticationManager = new MySaml2AuthenticationManager(...);
+        http
+            .saml2Login()
+            .authenticationManager(authenticationManager)
+        ;
+        super.configure(http);
+    }
+}
+----
+
 [[samllogin-sample-boot]]
 === Spring Boot 2.x Sample
 

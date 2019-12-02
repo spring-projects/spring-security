@@ -15,17 +15,6 @@
  */
 package org.springframework.security.saml2.provider.service.authentication;
 
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
-import org.springframework.security.saml2.Saml2Exception;
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
-import org.springframework.util.Assert;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml.common.SignableSAMLObject;
@@ -61,6 +50,16 @@ import org.opensaml.xmlsec.signature.support.SignaturePrevalidator;
 import org.opensaml.xmlsec.signature.support.SignatureTrustEngine;
 import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.util.Assert;
 
 import java.security.cert.X509Certificate;
 import java.time.Duration;
