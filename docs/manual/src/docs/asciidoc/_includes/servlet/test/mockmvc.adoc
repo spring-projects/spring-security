@@ -20,7 +20,7 @@ NOTE: Spring Security's testing support requires spring-test-4.1.3.RELEASE or gr
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@ContextConfiguration(classes = SecurityConfig.class)
 @WebAppConfiguration
 public class CsrfShowcaseTests {
 
