@@ -43,13 +43,23 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	private final RequestMatcher matcher;
 	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
+	/**
+	 * Creates a {@code Saml2WebSsoAuthenticationFilter} authentication filter that is configured
+	 * to use the {@link #DEFAULT_FILTER_PROCESSES_URI} processing URL
+	 * @param relyingPartyRegistrationRepository - repository of configured SAML 2 entities. Required.
+	 */
 	public Saml2WebSsoAuthenticationFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
 		this(relyingPartyRegistrationRepository, DEFAULT_FILTER_PROCESSES_URI);
 	}
 
+	/**
+	 * Creates a {@code Saml2WebSsoAuthenticationFilter} authentication filter
+	 * @param relyingPartyRegistrationRepository - repository of configured SAML 2 entities. Required.
+	 * @param filterProcessesUrl the processing URL, must contain a {registrationId} variable. Required.
+	 */
 	public Saml2WebSsoAuthenticationFilter(
-			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
-			String filterProcessesUrl) {
+				RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
+				String filterProcessesUrl) {
 		super(filterProcessesUrl);
 		Assert.notNull(relyingPartyRegistrationRepository, "relyingPartyRegistrationRepository cannot be null");
 		Assert.hasText(filterProcessesUrl, "filterProcessesUrl must contain a URL pattern");

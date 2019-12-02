@@ -18,7 +18,7 @@ package org.springframework.security.config.annotation.web.configurers.saml2;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
@@ -103,6 +103,25 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 
 	private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
+	private AuthenticationManager authenticationManager;
+
+	private Saml2WebSsoAuthenticationFilter saml2WebSsoAuthenticationFilter;
+
+	/**
+	 * Allows a configuration of a {@link AuthenticationManager} to be used during SAML 2 authentication.
+	 * If none is specified, the system will create one inject it into the {@link Saml2WebSsoAuthenticationFilter}
+	 * @param authenticationManager the authentication manager to be used
+	 * @return the {@link Saml2LoginConfigurer} for further configuration
+	 * @throws IllegalArgumentException if authenticationManager is null
+	 * 									configure the default manager
+	 * @since 5.3
+	 */
+	public Saml2LoginConfigurer<B> authenticationManager(AuthenticationManager authenticationManager) {
+		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+		this.authenticationManager = authenticationManager;
+		return this;
+	}
+
 	/**
 	 * Sets the {@code RelyingPartyRegistrationRepository} of relying parties, each party representing a
 	 * service provider, SP and this host, and identity provider, IDP pair that communicate with each other.
@@ -164,11 +183,11 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 			this.relyingPartyRegistrationRepository = getSharedOrBean(http, RelyingPartyRegistrationRepository.class);
 		}
 
-		Saml2WebSsoAuthenticationFilter webSsoFilter = new Saml2WebSsoAuthenticationFilter(
+		saml2WebSsoAuthenticationFilter = new Saml2WebSsoAuthenticationFilter(
 				this.relyingPartyRegistrationRepository,
 				this.loginProcessingUrl
 		);
-		setAuthenticationFilter(webSsoFilter);
+		setAuthenticationFilter(saml2WebSsoAuthenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 
 		if (hasText(this.loginPage)) {
@@ -197,7 +216,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 				super.init(http);
 			}
 		}
-		http.authenticationProvider(getAuthenticationProvider());
+
 		this.initDefaultLoginFilter(http);
 	}
 
@@ -211,11 +230,17 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 	public void configure(B http) throws Exception {
 		http.addFilter(this.authenticationRequestEndpoint.build(http));
 		super.configure(http);
+		if (this.authenticationManager == null) {
+			registerDefaultAuthenticationProvider(http);
+		}
+		else {
+			saml2WebSsoAuthenticationFilter.setAuthenticationManager(this.authenticationManager);
+		}
 	}
 
-	private AuthenticationProvider getAuthenticationProvider() {
-		AuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-		return postProcess(provider);
+	private void registerDefaultAuthenticationProvider(B http) {
+		OpenSamlAuthenticationProvider provider = postProcess(new OpenSamlAuthenticationProvider());
+		http.authenticationProvider(provider);
 	}
 
 	private void registerDefaultCsrfOverride(B http) {
@@ -312,6 +337,5 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 			return resolver;
 		}
 	}
-
 
 }
