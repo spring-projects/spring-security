@@ -15,9 +15,6 @@
  */
 package org.springframework.security.samples.config;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
@@ -26,6 +23,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.Filter;
 
@@ -53,8 +55,10 @@ public class SecurityConfigTests {
 				)
 				.findFirst()
 				.get();
-		final Object matcher = ReflectionTestUtils.getField(filter, "requiresAuthenticationRequestMatcher");
-		final Object pattern = ReflectionTestUtils.getField(matcher, "pattern");
-		Assert.assertEquals("loginProcessingUrl mismatch", "/sample/jc/saml2/sso/{registrationId}", pattern);
+		for (String field : Arrays.asList("requiresAuthenticationRequestMatcher", "matcher")) {
+			final Object matcher = ReflectionTestUtils.getField(filter, field);
+			final Object pattern = ReflectionTestUtils.getField(matcher, "pattern");
+			Assert.assertEquals("loginProcessingUrl mismatch", "/sample/jc/saml2/sso/{registrationId}", pattern);
+		}
 	}
 }
