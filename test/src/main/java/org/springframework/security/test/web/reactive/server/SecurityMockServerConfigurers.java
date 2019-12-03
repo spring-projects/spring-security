@@ -18,7 +18,10 @@ package org.springframework.security.test.web.reactive.server;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -30,11 +33,25 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -128,6 +145,21 @@ public class SecurityMockServerConfigurers {
 	 */
 	public static JwtMutator mockJwt() {
 		return new JwtMutator();
+	}
+
+	/**
+	 * Updates the ServerWebExchange to establish a {@link SecurityContext} that has a
+	 * {@link OAuth2AuthenticationToken} for the
+	 * {@link Authentication}. All details are
+	 * declarative and do not require the corresponding OAuth 2.0 tokens to be valid.
+	 *
+	 * @return the {@link OidcLoginMutator} to further configure or use
+	 * @since 5.3
+	 */
+	public static OidcLoginMutator mockOidcLogin() {
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
+				null, null, Collections.singleton("user"));
+		return new OidcLoginMutator(accessToken);
 	}
 
 	public static CsrfMutator csrf() {
@@ -427,6 +459,187 @@ public class SecurityMockServerConfigurers {
 
 		private <T extends WebTestClientConfigurer & MockServerConfigurer> T configurer() {
 			return mockAuthentication(new JwtAuthenticationToken(this.jwt, this.authoritiesConverter.convert(this.jwt)));
+		}
+	}
+
+	/**
+	 * @author Josh Cummings
+	 * @since 5.3
+	 */
+	public final static class OidcLoginMutator implements WebTestClientConfigurer, MockServerConfigurer {
+		private ClientRegistration clientRegistration;
+		private OAuth2AccessToken accessToken;
+		private OidcIdToken idToken;
+		private OidcUserInfo userInfo;
+		private OidcUser oidcUser;
+		private Collection<GrantedAuthority> authorities;
+
+		ServerOAuth2AuthorizedClientRepository authorizedClientRepository =
+				new WebSessionServerOAuth2AuthorizedClientRepository();
+
+		private OidcLoginMutator(OAuth2AccessToken accessToken) {
+			this.accessToken = accessToken;
+			this.clientRegistration = clientRegistrationBuilder().build();
+		}
+
+		/**
+		 * Use the provided authorities in the {@link Authentication}
+		 *
+		 * @param authorities the authorities to use
+		 * @return the {@link OidcLoginMutator} for further configuration
+		 */
+		public OidcLoginMutator authorities(Collection<GrantedAuthority> authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = authorities;
+			return this;
+		}
+
+		/**
+		 * Use the provided authorities in the {@link Authentication}
+		 *
+		 * @param authorities the authorities to use
+		 * @return the {@link OidcLoginMutator} for further configuration
+		 */
+		public OidcLoginMutator authorities(GrantedAuthority... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = Arrays.asList(authorities);
+			return this;
+		}
+
+		/**
+		 * Use the provided {@link OidcIdToken} when constructing the authenticated user
+		 *
+		 * @param idTokenBuilderConsumer a {@link Consumer} of a {@link OidcIdToken.Builder}
+		 * @return the {@link OidcLoginMutator} for further configuration
+		 */
+		public OidcLoginMutator idToken(Consumer<OidcIdToken.Builder> idTokenBuilderConsumer) {
+			OidcIdToken.Builder builder = OidcIdToken.withTokenValue("id-token");
+			builder.subject("test-subject");
+			idTokenBuilderConsumer.accept(builder);
+			this.idToken = builder.build();
+			return this;
+		}
+
+		/**
+		 * Use the provided {@link OidcUserInfo} when constructing the authenticated user
+		 *
+		 * @param userInfoBuilderConsumer a {@link Consumer} of a {@link OidcUserInfo.Builder}
+		 * @return the {@link OidcLoginMutator} for further configuration
+		 */
+		public OidcLoginMutator userInfoToken(Consumer<OidcUserInfo.Builder> userInfoBuilderConsumer) {
+			OidcUserInfo.Builder builder = OidcUserInfo.builder();
+			userInfoBuilderConsumer.accept(builder);
+			this.userInfo = builder.build();
+			return this;
+		}
+
+		/**
+		 * Use the provided {@link OidcUser} as the authenticated user.
+		 * <p>
+		 * Supplying an {@link OidcUser} will take precedence over {@link #idToken}, {@link #userInfo},
+		 * and list of {@link GrantedAuthority}s to use.
+		 *
+		 * @param oidcUser the {@link OidcUser} to use
+		 * @return the {@link OidcLoginMutator} for further configuration
+		 */
+		public OidcLoginMutator oidcUser(OidcUser oidcUser) {
+			this.oidcUser = oidcUser;
+			return this;
+		}
+
+		/**
+		 * Use the provided {@link ClientRegistration} as the client to authorize.
+		 * <p>
+		 * The supplied {@link ClientRegistration} will be registered into an
+		 * {@link WebSessionServerOAuth2AuthorizedClientRepository}. Tests relying on
+		 * {@link org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient}
+		 * annotations should register an {@link WebSessionServerOAuth2AuthorizedClientRepository} bean
+		 * to the application context.
+		 *
+		 * @param clientRegistration the {@link ClientRegistration} to use
+		 * @return the {@link OidcLoginMutator} for further configuration
+		 */
+		public OidcLoginMutator clientRegistration(ClientRegistration clientRegistration) {
+			this.clientRegistration = clientRegistration;
+			return this;
+		}
+
+		@Override
+		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
+			OAuth2AuthenticationToken token = getToken();
+			builder.filters(addAuthorizedClientFilter(token));
+			mockAuthentication(getToken()).beforeServerCreated(builder);
+		}
+
+		@Override
+		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
+			mockAuthentication(getToken()).afterConfigureAdded(serverSpec);
+		}
+
+		@Override
+		public void afterConfigurerAdded(
+				WebTestClient.Builder builder,
+				@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
+				@Nullable ClientHttpConnector connector) {
+			OAuth2AuthenticationToken token = getToken();
+			httpHandlerBuilder.filters(addAuthorizedClientFilter(token));
+			mockAuthentication(token).afterConfigurerAdded(builder, httpHandlerBuilder, connector);
+		}
+
+		private Consumer<List<WebFilter>> addAuthorizedClientFilter(OAuth2AuthenticationToken token) {
+			OAuth2AuthorizedClient client = getClient();
+			return filters -> filters.add(0, (exchange, chain) ->
+					authorizedClientRepository.saveAuthorizedClient(client, token, exchange)
+							.then(chain.filter(exchange)));
+		}
+
+		private ClientRegistration.Builder clientRegistrationBuilder() {
+			return ClientRegistration.withRegistrationId("test")
+					.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+					.clientId("test-client")
+					.tokenUri("https://token-uri.example.org");
+		}
+
+		private OAuth2AuthenticationToken getToken() {
+			OidcUser oidcUser = getOidcUser();
+			return new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(), this.clientRegistration.getRegistrationId());
+		}
+
+		private OAuth2AuthorizedClient getClient() {
+			return new OAuth2AuthorizedClient(this.clientRegistration, getToken().getName(), this.accessToken);
+		}
+
+		private Collection<GrantedAuthority> getAuthorities() {
+			if (this.authorities == null) {
+				Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+				authorities.add(new OidcUserAuthority(getOidcIdToken(), getOidcUserInfo()));
+				for (String authority : this.accessToken.getScopes()) {
+					authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
+				}
+				return authorities;
+			} else {
+				return this.authorities;
+			}
+		}
+
+		private OidcIdToken getOidcIdToken() {
+			if (this.idToken == null) {
+				return new OidcIdToken("id-token", null, null, Collections.singletonMap(IdTokenClaimNames.SUB, "test-subject"));
+			} else {
+				return this.idToken;
+			}
+		}
+
+		private OidcUserInfo getOidcUserInfo() {
+			return this.userInfo;
+		}
+
+		private OidcUser getOidcUser() {
+			if (this.oidcUser == null) {
+				return new DefaultOidcUser(getAuthorities(), getOidcIdToken(), this.userInfo);
+			} else {
+				return this.oidcUser;
+			}
 		}
 	}
 }
