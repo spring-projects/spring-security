@@ -23,12 +23,11 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -46,19 +45,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  */
 @RunWith(SpringRunner.class)
-@WebMvcTest
-@Import({OAuth2LoginController.class, OAuth2LoginControllerTests.OAuth2ClientConfig.class})
+@WebMvcTest(OAuth2LoginController.class)
 public class OAuth2LoginControllerTests {
-
-	static ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("test")
-			.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-			.clientId("my-client-id")
-			.clientName("my-client-name")
-			.tokenUri("https://token-uri.example.org")
-			.build();
 
 	@Autowired
 	MockMvc mvc;
+
+	@MockBean
+	ClientRegistrationRepository clientRegistrationRepository;
+
+	@TestConfiguration
+	static class AuthorizedClient {
+		@Bean
+		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return new HttpSessionOAuth2AuthorizedClientRepository();
+		}
+	}
 
 	@Test
 	public void rootWhenAuthenticatedReturnsUserAndClient() throws Exception {
@@ -70,25 +72,18 @@ public class OAuth2LoginControllerTests {
 
 	@Test
 	public void rootWhenOverridingClientRegistrationReturnsAccordingly() throws Exception {
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("test")
+				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.clientId("my-client-id")
+				.clientName("my-client-name")
+				.tokenUri("https://token-uri.example.org")
+				.build();
+
 		this.mvc.perform(get("/").with(oidcLogin()
 				.clientRegistration(clientRegistration)
 				.idToken(i -> i.subject("spring-security"))))
 				.andExpect(model().attribute("userName", "spring-security"))
 				.andExpect(model().attribute("clientName", "my-client-name"))
 				.andExpect(model().attribute("userAttributes", Collections.singletonMap(SUB, "spring-security")));
-	}
-
-	@Configuration
-	static class OAuth2ClientConfig {
-
-		@Bean
-		ClientRegistrationRepository clientRegistrationRepository() {
-			return new InMemoryClientRegistrationRepository(clientRegistration);
-		}
-
-		@Bean
-		OAuth2AuthorizedClientRepository authorizedClientRepository() {
-			return new HttpSessionOAuth2AuthorizedClientRepository();
-		}
 	}
 }

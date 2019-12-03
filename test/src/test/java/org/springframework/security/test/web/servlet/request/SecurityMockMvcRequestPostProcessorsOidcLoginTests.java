@@ -34,11 +34,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
@@ -52,9 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -105,15 +101,7 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthorizedClient()
 			throws Exception {
 
-		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("test")
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-				.clientId("test-client")
-				.tokenUri("https://token-uri.example.org")
-				.build();
-		ClientRegistrationRepository repository = this.context.getBean(ClientRegistrationRepository.class);
-		when(repository.findByRegistrationId(anyString())).thenReturn(clientRegistration);
-
-		this.mvc.perform(get("/access-token").with(oidcLogin().clientRegistration(clientRegistration)))
+		this.mvc.perform(get("/access-token").with(oidcLogin()))
 				.andExpect(content().string("access-token"));
 	}
 

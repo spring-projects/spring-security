@@ -1161,10 +1161,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * annotations should register an {@link HttpSessionOAuth2AuthorizedClientRepository} bean
 		 * to the application context.
 		 *
-		 * The client registration must be a valid {@link ClientRegistration} from the
-		 * {@link org.springframework.security.oauth2.client.registration.ClientRegistrationRepository}
-		 * in the application context.
-		 *
 		 * @param clientRegistration the {@link ClientRegistration} to use
 		 * @return the {@link OidcLoginRequestPostProcessor} for further configuration
 		 */
