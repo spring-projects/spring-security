@@ -15,20 +15,13 @@
  */
 package org.springframework.security.oauth2.client;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -36,25 +29,31 @@ import java.util.function.Function;
  * that is capable of operating outside of a {@code ServerHttpRequest} context,
  * e.g. in a scheduled/background thread and/or in the service-tier.
  *
+ * <p>This is a reactive equivalent of {@link org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager}</p>
+ *
  * @author Ankur Pathak
+ * @author Phil Clay
  * @see ReactiveOAuth2AuthorizedClientManager
  * @see ReactiveOAuth2AuthorizedClientProvider
  * @see ReactiveOAuth2AuthorizedClientService
- * @since 5.3
+ * @since 5.2.2
  */
-public final class OAuth2AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager implements ReactiveOAuth2AuthorizedClientManager {
+public final class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
+		implements ReactiveOAuth2AuthorizedClientManager {
+
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 	private final ReactiveOAuth2AuthorizedClientService authorizedClientService;
 	private ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = context -> Mono.empty();
 	private Function<OAuth2AuthorizeRequest, Mono<Map<String, Object>>> contextAttributesMapper = new DefaultContextAttributesMapper();
 
 	/**
-	 * Constructs an {@code OAuth2AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager} using the provided parameters.
+	 * Constructs an {@code AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager} using the provided parameters.
 	 *
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientService      the authorized client service
 	 */
-	public OAuth2AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(ReactiveClientRegistrationRepository clientRegistrationRepository,
+	public AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
+			ReactiveClientRegistrationRepository clientRegistrationRepository,
 			ReactiveOAuth2AuthorizedClientService authorizedClientService) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
@@ -62,35 +61,42 @@ public final class OAuth2AuthorizedClientServiceReactiveOAuth2AuthorizedClientMa
 		this.authorizedClientService = authorizedClientService;
 	}
 
-	@Nullable
 	@Override
 	public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizeRequest authorizeRequest) {
 		Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");
+
+		return createAuthorizationContext(authorizeRequest)
+				.flatMap(this::authorizeAndSave);
+	}
+
+	private Mono<OAuth2AuthorizationContext> createAuthorizationContext(OAuth2AuthorizeRequest authorizeRequest) {
 		String clientRegistrationId = authorizeRequest.getClientRegistrationId();
-		OAuth2AuthorizedClient authorizedClient = authorizeRequest.getAuthorizedClient();
 		Authentication principal = authorizeRequest.getPrincipal();
-		// @formatter:off
-		return Mono.justOrEmpty(authorizedClient)
+		return Mono.justOrEmpty(authorizeRequest.getAuthorizedClient())
 				.map(OAuth2AuthorizationContext::withAuthorizedClient)
 				.switchIfEmpty(Mono.defer(() -> this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
-								.flatMap(clientRegistration -> this.authorizedClientService.loadAuthorizedClient(clientRegistrationId, principal.getName())
-										.map(OAuth2AuthorizationContext::withAuthorizedClient)
-										.switchIfEmpty(Mono.fromSupplier(() -> OAuth2AuthorizationContext.withClientRegistration(clientRegistration)))
-								)
-								.switchIfEmpty(Mono.error(new IllegalArgumentException("Could not find ClientRegistration with id '" + clientRegistrationId + "'")))
-							)
-				)
+						.flatMap(clientRegistration -> this.authorizedClientService.loadAuthorizedClient(clientRegistrationId, principal.getName())
+								.map(OAuth2AuthorizationContext::withAuthorizedClient)
+								.switchIfEmpty(Mono.fromSupplier(() -> OAuth2AuthorizationContext.withClientRegistration(clientRegistration))))
+						.switchIfEmpty(Mono.error(() -> new IllegalArgumentException("Could not find ClientRegistration with id '" + clientRegistrationId + "'")))))
 				.flatMap(contextBuilder -> this.contextAttributesMapper.apply(authorizeRequest)
-						.filter(contextAttributes-> !CollectionUtils.isEmpty(contextAttributes))
-						.map(contextAttributes -> contextBuilder.principal(principal)
-								.attributes(attributes -> {
-									attributes.putAll(contextAttributes);
-								}).build())
-				).flatMap(authorizationContext -> this.authorizedClientProvider.authorize(authorizationContext)
-						.doOnNext(_authorizedClient -> authorizedClientService.saveAuthorizedClient(_authorizedClient, principal))
-						.switchIfEmpty(Mono.defer(()-> Mono.justOrEmpty(Optional.ofNullable(authorizationContext.getAuthorizedClient()))))
-				);
-		// @formatter:on
+						.defaultIfEmpty(Collections.emptyMap())
+						.map(contextAttributes -> {
+							OAuth2AuthorizationContext.Builder builder = contextBuilder.principal(principal);
+							if (!contextAttributes.isEmpty()) {
+								builder = builder.attributes(attributes -> attributes.putAll(contextAttributes));
+							}
+							return builder.build();
+						}));
+	}
+
+	private Mono<OAuth2AuthorizedClient> authorizeAndSave(OAuth2AuthorizationContext authorizationContext) {
+		return this.authorizedClientProvider.authorize(authorizationContext)
+				.flatMap(authorizedClient -> this.authorizedClientService.saveAuthorizedClient(
+								authorizedClient,
+								authorizationContext.getPrincipal())
+						.thenReturn(authorizedClient))
+				.switchIfEmpty(Mono.defer(()-> Mono.justOrEmpty(authorizationContext.getAuthorizedClient())));
 	}
 
 	/**
@@ -115,33 +121,17 @@ public final class OAuth2AuthorizedClientServiceReactiveOAuth2AuthorizedClientMa
 		this.contextAttributesMapper = contextAttributesMapper;
 	}
 
-	private static Mono<ServerWebExchange> currentServerWebExchange() {
-		return Mono.subscriberContext()
-				.filter(c -> c.hasKey(ServerWebExchange.class))
-				.map(c -> c.get(ServerWebExchange.class));
-	}
-
 	/**
 	 * The default implementation of the {@link #setContextAttributesMapper(Function) contextAttributesMapper}.
 	 */
 	public static class DefaultContextAttributesMapper implements Function<OAuth2AuthorizeRequest, Mono<Map<String, Object>>> {
 
+		private final AuthorizedClientServiceOAuth2AuthorizedClientManager.DefaultContextAttributesMapper mapper =
+				new AuthorizedClientServiceOAuth2AuthorizedClientManager.DefaultContextAttributesMapper();
+
 		@Override
 		public Mono<Map<String, Object>> apply(OAuth2AuthorizeRequest authorizeRequest) {
-			ServerWebExchange serverWebExchange = authorizeRequest.getAttribute(ServerWebExchange.class.getName());
-			return Mono.justOrEmpty(serverWebExchange)
-					.switchIfEmpty(Mono.defer(() -> currentServerWebExchange()))
-					.flatMap(exchange -> {
-						Map<String, Object> contextAttributes = Collections.emptyMap();
-						String scope = exchange.getRequest().getQueryParams().getFirst(OAuth2ParameterNames.SCOPE);
-						if (StringUtils.hasText(scope)) {
-							contextAttributes = new HashMap<>();
-							contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
-									StringUtils.delimitedListToStringArray(scope, " "));
-						}
-						return Mono.just(contextAttributes);
-					})
-					.defaultIfEmpty(Collections.emptyMap());
+			return Mono.fromCallable(() -> mapper.apply(authorizeRequest));
 		}
 	}
 }
