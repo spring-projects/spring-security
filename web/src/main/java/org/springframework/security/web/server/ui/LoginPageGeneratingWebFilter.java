@@ -106,7 +106,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 				+ "  <body>\n"
 				+ "     <div class=\"container\">\n"
 				+ formLogin(queryParams, csrfTokenHtmlInput)
-				+ oauth2LoginLinks(contextPath, this.oauth2AuthenticationUrlToClientName)
+				+ oauth2LoginLinks(queryParams, contextPath, this.oauth2AuthenticationUrlToClientName)
 				+ "    </div>\n"
 				+ "  </body>\n"
 				+ "</html>";
@@ -135,12 +135,14 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 				+ "      </form>\n";
 	}
 
-	private static String oauth2LoginLinks(String contextPath, Map<String, String> oauth2AuthenticationUrlToClientName) {
+	private static String oauth2LoginLinks(MultiValueMap<String, String> queryParams, String contextPath, Map<String, String> oauth2AuthenticationUrlToClientName) {
 		if (oauth2AuthenticationUrlToClientName.isEmpty()) {
 			return "";
 		}
+		boolean isError = queryParams.containsKey("error");
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"container\"><h2 class=\"form-signin-heading\">Login with OAuth 2.0</h2>");
+		sb.append(createError(isError));
 		sb.append("<table class=\"table table-striped\">\n");
 		for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName.entrySet()) {
 			sb.append(" <tr><td>");
