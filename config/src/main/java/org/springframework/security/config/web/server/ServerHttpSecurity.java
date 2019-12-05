@@ -986,7 +986,7 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationSuccessHandler authenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler();
 
-		private ServerAuthenticationFailureHandler authenticationFailureHandler = (webFilterExchange, exception) -> Mono.error(exception);
+		private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
 		/**
 		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
@@ -1028,6 +1028,7 @@ public class ServerHttpSecurity {
 
 		/**
 		 * The {@link ServerAuthenticationFailureHandler} used after authentication failure.
+		 * Defaults to {@link RedirectServerAuthenticationFailureHandler} redirecting to "/login?error".
 		 *
 		 * @since 5.2
 		 * @param authenticationFailureHandler the failure handler to use
@@ -1175,7 +1176,7 @@ public class ServerHttpSecurity {
 			authenticationFilter.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
 
 			authenticationFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
-			authenticationFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
+			authenticationFilter.setAuthenticationFailureHandler(getAuthenticationFailureHandler());
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
@@ -1190,6 +1191,13 @@ public class ServerHttpSecurity {
 
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+		}
+
+		private ServerAuthenticationFailureHandler getAuthenticationFailureHandler() {
+			if (this.authenticationFailureHandler == null) {
+				this.authenticationFailureHandler = new RedirectServerAuthenticationFailureHandler("/login?error");
+			}
+			return this.authenticationFailureHandler;
 		}
 
 		private ServerWebExchangeMatcher createAttemptAuthenticationRequestMatcher() {
