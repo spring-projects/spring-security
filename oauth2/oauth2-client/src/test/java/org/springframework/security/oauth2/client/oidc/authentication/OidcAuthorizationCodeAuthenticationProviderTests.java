@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -164,18 +164,6 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 
 		when(this.authorizationRequest.getState()).thenReturn("34567");
 		when(this.authorizationResponse.getState()).thenReturn("89012");
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-	}
-
-	@Test
-	public void authenticateWhenAuthorizationResponseRedirectUriNotEqualAuthorizationRequestRedirectUriThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_redirect_uri_parameter"));
-
-		when(this.authorizationRequest.getRedirectUri()).thenReturn("https://example1.com");
-		when(this.authorizationResponse.getRedirectUri()).thenReturn("https://example2.com");
 
 		this.authenticationProvider.authenticate(
 			new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));

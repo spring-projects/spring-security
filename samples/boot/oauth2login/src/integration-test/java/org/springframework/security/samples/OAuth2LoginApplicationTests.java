@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -253,42 +253,6 @@ public class OAuth2LoginApplicationTests {
 		HtmlElement errorElement = page.getBody().getFirstByXPath("div");
 		assertThat(errorElement).isNotNull();
 		assertThat(errorElement.asText()).contains("authorization_request_not_found");
-	}
-
-	@Test
-	public void requestAuthorizationCodeGrantWhenInvalidRedirectUriThenDisplayLoginPageWithError() throws Exception {
-		HtmlPage page = this.webClient.getPage("/");
-		URL loginPageUrl = page.getBaseURL();
-		URL loginErrorPageUrl = new URL(loginPageUrl.toString() + "?error");
-
-		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
-
-		HtmlAnchor clientAnchorElement = this.getClientAnchorElement(page, clientRegistration);
-		assertThat(clientAnchorElement).isNotNull();
-
-		WebResponse response = this.followLinkDisableRedirects(clientAnchorElement);
-
-		UriComponents authorizeRequestUriComponents = UriComponentsBuilder.fromUri(
-				URI.create(response.getResponseHeaderValue("Location"))).build();
-
-		Map<String, String> params = authorizeRequestUriComponents.getQueryParams().toSingleValueMap();
-		String code = "auth-code";
-		String state = URLDecoder.decode(params.get(OAuth2ParameterNames.STATE), "UTF-8");
-		String redirectUri = URLDecoder.decode(params.get(OAuth2ParameterNames.REDIRECT_URI), "UTF-8");
-		redirectUri += "-invalid";
-
-		String authorizationResponseUri =
-				UriComponentsBuilder.fromHttpUrl(redirectUri)
-						.queryParam(OAuth2ParameterNames.CODE, code)
-						.queryParam(OAuth2ParameterNames.STATE, state)
-						.build().encode().toUriString();
-
-		page = this.webClient.getPage(new URL(authorizationResponseUri));
-		assertThat(page.getBaseURL()).isEqualTo(loginErrorPageUrl);
-
-		HtmlElement errorElement = page.getBody().getFirstByXPath("div");
-		assertThat(errorElement).isNotNull();
-		assertThat(errorElement.asText()).contains("invalid_redirect_uri_parameter");
 	}
 
 	private void assertLoginPage(HtmlPage page) throws Exception {
