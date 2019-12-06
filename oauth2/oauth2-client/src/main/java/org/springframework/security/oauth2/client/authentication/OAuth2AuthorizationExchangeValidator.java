@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
  */
 final class OAuth2AuthorizationExchangeValidator {
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
-	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 
 	static void validate(OAuth2AuthorizationExchange authorizationExchange) {
 		OAuth2AuthorizationRequest authorizationRequest = authorizationExchange.getAuthorizationRequest();
@@ -42,11 +41,6 @@ final class OAuth2AuthorizationExchangeValidator {
 
 		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
-			throw new OAuth2AuthorizationException(oauth2Error);
-		}
-
-		if (!authorizationResponse.getRedirectUri().equals(authorizationRequest.getRedirectUri())) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE);
 			throw new OAuth2AuthorizationException(oauth2Error);
 		}
 	}
