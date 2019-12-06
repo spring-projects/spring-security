@@ -1,0 +1,91 @@
+[[servlet-authentication-digest]]
+= Digest Authentication
+
+This section provides details on how Spring Security provides support for https://tools.ietf.org/html/rfc2617[Digest Authentication] which is provided `DigestAuthenticationFilter`.
+
+[WARNING]
+====
+You should not use Digest Authentication in modern applications because it is not considered secure.
+The most obvious problem is that you must store your passwords in plaintext, encrypted, or an MD5 format.
+All of these storage formats are considered insecure.
+Instead, you should store credentials using a one way adaptive password hash (i.e. bCrypt, PBKDF2, SCrypt, etc) which is not supported by Digest Authentication.
+====
+
+Digest Authentication attempts to solve many of the weaknesses of <<servlet-authentication-basic,Basic authentication>>, specifically by ensuring credentials are never sent in clear text across the wire.
+Many https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Digest#Browser_compatibility[browsers support Digest Authentication].
+
+The standard governing HTTP Digest Authentication is defined by https://tools.ietf.org/html/rfc2617[RFC 2617], which updates an earlier version of the Digest Authentication standard prescribed by https://tools.ietf.org/html/rfc2069[RFC 2069].
+Most user agents implement RFC 2617.
+Spring Security's Digest Authentication support is compatible with the "`auth`" quality of protection (`qop`) prescribed by RFC 2617, which also provides backward compatibility with RFC 2069.
+Digest Authentication was seen as a more attractive option if you need to use unencrypted HTTP (i.e. no TLS/HTTPS) and wish to maximise security of the authentication process.
+However, everyone should use <<http,HTTPS>>.
+
+Central to Digest Authentication is a "nonce".
+This is a value the server generates.
+Spring Security's nonce adopts the following format:
+
+.Digest Syntax
+====
+[source,txt]
+----
+base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
+expirationTime:   The date and time when the nonce expires, expressed in milliseconds
+key:              A private key to prevent modification of the nonce token
+----
+====
+
+You will need to ensure you <<authentication-password-storage-configuration,configure>> insecure plain text <<authentication-password-storage,Password Storage>> using NoOpPasswordEncoder`.
+The following provides an example of configuring Digest Authentication with Java Configuration:
+
+.Digest Authentication with Java Configuration
+====
+[source,java]
+----
+@Autowired
+UserDetailsService userDetailsService;
+
+DigestAuthenticationEntryPoint entryPoint() {
+	DigestAuthenticationEntryPoint result = new DigestAuthenticationEntryPoint();
+	result.setRealmName("My App Relam");
+	result.setKey("3028472b-da34-4501-bfd8-a355c42bdf92");
+}
+
+DigestAuthenticationFilter digestAuthenticationFilter() {
+	DigestAuthenticationFilter result = new DigestAuthenticationFilter();
+	result.setUserDetailsService(userDetailsService);
+	result.setAuthenticationEntryPoint(entryPoint());
+}
+
+protected void configure(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.exceptionHandling(e -> e.authenticationEntryPoint(authenticationEntryPoint()))
+		.addFilterBefore(digestFilter());
+}
+----
+====
+
+The following provides an example of configuring Digest Authentication with XML Configuration:
+
+.Digest Authentication with XML Configuration
+====
+[source,xml]
+----
+<b:bean id="digestFilter"
+        class="org.springframework.security.web.authentication.www.DigestAuthenticationFilter"
+    p:userDetailsService-ref="jdbcDaoImpl"
+    p:authenticationEntryPoint-ref="digestEntryPoint"
+/>
+
+<b:bean id="digestEntryPoint"
+        class="org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint"
+    p:realmName="My App Relam"
+	p:key="3028472b-da34-4501-bfd8-a355c42bdf92"
+/>
+
+<http>
+	<!-- ... -->
+	<custom-filter ref="userFilter" position="DIGEST_AUTH_FILTER"/>
+</http>
+----
+====

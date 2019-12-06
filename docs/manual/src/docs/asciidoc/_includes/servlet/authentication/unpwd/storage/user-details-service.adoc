@@ -1,4 +1,4 @@
-[[jc-authentication-userdetailsservice]]
+[[servlet-authentication-userdetailsservice]]
 == UserDetailsService
 
 You can define custom authentication by exposing a custom `UserDetailsService` as a bean.

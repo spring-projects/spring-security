@@ -1,0 +1,142 @@
+[[servlet-authentication-form]]
+= Form Login
+
+Spring Security provides support for username and password being provided through an html form.
+This section provides details on how form based authentication works within Spring Security.
+// FIXME: describe authenticationentrypoint, authenticationfailurehandler, authenticationsuccesshandler
+
+[[servlet-authentication-form-min]]
+== Form Login Configuration
+
+Spring Security form log in is enabled by default.
+However, as soon as any servlet based configuration is provided, form based log in must be explicitly provided.
+A minimal, explicit Java configuration can be found below:
+
+.Form Log In Java Configuration
+====
+[source,java]
+----
+protected void configure(HttpSecurity http) {
+	http
+		// ...
+		.formLogin(withDefaults());
+}
+----
+====
+
+A minimal XML configuration can be found below:
+
+.Form Log In XML Configuration
+====
+[source,xml]
+----
+<http>
+	<!-- ... -->
+	<form-login />
+</http>
+----
+====
+
+In this configuration Spring Security will render a default log in page.
+Most production applications will require a custom log in form.
+
+[[servlet-authentication-form-custom]]
+== Custom Log In Form
+
+The configuration below demonstrates how to provide a custom log in form.
+
+.Custom Log In Form with Java Configuration
+====
+[source,java]
+----
+protected void configure(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.formLogin(form -> form
+			.loginPage("/login")
+			.permitAll()
+		);
+}
+----
+====
+
+A minimal XML configuration can be found below:
+
+.Custom Log In Form with XML Configuration
+====
+[source,xml]
+----
+<http>
+	<!-- ... -->
+	<intercept-url pattern="/login" access="permitAll" />
+	<form-login login-page="/login" />
+</http>
+----
+====
+
+[[servlet-authentication-form-custom-html]]
+=== HTML Form
+
+When the login page is specified in the Spring Security configuration, you are responsible for rendering the page.
+Below is a https://www.thymeleaf.org/[Thymeleaf] template that produces an HTML login form that complies with a login page of `/login`.:
+
+.Log In Form src/main/resources/templates/login.html
+====
+[source,xml]
+----
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+	<head>
+		<title>Please Log In</title>
+	</head>
+	<body>
+		<h1>Please Log In</h1>
+		<div th:if="${param.error}">
+			Invalid username and password.</div>
+		<div th:if="${param.logout}">
+			You have been logged out.</div>
+		<form th:action="@{/login}" method="post">
+			<div>
+			<input type="text" name="username" placeholder="Username"/>
+			</div>
+			<div>
+			<input type="password" name="password" placeholder="Password"/>
+			</div>
+			<input type="submit" value="Log in" />
+		</form>
+	</body>
+</html>
+----
+====
+
+There are a few key points about the default HTML form:
+
+* The form should perform a `post` to `/login`
+* The form will need to include a <<servlet-csrf,CSRF Token>> which is <<servlet-csrf-include-form-auto,automatically included>> by Thymeleaf.
+* The form should specify the username in a parameter named `username`
+* The form should specify the password in a parameter named `password`
+* If the HTTP parameter error is found, it indicates the user failed to provide a valid username / password
+* If the HTTP parameter logout is found, it indicates the user has logged out successfully
+
+Many users will not need much more than to customize the log in page.
+However, if needed everything above can be customized with additional configuration.
+
+[[servlet-authentication-form-custom-controller]]
+== LoginController
+
+If you are using Spring MVC, you will need a controller that maps `GET /login` to the login template we created.
+A minimal sample `LoginController` can be see below:
+
+.LoginController
+====
+[source,java]
+----
+@Controller
+class LoginController {
+	@GetMapping("/login")
+	String login() {
+		return "login";
+	}
+}
+----
+====

@@ -1,0 +1,35 @@
+[[servlet-authentication-basic]]
+= Basic Authentication
+
+This section provides details on how Spring Security provides support for https://tools.ietf.org/html/rfc7617[Basic HTTP Authentication] for servlet based applications.
+// FIXME: describe authenticationentrypoint, authenticationfailurehandler, authenticationsuccesshandler
+
+Spring Security's HTTP Basic Authentication support in is enabled by default.
+However, as soon as any servlet based configuration is provided, HTTP Basic must be explicitly provided.
+
+A minimal, explicit Java configuration can be found below:
+
+.HTTP Basic Java Configuration
+====
+[source,java]
+----
+protected void configure(HttpSecurity http) {
+	http
+		// ...
+		.httpBasic(withDefaults());
+}
+----
+====
+
+A minimal XML configuration can be found below:
+
+.HTTP Basic XML Configuration
+====
+[source,xml]
+----
+<http>
+	<!-- ... -->
+	<http-basic />
+</http>
+----
+====

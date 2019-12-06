@@ -1,9 +1,6 @@
-[[ldap]]
-== LDAP Authentication
+[[servlet-authentication-ldap]]
+= LDAP Authentication
 
-
-[[ldap-overview]]
-=== Overview
 LDAP is often used by organizations as a central repository for user information and as an authentication service.
 It can also be used to store the role information for application users.
 
@@ -18,27 +15,13 @@ We don't use any third-party LDAP libraries (Mozilla, JLDAP etc.) in the LDAP pr
 When using LDAP authentication, it is important to ensure that you configure LDAP connection pooling properly.
 If you are unfamiliar with how to do this, you can refer to the https://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html[Java LDAP documentation].
 
-=== Using LDAP with Spring Security
-LDAP authentication in Spring Security can be roughly divided into the following stages.
 
-* Obtaining the unique LDAP "Distinguished Name", or DN, from the login name.
-This will often mean performing a search in the directory, unless the exact mapping of usernames to DNs is known in advance.
-So a user might enter the name "joe" when logging in, but the actual name used to authenticate to LDAP will be the full DN, such as `uid=joe,ou=users,dc=spring,dc=io`.
-
-* Authenticating the user, either by "binding" as that user or by performing a remote "compare" operation of the user's password against the password attribute in the directory entry for the DN.
-
-* Loading the list of authorities for the user.
-
-The exception is when the LDAP directory is just being used to retrieve user information and authenticate against it locally.
-This may not be possible as directories are often set up with limited read access for attributes such as user passwords.
-
-We will look at some configuration scenarios below.
-For full information on available configuration options, please consult the security namespace schema (information from which should be available in your XML editor).
-
-
-[[ldap-server]]
+[[servlet-authentication-ldap-server]]
 == Configuring an LDAP Server
+
 The first thing you need to do is configure the server against which authentication should take place.
+
+
 This is done using the `<ldap-server>` element from the security namespace.
 This can be configured to point at an external LDAP server, using the `url` attribute:
 
@@ -47,9 +30,13 @@ This can be configured to point at an external LDAP server, using the `url` attr
 <ldap-server url="ldap://springframework.org:389/dc=springframework,dc=org" />
 ----
 
-NOTE: `spring-security` provides integration with `apacheds` and `unboundid` as a embedded ldap servers. You can choose between them using the attribute `mode` in `ldap-server`.
+[NOTE]
+====
+`spring-security` provides integration with `apacheds` and `unboundid` as a embedded ldap servers. You can choose between them using the attribute `mode` in `ldap-server`.
+====
 
-=== Using an Embedded Test Server
+[[servlet-authentication-ldap-embedded]]
+== Using an Embedded Test Server
 The `<ldap-server>` element can also be used to create an embedded server, which can be very useful for testing and demonstrations.
 In this case you use it without the `url` attribute:
 
@@ -73,7 +60,8 @@ Using plain Spring Beans the configuration would be much more cluttered.
 You must have the necessary Apache Directory dependency jars available for your application to use.
 These can be obtained from the LDAP sample application.
 
-=== Using Bind Authentication
+[[servlet-authentication-ldap-bind]]
+== Using Bind Authentication
 This is the most common LDAP authentication scenario.
 
 [source,xml]
@@ -95,7 +83,8 @@ If used with the server definition above, this would perform a search under the 
 Again the user login name is substituted for the parameter in the filter name, so it will search for an entry with the `uid` attribute equal to the user name.
 If `user-search-base` isn't supplied, the search will be performed from the root.
 
-=== Loading Authorities
+[[servlet-authentication-ldap-authorities]]
+== Loading Authorities
 How authorities are loaded from groups in the LDAP directory is controlled by the following attributes.
 
 * `group-search-base`.
@@ -123,6 +112,7 @@ You can change this using the `role-prefix` attribute.
 If you don't want any prefix, use `role-prefix="none"`.
 For more information on loading authorities, see the Javadoc for the `DefaultLdapAuthoritiesPopulator` class.
 
+[[servlet-authentication-ldap-implementation]]
 == Implementation Classes
 The namespace configuration options we've used above are simple to use and much more concise than using Spring beans explicitly.
 There are situations when you may need to know how to configure Spring Security LDAP directly in your application context.
@@ -132,7 +122,7 @@ If you're happy using namespace configuration then you can skip this section and
 The main LDAP provider class, `LdapAuthenticationProvider`, doesn't actually do much itself but delegates the work to two other beans, an `LdapAuthenticator` and an `LdapAuthoritiesPopulator` which are responsible for authenticating the user and retrieving the user's set of `GrantedAuthority` s respectively.
 
 
-[[ldap-ldap-authenticators]]
+[[servlet-authentication-ldap-authenticators]]
 === LdapAuthenticator Implementations
 The authenticator is also responsible for retrieving any required user attributes.
 This is because the permissions on the attributes may depend on the type of authentication being used.
@@ -145,8 +135,8 @@ There are currently two authentication strategies supplied with Spring Security:
 * Password comparison, where the password supplied by the user is compared with the one stored in the repository.
 This can either be done by retrieving the value of the password attribute and checking it locally or by performing an LDAP "compare" operation, where the supplied password is passed to the server for comparison and the real password value is never retrieved.
 
-[[ldap-ldap-authenticators-common]]
-==== Common Functionality
+[[servlet-authentication-ldap-authenticators-common]]
+=== Common Functionality
 Before it is possible to authenticate a user (by either strategy), the distinguished name (DN) has to be obtained from the login name supplied to the application.
 This can be done either by simple pattern-matching (by setting the `setUserDnPatterns` array property) or by setting the `userSearch` property.
 For the DN pattern-matching approach, a standard Java pattern format is used, and the login name will be substituted for the parameter `{0}`.
@@ -157,34 +147,34 @@ For information on using a search, see the section on <<ldap-searchobjects,searc
 A combination of the two approaches can also be used - the patterns will be checked first and if no matching DN is found, the search will be used.
 
 
-[[ldap-ldap-authenticators-bind]]
-==== BindAuthenticator
+[[servlet-authentication-ldap-authenticators-bind]]
+=== BindAuthenticator
 The class `BindAuthenticator` in the package `org.springframework.security.ldap.authentication` implements the bind authentication strategy.
 It simply attempts to bind as the user.
 
 
-[[ldap-ldap-authenticators-password]]
-==== PasswordComparisonAuthenticator
+[[servlet-authentication-ldap-authenticators-password]]
+=== PasswordComparisonAuthenticator
 The class `PasswordComparisonAuthenticator` implements the password comparison authentication strategy.
 
 
-[[ldap-context-source]]
-=== Connecting to the LDAP Server
+[[servlet-authentication-ldap-authenticators-connect]]
+== Connecting to the LDAP Server
 The beans discussed above have to be able to connect to the server.
 They both have to be supplied with a `SpringSecurityContextSource` which is an extension of Spring LDAP's `ContextSource`.
 Unless you have special requirements, you will usually configure a `DefaultSpringSecurityContextSource` bean, which can be configured with the URL of your LDAP server and optionally with the username and password of a "manager" user which will be used by default when binding to the server (instead of binding anonymously).
 For more information read the Javadoc for this class and for Spring LDAP's `AbstractContextSource`.
 
 
-[[ldap-searchobjects]]
+[[servlet-authentication-ldap-search]]
 === LDAP Search Objects
 Often a more complicated strategy than simple DN-matching is required to locate a user entry in the directory.
 This can be encapsulated in an `LdapUserSearch` instance which can be supplied to the authenticator implementations, for example, to allow them to locate a user.
 The supplied implementation is `FilterBasedLdapUserSearch`.
 
 
-[[ldap-searchobjects-filter]]
-==== FilterBasedLdapUserSearch
+[[servlet-authentication-ldap-filter]]
+=== FilterBasedLdapUserSearch
 This bean uses an LDAP filter to match the user object in the directory.
 The process is explained in the Javadoc for the corresponding search method on the https://java.sun.com/j2se/1.4.2/docs/api/javax/naming/directory/DirContext.html#search(javax.naming.Name%2C%2520java.lang.String%2C%2520java.lang.Object%5B%5D%2C%2520javax.naming.directory.SearchControls)[JDK DirContext class].
 As explained there, the search filter can be supplied with parameters.
@@ -192,7 +182,7 @@ For this class, the only valid parameter is `{0}` which will be replaced with th
 
 
 [[ldap-authorities]]
-=== LdapAuthoritiesPopulator
+== LdapAuthoritiesPopulator
 After authenticating the user successfully, the `LdapAuthenticationProvider` will attempt to load a set of authorities for the user by calling the configured `LdapAuthoritiesPopulator` bean.
 The `DefaultLdapAuthoritiesPopulator` is an implementation which will load the authorities by searching the directory for groups of which the user is a member (typically these will be `groupOfNames` or `groupOfUniqueNames` entries in the directory).
 Consult the Javadoc for this class for more details on how it works.
@@ -200,7 +190,7 @@ Consult the Javadoc for this class for more details on how it works.
 If you want to use LDAP only for authentication, but load the authorities from a difference source (such as a database) then you can provide your own implementation of this interface and inject that instead.
 
 [[ldap-bean-config]]
-=== Spring Bean Configuration
+== Spring Bean Configuration
 A typical configuration, using some of the beans we've discussed here, might look like this:
 
 [source,xml]
@@ -255,7 +245,7 @@ The authenticator would then call the search object to obtain the correct user's
 
 
 [[ldap-custom-user-details]]
-=== LDAP Attributes and Customized UserDetails
+== LDAP Attributes and Customized UserDetails
 The net result of an authentication using `LdapAuthenticationProvider` is the same as a normal Spring Security authentication using the standard `UserDetailsService` interface.
 A `UserDetails` object is created and stored in the returned `Authentication` object.
 As with using a `UserDetailsService`, a common requirement is to be able to customize this implementation and add extra properties.
@@ -289,7 +279,7 @@ Typically authentication is performed using the domain username (in the form `us
 To make this easier, Spring Security 3.1 has an authentication provider which is customized for a typical Active Directory setup.
 
 
-=== ActiveDirectoryLdapAuthenticationProvider
+== ActiveDirectoryLdapAuthenticationProvider
 Configuring `ActiveDirectoryLdapAuthenticationProvider` is quite straightforward.
 You just need to supply the domain name and an LDAP URL supplying the address of the server footnote:[It is also possible to obtain the server's IP address using a DNS lookup.
 This is not currently supported, but hopefully will be in a future version.].
@@ -315,7 +305,7 @@ By default, the user authorities are obtained from the `memberOf` attribute valu
 The authorities allocated to the user can again be customized using a `UserDetailsContextMapper`.
 You can also inject a `GrantedAuthoritiesMapper` into the provider instance to control the authorities which end up in the `Authentication` object.
 
-==== Active Directory Error Codes
+=== Active Directory Error Codes
 By default, a failed result will cause a standard Spring Security `BadCredentialsException`.
 If you set the property `convertSubErrorCodesToExceptions` to `true`, the exception messages will be parsed to attempt to extract the Active Directory-specific error code and raise a more specific exception.
 Check the class Javadoc for more information.
@@ -386,3 +376,24 @@ objectclass: groupOfNames
 cn: admin
 uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
 ----
+
+
+
+[[servlet-authentication-ldap-using]]
+== Using LDAP with Spring Security
+LDAP authentication in Spring Security can be roughly divided into the following stages.
+
+* Obtaining the unique LDAP "Distinguished Name", or DN, from the login name.
+This will often mean performing a search in the directory, unless the exact mapping of usernames to DNs is known in advance.
+So a user might enter the name "joe" when logging in, but the actual name used to authenticate to LDAP will be the full DN, such as `uid=joe,ou=users,dc=spring,dc=io`.
+
+* Authenticating the user, either by "binding" as that user or by performing a remote "compare" operation of the user's password against the password attribute in the directory entry for the DN.
+
+* Loading the list of authorities for the user.
+
+The exception is when the LDAP directory is just being used to retrieve user information and authenticate against it locally.
+This may not be possible as directories are often set up with limited read access for attributes such as user passwords.
+
+We will look at some configuration scenarios below.
+For full information on available configuration options, please consult the security namespace schema (information from which should be available in your XML editor).
+

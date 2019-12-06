@@ -1,0 +1,16 @@
+[[servlet-authentication-unpwd-input]]
+= Username/Password Input
+
+Spring Security provides multiple ways for a user to enter their username and password.
+Each of the supported mechanisms leverage any of the supported <<servlet-authentication-unpwd-storage,storage>> mechanisms.
+This section discusses how a username and password can be provided to Spring Security:
+
+* <<servlet-authentication-form,Form Login>>
+* <<servlet-authentication-basic,Basic Authentication>>
+* <<servlet-authentication-digest,Digest Authentication>>
+
+include::form.adoc[leveloffset=+1]
+
+include::basic.adoc[leveloffset=+1]
+
+include::digest.adoc[leveloffset=+1]

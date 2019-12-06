@@ -1,0 +1,9 @@
+[[servlet-authentication-unpwd]]
+= Username/Password Authentication
+
+One of the most common ways to authenticate a user is by validating a username and password.
+As such, Spring Security provides comprehensive support for user <<servlet-authentication-unpwd-input,input>> and <<servlet-authentication-unpwd-storage,storage>> of a username and password.
+
+include::input/index.adoc[leveloffset=+1]
+
+include::storage/index.adoc[leveloffset=+1]

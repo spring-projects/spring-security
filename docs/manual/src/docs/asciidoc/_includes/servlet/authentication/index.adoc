@@ -1,17 +1,15 @@
-[[jc-authentication]]
+[[servlet-authentication]]
 = Authentication
 
-include::in-memory.adoc[]
+Spring Security provides comprehensive support for <<authentication>>.
+This section discusses:
 
-include::jdbc.adoc[]
+* <<servlet-authentication-unpwd>>
+// FIXME: Add other mechanisms
 
-include::ldap.adoc[]
+include::unpwd/index.adoc[leveloffset=+1]
 
 include::authentication-provider.adoc[]
-
-include::user-details-service.adoc[]
-
-include::password-encoder.adoc[]
 
 include::authentication-manager.adoc[]
 
@@ -32,12 +30,6 @@ include::cas.adoc[]
 include::x509.adoc[]
 
 include::runas.adoc[]
-
-include::form.adoc[]
-
-include::basic.adoc[]
-
-include::digest.adoc[]
 
 include::logout.adoc[]
 
