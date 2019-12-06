@@ -187,19 +187,6 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateWhenAuthorizationResponseRedirectUriNotEqualAuthorizationRequestRedirectUriThenThrowOAuth2AuthenticationException() {
-		this.exception.expect(OAuth2AuthenticationException.class);
-		this.exception.expectMessage(containsString("invalid_redirect_uri_parameter"));
-
-		OAuth2AuthorizationResponse authorizationResponse = success().redirectUri("https://example2.com").build();
-		OAuth2AuthorizationExchange authorizationExchange =
-				new OAuth2AuthorizationExchange(this.authorizationRequest, authorizationResponse);
-
-		this.authenticationProvider.authenticate(
-			new OAuth2LoginAuthenticationToken(this.clientRegistration, authorizationExchange));
-	}
-
-	@Test
 	public void authenticateWhenTokenResponseDoesNotContainIdTokenThenThrowOAuth2AuthenticationException() {
 		this.exception.expect(OAuth2AuthenticationException.class);
 		this.exception.expectMessage(containsString("invalid_id_token"));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,19 +96,6 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 					new OAuth2AuthorizationCodeAuthenticationToken(
 							this.clientRegistration, authorizationExchange));
 		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("invalid_state_parameter");
-	}
-
-	@Test
-	public void authenticateWhenAuthorizationResponseRedirectUriNotEqualAuthorizationRequestRedirectUriThenThrowOAuth2AuthorizationException() {
-		OAuth2AuthorizationResponse authorizationResponse = success().redirectUri("https://example2.com").build();
-		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(
-				this.authorizationRequest, authorizationResponse);
-
-		assertThatThrownBy(() -> {
-			this.authenticationProvider.authenticate(
-					new OAuth2AuthorizationCodeAuthenticationToken(
-							this.clientRegistration, authorizationExchange));
-		}).isInstanceOf(OAuth2AuthorizationException.class).hasMessageContaining("invalid_redirect_uri_parameter");
 	}
 
 	@Test

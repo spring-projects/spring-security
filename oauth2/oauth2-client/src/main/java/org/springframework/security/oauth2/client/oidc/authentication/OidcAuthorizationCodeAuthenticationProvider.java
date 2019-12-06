@@ -78,7 +78,6 @@ import java.util.Map;
  */
 public class OidcAuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
-	private static final String INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE = "invalid_redirect_uri_parameter";
 	private static final String INVALID_ID_TOKEN_ERROR_CODE = "invalid_id_token";
 	private static final String INVALID_NONCE_ERROR_CODE = "invalid_nonce";
 	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
@@ -129,11 +128,6 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 
 		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
-
-		if (!authorizationResponse.getRedirectUri().equals(authorizationRequest.getRedirectUri())) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_REDIRECT_URI_PARAMETER_ERROR_CODE);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 
