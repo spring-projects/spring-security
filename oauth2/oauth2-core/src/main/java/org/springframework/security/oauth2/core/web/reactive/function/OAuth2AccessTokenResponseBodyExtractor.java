@@ -45,12 +45,10 @@ import java.util.Set;
  * @author Rob Winch
  * @since 5.1
  */
-class OAuth2AccessTokenResponseBodyExtractor
+public class OAuth2AccessTokenResponseBodyExtractor
 		implements BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> {
 
-	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
-
-	OAuth2AccessTokenResponseBodyExtractor() {}
+	protected static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
 	@Override
 	public Mono<OAuth2AccessTokenResponse> extract(ReactiveHttpInputMessage inputMessage,
@@ -58,12 +56,12 @@ class OAuth2AccessTokenResponseBodyExtractor
 		ParameterizedTypeReference<Map<String, Object>> type = new ParameterizedTypeReference<Map<String, Object>>() {};
 		BodyExtractor<Mono<Map<String, Object>>, ReactiveHttpInputMessage> delegate = BodyExtractors.toMono(type);
 		return delegate.extract(inputMessage, context)
-				.map(OAuth2AccessTokenResponseBodyExtractor::parse)
-				.flatMap(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse)
-				.map(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse);
+				.map(this::parse)
+				.flatMap(this::oauth2AccessTokenResponse)
+				.map(this::oauth2AccessTokenResponse);
 	}
 
-	private static TokenResponse parse(Map<String, Object> json) {
+	protected TokenResponse parse(Map<String, Object> json) {
 		try {
 			return TokenResponse.parse(new JSONObject(json));
 		}
@@ -74,7 +72,7 @@ class OAuth2AccessTokenResponseBodyExtractor
 		}
 	}
 
-	private static Mono<AccessTokenResponse> oauth2AccessTokenResponse(TokenResponse tokenResponse) {
+	protected Mono<AccessTokenResponse> oauth2AccessTokenResponse(TokenResponse tokenResponse) {
 		if (tokenResponse.indicatesSuccess()) {
 			return Mono.just(tokenResponse)
 					.cast(AccessTokenResponse.class);
@@ -93,7 +91,7 @@ class OAuth2AccessTokenResponseBodyExtractor
 		return Mono.error(new OAuth2AuthorizationException(oauth2Error));
 	}
 
-	private static OAuth2AccessTokenResponse oauth2AccessTokenResponse(AccessTokenResponse accessTokenResponse) {
+	protected OAuth2AccessTokenResponse oauth2AccessTokenResponse(AccessTokenResponse accessTokenResponse) {
 		AccessToken accessToken = accessTokenResponse.getTokens().getAccessToken();
 		OAuth2AccessToken.TokenType accessTokenType = null;
 		if (OAuth2AccessToken.TokenType.BEARER.getValue()

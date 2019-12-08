@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -33,10 +34,14 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExch
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
+import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -293,6 +298,43 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		OAuth2AccessTokenResponse response = this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block();
 
 		verify(customClient, atLeastOnce()).post();
+	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void setTokenResponseBodyExtractorNullThenIllegalArgumentException(){
+		tokenResponseClient.setTokenResponseBodyExtractor(null);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void setCustomTokenResponseBodyExtractorThenCustomTokenResponseBodyExtractorIsUsed() {
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(3600L)
+				.scopes(new HashSet<>(Arrays.asList("openid", "profile")))
+				.build();
+		OAuth2AccessToken accessToken = tokenResponse.getAccessToken();
+		String accessTokenSuccessResponse = "{\n" +
+				"	\"access_token\": \"" + accessToken.getTokenValue() + "\",\n" +
+				"   \"token_type\": \"" + accessToken.getTokenType().getValue() + "\",\n" +
+				"   \"expires_in\": \"" + accessToken.getExpiresAt().getEpochSecond() + "\",\n" +
+				"   \"scope\": \"openid profile\"\n" +
+				"}\n";
+
+
+		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> customBodyExtractor =
+				mock(BodyExtractor.class);
+		when(customBodyExtractor.extract(any(), any())).thenReturn(Mono.just(tokenResponse));
+
+		tokenResponseClient.setTokenResponseBodyExtractor(customBodyExtractor);
+
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+
+		this.clientRegistration.scope("openid", "profile", "email", "address");
+
+		this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block();
+
+		verify(customBodyExtractor, times(1)).extract(any(), any());
 	}
 
 	@Test

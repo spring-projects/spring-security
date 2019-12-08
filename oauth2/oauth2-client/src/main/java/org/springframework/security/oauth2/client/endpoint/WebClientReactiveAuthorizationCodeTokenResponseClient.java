@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.client.endpoint;
 
 import org.springframework.http.MediaType;
+import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -24,6 +25,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExch
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
+import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.util.Assert;
@@ -52,6 +54,7 @@ import static org.springframework.security.oauth2.core.web.reactive.function.OAu
 public class WebClientReactiveAuthorizationCodeTokenResponseClient implements ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
 	private WebClient webClient = WebClient.builder()
 			.build();
+	private BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> tokenResponseBodyExtractor = oauth2AccessTokenResponse();
 
 	/**
 	 * @param webClient the webClient to set
@@ -59,6 +62,16 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient implements Re
 	public void setWebClient(WebClient webClient) {
 		Assert.notNull(webClient, "webClient cannot be null");
 		this.webClient = webClient;
+	}
+
+	/**
+	 * Sets the extractor that will be used to read {@link OAuth2AccessTokenResponse} from token response body.
+	 *
+	 * @param tokenResponseBodyExtractor body extractor (cannot be {@code null})
+	 */
+	public void setTokenResponseBodyExtractor(BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> tokenResponseBodyExtractor) {
+		Assert.notNull(tokenResponseBodyExtractor, "tokenResponseBodyExtractor cannot be null");
+		this.tokenResponseBodyExtractor = tokenResponseBodyExtractor;
 	}
 
 	@Override
@@ -79,7 +92,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient implements Re
 					})
 					.body(body)
 					.exchange()
-					.flatMap(response -> response.body(oauth2AccessTokenResponse()))
+					.flatMap(response -> response.body(tokenResponseBodyExtractor))
 					.map(response -> {
 						if (response.getAccessToken().getScopes().isEmpty()) {
 							response = OAuth2AccessTokenResponse.withResponse(response)
