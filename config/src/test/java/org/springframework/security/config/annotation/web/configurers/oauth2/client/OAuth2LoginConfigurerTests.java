@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -93,6 +92,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -982,8 +982,7 @@ public class OAuth2LoginConfigurerTests {
 	}
 
 	private static OAuth2UserService<OidcUserRequest, OidcUser> createOidcUserService() {
-		OidcIdToken idToken = new OidcIdToken("token123", Instant.now(),
-			Instant.now().plusSeconds(3600), Collections.singletonMap(IdTokenClaimNames.SUB, "sub123"));
+		OidcIdToken idToken = idToken().build();
 		return request -> new DefaultOidcUser(
 				Collections.singleton(new OidcUserAuthority(idToken)), idToken);
 	}

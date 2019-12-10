@@ -75,9 +75,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration()
 			.userNameAttributeName(IdTokenClaimNames.SUB);
 
-	private OidcIdToken idToken = new OidcIdToken("token123", Instant.now(),
-			Instant.now().plusSeconds(3600), Collections
-			.singletonMap(IdTokenClaimNames.SUB, "sub123"));
+	private OidcIdToken idToken = idToken().build();
 
 	private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 			"token",
@@ -149,7 +147,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenOAuth2UserThenUserInfoNotNull() {
 		Map<String, Object> attributes = new HashMap<>();
-		attributes.put(StandardClaimNames.SUB, "sub123");
+		attributes.put(StandardClaimNames.SUB, "subject");
 		attributes.put("user", "rob");
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				attributes, "user");
@@ -162,7 +160,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 	public void loadUserWhenOAuth2UserAndUser() {
 		this.registration.userNameAttributeName("user");
 		Map<String, Object> attributes = new HashMap<>();
-		attributes.put(StandardClaimNames.SUB, "sub123");
+		attributes.put(StandardClaimNames.SUB, "subject");
 		attributes.put("user", "rob");
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				attributes, "user");
@@ -174,7 +172,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenCustomClaimTypeConverterFactorySetThenApplied() {
 		Map<String, Object> attributes = new HashMap<>();
-		attributes.put(StandardClaimNames.SUB, "sub123");
+		attributes.put(StandardClaimNames.SUB, "subject");
 		attributes.put("user", "rob");
 		OAuth2User oauth2User = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
 				attributes, "user");
@@ -195,12 +193,9 @@ public class OidcReactiveOAuth2UserServiceTests {
 
 	@Test
 	public void loadUserWhenTokenContainsScopesThenIndividualScopeAuthorities() {
-		Map<String, Object> body = new HashMap<>();
-		body.put("id", "id");
-		body.put("sub", "test-subject");
 		OidcReactiveOAuth2UserService userService = new OidcReactiveOAuth2UserService();
 		OidcUserRequest request = new OidcUserRequest(
-				clientRegistration().build(), scopes("message:read", "message:write"), idToken(body));
+				clientRegistration().build(), scopes("message:read", "message:write"), idToken().build());
 		OidcUser user = userService.loadUser(request).block();
 
 		assertThat(user.getAuthorities()).hasSize(3);
@@ -212,12 +207,9 @@ public class OidcReactiveOAuth2UserServiceTests {
 
 	@Test
 	public void loadUserWhenTokenDoesNotContainScopesThenNoScopeAuthorities() {
-		Map<String, Object> body = new HashMap<>();
-		body.put("id", "id");
-		body.put("sub", "test-subject");
 		OidcReactiveOAuth2UserService userService = new OidcReactiveOAuth2UserService();
 		OidcUserRequest request = new OidcUserRequest(
-				clientRegistration().build(), noScopes(), idToken(body));
+				clientRegistration().build(), noScopes(), idToken().build());
 		OidcUser user = userService.loadUser(request).block();
 
 		assertThat(user.getAuthorities()).hasSize(1);

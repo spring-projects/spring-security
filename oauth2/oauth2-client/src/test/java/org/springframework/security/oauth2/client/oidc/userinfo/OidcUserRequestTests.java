@@ -15,23 +15,23 @@
  */
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
+import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
 
 /**
  * Tests for {@link OidcUserRequest}.
@@ -46,27 +46,11 @@ public class OidcUserRequestTests {
 
 	@Before
 	public void setUp() {
-		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1")
-				.clientId("client-1")
-				.clientSecret("secret")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
-				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate("https://client.com")
-				.scope(new LinkedHashSet<>(Arrays.asList("openid", "profile")))
-				.authorizationUri("https://provider.com/oauth2/authorization")
-				.tokenUri("https://provider.com/oauth2/token")
-				.jwkSetUri("https://provider.com/keys")
-				.clientName("Client 1")
-				.build();
+		this.clientRegistration = clientRegistration().build();
 		this.accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				"access-token-1234", Instant.now(), Instant.now().plusSeconds(60),
 				new LinkedHashSet<>(Arrays.asList("scope1", "scope2")));
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
-		claims.put(IdTokenClaimNames.SUB, "subject1");
-		claims.put(IdTokenClaimNames.AZP, "client-1");
-		this.idToken = new OidcIdToken("id-token-1234", Instant.now(),
-				Instant.now().plusSeconds(3600), claims);
+		this.idToken = idToken().authorizedParty(this.clientRegistration.getClientId()).build();
 		this.additionalParameters = new HashMap<>();
 		this.additionalParameters.put("param1", "value1");
 		this.additionalParameters.put("param2", "value2");

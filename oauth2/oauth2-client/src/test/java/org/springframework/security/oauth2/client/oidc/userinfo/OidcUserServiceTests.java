@@ -492,12 +492,9 @@ public class OidcUserServiceTests {
 
 	@Test
 	public void loadUserWhenTokenContainsScopesThenIndividualScopeAuthorities() {
-		Map<String, Object> body = new HashMap<>();
-		body.put("id", "id");
-		body.put("sub", "test-subject");
 		OidcUserService userService = new OidcUserService();
 		OidcUserRequest request = new OidcUserRequest(clientRegistration().build(),
-				scopes("message:read", "message:write"), idToken(body));
+				scopes("message:read", "message:write"), idToken().build());
 		OidcUser user = userService.loadUser(request);
 
 		assertThat(user.getAuthorities()).hasSize(3);
@@ -509,12 +506,9 @@ public class OidcUserServiceTests {
 
 	@Test
 	public void loadUserWhenTokenDoesNotContainScopesThenNoScopeAuthorities() {
-		Map<String, Object> body = new HashMap<>();
-		body.put("id", "id");
-		body.put("sub", "test-subject");
 		OidcUserService userService = new OidcUserService();
 		OidcUserRequest request = new OidcUserRequest(clientRegistration().build(),
-				noScopes(), idToken(body));
+				noScopes(), idToken().build());
 		OidcUser user = userService.loadUser(request);
 
 		assertThat(user.getAuthorities()).hasSize(1);

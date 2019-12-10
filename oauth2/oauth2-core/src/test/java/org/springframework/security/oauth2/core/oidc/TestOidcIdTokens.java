@@ -17,8 +17,8 @@
 package org.springframework.security.oauth2.core.oidc;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Map;
+
+import static org.springframework.security.oauth2.core.oidc.OidcIdToken.withTokenValue;
 
 /**
  * Test {@link OidcIdToken}s
@@ -26,14 +26,12 @@ import java.util.Map;
  * @author Josh Cummings
  */
 public class TestOidcIdTokens {
-	public static OidcIdToken idToken() {
-		return idToken(Collections.singletonMap("id", "id"));
-	}
-
-	public static OidcIdToken idToken(Map<String, Object> claims) {
-		return new OidcIdToken("token",
-				Instant.now(),
-				Instant.now().plusSeconds(86400),
-				claims);
+	public static OidcIdToken.Builder idToken() {
+		return withTokenValue("id-token")
+				.issuer("https://example.com")
+				.subject("subject")
+				.issuedAt(Instant.now())
+				.expiresAt(Instant.now().plusSeconds(86400))
+				.claim("id", "id");
 	}
 }

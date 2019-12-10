@@ -16,19 +16,20 @@
 
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
-import org.junit.Test;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.Test;
+
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
@@ -37,9 +38,7 @@ import static org.assertj.core.api.Assertions.*;
 public class OidcUserRequestUtilsTests {
 	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration();
 
-	OidcIdToken idToken = new OidcIdToken("token123", Instant.now(),
-			Instant.now().plusSeconds(3600), Collections
-			.singletonMap(IdTokenClaimNames.SUB, "sub123"));
+	OidcIdToken idToken = TestOidcIdTokens.idToken().build();
 
 	OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 			"token",
