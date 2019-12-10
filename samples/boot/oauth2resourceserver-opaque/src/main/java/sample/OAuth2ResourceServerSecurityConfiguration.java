@@ -16,6 +16,7 @@
 package sample;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -36,7 +37,8 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 		http
 			.authorizeRequests(authorizeRequests ->
 				authorizeRequests
-					.mvcMatchers("/message/**").hasAuthority("SCOPE_message:read")
+					.antMatchers(HttpMethod.GET, "/message/**").hasAuthority("SCOPE_message:read")
+					.antMatchers(HttpMethod.POST, "/message/**").hasAuthority("SCOPE_message:write")
 					.anyRequest().authenticated()
 			)
 			.oauth2ResourceServer(oauth2ResourceServer ->

@@ -21,17 +21,23 @@ import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -55,7 +61,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -63,8 +71,10 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
@@ -244,6 +254,34 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 */
 	public static JwtRequestPostProcessor jwt() {
 		return new JwtRequestPostProcessor();
+	}
+
+	/**
+	 * Establish a {@link SecurityContext} that has a
+	 * {@link BearerTokenAuthentication} for the
+	 * {@link Authentication} and a {@link OAuth2AuthenticatedPrincipal} for the
+	 * {@link Authentication#getPrincipal()}. All details are
+	 * declarative and do not require the token to be valid
+	 *
+	 * <p>
+	 * The support works by associating the authentication to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
+	 * @return the {@link OpaqueTokenRequestPostProcessor} for additional customization
+	 * @since 5.3
+	 */
+	public static OpaqueTokenRequestPostProcessor opaqueToken() {
+		return new OpaqueTokenRequestPostProcessor();
 	}
 
 	/**
@@ -1068,6 +1106,146 @@ public final class SecurityMockMvcRequestPostProcessors {
 			return new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
 		}
 
+	}
+
+	/**
+	 * @author Josh Cummings
+	 * @since 5.3
+	 */
+	public final static class OpaqueTokenRequestPostProcessor implements RequestPostProcessor {
+		private final Map<String, Object> attributes = new HashMap<>();
+		private Converter<Map<String, Object>, Instant> expiresAtConverter =
+				attributes -> getInstant(attributes, "exp");
+		private Converter<Map<String, Object>, Instant> issuedAtConverter =
+				attributes -> getInstant(attributes, "iat");
+		private Converter<Map<String, Object>, Collection<GrantedAuthority>> authoritiesConverter =
+				attributes -> getAuthorities(attributes);
+
+		private OAuth2AuthenticatedPrincipal principal;
+
+		private OpaqueTokenRequestPostProcessor() {
+			this.attributes.put(OAuth2IntrospectionClaimNames.SUBJECT, "user");
+			this.attributes.put(OAuth2IntrospectionClaimNames.SCOPE, "read");
+		}
+
+		/**
+		 * Add the provided attribute to the resulting principal
+		 * @param name the attribute name
+		 * @param value the attribute value
+		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
+		 */
+		public OpaqueTokenRequestPostProcessor attribute(String name, Object value) {
+			Assert.notNull(name, "name cannot be null");
+			this.attributes.put(name, value);
+			return this;
+		}
+
+		/**
+		 * Use the provided authorities in the resulting principal
+		 * @param authorities the authorities to use
+		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
+		 */
+		public OpaqueTokenRequestPostProcessor authorities(Collection<GrantedAuthority> authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authoritiesConverter = attributes -> authorities;
+			return this;
+		}
+
+		/**
+		 * Use the provided authorities in the resulting principal
+		 * @param authorities the authorities to use
+		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
+		 */
+		public OpaqueTokenRequestPostProcessor authorities(GrantedAuthority... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authoritiesConverter = attributes -> Arrays.asList(authorities);
+			return this;
+		}
+
+		/**
+		 * Use the provided scopes as the authorities in the resulting principal
+		 * @param scopes the scopes to use
+		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
+		 */
+		public OpaqueTokenRequestPostProcessor scopes(String... scopes) {
+			Assert.notNull(scopes, "scopes cannot be null");
+			this.authoritiesConverter = attributes -> getAuthorities(Arrays.asList(scopes));
+			return this;
+		}
+
+		/**
+		 * Use the provided principal
+		 *
+		 * Providing the principal takes precedence over
+		 * any authorities or attributes provided via {@link #attribute(String, Object)},
+		 * {@link #authorities} or {@link #scopes}.
+		 *
+		 * @param principal the principal to use
+		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
+		 */
+		public OpaqueTokenRequestPostProcessor principal(OAuth2AuthenticatedPrincipal principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return this;
+		}
+
+		@Override
+		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			CsrfFilter.skipRequest(request);
+			OAuth2AuthenticatedPrincipal principal = getPrincipal();
+			OAuth2AccessToken accessToken = getOAuth2AccessToken(principal);
+			BearerTokenAuthentication token = new BearerTokenAuthentication
+					(principal, accessToken, principal.getAuthorities());
+			return new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
+		}
+
+		private OAuth2AuthenticatedPrincipal getPrincipal() {
+			if (this.principal != null) {
+				return this.principal;
+			}
+
+			return new DefaultOAuth2AuthenticatedPrincipal
+					(this.attributes, this.authoritiesConverter.convert(this.attributes));
+		}
+
+		private Collection<GrantedAuthority> getAuthorities(Map<String, Object> attributes) {
+			Object scope = attributes.get(OAuth2IntrospectionClaimNames.SCOPE);
+			if (scope == null) {
+				return Collections.emptyList();
+			}
+			if (scope instanceof Collection) {
+				return getAuthorities((Collection) scope);
+			}
+			String scopes = scope.toString();
+			if (StringUtils.isBlank(scopes)) {
+				return Collections.emptyList();
+			}
+			return getAuthorities(Arrays.asList(scopes.split(" ")));
+		}
+
+		private Collection<GrantedAuthority> getAuthorities(Collection<?> scopes) {
+			return scopes.stream()
+					.map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope))
+					.collect(Collectors.toList());
+		}
+
+		private Instant getInstant(Map<String, Object> attributes, String name) {
+			Object value = attributes.get(name);
+			if (value == null) {
+				return null;
+			}
+			if (value instanceof Instant) {
+				return (Instant) value;
+			}
+			throw new IllegalArgumentException(name + " attribute must be of type Instant");
+		}
+
+		private OAuth2AccessToken getOAuth2AccessToken(OAuth2AuthenticatedPrincipal principal) {
+			Instant expiresAt = this.expiresAtConverter.convert(principal.getAttributes());
+			Instant issuedAt = this.issuedAtConverter.convert(principal.getAttributes());
+			return new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+					"token", issuedAt, expiresAt);
+		}
 	}
 
 	/**
