@@ -20,9 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
@@ -50,10 +49,8 @@ public class DelegatingServerLogoutHandler implements ServerLogoutHandler {
 
 	@Override
 	public Mono<Void> logout(WebFilterExchange exchange, Authentication authentication) {
-		return Mono.when(this.delegates.stream()
-				.filter(Objects::nonNull)
-				.map(delegate -> delegate.logout(exchange, authentication))
-				.collect(Collectors.toList())
-		);
+		return Flux.fromIterable(this.delegates)
+			.concatMap(delegate -> delegate.logout(exchange, authentication))
+			.then();
 	}
 }
