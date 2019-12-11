@@ -242,7 +242,13 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 				+ "    <title>Please sign in</title>\n"
 				+ "    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n"
 				+ "    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" rel=\"stylesheet\" crossorigin=\"anonymous\"/>\n"
+				+ "    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js\"></script>\n"
 				+ "  </head>\n"
+				+ "<div class=\"col-md-12\" id=\"logoPosition\">\n"
+				+ "<a class=\"navbar-brand\">\n"
+				+ "<img class=\"d-inline-block align-middle mr-2\"  id=\"logoImage\" alt=\"\">\n"
+				+ "</a>\n"
+				+ "</div>\n"
 				+ "  <body>\n"
 				+ "     <div class=\"container\">\n");
 
@@ -315,7 +321,43 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append("</table>\n");
 		}
 		sb.append("</div>\n");
-		sb.append("</body></html>");
+		sb.append("</body>");
+		sb.append("<script>\n"
+				+ "getLogoStyleDetails(); \n"
+				+ "var object;\n"
+				+ "function getLogoStyleDetails() { \n"
+				+ "    $.ajax({\n"
+				+ "        type: 'GET',\n"
+				+ "       url: 'http://'+window.location.host+'/image/loginlogo',\n"
+				+ "       dataType: \"json\",\n"
+				+ "       success: function(response){\n"
+				+ "       	object = response;\n"
+				+ "			getLogoStyles();\n"
+				+ "       }\n"
+				+ "   });\n"
+				+ "}\n"
+				+ "var imagePath=\"http://\"+window.location.host+\"/images/logo.png\";\n"
+				+ "function getLogoStyles() { \n"
+				+ " if(object.position === \"center\"){ \n"
+				+ "	var element = document.getElementById(\"logoPosition\");\n"
+				+ "	element.classList.add(\"text-center\");\n"
+				+ " } \n"
+				+ " if(object.width != undefined || object.width != null){\n"
+				+ "	document.getElementById(\"logoImage\").style.width =  object.width+\"px\"; \n"
+				+ "	document.getElementById(\"logoImage\").style.height = \"100%\";\n"
+				+ " }else{\n"
+				+ "	document.getElementById(\"logoImage\").style.width =  \"200px\";\n"
+				+ "	document.getElementById(\"logoImage\").style.height = \"100%\";\n"
+				+ " }\n"
+				+ " if(object.maxWidth != undefined || object.maxWidth != null){\n"
+				+ "	document.getElementById(\"logoImage\").style.maxWidth = object.maxWidth+\"px\";\n"
+				+ " }else{\n"
+				+ "	document.getElementById(\"logoImage\").style.maxWidth = \"200px\";\n"
+				+ " }\n"
+				+ " }\n"
+				+ " document.getElementById(\"logoImage\").src=imagePath;\n"
+				+ " </script>\n"
+				+ " </html>");
 
 		return sb.toString();
 	}
