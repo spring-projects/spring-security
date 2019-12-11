@@ -38,12 +38,12 @@ This configuration enables <<rsocket-authentication-basic,basic authentication>>
 
 For Spring Security to work we need to apply `SecuritySocketAcceptorInterceptor` to the `ServerRSocketFactory`.
 This is what connects our `PayloadSocketAcceptorInterceptor` we created with the RSocket infrastructure.
-In a Spring Boot application this can be done using the following code.
+In a Spring Boot application this is done automatically using `RSocketSecurityAutoConfiguration` with the following code.
 
 [source,java]
 ----
 @Bean
-ServerRSocketFactoryCustomizer springSecurityRSocketSecurity(
+ServerRSocketFactoryProcessor springSecurityRSocketSecurity(
 		SecuritySocketAcceptorInterceptor interceptor) {
 	return builder -> builder.addSocketAcceptorPlugin(interceptor);
 }
