@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -28,9 +29,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 
+import reactor.core.publisher.Mono;
 import reactor.test.publisher.PublisherProbe;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Eric Deandrea
@@ -97,5 +103,27 @@ public class DelegatingServerLogoutHandlerTests {
 
 		this.delegate1Result.assertWasSubscribed();
 		this.delegate2Result.assertWasSubscribed();
+	}
+
+	@Test
+	public void logoutSequential() throws Exception {
+		AtomicBoolean slowDone = new AtomicBoolean();
+		CountDownLatch latch = new CountDownLatch(1);
+		ServerLogoutHandler slow = (exchange, authentication) ->
+			Mono.delay(Duration.ofMillis(100))
+				.doOnSuccess(__ -> slowDone.set(true))
+				.then();
+		ServerLogoutHandler second = (exchange, authentication) ->
+			Mono.fromRunnable(() -> {
+				latch.countDown();
+				assertThat(slowDone.get())
+					.describedAs("ServerLogoutHandler should be executed sequentially")
+					.isTrue();
+			});
+		DelegatingServerLogoutHandler handler = new DelegatingServerLogoutHandler(slow, second);
+
+		handler.logout(this.exchange, this.authentication).block();
+
+		assertThat(latch.await(3, TimeUnit.SECONDS)).isTrue();
 	}
 }
