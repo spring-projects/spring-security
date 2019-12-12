@@ -19,12 +19,11 @@ package org.springframework.security.web.server.authentication;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.Assert;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Delegates to a collection of {@link ServerAuthenticationSuccessHandler} implementations.
@@ -43,7 +42,8 @@ public class DelegatingServerAuthenticationSuccessHandler implements ServerAuthe
 	@Override
 	public Mono<Void> onAuthenticationSuccess(WebFilterExchange exchange,
 			Authentication authentication) {
-		Stream<Mono<Void>> results = this.delegates.stream().map(delegate -> delegate.onAuthenticationSuccess(exchange, authentication));
-		return Mono.when(results.collect(Collectors.toList()));
+		return Flux.fromIterable(this.delegates)
+			.concatMap(delegate -> delegate.onAuthenticationSuccess(exchange, authentication))
+			.then();
 	}
 }
