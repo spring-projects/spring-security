@@ -15,11 +15,6 @@
  */
 package org.springframework.security.web.server.header;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,9 +23,18 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -55,7 +59,6 @@ public class CompositeServerHttpHeadersWriterTests {
 	@Test
 	public void writeHttpHeadersWhenErrorNoErrorThenError() {
 		when(writer1.writeHttpHeaders(exchange)).thenReturn(Mono.error(new RuntimeException()));
-		when(writer2.writeHttpHeaders(exchange)).thenReturn(Mono.empty());
 
 		Mono<Void> result = writer.writeHttpHeaders(exchange);
 
@@ -64,13 +67,11 @@ public class CompositeServerHttpHeadersWriterTests {
 			.verify();
 
 		verify(writer1).writeHttpHeaders(exchange);
-		verify(writer2).writeHttpHeaders(exchange);
 	}
 
 	@Test
 	public void writeHttpHeadersWhenErrorErrorThenError() {
 		when(writer1.writeHttpHeaders(exchange)).thenReturn(Mono.error(new RuntimeException()));
-		when(writer2.writeHttpHeaders(exchange)).thenReturn(Mono.error(new RuntimeException()));
 
 		Mono<Void> result = writer.writeHttpHeaders(exchange);
 
@@ -79,7 +80,6 @@ public class CompositeServerHttpHeadersWriterTests {
 			.verify();
 
 		verify(writer1).writeHttpHeaders(exchange);
-		verify(writer2).writeHttpHeaders(exchange);
 	}
 
 	@Test
@@ -95,5 +95,27 @@ public class CompositeServerHttpHeadersWriterTests {
 
 		verify(writer1).writeHttpHeaders(exchange);
 		verify(writer2).writeHttpHeaders(exchange);
+	}
+
+	@Test
+	public void writeHttpHeadersSequential() throws Exception {
+		AtomicBoolean slowDone = new AtomicBoolean();
+		CountDownLatch latch = new CountDownLatch(1);
+		ServerHttpHeadersWriter slow = exchange ->
+				Mono.delay(Duration.ofMillis(100))
+						.doOnSuccess(__ -> slowDone.set(true))
+						.then();
+		ServerHttpHeadersWriter second = exchange ->
+				Mono.fromRunnable(() -> {
+					latch.countDown();
+					assertThat(slowDone.get())
+							.describedAs("ServerLogoutHandler should be executed sequentially")
+							.isTrue();
+				});
+		CompositeServerHttpHeadersWriter writer = new CompositeServerHttpHeadersWriter(slow, second);
+
+		writer.writeHttpHeaders(this.exchange).block();
+
+		assertThat(latch.await(3, TimeUnit.SECONDS)).isTrue();
 	}
 }
