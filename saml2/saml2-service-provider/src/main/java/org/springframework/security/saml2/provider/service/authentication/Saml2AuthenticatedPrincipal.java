@@ -22,7 +22,7 @@ import org.springframework.security.core.AuthenticatedPrincipal;
  * Saml2 representation of an {@link AuthenticatedPrincipal}.
  *
  * @author Clement Stoquart
- * @since 5.3
+ * @since 5.2.2
  */
 public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 }

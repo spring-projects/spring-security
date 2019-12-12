@@ -22,7 +22,7 @@ import java.io.Serializable;
  * Default implementation of a {@link Saml2AuthenticatedPrincipal}.
  *
  * @author Clement Stoquart
- * @since 5.3
+ * @since 5.2.2
  */
 class SimpleSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPrincipal, Serializable {
 
