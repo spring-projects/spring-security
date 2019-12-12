@@ -16,10 +16,6 @@
 
 package org.springframework.security.web.server.authentication;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,8 +23,18 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
-
+import reactor.core.publisher.Mono;
 import reactor.test.publisher.PublisherProbe;
+
+import java.time.Duration;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -87,5 +93,27 @@ public class DelegatingServerAuthenticationSuccessHandlerTests {
 
 		this.delegate1Result.assertWasSubscribed();
 		this.delegate2Result.assertWasSubscribed();
+	}
+
+	@Test
+	public void onAuthenticationSuccessSequential() throws Exception {
+		AtomicBoolean slowDone = new AtomicBoolean();
+		CountDownLatch latch = new CountDownLatch(1);
+		ServerAuthenticationSuccessHandler slow = (exchange, authentication) ->
+				Mono.delay(Duration.ofMillis(100))
+						.doOnSuccess(__ -> slowDone.set(true))
+						.then();
+		ServerAuthenticationSuccessHandler second = (exchange, authentication) ->
+				Mono.fromRunnable(() -> {
+					latch.countDown();
+					assertThat(slowDone.get())
+							.describedAs("ServerAuthenticationSuccessHandler should be executed sequentially")
+							.isTrue();
+				});
+		DelegatingServerAuthenticationSuccessHandler handler = new DelegatingServerAuthenticationSuccessHandler(slow, second);
+
+		handler.onAuthenticationSuccess(this.exchange, this.authentication).block();
+
+		assertThat(latch.await(3, TimeUnit.SECONDS)).isTrue();
 	}
 }
