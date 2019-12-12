@@ -15,14 +15,12 @@
  */
 package  org.springframework.security.web.server.header;
 
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.springframework.web.server.ServerWebExchange;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Combines multiple {@link ServerHttpHeadersWriter} instances into a single instance.
@@ -43,8 +41,9 @@ public class CompositeServerHttpHeadersWriter implements ServerHttpHeadersWriter
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		Stream<Mono<Void>> results = writers.stream().map( writer -> writer.writeHttpHeaders(exchange));
-		return Mono.when(results.collect(Collectors.toList()));
+		return Flux.fromIterable(this.writers)
+				.concatMap(w -> w.writeHttpHeaders(exchange))
+				.then();
 	}
 
 }
