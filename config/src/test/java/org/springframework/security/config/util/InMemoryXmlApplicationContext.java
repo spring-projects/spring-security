@@ -41,7 +41,7 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
 			+ "http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-";
 	static final String BEANS_CLOSE = "</b:beans>\n";
 
-	static final String SPRING_SECURITY_VERSION = "5.2";
+	static final String SPRING_SECURITY_VERSION = "5.3";
 
 	Resource inMemoryXml;
 

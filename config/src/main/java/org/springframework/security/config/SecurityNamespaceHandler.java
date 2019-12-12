@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2013 the original author or authors.
+ * Copyright 2009-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionPar
 import org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParser;
 import org.springframework.security.config.method.InterceptMethodsBeanDefinitionDecorator;
 import org.springframework.security.config.method.MethodSecurityMetadataSourceBeanDefinitionParser;
+import org.springframework.security.config.oauth2.client.ClientRegistrationsBeanDefinitionParser;
 import org.springframework.security.config.websocket.WebSocketMessageBrokerSecurityBeanDefinitionParser;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.ClassUtils;
@@ -86,7 +87,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		if (!namespaceMatchesVersion(element)) {
 			pc.getReaderContext()
 					.fatal("You cannot use a spring-security-2.0.xsd or spring-security-3.0.xsd or spring-security-3.1.xsd schema or spring-security-3.2.xsd schema or spring-security-4.0.xsd schema "
-							+ "with Spring Security 5.2. Please update your schema declarations to the 5.2 schema.",
+							+ "with Spring Security 5.3. Please update your schema declarations to the 5.3 schema.",
 							element);
 		}
 		String name = pc.getDelegate().getLocalName(element);
@@ -192,6 +193,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 					new FilterInvocationSecurityMetadataSourceParser());
 			parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
 			filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
+			parsers.put(Elements.CLIENT_REGISTRATIONS, new ClientRegistrationsBeanDefinitionParser());
 		}
 
 		if (ClassUtils.isPresent(MESSAGE_CLASSNAME, getClass().getClassLoader())) {
@@ -221,7 +223,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 	private boolean matchesVersionInternal(Element element) {
 		String schemaLocation = element.getAttributeNS(
 				"http://www.w3.org/2001/XMLSchema-instance", "schemaLocation");
-		return schemaLocation.matches("(?m).*spring-security-5\\.2.*.xsd.*")
+		return schemaLocation.matches("(?m).*spring-security-5\\.3.*.xsd.*")
 				|| schemaLocation.matches("(?m).*spring-security.xsd.*")
 				|| !schemaLocation.matches("(?m).*spring-security.*");
 	}

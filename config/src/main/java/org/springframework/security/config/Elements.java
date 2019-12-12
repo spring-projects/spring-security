@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,4 +72,7 @@ public abstract class Elements {
 
 	public static final String WEBSOCKET_MESSAGE_BROKER = "websocket-message-broker";
 	public static final String INTERCEPT_MESSAGE = "intercept-message";
+
+	public static final String OAUTH2_LOGIN = "oauth2-login";
+	public static final String CLIENT_REGISTRATIONS = "client-registrations";
 }
