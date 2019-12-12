@@ -28,10 +28,19 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import net.minidev.json.JSONObject;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.hamcrest.core.AllOf;
@@ -82,14 +91,15 @@ import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrinci
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
@@ -127,6 +137,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withPublicKey;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
@@ -149,7 +161,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class OAuth2ResourceServerConfigurerTests {
 	private static final String JWT_TOKEN = "token";
 	private static final String JWT_SUBJECT = "mock-test-subject";
-	private static final Map<String, Object> JWT_CLAIMS = Collections.singletonMap(JwtClaimNames.SUB, JWT_SUBJECT);
+	private static final Map<String, Object> JWT_CLAIMS = Collections.singletonMap(SUB, JWT_SUBJECT);
 	private static final Jwt JWT = jwt().build();
 	private static final String JWK_SET_URI = "https://mock.org";
 	private static final JwtAuthenticationToken JWT_AUTHENTICATION_TOKEN =
@@ -1332,6 +1344,50 @@ public class OAuth2ResourceServerConfigurerTests {
 		verify(http, never()).authenticationProvider(any(AuthenticationProvider.class));
 	}
 
+	// -- authentication manager resolver
+
+	@Test
+	public void getWhenMultipleIssuersThenUsesIssuerClaimToDifferentiate() throws Exception {
+		this.spring.register(WebServerConfig.class, MultipleIssuersConfig.class, BasicController.class).autowire();
+
+		MockWebServer server = this.spring.getContext().getBean(MockWebServer.class);
+		String metadata = "{\n"
+				+ "    \"issuer\": \"%s\", \n"
+				+ "    \"jwks_uri\": \"%s/.well-known/jwks.json\" \n"
+				+ "}";
+		String jwkSet = jwkSet();
+		String issuerOne = server.url("/issuerOne").toString();
+		String issuerTwo = server.url("/issuerTwo").toString();
+		String issuerThree = server.url("/issuerThree").toString();
+		String jwtOne = jwtFromIssuer(issuerOne);
+		String jwtTwo = jwtFromIssuer(issuerTwo);
+		String jwtThree = jwtFromIssuer(issuerThree);
+
+		mockWebServer(String.format(metadata, issuerOne, issuerOne));
+		mockWebServer(jwkSet);
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken(jwtOne)))
+				.andExpect(status().isOk())
+				.andExpect(content().string("test-subject"));
+
+		mockWebServer(String.format(metadata, issuerTwo, issuerTwo));
+		mockWebServer(jwkSet);
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken(jwtTwo)))
+				.andExpect(status().isOk())
+				.andExpect(content().string("test-subject"));
+
+		mockWebServer(String.format(metadata, issuerThree, issuerThree));
+		mockWebServer(jwkSet);
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken(jwtThree)))
+				.andExpect(status().isUnauthorized())
+				.andExpect(invalidTokenHeader("Invalid issuer"));
+	}
+
 	// -- Incorrect Configuration
 
 	@Test
@@ -2071,6 +2127,26 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class MultipleIssuersConfig extends WebSecurityConfigurerAdapter {
+		@Autowired
+		MockWebServer web;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			String issuerOne = this.web.url("/issuerOne").toString();
+			String issuerTwo = this.web.url("/issuerTwo").toString();
+			JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
+					new JwtIssuerAuthenticationManagerResolver(issuerOne, issuerTwo);
+
+			// @formatter:off
+			http
+				.oauth2ResourceServer()
+					.authenticationManagerResolver(authenticationManagerResolver);
+			// @formatter:on
+		}
+	}
+
+	@EnableWebSecurity
 	static class AuthenticationManagerResolverPlusOtherConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -2255,6 +2331,23 @@ public class OAuth2ResourceServerConfigurerTests {
 				"error=\"insufficient_scope\"" +
 				", error_description=\"The request requires higher privileges than provided by the access token.\"" +
 				", error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"");
+	}
+
+	private String jwkSet() {
+		return new JWKSet(new RSAKey.Builder(TestKeys.DEFAULT_PUBLIC_KEY)
+				.keyID("1").build()).toString();
+	}
+
+	private String jwtFromIssuer(String issuer) throws Exception {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put(ISS, issuer);
+		claims.put(SUB, "test-subject");
+		claims.put("scope", "message:read");
+		JWSObject jws = new JWSObject(
+				new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("1").build(),
+				new Payload(new JSONObject(claims)));
+		jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+		return jws.serialize();
 	}
 
 	private void mockWebServer(String response) {
