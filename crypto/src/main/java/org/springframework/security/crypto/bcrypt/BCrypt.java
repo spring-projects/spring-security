@@ -908,6 +908,18 @@ public class BCrypt {
 		return equalsNoEarlyReturn(hashed, hashpw(plaintext, hashed));
 	}
 
+	/**
+	 * Check that a password (as a byte array) matches a previously hashed
+	 * one
+	 * @param passwordb	the password to verify, as a byte array
+	 * @param hashed	the previously-hashed password
+	 * @return	true if the passwords match, false otherwise
+	 * @since 5.3
+	 */
+	public static boolean checkpw(byte[] passwordb, String hashed) {
+		return equalsNoEarlyReturn(hashed, hashpw(passwordb, hashed));
+	}
+
 	static boolean equalsNoEarlyReturn(String a, String b) {
 		return MessageDigest.isEqual(a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));
 	}
