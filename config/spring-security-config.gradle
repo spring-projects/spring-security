@@ -74,7 +74,6 @@ dependencies {
 		exclude group: 'org.aspectj', module: 'aspectjrt'
 	}
 
-	testRuntime 'cglib:cglib-nodep'
 	testRuntime 'org.hsqldb:hsqldb'
 }
 
