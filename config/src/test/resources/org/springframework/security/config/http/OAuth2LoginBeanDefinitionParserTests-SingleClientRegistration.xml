@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2002-2019 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~       https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<b:beans xmlns:b="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns="http://www.springframework.org/schema/security"
+		xsi:schemaLocation="
+			http://www.springframework.org/schema/security
+			https://www.springframework.org/schema/security/spring-security.xsd
+			http://www.springframework.org/schema/beans
+			https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<http auto-config="true">
+		<oauth2-login/>
+	</http>
+
+	<client-registrations>
+		<client-registration registration-id="google-login"
+							 client-id="google-client-id"
+							 client-secret="google-client-secret"
+							 client-authentication-method="basic"
+							 authorization-grant-type="authorization_code"
+							 redirect-uri="{baseUrl}/login/oauth2/code/{registrationId}"
+							 scope="openid,profile,email"
+							 client-name="Google"
+							 provider-id="google"/>
+		<provider provider-id="google"
+				  authorization-uri="https://accounts.google.com/o/oauth2/v2/auth"
+				  token-uri="https://www.googleapis.com/oauth2/v4/token"
+				  userinfo-uri="https://www.googleapis.com/oauth2/v3/userinfo"
+				  userinfo-authentication-method="header"
+				  username-attribute-name="sub"
+				  jwkset-uri="https://www.googleapis.com/oauth2/v3/certs"/>
+	</client-registrations>
+
+	<!--
+		NOTE:
+		This import should be removed after `OAuth2LoginBeanDefinitionParser` is implemented.
+		Without this import the `AbstractXmlApplicationContext` will fail to load.
+		This is simply a placeholder to force a successful load.
+	-->
+	<b:import resource="userservice.xml"/>
+
+</b:beans>

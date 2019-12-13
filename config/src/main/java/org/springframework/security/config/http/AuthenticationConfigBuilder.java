@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,6 +158,7 @@ final class AuthenticationConfigBuilder {
 		createRememberMeFilter(authenticationManager);
 		createBasicFilter(authenticationManager);
 		createFormLoginFilter(sessionStrategy, authenticationManager);
+		createOAuth2LoginFilter(sessionStrategy, authenticationManager);
 		createOpenIDLoginFilter(sessionStrategy, authenticationManager);
 		createX509Filter(authenticationManager);
 		createJeeFilter(authenticationManager);
@@ -232,6 +233,15 @@ final class AuthenticationConfigBuilder {
 			formFilterId = pc.getReaderContext().generateBeanName(formFilter);
 			pc.registerBeanComponent(new BeanComponentDefinition(formFilter, formFilterId));
 			injectRememberMeServicesRef(formFilter, rememberMeServicesId);
+		}
+	}
+
+	void createOAuth2LoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
+		Element oauth2LoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_LOGIN);
+		if (oauth2LoginElt != null || this.autoConfig) {
+			OAuth2LoginBeanDefinitionParser parser = new OAuth2LoginBeanDefinitionParser();
+			parser.parse(oauth2LoginElt, this.pc);
+			// TODO Implement
 		}
 	}
 

@@ -41,6 +41,7 @@ import org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionPar
 import org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParser;
 import org.springframework.security.config.method.InterceptMethodsBeanDefinitionDecorator;
 import org.springframework.security.config.method.MethodSecurityMetadataSourceBeanDefinitionParser;
+import org.springframework.security.config.oauth2.client.ClientRegistrationsBeanDefinitionParser;
 import org.springframework.security.config.websocket.WebSocketMessageBrokerSecurityBeanDefinitionParser;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.ClassUtils;
@@ -192,6 +193,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 					new FilterInvocationSecurityMetadataSourceParser());
 			parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
 			filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
+			parsers.put(Elements.CLIENT_REGISTRATIONS, new ClientRegistrationsBeanDefinitionParser());
 		}
 
 		if (ClassUtils.isPresent(MESSAGE_CLASSNAME, getClass().getClassLoader())) {
