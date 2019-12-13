@@ -29,12 +29,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class BCryptTests {
 
-	private static class TestObject {
-		private final String password;
+	private static class TestObject<T> {
+		private final T password;
 		private final String salt;
 		private final String expected;
 
-		private TestObject(String password, String salt, String expected) {
+		private TestObject(T password, String salt, String expected) {
 			this.password = password;
 			this.salt = salt;
 			this.expected = expected;
@@ -49,91 +49,143 @@ public class BCryptTests {
 		// System.out.println(s);
 	}
 
-	private static List<TestObject> testObjects;
+	private static List<TestObject<String>> testObjectsString;
+
+	private static List<TestObject<byte[]>> testObjectsByteArray;
 
 	@BeforeClass
 	public static void setupTestObjects() {
-		testObjects = new ArrayList<>();
-		testObjects.add(new TestObject("", "$2a$06$DCq7YPn5Rq63x1Lad4cll.",
+		testObjectsString = new ArrayList<>();
+		testObjectsString.add(new TestObject<>("", "$2a$06$DCq7YPn5Rq63x1Lad4cll.",
 				"$2a$06$DCq7YPn5Rq63x1Lad4cll.TV4S6ytwfsfvkgY8jIucDrjc8deX1s."));
-		testObjects.add(new TestObject("", "$2a$08$HqWuK6/Ng6sg9gQzbLrgb.",
+		testObjectsString.add(new TestObject<>("", "$2a$08$HqWuK6/Ng6sg9gQzbLrgb.",
 				"$2a$08$HqWuK6/Ng6sg9gQzbLrgb.Tl.ZHfXLhvt/SgVyWhQqgqcZ7ZuUtye"));
-		testObjects.add(new TestObject("", "$2a$10$k1wbIrmNyFAPwPVPSVa/ze",
+		testObjectsString.add(new TestObject<>("", "$2a$10$k1wbIrmNyFAPwPVPSVa/ze",
 				"$2a$10$k1wbIrmNyFAPwPVPSVa/zecw2BCEnBwVS2GbrmgzxFUOqW9dk4TCW"));
-		testObjects.add(new TestObject("", "$2a$12$k42ZFHFWqBp3vWli.nIn8u",
+		testObjectsString.add(new TestObject<>("", "$2a$12$k42ZFHFWqBp3vWli.nIn8u",
 				"$2a$12$k42ZFHFWqBp3vWli.nIn8uYyIkbvYRvodzbfbK18SSsY.CsIQPlxO"));
-		testObjects.add(new TestObject("", "$2b$06$8eVN9RiU8Yki430X.wBvN.",
+		testObjectsString.add(new TestObject<>("", "$2b$06$8eVN9RiU8Yki430X.wBvN.",
 				"$2b$06$8eVN9RiU8Yki430X.wBvN.LWaqh2962emLVSVXVZIXJvDYLsV0oFu"));
-		testObjects.add(new TestObject("", "$2b$06$NlgfNgpIc6GlHciCkMEW8u",
+		testObjectsString.add(new TestObject<>("", "$2b$06$NlgfNgpIc6GlHciCkMEW8u",
 				"$2b$06$NlgfNgpIc6GlHciCkMEW8uKOBsyvAp7QwlHpysOlKdtyEw50WQua2"));
-		testObjects.add(new TestObject("", "$2y$06$mFDtkz6UN7B3GZ2qi2hhaO",
+		testObjectsString.add(new TestObject<>("", "$2y$06$mFDtkz6UN7B3GZ2qi2hhaO",
 				"$2y$06$mFDtkz6UN7B3GZ2qi2hhaO3OFWzNEdcY84ELw6iHCPruuQfSAXBLK"));
-		testObjects.add(new TestObject("", "$2y$06$88kSqVttBx.e9iXTPCLa5u",
+		testObjectsString.add(new TestObject<>("", "$2y$06$88kSqVttBx.e9iXTPCLa5u",
 				"$2y$06$88kSqVttBx.e9iXTPCLa5uFPrVFjfLH4D.KcO6pBiAmvUkvdg0EYy"));
-		testObjects.add(new TestObject("a", "$2a$06$m0CrhHm10qJ3lXRY.5zDGO",
+		testObjectsString.add(new TestObject<>("a", "$2a$06$m0CrhHm10qJ3lXRY.5zDGO",
 				"$2a$06$m0CrhHm10qJ3lXRY.5zDGO3rS2KdeeWLuGmsfGlMfOxih58VYVfxe"));
-		testObjects.add(new TestObject("a", "$2a$08$cfcvVd2aQ8CMvoMpP2EBfe",
+		testObjectsString.add(new TestObject<>("a", "$2a$08$cfcvVd2aQ8CMvoMpP2EBfe",
 				"$2a$08$cfcvVd2aQ8CMvoMpP2EBfeodLEkkFJ9umNEfPD18.hUF62qqlC/V."));
-		testObjects.add(new TestObject("a", "$2a$10$k87L/MF28Q673VKh8/cPi.",
+		testObjectsString.add(new TestObject<>("a", "$2a$10$k87L/MF28Q673VKh8/cPi.",
 				"$2a$10$k87L/MF28Q673VKh8/cPi.SUl7MU/rWuSiIDDFayrKk/1tBsSQu4u"));
-		testObjects.add(new TestObject("a", "$2a$12$8NJH3LsPrANStV6XtBakCe",
+		testObjectsString.add(new TestObject<>("a", "$2a$12$8NJH3LsPrANStV6XtBakCe",
 				"$2a$12$8NJH3LsPrANStV6XtBakCez0cKHXVxmvxIlcz785vxAIZrihHZpeS"));
-		testObjects.add(new TestObject("a", "$2b$06$ehKGYiS4wt2HAr7KQXS5z.",
+		testObjectsString.add(new TestObject<>("a", "$2b$06$ehKGYiS4wt2HAr7KQXS5z.",
 				"$2b$06$ehKGYiS4wt2HAr7KQXS5z.OaRjB4jHO7rBHJKlGXbqEH3QVJfO7iO"));
-		testObjects.add(new TestObject("a", "$2b$06$PWxFFHA3HiCD46TNOZh30e",
+		testObjectsString.add(new TestObject<>("a", "$2b$06$PWxFFHA3HiCD46TNOZh30e",
 				"$2b$06$PWxFFHA3HiCD46TNOZh30eNto1hg5uM9tHBlI4q/b03SW/gGKUYk6"));
-		testObjects.add(new TestObject("a", "$2y$06$LUdD6/aD0e/UbnxVAVbvGu",
+		testObjectsString.add(new TestObject<>("a", "$2y$06$LUdD6/aD0e/UbnxVAVbvGu",
 				"$2y$06$LUdD6/aD0e/UbnxVAVbvGuUmIoJ3l/OK94ThhadpMWwKC34LrGEey"));
-		testObjects.add(new TestObject("a", "$2y$06$eqgY.T2yloESMZxgp76deO",
+		testObjectsString.add(new TestObject<>("a", "$2y$06$eqgY.T2yloESMZxgp76deO",
 				"$2y$06$eqgY.T2yloESMZxgp76deOROa7nzXDxbO0k.PJvuClTa.Vu1AuemG"));
-		testObjects.add(new TestObject("abc", "$2a$06$If6bvum7DFjUnE9p2uDeDu",
+		testObjectsString.add(new TestObject<>("abc", "$2a$06$If6bvum7DFjUnE9p2uDeDu",
 				"$2a$06$If6bvum7DFjUnE9p2uDeDu0YHzrHM6tf.iqN8.yx.jNN1ILEf7h0i"));
-		testObjects.add(new TestObject("abc", "$2a$08$Ro0CUfOqk6cXEKf3dyaM7O",
+		testObjectsString.add(new TestObject<>("abc", "$2a$08$Ro0CUfOqk6cXEKf3dyaM7O",
 				"$2a$08$Ro0CUfOqk6cXEKf3dyaM7OhSCvnwM9s4wIX9JeLapehKK5YdLxKcm"));
-		testObjects.add(new TestObject("abc", "$2a$10$WvvTPHKwdBJ3uk0Z37EMR.",
+		testObjectsString.add(new TestObject<>("abc", "$2a$10$WvvTPHKwdBJ3uk0Z37EMR.",
 				"$2a$10$WvvTPHKwdBJ3uk0Z37EMR.hLA2W6N9AEBhEgrAOljy2Ae5MtaSIUi"));
-		testObjects.add(new TestObject("abc", "$2a$12$EXRkfkdmXn2gzds2SSitu.",
+		testObjectsString.add(new TestObject<>("abc", "$2a$12$EXRkfkdmXn2gzds2SSitu.",
 				"$2a$12$EXRkfkdmXn2gzds2SSitu.MW9.gAVqa9eLS1//RYtYCmB1eLHg.9q"));
-		testObjects.add(new TestObject("abc", "$2b$06$5FyQoicpbox1xSHFfhhdXu",
+		testObjectsString.add(new TestObject<>("abc", "$2b$06$5FyQoicpbox1xSHFfhhdXu",
 				"$2b$06$5FyQoicpbox1xSHFfhhdXuR2oxLpO1rYsQh5RTkI/9.RIjtoF0/ta"));
-		testObjects.add(new TestObject("abc", "$2b$06$1kJyuho8MCVP3HHsjnRMkO",
+		testObjectsString.add(new TestObject<>("abc", "$2b$06$1kJyuho8MCVP3HHsjnRMkO",
 				"$2b$06$1kJyuho8MCVP3HHsjnRMkO1nvCOaKTqLnjG2TX1lyMFbXH/aOkgc."));
-		testObjects.add(new TestObject("abc", "$2y$06$ACfku9dT6.H8VjdKb8nhlu",
+		testObjectsString.add(new TestObject<>("abc", "$2y$06$ACfku9dT6.H8VjdKb8nhlu",
 				"$2y$06$ACfku9dT6.H8VjdKb8nhluaoBmhJyK7GfoNScEfOfrJffUxoUeCjK"));
-		testObjects.add(new TestObject("abc", "$2y$06$9JujYcoWPmifvFA3RUP90e",
+		testObjectsString.add(new TestObject<>("abc", "$2y$06$9JujYcoWPmifvFA3RUP90e",
 				"$2y$06$9JujYcoWPmifvFA3RUP90e5rSEHAb5Ye6iv3.G9ikiHNv5cxjNEse"));
-		testObjects.add(new TestObject("abcdefghijklmnopqrstuvwxyz", "$2a$06$.rCVZVOThsIa97pEDOxvGu",
+		testObjectsString.add(new TestObject<>("abcdefghijklmnopqrstuvwxyz", "$2a$06$.rCVZVOThsIa97pEDOxvGu",
 				"$2a$06$.rCVZVOThsIa97pEDOxvGuRRgzG64bvtJ0938xuqzv18d3ZpQhstC"));
-		testObjects.add(new TestObject("abcdefghijklmnopqrstuvwxyz", "$2a$08$aTsUwsyowQuzRrDqFflhge",
+		testObjectsString.add(new TestObject<>("abcdefghijklmnopqrstuvwxyz", "$2a$08$aTsUwsyowQuzRrDqFflhge",
 				"$2a$08$aTsUwsyowQuzRrDqFflhgekJ8d9/7Z3GV3UcgvzQW3J5zMyrTvlz."));
-		testObjects.add(new TestObject("abcdefghijklmnopqrstuvwxyz", "$2a$10$fVH8e28OQRj9tqiDXs1e1u",
+		testObjectsString.add(new TestObject<>("abcdefghijklmnopqrstuvwxyz", "$2a$10$fVH8e28OQRj9tqiDXs1e1u",
 				"$2a$10$fVH8e28OQRj9tqiDXs1e1uxpsjN0c7II7YPKXua2NAKYvM6iQk7dq"));
-		testObjects.add(new TestObject("abcdefghijklmnopqrstuvwxyz", "$2a$12$D4G5f18o7aMMfwasBL7Gpu",
+		testObjectsString.add(new TestObject<>("abcdefghijklmnopqrstuvwxyz", "$2a$12$D4G5f18o7aMMfwasBL7Gpu",
 				"$2a$12$D4G5f18o7aMMfwasBL7GpuQWuP3pkrZrOAnqP.bmezbMng.QwJ/pG"));
-		testObjects.add(new TestObject("abcdefghijklmnopqrstuvwxyz", "$2b$06$O8E89AQPj1zJQA05YvIAU.",
+		testObjectsString.add(new TestObject<>("abcdefghijklmnopqrstuvwxyz", "$2b$06$O8E89AQPj1zJQA05YvIAU.",
 				"$2b$06$O8E89AQPj1zJQA05YvIAU.hMpj25BXri1bupl/Q7CJMlpLwZDNBoO"));
-		testObjects.add(new TestObject("abcdefghijklmnopqrstuvwxyz", "$2b$06$PDqIWr./o/P3EE/P.Q0A/u",
+		testObjectsString.add(new TestObject<>("abcdefghijklmnopqrstuvwxyz", "$2b$06$PDqIWr./o/P3EE/P.Q0A/u",
 				"$2b$06$PDqIWr./o/P3EE/P.Q0A/uFg86WL/PXTbaW267TDALEwDylqk00Z."));
-		testObjects.add(new TestObject("abcdefghijklmnopqrstuvwxyz", "$2y$06$34MG90ZLah8/ZNr3ltlHCu",
+		testObjectsString.add(new TestObject<>("abcdefghijklmnopqrstuvwxyz", "$2y$06$34MG90ZLah8/ZNr3ltlHCu",
 				"$2y$06$34MG90ZLah8/ZNr3ltlHCuz6bachF8/3S5jTuzF1h2qg2cUk11sFW"));
-		testObjects.add(new TestObject("abcdefghijklmnopqrstuvwxyz", "$2y$06$AK.hSLfMyw706iEW24i68u",
+		testObjectsString.add(new TestObject<>("abcdefghijklmnopqrstuvwxyz", "$2y$06$AK.hSLfMyw706iEW24i68u",
 				"$2y$06$AK.hSLfMyw706iEW24i68uKAc2yorPTrB0cimvjJHEBUrPkOq7VvG"));
-		testObjects.add(new TestObject("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$06$fPIsBO8qRqkjj273rfaOI.",
+		testObjectsString.add(new TestObject<>("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$06$fPIsBO8qRqkjj273rfaOI.",
 				"$2a$06$fPIsBO8qRqkjj273rfaOI.HtSV9jLDpTbZn782DC6/t7qT67P6FfO"));
-		testObjects.add(new TestObject("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$08$Eq2r4G/76Wv39MzSX262hu",
+		testObjectsString.add(new TestObject<>("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$08$Eq2r4G/76Wv39MzSX262hu",
 				"$2a$08$Eq2r4G/76Wv39MzSX262huzPz612MZiYHVUJe/OcOql2jo4.9UxTW"));
-		testObjects.add(new TestObject("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$10$LgfYWkbzEvQ4JakH7rOvHe",
+		testObjectsString.add(new TestObject<>("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$10$LgfYWkbzEvQ4JakH7rOvHe",
 				"$2a$10$LgfYWkbzEvQ4JakH7rOvHe0y8pHKF9OaFgwUZ2q7W2FFZmZzJYlfS"));
-		testObjects.add(new TestObject("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$12$WApznUOJfkEGSmYRfnkrPO",
+		testObjectsString.add(new TestObject<>("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2a$12$WApznUOJfkEGSmYRfnkrPO",
 				"$2a$12$WApznUOJfkEGSmYRfnkrPOr466oFDCaj4b6HY3EXGvfxm43seyhgC"));
-		testObjects.add(new TestObject("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2b$06$FGWA8OlY6RtQhXBXuCJ8Wu",
+		testObjectsString.add(new TestObject<>("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2b$06$FGWA8OlY6RtQhXBXuCJ8Wu",
 				"$2b$06$FGWA8OlY6RtQhXBXuCJ8WusVipRI15cWOgJK8MYpBHEkktMfbHRIG"));
-		testObjects.add(new TestObject("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2b$06$G6aYU7UhUEUDJBdTgq3CRe",
+		testObjectsString.add(new TestObject<>("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2b$06$G6aYU7UhUEUDJBdTgq3CRe",
 				"$2b$06$G6aYU7UhUEUDJBdTgq3CRekiopCN4O4sNitFXrf5NUscsVZj3a2r6"));
-		testObjects.add(new TestObject("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2y$06$sYDFHqOcXTjBgOsqC0WCKe",
+		testObjectsString.add(new TestObject<>("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2y$06$sYDFHqOcXTjBgOsqC0WCKe",
 				"$2y$06$sYDFHqOcXTjBgOsqC0WCKeMd3T1UhHuWQSxncLGtXDLMrcE6vFDti"));
-		testObjects.add(new TestObject("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2y$06$6Xm0gCw4g7ZNDCEp4yTise",
+		testObjectsString.add(new TestObject<>("~!@#$%^&*()      ~!@#$%^&*()PNBFRD", "$2y$06$6Xm0gCw4g7ZNDCEp4yTise",
 				"$2y$06$6Xm0gCw4g7ZNDCEp4yTisez0kSdpXEl66MvdxGidnmChIe8dFmMnq"));
+
+		testObjectsByteArray = new ArrayList<>();
+		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2a$06$fPIsBO8qRqkjj273rfaOI.",
+				"$2a$06$fPIsBO8qRqkjj273rfaOI.uiVGfgi6Z1Iz.vZr11mi/38o09TUVCy"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2a$08$Eq2r4G/76Wv39MzSX262hu",
+				"$2a$08$Eq2r4G/76Wv39MzSX262hu2lrqIItOWKIkPsMMvm5LAFD.iVB7Nmm"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2a$10$LgfYWkbzEvQ4JakH7rOvHe",
+				"$2a$10$LgfYWkbzEvQ4JakH7rOvHeU6pINYiHnazYxe4GikGWx9MaUr27Vpa"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2a$12$WApznUOJfkEGSmYRfnkrPO",
+				"$2a$12$WApznUOJfkEGSmYRfnkrPONS3wcUvmKuh3LpjxSs6g78T77gZta3W"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2b$06$FGWA8OlY6RtQhXBXuCJ8Wu",
+				"$2b$06$FGWA8OlY6RtQhXBXuCJ8Wu5oPJaT8BeCRmS273I6cpp5RwwjAWn7S"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2b$06$G6aYU7UhUEUDJBdTgq3CRe",
+				"$2b$06$G6aYU7UhUEUDJBdTgq3CRebzUYAyG8MCS3WdBk0CcPb9bfj1.3cSG"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2y$06$sYDFHqOcXTjBgOsqC0WCKe",
+				"$2y$06$sYDFHqOcXTjBgOsqC0WCKeOv88fqPKkuV1yGVh./TROmn1mL8gYh2"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { }, "$2y$06$6Xm0gCw4g7ZNDCEp4yTise",
+				"$2y$06$6Xm0gCw4g7ZNDCEp4yTisecBqTHmLJBHxTNZa8w2hupJKsIhPWOgG"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { -11 }, "$2a$06$fPIsBO8qRqkjj273rfaOI.",
+				"$2a$06$fPIsBO8qRqkjj273rfaOI.AyMTPwvUEmZ2EdJM/p0S0eP3UQpBas."));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { -11 }, "$2a$08$Eq2r4G/76Wv39MzSX262hu",
+				"$2a$08$Eq2r4G/76Wv39MzSX262huG.pmfTOWNaSXeVmr8y6qut1BpUiou6m"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { -11 }, "$2a$10$LgfYWkbzEvQ4JakH7rOvHe",
+				"$2a$10$LgfYWkbzEvQ4JakH7rOvHeNm5INR.iq7bbwMewV0Tydrmqq3mZ5IK"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { -11 }, "$2a$12$WApznUOJfkEGSmYRfnkrPO",
+				"$2a$12$WApznUOJfkEGSmYRfnkrPOi2qWwoWBJvfFzMrkqJwDedE3poicqwO"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { -11 }, "$2b$06$FGWA8OlY6RtQhXBXuCJ8Wu",
+				"$2b$06$FGWA8OlY6RtQhXBXuCJ8Wuwip8vUd9WHq9onEGUjOS6CBHFkM./IG"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { -11 }, "$2b$06$G6aYU7UhUEUDJBdTgq3CRe",
+				"$2b$06$G6aYU7UhUEUDJBdTgq3CRe6RQpRSN.PQ28XtDFT7zUVvpXNbg.K4i"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { -11 }, "$2y$06$sYDFHqOcXTjBgOsqC0WCKe",
+				"$2y$06$sYDFHqOcXTjBgOsqC0WCKeduM9n5k0YfzTlgg69FIgGpw4ChTQNu2"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { -11 }, "$2y$06$6Xm0gCw4g7ZNDCEp4yTise",
+				"$2y$06$6Xm0gCw4g7ZNDCEp4yTisetcxOr0uSWmFiVtNpDxjd5iaFWs/tyjG"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { 76, -56, -12, 9, -116 }, "$2a$06$fPIsBO8qRqkjj273rfaOI.",
+				"$2a$06$fPIsBO8qRqkjj273rfaOI.5m8yX4eGfjqx/tyHtmte7/HbWtUS9u."));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { 76, -56, -12, 9, -116 }, "$2a$08$Eq2r4G/76Wv39MzSX262hu",
+				"$2a$08$Eq2r4G/76Wv39MzSX262hu0Vc3YdKF53qtdTtZJKD7uQfsPeGfkP6"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { 76, -56, -12, 9, -116 }, "$2a$10$LgfYWkbzEvQ4JakH7rOvHe",
+				"$2a$10$LgfYWkbzEvQ4JakH7rOvHeQBR1Mm2USNr//tnItwdVSZFNZfR/L9."));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { 76, -56, -12, 9, -116 }, "$2a$12$WApznUOJfkEGSmYRfnkrPO",
+				"$2a$12$WApznUOJfkEGSmYRfnkrPO2WxEe4rN3gMECOFt21H8ozd661HB8Za"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { 76, -56, -12, 9, -116 }, "$2b$06$FGWA8OlY6RtQhXBXuCJ8Wu",
+				"$2b$06$FGWA8OlY6RtQhXBXuCJ8Wu5SNpYypZvM0j3zTq7vSCtzqOllUArQW"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { 76, -56, -12, 9, -116 }, "$2b$06$G6aYU7UhUEUDJBdTgq3CRe",
+				"$2b$06$G6aYU7UhUEUDJBdTgq3CRejcZ96XDmofwo2r3O/Lw0hoDHQy/Utxq"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { 76, -56, -12, 9, -116 }, "$2y$06$sYDFHqOcXTjBgOsqC0WCKe",
+				"$2y$06$sYDFHqOcXTjBgOsqC0WCKej6.o3knVxc7obV8y47GTTFc9uUWC4OO"));
+		testObjectsByteArray.add(new TestObject<>(new byte[] { 76, -56, -12, 9, -116 }, "$2y$06$6Xm0gCw4g7ZNDCEp4yTise",
+				"$2y$06$6Xm0gCw4g7ZNDCEp4yTiseKCvXMhtv0IrQPu9d36a893DjJ880Vb6"));
 	}
 
 	/**
@@ -142,12 +194,23 @@ public class BCryptTests {
 	@Test
 	public void testHashpw() {
 		print("BCrypt.hashpw(): ");
-		for (TestObject test : testObjects) {
+		for (TestObject<String> test : testObjectsString) {
 			String hashed = BCrypt.hashpw(test.password, test.salt);
 			assertThat(hashed).isEqualTo(test.expected);
 			print(".");
 		}
 		println("");
+	}
+
+	/**
+	 * Test method for 'BCrypt.hashpw(byte[], String)'
+	 */
+	@Test
+	public void testHashpwByteArray() {
+		for (TestObject<byte[]> test : testObjectsByteArray) {
+			String hashed = BCrypt.hashpw(test.password, test.salt);
+			assertThat(hashed).isEqualTo(test.expected);
+		}
 	}
 
 	/**
@@ -158,8 +221,8 @@ public class BCryptTests {
 		print("BCrypt.gensalt(log_rounds):");
 		for (int i = 4; i <= 12; i++) {
 			print(" " + Integer.toString(i) + ":");
-			for (int j = 0; j < testObjects.size(); j += 4) {
-				String plain = testObjects.get(j).password;
+			for (int j = 0; j < testObjectsString.size(); j += 4) {
+				String plain = testObjectsString.get(j).password;
 				String salt = BCrypt.gensalt(i);
 				String hashed1 = BCrypt.hashpw(plain, salt);
 				String hashed2 = BCrypt.hashpw(plain, hashed1);
@@ -176,8 +239,8 @@ public class BCryptTests {
 	@Test
 	public void testGensalt() {
 		print("BCrypt.gensalt(): ");
-		for (int i = 0; i < testObjects.size(); i += 4) {
-			String plain = testObjects.get(i).password;
+		for (int i = 0; i < testObjectsString.size(); i += 4) {
+			String plain = testObjectsString.get(i).password;
 			String salt = BCrypt.gensalt();
 			String hashed1 = BCrypt.hashpw(plain, salt);
 			String hashed2 = BCrypt.hashpw(plain, hashed1);
@@ -193,11 +256,21 @@ public class BCryptTests {
 	@Test
 	public void testCheckpw_success() {
 		print("BCrypt.checkpw w/ good passwords: ");
-		for (TestObject test : testObjects) {
+		for (TestObject<String> test : testObjectsString) {
 			assertThat(BCrypt.checkpw(test.password, test.expected)).isTrue();
 			print(".");
 		}
 		println("");
+	}
+
+	/**
+	 * Test method for 'BCrypt.checkpw(byte[], String)' expecting success
+	 */
+	@Test
+	public void testCheckpwByteArray_success() {
+		for (TestObject<byte[]> test : testObjectsByteArray) {
+			assertThat(BCrypt.checkpw(test.password, test.expected)).isTrue();
+		}
 	}
 
 	/**
@@ -206,14 +279,27 @@ public class BCryptTests {
 	@Test
 	public void testCheckpw_failure() {
 		print("BCrypt.checkpw w/ bad passwords: ");
-		for (int i = 0; i < testObjects.size(); i++) {
-			int broken_index = (i + 8) % testObjects.size();
-			String plain = testObjects.get(i).password;
-			String expected = testObjects.get(broken_index).expected;
+		for (int i = 0; i < testObjectsString.size(); i++) {
+			int broken_index = (i + 8) % testObjectsString.size();
+			String plain = testObjectsString.get(i).password;
+			String expected = testObjectsString.get(broken_index).expected;
 			assertThat(BCrypt.checkpw(plain, expected)).isFalse();
 			print(".");
 		}
 		println("");
+	}
+
+	/**
+	 * Test method for 'BCrypt.checkpw(byte[], String)' expecting failure
+	 */
+	@Test
+	public void testCheckpwByteArray_failure() {
+		for (int i = 0; i < testObjectsByteArray.size(); i++) {
+			int broken_index = (i + 8) % testObjectsByteArray.size();
+			byte[] plain = testObjectsByteArray.get(i).password;
+			String expected = testObjectsByteArray.get(broken_index).expected;
+			assertThat(BCrypt.checkpw(plain, expected)).isFalse();
+		}
 	}
 
 	/**
