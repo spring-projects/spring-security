@@ -162,6 +162,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
 		matchers.add(notMatchingMediaType(http, MediaType.APPLICATION_JSON));
 		matchers.add(notXRequestedWith);
 		matchers.add(notMatchingMediaType(http, MediaType.MULTIPART_FORM_DATA));
+		matchers.add(notMatchingMediaType(http, MediaType.TEXT_EVENT_STREAM));
 
 		return new AndRequestMatcher(matchers);
 	}
