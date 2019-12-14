@@ -65,6 +65,10 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 	// @formatter:on
 
 	// @formatter:off
+	private static final String AUTHENTICATED_STRINGDETAILS_JSON = AUTHENTICATED_JSON.replace("\"details\": null, ", "\"details\": \"details\", ");
+	// @formatter:on
+
+	// @formatter:off
 	private static final String AUTHENTICATED_NON_USER_PRINCIPAL_JSON = AUTHENTICATED_JSON
 		.replace(UserDeserializerTests.USER_JSON, NON_USER_PRINCIPAL_JSON)
 		.replaceAll(UserDeserializerTests.USER_PASSWORD, "null")
@@ -153,6 +157,18 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 			.readValue(AUTHENTICATED_NON_USER_PRINCIPAL_JSON, UsernamePasswordAuthenticationToken.class);
 		assertThat(token).isNotNull();
 		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(NonUserPrincipal.class);
+	}
+
+	@Test
+	public void deserializeAuthenticatedUsernamePasswordAuthenticationTokenWithDetailsTest() throws IOException {
+		UsernamePasswordAuthenticationToken token = mapper
+				.readValue(AUTHENTICATED_STRINGDETAILS_JSON, UsernamePasswordAuthenticationToken.class);
+		assertThat(token).isNotNull();
+		assertThat(token.getPrincipal()).isNotNull().isInstanceOf(User.class);
+		assertThat(((User) token.getPrincipal()).getAuthorities()).isNotNull().hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
+		assertThat(token.isAuthenticated()).isEqualTo(true);
+		assertThat(token.getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
+		assertThat(token.getDetails()).isExactlyInstanceOf(String.class);
 	}
 
 	@Test
