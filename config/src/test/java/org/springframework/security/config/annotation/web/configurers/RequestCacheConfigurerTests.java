@@ -183,6 +183,21 @@ public class RequestCacheConfigurerTests {
 
 		//  This is desirable since XHR requests are typically not invoked directly from the browser and we don't want the browser to replay them
 	}
+	@Test
+	public void getWhenBookmarkedRequestIsTextEventStreamThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+
+		MockHttpSession session = (MockHttpSession)
+				this.mvc.perform(get("/messages")
+						.header(HttpHeaders.ACCEPT, MediaType.TEXT_EVENT_STREAM))
+						.andExpect(redirectedUrl("http://localhost/login"))
+						.andReturn().getRequest().getSession();
+
+		this.mvc.perform(formLogin(session))
+				.andExpect(redirectedUrl("/")); // ignores text/event-stream
+
+		//  This is desirable since event-stream requests are typically not invoked directly from the browser and we don't want the browser to replay them
+	}
 
 	@Test
 	public void getWhenBookmarkedRequestIsAllMediaTypeThenPostAuthenticationRemembers() throws Exception {
