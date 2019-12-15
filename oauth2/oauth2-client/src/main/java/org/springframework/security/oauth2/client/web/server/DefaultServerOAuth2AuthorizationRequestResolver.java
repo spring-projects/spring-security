@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * The default implementation of {@link ServerOAuth2AuthorizationRequestResolver}.
@@ -80,6 +81,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 
 	private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+
+	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = customizer -> {};
 
 	/**
 	 * Creates a new instance
@@ -121,6 +124,18 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 			.map(clientRegistration -> authorizationRequest(exchange, clientRegistration));
 	}
 
+	/**
+	 * Sets the {@code Consumer} to be provided the {@link OAuth2AuthorizationRequest.Builder}
+	 * allowing for further customizations.
+	 *
+	 * @since 5.3
+	 * @param authorizationRequestCustomizer the {@code Consumer} to be provided the {@link OAuth2AuthorizationRequest.Builder}
+	 */
+	public final void setAuthorizationRequestCustomizer(Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {
+		Assert.notNull(authorizationRequestCustomizer, "authorizationRequestCustomizer cannot be null");
+		this.authorizationRequestCustomizer = authorizationRequestCustomizer;
+	}
+
 	private Mono<ClientRegistration> findByRegistrationId(ServerWebExchange exchange, String clientRegistration) {
 		return this.clientRegistrationRepository.findByRegistrationId(clientRegistration)
 				.switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid client registration id")));
@@ -155,13 +170,17 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 					"Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
 							+ ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 		}
-		return builder
+		builder
 				.clientId(clientRegistration.getClientId())
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
-				.redirectUri(redirectUriStr).scopes(clientRegistration.getScopes())
+				.redirectUri(redirectUriStr)
+				.scopes(clientRegistration.getScopes())
 				.state(this.stateGenerator.generateKey())
-				.attributes(attributes)
-				.build();
+				.attributes(attributes);
+
+		this.authorizationRequestCustomizer.accept(builder);
+
+		return builder.build();
 	}
 
 	/**

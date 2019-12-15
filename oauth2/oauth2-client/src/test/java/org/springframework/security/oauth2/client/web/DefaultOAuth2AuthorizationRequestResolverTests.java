@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,9 @@ import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
 
 /**
  * Tests for {@link DefaultOAuth2AuthorizationRequestResolver}.
@@ -78,6 +80,12 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	@Test
 	public void constructorWhenAuthorizationRequestBaseUriIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new DefaultOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository, null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setAuthorizationRequestCustomizerWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.resolver.setAuthorizationRequestCustomizer(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -412,6 +420,76 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 						"scope=openid&state=.{15,}&" +
 						"redirect_uri=http://localhost/login/oauth2/code/oidc-registration-id&" +
 						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
+	}
+
+	// gh-7696
+	@Test
+	public void resolveWhenAuthorizationRequestCustomizerRemovesNonceThenQueryExcludesNonce() {
+		ClientRegistration clientRegistration = this.oidcRegistration;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+
+		this.resolver.setAuthorizationRequestCustomizer(customizer -> customizer
+				.additionalParameters(params -> params.remove(OidcParameterNames.NONCE))
+				.attributes(attrs -> attrs.remove(OidcParameterNames.NONCE)));
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getAdditionalParameters()).doesNotContainKey(OidcParameterNames.NONCE);
+		assertThat(authorizationRequest.getAttributes()).doesNotContainKey(OidcParameterNames.NONCE);
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.matches("https://example.com/login/oauth/authorize\\?" +
+						"response_type=code&client_id=client-id&" +
+						"scope=openid&state=.{15,}&" +
+						"redirect_uri=http://localhost/login/oauth2/code/oidc-registration-id");
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestCustomizerAddsParameterThenQueryIncludesParameter() {
+		ClientRegistration clientRegistration = this.oidcRegistration;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+
+		this.resolver.setAuthorizationRequestCustomizer(customizer ->
+				customizer.authorizationRequestUri(uriBuilder -> {
+					uriBuilder.queryParam("param1", "value1");
+					return uriBuilder.build();
+				})
+		);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.matches("https://example.com/login/oauth/authorize\\?" +
+						"response_type=code&client_id=client-id&" +
+						"scope=openid&state=.{15,}&" +
+						"redirect_uri=http://localhost/login/oauth2/code/oidc-registration-id&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" +
+						"param1=value1");
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestCustomizerOverridesParameterThenQueryIncludesParameter() {
+		ClientRegistration clientRegistration = this.oidcRegistration;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+
+		this.resolver.setAuthorizationRequestCustomizer(customizer ->
+				customizer.parameters(params -> {
+					params.put("appid", params.get("client_id"));
+					params.remove("client_id");
+				})
+		);
+
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.matches("https://example.com/login/oauth/authorize\\?" +
+						"response_type=code&" +
+						"scope=openid&state=.{15,}&" +
+						"redirect_uri=http://localhost/login/oauth2/code/oidc-registration-id&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" +
+						"appid=client-id");
 	}
 
 	private static ClientRegistration.Builder fineRedirectUriTemplateClientRegistration() {

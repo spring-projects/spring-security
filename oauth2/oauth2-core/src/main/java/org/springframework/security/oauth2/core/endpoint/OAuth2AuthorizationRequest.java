@@ -22,16 +22,21 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriUtils;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * A representation of an OAuth 2.0 Authorization Request
@@ -108,7 +113,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	/**
 	 * Returns the scope(s).
 	 *
-	 * @return the scope(s)
+	 * @return the scope(s), or an empty {@code Set} if not available
 	 */
 	public Set<String> getScopes() {
 		return this.scopes;
@@ -124,31 +129,31 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
-	 * Returns the additional parameters used in the request.
+	 * Returns the additional parameter(s) used in the request.
 	 *
-	 * @return a {@code Map} of the additional parameters used in the request
+	 * @return a {@code Map} of the additional parameter(s), or an empty {@code Map} if not available
 	 */
 	public Map<String, Object> getAdditionalParameters() {
 		return this.additionalParameters;
 	}
 
 	/**
-	 * Returns the attributes associated to the request.
+	 * Returns the attribute(s) associated to the request.
 	 *
 	 * @since 5.2
-	 * @return a {@code Map} of the attributes associated to the request
+	 * @return a {@code Map} of the attribute(s), or an empty {@code Map} if not available
 	 */
 	public Map<String, Object> getAttributes() {
 		return this.attributes;
 	}
 
 	/**
-	 * Returns the value of an attribute associated to the request, or {@code null} if not available.
+	 * Returns the value of an attribute associated to the request.
 	 *
 	 * @since 5.2
 	 * @param name the name of the attribute
 	 * @param <T> the type of the attribute
-	 * @return the value of the attribute associated to the request
+	 * @return the value of the attribute associated to the request, or {@code null} if not available
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getAttribute(String name) {
@@ -219,9 +224,12 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		private String redirectUri;
 		private Set<String> scopes;
 		private String state;
-		private Map<String, Object> additionalParameters;
+		private Consumer<Map<String, Object>> additionalParametersConsumer = params -> {};
+		private Consumer<Map<String, Object>> parametersConsumer = params -> {};
+		private Consumer<Map<String, Object>> attributesConsumer = attrs -> {};
 		private String authorizationRequestUri;
-		private Map<String, Object> attributes;
+		private Function<UriBuilder, URI> authorizationRequestUriFunction = builder -> builder.build();
+		private final DefaultUriBuilderFactory uriBuilderFactory;
 
 		private Builder(AuthorizationGrantType authorizationGrantType) {
 			Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
@@ -231,6 +239,10 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			} else if (AuthorizationGrantType.IMPLICIT.equals(authorizationGrantType)) {
 				this.responseType = OAuth2AuthorizationResponseType.TOKEN;
 			}
+			this.uriBuilderFactory = new DefaultUriBuilderFactory();
+			// The supplied authorizationUri may contain encoded parameters
+			// so disable encoding in UriBuilder and instead apply encoding within this builder
+			this.uriBuilderFactory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
 		}
 
 		/**
@@ -274,7 +286,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 */
 		public Builder scope(String... scope) {
 			if (scope != null && scope.length > 0) {
-				return this.scopes(toLinkedHashSet(scope));
+				return scopes(new LinkedHashSet<>(Arrays.asList(scope)));
 			}
 			return this;
 		}
@@ -302,13 +314,43 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		/**
-		 * Sets the additional parameters used in the request.
+		 * Sets the additional parameter(s) used in the request.
 		 *
-		 * @param additionalParameters the additional parameters used in the request
+		 * @param additionalParameters the additional parameter(s) used in the request
 		 * @return the {@link Builder}
 		 */
 		public Builder additionalParameters(Map<String, Object> additionalParameters) {
-			this.additionalParameters = additionalParameters;
+			if (additionalParameters != null) {
+				return additionalParameters(params -> params.putAll(additionalParameters));
+			}
+			return this;
+		}
+
+		/**
+		 * A {@code Consumer} to be provided access to the additional parameter(s)
+		 * allowing the ability to add, replace, or remove.
+		 *
+		 * @since 5.3
+		 * @param additionalParametersConsumer a {@code Consumer} of the additional parameters
+		 */
+		public Builder additionalParameters(Consumer<Map<String, Object>> additionalParametersConsumer) {
+			if (additionalParametersConsumer != null) {
+				this.additionalParametersConsumer = additionalParametersConsumer;
+			}
+			return this;
+		}
+
+		/**
+		 * A {@code Consumer} to be provided access to all the parameters
+		 * allowing the ability to add, replace, or remove.
+		 *
+		 * @since 5.3
+		 * @param parametersConsumer a {@code Consumer} of all the parameters
+		 */
+		public Builder parameters(Consumer<Map<String, Object>> parametersConsumer) {
+			if (parametersConsumer != null) {
+				this.parametersConsumer = parametersConsumer;
+			}
 			return this;
 		}
 
@@ -320,7 +362,23 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 * @return the {@link Builder}
 		 */
 		public Builder attributes(Map<String, Object> attributes) {
-			this.attributes = attributes;
+			if (attributes != null) {
+				return attributes(attrs -> attrs.putAll(attributes));
+			}
+			return this;
+		}
+
+		/**
+		 * A {@code Consumer} to be provided access to the attribute(s)
+		 * allowing the ability to add, replace, or remove.
+		 *
+		 * @since 5.3
+		 * @param attributesConsumer a {@code Consumer} of the attribute(s)
+		 */
+		public Builder attributes(Consumer<Map<String, Object>> attributesConsumer) {
+			if (attributesConsumer != null) {
+				this.attributesConsumer = attributesConsumer;
+			}
 			return this;
 		}
 
@@ -337,6 +395,20 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 */
 		public Builder authorizationRequestUri(String authorizationRequestUri) {
 			this.authorizationRequestUri = authorizationRequestUri;
+			return this;
+		}
+
+		/**
+		 * A {@code Function} to be provided a {@code UriBuilder} representation
+		 * of the OAuth 2.0 Authorization Request allowing for further customizations.
+		 *
+		 * @since 5.3
+		 * @param authorizationRequestUriFunction a {@code Function} to be provided a {@code UriBuilder} representation of the OAuth 2.0 Authorization Request
+		 */
+		public Builder authorizationRequestUri(Function<UriBuilder, URI> authorizationRequestUriFunction) {
+			if (authorizationRequestUriFunction != null) {
+				this.authorizationRequestUriFunction = authorizationRequestUriFunction;
+			}
 			return this;
 		}
 
@@ -362,53 +434,53 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			authorizationRequest.scopes = Collections.unmodifiableSet(
 				CollectionUtils.isEmpty(this.scopes) ?
 					Collections.emptySet() : new LinkedHashSet<>(this.scopes));
-			authorizationRequest.additionalParameters = Collections.unmodifiableMap(
-				CollectionUtils.isEmpty(this.additionalParameters) ?
-					Collections.emptyMap() : new LinkedHashMap<>(this.additionalParameters));
+			Map<String, Object> additionalParameters = new LinkedHashMap<>();
+			this.additionalParametersConsumer.accept(additionalParameters);
+			authorizationRequest.additionalParameters = Collections.unmodifiableMap(additionalParameters);
+			Map<String, Object> attributes = new LinkedHashMap<>();
+			this.attributesConsumer.accept(attributes);
+			authorizationRequest.attributes = Collections.unmodifiableMap(attributes);
 			authorizationRequest.authorizationRequestUri =
 					StringUtils.hasText(this.authorizationRequestUri) ?
-						this.authorizationRequestUri : this.buildAuthorizationRequestUri();
-			authorizationRequest.attributes = Collections.unmodifiableMap(
-					CollectionUtils.isEmpty(this.attributes) ?
-							Collections.emptyMap() : new LinkedHashMap<>(this.attributes));
+							this.authorizationRequestUri : this.buildAuthorizationRequestUri();
 
 			return authorizationRequest;
 		}
 
 		private String buildAuthorizationRequestUri() {
-			MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-			parameters.set(OAuth2ParameterNames.RESPONSE_TYPE, encodeQueryParam(this.responseType.getValue()));
-			parameters.set(OAuth2ParameterNames.CLIENT_ID, encodeQueryParam(this.clientId));
+			Map<String, Object> parameters = getParameters();	// Not encoded
+			this.parametersConsumer.accept(parameters);
+			MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
+			parameters.forEach((k, v) -> queryParams.set(
+					encodeQueryParam(k), encodeQueryParam(v.toString())));		// Encoded
+			UriBuilder uriBuilder = this.uriBuilderFactory.uriString(this.authorizationUri)
+					.queryParams(queryParams);
+			return this.authorizationRequestUriFunction.apply(uriBuilder).toString();
+		}
+
+		private Map<String, Object> getParameters() {
+			Map<String, Object> parameters = new LinkedHashMap<>();
+			parameters.put(OAuth2ParameterNames.RESPONSE_TYPE, this.responseType.getValue());
+			parameters.put(OAuth2ParameterNames.CLIENT_ID, this.clientId);
 			if (!CollectionUtils.isEmpty(this.scopes)) {
-				parameters.set(OAuth2ParameterNames.SCOPE,
-						encodeQueryParam(StringUtils.collectionToDelimitedString(this.scopes, " ")));
+				parameters.put(OAuth2ParameterNames.SCOPE,
+						StringUtils.collectionToDelimitedString(this.scopes, " "));
 			}
 			if (this.state != null) {
-				parameters.set(OAuth2ParameterNames.STATE, encodeQueryParam(this.state));
+				parameters.put(OAuth2ParameterNames.STATE, this.state);
 			}
 			if (this.redirectUri != null) {
-				parameters.set(OAuth2ParameterNames.REDIRECT_URI, encodeQueryParam(this.redirectUri));
+				parameters.put(OAuth2ParameterNames.REDIRECT_URI, this.redirectUri);
 			}
-			if (!CollectionUtils.isEmpty(this.additionalParameters)) {
-				this.additionalParameters.forEach((k, v) ->
-						parameters.set(encodeQueryParam(k), encodeQueryParam(v.toString())));
-			}
-
-			return UriComponentsBuilder.fromHttpUrl(this.authorizationUri)
-					.queryParams(parameters)
-					.build()
-					.toUriString();
+			Map<String, Object> additionalParameters = new LinkedHashMap<>();
+			this.additionalParametersConsumer.accept(additionalParameters);
+			additionalParameters.forEach((k, v) -> parameters.put(k, v.toString()));
+			return parameters;
 		}
 
 		// Encode query parameter value according to RFC 3986
 		private static String encodeQueryParam(String value) {
 			return UriUtils.encodeQueryParam(value, StandardCharsets.UTF_8);
-		}
-
-		private LinkedHashSet<String> toLinkedHashSet(String... scope) {
-			LinkedHashSet<String> result = new LinkedHashSet<>();
-			Collections.addAll(result, scope);
-			return result;
 		}
 	}
 }

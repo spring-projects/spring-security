@@ -18,13 +18,16 @@ package org.springframework.security.oauth2.core.endpoint;
 import org.junit.Test;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequest}.
@@ -126,7 +129,7 @@ public class OAuth2AuthorizationRequestTests {
 					.redirectUri(REDIRECT_URI)
 					.scopes(SCOPES)
 					.state(STATE)
-					.additionalParameters(null)
+					.additionalParameters((Map) null)
 					.build())
 				.doesNotThrowAnyException();
 	}
@@ -216,6 +219,19 @@ public class OAuth2AuthorizationRequestTests {
 				.scopes(SCOPES)
 				.state(STATE)
 				.authorizationRequestUri(AUTHORIZATION_URI)
+				.build();
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo(AUTHORIZATION_URI);
+	}
+
+	@Test
+	public void buildWhenAuthorizationRequestUriFunctionSetThenOverridesDefault() {
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI)
+				.scopes(SCOPES)
+				.state(STATE)
+				.authorizationRequestUri(uriBuilder -> URI.create(AUTHORIZATION_URI))
 				.build();
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo(AUTHORIZATION_URI);
 	}

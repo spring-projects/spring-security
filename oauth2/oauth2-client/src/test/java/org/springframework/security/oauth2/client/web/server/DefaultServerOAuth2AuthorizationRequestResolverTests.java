@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -57,6 +58,12 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 	@Before
 	public void setup() {
 		this.resolver = new DefaultServerOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository);
+	}
+
+	@Test
+	public void setAuthorizationRequestCustomizerWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.resolver.setAuthorizationRequestCustomizer(null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -137,6 +144,79 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 				"scope=openid&state=.*?&" +
 				"redirect_uri=/login/oauth2/code/registration-id&" +
 				"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
+	}
+
+	// gh-7696
+	@Test
+	public void resolveWhenAuthorizationRequestCustomizerRemovesNonceThenQueryExcludesNonce() {
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(
+				Mono.just(TestClientRegistrations.clientRegistration()
+						.scope(OidcScopes.OPENID)
+						.build()));
+
+		this.resolver.setAuthorizationRequestCustomizer(customizer -> customizer
+				.additionalParameters(params -> params.remove(OidcParameterNames.NONCE))
+				.attributes(attrs -> attrs.remove(OidcParameterNames.NONCE)));
+
+		OAuth2AuthorizationRequest authorizationRequest = resolve("/oauth2/authorization/registration-id");
+
+		assertThat(authorizationRequest.getAdditionalParameters()).doesNotContainKey(OidcParameterNames.NONCE);
+		assertThat(authorizationRequest.getAttributes()).doesNotContainKey(OidcParameterNames.NONCE);
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.matches("https://example.com/login/oauth/authorize\\?" +
+						"response_type=code&client_id=client-id&" +
+						"scope=openid&state=.{15,}&" +
+						"redirect_uri=/login/oauth2/code/registration-id");
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestCustomizerAddsParameterThenQueryIncludesParameter() {
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(
+				Mono.just(TestClientRegistrations.clientRegistration()
+						.scope(OidcScopes.OPENID)
+						.build()));
+
+		this.resolver.setAuthorizationRequestCustomizer(customizer ->
+				customizer.authorizationRequestUri(uriBuilder -> {
+					uriBuilder.queryParam("param1", "value1");
+					return uriBuilder.build();
+				})
+		);
+
+		OAuth2AuthorizationRequest authorizationRequest = resolve("/oauth2/authorization/registration-id");
+
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.matches("https://example.com/login/oauth/authorize\\?" +
+						"response_type=code&client_id=client-id&" +
+						"scope=openid&state=.{15,}&" +
+						"redirect_uri=/login/oauth2/code/registration-id&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" +
+						"param1=value1");
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestCustomizerOverridesParameterThenQueryIncludesParameter() {
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(
+				Mono.just(TestClientRegistrations.clientRegistration()
+						.scope(OidcScopes.OPENID)
+						.build()));
+
+		this.resolver.setAuthorizationRequestCustomizer(customizer ->
+				customizer.parameters(params -> {
+					params.put("appid", params.get("client_id"));
+					params.remove("client_id");
+				})
+		);
+
+		OAuth2AuthorizationRequest authorizationRequest = resolve("/oauth2/authorization/registration-id");
+
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.matches("https://example.com/login/oauth/authorize\\?" +
+						"response_type=code&" +
+						"scope=openid&state=.{15,}&" +
+						"redirect_uri=/login/oauth2/code/registration-id&" +
+						"nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" +
+						"appid=client-id");
 	}
 
 	private OAuth2AuthorizationRequest resolve(String path) {

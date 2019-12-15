@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * An implementation of an {@link OAuth2AuthorizationRequestResolver} that attempts to
@@ -66,6 +67,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	private final AntPathRequestMatcher authorizationRequestMatcher;
 	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
 	private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = customizer -> {};
 
 	/**
 	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided parameters.
@@ -96,6 +98,18 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		}
 		String redirectUriAction = getAction(request, "authorize");
 		return resolve(request, registrationId, redirectUriAction);
+	}
+
+	/**
+	 * Sets the {@code Consumer} to be provided the {@link OAuth2AuthorizationRequest.Builder}
+	 * allowing for further customizations.
+	 *
+	 * @since 5.3
+	 * @param authorizationRequestCustomizer the {@code Consumer} to be provided the {@link OAuth2AuthorizationRequest.Builder}
+	 */
+	public void setAuthorizationRequestCustomizer(Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {
+		Assert.notNull(authorizationRequestCustomizer, "authorizationRequestCustomizer cannot be null");
+		this.authorizationRequestCustomizer = authorizationRequestCustomizer;
 	}
 
 	private String getAction(HttpServletRequest request, String defaultAction) {
@@ -144,16 +158,17 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 		String redirectUriStr = expandRedirectUri(request, clientRegistration, redirectUriAction);
 
-		OAuth2AuthorizationRequest authorizationRequest = builder
+		builder
 				.clientId(clientRegistration.getClientId())
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.redirectUri(redirectUriStr)
 				.scopes(clientRegistration.getScopes())
 				.state(this.stateGenerator.generateKey())
-				.attributes(attributes)
-				.build();
+				.attributes(attributes);
 
-		return authorizationRequest;
+		this.authorizationRequestCustomizer.accept(builder);
+
+		return builder.build();
 	}
 
 	private String resolveRegistrationId(HttpServletRequest request) {
