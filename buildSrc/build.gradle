@@ -10,6 +10,10 @@ gradlePlugin {
 			id = "trang"
 			implementationClass = "trang.TrangPlugin"
 		}
+		locks {
+			id = "locks"
+			implementationClass = "lock.GlobalLockPlugin"
+		}
 	}
 }
 

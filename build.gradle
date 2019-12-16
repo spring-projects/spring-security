@@ -11,6 +11,7 @@ buildscript {
 	}
 }
 apply plugin: 'io.spring.nohttp'
+apply plugin: 'locks'
 apply plugin: 'io.spring.convention.root'
 
 group = 'org.springframework.security'
