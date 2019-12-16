@@ -168,7 +168,7 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 		assertThat(((User) token.getPrincipal()).getAuthorities()).isNotNull().hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
 		assertThat(token.isAuthenticated()).isEqualTo(true);
 		assertThat(token.getAuthorities()).hasSize(1).contains(new SimpleGrantedAuthority("ROLE_USER"));
-		assertThat(token.getDetails()).isExactlyInstanceOf(String.class);
+		assertThat(token.getDetails()).isExactlyInstanceOf(String.class).isEqualTo("details");
 	}
 
 	@Test
