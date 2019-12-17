@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,10 @@ class OAuth2AccessTokenResponseBodyExtractor
 		ParameterizedTypeReference<Map<String, Object>> type = new ParameterizedTypeReference<Map<String, Object>>() {};
 		BodyExtractor<Mono<Map<String, Object>>, ReactiveHttpInputMessage> delegate = BodyExtractors.toMono(type);
 		return delegate.extract(inputMessage, context)
+				.onErrorMap(e -> new OAuth2AuthorizationException(
+						invalidTokenResponse("An error occurred parsing the Access Token response: " + e.getMessage()), e))
+				.switchIfEmpty(Mono.error(() -> new OAuth2AuthorizationException(
+						invalidTokenResponse("Empty OAuth 2.0 Access Token Response"))))
 				.map(OAuth2AccessTokenResponseBodyExtractor::parse)
 				.flatMap(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse)
 				.map(OAuth2AccessTokenResponseBodyExtractor::oauth2AccessTokenResponse);
@@ -68,10 +72,17 @@ class OAuth2AccessTokenResponseBodyExtractor
 			return TokenResponse.parse(new JSONObject(json));
 		}
 		catch (ParseException pe) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
-					"An error occurred parsing the Access Token response: " + pe.getMessage(), null);
+			OAuth2Error oauth2Error = invalidTokenResponse(
+					"An error occurred parsing the Access Token response: " + pe.getMessage());
 			throw new OAuth2AuthorizationException(oauth2Error, pe);
 		}
+	}
+
+	private static OAuth2Error invalidTokenResponse(String message) {
+		return new OAuth2Error(
+				INVALID_TOKEN_RESPONSE_ERROR_CODE,
+				message,
+				null);
 	}
 
 	private static Mono<AccessTokenResponse> oauth2AccessTokenResponse(TokenResponse tokenResponse) {

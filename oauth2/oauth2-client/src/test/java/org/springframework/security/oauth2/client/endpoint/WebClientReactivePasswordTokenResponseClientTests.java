@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 
 import java.time.Instant;
@@ -148,8 +148,10 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 				this.clientRegistrationBuilder.build(), this.username, this.password);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("[invalid_token_response] An error occurred parsing the Access Token response")
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+				.hasMessageContaining("[invalid_token_response]")
+				.hasMessageContaining("An error occurred parsing the Access Token response")
+				.hasMessageContaining("HTTP Status Code: 200")
 				.hasCauseInstanceOf(Throwable.class);
 	}
 
@@ -186,9 +188,10 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 				this.clientRegistrationBuilder.build(), this.username, this.password);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
-				.hasMessageContaining("HTTP Status Code 400");
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
+				.hasMessageContaining("[unauthorized_client]")
+				.hasMessageContaining("Error retrieving OAuth 2.0 Access Token")
+				.hasMessageContaining("HTTP Status Code: 400");
 	}
 
 	@Test
@@ -199,9 +202,10 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 				this.clientRegistrationBuilder.build(), this.username, this.password);
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(passwordGrantRequest).block())
-				.isInstanceOf(OAuth2AuthorizationException.class)
-				.hasMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
-				.hasMessageContaining("HTTP Status Code 500");
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+				.hasMessageContaining("[invalid_token_response]")
+				.hasMessageContaining("Empty OAuth 2.0 Access Token Response")
+				.hasMessageContaining("HTTP Status Code: 500");
 	}
 
 	private MockResponse jsonResponse(String json) {
