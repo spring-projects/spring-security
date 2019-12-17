@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mock.http.client.reactive.MockClientHttpResponse;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.web.reactive.function.BodyExtractor;
 import reactor.core.publisher.Mono;
@@ -92,8 +93,23 @@ public class OAuth2BodyExtractorsTests {
 
 		Mono<OAuth2AccessTokenResponse> result = extractor.extract(response, this.context);
 
-		assertThatCode(() -> result.block())
-				.isInstanceOf(RuntimeException.class);
+		assertThatCode(result::block)
+				.isInstanceOf(OAuth2AuthorizationException.class)
+				.hasMessageContaining("An error occurred parsing the Access Token response");
+	}
+
+	@Test
+	public void oauth2AccessTokenResponseWhenEmptyThenException() {
+		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
+				.oauth2AccessTokenResponse();
+
+		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
+
+		Mono<OAuth2AccessTokenResponse> result = extractor.extract(response, this.context);
+
+		assertThatCode(result::block)
+				.isInstanceOf(OAuth2AuthorizationException.class)
+				.hasMessageContaining("Empty OAuth 2.0 Access Token Response");
 	}
 
 	@Test

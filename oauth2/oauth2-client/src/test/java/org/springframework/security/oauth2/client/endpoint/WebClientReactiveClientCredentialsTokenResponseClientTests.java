@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -32,6 +33,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 /**
@@ -103,7 +105,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 
 		assertThat(response.getAccessToken()).isNotNull();
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isNull();
-		assertThat(body).isEqualTo("grant_type=client_credentials&scope=read%3Auser&client_id=client-id&client_secret=client-secret");
+		assertThat(body).isEqualTo("grant_type=client_credentials&client_id=client-id&client_secret=client-secret&scope=read%3Auser");
 	}
 
 	@Test
@@ -147,15 +149,19 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		verify(customClient, atLeastOnce()).post();
 	}
 
-	@Test(expected = WebClientResponseException.class)
-	// gh-6089
+	@Test
 	public void getTokenResponseWhenInvalidResponse() throws WebClientResponseException {
 		ClientRegistration registration = this.clientRegistration.build();
 		enqueueUnexpectedResponse();
 
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
 
-		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
+		assertThatThrownBy(() -> this.client.getTokenResponse(request).block())
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+				.hasMessageContaining("[invalid_token_response]")
+				.hasMessageContaining("Empty OAuth 2.0 Access Token Response")
+				.hasMessageContaining("HTTP Status Code: 301");
+
 	}
 
 	private void enqueueUnexpectedResponse(){

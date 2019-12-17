@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,27 @@ public interface OAuth2ErrorCodes {
 	 * exceeds the scope granted by the resource owner.
 	 */
 	String INVALID_SCOPE = "invalid_scope";
+
+	/**
+	 * {@code insufficient_scope} - The request requires higher privileges than
+	 *  provided by the access token.
+	 *  The resource server SHOULD respond with the HTTP 403 (Forbidden)
+	 *  status code and MAY include the "scope" attribute with the scope
+	 *  necessary to access the protected resource.
+	 *
+	 * @see <a href="https://tools.ietf.org/html/rfc6750#section-3.1">RFC-6750 - Section 3.1 - Error Codes</a>
+	 */
+	String INSUFFICIENT_SCOPE = "insufficient_scope";
+
+	/**
+	 * {@code invalid_token} - The access token provided is expired, revoked,
+	 * malformed, or invalid for other reasons.
+	 * The resource SHOULD respond with the HTTP 401 (Unauthorized) status code.
+	 * The client MAY request a new access token and retry the protected resource request.
+	 *
+	 * @see <a href="https://tools.ietf.org/html/rfc6750#section-3.1">RFC-6750 - Section 3.1 - Error Codes</a>
+	 */
+	String INVALID_TOKEN = "invalid_token";
 
 	/**
 	 * {@code server_error} - The authorization server encountered an

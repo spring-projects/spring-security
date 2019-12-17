@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.oauth2.client.web.reactive.function.client;
 
 import org.junit.Before;
@@ -27,6 +26,7 @@ import org.springframework.core.codec.ByteBufferEncoder;
 import org.springframework.core.codec.CharSequenceEncoder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.EncoderHttpMessageWriter;
 import org.springframework.http.codec.FormHttpMessageWriter;
@@ -39,11 +39,15 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mock.http.client.reactive.MockClientHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -59,6 +63,9 @@ import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2Autho
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.UnAuthenticatedServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -67,11 +74,15 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.ExchangeFunction;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.test.publisher.PublisherProbe;
 import reactor.util.context.Context;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -82,8 +93,16 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
@@ -108,6 +127,18 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Mock
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenResponseClient;
+
+	@Mock
+	private ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler;
+
+	@Captor
+	private ArgumentCaptor<OAuth2AuthorizationException> authorizationExceptionCaptor;
+
+	@Captor
+	private ArgumentCaptor<Authentication> authenticationCaptor;
+
+	@Captor
+	private ArgumentCaptor<Map<String, Object>> attributesCaptor;
 
 	private ServerWebExchange serverWebExchange = MockServerWebExchange.builder(MockServerHttpRequest.get("/")).build();
 
@@ -412,6 +443,240 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(request0.url().toASCIIString()).isEqualTo("https://example.com");
 		assertThat(request0.method()).isEqualTo(HttpMethod.GET);
 		assertThat(getBody(request0)).isEmpty();
+	}
+
+	@Test
+	public void filterWhenUnauthorizedThenInvokeFailureHandler() {
+		function.setAuthorizationFailureHandler(authorizationFailureHandler);
+
+		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
+		when(authorizationFailureHandler.onAuthorizationFailure(any(), any(), any())).thenReturn(publisherProbe.mono());
+
+		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, refreshToken);
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.build();
+
+		when(exchange.getResponse().rawStatusCode()).thenReturn(HttpStatus.UNAUTHORIZED.value());
+
+		this.function.filter(request, this.exchange)
+				.subscriberContext(serverWebExchange())
+				.block();
+
+		assertThat(publisherProbe.wasSubscribed()).isTrue();
+
+		verify(authorizationFailureHandler).onAuthorizationFailure(
+				authorizationExceptionCaptor.capture(),
+				authenticationCaptor.capture(),
+				attributesCaptor.capture());
+
+		assertThat(authorizationExceptionCaptor.getValue())
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+					assertThat(e.getClientRegistrationId()).isEqualTo(registration.getRegistrationId());
+					assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token");
+					assertThat(e).hasNoCause();
+					assertThat(e).hasMessageContaining("[invalid_token]");
+				});
+		assertThat(authenticationCaptor.getValue())
+				.isInstanceOf(AnonymousAuthenticationToken.class);
+		assertThat(attributesCaptor.getValue())
+				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+	}
+
+	@Test
+	public void filterWhenUnauthorizedWithWebClientExceptionThenInvokeFailureHandler() {
+		function.setAuthorizationFailureHandler(authorizationFailureHandler);
+
+		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
+		when(authorizationFailureHandler.onAuthorizationFailure(any(), any(), any())).thenReturn(publisherProbe.mono());
+
+		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, refreshToken);
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.build();
+
+		WebClientResponseException exception = WebClientResponseException.create(
+				HttpStatus.UNAUTHORIZED.value(),
+				HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+				HttpHeaders.EMPTY,
+				new byte[0],
+				StandardCharsets.UTF_8);
+
+		ExchangeFunction throwingExchangeFunction = r -> Mono.error(exception);
+
+		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction)
+				.subscriberContext(serverWebExchange())
+				.block())
+				.isEqualTo(exception);
+
+		assertThat(publisherProbe.wasSubscribed()).isTrue();
+
+		verify(authorizationFailureHandler).onAuthorizationFailure(
+				authorizationExceptionCaptor.capture(),
+				authenticationCaptor.capture(),
+				attributesCaptor.capture());
+
+		assertThat(authorizationExceptionCaptor.getValue())
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+					assertThat(e.getClientRegistrationId()).isEqualTo(registration.getRegistrationId());
+					assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token");
+					assertThat(e).hasCause(exception);
+					assertThat(e).hasMessageContaining("[invalid_token]");
+				});
+		assertThat(authenticationCaptor.getValue())
+				.isInstanceOf(AnonymousAuthenticationToken.class);
+		assertThat(attributesCaptor.getValue())
+				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+	}
+
+	@Test
+	public void filterWhenForbiddenThenInvokeFailureHandler() {
+		function.setAuthorizationFailureHandler(authorizationFailureHandler);
+
+		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
+		when(authorizationFailureHandler.onAuthorizationFailure(any(), any(), any())).thenReturn(publisherProbe.mono());
+
+		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, refreshToken);
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.build();
+
+		when(exchange.getResponse().rawStatusCode()).thenReturn(HttpStatus.FORBIDDEN.value());
+
+		this.function.filter(request, this.exchange)
+				.subscriberContext(serverWebExchange())
+				.block();
+
+		assertThat(publisherProbe.wasSubscribed()).isTrue();
+
+		verify(authorizationFailureHandler).onAuthorizationFailure(
+				authorizationExceptionCaptor.capture(),
+				authenticationCaptor.capture(),
+				attributesCaptor.capture());
+
+		assertThat(authorizationExceptionCaptor.getValue())
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+					assertThat(e.getClientRegistrationId()).isEqualTo(registration.getRegistrationId());
+					assertThat(e.getError().getErrorCode()).isEqualTo("insufficient_scope");
+					assertThat(e).hasNoCause();
+					assertThat(e).hasMessageContaining("[insufficient_scope]");
+				});
+		assertThat(authenticationCaptor.getValue())
+				.isInstanceOf(AnonymousAuthenticationToken.class);
+		assertThat(attributesCaptor.getValue())
+				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+	}
+
+	@Test
+	public void filterWhenForbiddenWithWebClientExceptionThenInvokeFailureHandler() {
+		function.setAuthorizationFailureHandler(authorizationFailureHandler);
+
+		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
+		when(authorizationFailureHandler.onAuthorizationFailure(any(), any(), any())).thenReturn(publisherProbe.mono());
+
+		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, refreshToken);
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.build();
+
+		WebClientResponseException exception = WebClientResponseException.create(
+				HttpStatus.FORBIDDEN.value(),
+				HttpStatus.FORBIDDEN.getReasonPhrase(),
+				HttpHeaders.EMPTY,
+				new byte[0],
+				StandardCharsets.UTF_8);
+
+		ExchangeFunction throwingExchangeFunction = r -> Mono.error(exception);
+
+		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction)
+						.subscriberContext(serverWebExchange())
+						.block())
+				.isEqualTo(exception);
+
+		assertThat(publisherProbe.wasSubscribed()).isTrue();
+
+		verify(authorizationFailureHandler).onAuthorizationFailure(
+				authorizationExceptionCaptor.capture(),
+				authenticationCaptor.capture(),
+				attributesCaptor.capture());
+
+		assertThat(authorizationExceptionCaptor.getValue())
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+					assertThat(e.getClientRegistrationId()).isEqualTo(registration.getRegistrationId());
+					assertThat(e.getError().getErrorCode()).isEqualTo("insufficient_scope");
+					assertThat(e).hasCause(exception);
+					assertThat(e).hasMessageContaining("[insufficient_scope]");
+				});
+		assertThat(authenticationCaptor.getValue())
+				.isInstanceOf(AnonymousAuthenticationToken.class);
+		assertThat(attributesCaptor.getValue())
+				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+	}
+
+	@Test
+	public void filterWhenAuthorizationExceptionThenInvokeFailureHandler() {
+		function.setAuthorizationFailureHandler(authorizationFailureHandler);
+
+		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
+		when(authorizationFailureHandler.onAuthorizationFailure(any(), any(), any())).thenReturn(publisherProbe.mono());
+
+		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, refreshToken);
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.build();
+
+		OAuth2AuthorizationException exception = new OAuth2AuthorizationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, null, null));
+
+		ExchangeFunction throwingExchangeFunction = r -> Mono.error(exception);
+
+		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction)
+						.subscriberContext(serverWebExchange())
+						.block())
+				.isEqualTo(exception);
+
+		assertThat(publisherProbe.wasSubscribed()).isTrue();
+
+		verify(authorizationFailureHandler).onAuthorizationFailure(
+				authorizationExceptionCaptor.capture(),
+				authenticationCaptor.capture(),
+				attributesCaptor.capture());
+
+		assertThat(authorizationExceptionCaptor.getValue())
+				.isSameAs(exception);
+		assertThat(authenticationCaptor.getValue())
+				.isInstanceOf(AnonymousAuthenticationToken.class);
+		assertThat(attributesCaptor.getValue())
+				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+	}
+
+	@Test
+	public void filterWhenOtherHttpStatusShouldNotInvokeFailureHandler() {
+		function.setAuthorizationFailureHandler(authorizationFailureHandler);
+
+		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, refreshToken);
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.build();
+
+		when(exchange.getResponse().rawStatusCode()).thenReturn(HttpStatus.BAD_REQUEST.value());
+
+		this.function.filter(request, this.exchange)
+				.subscriberContext(serverWebExchange())
+				.block();
+
+		verify(authorizationFailureHandler, never()).onAuthorizationFailure(any(), any(), any());
 	}
 
 	@Test
