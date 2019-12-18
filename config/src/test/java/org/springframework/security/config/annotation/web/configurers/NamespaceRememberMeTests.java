@@ -98,7 +98,7 @@ public class NamespaceRememberMeTests {
 				.andReturn();
 
 		rememberMe = result.getResponse().getCookie("remember-me");
-		assertThat(rememberMe).isNotNull().extracting("maxAge").containsExactly(0);
+		assertThat(rememberMe).isNotNull().extracting(Cookie::getMaxAge).isEqualTo(0);
 
 		this.mvc.perform(post("/authentication-class").with(csrf())
 				.cookie(rememberMe))
@@ -292,7 +292,7 @@ public class NamespaceRememberMeTests {
 				.with(rememberMeLogin()))
 				.andReturn().getResponse().getCookie("remember-me");
 
-		assertThat(expiredRememberMe).extracting("maxAge").containsExactly(314);
+		assertThat(expiredRememberMe).extracting(Cookie::getMaxAge).isEqualTo(314);
 	}
 
 	@Configuration
@@ -320,8 +320,8 @@ public class NamespaceRememberMeTests {
 				.with(rememberMeLogin()))
 				.andReturn().getResponse().getCookie("remember-me");
 
-		assertThat(expiredRememberMe).extracting("maxAge")
-				.containsExactly(AbstractRememberMeServices.TWO_WEEKS_S);
+		assertThat(expiredRememberMe).extracting(Cookie::getMaxAge)
+				.isEqualTo(AbstractRememberMeServices.TWO_WEEKS_S);
 	}
 
 	@Test
@@ -331,7 +331,7 @@ public class NamespaceRememberMeTests {
 				.with(rememberMeLogin()))
 				.andReturn().getResponse().getCookie("remember-me");
 
-		assertThat(secureCookie).extracting("secure").containsExactly(true);
+		assertThat(secureCookie).extracting(Cookie::getSecure).isEqualTo(true);
 	}
 
 	@Configuration
@@ -357,7 +357,7 @@ public class NamespaceRememberMeTests {
 				.secure(true))
 				.andReturn().getResponse().getCookie("remember-me");
 
-		assertThat(secureCookie).extracting("secure").containsExactly(true);
+		assertThat(secureCookie).extracting(Cookie::getSecure).isEqualTo(true);
 	}
 
 	@Test

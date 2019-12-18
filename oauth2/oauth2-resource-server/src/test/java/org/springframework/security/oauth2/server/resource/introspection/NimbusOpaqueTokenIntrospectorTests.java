@@ -168,7 +168,7 @@ public class NimbusOpaqueTokenIntrospectorTests {
 		assertThatCode(() -> introspectionClient.introspect("token"))
 				.isInstanceOf(OAuth2IntrospectionException.class)
 				.extracting("message")
-				.containsExactly("Provided token [token] isn't active");
+				.isEqualTo("Provided token [token] isn't active");
 	}
 
 	@Test
@@ -205,7 +205,7 @@ public class NimbusOpaqueTokenIntrospectorTests {
 		assertThatCode(() -> introspectionClient.introspect("token"))
 				.isInstanceOf(OAuth2IntrospectionException.class)
 				.extracting("message")
-				.containsExactly("server was unresponsive");
+				.isEqualTo("server was unresponsive");
 	}
 
 

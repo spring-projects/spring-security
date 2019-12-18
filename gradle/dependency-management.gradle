@@ -1,15 +1,16 @@
 if (!project.hasProperty("reactorVersion")) {
-	ext.reactorVersion = "Dysprosium-SR1"
+	ext.reactorVersion = "Dysprosium-SR+"
 }
 
 if (!project.hasProperty("springVersion")) {
-	ext.springVersion = "5.2.1.RELEASE"
+	ext.springVersion = "latest.release"
 }
 
 if (!project.hasProperty("springDataVersion")) {
-	ext.springDataVersion = "Moore-SR1"
+	ext.springDataVersion = "Moore-SR+"
 }
-ext.rsocketVersion = "1.0.0-RC5"
+ext.rsocketVersion = "1.+"
+ext.openSamlVersion = "3.+"
 
 // https://github.com/gradle/gradle/issues/7576#issuecomment-434637595
 configurations {
@@ -29,92 +30,111 @@ dependencies {
 	management platform("io.projectreactor:reactor-bom:$reactorVersion")
 	management platform("org.springframework.data:spring-data-releasetrain:$springDataVersion")
 	constraints {
-		management "ch.qos.logback:logback-classic:1.2.3"
-		management "com.fasterxml.jackson.core:jackson-databind:2.10.0"
+		management "ch.qos.logback:logback-classic:1.+"
+		management "com.fasterxml.jackson.core:jackson-databind:2.+"
 		management "com.google.appengine:appengine-api-1.0-sdk:$gaeVersion"
 		management "com.google.appengine:appengine-api-labs:$gaeVersion"
 		management "com.google.appengine:appengine-api-stubs:$gaeVersion"
 		management "com.google.appengine:appengine-testing:$gaeVersion"
 		management "com.google.appengine:appengine:$gaeVersion"
 		management "com.google.inject:guice:3.0"
-		management "com.nimbusds:nimbus-jose-jwt:7.8.1"
-		management "com.nimbusds:oauth2-oidc-sdk:6.14"
-		management "com.squareup.okhttp3:mockwebserver:3.14.2"
-		management "com.squareup.okhttp3:okhttp:3.14.1"
-		management "com.sun.xml.bind:jaxb-core:2.3.0.1"
-		management "com.sun.xml.bind:jaxb-impl:2.3.2"
-		management "com.unboundid:unboundid-ldapsdk:4.0.12"
-		management "commons-codec:commons-codec:1.13"
-		management "commons-collections:commons-collections:3.2.2"
-		management "commons-httpclient:commons-httpclient:3.1"
-		management "commons-logging:commons-logging:1.2"
-		management "io.projectreactor.tools:blockhound:1.0.1.RELEASE"
+		management "com.nimbusds:nimbus-jose-jwt:latest.release"
+		management "com.nimbusds:oauth2-oidc-sdk:latest.release"
+		management "com.squareup.okhttp3:mockwebserver:3.+"
+		management "com.squareup.okhttp3:okhttp:3.+"
+		management "com.sun.xml.bind:jaxb-core:2.+"
+		management "com.sun.xml.bind:jaxb-impl:2.+"
+		management "com.unboundid:unboundid-ldapsdk:4.+"
+		management "commons-codec:commons-codec:1.+"
+		management "commons-collections:commons-collections:3.+"
+		management "commons-httpclient:commons-httpclient:3.+"
+		management "commons-logging:commons-logging:1.+"
+		management "io.projectreactor.tools:blockhound:1.+"
 		management "io.rsocket:rsocket-core:${rsocketVersion}"
 		management "io.rsocket:rsocket-transport-netty:${rsocketVersion}"
-		management "javax.annotation:jsr250-api:1.0"
-		management "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2"
-		management "javax.servlet.jsp:javax.servlet.jsp-api:2.3.3"
-		management "javax.servlet:javax.servlet-api:4.0.1"
-		management "javax.validation:validation-api:2.0.1.Final"
-		management "javax.xml.bind:jaxb-api:2.4.0-b180830.0359"
+		management "javax.annotation:jsr250-api:1.+"
+		management "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.+"
+		management "javax.servlet.jsp:javax.servlet.jsp-api:2.+"
+		management "javax.servlet:javax.servlet-api:4.+"
+		management "javax.validation:validation-api:2.+"
+		management "javax.xml.bind:jaxb-api:2.+"
 		management "junit:junit:4.12"
-		management "ldapsdk:ldapsdk:4.1"
-		management "net.sf.ehcache:ehcache:2.10.6"
-		management "net.sourceforge.htmlunit:htmlunit:2.36.0"
-		management "net.sourceforge.nekohtml:nekohtml:1.9.22"
-		management "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.4.1"
-		management "opensymphony:sitemesh:+"
+		management "ldapsdk:ldapsdk:4.+"
+		management "net.sf.ehcache:ehcache:2.+"
+		management "net.sourceforge.htmlunit:htmlunit:2.+"
+		management "net.sourceforge.nekohtml:nekohtml:1.+"
+		management "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.+"
+		management "opensymphony:sitemesh:2.+"
 		management "org.apache.directory.server:apacheds-core-entry:1.5.5"
 		management "org.apache.directory.server:apacheds-core:1.5.5"
 		management "org.apache.directory.server:apacheds-protocol-ldap:1.5.5"
 		management "org.apache.directory.server:apacheds-protocol-shared:1.5.5"
 		management "org.apache.directory.server:apacheds-server-jndi:1.5.5"
 		management "org.apache.directory.shared:shared-ldap:0.9.15"
-		management "org.apache.httpcomponents:httpclient:4.5.10"
-		management "org.apache.taglibs:taglibs-standard-jstlel:1.2.5"
+		management "org.apache.httpcomponents:httpclient:4.+"
+		management "org.apache.taglibs:taglibs-standard-jstlel:1.+"
 		management "org.aspectj:aspectjrt:$aspectjVersion"
 		management "org.aspectj:aspectjtools:$aspectjVersion"
 		management "org.aspectj:aspectjweaver:$aspectjVersion"
-		management "org.assertj:assertj-core:3.12.2"
-		management "org.bouncycastle:bcpkix-jdk15on:1.64"
-		management "org.bouncycastle:bcprov-jdk15on:1.64"
+		management "org.assertj:assertj-core:3.+"
+		management "org.bouncycastle:bcpkix-jdk15on:1.+"
+		management "org.bouncycastle:bcprov-jdk15on:1.+"
 		management "org.codehaus.groovy:groovy-all:2.4.17"
 		management "org.codehaus.groovy:groovy:2.4.17"
 		management "org.eclipse.jetty:jetty-server:9.4.19.v20190610"
 		management "org.eclipse.jetty:jetty-servlet:9.4.19.v20190610"
-		management "org.eclipse.persistence:javax.persistence:2.2.1"
+		management "org.eclipse.persistence:javax.persistence:2.+"
 		management "org.gebish:geb-spock:0.10.0"
-		management "org.hibernate:hibernate-entitymanager:5.4.8.Final"
-		management "org.hibernate:hibernate-validator:6.1.0.Final"
-		management "org.hsqldb:hsqldb:2.5.0"
-		management "org.jasig.cas.client:cas-client-core:3.5.1"
-		management "org.jasig.cas:cas-server-webapp:4.2.7"
-		management "org.javassist:javassist:3.22.0-CR2"
-		management "org.mockito:mockito-core:3.0.0"
-		management "org.openid4java:openid4java-nodeps:0.9.6"
-		management "org.opensaml:opensaml-core:3.4.3"
-		management "org.opensaml:opensaml-saml-api:3.4.3"
-		management "org.opensaml:opensaml-saml-impl:3.4.3"
-		management "org.powermock:powermock-api-mockito2:2.0.4"
-		management "org.powermock:powermock-api-support:2.0.4"
-		management "org.powermock:powermock-core:2.0.4"
-		management "org.powermock:powermock-module-junit4-common:2.0.4"
-		management "org.powermock:powermock-module-junit4:2.0.4"
-		management "org.powermock:powermock-reflect:2.0.4"
-		management "org.python:jython:2.5.0"
-		management "org.seleniumhq.selenium:htmlunit-driver:2.36.0"
-		management "org.seleniumhq.selenium:selenium-java:3.141.59"
-		management "org.seleniumhq.selenium:selenium-support:3.141.59"
-		management "org.skyscreamer:jsonassert:1.5.0"
-		management "org.slf4j:jcl-over-slf4j:1.7.28"
-		management "org.slf4j:log4j-over-slf4j:1.7.28"
-		management "org.slf4j:slf4j-api:1.7.28"
-		management "org.sonatype.sisu.inject:cglib:2.2.1-v20090111"
+		management "org.hibernate:hibernate-entitymanager:5.+"
+		management "org.hibernate:hibernate-validator:6.+"
+		management "org.hsqldb:hsqldb:2.+"
+		management "org.jasig.cas.client:cas-client-core:3.+"
+		management "org.jasig.cas:cas-server-webapp:4.0.+"
+		management "org.mockito:mockito-core:3.+"
+		management "org.openid4java:openid4java-nodeps:0.+"
+		management "org.opensaml:opensaml-core:$openSamlVersion"
+		management "org.opensaml:opensaml-saml-api:$openSamlVersion"
+		management "org.opensaml:opensaml-saml-impl:$openSamlVersion"
+		management "org.powermock:powermock-api-mockito2:2.+"
+		management "org.powermock:powermock-api-support:2.+"
+		management "org.powermock:powermock-core:2.+"
+		management "org.powermock:powermock-module-junit4-common:2.+"
+		management "org.powermock:powermock-module-junit4:2.+"
+		management "org.powermock:powermock-reflect:2.+"
+		management "org.python:jython:2.5.+"
+		management "org.seleniumhq.selenium:htmlunit-driver:2.+"
+		management "org.seleniumhq.selenium:selenium-java:3.+"
+		management "org.seleniumhq.selenium:selenium-support:3.+"
+		management "org.skyscreamer:jsonassert:1.+"
+		management "org.slf4j:jcl-over-slf4j:1.+"
+		management "org.slf4j:log4j-over-slf4j:1.+"
+		management "org.slf4j:slf4j-api:1.+"
 		management "org.spockframework:spock-core:1.0-groovy-2.4"
 		management "org.spockframework:spock-spring:1.0-groovy-2.4"
-		management "org.springframework.ldap:spring-ldap-core:2.3.2.RELEASE"
-		management "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
-		management "org.thymeleaf:thymeleaf-spring5:3.0.11.RELEASE"
+		management "org.springframework.ldap:spring-ldap-core:latest.release"
+		management "org.synchronoss.cloud:nio-multipart-parser:1.+"
+		management "org.thymeleaf:thymeleaf-spring5:3.+"
+	}
+}
+
+configurations {
+	all {
+		resolutionStrategy {
+			componentSelection {
+				all { ComponentSelection selection ->
+					def candidate = selection.getCandidate()
+					def version = candidate.getVersion().toLowerCase()
+
+					if (version.contains("alpha") || version.contains("beta")) {
+						selection.reject("Rejecting $selection with version $version as alpha/beta")
+					}
+
+					if (candidate.getModule().equals("jsr250-api") && version.equals("1.0-20050927.133100")) {
+						selection.reject("Rejecting $selection with version $version as invalid version")
+					}
+				}
+			}
+		}
 	}
 }
 

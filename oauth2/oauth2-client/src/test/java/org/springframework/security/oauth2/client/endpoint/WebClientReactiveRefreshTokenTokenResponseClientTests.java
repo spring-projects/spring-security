@@ -155,7 +155,7 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest).block())
 				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("[invalid_token_response] An error occurred parsing the Access Token response")
-				.hasMessageContaining("Token type must be \"Bearer\"");
+				.hasCauseInstanceOf(Throwable.class);
 	}
 
 	@Test

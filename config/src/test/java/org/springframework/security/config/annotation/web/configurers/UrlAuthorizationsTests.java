@@ -139,7 +139,7 @@ public class UrlAuthorizationsTests {
 		FilterSecurityInterceptor interceptor = getFilter(FilterSecurityInterceptor.class);
 		assertThat(interceptor).isNotNull();
 		assertThat(interceptor).extracting("accessDecisionManager")
-				.first().isInstanceOf(AffirmativeBased.class);
+				.isInstanceOf(AffirmativeBased.class);
 	}
 
 	private <T extends Filter> T getFilter(Class<T> filterType) {

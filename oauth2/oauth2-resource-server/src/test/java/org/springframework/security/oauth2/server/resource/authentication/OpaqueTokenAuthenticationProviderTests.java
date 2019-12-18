@@ -111,7 +111,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 		assertThatCode(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")))
 				.isInstanceOf(OAuth2AuthenticationException.class)
 				.extracting("error.description")
-				.containsExactly("An error occurred while attempting to introspect the token: Invalid token");
+				.isEqualTo("An error occurred while attempting to introspect the token: Invalid token");
 	}
 
 	@Test
