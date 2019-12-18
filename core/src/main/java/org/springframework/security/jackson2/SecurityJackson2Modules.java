@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -225,7 +225,7 @@ public final class SecurityJackson2Modules {
 			JavaType result = delegate.typeFromId(context, id);
 			String className = result.getRawClass().getName();
 			if (isWhitelisted(className)) {
-				return delegate.typeFromId(context, id);
+				return result;
 			}
 			boolean isExplicitMixin = config.findMixInClassFor(result.getRawClass()) != null;
 			if (isExplicitMixin) {
