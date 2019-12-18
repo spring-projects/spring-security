@@ -56,7 +56,7 @@ dependencyManagement {
 		dependency 'com.google.guava:guava:20.0'
 		dependency 'com.google.inject:guice:3.0'
 		dependency 'com.nimbusds:lang-tag:1.4.3'
-		dependency 'com.nimbusds:nimbus-jose-jwt:7.8.1'
+		dependency 'com.nimbusds:nimbus-jose-jwt:8.3'
 		dependency 'com.nimbusds:oauth2-oidc-sdk:6.14'
 		dependency 'com.squareup.okhttp3:okhttp:3.14.1'
 		dependency 'com.squareup.okio:okio:1.13.0'
