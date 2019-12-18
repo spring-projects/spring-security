@@ -258,10 +258,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         };
 
         http
+            .authorizeRequests()
+                .anyRequest().authenticated()
+                .and()
             .saml2Login()
-            .addObjectPostProcessor(processor)
+                .addObjectPostProcessor(processor)
         ;
-        super.configure(http);
     }
 }
 ----
@@ -282,10 +284,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         authProvider.setAuthoritiesMapper(AUTHORITIES_MAPPER);
         authProvider.setAuthoritiesExtractor(AUTHORITIES_EXTRACTOR);
         http
+            .authorizeRequests()
+                .anyRequest().authenticated()
+                .and()
             .saml2Login()
-            .authenticationManager(new ProviderManager(asList(authProvider)))
+                .authenticationManager(new ProviderManager(asList(authProvider)))
         ;
-        super.configure(http);
     }
 }
 ----
@@ -305,10 +309,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         AuthenticationManager authenticationManager = new MySaml2AuthenticationManager(...);
         http
+            .authorizeRequests()
+                .anyRequest().authenticated()
+                .and()
             .saml2Login()
-            .authenticationManager(authenticationManager)
+                .authenticationManager(authenticationManager)
         ;
-        super.configure(http);
     }
 }
 ----
