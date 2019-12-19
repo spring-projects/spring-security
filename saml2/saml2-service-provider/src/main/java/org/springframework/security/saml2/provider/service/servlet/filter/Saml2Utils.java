@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.StringUtils;
@@ -24,7 +25,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.Deflater;
@@ -44,15 +44,14 @@ import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 final class Saml2Utils {
 
 	private static final char PATH_DELIMITER = '/';
-	private static Base64.Encoder ENCODER = Base64.getEncoder();
-	private static Base64.Decoder DECODER = Base64.getDecoder();
+	private static org.apache.commons.codec.binary.Base64 BASE64 = new Base64(0, new byte[]{'\n'});
 
 	static String encode(byte[] b) {
-		return ENCODER.encodeToString(b);
+		return BASE64.encodeAsString(b);
 	}
 
 	static byte[] decode(String s) {
-		return DECODER.decode(s);
+		return BASE64.decode(s);
 	}
 
 	static byte[] deflate(String s) {
