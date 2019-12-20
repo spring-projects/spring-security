@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
 
 /**
  * @author Luke Taylor
+ * @author Onur Kagan Ozcan
  */
 public class CookieClearingLogoutHandlerTests {
 
@@ -59,6 +60,18 @@ public class CookieClearingLogoutHandlerTests {
 			assertThat(c.getPath()).isEqualTo("/app/");
 			assertThat(c.getMaxAge()).isZero();
 		}
+	}
+
+	@Test
+	public void configuredCookieIsSecure() {
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setSecure(true);
+		request.setContextPath("/app");
+		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie");
+		handler.logout(request, response, mock(Authentication.class));
+		assertThat(response.getCookies()).hasSize(1);
+		assertThat(response.getCookies()[0].getSecure()).isTrue();
 	}
 
 	@Test

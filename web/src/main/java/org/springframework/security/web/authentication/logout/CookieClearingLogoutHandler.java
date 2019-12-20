@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
  * - A given list of Cookies
  *
  * @author Luke Taylor
+ * @author Onur Kagan Ozcan
  * @since 3.1
  */
 public final class CookieClearingLogoutHandler implements LogoutHandler {
@@ -46,6 +47,7 @@ public final class CookieClearingLogoutHandler implements LogoutHandler {
 				String cookiePath = request.getContextPath() + "/";
 				cookie.setPath(cookiePath);
 				cookie.setMaxAge(0);
+				cookie.setSecure(request.isSecure());
 				return cookie;
 			};
 			cookieList.add(f);
