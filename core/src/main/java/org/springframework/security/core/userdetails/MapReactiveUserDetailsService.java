@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
@@ -31,14 +38,16 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class MapReactiveUserDetailsService implements ReactiveUserDetailsService, ReactiveUserDetailsPasswordService {
+	private final Log logger = LogFactory.getLog(MapReactiveUserDetailsService.class);
 	private final Map<String, UserDetails> users;
+	private AuthenticationManager authenticationManager;
 
 	/**
-	 * Creates a new instance using a {@link Map} that must be non blocking.
+	 * Creates a new instance using a {@link Map}
 	 * @param users a {@link Map} of users to use.
 	 */
 	public MapReactiveUserDetailsService(Map<String, UserDetails> users) {
-		this.users = users;
+		this.users = new ConcurrentHashMap<>(users);
 	}
 
 	/**
@@ -80,6 +89,62 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 					String key = getKey(user.getUsername());
 					this.users.put(key, u);
 				});
+	}
+
+	public Mono<Void> createUser(UserDetails user) {
+		return userExists(user.getUsername())
+				.doOnNext(exists -> Assert.isTrue(!exists, "user should not exist"))
+				.thenReturn(getKey(user.getUsername()))
+				.doOnNext(key -> this.users.put(key, user))
+				.then();
+	}
+
+	public Mono<Void> updateUser(UserDetails user) {
+		return userExists(user.getUsername())
+				.doOnNext(exists -> Assert.isTrue(exists, "user should exist"))
+				.thenReturn(getKey(user.getUsername()))
+				.doOnNext(key -> this.users.put(key, user))
+				.then();
+	}
+
+	public Mono<Void> deleteUser(String username) {
+		return Mono.just(username)
+				.doOnNext(this.users::remove)
+				.then();
+	}
+
+	public Mono<Boolean> userExists(String username) {
+		return Mono.just(username)
+				.map(this.users::containsKey);
+	}
+
+	public Mono<Void> changePassword(String oldPassword, String newPassword) {
+		return Mono.from(ReactiveSecurityContextHolder.getContext())
+				.map(securityContext -> {
+					Authentication currentUser = securityContext.getAuthentication();
+					if (currentUser == null) {
+						throw new AccessDeniedException(
+								"Can't change password as no Authentication object found in context for current user.");
+					}
+					return currentUser;
+				})
+				.map(Authentication::getName)
+				.doOnNext(username -> {
+					if (authenticationManager != null) {
+						logger.debug("Reauthenticating user '" + username + "' for password change request.");
+						authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, oldPassword));
+					} else {
+						logger.debug("No authentication manager set. Password won't be re-checked.");
+					}
+				})
+				.flatMap(this::findByUsername)
+				.switchIfEmpty(Mono.error(new IllegalStateException("Current user doesn't exist in map.")))
+				.flatMap(user -> updatePassword(user, newPassword))
+				.then();
+	}
+
+	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+		this.authenticationManager = authenticationManager;
 	}
 
 	private String getKey(String username) {
