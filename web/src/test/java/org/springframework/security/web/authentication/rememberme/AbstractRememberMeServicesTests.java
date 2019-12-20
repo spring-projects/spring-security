@@ -268,6 +268,56 @@ public class AbstractRememberMeServicesTests {
 		assertThat(returnedCookie.getDomain()).isEqualTo("spring.io");
 	}
 
+	@Test
+	public void cancelledCookieShouldUseSecureFlag() {
+		MockRememberMeServices services = new MockRememberMeServices(uds);
+		services.setCookieDomain("spring.io");
+		services.setUseSecureCookie(true);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setContextPath("contextpath");
+		request.setCookies(createLoginCookie("cookie:1:2"));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		services.logout(request, response, Mockito.mock(Authentication.class));
+		// Try again with null Authentication
+		response = new MockHttpServletResponse();
+
+		services.logout(request, response, null);
+
+		assertCookieCancelled(response);
+
+		Cookie returnedCookie = response.getCookie(
+				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		assertThat(returnedCookie.getDomain()).isEqualTo("spring.io");
+		assertThat(returnedCookie.getSecure()).isEqualTo(true);
+	}
+
+	@Test
+	public void cancelledCookieShouldUseRequestIsSecure() {
+		MockRememberMeServices services = new MockRememberMeServices(uds);
+		services.setCookieDomain("spring.io");
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setContextPath("contextpath");
+		request.setCookies(createLoginCookie("cookie:1:2"));
+		request.setSecure(true);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		services.logout(request, response, Mockito.mock(Authentication.class));
+		// Try again with null Authentication
+		response = new MockHttpServletResponse();
+
+		services.logout(request, response, null);
+
+		assertCookieCancelled(response);
+
+		Cookie returnedCookie = response.getCookie(
+				AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		assertThat(returnedCookie.getDomain()).isEqualTo("spring.io");
+		assertThat(returnedCookie.getSecure()).isEqualTo(true);
+	}
+
 	@Test(expected = CookieTheftException.class)
 	public void cookieTheftExceptionShouldBeRethrown() {
 		MockRememberMeServices services = new MockRememberMeServices(uds) {

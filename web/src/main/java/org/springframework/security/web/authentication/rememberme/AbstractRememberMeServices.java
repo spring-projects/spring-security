@@ -53,6 +53,7 @@ import org.springframework.util.StringUtils;
  * @author Luke Taylor
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Onur Kagan Ozcan
  * @since 2.0
  */
 public abstract class AbstractRememberMeServices implements RememberMeServices,
@@ -382,6 +383,12 @@ public abstract class AbstractRememberMeServices implements RememberMeServices,
 		cookie.setPath(getCookiePath(request));
 		if (cookieDomain != null) {
 			cookie.setDomain(cookieDomain);
+		}
+		if (useSecureCookie == null) {
+			cookie.setSecure(request.isSecure());
+		}
+		else {
+			cookie.setSecure(useSecureCookie);
 		}
 		response.addCookie(cookie);
 	}
