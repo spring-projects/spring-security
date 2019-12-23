@@ -286,10 +286,10 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @return the {@link SecurityBuilder} for further customizations
 	 */
 	@SuppressWarnings("unchecked")
-	public O objectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
+	public B objectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		Assert.notNull(objectPostProcessor, "objectPostProcessor cannot be null");
 		this.objectPostProcessor = objectPostProcessor;
-		return (O) this;
+		return (B) this;
 	}
 
 	/**
