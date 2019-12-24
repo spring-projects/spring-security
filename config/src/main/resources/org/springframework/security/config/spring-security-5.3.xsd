@@ -1456,8 +1456,96 @@
          <xs:documentation>Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
                 </xs:documentation>
       </xs:annotation>
-      <xs:complexType/>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:oauth2-login.attlist"/>
+      </xs:complexType>
    </xs:element>
+  <xs:attributeGroup name="oauth2-login.attlist">
+      <xs:attribute name="client-registration-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to ClientRegistrationRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorized-client-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to OAuth2AuthorizedClientRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorized-client-service-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to OAuth2AuthorizedClientService
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorization-request-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to AuthorizationRequestRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorization-request-resolver-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to OAuth2AuthorizationRequestResolver
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="access-token-response-client-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to OAuth2AccessTokenResponseClient
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="user-authorities-mapper-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to GrantedAuthoritiesMapper
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="user-service-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to OAuth2UserService
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="oidc-user-service-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to OidcUserService
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="login-processing-url" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Specifies the URL to validate the credentials.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="login-page" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Specifies the URL to send users to if login is required
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-success-handler-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Specifies authentication success handler
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-failure-handler-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Specifies authentication failure handler
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="jwt-decoder-factory-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Specifies JWT decoder factory for OidcAuthorizationCodeAuthenticationProvider
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="client-registrations">
       <xs:annotation>
          <xs:documentation>Container element for client(s) registered with an OAuth 2.0 or OpenID Connect 1.0
@@ -1467,7 +1555,7 @@
       <xs:complexType>
          <xs:sequence>
             <xs:element maxOccurs="unbounded" ref="security:client-registration"/>
-            <xs:element minOccurs="0" ref="security:provider"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:provider"/>
          </xs:sequence>
       </xs:complexType>
    </xs:element>
@@ -1580,7 +1668,7 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="token-uri" use="required" type="xs:token">
+      <xs:attribute name="token-uri" type="xs:token">
          <xs:annotation>
             <xs:documentation>The Token Endpoint URI for the Authorization Server.
                 </xs:documentation>
@@ -2901,9 +2989,11 @@
          <xs:enumeration value="CORS_FILTER"/>
          <xs:enumeration value="CSRF_FILTER"/>
          <xs:enumeration value="LOGOUT_FILTER"/>
+         <xs:enumeration value="OAUTH2_REDIRECT_FILTER"/>
          <xs:enumeration value="X509_FILTER"/>
          <xs:enumeration value="PRE_AUTH_FILTER"/>
          <xs:enumeration value="CAS_FILTER"/>
+         <xs:enumeration value="OAUTH2_LOGIN_FILTER"/>
          <xs:enumeration value="FORM_LOGIN_FILTER"/>
          <xs:enumeration value="OPENID_FILTER"/>
          <xs:enumeration value="LOGIN_PAGE_FILTER"/>

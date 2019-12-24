@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,11 @@ enum SecurityFilters {
 	HEADERS_FILTER, CORS_FILTER,
 	CSRF_FILTER,
 	LOGOUT_FILTER,
+	OAUTH2_REDIRECT_FILTER,
 	X509_FILTER,
 	PRE_AUTH_FILTER,
 	CAS_FILTER,
+	OAUTH2_LOGIN_FILTER,
 	FORM_LOGIN_FILTER,
 	OPENID_FILTER,
 	LOGIN_PAGE_FILTER,

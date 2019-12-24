@@ -891,6 +891,79 @@ The <<oauth2login,OAuth 2.0 Login>> feature configures authentication support us
 
 * <<nsa-http,http>>
 
+[[nsa-oauth2-login-attributes]]
+===== <oauth2-login> Attributes
+
+
+[[nsa-oauth2-login-client-registration-repository-ref]]
+* **client-registration-repository-ref**
+Reference to `ClientRegistrationRepository`.
+
+
+[[nsa-oauth2-login-authorized-client-repository-ref]]
+* **authorized-client-repository-ref**
+Reference to `OAuth2AuthorizedClientRepository`.
+
+
+[[nsa-oauth2-login-authorized-client-service-ref]]
+* **authorized-client-service-ref**
+Reference to `OAuth2AuthorizedClientService`.
+
+
+[[nsa-oauth2-login-authorization-request-repository-ref]]
+* **authorization-request-repository-ref**
+Reference to `AuthorizationRequestRepository`.
+
+
+[[nsa-oauth2-login-authorization-request-resolver-ref]]
+* **authorization-request-resolver-ref**
+Reference to `OAuth2AuthorizationRequestResolver`.
+
+
+[[nsa-oauth2-login-access-token-response-client-ref]]
+* **access-token-response-client-ref**
+Reference to `OAuth2AccessTokenResponseClient`.
+
+
+[[nsa-oauth2-login-user-authorities-mapper-ref]]
+* **user-authorities-mapper-ref**
+Reference to `GrantedAuthoritiesMapper`.
+
+
+[[nsa-oauth2-login-user-service-ref]]
+* **user-service-ref**
+Reference to `OAuth2UserService`.
+
+
+[[nsa-oauth2-login-oidc-user-service-ref]]
+* **oidc-user-service-ref**
+Reference to `OidcUserService`.
+
+
+[[nsa-oauth2-login-login-processing-url]]
+* **login-processing-url**
+Specifies the URL to validate the credentials.
+
+
+[[nsa-oauth2-login-login-page]]
+* **login-page**
+Specifies the URL to send users to if login is required
+
+
+[[nsa-oauth2-login-authentication-success-handler-ref]]
+* **authentication-success-handler-ref**
+Specifies authentication success handler
+
+
+[[nsa-oauth2-login-authentication-failure-handler-ref]]
+* **authentication-failure-handler-ref**
+Specifies authentication failure handler
+
+
+[[nsa-oauth2-login-jwt-decoder-factory-ref]]
+* **jwt-decoder-factory-ref**
+Specifies JWT decoder factory for OidcAuthorizationCodeAuthenticationProvider
+
 
 [[nsa-client-registrations]]
 ==== <client-registrations>

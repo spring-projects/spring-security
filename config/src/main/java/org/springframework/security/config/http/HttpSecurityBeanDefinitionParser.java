@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
@@ -294,6 +295,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 					clearCredentials);
 		}
 
+		// gh-6009
+		authManager.addPropertyValue("authenticationEventPublisher", new RootBeanDefinition(DefaultAuthenticationEventPublisher.class));
 		authManager.getRawBeanDefinition().setSource(pc.extractSource(element));
 		BeanDefinition authMgrBean = authManager.getBeanDefinition();
 		String id = pc.getReaderContext().generateBeanName(authMgrBean);

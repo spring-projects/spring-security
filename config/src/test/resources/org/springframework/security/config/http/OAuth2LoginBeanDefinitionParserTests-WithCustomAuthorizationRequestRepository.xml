@@ -26,9 +26,24 @@
 
 	<http auto-config="true">
 		<intercept-url pattern="/**" access="authenticated"/>
-		<oauth2-login/>
+		<oauth2-login client-registration-repository-ref="clientRegistrationRepository"
+						access-token-response-client-ref="accessTokenResponseClient"
+						user-service-ref="oauth2UserService"
+						authorization-request-repository-ref="authorizationRequestRepository"/>
 	</http>
 
-	<b:import resource="../oauth2/client/google-registration.xml"/>
+	<b:bean name="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
+			<b:constructor-arg value="org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient"/>
+	</b:bean>
+	<b:bean name="oauth2UserService" class="org.mockito.Mockito" factory-method="mock">
+			<b:constructor-arg value="org.springframework.security.oauth2.client.userinfo.OAuth2UserService"/>
+	</b:bean>
+	<b:bean name="clientRegistrationRepository" class="org.mockito.Mockito" factory-method="mock">
+			<b:constructor-arg value="org.springframework.security.oauth2.client.registration.ClientRegistrationRepository"/>
+	</b:bean>
+	<b:bean name="authorizationRequestRepository" class="org.mockito.Mockito" factory-method="mock">
+			<b:constructor-arg value="org.springframework.security.oauth2.client.web.AuthorizationRequestRepository"/>
+	</b:bean>
+
 	<b:import resource="userservice.xml"/>
 </b:beans>

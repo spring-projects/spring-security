@@ -23,12 +23,17 @@
 			https://www.springframework.org/schema/security/spring-security.xsd
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
-
-	<http auto-config="true">
-		<intercept-url pattern="/**" access="authenticated"/>
-		<oauth2-login/>
-	</http>
-
-	<b:import resource="../oauth2/client/google-registration.xml"/>
-	<b:import resource="userservice.xml"/>
+	<client-registrations>
+		<client-registration registration-id="google-login"
+							 client-id="google-client-id"
+							 client-secret="google-client-secret"
+							 client-authentication-method="basic"
+							 authorization-grant-type="authorization_code"
+							 redirect-uri="{baseUrl}/login/oauth2/code/{registrationId}"
+							 scope="openid,profile,email"
+							 client-name="Google"
+							 provider-id="google"/>
+		<provider 	provider-id="google"
+					issuer-uri="http://localhost:49259"/>
+	</client-registrations>
 </b:beans>

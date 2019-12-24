@@ -26,7 +26,7 @@
 
 	<http auto-config="true">
 		<intercept-url pattern="/**" access="authenticated"/>
-		<oauth2-login/>
+		<oauth2-login  login-page="/custom-login"/>
 	</http>
 
 	<b:import resource="../oauth2/client/google-registration.xml"/>

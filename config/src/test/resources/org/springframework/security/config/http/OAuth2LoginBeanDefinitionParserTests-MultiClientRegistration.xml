@@ -29,6 +29,6 @@
 		<oauth2-login/>
 	</http>
 
-	<b:import resource="../oauth2/client/google-registration.xml"/>
+	<b:import resource="../oauth2/client/google-github-registration.xml"/>
 	<b:import resource="userservice.xml"/>
 </b:beans>
