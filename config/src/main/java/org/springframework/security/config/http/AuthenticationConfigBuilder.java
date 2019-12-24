@@ -138,6 +138,13 @@ final class AuthenticationConfigBuilder {
 
 	private String openIDLoginPage;
 
+	private String oauth2LoginFilterId = null;
+	private String oauth2AuthorizationRequestRedirectFilterId = null;
+	private BeanDefinition oauth2AuthorizationRequestRedirectFilter;
+	private BeanDefinition oauth2LoginEntryPoint;
+	private BeanReference oauth2LoginAuthenticationProviderRef = null;
+	private BeanReference oauth2LoginOidcAuthenticationProviderRef = null;
+
 	AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
 			ParserContext pc, SessionCreationPolicy sessionPolicy,
 			BeanReference requestCache, BeanReference authenticationManager,
@@ -238,10 +245,40 @@ final class AuthenticationConfigBuilder {
 
 	void createOAuth2LoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
 		Element oauth2LoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_LOGIN);
-		if (oauth2LoginElt != null || this.autoConfig) {
+		if (oauth2LoginElt != null) {
 			OAuth2LoginBeanDefinitionParser parser = new OAuth2LoginBeanDefinitionParser();
-			parser.parse(oauth2LoginElt, this.pc);
-			// TODO Implement
+			BeanDefinition filterBean = parser.parse(oauth2LoginElt, this.pc);
+			filterBean.getPropertyValues().addPropertyValue("authenticationManager", authManager);
+
+			// retrieve the other bean result
+			BeanDefinition oauth2LoginAuthProvider = parser.getOAuth2LoginAuthenticationProvider();
+			oauth2AuthorizationRequestRedirectFilter = parser.getOAuth2AuthorizationRequestRedirectFilter();
+			oauth2LoginEntryPoint = parser.getOAuth2LoginAuthenticationEntryPoint();
+
+			// generate bean name to be registered
+			String oauth2LoginAuthenticationProviderId = pc.getReaderContext()
+					.generateBeanName(oauth2LoginAuthProvider);
+			oauth2LoginFilterId = pc.getReaderContext().generateBeanName(filterBean);
+			oauth2AuthorizationRequestRedirectFilterId = pc.getReaderContext()
+					.generateBeanName(oauth2AuthorizationRequestRedirectFilter);
+
+			// register the component
+			pc.registerBeanComponent(new BeanComponentDefinition(oauth2AuthorizationRequestRedirectFilter,
+					oauth2AuthorizationRequestRedirectFilterId));
+			pc.registerBeanComponent(new BeanComponentDefinition(filterBean, oauth2LoginFilterId));
+			pc.registerBeanComponent(
+					new BeanComponentDefinition(oauth2LoginAuthProvider, oauth2LoginAuthenticationProviderId));
+
+			oauth2LoginAuthenticationProviderRef = new RuntimeBeanReference(oauth2LoginAuthenticationProviderId);
+
+			// oidc provider
+			BeanDefinition oauth2LoginOidcAuthProvider = parser.getOAuth2LoginOidcAuthenticationProvider();
+			String oauth2LoginOidcAuthenticationProviderId = pc.getReaderContext()
+					.generateBeanName(oauth2LoginOidcAuthProvider);
+			pc.registerBeanComponent(
+					new BeanComponentDefinition(oauth2LoginOidcAuthProvider, oauth2LoginOidcAuthenticationProviderId));
+			oauth2LoginOidcAuthenticationProviderRef = new RuntimeBeanReference(
+					oauth2LoginOidcAuthenticationProviderId);
 		}
 	}
 
@@ -732,7 +769,7 @@ final class AuthenticationConfigBuilder {
 		Element openIDLoginElt = DomUtils.getChildElementByTagName(httpElt,
 				Elements.OPENID_LOGIN);
 		// Basic takes precedence if explicit element is used and no others are configured
-		if (basicAuthElt != null && formLoginElt == null && openIDLoginElt == null) {
+		if (basicAuthElt != null && formLoginElt == null && openIDLoginElt == null && oauth2LoginEntryPoint == null) {
 			return basicEntryPoint;
 		}
 
@@ -747,7 +784,15 @@ final class AuthenticationConfigBuilder {
 		}
 
 		if (formFilterId != null && openIDLoginPage == null) {
-			return formEntryPoint;
+			// gh-6802
+			// If form login was enabled through element and Oauth2 login was enabled from element then use form login
+			if (formLoginElt != null && oauth2LoginEntryPoint != null) {
+				return formEntryPoint;
+			}
+			// If form login was enabled through auto-config, and Oauth2 login was not enabled then use form login
+			if (oauth2LoginEntryPoint == null) {
+				return formEntryPoint;
+			}
 		}
 
 		// Otherwise use OpenID if enabled
@@ -758,6 +803,11 @@ final class AuthenticationConfigBuilder {
 		// If X.509 or JEE have been enabled, use the preauth entry point.
 		if (preAuthEntryPoint != null) {
 			return preAuthEntryPoint;
+		}
+
+		// OAuth2 entry point will not be null if only 1 client registration
+		if (oauth2LoginEntryPoint != null) {
+			return oauth2LoginEntryPoint;
 		}
 
 		pc.getReaderContext()
@@ -808,6 +858,11 @@ final class AuthenticationConfigBuilder {
 					FORM_LOGIN_FILTER));
 		}
 
+		if (oauth2LoginFilterId != null) {
+			filters.add(new OrderDecorator(new RuntimeBeanReference(oauth2LoginFilterId), OAUTH2_LOGIN_FILTER));
+			filters.add(new OrderDecorator(oauth2AuthorizationRequestRedirectFilter, OAUTH2_REDIRECT_FILTER));
+		}
+
 		if (openIDFilterId != null) {
 			filters.add(new OrderDecorator(new RuntimeBeanReference(openIDFilterId),
 					OPENID_FILTER));
@@ -848,6 +903,14 @@ final class AuthenticationConfigBuilder {
 
 		if (jeeProviderRef != null) {
 			providers.add(jeeProviderRef);
+		}
+
+		if (oauth2LoginAuthenticationProviderRef != null) {
+			providers.add(oauth2LoginAuthenticationProviderRef);
+		}
+
+		if (oauth2LoginOidcAuthenticationProviderRef != null) {
+			providers.add(oauth2LoginOidcAuthenticationProviderRef);
 		}
 
 		return providers;

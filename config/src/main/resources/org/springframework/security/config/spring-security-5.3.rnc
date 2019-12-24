@@ -439,11 +439,32 @@ form-login.attlist &=
 
 oauth2-login =
 	## Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
-	element oauth2-login {empty}
+	element oauth2-login {oauth2-login.attlist}
+oauth2-login.attlist &=
+	## Reference to OAuth2AccessTokenResponseClient
+	attribute tokenendpoint-access-token-response-client-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to OAuth2UserService
+	attribute userinfo-user-service-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to OidcUserService
+	attribute userinfo-oidc-user-service-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to GrantedAuthoritiesMapper
+	attribute userinfo-user-authorities-mapper-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Specifies the URL to validate the credentials.
+	attribute login-processing-url {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to OAuth2AuthorizationRequestResolver
+	attribute authorizationendpoint-authorization-request-resolver-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Specifies the URL to send users to if login is required
+	attribute login-page {xsd:token}?
 
 client-registrations =
 	## Container element for client(s) registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
-	element client-registrations {client-registration+, provider?}
+	element client-registrations {client-registration+, provider*}
 
 client-registration =
 	## Represents a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
@@ -982,4 +1003,4 @@ position =
 	## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
 	attribute position {named-security-filter}
 
-named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "OAUTH2_REDIRECT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"

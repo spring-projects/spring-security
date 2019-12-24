@@ -26,7 +26,10 @@
 
 	<http auto-config="true">
 		<intercept-url pattern="/**" access="authenticated"/>
-		<oauth2-login/>
+		<oauth2-login tokenendpoint-access-token-response-client-ref="testAccessTokenResponseClient"
+						userinfo-user-service-ref="testOAuth2UserService"
+						userinfo-oidc-user-service-ref="testOAuth2OidcUserService"
+						authorizationendpoint-authorization-request-resolver-ref="testOAuth2AuthorizationRequestResolver"/>
 	</http>
 
 	<client-registrations>
@@ -47,13 +50,11 @@
 				  username-attribute-name="sub"
 				  jwkset-uri="https://www.googleapis.com/oauth2/v3/certs"/>
 	</client-registrations>
-
-	<!--
-		NOTE:
-		This import should be removed after `OAuth2LoginBeanDefinitionParser` is implemented.
-		Without this import the `AbstractXmlApplicationContext` will fail to load.
-		This is simply a placeholder to force a successful load.
-	-->
+	
+	<b:bean id="testAccessTokenResponseClient" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.DummyAccessTokenResponse"/>
+	<b:bean id="testOAuth2UserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.DummyOAuth2UserService"/>
+	<b:bean id="testOAuth2OidcUserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.DummyOAuth2OidcUserService"/>
+	<b:bean id="testOAuth2AuthorizationRequestResolver" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.DummyAuthorizationRequestResolver"/>
+	
 	<b:import resource="userservice.xml"/>
-
 </b:beans>
