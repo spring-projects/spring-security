@@ -456,9 +456,11 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
 Converter<Jwt, AbstractAuthenticationToken> grantedAuthoritiesExtractor() {
     JwtAuthenticationConverter jwtAuthenticationConverter =
             new JwtAuthenticationConverter();
+
     jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter
             (new GrantedAuthoritiesExtractor());
-    return jwtAuthenticationConveter;
+
+    return jwtAuthenticationConverter;
 }
 ----
 
