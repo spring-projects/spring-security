@@ -2322,6 +2322,10 @@ public final class HttpSecurity extends
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * &#064;Value("${spring.security.oauth2.resourceserver.jwt.key-value}")
+	 * RSAPublicKey key;
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
@@ -2333,14 +2337,14 @@ public final class HttpSecurity extends
 	 * 				oauth2ResourceServer
 	 * 					.jwt(jwt ->
 	 * 						jwt
-	 * 							.jwtAuthenticationConverter(jwtDecoder())
+	 * 							.decoder(jwtDecoder())
 	 * 					)
 	 * 			);
 	 *	}
 	 *
 	 * 	&#064;Bean
 	 * 	public JwtDecoder jwtDecoder() {
-	 * 		return JwtDecoders.fromOidcIssuerLocation(issuerUri);
+	 * 		return NimbusJwtDecoder.withPublicKey(this.key).build();
 	 * 	}
 	 * }
 	 * </pre>
