@@ -167,6 +167,7 @@ final class AuthenticationConfigBuilder {
 	private BeanDefinition authorizationCodeGrantFilter;
 	private BeanReference authorizationCodeAuthenticationProviderRef;
 
+	private final List<BeanReference> authenticationProviders = new ManagedList<>();
 	private final Map<BeanDefinition, BeanMetadataElement> defaultDeniedHandlerMappings = new ManagedMap<>();
 	private final Map<BeanDefinition, BeanMetadataElement> defaultEntryPointMappings = new ManagedMap<>();
 	private final List<BeanDefinition> csrfIgnoreRequestMatchers = new ManagedList<>();
@@ -1012,6 +1013,8 @@ final class AuthenticationConfigBuilder {
 		if (authorizationCodeAuthenticationProviderRef != null) {
 			providers.add(authorizationCodeAuthenticationProviderRef);
 		}
+
+		providers.addAll(this.authenticationProviders);
 
 		return providers;
 	}
