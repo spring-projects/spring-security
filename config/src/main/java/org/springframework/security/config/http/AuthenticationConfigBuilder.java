@@ -15,8 +15,18 @@
  */
 package org.springframework.security.config.http;
 
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Element;
+
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
@@ -53,15 +63,6 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
-
-import javax.servlet.http.HttpServletRequest;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 import static org.springframework.security.config.http.SecurityFilters.ANONYMOUS_FILTER;
 import static org.springframework.security.config.http.SecurityFilters.BASIC_AUTH_FILTER;
@@ -160,10 +161,11 @@ final class AuthenticationConfigBuilder {
 	private BeanReference oauth2LoginAuthenticationProviderRef;
 	private BeanReference oauth2LoginOidcAuthenticationProviderRef;
 	private BeanDefinition oauth2LoginLinks;
-
 	private BeanDefinition authorizationRequestRedirectFilter;
 	private BeanDefinition authorizationCodeGrantFilter;
 	private BeanReference authorizationCodeAuthenticationProviderRef;
+
+	private final List<BeanDefinition> csrfIgnoreRequestMatchers = new ManagedList<>();
 
 	AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
 			ParserContext pc, SessionCreationPolicy sessionPolicy,
@@ -194,7 +196,6 @@ final class AuthenticationConfigBuilder {
 		createLoginPageFilterIfNeeded();
 		createUserDetailsServiceFactory();
 		createExceptionTranslationFilter();
-
 	}
 
 	void createRememberMeFilter(BeanReference authenticationManager) {
@@ -706,6 +707,10 @@ final class AuthenticationConfigBuilder {
 
 	BeanMetadataElement getAccessDeniedHandlerBean() {
 		return accessDeniedHandler;
+	}
+
+	List<BeanDefinition> getCsrfIgnoreRequestMatchers() {
+		return csrfIgnoreRequestMatchers;
 	}
 
 	void createAnonymousFilter() {

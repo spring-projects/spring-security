@@ -15,8 +15,14 @@
  */
 package org.springframework.security.config.http;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Element;
+
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
@@ -44,9 +50,6 @@ import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.w3c.dom.Element;
-
-import java.util.*;
 
 /**
  * Sets up HTTP security: filter stack and protected URLs.
@@ -156,6 +159,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		httpBldr.setLogoutHandlers(authBldr.getLogoutHandlers());
 		httpBldr.setEntryPoint(authBldr.getEntryPointBean());
 		httpBldr.setAccessDeniedHandler(authBldr.getAccessDeniedHandlerBean());
+		httpBldr.setCsrfIgnoreRequestMatchers(authBldr.getCsrfIgnoreRequestMatchers());
 
 		authenticationProviders.addAll(authBldr.getProviders());
 
