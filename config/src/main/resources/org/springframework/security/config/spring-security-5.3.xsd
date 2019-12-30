@@ -957,6 +957,7 @@
             </xs:element>
             <xs:element ref="security:oauth2-login"/>
             <xs:element ref="security:oauth2-client"/>
+            <xs:element ref="security:oauth2-resource-server"/>
             <xs:element name="openid-login">
                <xs:annotation>
                   <xs:documentation>Sets up form login for authentication with an Open ID identity
@@ -1776,6 +1777,103 @@
          <xs:annotation>
             <xs:documentation>The URI used to discover the configuration information for an OAuth 2.0 or OpenID Connect
                 1.0 Provider.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="oauth2-resource-server">
+      <xs:annotation>
+         <xs:documentation>Configures authentication support as an OAuth 2.0 Resource Server.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="security:jwt"/>
+            <xs:element ref="security:opaque-token"/>
+         </xs:choice>
+         <xs:attributeGroup ref="security:oauth2-resource-server.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="oauth2-resource-server.attlist">
+      <xs:attribute name="authentication-manager-resolver-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to an AuthenticationManagerResolver
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="bearer-token-resolver-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to a BearerTokenResolver
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="entry-point-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to a AuthenticationEntryPoint
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="jwt">
+      <xs:annotation>
+         <xs:documentation>Configures JWT authentication
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:jwt.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="jwt.attlist">
+      <xs:attribute name="jwk-set-uri" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The URI to use to collect the JWK Set for verifying JWTs
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="decoder-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to a JwtDecoder
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="jwt-authentication-converter-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to a Converter&lt;Jwt, AbstractAuthenticationToken&gt;
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="opaque-token">
+      <xs:annotation>
+         <xs:documentation>Configuration Opaque Token authentication
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:opaque-token.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="opaque-token.attlist">
+      <xs:attribute name="introspection-uri" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The URI to use to introspect opaque token attributes
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="client-id" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The Client ID to use to authenticate the introspection request
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="client-secret" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The Client secret to use to authenticate the introspection request
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="introspector-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to an OpaqueTokenIntrospector
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

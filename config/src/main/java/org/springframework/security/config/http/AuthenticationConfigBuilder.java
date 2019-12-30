@@ -68,6 +68,7 @@ import org.springframework.util.xml.DomUtils;
 
 import static org.springframework.security.config.http.SecurityFilters.ANONYMOUS_FILTER;
 import static org.springframework.security.config.http.SecurityFilters.BASIC_AUTH_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.BEARER_TOKEN_AUTH_FILTER;
 import static org.springframework.security.config.http.SecurityFilters.EXCEPTION_TRANSLATION_FILTER;
 import static org.springframework.security.config.http.SecurityFilters.FORM_LOGIN_FILTER;
 import static org.springframework.security.config.http.SecurityFilters.LOGIN_PAGE_FILTER;
@@ -139,6 +140,8 @@ final class AuthenticationConfigBuilder {
 	private BeanMetadataElement mainEntryPoint;
 	private BeanMetadataElement accessDeniedHandler;
 
+	private BeanDefinition bearerTokenAuthenticationFilter;
+
 	private BeanDefinition logoutFilter;
 	@SuppressWarnings("rawtypes")
 	private ManagedList logoutHandlers;
@@ -191,6 +194,7 @@ final class AuthenticationConfigBuilder {
 		createAnonymousFilter();
 		createRememberMeFilter(authenticationManager);
 		createBasicFilter(authenticationManager);
+		createBearerTokenAuthenticationFilter(authenticationManager);
 		createFormLoginFilter(sessionStrategy, authenticationManager);
 		createOAuth2LoginFilter(sessionStrategy, authenticationManager);
 		createOAuth2ClientFilter(requestCache, authenticationManager);
@@ -502,6 +506,21 @@ final class AuthenticationConfigBuilder {
 		filterBuilder.addConstructorArgValue(authManager);
 		filterBuilder.addConstructorArgValue(basicEntryPoint);
 		basicFilter = filterBuilder.getBeanDefinition();
+	}
+
+	void createBearerTokenAuthenticationFilter(BeanReference authManager) {
+		Element resourceServerElt = DomUtils.getChildElementByTagName(httpElt,
+				Elements.OAUTH2_RESOURCE_SERVER);
+
+		if (resourceServerElt == null) {
+			// No resource server, do nothing
+			return;
+		}
+
+		OAuth2ResourceServerBeanDefinitionParser resourceServerBuilder =
+				new OAuth2ResourceServerBeanDefinitionParser(authManager, authenticationProviders,
+						defaultEntryPointMappings, defaultDeniedHandlerMappings, csrfIgnoreRequestMatchers);
+		bearerTokenAuthenticationFilter = resourceServerBuilder.parse(resourceServerElt, pc);
 	}
 
 	void createX509Filter(BeanReference authManager) {
@@ -969,8 +988,12 @@ final class AuthenticationConfigBuilder {
 			filters.add(new OrderDecorator(basicFilter, BASIC_AUTH_FILTER));
 		}
 
+		if (bearerTokenAuthenticationFilter != null) {
+			filters.add(new OrderDecorator(bearerTokenAuthenticationFilter, BEARER_TOKEN_AUTH_FILTER));
+		}
+
 		if (authorizationCodeGrantFilter != null) {
-			filters.add(new OrderDecorator(authorizationRequestRedirectFilter, OAUTH2_AUTHORIZATION_REQUEST_FILTER.getOrder()+1));
+			filters.add(new OrderDecorator(authorizationRequestRedirectFilter, OAUTH2_AUTHORIZATION_REQUEST_FILTER.getOrder() + 1));
 			filters.add(new OrderDecorator(authorizationCodeGrantFilter, OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER));
 		}
 

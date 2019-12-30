@@ -70,6 +70,10 @@ public abstract class Elements {
 	public static final String CORS = "cors";
 	public static final String CSRF = "csrf";
 
+	public static final String OAUTH2_RESOURCE_SERVER = "oauth2-resource-server";
+	public static final String JWT = "jwt";
+	public static final String OPAQUE_TOKEN = "opaque-token";
+
 	public static final String WEBSOCKET_MESSAGE_BROKER = "websocket-message-broker";
 	public static final String INTERCEPT_MESSAGE = "intercept-message";
 
