@@ -46,7 +46,9 @@ import org.springframework.security.core.authority.mapping.SimpleAttributes2Gran
 import org.springframework.security.core.authority.mapping.SimpleMappableAttributesRetriever;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.RequestMatcherDelegatingAccessDeniedHandler;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
@@ -165,6 +167,8 @@ final class AuthenticationConfigBuilder {
 	private BeanDefinition authorizationCodeGrantFilter;
 	private BeanReference authorizationCodeAuthenticationProviderRef;
 
+	private final Map<BeanDefinition, BeanMetadataElement> defaultDeniedHandlerMappings = new ManagedMap<>();
+	private final Map<BeanDefinition, BeanMetadataElement> defaultEntryPointMappings = new ManagedMap<>();
 	private final List<BeanDefinition> csrfIgnoreRequestMatchers = new ManagedList<>();
 
 	AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
@@ -806,12 +810,26 @@ final class AuthenticationConfigBuilder {
 
 				}
 				accessDeniedHandler.addPropertyValue("errorPage", errorPage);
+				return accessDeniedHandler.getBeanDefinition();
 			}
 			else if (StringUtils.hasText(ref)) {
 				return new RuntimeBeanReference(ref);
 			}
 
 		}
+
+		if (this.defaultDeniedHandlerMappings.isEmpty()) {
+			return accessDeniedHandler.getBeanDefinition();
+		}
+		if (this.defaultDeniedHandlerMappings.size() == 1) {
+			return this.defaultDeniedHandlerMappings.values().iterator().next();
+		}
+
+		accessDeniedHandler = BeanDefinitionBuilder
+				.rootBeanDefinition(RequestMatcherDelegatingAccessDeniedHandler.class);
+		accessDeniedHandler.addConstructorArgValue(this.defaultDeniedHandlerMappings);
+		accessDeniedHandler.addConstructorArgValue
+				(BeanDefinitionBuilder.rootBeanDefinition(AccessDeniedHandlerImpl.class));
 
 		return accessDeniedHandler.getBeanDefinition();
 	}
@@ -823,6 +841,16 @@ final class AuthenticationConfigBuilder {
 
 		if (StringUtils.hasText(customEntryPoint)) {
 			return new RuntimeBeanReference(customEntryPoint);
+		}
+
+		if (!defaultEntryPointMappings.isEmpty()) {
+			if (defaultEntryPointMappings.size() == 1) {
+				return defaultEntryPointMappings.values().iterator().next();
+			}
+			BeanDefinitionBuilder delegatingEntryPoint = BeanDefinitionBuilder
+					.rootBeanDefinition(DelegatingAuthenticationEntryPoint.class);
+			delegatingEntryPoint.addConstructorArgValue(defaultEntryPointMappings);
+			return delegatingEntryPoint.getBeanDefinition();
 		}
 
 		Element basicAuthElt = DomUtils.getChildElementByTagName(httpElt,
