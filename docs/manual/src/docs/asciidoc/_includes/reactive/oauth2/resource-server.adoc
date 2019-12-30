@@ -217,12 +217,17 @@ More powerful than `jwkSetUri()` is `decoder()`, which will completely replace a
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange()
-			.anyExchange().authenticated()
-			.and()
-		.oauth2ResourceServer()
-			.jwt()
-				.decoder(myCustomDecoder());
+		.authorizeExchange(exchanges ->
+			exchanges
+				.anyExchange().authenticated()
+		)
+		.oauth2ResourceServer(oauth2ResourceServer ->
+			oauth2ResourceServer
+				.jwt(jwt ->
+					jwt
+					    .decoder(myCustomDecoder())
+				)
+		);
     return http.build();
 }
 ----
@@ -425,12 +430,17 @@ To this end, the DSL exposes `jwtAuthenticationConverter()`:
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange()
-			.anyExchange().authenticated()
-			.and()
-		.oauth2ResourceServer()
-			.jwt()
-				.jwtAuthenticationConverter(grantedAuthoritiesExtractor());
+		.authorizeExchange(exchanges ->
+			exchanges
+				.anyExchange().authenticated()
+		)
+		.oauth2ResourceServer(oauth2ResourceServer ->
+			oauth2ResourceServer
+				.jwt(jwt ->
+					jwt
+						.jwtAuthenticationConverter(grantedAuthoritiesExtractor())
+				)
+		);
 	return http.build();
 }
 
@@ -667,9 +677,10 @@ When use Opaque Token, this `SecurityWebFilterChain` looks like:
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange()
-			.anyExchange().authenticated()
-			.and()
+		.authorizeExchange(exchanges ->
+			exchanges
+				.anyExchange().authenticated()
+		)
 		.oauth2ResourceServer(ServerHttpSecurity.OAuth2ResourceServerSpec::opaqueToken)
 	return http.build();
 }
@@ -686,13 +697,18 @@ public class MyCustomSecurityConfiguration {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange()
-                .pathMatchers("/messages/**").hasAuthority("SCOPE_message:read")
-                .anyExchange().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .opaqueToken()
-                    .introspector(myIntrospector());
+            .authorizeExchange(exchanges ->
+                exchanges
+                    .pathMatchers("/messages/**").hasAuthority("SCOPE_message:read")
+                    .anyExchange().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .opaqueToken(opaqueToken ->
+                        opaqueToken
+                            .introspector(myIntrospector())
+                    )
+            );
         return http.build();
     }
 }
@@ -728,13 +744,18 @@ public class DirectlyConfiguredIntrospectionUri {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange()
-                .anyExchange().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .opaqueToken()
-                    .introspectionUri("https://idp.example.com/introspect")
-                    .introspectionClientCredentials("client", "secret");
+            .authorizeExchange(exchanges ->
+                exchanges
+                    .anyExchange().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .opaqueToken(opaqueToken ->
+                        opaqueToken
+                            .introspectionUri("https://idp.example.com/introspect")
+                            .introspectionClientCredentials("client", "secret")
+                    )
+            );
         return http.build();
     }
 }
@@ -754,12 +775,17 @@ public class DirectlyConfiguredIntrospector {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange()
-                .anyExchange().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .opaqueToken()
-                    .introspector(myCustomIntrospector());
+            .authorizeExchange(exchanges ->
+                exchanges
+                    .anyExchange().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .opaqueToken(opaqueToken ->
+                        opaqueToken
+                            .introspector(myCustomIntrospector())
+                    )
+            );
         return http.build();
     }
 }

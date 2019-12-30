@@ -140,9 +140,11 @@ or in Java configuration
 [source,java]
 ----
 http
-		.authorizeRequests()
-				.antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
-				...
+    .authorizeRequests(authorizeRequests ->
+        authorizeRequests
+            .antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
+            ...
+    )
 ----
 
 [[el-access-web-path-variables]]

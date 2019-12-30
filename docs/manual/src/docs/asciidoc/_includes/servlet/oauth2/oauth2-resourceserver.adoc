@@ -128,10 +128,11 @@ The first is a `WebSecurityConfigurerAdapter` that configures the app as a resou
 ----
 protected void configure(HttpSecurity http) {
     http
-        .authorizeRequests()
-            .anyRequest().authenticated()
-            .and()
-        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
+        .authorizeRequests(authorizeRequests ->
+            authorizeRequests
+                .anyRequest().authenticated()
+        )
+        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 }
 ----
 
@@ -145,13 +146,18 @@ Replacing this is as simple as exposing the bean within the application:
 public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .mvcMatchers("/messages/**").hasAuthority("SCOPE_message:read")
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .jwt()
-                    .jwtAuthenticationConverter(myConverter());
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .mvcMatchers("/messages/**").hasAuthority("SCOPE_message:read")
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .jwt(jwt ->
+                        jwt
+                            .jwtAuthenticationConverter(myConverter())
+                    )
+            );
     }
 }
 ----
@@ -188,12 +194,17 @@ An authorization server's JWK Set Uri can be configured <<oauth2resourceserver-j
 public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .jwt()
-                    .jwkSetUri("https://idp.example.com/.well-known/jwks.json");
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .jwt(jwt ->
+                        jwt
+                            .jwkSetUri("https://idp.example.com/.well-known/jwks.json")
+                    )
+            );
     }
 }
 ----
@@ -211,12 +222,17 @@ More powerful than `jwkSetUri()` is `decoder()`, which will completely replace a
 public class DirectlyConfiguredJwtDecoder extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .jwt()
-                    .decoder(myCustomDecoder());
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .jwt(jwt ->
+                        jwt
+                            .decoder(myCustomDecoder())
+                    )
+            );
     }
 }
 ----
@@ -444,12 +460,17 @@ To this end, the DSL exposes `jwtAuthenticationConverter()`:
 public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .jwt()
-                    .jwtAuthenticationConverter(grantedAuthoritiesExtractor());
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .jwt(jwt ->
+                        jwt
+                            .jwtAuthenticationConverter(grantedAuthoritiesExtractor())
+                    )
+            );
     }
 }
 
@@ -806,10 +827,11 @@ When use Opaque Token, this `WebSecurityConfigurerAdapter` looks like:
 ----
 protected void configure(HttpSecurity http) {
     http
-        .authorizeRequests()
-            .anyRequest().authenticated()
-            .and()
-        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::opaqueToken)
+        .authorizeRequests(authorizeRequests ->
+            authorizeRequests
+                .anyRequest().authenticated()
+        )
+        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::opaqueToken);
 }
 ----
 
@@ -823,13 +845,18 @@ Replacing this is as simple as exposing the bean within the application:
 public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .mvcMatchers("/messages/**").hasAuthority("SCOPE_message:read")
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .opaqueToken()
-                    .introspector(myIntrospector());
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .mvcMatchers("/messages/**").hasAuthority("SCOPE_message:read")
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .opaqueToken(opaqueToken ->
+                        opaqueToken
+                            .introspector(myIntrospector())
+                    )
+            );
     }
 }
 ----
@@ -863,13 +890,18 @@ An authorization server's Introspection Uri can be configured <<oauth2resourcese
 public class DirectlyConfiguredIntrospectionUri extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .opaqueToken()
-                    .introspectionUri("https://idp.example.com/introspect")
-                    .introspectionClientCredentials("client", "secret");
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .opaqueToken(opaqueToken ->
+                        opaqueToken
+                            .introspectionUri("https://idp.example.com/introspect")
+                            .introspectionClientCredentials("client", "secret")
+                    )
+            );
     }
 }
 ----
@@ -887,12 +919,17 @@ More powerful than `introspectionUri()` is `introspector()`, which will complete
 public class DirectlyConfiguredIntrospector extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests()
-                .anyRequest().authenticated()
-                .and()
-            .oauth2ResourceServer()
-                .opaqueToken()
-                    .introspector(myCustomIntrospector());
+            .authorizeRequests(authorizeRequests ->
+                authorizeRequests
+                    .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2ResourceServer ->
+                oauth2ResourceServer
+                    .opaqueToken(opaqueToken ->
+                        opaqueToken
+                            .introspector(myCustomIntrospector())
+                    )
+            );
     }
 }
 ----
@@ -1182,11 +1219,14 @@ And then specify this `AuthenticationManagerResolver` in the DSL:
 [source,java]
 ----
 http
-    .authorizeRequests()
-        .anyRequest().authenticated()
-        .and()
-    .oauth2ResourceServer()
-        .authenticationManagerResolver(this.tokenAuthenticationManagerResolver);
+    .authorizeRequests(authorizeRequests ->
+        authorizeRequests
+            .anyRequest().authenticated()
+    )
+    .oauth2ResourceServer(oauth2ResourceServer ->
+        oauth2ResourceServer
+            .authenticationManagerResolver(this.tokenAuthenticationManagerResolver)
+    );
 ----
 
 [[oauth2resourceserver-multitenancy]]
@@ -1248,11 +1288,14 @@ And then specify this `AuthenticationManagerResolver` in the DSL:
 [source,java]
 ----
 http
-    .authorizeRequests()
-        .anyRequest().authenticated()
-        .and()
-    .oauth2ResourceServer()
-        .authenticationManagerResolver(this.tenantAuthenticationManagerResolver);
+    .authorizeRequests(authorizeRequests ->
+        authorizeRequests
+            .anyRequest().authenticated()
+    )
+    .oauth2ResourceServer(oauth2ResourceServer ->
+        oauth2ResourceServer
+            .authenticationManagerResolver(this.tenantAuthenticationManagerResolver)
+    );
 ----
 
 ==== Resolving the Tenant By Claim
@@ -1303,11 +1346,14 @@ public class TenantAuthenticationManagerResolver implements AuthenticationManage
 [source,java]
 ----
 http
-    .authorizeRequests()
-        .anyRequest().authenticated()
-        .and()
-    .oauth2ResourceServer()
-        .authenticationManagerResolver(this.tenantAuthenticationManagerResolver);
+    .authorizeRequests(authorizeRequests ->
+        authorizeRequests
+            .anyRequest().authenticated()
+    )
+    .oauth2ResourceServer(oauth2ResourceServer ->
+        oauth2ResourceServer
+            .authenticationManagerResolver(this.tenantAuthenticationManagerResolver)
+    );
 ----
 
 ==== Parsing the Claim Only Once
@@ -1451,8 +1497,10 @@ To achieve this, you can wire a `HeaderBearerTokenResolver` instance into the DS
 [source,java]
 ----
 http
-    .oauth2ResourceServer()
-        .bearerTokenResolver(new HeaderBearerTokenResolver("x-goog-iap-jwt-assertion"));
+    .oauth2ResourceServer(oauth2ResourceServer ->
+        oauth2ResourceServer
+            .bearerTokenResolver(new HeaderBearerTokenResolver("x-goog-iap-jwt-assertion"))
+    );
 ----
 
 ==== Reading the Bearer Token from a Form Parameter
@@ -1464,8 +1512,10 @@ Or, you may wish to read the token from a form parameter, which you can do by co
 DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
 resolver.setAllowFormEncodedBodyParameter(true);
 http
-    .oauth2ResourceServer()
-        .bearerTokenResolver(resolver);
+    .oauth2ResourceServer(oauth2ResourceServer ->
+        oauth2ResourceServer
+            .bearerTokenResolver(resolver)
+    );
 ----
 
 === Bearer Token Propagation
