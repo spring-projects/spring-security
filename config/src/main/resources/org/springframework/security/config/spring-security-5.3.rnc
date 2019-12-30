@@ -296,7 +296,7 @@ http-firewall =
 
 http =
 	## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "security" attribute to "none".
-	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
+	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & oauth2-resource-server? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
 http.attlist &=
 	## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
 	attribute pattern {xsd:token}?
@@ -571,6 +571,48 @@ provider.attlist &=
 provider.attlist &=
 	## The URI used to discover the configuration information for an OAuth 2.0 or OpenID Connect 1.0 Provider.
 	attribute issuer-uri {xsd:token}?
+
+oauth2-resource-server =
+	## Configures authentication support as an OAuth 2.0 Resource Server.
+	element oauth2-resource-server {oauth2-resource-server.attlist, (jwt? & opaque-token?)}
+oauth2-resource-server.attlist &=
+	## Reference to an AuthenticationManagerResolver
+	attribute authentication-manager-resolver-ref {xsd:token}?
+oauth2-resource-server.attlist &=
+	## Reference to a BearerTokenResolver
+	attribute bearer-token-resolver-ref {xsd:token}?
+oauth2-resource-server.attlist &=
+	## Reference to a AuthenticationEntryPoint
+	attribute entry-point-ref {xsd:token}?
+
+jwt =
+    ## Configures JWT authentication
+    element jwt {jwt.attlist}
+jwt.attlist &=
+    ## The URI to use to collect the JWK Set for verifying JWTs
+    attribute jwk-set-uri {xsd:token}?
+jwt.attlist &=
+    ## Reference to a JwtDecoder
+    attribute decoder-ref {xsd:token}?
+jwt.attlist &=
+    ## Reference to a Converter<Jwt, AbstractAuthenticationToken>
+    attribute jwt-authentication-converter-ref {xsd:token}?
+
+opaque-token =
+    ## Configuration Opaque Token authentication
+    element opaque-token {opaque-token.attlist}
+opaque-token.attlist &=
+    ## The URI to use to introspect opaque token attributes
+    attribute introspection-uri {xsd:token}?
+opaque-token.attlist &=
+    ## The Client ID to use to authenticate the introspection request
+    attribute client-id {xsd:token}?
+opaque-token.attlist &=
+    ## The Client secret to use to authenticate the introspection request
+    attribute client-secret {xsd:token}?
+opaque-token.attlist &=
+    ## Reference to an OpaqueTokenIntrospector
+    attribute introspector-ref {xsd:token}?
 
 openid-login =
 	## Sets up form login for authentication with an Open ID identity

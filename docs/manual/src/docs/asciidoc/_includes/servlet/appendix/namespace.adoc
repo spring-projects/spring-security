@@ -166,6 +166,7 @@ The default value is true.
 * <<nsa-logout,logout>>
 * <<nsa-oauth2-client,oauth2-client>>
 * <<nsa-oauth2-login,oauth2-login>>
+* <<nsa-oauth2-resource-server,oauth2-resource-server>>
 * <<nsa-openid-login,openid-login>>
 * <<nsa-port-mappings,port-mappings>>
 * <<nsa-remember-me,remember-me>>
@@ -1160,6 +1161,90 @@ The URI used to retrieve the https://tools.ietf.org/html/rfc7517[JSON Web Key (J
 * **issuer-uri**
 The URI used to initially configure a `ClientRegistration` using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint].
 
+[[nsa-oauth2-resource-server]]
+==== <oauth2-resource-server>
+Adds a `BearerTokenAuthenticationFilter`, `BearerTokenAuthenticationEntryPoint`, and `BearerTokenAccessDeniedHandler` to the configuration.
+In addition, either `<jwt>` or `<opaque-token>` must be specified.
+
+[[nsa-oauth2-resource-server-parents]]
+===== Parents Elements of <oauth2-resource-server>
+
+* <<nsa-http,http>>
+
+[[nsa-oauth2-resource-server-children]]
+===== Child Elements of <oauth2-resource-server>
+
+* <<nsa-jwt,jwt>>
+* <<nsa-opaque-token,opaque-token>>
+
+[[nsa-oauth2-resource-server-attributes]]
+===== <oauth2-resource-server> Attributes
+
+[[nsa-oauth2-resource-server-authentication-manager-resolver-ref]]
+* **authentication-manager-resolver-ref**
+Reference to an `AuthenticationManagerResolver` which will resolve the `AuthenticationManager` at request time
+
+[[nsa-oauth2-resource-server-bearer-token-resolver-ref]]
+* **bearer-token-resolver-ref**
+Reference to a `BearerTokenResolver` which will retrieve the bearer token from the request
+
+[[nsa-oauth2-resource-server-entry-point-ref]]
+* **entry-point-ref**
+Reference to a `AuthenticationEntryPoint` which will handle unauthorized requests
+
+[[nsa-jwt]]
+==== <jwt>
+Represents an OAuth 2.0 Resource Server that will authorize JWTs
+
+
+[[nsa-jwt-parents]]
+===== Parent Elements of <jwt>
+
+* <<nsa-oauth2-resource-server,oauth2-resource-server>>
+
+
+[[nsa-jwt-attributes]]
+===== <jwt> Attributes
+
+[[nsa-jwt-jwt-authentication-converter-ref]]
+* **jwt-authentication-converter-ref**
+Reference to a `Converter<Jwt, AbstractAuthenticationToken>`
+
+[[nsa-jwt-decoder-ref]]
+* **jwt-decoder-ref**
+Reference to a `JwtDecoder`. This is a larger component that overrides `jwk-set-uri`
+
+[[nsa-jwt-jwk-set-uri]]
+* **jwk-set-uri**
+The JWK Set Uri used to load signing verification keys from an OAuth 2.0 Authorization Server
+
+[[nsa-opaque-token]]
+==== <opaque-token>
+Represents an OAuth 2.0 Resource Server that will authorize opaque tokens
+
+[[nsa-opaque-token-parents]]
+===== Parent Elements of <opaque-token>
+
+* <<nsa-oauth2-resource-server,oauth2-resource-server>>
+
+[[nsa-opaque-token-attributes]]
+===== <opaque-token> Attributes
+
+[[nsa-opaque-token-introspector-ref]]
+* **introspector-ref**
+Reference to an `OpaqueTokenIntrospector`. This is a larger component that overrides `introspection-uri`, `client-id`, and `client-secret`.
+
+[[nsa-opaque-token-introspection-uri]]
+* **introspection-uri**
+The Introspection Uri used to introspect the details of an opaque token. Should be accompanied with a `client-id` and `client-secret`.
+
+[[nsa-opaque-token-client-id]]
+* **client-id**
+The Client Id to use for client authentication against the provided `introspection-uri`.
+
+[[nsa-opaque-token-client-secret]]
+* **client-secret**
+The Client Secret to use for client authentication against the provided `introspection-uri`.
 
 [[nsa-http-basic]]
 ==== <http-basic>
