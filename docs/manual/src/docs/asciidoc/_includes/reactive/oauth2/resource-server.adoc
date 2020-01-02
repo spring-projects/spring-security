@@ -455,10 +455,10 @@ static class GrantedAuthoritiesExtractor
 
     public Collection<GrantedAuthority> convert(Jwt jwt) {
         Collection<?> authorities = (Collection<?>)
-	        jwt.getClaims().getOrDefault("mycustomclaim", Collections.emptyList());
+                jwt.getClaims().getOrDefault("mycustomclaim", Collections.emptyList());
 
         return authorities.stream()
-	        .map(Object::toString)
+                .map(Object::toString)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
