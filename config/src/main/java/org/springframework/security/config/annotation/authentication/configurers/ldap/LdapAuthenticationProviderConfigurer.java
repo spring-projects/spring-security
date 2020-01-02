@@ -384,7 +384,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 */
 	public final class PasswordCompareConfigurer {
 
-		/**Us
+		/**
 		 * Allows specifying the {@link PasswordEncoder} to use. The default is
 		 * {@link org.springframework.security.crypto.password.NoOpPasswordEncoder}.
 		 * @param passwordEncoder the {@link PasswordEncoder} to use
