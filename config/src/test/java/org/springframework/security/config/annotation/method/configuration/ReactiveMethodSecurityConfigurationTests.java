@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,12 +43,12 @@ public class ReactiveMethodSecurityConfigurationTests {
 	DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler;
 
 	@Test
-	public void rolePrefixWithGrantedAuthorityDefaults() {
+	public void rolePrefixWithGrantedAuthorityDefaults() throws NoSuchMethodException {
 		this.spring.register(WithRolePrefixConfiguration.class).autowire();
 
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
 				"principal", "credential", "CUSTOM_ABC");
-		MockMethodInvocation methodInvocation = mock(MockMethodInvocation.class);
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
 
 		EvaluationContext context = this.methodSecurityExpressionHandler
 				.createEvaluationContext(authentication, methodInvocation);
@@ -63,12 +62,12 @@ public class ReactiveMethodSecurityConfigurationTests {
 	}
 
 	@Test
-	public void rolePrefixWithDefaultConfig() {
+	public void rolePrefixWithDefaultConfig() throws NoSuchMethodException {
 		this.spring.register(ReactiveMethodSecurityConfiguration.class).autowire();
 
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
 				"principal", "credential", "ROLE_ABC");
-		MockMethodInvocation methodInvocation = mock(MockMethodInvocation.class);
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
 
 		EvaluationContext context = this.methodSecurityExpressionHandler
 				.createEvaluationContext(authentication, methodInvocation);
@@ -89,12 +88,12 @@ public class ReactiveMethodSecurityConfigurationTests {
 	}
 
 	@Test
-	public void rolePrefixWithGrantedAuthorityDefaultsAndSubclassWithProxyingEnabled() {
+	public void rolePrefixWithGrantedAuthorityDefaultsAndSubclassWithProxyingEnabled() throws NoSuchMethodException {
 		this.spring.register(SubclassConfig.class).autowire();
 
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
 				"principal", "credential", "ROLE_ABC");
-		MockMethodInvocation methodInvocation = mock(MockMethodInvocation.class);
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new Foo(), Foo.class, "bar", String.class);
 
 		EvaluationContext context = this.methodSecurityExpressionHandler
 				.createEvaluationContext(authentication, methodInvocation);
@@ -107,5 +106,10 @@ public class ReactiveMethodSecurityConfigurationTests {
 
 	@Configuration
 	static class SubclassConfig extends ReactiveMethodSecurityConfiguration {
+	}
+
+	private static class Foo {
+		public void bar(String param){
+		}
 	}
 }
