@@ -36,7 +36,7 @@ dependencies {
 
 task springVersion(type: versions.VersionsResourceTasks) {
 	versionsFile = file("${buildDir}/versions/spring-security.versions")
-	versions = provider { ["org.springframework:spring-core":"$springVersion"] }
+	versions = provider { ["org.springframework:spring-core":"${springVersion()}"] }
 }
 
 tasks.processResources {
@@ -52,6 +52,12 @@ tasks.sourcesJar.from {includeProject.sourceSets.main.java}
 configure(project.tasks.withType(Test)) {
 	doFirst {
 		systemProperties['springSecurityVersion'] = version
-		systemProperties['springVersion'] = springVersion
+		systemProperties['springVersion'] = springVersion()
 	}
+}
+
+String springVersion() {
+	println project.configurations.compile.resolvedConfiguration.resolvedArtifacts.collect { it.name }
+	return project.configurations.compile.resolvedConfiguration.resolvedArtifacts
+    .find { it.name == 'spring-core' }.moduleVersion.id.version
 }
