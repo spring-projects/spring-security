@@ -73,8 +73,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 
@@ -261,12 +260,12 @@ public class OAuth2LoginApplicationTests {
 	}
 
 	@Test
-	public void requestWhenMockOidcLoginThenIndex() throws Exception {
+	public void requestWhenMockOAuth2LoginThenIndex() throws Exception {
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("github");
-		this.mvc.perform(get("/").with(oidcLogin().clientRegistration(clientRegistration)))
+		this.mvc.perform(get("/").with(oauth2Login().clientRegistration(clientRegistration)))
 				.andExpect(model().attribute("userName", "test-subject"))
 				.andExpect(model().attribute("clientName", "GitHub"))
-				.andExpect(model().attribute("userAttributes", Collections.singletonMap(SUB, "test-subject")));
+				.andExpect(model().attribute("userAttributes", Collections.singletonMap("sub", "test-subject")));
 	}
 
 	private void assertLoginPage(HtmlPage page) {

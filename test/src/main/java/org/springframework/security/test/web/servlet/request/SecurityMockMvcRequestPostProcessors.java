@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,6 +71,9 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -371,8 +375,38 @@ public final class SecurityMockMvcRequestPostProcessors {
 	/**
 	 * Establish a {@link SecurityContext} that has a
 	 * {@link OAuth2AuthenticationToken} for the
-	 * {@link Authentication} and a {@link OAuth2AuthorizedClient} in
-	 * the session. All details are
+	 * {@link Authentication}, a {@link OAuth2User} as the principal,
+	 * and a {@link OAuth2AuthorizedClient} in the session. All details are
+	 * declarative and do not require associated tokens to be valid.
+	 *
+	 * <p>
+	 * The support works by associating the authentication to the HttpServletRequest. To associate
+	 * the request to the SecurityContextHolder you need to ensure that the
+	 * SecurityContextPersistenceFilter is associated with the MockMvc instance. A few
+	 * ways to do this are:
+	 * </p>
+	 *
+	 * <ul>
+	 * <li>Invoking apply {@link SecurityMockMvcConfigurers#springSecurity()}</li>
+	 * <li>Adding Spring Security's FilterChainProxy to MockMvc</li>
+	 * <li>Manually adding {@link SecurityContextPersistenceFilter} to the MockMvc
+	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
+	 * </ul>
+	 *
+	 * @return the {@link OidcLoginRequestPostProcessor} for additional customization
+	 * @since 5.3
+	 */
+	public static OAuth2LoginRequestPostProcessor oauth2Login() {
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
+				null, null, Collections.singleton("user"));
+		return new OAuth2LoginRequestPostProcessor(accessToken);
+	}
+
+	/**
+	 * Establish a {@link SecurityContext} that has a
+	 * {@link OAuth2AuthenticationToken} for the
+	 * {@link Authentication}, a {@link OidcUser} as the principal,
+	 * and a {@link OAuth2AuthorizedClient} in the session. All details are
 	 * declarative and do not require associated tokens to be valid.
 	 *
 	 * <p>
@@ -1252,6 +1286,147 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
+	public final static class OAuth2LoginRequestPostProcessor implements RequestPostProcessor {
+		private ClientRegistration clientRegistration;
+		private OAuth2AccessToken accessToken;
+
+		private Supplier<Collection<GrantedAuthority>> authorities = this::defaultAuthorities;
+		private Supplier<Map<String, Object>> attributes = this::defaultAttributes;
+		private String nameAttributeKey = "sub";
+		private Supplier<OAuth2User> oauth2User = this::defaultPrincipal;
+
+		private OAuth2LoginRequestPostProcessor(OAuth2AccessToken accessToken) {
+			this.accessToken = accessToken;
+			this.clientRegistration = clientRegistrationBuilder().build();
+		}
+
+		/**
+		 * Use the provided authorities in the {@link Authentication}
+		 *
+		 * @param authorities the authorities to use
+		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
+		 */
+		public OAuth2LoginRequestPostProcessor authorities(Collection<GrantedAuthority> authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = () -> authorities;
+			this.oauth2User = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Use the provided authorities in the {@link Authentication}
+		 *
+		 * @param authorities the authorities to use
+		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
+		 */
+		public OAuth2LoginRequestPostProcessor authorities(GrantedAuthority... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = () -> Arrays.asList(authorities);
+			this.oauth2User = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Mutate the attributes using the given {@link Consumer}
+		 *
+		 * @param attributesConsumer The {@link Consumer} for mutating the {@Map} of attributes
+		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
+		 */
+		public OAuth2LoginRequestPostProcessor attributes(Consumer<Map<String, Object>> attributesConsumer) {
+			Assert.notNull(attributesConsumer, "attributesConsumer cannot be null");
+			this.attributes = () -> {
+				Map<String, Object> attrs = new HashMap<>();
+				attrs.put(this.nameAttributeKey, "test-subject");
+				attributesConsumer.accept(attrs);
+				return attrs;
+			};
+			this.oauth2User = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Use the provided key for the attribute containing the principal's name
+		 *
+		 * @param nameAttributeKey The attribute key to use
+		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
+		 */
+		public OAuth2LoginRequestPostProcessor nameAttributeKey(String nameAttributeKey) {
+			Assert.notNull(nameAttributeKey, "nameAttributeKey cannot be null");
+			this.nameAttributeKey = nameAttributeKey;
+			this.oauth2User = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Use the provided {@link OAuth2User} as the authenticated user.
+		 *
+		 * @param oauth2User the {@link OAuth2User} to use
+		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
+		 */
+		public OAuth2LoginRequestPostProcessor oauth2User(OAuth2User oauth2User) {
+			this.oauth2User = () -> oauth2User;
+			return this;
+		}
+
+		/**
+		 * Use the provided {@link ClientRegistration} as the client to authorize.
+		 *
+		 * The supplied {@link ClientRegistration} will be registered into an
+		 * {@link HttpSessionOAuth2AuthorizedClientRepository}. Tests relying on
+		 * {@link org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient}
+		 * annotations should register an {@link HttpSessionOAuth2AuthorizedClientRepository} bean
+		 * to the application context.
+		 *
+		 * @param clientRegistration the {@link ClientRegistration} to use
+		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
+		 */
+		public OAuth2LoginRequestPostProcessor clientRegistration(ClientRegistration clientRegistration) {
+			this.clientRegistration = clientRegistration;
+			return this;
+		}
+
+		@Override
+		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			OAuth2User oauth2User = this.oauth2User.get();
+			OAuth2AuthenticationToken token = new OAuth2AuthenticationToken
+					(oauth2User, oauth2User.getAuthorities(), this.clientRegistration.getRegistrationId());
+			OAuth2AuthorizedClient client = new OAuth2AuthorizedClient
+					(this.clientRegistration, token.getName(), this.accessToken);
+			OAuth2AuthorizedClientRepository authorizedClientRepository = new HttpSessionOAuth2AuthorizedClientRepository();
+			authorizedClientRepository.saveAuthorizedClient(client, token, request, new MockHttpServletResponse());
+
+			return new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
+		}
+
+		private ClientRegistration.Builder clientRegistrationBuilder() {
+			return ClientRegistration.withRegistrationId("test")
+					.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+					.clientId("test-client")
+					.tokenUri("https://token-uri.example.org");
+		}
+
+		private Collection<GrantedAuthority> defaultAuthorities() {
+			Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+			authorities.add(new OAuth2UserAuthority(this.attributes.get()));
+			for (String authority : this.accessToken.getScopes()) {
+				authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
+			}
+			return authorities;
+		}
+
+		private Map<String, Object> defaultAttributes() {
+			return Collections.singletonMap(this.nameAttributeKey, "test-subject");
+		}
+
+		private OAuth2User defaultPrincipal() {
+			return new DefaultOAuth2User(this.authorities.get(), this.attributes.get(), this.nameAttributeKey);
+		}
+	}
+
+	/**
+	 * @author Josh Cummings
+	 * @since 5.3
+	 */
 	public final static class OidcLoginRequestPostProcessor implements RequestPostProcessor {
 		private ClientRegistration clientRegistration;
 		private OAuth2AccessToken accessToken;
@@ -1350,12 +1525,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			OidcUser oidcUser = getOidcUser();
-			OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(), this.clientRegistration.getRegistrationId());
-			OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(this.clientRegistration, token.getName(), this.accessToken);
-			OAuth2AuthorizedClientRepository authorizedClientRepository = new HttpSessionOAuth2AuthorizedClientRepository();
-			authorizedClientRepository.saveAuthorizedClient(client, token, request, new MockHttpServletResponse());
-
-			return new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
+			return new OAuth2LoginRequestPostProcessor(this.accessToken)
+					.oauth2User(oidcUser)
+					.clientRegistration(this.clientRegistration)
+					.postProcessRequest(request);
 		}
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {

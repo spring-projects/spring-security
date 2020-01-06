@@ -34,8 +34,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 
@@ -64,10 +63,10 @@ public class OAuth2LoginControllerTests {
 
 	@Test
 	public void rootWhenAuthenticatedReturnsUserAndClient() throws Exception {
-		this.mvc.perform(get("/").with(oidcLogin()))
+		this.mvc.perform(get("/").with(oauth2Login()))
 			.andExpect(model().attribute("userName", "test-subject"))
 			.andExpect(model().attribute("clientName", "test"))
-			.andExpect(model().attribute("userAttributes", Collections.singletonMap(SUB, "test-subject")));
+			.andExpect(model().attribute("userAttributes", Collections.singletonMap("sub", "test-subject")));
 	}
 
 	@Test
@@ -79,11 +78,11 @@ public class OAuth2LoginControllerTests {
 				.tokenUri("https://token-uri.example.org")
 				.build();
 
-		this.mvc.perform(get("/").with(oidcLogin()
+		this.mvc.perform(get("/").with(oauth2Login()
 				.clientRegistration(clientRegistration)
-				.idToken(i -> i.subject("spring-security"))))
+				.attributes(a -> a.put("sub", "spring-security"))))
 				.andExpect(model().attribute("userName", "spring-security"))
 				.andExpect(model().attribute("clientName", "my-client-name"))
-				.andExpect(model().attribute("userAttributes", Collections.singletonMap(SUB, "spring-security")));
+				.andExpect(model().attribute("userAttributes", Collections.singletonMap("sub", "spring-security")));
 	}
 }
