@@ -78,7 +78,7 @@ Configuring the provider is quite simple:
 ----
 
 The `PasswordEncoder` is optional.
-A `PasswordEncoder` provides encoding and decoding of passwords presented in the `UserDetails` object that is returned from the configured `UserDetailsService`.
+A `PasswordEncoder` provides encoding and matching of encoded passwords presented in the `UserDetails` object that is returned from the configured `UserDetailsService`.
 This will be discussed in more detail <<core-services-password-encoding,below>>.
 
 
