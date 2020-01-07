@@ -1,0 +1,8 @@
+body {
+    font-family: sans;
+    font-size: 1em;
+}
+
+div.logout {
+    float: right;
+}

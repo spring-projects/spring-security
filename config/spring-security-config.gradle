@@ -1,5 +1,6 @@
 apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'trang'
+apply plugin: 'kotlin'
 
 dependencies {
 	// NB: Don't add other compile time dependencies to the config module as this breaks tooling
@@ -27,6 +28,8 @@ dependencies {
 	optional'org.springframework:spring-web'
 	optional'org.springframework:spring-webflux'
 	optional'org.springframework:spring-websocket'
+	optional 'org.jetbrains.kotlin:kotlin-reflect'
+	optional 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
 	provided 'javax.servlet:javax.servlet-api'
 
@@ -82,6 +85,13 @@ rncToXsd {
 	rncDir = file('src/main/resources/org/springframework/security/config/')
 	xsdDir = rncDir
 	xslFile = new File(rncDir, 'spring-security.xsl')
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+        freeCompilerArgs = ["-Xjsr305=strict"]
+    }
 }
 
 build.dependsOn rncToXsd
