@@ -93,7 +93,7 @@ dependencies {
 		management "org.hibernate:hibernate-validator:6.+"
 		management "org.hsqldb:hsqldb:2.+"
 		management "org.jasig.cas.client:cas-client-core:3.+"
-		management "org.jasig.cas:cas-server-webapp:4.0.+"
+		management "org.jasig.cas:cas-server-webapp:4.0.0@war"
 		management "org.mockito:mockito-core:3.+"
 		management "org.openid4java:openid4java-nodeps:0.+"
 		management "org.opensaml:opensaml-core:$openSamlVersion"
