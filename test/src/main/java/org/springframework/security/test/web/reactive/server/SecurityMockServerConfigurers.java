@@ -471,7 +471,7 @@ public class SecurityMockServerConfigurers {
 		private OAuth2AccessToken accessToken;
 		private OidcIdToken idToken;
 		private OidcUserInfo userInfo;
-		private OidcUser oidcUser;
+		private Supplier<OidcUser> oidcUser = this::defaultPrincipal;
 		private Collection<GrantedAuthority> authorities;
 
 		ServerOAuth2AuthorizedClientRepository authorizedClientRepository =
@@ -491,6 +491,7 @@ public class SecurityMockServerConfigurers {
 		public OidcLoginMutator authorities(Collection<GrantedAuthority> authorities) {
 			Assert.notNull(authorities, "authorities cannot be null");
 			this.authorities = authorities;
+			this.oidcUser = this::defaultPrincipal;
 			return this;
 		}
 
@@ -503,6 +504,7 @@ public class SecurityMockServerConfigurers {
 		public OidcLoginMutator authorities(GrantedAuthority... authorities) {
 			Assert.notNull(authorities, "authorities cannot be null");
 			this.authorities = Arrays.asList(authorities);
+			this.oidcUser = this::defaultPrincipal;
 			return this;
 		}
 
@@ -517,6 +519,7 @@ public class SecurityMockServerConfigurers {
 			builder.subject("test-subject");
 			idTokenBuilderConsumer.accept(builder);
 			this.idToken = builder.build();
+			this.oidcUser = this::defaultPrincipal;
 			return this;
 		}
 
@@ -530,6 +533,7 @@ public class SecurityMockServerConfigurers {
 			OidcUserInfo.Builder builder = OidcUserInfo.builder();
 			userInfoBuilderConsumer.accept(builder);
 			this.userInfo = builder.build();
+			this.oidcUser = this::defaultPrincipal;
 			return this;
 		}
 
@@ -543,7 +547,7 @@ public class SecurityMockServerConfigurers {
 		 * @return the {@link OidcLoginMutator} for further configuration
 		 */
 		public OidcLoginMutator oidcUser(OidcUser oidcUser) {
-			this.oidcUser = oidcUser;
+			this.oidcUser = () -> oidcUser;
 			return this;
 		}
 
@@ -601,7 +605,7 @@ public class SecurityMockServerConfigurers {
 		}
 
 		private OAuth2AuthenticationToken getToken() {
-			OidcUser oidcUser = getOidcUser();
+			OidcUser oidcUser = this.oidcUser.get();
 			return new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(), this.clientRegistration.getRegistrationId());
 		}
 
@@ -634,12 +638,8 @@ public class SecurityMockServerConfigurers {
 			return this.userInfo;
 		}
 
-		private OidcUser getOidcUser() {
-			if (this.oidcUser == null) {
-				return new DefaultOidcUser(getAuthorities(), getOidcIdToken(), this.userInfo);
-			} else {
-				return this.oidcUser;
-			}
+		private OidcUser defaultPrincipal() {
+			return new DefaultOidcUser(getAuthorities(), getOidcIdToken(), this.userInfo);
 		}
 	}
 }

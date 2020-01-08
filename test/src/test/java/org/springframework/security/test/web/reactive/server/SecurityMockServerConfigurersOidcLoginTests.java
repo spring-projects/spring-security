@@ -27,6 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
@@ -35,6 +36,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -42,6 +44,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockOidcLogin;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
@@ -141,6 +144,35 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes())
 				.containsEntry("email", "email@email");
+	}
+
+	// gh-7794
+	@Test
+	public void oidcLoginWhenOidcUserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
+		OidcUser oidcUser = new DefaultOidcUser(
+				AuthorityUtils.createAuthorityList("SCOPE_user"), idToken().build());
+
+		this.client.mutateWith(mockOidcLogin()
+				.idToken(i -> i.subject("foo"))
+				.oidcUser(oidcUser))
+				.get().uri("/token")
+				.exchange()
+				.expectStatus().isOk();
+
+		OAuth2AuthenticationToken token = this.controller.token;
+		assertThat(token.getPrincipal().getAttributes())
+				.containsEntry("sub", "subject");
+
+		this.client.mutateWith(mockOidcLogin()
+				.oidcUser(oidcUser)
+				.idToken(i -> i.subject("bar")))
+				.get().uri("/token")
+				.exchange()
+				.expectStatus().isOk();
+
+		token = this.controller.token;
+		assertThat(token.getPrincipal().getAttributes())
+				.containsEntry("sub", "bar");
 	}
 
 	@RestController

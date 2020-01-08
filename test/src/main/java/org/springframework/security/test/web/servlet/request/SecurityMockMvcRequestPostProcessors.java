@@ -1432,7 +1432,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private OAuth2AccessToken accessToken;
 		private OidcIdToken idToken;
 		private OidcUserInfo userInfo;
-		private OidcUser oidcUser;
+		private Supplier<OidcUser> oidcUser = this::defaultPrincipal;
 		private Collection<GrantedAuthority> authorities;
 
 		private OidcLoginRequestPostProcessor(OAuth2AccessToken accessToken) {
@@ -1449,6 +1449,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		public OidcLoginRequestPostProcessor authorities(Collection<GrantedAuthority> authorities) {
 			Assert.notNull(authorities, "authorities cannot be null");
 			this.authorities = authorities;
+			this.oidcUser = this::defaultPrincipal;
 			return this;
 		}
 
@@ -1461,6 +1462,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		public OidcLoginRequestPostProcessor authorities(GrantedAuthority... authorities) {
 			Assert.notNull(authorities, "authorities cannot be null");
 			this.authorities = Arrays.asList(authorities);
+			this.oidcUser = this::defaultPrincipal;
 			return this;
 		}
 
@@ -1475,6 +1477,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			builder.subject("test-subject");
 			idTokenBuilderConsumer.accept(builder);
 			this.idToken = builder.build();
+			this.oidcUser = this::defaultPrincipal;
 			return this;
 		}
 
@@ -1488,20 +1491,19 @@ public final class SecurityMockMvcRequestPostProcessors {
 			OidcUserInfo.Builder builder = OidcUserInfo.builder();
 			userInfoBuilderConsumer.accept(builder);
 			this.userInfo = builder.build();
+			this.oidcUser = this::defaultPrincipal;
 			return this;
 		}
 
 		/**
 		 * Use the provided {@link OidcUser} as the authenticated user.
 		 *
-		 * Supplying an {@link OidcUser} will take precedence over {@link #idToken}, {@link #userInfo},
-		 * and list of {@link GrantedAuthority}s to use.
 		 *
 		 * @param oidcUser the {@link OidcUser} to use
 		 * @return the {@link OidcLoginRequestPostProcessor} for further configuration
 		 */
 		public OidcLoginRequestPostProcessor oidcUser(OidcUser oidcUser) {
-			this.oidcUser = oidcUser;
+			this.oidcUser = () -> oidcUser;
 			return this;
 		}
 
@@ -1524,7 +1526,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			OidcUser oidcUser = getOidcUser();
+			OidcUser oidcUser = this.oidcUser.get();
 			return new OAuth2LoginRequestPostProcessor(this.accessToken)
 					.oauth2User(oidcUser)
 					.clientRegistration(this.clientRegistration)
@@ -1553,7 +1555,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private OidcIdToken getOidcIdToken() {
 			if (this.idToken == null) {
-				return new OidcIdToken("id-token", null, null, Collections.singletonMap(IdTokenClaimNames.SUB, "test-subject"));
+				return new OidcIdToken("id-token", null, null,
+						Collections.singletonMap(IdTokenClaimNames.SUB, "test-subject"));
 			} else {
 				return this.idToken;
 			}
@@ -1563,12 +1566,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 			return this.userInfo;
 		}
 
-		private OidcUser getOidcUser() {
-			if (this.oidcUser == null) {
-				return new DefaultOidcUser(getAuthorities(), getOidcIdToken(), this.userInfo);
-			} else {
-				return this.oidcUser;
-			}
+		private OidcUser defaultPrincipal() {
+			return new DefaultOidcUser(getAuthorities(), getOidcIdToken(), this.userInfo);
 		}
 	}
 

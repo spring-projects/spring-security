@@ -31,12 +31,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
@@ -51,6 +53,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -124,6 +127,25 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 		this.mvc.perform(get("/user-info/email")
 				.with(oidcLogin().userInfoToken(u -> u.email("email@email"))))
 				.andExpect(content().string("email@email"));
+	}
+
+	// gh-7794
+	@Test
+	public void oidcLoginWhenOidcUserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
+		OidcUser oidcUser = new DefaultOidcUser(
+				AuthorityUtils.createAuthorityList("SCOPE_user"), idToken().build());
+
+		this.mvc.perform(get("/id-token/sub")
+				.with(oidcLogin()
+						.idToken(i -> i.subject("foo"))
+						.oidcUser(oidcUser)))
+				.andExpect(status().isOk())
+				.andExpect(content().string("subject"));
+		this.mvc.perform(get("/id-token/sub")
+				.with(oidcLogin()
+						.oidcUser(oidcUser)
+						.idToken(i -> i.subject("bar"))))
+				.andExpect(content().string("bar"));
 	}
 
 	@EnableWebSecurity
