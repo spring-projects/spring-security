@@ -67,7 +67,7 @@ public class HttpHeaderWriterWebFilterTests {
 
 		verify(writer, never()).writeHttpHeaders(any());
 
-		result.getExchange().getResponse().setComplete();
+		result.getExchange().getResponse().setComplete().block();
 
 		verify(writer).writeHttpHeaders(any());
 	}
