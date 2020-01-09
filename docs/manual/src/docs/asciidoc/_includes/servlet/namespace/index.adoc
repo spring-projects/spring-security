@@ -134,17 +134,17 @@ The prefix "ROLE_" is a marker which indicates that a simple comparison with the
 In other words, a normal role-based check should be used.
 Access-control in Spring Security is not limited to the use of simple roles (hence the use of the prefix to differentiate between different types of security attributes).
 We'll see later how the interpretation can vary footnote:[The interpretation of the comma-separated values in the `access` attribute depends on the implementation of the <<ns-access-manager,AccessDecisionManager>> which is used.].
-In Spring Security 3.0, the attribute can also be populated with an pass:specialcharacters,macros[<<el-access,EL expression>>].
+In Spring Security 3.0, the attribute can also be populated with an <<el-access,EL expression>>.
 
 
 [NOTE]
-===
+====
 
 You can use multiple `<intercept-url>` elements to define different access requirements for different sets of URLs, but they will be evaluated in the order listed and the first match will be used.
 So you must put the most specific matches at the top.
 You can also add a `method` attribute to limit the match to a particular HTTP method (`GET`, `POST`, `PUT` etc.).
 
-===
+====
 
 To add some users, you can define a set of test data directly in the namespace:
 

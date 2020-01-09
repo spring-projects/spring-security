@@ -255,7 +255,7 @@ By default, `NimbusReactiveJwtDecoder`, and hence Resource Server, will only tru
 You can customize this via <<webflux-oauth2resourceserver-jwt-boot-algorithm,Spring Boot>> or <<webflux-oauth2resourceserver-jwt-decoder-builder,the NimbusJwtDecoder builder>>.
 
 [[webflux-oauth2resourceserver-jwt-boot-algorithm]]
-==== Via Spring Boot
+=== Via Spring Boot
 
 The simplest way to set the algorithm is as a property:
 
@@ -271,7 +271,7 @@ spring:
 ----
 
 [[webflux-oauth2resourceserver-jwt-decoder-builder]]
-==== Using a Builder
+=== Using a Builder
 
 For greater power, though, we can use a builder that ships with `NimbusReactiveJwtDecoder`:
 

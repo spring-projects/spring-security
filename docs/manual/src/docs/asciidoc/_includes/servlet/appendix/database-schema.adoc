@@ -1,5 +1,5 @@
-__[[__appendix-schema]]
-== Security Database Schema
+[[__appendix-schema]]
+= Security Database Schema
 There are various database schema used by the framework and this appendix provides a single reference point to them all.
 You only need to provide the tables for the areas of functionality you require.
 
@@ -7,7 +7,7 @@ DDL statements are given for the HSQLDB database.
 You can use these as a guideline for defining the schema for the database you are using.
 
 
-=== User Schema
+== User Schema
 The standard JDBC implementation of the `UserDetailsService` (`JdbcDaoImpl`) requires tables to load the password, account status (enabled or disabled) and a list of authorities (roles) for the user.
 You will need to adjust this schema to match the database dialect you are using.
 
@@ -28,7 +28,7 @@ create table authorities (
 create unique index ix_auth_username on authorities (username,authority);
 ----
 
-==== For Oracle database
+=== For Oracle database
 [source]
 ----
 CREATE TABLE USERS (
@@ -46,7 +46,7 @@ ALTER TABLE AUTHORITIES ADD CONSTRAINT AUTHORITIES_UNIQUE UNIQUE (USERNAME, AUTH
 ALTER TABLE AUTHORITIES ADD CONSTRAINT AUTHORITIES_FK1 FOREIGN KEY (USERNAME) REFERENCES USERS (USERNAME) ENABLE;
 ----
 
-==== Group Authorities
+=== Group Authorities
 Spring Security 2.0 introduced support for group authorities in `JdbcDaoImpl`.
 The table structure if groups are enabled is as follows.
 You will need to adjust this schema to match the database dialect you are using.
@@ -77,7 +77,7 @@ Remember that these tables are only required if you are using the provided JDBC 
 If you write your own or choose to implement `AuthenticationProvider` without a `UserDetailsService`, then you have complete freedom over how you store the data, as long as the interface contract is satisfied.
 
 
-=== Persistent Login (Remember-Me) Schema
+== Persistent Login (Remember-Me) Schema
 This table is used to store data used by the more secure <<remember-me-persistent-token,persistent token>> remember-me implementation.
 If you are using `JdbcTokenRepositoryImpl` either directly or through the namespace, then you will need this table.
 Remember to adjust this schema to match the database dialect you are using.
@@ -95,7 +95,7 @@ create table persistent_logins (
 ----
 
 [[dbschema-acl]]
-=== ACL Schema
+== ACL Schema
 There are four tables used by the Spring Security <<domain-acls,ACL>> implementation.
 
 . `acl_sid` stores the security identities recognised by the ACL system.
@@ -113,7 +113,7 @@ Both of these default to `call identity()`
 The ACL artifact JAR contains files for creating the ACL schema in HyperSQL (HSQLDB), PostgreSQL, MySQL/MariaDB, Microsoft SQL Server, and Oracle Database.
 These schemas are also demonstrated in the following sections.
 
-==== HyperSQL
+=== HyperSQL
 The default schema works with the embedded HSQLDB database that is used in unit tests within the framework.
 
 [source,ddl]
@@ -160,7 +160,7 @@ create table acl_entry(
 );
 ----
 
-==== PostgreSQL
+=== PostgreSQL
 [source,ddl]
 ----
 create table acl_sid(
@@ -209,7 +209,7 @@ You will have to set the `classIdentityQuery` and `sidIdentityQuery` properties 
 * `select currval(pg_get_serial_sequence('acl_class', 'id'))`
 * `select currval(pg_get_serial_sequence('acl_sid', 'id'))`
 
-==== MySQL and MariaDB
+=== MySQL and MariaDB
 [source,ddl]
 ----
 CREATE TABLE acl_sid (
@@ -253,7 +253,7 @@ CREATE TABLE acl_entry (
 ) ENGINE=InnoDB;
 ----
 
-==== Microsoft SQL Server
+=== Microsoft SQL Server
 [source,ddl]
 ----
 CREATE TABLE acl_sid (
@@ -297,7 +297,7 @@ CREATE TABLE acl_entry (
 );
 ----
 
-==== Oracle Database
+=== Oracle Database
 [source,ddl]
 ----
 CREATE TABLE ACL_SID (

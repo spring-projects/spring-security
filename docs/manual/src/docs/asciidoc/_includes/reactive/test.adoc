@@ -159,7 +159,7 @@ All of this can be quite daunting, especially when this isn't the focus of your 
 Fortunately, there are a number of simple ways that you can overcome this difficulty and allow your tests to focus on authorization and not on representing bearer tokens.
 We'll look at two of them now:
 
-===== `mockJwt() WebTestClientConfigurer`
+==== `mockJwt() WebTestClientConfigurer`
 
 The first way is via a `WebTestClientConfigurer`.
 The simplest of these would look something like this:
@@ -248,7 +248,7 @@ client
 	.get().uri("/endpoint").exchange();
 ----
 
-===== `authentication()` `WebTestClientConfigurer`
+==== `authentication()` `WebTestClientConfigurer`
 
 The second way is by using the `authentication()` `Mutator`.
 Essentially, you can instantiate your own `JwtAuthenticationToken` and provide it in your test, like so:
