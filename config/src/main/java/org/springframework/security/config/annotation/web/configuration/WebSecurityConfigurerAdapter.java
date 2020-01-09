@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.target.LazyInitTargetSource;
@@ -36,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.support.SpringFactoriesLoader;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -194,8 +196,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 			return http;
 		}
 
-		DefaultAuthenticationEventPublisher eventPublisher = objectPostProcessor
-				.postProcess(new DefaultAuthenticationEventPublisher());
+		AuthenticationEventPublisher eventPublisher = getAuthenticationEventPublisher();
 		localConfigureAuthenticationBldr.authenticationEventPublisher(eventPublisher);
 
 		AuthenticationManager authenticationManager = authenticationManager();
@@ -405,6 +406,13 @@ public abstract class WebSecurityConfigurerAdapter implements
 	public void setAuthenticationConfiguration(
 			AuthenticationConfiguration authenticationConfiguration) {
 		this.authenticationConfiguration = authenticationConfiguration;
+	}
+
+	private AuthenticationEventPublisher getAuthenticationEventPublisher() {
+		if (this.context.getBeanNamesForType(AuthenticationEventPublisher.class).length > 0) {
+			return this.context.getBean(AuthenticationEventPublisher.class);
+		}
+		return this.objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher());
 	}
 
 	/**

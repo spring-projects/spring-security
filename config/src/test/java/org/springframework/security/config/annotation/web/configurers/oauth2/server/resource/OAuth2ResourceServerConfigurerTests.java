@@ -73,6 +73,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -88,6 +89,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
@@ -99,8 +101,8 @@ import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
@@ -1091,6 +1093,22 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(invalidTokenHeader("algorithm"));
 	}
 
+	// gh-7793
+	@Test
+	public void requestWhenUsingCustomAuthenticationEventPublisherThenUses() throws Exception{
+		this.spring.register(CustomAuthenticationEventPublisher.class).autowire();
+
+		when(bean(JwtDecoder.class).decode(anyString()))
+				.thenThrow(new JwtException("problem"));
+
+		this.mvc.perform(get("/").with(bearerToken("token")));
+
+		verifyBean(AuthenticationEventPublisher.class)
+				.publishAuthenticationFailure(
+						any(OAuth2AuthenticationException.class),
+						any(Authentication.class));
+	}
+
 	@Test
 	public void getWhenCustomJwtAuthenticationManagerThenUsed() throws Exception {
 		this.spring.register(JwtAuthenticationManagerConfig.class, BasicController.class).autowire();
@@ -2012,6 +2030,31 @@ public class OAuth2ResourceServerConfigurerTests {
 			RSAPublicKey publicKey = (RSAPublicKey)
 					KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(this.spec));
 			return withPublicKey(publicKey).build();
+		}
+	}
+
+	@EnableWebSecurity
+	static class CustomAuthenticationEventPublisher extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2ResourceServer()
+					.jwt();
+			// @formatter:on
+		}
+
+		@Bean
+		JwtDecoder jwtDecoder() {
+			return mock(JwtDecoder.class);
+		}
+
+		@Bean
+		AuthenticationEventPublisher authenticationEventPublisher() {
+			return mock(AuthenticationEventPublisher.class);
 		}
 	}
 
