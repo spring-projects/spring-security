@@ -25,11 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -49,21 +44,14 @@ import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.context.request.async.SecurityContextCallableProcessingInterceptor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
-import org.springframework.web.context.request.async.CallableProcessingInterceptor;
-import org.springframework.web.context.request.async.WebAsyncManager;
-import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -75,9 +63,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @author Joe Grandja
  */
-@PrepareForTest({WebAsyncManager.class})
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*", "javax.xml.transform.*" })
 public class WebSecurityConfigurerAdapterTests {
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -101,42 +86,6 @@ public class WebSecurityConfigurerAdapterTests {
 
 	@EnableWebSecurity
 	static class HeadersArePopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) {
-		}
-	}
-
-	@Test
-	public void loadConfigWhenDefaultConfigThenWebAsyncManagerIntegrationFilterAdded() throws Exception {
-		this.spring.register(WebAsyncPopulatedByDefaultConfig.class).autowire();
-
-		WebAsyncManager webAsyncManager = mock(WebAsyncManager.class);
-
-		this.mockMvc.perform(get("/").requestAttr(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE, webAsyncManager));
-
-		ArgumentCaptor<CallableProcessingInterceptor> callableProcessingInterceptorArgCaptor =
-			ArgumentCaptor.forClass(CallableProcessingInterceptor.class);
-		verify(webAsyncManager, atLeastOnce()).registerCallableInterceptor(any(), callableProcessingInterceptorArgCaptor.capture());
-
-		CallableProcessingInterceptor callableProcessingInterceptor =
-			callableProcessingInterceptorArgCaptor.getAllValues().stream()
-				.filter(e -> SecurityContextCallableProcessingInterceptor.class.isAssignableFrom(e.getClass()))
-				.findFirst()
-				.orElse(null);
-
-		assertThat(callableProcessingInterceptor).isNotNull();
-	}
-
-	@EnableWebSecurity
-	static class WebAsyncPopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
