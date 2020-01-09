@@ -7,11 +7,12 @@ This section provides details on how Spring Security provides support for https:
 Spring Security's HTTP Basic Authentication support in is enabled by default.
 However, as soon as any servlet based configuration is provided, HTTP Basic must be explicitly provided.
 
-A minimal, explicit Java configuration can be found below:
+A minimal, explicit configuration can be found below:
 
-.HTTP Basic Java Configuration
+.Explicit HTTP Basic Configuration
 ====
-[source,java]
+[source,java,role="primary"]
+.Java
 ----
 protected void configure(HttpSecurity http) {
 	http
@@ -19,13 +20,9 @@ protected void configure(HttpSecurity http) {
 		.httpBasic(withDefaults());
 }
 ----
-====
 
-A minimal XML configuration can be found below:
-
-.HTTP Basic XML Configuration
-====
-[source,xml]
+[source,xml,role="secondary"]
+.XML
 ----
 <http>
 	<!-- ... -->
