@@ -59,7 +59,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ SpringFactoriesLoader.class, WebAsyncManager.class })
-@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
+@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*", "javax.xml.transform.*" })
 public class WebSecurityConfigurerAdapterPowermockTests {
 	ConfigurableWebApplicationContext context;
 
