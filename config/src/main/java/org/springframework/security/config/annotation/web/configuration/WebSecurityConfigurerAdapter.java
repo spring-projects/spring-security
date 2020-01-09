@@ -201,7 +201,6 @@ public abstract class WebSecurityConfigurerAdapter implements
 
 		AuthenticationManager authenticationManager = authenticationManager();
 		authenticationBuilder.parentAuthenticationManager(authenticationManager);
-		authenticationBuilder.authenticationEventPublisher(eventPublisher);
 		Map<Class<?>, Object> sharedObjects = createSharedObjects();
 
 		http = new HttpSecurity(objectPostProcessor, authenticationBuilder,
@@ -383,6 +382,11 @@ public abstract class WebSecurityConfigurerAdapter implements
 				return super.eraseCredentials(eraseCredentials);
 			}
 
+			@Override
+			public AuthenticationManagerBuilder authenticationEventPublisher(AuthenticationEventPublisher eventPublisher) {
+				authenticationBuilder.authenticationEventPublisher(eventPublisher);
+				return super.authenticationEventPublisher(eventPublisher);
+			}
 		};
 	}
 
