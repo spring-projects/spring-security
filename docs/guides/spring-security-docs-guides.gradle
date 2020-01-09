@@ -1,4 +1,5 @@
-apply plugin: 'org.asciidoctor.gradle.asciidoctor'
+apply plugin: 'org.asciidoctor.jvm.convert'
+apply plugin: 'io.spring.convention.repository'
 
 asciidoctor {
 	baseDir = file('src/docs/asciidoc')
