@@ -33,6 +33,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -40,9 +41,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.accept.ContentNegotiationStrategy;
@@ -51,8 +54,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -363,5 +369,33 @@ public class WebSecurityConfigurerAdapterTests {
 
 	@Order
 	static class LowestPriorityWebSecurityConfig extends WebSecurityConfigurerAdapter {
+	}
+
+	// gh-7515
+	@Test
+	public void performWhenUsingAuthenticationEventPublisherBeanThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationEventPublisherBean.class).autowire();
+
+		AuthenticationEventPublisher authenticationEventPublisher =
+				this.spring.getContext().getBean(AuthenticationEventPublisher.class);
+
+		this.mockMvc.perform(get("/")
+				.with(httpBasic("user", "password")));
+
+		verify(authenticationEventPublisher).publishAuthenticationSuccess(any(Authentication.class));
+	}
+
+	@EnableWebSecurity
+	static class CustomAuthenticationEventPublisherBean extends WebSecurityConfigurerAdapter {
+		@Bean
+		@Override
+		public UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+		@Bean
+		public AuthenticationEventPublisher authenticationEventPublisher() {
+			return mock(AuthenticationEventPublisher.class);
+		}
 	}
 }
