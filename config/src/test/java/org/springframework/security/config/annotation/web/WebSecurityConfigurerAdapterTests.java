@@ -42,6 +42,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -396,6 +397,32 @@ public class WebSecurityConfigurerAdapterTests {
 		@Bean
 		public AuthenticationEventPublisher authenticationEventPublisher() {
 			return mock(AuthenticationEventPublisher.class);
+		}
+	}
+
+	// gh-4400
+	@Test
+	public void performWhenUsingAuthenticationEventPublisherInDslThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationEventPublisherDsl.class).autowire();
+
+		AuthenticationEventPublisher authenticationEventPublisher =
+				CustomAuthenticationEventPublisherDsl.EVENT_PUBLISHER;
+
+		this.mockMvc.perform(get("/")
+				.with(httpBasic("user", "password"))); // fails since no providers configured
+
+		verify(authenticationEventPublisher).publishAuthenticationFailure(
+				any(AuthenticationException.class),
+				any(Authentication.class));
+	}
+
+	@EnableWebSecurity
+	static class CustomAuthenticationEventPublisherDsl extends WebSecurityConfigurerAdapter {
+		static AuthenticationEventPublisher EVENT_PUBLISHER = mock(AuthenticationEventPublisher.class);
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth.authenticationEventPublisher(EVENT_PUBLISHER);
 		}
 	}
 }
