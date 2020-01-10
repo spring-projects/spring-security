@@ -1147,30 +1147,27 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @since 5.3
 	 */
 	public final static class OpaqueTokenRequestPostProcessor implements RequestPostProcessor {
-		private final Map<String, Object> attributes = new HashMap<>();
-		private Converter<Map<String, Object>, Instant> expiresAtConverter =
-				attributes -> getInstant(attributes, "exp");
-		private Converter<Map<String, Object>, Instant> issuedAtConverter =
-				attributes -> getInstant(attributes, "iat");
-		private Converter<Map<String, Object>, Collection<GrantedAuthority>> authoritiesConverter =
-				attributes -> getAuthorities(attributes);
+		private Supplier<Map<String, Object>> attributes = this::defaultAttributes;
+		private Supplier<Collection<GrantedAuthority>> authorities = this::defaultAuthorities;
 
-		private OAuth2AuthenticatedPrincipal principal;
+		private Supplier<OAuth2AuthenticatedPrincipal> principal = this::defaultPrincipal;
 
-		private OpaqueTokenRequestPostProcessor() {
-			this.attributes.put(OAuth2IntrospectionClaimNames.SUBJECT, "user");
-			this.attributes.put(OAuth2IntrospectionClaimNames.SCOPE, "read");
-		}
+		private OpaqueTokenRequestPostProcessor() { }
 
 		/**
-		 * Add the provided attribute to the resulting principal
-		 * @param name the attribute name
-		 * @param value the attribute value
+		 * Mutate the attributes using the given {@link Consumer}
+		 *
+		 * @param attributesConsumer The {@link Consumer} for mutating the {@Map} of attributes
 		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
 		 */
-		public OpaqueTokenRequestPostProcessor attribute(String name, Object value) {
-			Assert.notNull(name, "name cannot be null");
-			this.attributes.put(name, value);
+		public OpaqueTokenRequestPostProcessor attributes(Consumer<Map<String, Object>> attributesConsumer) {
+			Assert.notNull(attributesConsumer, "attributesConsumer cannot be null");
+			this.attributes = () -> {
+				Map<String, Object> attributes = defaultAttributes();
+				attributesConsumer.accept(attributes);
+				return attributes;
+			};
+			this.principal = this::defaultPrincipal;
 			return this;
 		}
 
@@ -1181,7 +1178,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 */
 		public OpaqueTokenRequestPostProcessor authorities(Collection<GrantedAuthority> authorities) {
 			Assert.notNull(authorities, "authorities cannot be null");
-			this.authoritiesConverter = attributes -> authorities;
+			this.authorities = () -> authorities;
+			this.principal = this::defaultPrincipal;
 			return this;
 		}
 
@@ -1192,7 +1190,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 */
 		public OpaqueTokenRequestPostProcessor authorities(GrantedAuthority... authorities) {
 			Assert.notNull(authorities, "authorities cannot be null");
-			this.authoritiesConverter = attributes -> Arrays.asList(authorities);
+			this.authorities = () -> Arrays.asList(authorities);
+			this.principal = this::defaultPrincipal;
 			return this;
 		}
 
@@ -1203,46 +1202,41 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 */
 		public OpaqueTokenRequestPostProcessor scopes(String... scopes) {
 			Assert.notNull(scopes, "scopes cannot be null");
-			this.authoritiesConverter = attributes -> getAuthorities(Arrays.asList(scopes));
+			this.authorities = () -> getAuthorities(Arrays.asList(scopes));
+			this.principal = this::defaultPrincipal;
 			return this;
 		}
 
 		/**
 		 * Use the provided principal
-		 *
-		 * Providing the principal takes precedence over
-		 * any authorities or attributes provided via {@link #attribute(String, Object)},
-		 * {@link #authorities} or {@link #scopes}.
-		 *
 		 * @param principal the principal to use
 		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
 		 */
 		public OpaqueTokenRequestPostProcessor principal(OAuth2AuthenticatedPrincipal principal) {
 			Assert.notNull(principal, "principal cannot be null");
-			this.principal = principal;
+			this.principal = () -> principal;
 			return this;
 		}
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			CsrfFilter.skipRequest(request);
-			OAuth2AuthenticatedPrincipal principal = getPrincipal();
+			OAuth2AuthenticatedPrincipal principal = this.principal.get();
 			OAuth2AccessToken accessToken = getOAuth2AccessToken(principal);
 			BearerTokenAuthentication token = new BearerTokenAuthentication
 					(principal, accessToken, principal.getAuthorities());
 			return new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
 		}
 
-		private OAuth2AuthenticatedPrincipal getPrincipal() {
-			if (this.principal != null) {
-				return this.principal;
-			}
-
-			return new DefaultOAuth2AuthenticatedPrincipal
-					(this.attributes, this.authoritiesConverter.convert(this.attributes));
+		private Map<String, Object> defaultAttributes() {
+			Map<String, Object> attributes = new HashMap<>();
+			attributes.put(OAuth2IntrospectionClaimNames.SUBJECT, "user");
+			attributes.put(OAuth2IntrospectionClaimNames.SCOPE, "read");
+			return attributes;
 		}
 
-		private Collection<GrantedAuthority> getAuthorities(Map<String, Object> attributes) {
+		private Collection<GrantedAuthority> defaultAuthorities() {
+			Map<String, Object> attributes = this.attributes.get();
 			Object scope = attributes.get(OAuth2IntrospectionClaimNames.SCOPE);
 			if (scope == null) {
 				return Collections.emptyList();
@@ -1257,10 +1251,22 @@ public final class SecurityMockMvcRequestPostProcessors {
 			return getAuthorities(Arrays.asList(scopes.split(" ")));
 		}
 
+		private OAuth2AuthenticatedPrincipal defaultPrincipal() {
+			return new DefaultOAuth2AuthenticatedPrincipal
+					(this.attributes.get(), this.authorities.get());
+		}
+
 		private Collection<GrantedAuthority> getAuthorities(Collection<?> scopes) {
 			return scopes.stream()
 					.map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope))
 					.collect(Collectors.toList());
+		}
+
+		private OAuth2AccessToken getOAuth2AccessToken(OAuth2AuthenticatedPrincipal principal) {
+			Instant expiresAt = getInstant(principal.getAttributes(), "exp");
+			Instant issuedAt = getInstant(principal.getAttributes(), "iat");
+			return new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+					"token", issuedAt, expiresAt);
 		}
 
 		private Instant getInstant(Map<String, Object> attributes, String name) {
@@ -1272,13 +1278,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 				return (Instant) value;
 			}
 			throw new IllegalArgumentException(name + " attribute must be of type Instant");
-		}
-
-		private OAuth2AccessToken getOAuth2AccessToken(OAuth2AuthenticatedPrincipal principal) {
-			Instant expiresAt = this.expiresAtConverter.convert(principal.getAttributes());
-			Instant issuedAt = this.issuedAtConverter.convert(principal.getAttributes());
-			return new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-					"token", issuedAt, expiresAt);
 		}
 	}
 
