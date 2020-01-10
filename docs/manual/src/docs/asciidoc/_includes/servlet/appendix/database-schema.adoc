@@ -1,4 +1,4 @@
-[[__appendix-schema]]
+[[appendix-schema]]
 = Security Database Schema
 There are various database schema used by the framework and this appendix provides a single reference point to them all.
 You only need to provide the tables for the areas of functionality you require.
