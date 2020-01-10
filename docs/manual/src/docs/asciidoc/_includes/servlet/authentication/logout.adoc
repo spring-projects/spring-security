@@ -17,17 +17,16 @@ Similar to configuring login capabilities, however, you also have various option
 [source,java]
 ----
 protected void configure(HttpSecurity http) throws Exception {
-	http
-		.logout(logout ->                                                       // <1>
-		    logout
-			    .logoutUrl("/my/logout")                                        // <2>
-			    .logoutSuccessUrl("/my/index")                                  // <3>
-			    .logoutSuccessHandler(logoutSuccessHandler)                     // <4>
-			    .invalidateHttpSession(true)                                    // <5>
-			    .addLogoutHandler(logoutHandler)                                // <6>
-			    .deleteCookies(cookieNamesToClear)                              // <7>
-		)
-		...
+    http
+        .logout(logout -> logout                                                // <1>
+            .logoutUrl("/my/logout")                                            // <2>
+            .logoutSuccessUrl("/my/index")                                      // <3>
+            .logoutSuccessHandler(logoutSuccessHandler)                         // <4>
+            .invalidateHttpSession(true)                                        // <5>
+            .addLogoutHandler(logoutHandler)                                    // <6>
+            .deleteCookies(cookieNamesToClear)                                  // <7>
+        )
+        ...
 }
 ----
 

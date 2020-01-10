@@ -319,18 +319,16 @@ Similarly, you can customize frame options to use the same origin within Java Co
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers(headers ->
-        headers
-          .frameOptions(frameOptions ->
-             frameOptions
-               .sameOrigin()
-          )
-      );
-  }
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            // ...
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions
+                     .sameOrigin()
+                )
+        );
+    }
 }
 ----
 
@@ -361,20 +359,17 @@ public class WebSecurityConfig
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf ->
-                csrf
-                    // ignore our stomp endpoints since they are protected using Stomp headers
-                    .ignoringAntMatchers("/chat/**")
+            .csrf(csrf -> csrf
+                // ignore our stomp endpoints since they are protected using Stomp headers
+                .ignoringAntMatchers("/chat/**")
             )
-            .headers(headers ->
-                headers
-                    // allow same origin to frame our site to support iframe SockJS
-                    .frameOptions(frameOptions ->
-                        frameOptions
-                            .sameOrigin()
-                    )
+            .headers(headers -> headers
+                // allow same origin to frame our site to support iframe SockJS
+                .frameOptions(frameOptions -> frameOptions
+                    .sameOrigin()
+                )
             )
-            .authorizeRequests(authorizeRequests ->
+            .authorizeRequests(authorize -> authorize
                 ...
             )
             ...

@@ -291,9 +291,8 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests(authorizeRequests ->
-			    authorizeRequests
-				    .anyRequest().authenticated()
+			.authorizeRequests(authorize -> authorize
+				.anyRequest().authenticated()
 			)
 			.oauth2Login(withDefaults());
 	}
@@ -317,9 +316,8 @@ public class OAuth2LoginConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests(authorizeRequests ->
-				    authorizeRequests
-					    .anyRequest().authenticated()
+				.authorizeRequests(authorize -> authorize
+					.anyRequest().authenticated()
 				)
 				.oauth2Login(withDefaults());
 		}
@@ -366,9 +364,8 @@ public class OAuth2LoginConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests(authorizeRequests ->
-				    authorizeRequests
-					    .anyRequest().authenticated()
+				.authorizeRequests(authorize -> authorize
+					.anyRequest().authenticated()
 				)
 				.oauth2Login(withDefaults());
 		}
@@ -418,24 +415,19 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2Login ->
-			    oauth2Login
-			        .authorizationEndpoint(authorizationEndpoint ->
-			            authorizationEndpoint
-			                ...
-			        )
-			        .redirectionEndpoint(redirectionEndpoint ->
-			            redirectionEndpoint
-			                ...
-			        )
-			        .tokenEndpoint(tokenEndpoint ->
-			            tokenEndpoint
-			                ...
-			        )
-			        .userInfoEndpoint(userInfoEndpoint ->
-			            userInfoEndpoint
-			                ...
-			        )
+			.oauth2Login(oauth2 -> oauth2
+			    .authorizationEndpoint(authorization -> authorization
+			            ...
+			    )
+			    .redirectionEndpoint(redirection -> redirection
+			            ...
+			    )
+			    .tokenEndpoint(token -> token
+			            ...
+			    )
+			    .userInfoEndpoint(userInfo -> userInfo
+			            ...
+			    )
 			);
 	}
 }
@@ -470,33 +462,28 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2Login ->
-			    oauth2Login
-			        .clientRegistrationRepository(this.clientRegistrationRepository())
-			        .authorizedClientRepository(this.authorizedClientRepository())
-			        .authorizedClientService(this.authorizedClientService())
-			        .loginPage("/login")
-			        .authorizationEndpoint(authorizationEndpoint ->
-			            authorizationEndpoint
-			                .baseUri(this.authorizationRequestBaseUri())
-			                .authorizationRequestRepository(this.authorizationRequestRepository())
-			                .authorizationRequestResolver(this.authorizationRequestResolver())
-			        )
-			        .redirectionEndpoint(redirectionEndpoint ->
-			             redirectionEndpoint
-			                .baseUri(this.authorizationResponseBaseUri())
-			        )
-			        .tokenEndpoint(tokenEndpoint ->
-			            tokenEndpoint
-			                .accessTokenResponseClient(this.accessTokenResponseClient())
-			        )
-			        .userInfoEndpoint(userInfoEndpoint ->
-			            userInfoEndpoint
-			                .userAuthoritiesMapper(this.userAuthoritiesMapper())
-			                .userService(this.oauth2UserService())
-			                .oidcUserService(this.oidcUserService())
-			                .customUserType(GitHubOAuth2User.class, "github")
-			        )
+			.oauth2Login(oauth2 -> oauth2
+			    .clientRegistrationRepository(this.clientRegistrationRepository())
+			    .authorizedClientRepository(this.authorizedClientRepository())
+			    .authorizedClientService(this.authorizedClientService())
+			    .loginPage("/login")
+			    .authorizationEndpoint(authorization -> authorization
+			        .baseUri(this.authorizationRequestBaseUri())
+			        .authorizationRequestRepository(this.authorizationRequestRepository())
+			        .authorizationRequestResolver(this.authorizationRequestResolver())
+			    )
+			    .redirectionEndpoint(redirection -> redirection
+			        .baseUri(this.authorizationResponseBaseUri())
+			    )
+			    .tokenEndpoint(token -> token
+			        .accessTokenResponseClient(this.accessTokenResponseClient())
+			    )
+			    .userInfoEndpoint(userInfo -> userInfo
+			        .userAuthoritiesMapper(this.userAuthoritiesMapper())
+			        .userService(this.oauth2UserService())
+			        .oidcUserService(this.oidcUserService())
+			        .customUserType(GitHubOAuth2User.class, "github")
+			    )
 			);
 	}
 }
@@ -542,15 +529,13 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2Login ->
-			    oauth2Login
-			        .loginPage("/login/oauth2")
+			.oauth2Login(oauth2 -> oauth2
+			    .loginPage("/login/oauth2")
+			    ...
+			    .authorizationEndpoint(authorization -> authorization
+			        .baseUri("/login/oauth2/authorization")
 			        ...
-			        .authorizationEndpoint(authorizationEndpoint ->
-			            authorizationEndpoint
-			                .baseUri("/login/oauth2/authorization")
-			                ...
-			        )
+			    )
 			);
 	}
 }
@@ -594,13 +579,11 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2Login ->
-			    oauth2Login
-			        .redirectionEndpoint(redirectionEndpoint ->
-			            redirectionEndpoint
-			                .baseUri("/login/oauth2/callback/*")
-			                ...
-			        )
+			.oauth2Login(oauth2 -> oauth2
+			    .redirectionEndpoint(redirection -> redirection
+			        .baseUri("/login/oauth2/callback/*")
+			        ...
+			    )
 			);
 	}
 }
@@ -661,13 +644,11 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2Login ->
-			    oauth2Login
-			        .userInfoEndpoint(userInfoEndpoint ->
-			            userInfoEndpoint
-			                .userAuthoritiesMapper(this.userAuthoritiesMapper())
-			                ...
-			        )
+			.oauth2Login(oauth2 -> oauth2
+			    .userInfoEndpoint(userInfo -> userInfo
+			        .userAuthoritiesMapper(this.userAuthoritiesMapper())
+			        ...
+			    )
 			);
 	}
 
@@ -740,13 +721,11 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2Login ->
-			    oauth2Login
-			        .userInfoEndpoint(userInfoEndpoint ->
-			            userInfoEndpoint
-			                .oidcUserService(this.oidcUserService())
-			                ...
-			        )
+			.oauth2Login(oauth2 -> oauth2
+			    .userInfoEndpoint(userInfo -> userInfo
+			        .oidcUserService(this.oidcUserService())
+			        ...
+			    )
 			);
 	}
 
@@ -791,13 +770,11 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2Login ->
-			    oauth2Login
-			        .userInfoEndpoint(userInfoEndpoint ->
-			            userInfoEndpoint
-			                .customUserType(GitHubOAuth2User.class, "github")
-			                ...
-			        )
+			.oauth2Login(oauth2 -> oauth2
+			    .userInfoEndpoint(userInfo -> userInfo
+			        .customUserType(GitHubOAuth2User.class, "github")
+			        ...
+			    )
 			);
 	}
 }
@@ -909,13 +886,11 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2Login ->
-			    oauth2Login
-			        .userInfoEndpoint(userInfoEndpoint ->
-			            userInfoEndpoint
-			                .userService(this.oauth2UserService())
-			                ...
-			        )
+			.oauth2Login(oauth2 -> oauth2
+			    .userInfoEndpoint(userInfo -> userInfo
+			        .userService(this.oauth2UserService())
+			        ...
+			    )
 			);
 	}
 
@@ -945,13 +920,11 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2Login ->
-			    oauth2Login
-				    .userInfoEndpoint(userInfoEndpoint ->
-				        userInfoEndpoint
-				            .oidcUserService(this.oidcUserService())
-			                ...
-			        )
+			.oauth2Login(oauth2 -> oauth2
+				.userInfoEndpoint(userInfo -> userInfo
+				    .oidcUserService(this.oidcUserService())
+				    ...
+			    )
 			);
 	}
 
@@ -1031,14 +1004,12 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests(authorizeRequests ->
-				authorizeRequests
-					.anyRequest().authenticated()
+			.authorizeRequests(authorize -> authorize
+				.anyRequest().authenticated()
 			)
 			.oauth2Login(withDefaults())
-			.logout(logout ->
-				logout
-					.logoutSuccessHandler(oidcLogoutSuccessHandler())
+			.logout(logout -> logout
+				.logoutSuccessHandler(oidcLogoutSuccessHandler())
 			);
 	}
 

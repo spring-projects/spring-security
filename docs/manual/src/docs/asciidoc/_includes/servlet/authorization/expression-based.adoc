@@ -140,10 +140,9 @@ or in Java configuration
 [source,java]
 ----
 http
-    .authorizeRequests(authorizeRequests ->
-        authorizeRequests
-            .antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
-            ...
+    .authorizeRequests(authorize -> authorize
+        .antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
+        ...
     )
 ----
 
@@ -181,10 +180,9 @@ or in Java configuration
 [source,java]
 ----
 http
-	.authorizeRequests(authorizeRequests ->
-	    authorizeRequests
-			.antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,#userId)")
-			...
+	.authorizeRequests(authorize -> authorize
+		.antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,#userId)")
+		...
 	);
 ----
 
