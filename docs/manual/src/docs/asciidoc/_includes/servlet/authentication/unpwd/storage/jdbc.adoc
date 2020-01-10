@@ -3,21 +3,13 @@
 
 Spring Security's `JdbcDaoImpl` implements <<servlet-authentication-userdetailsservice,UserDetailsService>> to provide support for username/password based authentication that is retrieved using JDBC.
 `JdbcUserDetailsManager` extends `JdbcDaoImpl` to provide management of `UserDetails` through the `UserDetailsManager` interface.
+`UserDetails` based authentication is used by Spring Security when it is configured to <<servlet-authentication-unpwd-input,accept a username/password>> for authentication.
 
 In the following sections we will discuss:
 
 * The <<servlet-authentication-jdbc-schema>> used by Spring Security JDBC Authentication
 * <<servlet-authentication-jdbc-datasource>>
 * <<servlet-authentication-jdbc-bean>>
-
-[[servlet-authentication-jdbc-when]]
-== When is it Used?
-
-JDBC authentication is used for authenticating a username and password.
-Spring Security leverages username/password based authentication when any of the following are enabled:
-
-* <<servlet-authentication-form>>
-* <<servlet-authentication-basic>>
 
 [[servlet-authentication-jdbc-schema]]
 == Default Schema
@@ -115,9 +107,10 @@ create table group_members (
 Before we configure `JdbcUserDetailsManager`, we must create a `DataSource`.
 In our example, we will setup an https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/data-access.html#jdbc-embedded-database-support[embedded DataSource] that is initialized with the <<servlet-authentication-jdbc-schema,default user schema>>.
 
-.Embedded Data Source with Java Configuration
+.Embedded Data Source
 ====
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 DataSource dataSource() {
@@ -127,11 +120,9 @@ DataSource dataSource() {
 		.build();
 }
 ----
-====
 
-.Embedded Data Source with XML Configuration
-====
-[source,xml]
+.XML
+[source,xml,role="secondary"]
 ----
 <jdbc:embedded-database>
 	<jdbc:script location="classpath:org/springframework/security/core/userdetails/jdbc/users.ddl"/>
@@ -147,9 +138,11 @@ In a production environment, you will want to ensure you setup a connection to a
 In this sample we use <<authentication-password-storage-boot-cli,Spring Boot CLI>> to encode the password of `password` and get the encoded password of `{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW`.
 See the <<authentication-password-storage,PasswordEncoder>> section for more details about how to store passwords.
 
-.JdbcUserDetailsManager with Java Configuration
+.JdbcUserDetailsManager
 ====
-[source,java]
+
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 UserDetailsManager users(DataSource dataSource) {
@@ -167,13 +160,9 @@ UserDetailsManager users(DataSource dataSource) {
 	users.createUser()
 }
 ----
-====
 
-The same configuration in XML looks like:
-
-.<jdbc-user-service> XML Configuration
-====
-[source,xml]
+.XML
+[source,xml,role="secondary"]
 ----
 <jdbc-user-service>
 	<user name="user"

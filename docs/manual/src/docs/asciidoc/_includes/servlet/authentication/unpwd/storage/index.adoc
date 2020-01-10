@@ -1,7 +1,7 @@
 [[servlet-authentication-unpwd-storage]]
 = User Storage
 
-Spring Security's <<servlet-authentication-userdetailsservice,`UserDetailsService`>> allows for storing user information including a username and password.
+Spring Security's <<servlet-authentication-userdetailsservice,`UserDetailsService`>> allows for storing user information when authenticating with a username/password.
 `UserDetailsService` is used by Spring Security when it is configured to <<servlet-authentication-unpwd-input,accept a username/password>> for authentication.
 
 // FIXME: Once it is retrieved it is validated using DaoAuthenticationProvider

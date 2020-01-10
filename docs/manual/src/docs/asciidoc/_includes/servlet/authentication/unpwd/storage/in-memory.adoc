@@ -9,7 +9,8 @@ In this sample we use <<authentication-password-storage-boot-cli,Spring Boot CLI
 
 .InMemoryUserDetailsManager Java Configuration
 ====
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public UserDetailsService users() {
@@ -26,13 +27,9 @@ public UserDetailsService users() {
 	return new InMemoryUserDetailsManager(user, admin);
 }
 ----
-====
 
-The same configuration in XML looks like:
-
-.<user-service> XML Configuration
-====
-[source,xml]
+.XML
+[source,xml,role="secondary"]
 ----
 <user-service>
 	<user name="user"

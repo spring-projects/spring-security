@@ -12,9 +12,10 @@ Spring Security form log in is enabled by default.
 However, as soon as any servlet based configuration is provided, form based log in must be explicitly provided.
 A minimal, explicit Java configuration can be found below:
 
-.Form Log In Java Configuration
+.Form Log
 ====
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 protected void configure(HttpSecurity http) {
 	http
@@ -22,13 +23,9 @@ protected void configure(HttpSecurity http) {
 		.formLogin(withDefaults());
 }
 ----
-====
 
-A minimal XML configuration can be found below:
-
-.Form Log In XML Configuration
-====
-[source,xml]
+.XML
+[source,xml,role="secondary"]
 ----
 <http>
 	<!-- ... -->
@@ -45,9 +42,10 @@ Most production applications will require a custom log in form.
 
 The configuration below demonstrates how to provide a custom log in form.
 
-.Custom Log In Form with Java Configuration
+.Custom Log In Form Configuration
 ====
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 protected void configure(HttpSecurity http) throws Exception {
 	http
@@ -58,13 +56,9 @@ protected void configure(HttpSecurity http) throws Exception {
 		);
 }
 ----
-====
 
-A minimal XML configuration can be found below:
-
-.Custom Log In Form with XML Configuration
-====
-[source,xml]
+.XML
+[source,xml,role="secondary"]
 ----
 <http>
 	<!-- ... -->
@@ -75,13 +69,12 @@ A minimal XML configuration can be found below:
 ====
 
 [[servlet-authentication-form-custom-html]]
-=== HTML Form
-
 When the login page is specified in the Spring Security configuration, you are responsible for rendering the page.
 Below is a https://www.thymeleaf.org/[Thymeleaf] template that produces an HTML login form that complies with a login page of `/login`.:
 
-.Log In Form src/main/resources/templates/login.html
+.Log In Form
 ====
+.src/main/resources/templates/login.html
 [source,xml]
 ----
 <!DOCTYPE html>
@@ -122,13 +115,12 @@ Many users will not need much more than to customize the log in page.
 However, if needed everything above can be customized with additional configuration.
 
 [[servlet-authentication-form-custom-controller]]
-== LoginController
-
 If you are using Spring MVC, you will need a controller that maps `GET /login` to the login template we created.
 A minimal sample `LoginController` can be see below:
 
 .LoginController
 ====
+.src/main/java/example/LoginController.java
 [source,java]
 ----
 @Controller
