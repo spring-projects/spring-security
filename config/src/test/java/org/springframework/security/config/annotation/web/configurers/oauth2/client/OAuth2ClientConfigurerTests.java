@@ -138,7 +138,9 @@ public class OAuth2ClientConfigurerTests {
 		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?" +
 				"response_type=code&client_id=client-1&" +
 				"scope=user&state=.{15,}&" +
-				"redirect_uri=http://localhost/client-1");
+				"redirect_uri=http://localhost/client-1&" +
+				"code_challenge_method=S256&" +
+				"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -151,7 +153,9 @@ public class OAuth2ClientConfigurerTests {
 		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?" +
 				"response_type=code&client_id=client-1&" +
 				"scope=user&state=.{15,}&" +
-				"redirect_uri=http://localhost/client-1");
+				"redirect_uri=http://localhost/client-1&" +
+				"code_challenge_method=S256&" +
+				"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -203,7 +207,9 @@ public class OAuth2ClientConfigurerTests {
 		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("https://provider.com/oauth2/authorize\\?" +
 				"response_type=code&client_id=client-1&" +
 				"scope=user&state=.{15,}&" +
-				"redirect_uri=http://localhost/client-1");
+				"redirect_uri=http://localhost/client-1&" +
+				"code_challenge_method=S256&" +
+				"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 
 		verify(requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}

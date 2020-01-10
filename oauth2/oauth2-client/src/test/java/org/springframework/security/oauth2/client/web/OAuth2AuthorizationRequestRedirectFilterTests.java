@@ -154,7 +154,9 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
 				"response_type=code&client_id=client-id&" +
 				"scope=read:user&state=.{15,}&" +
-				"redirect_uri=http://localhost/login/oauth2/code/registration-id");
+				"redirect_uri=http://localhost/login/oauth2/code/registration-id&" +
+				"code_challenge_method=S256&" +
+				"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -234,7 +236,9 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
 				"response_type=code&client_id=client-id&" +
 				"scope=read:user&state=.{15,}&" +
-				"redirect_uri=http://localhost/login/oauth2/code/registration-id");
+				"redirect_uri=http://localhost/login/oauth2/code/registration-id&" +
+				"code_challenge_method=S256&" +
+				"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 	}
 
 	@Test
@@ -255,7 +259,9 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?" +
 				"response_type=code&client_id=client-id&" +
 				"scope=read:user&state=.{15,}&" +
-				"redirect_uri=http://localhost/authorize/oauth2/code/registration-id");
+				"redirect_uri=http://localhost/authorize/oauth2/code/registration-id&" +
+				"code_challenge_method=S256&" +
+				"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
 		verify(this.requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -359,6 +365,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 				"response_type=code&client_id=client-id&" +
 				"scope=read:user&state=.{15,}&" +
 				"redirect_uri=http://localhost/login/oauth2/code/registration-id&" +
+				"code_challenge_method=S256&" +
+				"code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" +
 				"login_hint=user@provider\\.com");
 	}
 }

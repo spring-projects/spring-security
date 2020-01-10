@@ -23,7 +23,6 @@ import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
@@ -144,9 +143,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver
 				// 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
 				addNonceParameters(attributes, additionalParameters);
 			}
-			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
-				addPkceParameters(attributes, additionalParameters);
-			}
+			addPkceParameters(attributes, additionalParameters);
 			builder.additionalParameters(additionalParameters);
 		} else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
 			builder = OAuth2AuthorizationRequest.implicit();
