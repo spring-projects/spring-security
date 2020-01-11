@@ -353,6 +353,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	 */
 	public class RedirectionEndpointConfig {
 		private String authorizationResponseBaseUri;
+		private String preEstablishedRedirectUri;
 
 		private RedirectionEndpointConfig() {
 		}
@@ -366,6 +367,17 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		public RedirectionEndpointConfig baseUri(String authorizationResponseBaseUri) {
 			Assert.hasText(authorizationResponseBaseUri, "authorizationResponseBaseUri cannot be empty");
 			this.authorizationResponseBaseUri = authorizationResponseBaseUri;
+			return this;
+		}
+
+		/**
+		 * The redirect URI that has been pre-established with the server. If present, the redirect URI will be omitted from
+		 * the user authorization request because the server doesn't need to know it.
+		 *
+		 * @param preEstablishedRedirectUri The redirect URI that has been pre-established with the server.
+		 */
+		public RedirectionEndpointConfig preEstablishedRedirectUri(String preEstablishedRedirectUri) {
+			this.preEstablishedRedirectUri = preEstablishedRedirectUri;
 			return this;
 		}
 
@@ -475,10 +487,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	@Override
 	public void init(B http) throws Exception {
 		OAuth2LoginAuthenticationFilter authenticationFilter =
-			new OAuth2LoginAuthenticationFilter(
-				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
-				OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(this.getBuilder()),
-				this.loginProcessingUrl);
+				new OAuth2LoginAuthenticationFilter(
+						OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
+						OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(this.getBuilder()),
+						this.loginProcessingUrl,
+						this.redirectionEndpointConfig.preEstablishedRedirectUri
+				);
 		this.setAuthenticationFilter(authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 

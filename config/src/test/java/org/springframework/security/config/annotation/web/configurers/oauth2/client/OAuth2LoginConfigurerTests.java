@@ -23,10 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpHeaders;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +60,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -81,6 +79,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -415,6 +414,20 @@ public class OAuth2LoginConfigurerTests {
 
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
 	}
+
+	@Test
+	public void oauth2LoginWitPreEstablishedRedirectUri() {
+		loadConfig(OAuth2LoginConfigWithPreEstablishedRedirectUri.class);
+
+		List<SecurityFilterChain> filterChains = this.springSecurityFilterChain.getFilterChains();
+		Assert.assertEquals(1, filterChains.size());
+		OAuth2LoginAuthenticationFilter oauth2LoginAuthenticationFilter = (OAuth2LoginAuthenticationFilter) filterChains.get(0).getFilters()
+				.stream().filter(filter -> filter instanceof OAuth2LoginAuthenticationFilter).findFirst()
+				.orElse(null);
+		Assert.assertNotNull(oauth2LoginAuthenticationFilter);
+		Assert.assertEquals("https://behind-proxy.example.com/custom/oauth/{registrationId}", oauth2LoginAuthenticationFilter.getPreEstablishedRedirectUri());
+	}
+
 
 	// gh-6812
 	@Test
@@ -797,6 +810,19 @@ public class OAuth2LoginConfigurerTests {
 					.clientRegistrationRepository(
 							new InMemoryClientRegistrationRepository(
 									GOOGLE_CLIENT_REGISTRATION, GITHUB_CLIENT_REGISTRATION));
+			super.configure(http);
+		}
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginConfigWithPreEstablishedRedirectUri extends CommonWebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.oauth2Login()
+					.clientRegistrationRepository(new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
+					.redirectionEndpoint()
+					.preEstablishedRedirectUri("https://behind-proxy.example.com/custom/oauth/{registrationId}");
 			super.configure(http);
 		}
 	}

@@ -37,10 +37,12 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An implementation of an {@link AbstractAuthenticationProcessingFilter} for OAuth 2.0 Login.
@@ -102,6 +104,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	private OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
 		new HttpSessionOAuth2AuthorizationRequestRepository();
+	private String preEstablishedRedirectUri;
 
 	/**
 	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided parameters.
@@ -139,12 +142,30 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
 											OAuth2AuthorizedClientRepository authorizedClientRepository,
 											String filterProcessesUrl) {
+		this(clientRegistrationRepository, authorizedClientRepository, filterProcessesUrl, null);
+	}
+
+	/**
+	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided parameters.
+	 *
+	 * @since 5.3
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @param authorizedClientRepository the authorized client repository
+	 * @param filterProcessesUrl the {@code URI} where this {@code Filter} will process the authentication requests
+	 * @param preEstablishedRedirectUri the {@code URI} to set in OAuth2AuthorizationResponse
+	 */
+	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
+			OAuth2AuthorizedClientRepository authorizedClientRepository,
+			String filterProcessesUrl,
+			String preEstablishedRedirectUri) {
 		super(filterProcessesUrl);
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientRepository = authorizedClientRepository;
+		this.preEstablishedRedirectUri = preEstablishedRedirectUri;
 	}
+
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
@@ -170,10 +191,22 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 					"Client Registration not found with Id: " + registrationId, null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
-		String redirectUri = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
-				.replaceQuery(null)
-				.build()
-				.toUriString();
+
+		final String redirectUri;
+		if (preEstablishedRedirectUri == null) {
+			UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
+					.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+					.replaceQuery(null);
+			redirectUri = uriComponentsBuilder.build().toUriString();
+		} else  {
+			UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
+					.fromHttpUrl(preEstablishedRedirectUri);
+			Map<String, String> m = new HashMap<>();
+			m.put("registrationId", registrationId);
+			UriComponents uriComponents = uriComponentsBuilder.buildAndExpand(m);
+			redirectUri = uriComponents.toUriString();
+		}
+
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(params, redirectUri);
 
 		Object authenticationDetails = this.authenticationDetailsSource.buildDetails(request);
@@ -209,5 +242,13 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
+	}
+
+	/**
+	 * Returns current value of preEstablishedRedirectUri. Used mostly for test.
+	 * @return preEstablishedRedirectUri or null.
+	 */
+	public String getPreEstablishedRedirectUri() {
+		return preEstablishedRedirectUri;
 	}
 }

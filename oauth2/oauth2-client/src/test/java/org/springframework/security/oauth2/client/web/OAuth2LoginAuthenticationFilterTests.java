@@ -16,11 +16,13 @@
 package org.springframework.security.oauth2.client.web;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -31,6 +33,7 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -46,9 +49,11 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -306,6 +311,46 @@ public class OAuth2LoginAuthenticationFilterTests {
 		verify(this.filter).attemptAuthentication(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
+	@Test
+	public void doOverrideRedirectUriBehindProxy() {
+		String filterProcessesUrl = "/login/oauth2/custom/*";
+		String redirectUri = "https://behind-proxy.example.com/login/oauth2/custom/{registrationId}";
+		String mockRedirectUri = "https://behind-proxy.example.com/login/oauth2/custom/registration-id-2";
+
+		// response preEstablishedRedirectUri should expand in OAuth2LoginAuthenticationFilter
+		this.filter = spy(new OAuth2LoginAuthenticationFilter(
+				this.clientRegistrationRepository, this.authorizedClientRepository, filterProcessesUrl, redirectUri));
+		this.filter.setAuthenticationManager(a -> {
+			OAuth2LoginAuthenticationToken a1 = (OAuth2LoginAuthenticationToken) a;
+
+			OAuth2AuthorizationExchange authorizationExchange = a1.getAuthorizationExchange();
+			Assert.assertEquals(mockRedirectUri, authorizationExchange.getAuthorizationResponse().getRedirectUri());
+			Assert.assertEquals(mockRedirectUri, authorizationExchange.getAuthorizationRequest().getRedirectUri());
+
+			List<GrantedAuthority> authorityList = AuthorityUtils.createAuthorityList("ROLE_USER");
+			HashMap<String, Object> stringObjectHashMap = new HashMap<>();
+			stringObjectHashMap.put("name", "John Smith");
+			return new OAuth2LoginAuthenticationToken(a1.getClientRegistration(), authorizationExchange,
+					new DefaultOAuth2User(authorityList, stringObjectHashMap, "name"), authorityList,
+					mock(OAuth2AccessToken.class));
+		});
+
+		String requestUri = "/login/oauth2/custom/" + this.registration2.getRegistrationId();
+		String state = "state";
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		request.addParameter(OAuth2ParameterNames.CODE, "code");
+		request.addParameter(OAuth2ParameterNames.STATE, state);
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		// here we set mock request redirectUri
+		this.setUpAuthorizationRequest(request, response, this.registration2, state, mockRedirectUri);
+
+		Authentication authentication = this.filter.attemptAuthentication(request, response);
+		Assert.assertNotNull(authentication);
+	}
+
 	// gh-5890
 	@Test
 	public void doFilterWhenAuthorizationResponseHasDefaultPort80ThenRedirectUriMatchingExcludesPort() throws Exception {
@@ -430,12 +475,17 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 	private void setUpAuthorizationRequest(HttpServletRequest request, HttpServletResponse response,
 											ClientRegistration registration, String state) {
+		setUpAuthorizationRequest(request, response, registration, state, null);
+	}
+
+	private void setUpAuthorizationRequest(HttpServletRequest request, HttpServletResponse response,
+			ClientRegistration registration, String state, String requestRedirectUri) {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, registration.getRegistrationId());
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
 				.clientId(registration.getClientId())
-				.redirectUri(expandRedirectUri(request, registration))
+				.redirectUri(requestRedirectUri == null ? expandRedirectUri(request, registration) : requestRedirectUri)
 				.scopes(registration.getScopes())
 				.state(state)
 				.attributes(attributes)
