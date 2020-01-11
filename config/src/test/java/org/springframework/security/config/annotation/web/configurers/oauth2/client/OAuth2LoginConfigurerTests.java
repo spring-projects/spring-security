@@ -15,12 +15,7 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.http.HttpHeaders;
 import org.junit.After;
@@ -45,10 +40,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
@@ -63,6 +60,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -86,6 +84,9 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -272,6 +273,34 @@ public class OAuth2LoginConfigurerTests {
 		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
 	}
+
+	@Test
+	public void oauth2LoginCustomWithOAuth2LoginAuthenticationFilter() throws Exception {
+		// setup application context
+		loadConfig(OAuth2LoginConfigCustomWithOAuth2LoginAuthenticationFilter.class);
+
+		// setup authorization request
+		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest();
+		this.authorizationRequestRepository.saveAuthorizationRequest(
+				authorizationRequest, this.request, this.response);
+
+		// setup authentication parameters
+		this.request.setParameter("code", "code123");
+		this.request.setParameter("state", authorizationRequest.getState());
+
+		// perform test
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+
+		// assertions
+		Authentication authentication = this.securityContextRepository
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response))
+				.getAuthentication();
+		assertThat(authentication.getAuthorities()).hasSize(2);
+		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
+		assertThat(authentication).isInstanceOf(CustomOAuth2AuthenticationToken.class);
+	}
+
 
 	@Test
 	public void oauth2LoginCustomWithUserServiceBeanRegistration() throws Exception {
@@ -689,6 +718,29 @@ public class OAuth2LoginConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class OAuth2LoginConfigCustomWithOAuth2LoginAuthenticationFilter extends CommonWebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+					.oauth2Login()
+					.oauth2LoginAuthenticationFilter(
+							createOAuth2LoginAuthenticationFilter(clientRegistrationRepository())
+					);
+			super.configure(http);
+		}
+
+		@Bean
+		ClientRegistrationRepository clientRegistrationRepository() {
+			return new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION);
+		}
+
+		@Bean
+		GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
+			return createGrantedAuthoritiesMapper();
+		}
+	}
+
+	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomUserServiceBeanRegistration extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
@@ -995,6 +1047,30 @@ public class OAuth2LoginConfigurerTests {
 			mappedAuthorities.add(new SimpleGrantedAuthority(
 					isOidc ? "ROLE_OIDC_USER" : "ROLE_OAUTH2_USER"));
 			return mappedAuthorities;
+		};
+	}
+
+	private static class CustomOAuth2AuthenticationToken extends OAuth2AuthenticationToken {
+		CustomOAuth2AuthenticationToken(OAuth2User principal, Collection<? extends GrantedAuthority> authorities,
+				String authorizedClientRegistrationId) {
+			super(principal, authorities, authorizedClientRegistrationId);
+		}
+	}
+
+	private static OAuth2LoginAuthenticationFilter createOAuth2LoginAuthenticationFilter(
+			ClientRegistrationRepository clientRegistrationRepository) {
+		InMemoryOAuth2AuthorizedClientService inMemoryOAuth2AuthorizedClientService =
+				new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+		return new OAuth2LoginAuthenticationFilter(clientRegistrationRepository,
+				inMemoryOAuth2AuthorizedClientService) {
+			@Override
+			public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+					throws AuthenticationException {
+				OAuth2AuthenticationToken authentication =
+						(OAuth2AuthenticationToken) super.attemptAuthentication(request, response);
+				return new CustomOAuth2AuthenticationToken(authentication.getPrincipal(),
+						authentication.getAuthorities(), authentication.getAuthorizedClientRegistrationId());
+			}
 		};
 	}
 }

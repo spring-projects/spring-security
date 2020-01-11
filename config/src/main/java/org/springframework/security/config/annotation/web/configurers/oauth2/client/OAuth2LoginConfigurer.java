@@ -141,7 +141,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	private final UserInfoEndpointConfig userInfoEndpointConfig = new UserInfoEndpointConfig();
 	private String loginPage;
 	private String loginProcessingUrl = OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
-
+	private OAuth2LoginAuthenticationFilter authenticationFilter;
 	/**
 	 * Sets the repository of client registrations.
 	 *
@@ -190,6 +190,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	public OAuth2LoginConfigurer<B> loginProcessingUrl(String loginProcessingUrl) {
 		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be empty");
 		this.loginProcessingUrl = loginProcessingUrl;
+		return this;
+	}
+
+	public OAuth2LoginConfigurer<B> oauth2LoginAuthenticationFilter(OAuth2LoginAuthenticationFilter authenticationFilter) {
+		Assert.notNull(authenticationFilter, "authenticationFilter cannot be null");
+		this.authenticationFilter = authenticationFilter;
 		return this;
 	}
 
@@ -474,12 +480,14 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 
 	@Override
 	public void init(B http) throws Exception {
-		OAuth2LoginAuthenticationFilter authenticationFilter =
-			new OAuth2LoginAuthenticationFilter(
+		if (this.authenticationFilter == null) {
+			this.authenticationFilter = new OAuth2LoginAuthenticationFilter(
 				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
 				OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(this.getBuilder()),
-				this.loginProcessingUrl);
-		this.setAuthenticationFilter(authenticationFilter);
+				this.loginProcessingUrl
+			);
+		}
+		this.setAuthenticationFilter(this.authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 
 		if (this.loginPage != null) {
