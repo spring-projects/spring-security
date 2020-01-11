@@ -64,8 +64,8 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	private static final char PATH_DELIMITER = '/';
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final AntPathRequestMatcher authorizationRequestMatcher;
-	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
-	private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96);
+	private final StringKeyGenerator stateGenerator;
+	private final StringKeyGenerator secureKeyGenerator;
 
 	/**
 	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided parameters.
@@ -75,11 +75,32 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	 */
 	public DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository,
 														String authorizationRequestBaseUri) {
+		this(clientRegistrationRepository, authorizationRequestBaseUri,
+				new Base64StringKeyGenerator(Base64.getUrlEncoder()),
+				new Base64StringKeyGenerator(Base64.getUrlEncoder().withoutPadding(), 96));
+	}
+
+	/**
+	 * Constructs a {@code DefaultOAuth2AuthorizationRequestResolver} using the provided parameters.
+	 *
+	 * @param clientRegistrationRepository the repository of client registrations
+	 * @param authorizationRequestBaseUri the base {@code URI} used for resolving authorization requests
+	 * @param stateGenerator state generator used for generate OAuth2 state
+	 * @param secureKeyGenerator secure key generator
+	 */
+	public DefaultOAuth2AuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository,
+			String authorizationRequestBaseUri,
+			StringKeyGenerator stateGenerator,
+			StringKeyGenerator secureKeyGenerator) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.hasText(authorizationRequestBaseUri, "authorizationRequestBaseUri cannot be empty");
+		Assert.notNull(stateGenerator, "stateGenerator cannot be null");
+		Assert.notNull(secureKeyGenerator, "secureKeyGenerator cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizationRequestMatcher = new AntPathRequestMatcher(
 				authorizationRequestBaseUri + "/{" + REGISTRATION_ID_URI_VARIABLE_NAME + "}");
+		this.stateGenerator = stateGenerator;
+		this.secureKeyGenerator = secureKeyGenerator;
 	}
 
 	@Override
