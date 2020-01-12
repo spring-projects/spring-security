@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,24 +25,12 @@ import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.HashMap;
 
 /**
  * A {@link HttpMessageConverter} for an {@link OAuth2AccessTokenResponse OAuth 2.0 Access Token Response}.
@@ -125,93 +113,4 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 		this.tokenResponseParametersConverter = tokenResponseParametersConverter;
 	}
 
-	/**
-	 * A {@link Converter} that converts the provided
-	 * OAuth 2.0 Access Token Response parameters to an {@link OAuth2AccessTokenResponse}.
-	 */
-	private static class OAuth2AccessTokenResponseConverter implements Converter<Map<String, String>, OAuth2AccessTokenResponse> {
-		private static final Set<String> TOKEN_RESPONSE_PARAMETER_NAMES = new HashSet<>(Arrays.asList(
-				OAuth2ParameterNames.ACCESS_TOKEN,
-				OAuth2ParameterNames.TOKEN_TYPE,
-				OAuth2ParameterNames.EXPIRES_IN,
-				OAuth2ParameterNames.REFRESH_TOKEN,
-				OAuth2ParameterNames.SCOPE
-		));
-
-		@Override
-		public OAuth2AccessTokenResponse convert(Map<String, String> tokenResponseParameters) {
-			String accessToken = tokenResponseParameters.get(OAuth2ParameterNames.ACCESS_TOKEN);
-
-			OAuth2AccessToken.TokenType accessTokenType = null;
-			if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(
-					tokenResponseParameters.get(OAuth2ParameterNames.TOKEN_TYPE))) {
-				accessTokenType = OAuth2AccessToken.TokenType.BEARER;
-			}
-
-			long expiresIn = 0;
-			if (tokenResponseParameters.containsKey(OAuth2ParameterNames.EXPIRES_IN)) {
-				try {
-					expiresIn = Long.parseLong(tokenResponseParameters.get(OAuth2ParameterNames.EXPIRES_IN));
-				} catch (NumberFormatException ex) { }
-			}
-
-			Set<String> scopes = Collections.emptySet();
-			if (tokenResponseParameters.containsKey(OAuth2ParameterNames.SCOPE)) {
-				String scope = tokenResponseParameters.get(OAuth2ParameterNames.SCOPE);
-				scopes = new HashSet<>(Arrays.asList(StringUtils.delimitedListToStringArray(scope, " ")));
-			}
-
-			String refreshToken = tokenResponseParameters.get(OAuth2ParameterNames.REFRESH_TOKEN);
-
-			Map<String, Object> additionalParameters = new LinkedHashMap<>();
-			for (Map.Entry<String, String> entry : tokenResponseParameters.entrySet()) {
-				if (!TOKEN_RESPONSE_PARAMETER_NAMES.contains(entry.getKey())) {
-					additionalParameters.put(entry.getKey(), entry.getValue());
-				}
-			}
-
-			return OAuth2AccessTokenResponse.withToken(accessToken)
-					.tokenType(accessTokenType)
-					.expiresIn(expiresIn)
-					.scopes(scopes)
-					.refreshToken(refreshToken)
-					.additionalParameters(additionalParameters)
-					.build();
-		}
-	}
-
-	/**
-	 * A {@link Converter} that converts the provided {@link OAuth2AccessTokenResponse}
-	 * to a {@code Map} representation of the OAuth 2.0 Access Token Response parameters.
-	 */
-	private static class OAuth2AccessTokenResponseParametersConverter implements Converter<OAuth2AccessTokenResponse, Map<String, String>> {
-
-		@Override
-		public Map<String, String> convert(OAuth2AccessTokenResponse tokenResponse) {
-			Map<String, String> parameters = new HashMap<>();
-
-			long expiresIn = -1;
-			if (tokenResponse.getAccessToken().getExpiresAt() != null) {
-				expiresIn = ChronoUnit.SECONDS.between(Instant.now(), tokenResponse.getAccessToken().getExpiresAt());
-			}
-
-			parameters.put(OAuth2ParameterNames.ACCESS_TOKEN, tokenResponse.getAccessToken().getTokenValue());
-			parameters.put(OAuth2ParameterNames.TOKEN_TYPE, tokenResponse.getAccessToken().getTokenType().getValue());
-			parameters.put(OAuth2ParameterNames.EXPIRES_IN, String.valueOf(expiresIn));
-			if (!CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
-				parameters.put(OAuth2ParameterNames.SCOPE,
-						StringUtils.collectionToDelimitedString(tokenResponse.getAccessToken().getScopes(), " "));
-			}
-			if (tokenResponse.getRefreshToken() != null) {
-				parameters.put(OAuth2ParameterNames.REFRESH_TOKEN, tokenResponse.getRefreshToken().getTokenValue());
-			}
-			if (!CollectionUtils.isEmpty(tokenResponse.getAdditionalParameters())) {
-				for (Map.Entry<String, Object> entry : tokenResponse.getAdditionalParameters().entrySet()) {
-					parameters.put(entry.getKey(), entry.getValue().toString());
-				}
-			}
-
-			return parameters;
-		}
-	}
 }
