@@ -75,6 +75,18 @@ public class CookieClearingLogoutHandlerTests {
 	}
 
 	@Test
+	public void configuredCookieIsNotSecure() {
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setSecure(false);
+		request.setContextPath("/app");
+		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie");
+		handler.logout(request, response, mock(Authentication.class));
+		assertThat(response.getCookies()).hasSize(1);
+		assertThat(response.getCookies()[0].getSecure()).isFalse();
+	}
+
+	@Test
 	public void passedInCookiesAreCleared() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest request = new MockHttpServletRequest();
