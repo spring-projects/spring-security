@@ -1,5 +1,5 @@
 [[servlet-authentication-userdetailsservice]]
-== UserDetailsService
+= UserDetailsService
 
 You can define custom authentication by exposing a custom `UserDetailsService` as a bean.
 For example, the following will customize authentication assuming that `SpringDataUserDetailsService` implements `UserDetailsService`:
