@@ -215,7 +215,7 @@ Gradle release-candidate updates:
 The following dependencies have later release versions:
  - com.fasterxml.jackson.core:jackson-databind [2.9.8 -> 2.10.0.pr1]
      http://github.com/FasterXML/jackson
- - com.nimbusds:nimbus-jose-jwt [6.0.2 -> 7.7]
+ - com.nimbusds:nimbus-jose-jwt [7.9 -> 8.4]
      https://bitbucket.org/connect2id/nimbus-jose-jwt
  - com.squareup.okhttp3:mockwebserver [3.12.2 -> 4.0.1]
      https://github.com/square/okhttp
@@ -1774,7 +1774,7 @@ The following dependencies are using the latest release version:
  - javax.xml.bind:jaxb-api:2.4.0-b180830.0359
 
 The following dependencies have later release versions:
- - com.nimbusds:nimbus-jose-jwt [6.0.2 -> 7.7]
+ - com.nimbusds:nimbus-jose-jwt [7.9 -> 8.4]
      https://bitbucket.org/connect2id/nimbus-jose-jwt
  - com.sun.xml.bind:jaxb-impl [2.3.0.1 -> 2.4.0-b180830.0438]
      http://jaxb.java.net
