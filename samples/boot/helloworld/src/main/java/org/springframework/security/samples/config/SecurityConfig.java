@@ -34,15 +34,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-				.authorizeRequests(authorizeRequests ->
-					authorizeRequests
-						.antMatchers("/css/**", "/index").permitAll()
-						.antMatchers("/user/**").hasRole("USER")
+				.authorizeRequests(authorize -> authorize
+					.antMatchers("/css/**", "/index").permitAll()
+					.antMatchers("/user/**").hasRole("USER")
 				)
-				.formLogin(formLogin ->
-					formLogin
-						.loginPage("/login")
-						.failureUrl("/login-error")
+				.formLogin(formLogin -> formLogin
+					.loginPage("/login")
+					.failureUrl("/login-error")
 				);
 	}
 	// @formatter:on

@@ -10,9 +10,8 @@ Below is an example of a reactive x509 security configuration:
 public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 	http
 		.x509(withDefaults())
-		.authorizeExchange(exchanges ->
-			exchanges
-				.anyExchange().permitAll()
+		.authorizeExchange(exchanges -> exchanges
+		    .anyExchange().permitAll()
 		);
 	return http.build();
 }
@@ -37,14 +36,12 @@ public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 	};
 
 	http
-		.x509(x509 ->
-			x509
-				.principalExtractor(principalExtractor)
-				.authenticationManager(authenticationManager)
+		.x509(x509 -> x509
+		    .principalExtractor(principalExtractor)
+		    .authenticationManager(authenticationManager)
 		)
-		.authorizeExchange(exchanges ->
-			exchanges
-				.anyExchange().authenticated()
+		.authorizeExchange(exchanges -> exchanges
+		    .anyExchange().authenticated()
 		);
 	return http.build();
 }

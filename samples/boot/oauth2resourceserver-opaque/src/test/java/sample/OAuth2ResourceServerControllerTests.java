@@ -45,7 +45,7 @@ public class OAuth2ResourceServerControllerTests {
 
 	@Test
 	public void indexGreetsAuthenticatedUser() throws Exception {
-		this.mvc.perform(get("/").with(opaqueToken().attribute("sub", "ch4mpy")))
+		this.mvc.perform(get("/").with(opaqueToken().attributes(a -> a.put("sub", "ch4mpy"))))
 				.andExpect(content().string(is("Hello, ch4mpy!")));
 	}
 

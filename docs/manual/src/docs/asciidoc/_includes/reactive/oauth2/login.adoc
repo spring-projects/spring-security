@@ -151,12 +151,11 @@ Additional configuration options can be seen below:
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
 		// ...
-		.oauth2Login(oauth2Login ->
-			oauth2Login
-				.authenticationConverter(converter)
-				.authenticationManager(manager)
-				.authorizedClientRepository(authorizedClients)
-				.clientRegistrationRepository(clientRegistrations)
+		.oauth2Login(oauth2 -> oauth2
+			.authenticationConverter(converter)
+			.authenticationManager(manager)
+			.authorizedClientRepository(authorizedClients)
+			.clientRegistrationRepository(clientRegistrations)
 		);
 	return http.build();
 }

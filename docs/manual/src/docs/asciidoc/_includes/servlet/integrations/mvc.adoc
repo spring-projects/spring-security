@@ -102,9 +102,8 @@ If we wanted to restrict access to this controller method to admin users, a deve
 ----
 protected configure(HttpSecurity http) throws Exception {
 	http
-		.authorizeRequests(authorizeRequests ->
-		    authorizeRequests
-			    .antMatchers("/admin").hasRole("ADMIN")
+		.authorizeRequests(authorize -> authorize
+			.antMatchers("/admin").hasRole("ADMIN")
 		);
 }
 ----
@@ -133,9 +132,8 @@ The following configuration will protect the same URLs that Spring MVC will matc
 ----
 protected configure(HttpSecurity http) throws Exception {
 	http
-		.authorizeRequests(authorizeRequests ->
-		    authorizeRequests
-			    .mvcMatchers("/admin").hasRole("ADMIN")
+		.authorizeRequests(authorize -> authorize
+			.mvcMatchers("/admin").hasRole("ADMIN")
 		);
 }
 ----

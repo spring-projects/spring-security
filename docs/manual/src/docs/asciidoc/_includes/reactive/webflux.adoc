@@ -56,9 +56,8 @@ public class HelloWebfluxSecurityConfig {
 	@Bean
 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 		http
-			.authorizeExchange(exchanges ->
-				exchanges
-					.anyExchange().authenticated()
+			.authorizeExchange(exchanges -> exchanges
+			    .anyExchange().authenticated()
 			)
 			.httpBasic(withDefaults())
 			.formLogin(withDefaults());

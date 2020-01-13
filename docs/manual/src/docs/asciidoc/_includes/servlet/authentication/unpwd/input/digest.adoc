@@ -37,9 +37,10 @@ key:              A private key to prevent modification of the nonce token
 You will need to ensure you <<authentication-password-storage-configuration,configure>> insecure plain text <<authentication-password-storage,Password Storage>> using NoOpPasswordEncoder`.
 The following provides an example of configuring Digest Authentication with Java Configuration:
 
-.Digest Authentication with Java Configuration
+.Digest Authentication
 ====
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 @Autowired
 UserDetailsService userDetailsService;
@@ -63,13 +64,9 @@ protected void configure(HttpSecurity http) throws Exception {
 		.addFilterBefore(digestFilter());
 }
 ----
-====
 
-The following provides an example of configuring Digest Authentication with XML Configuration:
-
-.Digest Authentication with XML Configuration
-====
-[source,xml]
+.XML
+[source,xml,role="secondary"]
 ----
 <b:bean id="digestFilter"
         class="org.springframework.security.web.authentication.www.DigestAuthenticationFilter"
