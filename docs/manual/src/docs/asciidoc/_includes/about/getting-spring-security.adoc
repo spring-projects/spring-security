@@ -31,8 +31,7 @@ Alternatively, you can manually add the starter, as the following example shows:
 
 .pom.xml
 ====
-[source,xml]
-[subs="verbatim,attributes"]
+[source,xml,subs="verbatim,attributes"]
 ----
 <dependencies>
 	<!-- ... other dependency elements ... -->
@@ -49,8 +48,7 @@ If you wish to override the Spring Security version, you may do so by providing 
 
 .pom.xml
 ====
-[source,xml]
-[subs="verbatim,attributes"]
+[source,xml,subs="verbatim,attributes"]
 ----
 <properties>
 	<!-- ... -->
@@ -65,12 +63,11 @@ You can do so by adding a Maven property, as the following example shows:
 
 .pom.xml
 ====
-[source,xml]
-[subs="verbatim,attributes"]
+[source,xml,subs="verbatim,attributes"]
 ----
 <properties>
 	<!-- ... -->
-	<spring.version>{spring-version}</spring.version>
+	<spring.version>{spring-core-version}</spring.version>
 </dependencies>
 ----
 ====
@@ -84,8 +81,7 @@ When you use Spring Security without Spring Boot, the preferred way is to use Sp
 
 .pom.xml
 ====
-[source,xml]
-[subs="verbatim,attributes"]
+[source,xml,ubs="verbatim,attributes"]
 ----
 <dependencyManagement>
 	<dependencies>
@@ -106,8 +102,7 @@ A minimal Spring Security Maven set of dependencies typically looks like the fol
 
 .pom.xml
 ====
-[source,xml]
-[subs="verbatim,attributes"]
+[source,xml,subs="verbatim,attributes"]
 ----
 <dependencies>
 	<!-- ... other dependency elements ... -->
@@ -125,14 +120,13 @@ A minimal Spring Security Maven set of dependencies typically looks like the fol
 
 If you use additional features (such as LDAP, OpenID, and others), you need to also include the appropriate <<modules>>.
 
-Spring Security builds against Spring Framework {spring-version} but should generally work with any newer version of Spring Framework 5.x.
-Many users are likely to run afoul of the fact that Spring Security's transitive dependencies resolve Spring Framework {spring-version}, which can cause strange classpath problems.
+Spring Security builds against Spring Framework {spring-core-version} but should generally work with any newer version of Spring Framework 5.x.
+Many users are likely to run afoul of the fact that Spring Security's transitive dependencies resolve Spring Framework {spring-core-version}, which can cause strange classpath problems.
 The easiest way to resolve this is to use the `spring-framework-bom` within the `<dependencyManagement>` section of your `pom.xml` as the following example shows:
 
 .pom.xml
 ====
-[source,xml]
-[subs="verbatim,attributes"]
+[source,xml,subs="verbatim,attributes"]
 ----
 <dependencyManagement>
 	<dependencies>
@@ -140,7 +134,7 @@ The easiest way to resolve this is to use the `spring-framework-bom` within the 
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-framework-bom</artifactId>
-			<version>{spring-version}</version>
+			<version>{spring-core-version}</version>
 			<type>pom</type>
 			<scope>import</scope>
 		</dependency>
@@ -149,7 +143,7 @@ The easiest way to resolve this is to use the `spring-framework-bom` within the 
 ----
 ====
 
-The preceding example ensures that all the transitive dependencies of Spring Security use the Spring {spring-version} modules.
+The preceding example ensures that all the transitive dependencies of Spring Security use the Spring {spring-core-version} modules.
 
 NOTE: This approach uses Maven's "`bill of materials`" (BOM) concept and is only available in Maven 2.0.9+.
 For additional details about how dependencies are resolved, see https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html[Maven's Introduction to the Dependency Mechanism documentation].
@@ -238,7 +232,7 @@ You can do so by adding a Gradle property, as the following example shows:
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
-ext['spring.version']='{spring-version}'
+ext['spring.version']='{spring-core-version}'
 ----
 ====
 
@@ -282,8 +276,8 @@ dependencies {
 
 If you use additional features (such as LDAP, OpenID, and others), you need to also include the appropriate <<modules>>.
 
-Spring Security builds against Spring Framework {spring-version} but should generally work with any newer version of Spring Framework 5.x. {JB}
-Many users are likely to run afoul of the fact that Spring Security's transitive dependencies resolve Spring Framework {spring-version}, which can cause strange classpath problems.
+Spring Security builds against Spring Framework {spring-core-version} but should generally work with any newer version of Spring Framework 5.x. {JB}
+Many users are likely to run afoul of the fact that Spring Security's transitive dependencies resolve Spring Framework {spring-core-version}, which can cause strange classpath problems.
 The easiest way to resolve this is to use the `spring-framework-bom` within your `<dependencyManagement>` section of your `pom.xml`.
 You can do so by using the https://github.com/spring-gradle-plugins/dependency-management-plugin[Dependency Management Plugin], as the following example shows:
 
@@ -298,13 +292,13 @@ plugins {
 
 dependencyManagement {
 	imports {
-		mavenBom 'org.springframework:spring-framework-bom:{spring-version}'
+		mavenBom 'org.springframework:spring-framework-bom:{spring-core-version}'
 	}
 }
 ----
 ====
 
-The preceding example ensures that all the transitive dependencies of Spring Security use the Spring {spring-version} modules.
+The preceding example ensures that all the transitive dependencies of Spring Security use the Spring {spring-core-version} modules.
 
 [[gradle-repositories]]
 === Gradle Repositories
