@@ -57,7 +57,6 @@ configure(project.tasks.withType(Test)) {
 }
 
 String springVersion() {
-	println project.configurations.compile.resolvedConfiguration.resolvedArtifacts.collect { it.name }
 	return project.configurations.compile.resolvedConfiguration.resolvedArtifacts
     .find { it.name == 'spring-core' }.moduleVersion.id.version
 }
