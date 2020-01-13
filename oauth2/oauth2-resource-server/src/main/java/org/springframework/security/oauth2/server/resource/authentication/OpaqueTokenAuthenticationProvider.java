@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.security.oauth2.server.resource.authentication;
 import java.time.Instant;
 import java.util.Collection;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -26,10 +25,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.BearerTokenError;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.util.Assert;
@@ -60,9 +57,6 @@ import static org.springframework.security.oauth2.server.resource.introspection.
  * @see AuthenticationProvider
  */
 public final class OpaqueTokenAuthenticationProvider implements AuthenticationProvider {
-	private static final BearerTokenError DEFAULT_INVALID_TOKEN =
-			invalidToken("An error occurred while attempting to introspect the token: Invalid token");
-
 	private OpaqueTokenIntrospector introspector;
 
 	/**
@@ -95,8 +89,7 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 		try {
 			principal = this.introspector.introspect(bearer.getToken());
 		} catch (OAuth2IntrospectionException failed) {
-			OAuth2Error invalidToken = invalidToken(failed.getMessage());
-			throw new OAuth2AuthenticationException(invalidToken);
+			throw new InvalidBearerTokenException(failed.getMessage());
 		}
 
 		AbstractAuthenticationToken result = convert(principal, bearer.getToken());
@@ -118,16 +111,5 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				token, iat, exp);
 		return new BearerTokenAuthentication(principal, accessToken, principal.getAuthorities());
-	}
-
-	private static BearerTokenError invalidToken(String message) {
-		try {
-			return new BearerTokenError("invalid_token",
-					HttpStatus.UNAUTHORIZED, message,
-					"https://tools.ietf.org/html/rfc7662#section-2.2");
-		} catch (IllegalArgumentException malformed) {
-			// some third-party library error messages are not suitable for RFC 6750's error message charset
-			return DEFAULT_INVALID_TOKEN;
-		}
 	}
 }

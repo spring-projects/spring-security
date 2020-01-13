@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,12 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
-import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 import org.springframework.util.StringUtils;
+
+import static org.springframework.security.oauth2.server.resource.BearerTokenErrors.invalidRequest;
+import static org.springframework.security.oauth2.server.resource.BearerTokenErrors.invalidToken;
 
 /**
  * The default {@link BearerTokenResolver} implementation based on RFC 6750.
@@ -53,10 +54,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		String parameterToken = resolveFromRequestParameters(request);
 		if (authorizationHeaderToken != null) {
 			if (parameterToken != null) {
-				BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST,
-						HttpStatus.BAD_REQUEST,
-						"Found multiple bearer tokens in the request",
-						"https://tools.ietf.org/html/rfc6750#section-3.1");
+				BearerTokenError error = invalidRequest("Found multiple bearer tokens in the request");
 				throw new OAuth2AuthenticationException(error);
 			}
 			return authorizationHeaderToken;
@@ -93,10 +91,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 			Matcher matcher = authorizationPattern.matcher(authorization);
 
 			if (!matcher.matches()) {
-				BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_TOKEN,
-						HttpStatus.UNAUTHORIZED,
-						"Bearer token is malformed",
-						"https://tools.ietf.org/html/rfc6750#section-3.1");
+				BearerTokenError error = invalidToken("Bearer token is malformed");
 				throw new OAuth2AuthenticationException(error);
 			}
 
@@ -115,10 +110,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 			return values[0];
 		}
 
-		BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST,
-				HttpStatus.BAD_REQUEST,
-				"Found multiple bearer tokens in the request",
-				"https://tools.ietf.org/html/rfc6750#section-3.1");
+		BearerTokenError error = invalidRequest("Found multiple bearer tokens in the request");
 		throw new OAuth2AuthenticationException(error);
 	}
 

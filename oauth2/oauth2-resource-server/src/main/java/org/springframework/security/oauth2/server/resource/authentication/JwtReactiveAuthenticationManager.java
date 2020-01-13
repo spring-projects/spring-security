@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,15 @@ package org.springframework.security.oauth2.server.resource.authentication;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.BearerTokenError;
-import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.util.Assert;
 
 /**
@@ -44,9 +41,6 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 
 	private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter
 			= new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter());
-
-	private static final OAuth2Error DEFAULT_INVALID_TOKEN =
-			invalidToken("An error occurred while attempting to decode the Jwt: Invalid token");
 
 	public JwtReactiveAuthenticationManager(ReactiveJwtDecoder jwtDecoder) {
 		Assert.notNull(jwtDecoder, "jwtDecoder cannot be null");
@@ -78,20 +72,6 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 	}
 
 	private OAuth2AuthenticationException onError(JwtException e) {
-		OAuth2Error invalidRequest = invalidToken(e.getMessage());
-		return new OAuth2AuthenticationException(invalidRequest, invalidRequest.getDescription(), e);
-	}
-
-	private static OAuth2Error invalidToken(String message) {
-		try {
-			return new BearerTokenError(
-					BearerTokenErrorCodes.INVALID_TOKEN,
-					HttpStatus.UNAUTHORIZED,
-					message,
-					"https://tools.ietf.org/html/rfc6750#section-3.1");
-		} catch (IllegalArgumentException malformed) {
-			// some third-party library error messages are not suitable for RFC 6750's error message charset
-			return DEFAULT_INVALID_TOKEN;
-		}
+		return new InvalidBearerTokenException(e.getMessage(), e);
 	}
 }

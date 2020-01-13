@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,16 +27,13 @@ import javax.servlet.http.HttpServletRequest;
 import com.nimbusds.jwt.JWTParser;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
-import org.springframework.security.oauth2.server.resource.BearerTokenError;
-import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.util.Assert;
@@ -57,8 +54,6 @@ import org.springframework.util.Assert;
  * @since 5.3
  */
 public final class JwtIssuerAuthenticationManagerResolver implements AuthenticationManagerResolver<HttpServletRequest> {
-	private static final OAuth2Error DEFAULT_INVALID_TOKEN = invalidToken("Invalid token");
-
 	private final AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
 	private final Converter<HttpServletRequest, String> issuerConverter = new JwtClaimIssuerConverter();
 
@@ -118,7 +113,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 		String issuer = this.issuerConverter.convert(request);
 		AuthenticationManager authenticationManager = this.issuerAuthenticationManagerResolver.resolve(issuer);
 		if (authenticationManager == null) {
-			throw new OAuth2AuthenticationException(invalidToken("Invalid issuer " + issuer));
+			throw new InvalidBearerTokenException("Invalid issuer");
 		}
 		return authenticationManager;
 	}
@@ -137,9 +132,9 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 					return issuer;
 				}
 			} catch (Exception e) {
-				throw new OAuth2AuthenticationException(invalidToken(e.getMessage()));
+				throw new InvalidBearerTokenException(e.getMessage(), e);
 			}
-			throw new OAuth2AuthenticationException(invalidToken("Missing issuer"));
+			throw new InvalidBearerTokenException("Missing issuer");
 		}
 	}
 
@@ -162,19 +157,6 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 				});
 			}
 			return null;
-		}
-	}
-
-	private static OAuth2Error invalidToken(String message) {
-		try {
-			return new BearerTokenError(
-				BearerTokenErrorCodes.INVALID_TOKEN,
-				HttpStatus.UNAUTHORIZED,
-				message,
-				"https://tools.ietf.org/html/rfc6750#section-3.1");
-		} catch (IllegalArgumentException malformed) {
-			// some third-party library error messages are not suitable for RFC 6750's error message charset
-			return DEFAULT_INVALID_TOKEN;
 		}
 	}
 }

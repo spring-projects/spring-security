@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,13 @@ import java.util.Collection;
 
 import reactor.core.publisher.Mono;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.BearerTokenError;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.util.Assert;
@@ -60,9 +58,6 @@ import static org.springframework.security.oauth2.server.resource.introspection.
  * @see ReactiveAuthenticationManager
  */
 public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthenticationManager {
-	private static final BearerTokenError DEFAULT_INVALID_TOKEN =
-			invalidToken("An error occurred while attempting to introspect the token: Invalid token");
-
 	private ReactiveOpaqueTokenIntrospector introspector;
 
 	/**
@@ -99,19 +94,7 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 				.onErrorMap(OAuth2IntrospectionException.class, this::onError);
 	}
 
-	private static BearerTokenError invalidToken(String message) {
-		try {
-			return new BearerTokenError("invalid_token",
-					HttpStatus.UNAUTHORIZED, message,
-					"https://tools.ietf.org/html/rfc7662#section-2.2");
-		} catch (IllegalArgumentException e) {
-			// some third-party library error messages are not suitable for RFC 6750's error message charset
-			return DEFAULT_INVALID_TOKEN;
-		}
-	}
-
 	private OAuth2AuthenticationException onError(OAuth2IntrospectionException e) {
-		OAuth2Error invalidRequest = invalidToken(e.getMessage());
-		return new OAuth2AuthenticationException(invalidRequest, e.getMessage());
+		return new InvalidBearerTokenException(e.getMessage(), e);
 	}
 }

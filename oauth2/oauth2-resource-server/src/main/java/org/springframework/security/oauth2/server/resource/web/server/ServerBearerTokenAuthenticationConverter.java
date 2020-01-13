@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,24 @@
 
 package org.springframework.security.oauth2.server.resource.web.server;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
-import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import static org.springframework.security.oauth2.server.resource.BearerTokenErrors.invalidRequest;
+import static org.springframework.security.oauth2.server.resource.BearerTokenErrors.invalidToken;
 
 /**
  * A strategy for resolving <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s
@@ -65,10 +67,7 @@ public class ServerBearerTokenAuthenticationConverter
 		String parameterToken = request.getQueryParams().getFirst("access_token");
 		if (authorizationHeaderToken != null) {
 			if (parameterToken != null) {
-				BearerTokenError error = new BearerTokenError(BearerTokenErrorCodes.INVALID_REQUEST,
-						HttpStatus.BAD_REQUEST,
-						"Found multiple bearer tokens in the request",
-						"https://tools.ietf.org/html/rfc6750#section-3.1");
+				BearerTokenError error = invalidRequest("Found multiple bearer tokens in the request");
 				throw new OAuth2AuthenticationException(error);
 			}
 			return authorizationHeaderToken;
@@ -107,10 +106,7 @@ public class ServerBearerTokenAuthenticationConverter
 	}
 
 	private static BearerTokenError invalidTokenError() {
-		return new BearerTokenError(BearerTokenErrorCodes.INVALID_TOKEN,
-							HttpStatus.UNAUTHORIZED,
-							"Bearer token is malformed",
-							"https://tools.ietf.org/html/rfc6750#section-3.1");
+		return invalidToken("Bearer token is malformed");
 	}
 
 	private boolean isParameterTokenSupportedForRequest(ServerHttpRequest request) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 		assertThatCode(() -> provider.authenticate(new BearerTokenAuthenticationToken("token")).block())
 				.isInstanceOf(OAuth2AuthenticationException.class)
 				.extracting("error.description")
-				.isEqualTo("An error occurred while attempting to introspect the token: Invalid token");
+				.isEqualTo("Invalid token");
 	}
 
 	@Test
