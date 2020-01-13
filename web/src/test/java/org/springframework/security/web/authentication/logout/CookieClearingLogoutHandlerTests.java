@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
 
 /**
  * @author Luke Taylor
+ * @author Onur Kagan Ozcan
  */
 public class CookieClearingLogoutHandlerTests {
 
@@ -59,6 +60,30 @@ public class CookieClearingLogoutHandlerTests {
 			assertThat(c.getPath()).isEqualTo("/app/");
 			assertThat(c.getMaxAge()).isZero();
 		}
+	}
+
+	@Test
+	public void configuredCookieIsSecure() {
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setSecure(true);
+		request.setContextPath("/app");
+		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie");
+		handler.logout(request, response, mock(Authentication.class));
+		assertThat(response.getCookies()).hasSize(1);
+		assertThat(response.getCookies()[0].getSecure()).isTrue();
+	}
+
+	@Test
+	public void configuredCookieIsNotSecure() {
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setSecure(false);
+		request.setContextPath("/app");
+		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie");
+		handler.logout(request, response, mock(Authentication.class));
+		assertThat(response.getCookies()).hasSize(1);
+		assertThat(response.getCookies()[0].getSecure()).isFalse();
 	}
 
 	@Test
