@@ -128,6 +128,18 @@ DataSource dataSource() {
 	<jdbc:script location="classpath:org/springframework/security/core/userdetails/jdbc/users.ddl"/>
 </jdbc:embedded-database>
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun dataSource(): DataSource {
+    return EmbeddedDatabaseBuilder()
+        .setType(H2)
+        .addScript("classpath:org/springframework/security/core/userdetails/jdbc/users.ddl")
+        .build()
+}
+----
 ====
 
 In a production environment, you will want to ensure you setup a connection to an external database.
@@ -172,5 +184,27 @@ UserDetailsManager users(DataSource dataSource) {
 		password="{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW"
 		authorities="ROLE_USER,ROLE_ADMIN" />
 </jdbc-user-service>
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun users(dataSource: DataSource): UserDetailsManager {
+    val user = User.builder()
+            .username("user")
+            .password("{bcrypt}$2a$10\$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
+            .roles("USER")
+            .build();
+    val admin = User.builder()
+            .username("admin")
+            .password("{bcrypt}$2a$10\$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
+            .roles("USER", "ADMIN")
+            .build();
+    val users = JdbcUserDetailsManager(dataSource)
+    users.createUser(user)
+    users.createUser(admin)
+    return users
+}
 ----
 ====

@@ -40,6 +40,25 @@ public UserDetailsService users() {
 		authorities="ROLE_USER,ROLE_ADMIN" />
 </user-service>
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun users(): UserDetailsService {
+    val user = User.builder()
+        .username("user")
+        .password("{bcrypt}$2a$10\$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
+        .roles("USER")
+        .build()
+    val admin = User.builder()
+        .username("admin")
+        .password("{bcrypt}$2a$10\$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW")
+        .roles("USER", "ADMIN")
+        .build()
+    return InMemoryUserDetailsManager(user, admin)
+}
+----
 ====
 
 The samples above store the passwords in a secure format, but leave a lot to be desired in terms of getting started experience.
@@ -51,7 +70,8 @@ For this reason, `User.withDefaultPasswordEncoder` should only be used for "gett
 
 .InMemoryUserDetailsManager with User.withDefaultPasswordEncoder
 ====
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 public UserDetailsService users() {
@@ -68,6 +88,27 @@ public UserDetailsService users() {
 		.roles("USER", "ADMIN")
 		.build();
 	return new InMemoryUserDetailsManager(user, admin);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun users(): UserDetailsService {
+    // The builder will ensure the passwords are encoded before saving in memory
+    val users = User.withDefaultPasswordEncoder()
+    val user = users
+        .username("user")
+        .password("password")
+        .roles("USER")
+        .build()
+    val admin = users
+        .username("admin")
+        .password("password")
+        .roles("USER", "ADMIN")
+        .build()
+    return InMemoryUserDetailsManager(user, admin)
 }
 ----
 ====

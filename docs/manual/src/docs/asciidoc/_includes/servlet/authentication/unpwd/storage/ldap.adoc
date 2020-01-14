@@ -133,11 +133,20 @@ UnboundIdContainer ldapContainer() {
 ----
 
 .XML
-[source,xml]
+[source,xml,role="secondary"]
 ----
 <b:bean class="org.springframework.security.ldap.server.UnboundIdContainer"
 	c:defaultPartitionSuffix="dc=springframework,dc=org"
 	c:ldif="classpath:users.ldif"/>
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun ldapContainer(): UnboundIdContainer {
+    return UnboundIdContainer("dc=springframework,dc=org","classpath:users.ldif")
+}
 ----
 ====
 
@@ -203,6 +212,15 @@ ApacheDSContainer ldapContainer() {
 	c:defaultPartitionSuffix="dc=springframework,dc=org"
 	c:ldif="classpath:users.ldif"/>
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun ldapContainer(): ApacheDSContainer {
+    return ApacheDSContainer("dc=springframework,dc=org", "classpath:users.ldif")
+}
+----
 ====
 
 [[servlet-authentication-ldap-contextsource]]
@@ -226,6 +244,14 @@ ContextSource contextSource(UnboundIdContainer container) {
 ----
 <ldap-server
 	url="ldap://localhost:53389/dc=springframework,dc=org" />
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+fun contextSource(container: UnboundIdContainer): ContextSource {
+    return DefaultSpringSecurityContextSource("ldap://localhost:53389/dc=springframework,dc=org")
+}
 ----
 ====
 
@@ -279,6 +305,22 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 <ldap-authentication-provider
 	user-dn-pattern="uid={0},ou=people"/>
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticator(contextSource: BaseLdapPathContextSource): BindAuthenticator {
+    val authenticator = BindAuthenticator(contextSource)
+    authenticator.setUserDnPatterns(arrayOf("uid={0},ou=people"))
+    return authenticator
+}
+
+@Bean
+fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthenticationProvider {
+    return LdapAuthenticationProvider(authenticator)
+}
+----
 ====
 
 This simple example would obtain the DN for the user by substituting the user login name in the supplied pattern and attempting to bind as that user with the login password.
@@ -313,6 +355,25 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 <ldap-authentication-provider
 		user-search-filter="(uid={0})"
 	user-search-base="ou=people"/>
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticator(contextSource: BaseLdapPathContextSource): BindAuthenticator {
+    val searchBase = "ou=people"
+    val filter = "(uid={0})"
+    val search = FilterBasedLdapUserSearch(searchBase, filter, contextSource)
+    val authenticator = BindAuthenticator(contextSource)
+    authenticator.setUserSearch(search)
+    return authenticator
+}
+
+@Bean
+fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthenticationProvider {
+    return LdapAuthenticationProvider(authenticator)
+}
 ----
 ====
 
@@ -351,6 +412,20 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 	<password-compare />
 </ldap-authentication-provider>
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticator(contextSource: BaseLdapPathContextSource): PasswordComparisonAuthenticator {
+    return PasswordComparisonAuthenticator(contextSource)
+}
+
+@Bean
+fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthenticationProvider {
+    return LdapAuthenticationProvider(authenticator)
+}
+----
 ====
 
 A more advanced configuration with some customizations can be found below.
@@ -386,6 +461,23 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 </ldap-authentication-provider>
 <b:bean id="passwordEncoder"
 	class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticator(contextSource: BaseLdapPathContextSource): PasswordComparisonAuthenticator {
+    val authenticator = PasswordComparisonAuthenticator(contextSource)
+    authenticator.setPasswordAttributeName("pwd") // <1>
+    authenticator.setPasswordEncoder(BCryptPasswordEncoder()) // <2>
+    return authenticator
+}
+
+@Bean
+fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthenticationProvider {
+    return LdapAuthenticationProvider(authenticator)
+}
 ----
 ====
 
@@ -424,6 +516,23 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 	user-dn-pattern="uid={0},ou=people"
 	group-search-filter="member={0}"/>
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authorities(contextSource: BaseLdapPathContextSource): LdapAuthoritiesPopulator {
+    val groupSearchBase = ""
+    val authorities = DefaultLdapAuthoritiesPopulator(contextSource, groupSearchBase)
+    authorities.setGroupSearchFilter("member={0}")
+    return authorities
+}
+
+@Bean
+fun authenticationProvider(authenticator: LdapAuthenticator, authorities: LdapAuthoritiesPopulator): LdapAuthenticationProvider {
+    return LdapAuthenticationProvider(authenticator, authorities)
+}
+----
 ====
 
 == Active Directory
@@ -456,5 +565,14 @@ ActiveDirectoryLdapAuthenticationProvider authenticationProvider() {
 	<constructor-arg value="example.com" />
 	<constructor-arg value="ldap://company.example.com/" />
 </bean>
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationProvider(): ActiveDirectoryLdapAuthenticationProvider {
+    return ActiveDirectoryLdapAuthenticationProvider("example.com", "ldap://company.example.com/")
+}
 ----
 ====

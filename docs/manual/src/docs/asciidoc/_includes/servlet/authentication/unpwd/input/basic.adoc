@@ -29,4 +29,15 @@ protected void configure(HttpSecurity http) {
 	<http-basic />
 </http>
 ----
+
+[source,kotlin,role="secondary"]
+.Kotlin
+----
+fun configure(http: HttpSecurity) {
+	http {
+		// ...
+		httpBasic { }
+	}
+}
+----
 ====
