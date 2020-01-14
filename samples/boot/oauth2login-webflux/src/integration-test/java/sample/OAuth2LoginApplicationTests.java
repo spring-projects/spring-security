@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.hamcrest.core.StringContains.containsString;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockOidcLogin;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockOAuth2Login;
 
 /**
  * Tests for {@link ReactiveOAuth2LoginApplication}
@@ -58,7 +58,7 @@ public class OAuth2LoginApplicationTests {
 	public void requestWhenMockOidcLoginThenIndex() {
 		this.clientRegistrationRepository.findByRegistrationId("github")
 				.map(clientRegistration ->
-						this.test.mutateWith(mockOidcLogin().clientRegistration(clientRegistration))
+						this.test.mutateWith(mockOAuth2Login().clientRegistration(clientRegistration))
 							.get().uri("/")
 							.exchange()
 							.expectBody(String.class).value(containsString("GitHub"))

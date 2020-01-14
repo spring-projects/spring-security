@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@ package org.springframework.security.test.web.reactive.server;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -52,6 +54,9 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -145,6 +150,21 @@ public class SecurityMockServerConfigurers {
 	 */
 	public static JwtMutator mockJwt() {
 		return new JwtMutator();
+	}
+
+	/**
+	 * Updates the ServerWebExchange to establish a {@link SecurityContext} that has a
+	 * {@link OAuth2AuthenticationToken} for the
+	 * {@link Authentication}. All details are
+	 * declarative and do not require the corresponding OAuth 2.0 tokens to be valid.
+	 *
+	 * @return the {@link OAuth2LoginMutator} to further configure or use
+	 * @since 5.3
+	 */
+	public static OAuth2LoginMutator mockOAuth2Login() {
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
+				null, null, Collections.singleton("user"));
+		return new OAuth2LoginMutator(accessToken);
 	}
 
 	/**
@@ -459,6 +479,175 @@ public class SecurityMockServerConfigurers {
 
 		private <T extends WebTestClientConfigurer & MockServerConfigurer> T configurer() {
 			return mockAuthentication(new JwtAuthenticationToken(this.jwt, this.authoritiesConverter.convert(this.jwt)));
+		}
+	}
+
+	/**
+	 * @author Josh Cummings
+	 * @since 5.3
+	 */
+	public final static class OAuth2LoginMutator implements WebTestClientConfigurer, MockServerConfigurer {
+		private ClientRegistration clientRegistration;
+		private OAuth2AccessToken accessToken;
+
+		private Supplier<Collection<GrantedAuthority>> authorities = this::defaultAuthorities;
+		private Supplier<Map<String, Object>> attributes = this::defaultAttributes;
+		private String nameAttributeKey = "sub";
+		private Supplier<OAuth2User> oauth2User = this::defaultPrincipal;
+
+		private final ServerOAuth2AuthorizedClientRepository authorizedClientRepository =
+				new WebSessionServerOAuth2AuthorizedClientRepository();
+
+		private OAuth2LoginMutator(OAuth2AccessToken accessToken) {
+			this.accessToken = accessToken;
+			this.clientRegistration = clientRegistrationBuilder().build();
+		}
+
+		/**
+		 * Use the provided authorities in the {@link Authentication}
+		 *
+		 * @param authorities the authorities to use
+		 * @return the {@link OAuth2LoginMutator} for further configuration
+		 */
+		public OAuth2LoginMutator authorities(Collection<GrantedAuthority> authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = () -> authorities;
+			this.oauth2User = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Use the provided authorities in the {@link Authentication}
+		 *
+		 * @param authorities the authorities to use
+		 * @return the {@link OAuth2LoginMutator} for further configuration
+		 */
+		public OAuth2LoginMutator authorities(GrantedAuthority... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = () -> Arrays.asList(authorities);
+			this.oauth2User = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Mutate the attributes using the given {@link Consumer}
+		 *
+		 * @param attributesConsumer The {@link Consumer} for mutating the {@Map} of attributes
+		 * @return the {@link OAuth2LoginMutator} for further configuration
+		 */
+		public OAuth2LoginMutator attributes(Consumer<Map<String, Object>> attributesConsumer) {
+			Assert.notNull(attributesConsumer, "attributesConsumer cannot be null");
+			this.attributes = () -> {
+				Map<String, Object> attrs = new HashMap<>();
+				attrs.put(this.nameAttributeKey, "test-subject");
+				attributesConsumer.accept(attrs);
+				return attrs;
+			};
+			this.oauth2User = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Use the provided key for the attribute containing the principal's name
+		 *
+		 * @param nameAttributeKey The attribute key to use
+		 * @return the {@link OAuth2LoginMutator} for further configuration
+		 */
+		public OAuth2LoginMutator nameAttributeKey(String nameAttributeKey) {
+			Assert.notNull(nameAttributeKey, "nameAttributeKey cannot be null");
+			this.nameAttributeKey = nameAttributeKey;
+			this.oauth2User = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Use the provided {@link OAuth2User} as the authenticated user.
+		 *
+		 * @param oauth2User the {@link OAuth2User} to use
+		 * @return the {@link OAuth2LoginMutator} for further configuration
+		 */
+		public OAuth2LoginMutator oauth2User(OAuth2User oauth2User) {
+			this.oauth2User = () -> oauth2User;
+			return this;
+		}
+
+		/**
+		 * Use the provided {@link ClientRegistration} as the client to authorize.
+		 * <p>
+		 * The supplied {@link ClientRegistration} will be registered into an
+		 * {@link WebSessionServerOAuth2AuthorizedClientRepository}. Tests relying on
+		 * {@link org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient}
+		 * annotations should register an {@link WebSessionServerOAuth2AuthorizedClientRepository} bean
+		 * to the application context.
+		 *
+		 * @param clientRegistration the {@link ClientRegistration} to use
+		 * @return the {@link OAuth2LoginMutator} for further configuration
+		 */
+		public OAuth2LoginMutator clientRegistration(ClientRegistration clientRegistration) {
+			this.clientRegistration = clientRegistration;
+			return this;
+		}
+
+		@Override
+		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
+			OAuth2AuthenticationToken token = getToken();
+			builder.filters(addAuthorizedClientFilter(token));
+			mockAuthentication(getToken()).beforeServerCreated(builder);
+		}
+
+		@Override
+		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
+			mockAuthentication(getToken()).afterConfigureAdded(serverSpec);
+		}
+
+		@Override
+		public void afterConfigurerAdded(
+				WebTestClient.Builder builder,
+				@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
+				@Nullable ClientHttpConnector connector) {
+			OAuth2AuthenticationToken token = getToken();
+			httpHandlerBuilder.filters(addAuthorizedClientFilter(token));
+			mockAuthentication(token).afterConfigurerAdded(builder, httpHandlerBuilder, connector);
+		}
+
+		private Consumer<List<WebFilter>> addAuthorizedClientFilter(OAuth2AuthenticationToken token) {
+			OAuth2AuthorizedClient client = getClient();
+			return filters -> filters.add(0, (exchange, chain) ->
+					this.authorizedClientRepository.saveAuthorizedClient(client, token, exchange)
+							.then(chain.filter(exchange)));
+		}
+
+		private OAuth2AuthenticationToken getToken() {
+			OAuth2User oauth2User = this.oauth2User.get();
+			return new OAuth2AuthenticationToken(oauth2User, oauth2User.getAuthorities(), this.clientRegistration.getRegistrationId());
+		}
+
+		private OAuth2AuthorizedClient getClient() {
+			return new OAuth2AuthorizedClient(this.clientRegistration, getToken().getName(), this.accessToken);
+		}
+
+		private ClientRegistration.Builder clientRegistrationBuilder() {
+			return ClientRegistration.withRegistrationId("test")
+					.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+					.clientId("test-client")
+					.tokenUri("https://token-uri.example.org");
+		}
+
+		private Collection<GrantedAuthority> defaultAuthorities() {
+			Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+			authorities.add(new OAuth2UserAuthority(this.attributes.get()));
+			for (String authority : this.accessToken.getScopes()) {
+				authorities.add(new SimpleGrantedAuthority("SCOPE_" + authority));
+			}
+			return authorities;
+		}
+
+		private Map<String, Object> defaultAttributes() {
+			return Collections.singletonMap(this.nameAttributeKey, "test-subject");
+		}
+
+		private OAuth2User defaultPrincipal() {
+			return new DefaultOAuth2User(this.authorities.get(), this.attributes.get(), this.nameAttributeKey);
 		}
 	}
 
