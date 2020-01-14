@@ -119,7 +119,7 @@ import org.springframework.util.ClassUtils;
  * <li>{@link OAuth2AuthorizedClientRepository}</li>
  * <li>{@link GrantedAuthoritiesMapper}</li>
  * <li>{@link DefaultLoginPageGeneratingFilter} - if {@link #loginPage(String)} is not configured
- * and {@code DefaultLoginPageGeneratingFilter} is available, than a default login page will be made available</li>
+ * and {@code DefaultLoginPageGeneratingFilter} is available, then a default login page will be made available</li>
  * </ul>
  *
  * @author Joe Grandja
