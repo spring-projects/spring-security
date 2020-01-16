@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -430,6 +430,39 @@ public final class SecurityMockMvcRequestPostProcessors {
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
 				null, null, Collections.singleton("user"));
 		return new OidcLoginRequestPostProcessor(accessToken);
+	}
+
+	/**
+	 * Establish an {@link OAuth2AuthorizedClient} in the session. All details are
+	 * declarative and do not require associated tokens to be valid.
+	 *
+	 * <p>
+	 * The support works by associating the authorized client to the HttpServletRequest
+	 * via the {@link HttpSessionOAuth2AuthorizedClientRepository}
+	 * </p>
+	 *
+	 * @return the {@link OAuth2ClientRequestPostProcessor} for additional customization
+	 * @since 5.3
+	 */
+	public static OAuth2ClientRequestPostProcessor oauth2Client() {
+		return new OAuth2ClientRequestPostProcessor();
+	}
+
+	/**
+	 * Establish an {@link OAuth2AuthorizedClient} in the session. All details are
+	 * declarative and do not require associated tokens to be valid.
+	 *
+	 * <p>
+	 * The support works by associating the authorized client to the HttpServletRequest
+	 * via the {@link HttpSessionOAuth2AuthorizedClientRepository}
+	 * </p>
+	 *
+	 * @param registrationId The registration id for the {@link OAuth2AuthorizedClient}
+	 * @return the {@link OAuth2ClientRequestPostProcessor} for additional customization
+	 * @since 5.3
+	 */
+	public static OAuth2ClientRequestPostProcessor oauth2Client(String registrationId) {
+		return new OAuth2ClientRequestPostProcessor(registrationId);
 	}
 
 	/**
@@ -1389,12 +1422,12 @@ public final class SecurityMockMvcRequestPostProcessors {
 			OAuth2User oauth2User = this.oauth2User.get();
 			OAuth2AuthenticationToken token = new OAuth2AuthenticationToken
 					(oauth2User, oauth2User.getAuthorities(), this.clientRegistration.getRegistrationId());
-			OAuth2AuthorizedClient client = new OAuth2AuthorizedClient
-					(this.clientRegistration, token.getName(), this.accessToken);
-			OAuth2AuthorizedClientRepository authorizedClientRepository = new HttpSessionOAuth2AuthorizedClientRepository();
-			authorizedClientRepository.saveAuthorizedClient(client, token, request, new MockHttpServletResponse());
 
-			return new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
+			request = new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
+			return new OAuth2ClientRequestPostProcessor()
+					.clientRegistration(this.clientRegistration)
+					.accessToken(this.accessToken)
+					.postProcessRequest(request);
 		}
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
@@ -1567,6 +1600,84 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private OidcUser defaultPrincipal() {
 			return new DefaultOidcUser(getAuthorities(), getOidcIdToken(), this.userInfo);
+		}
+	}
+
+	/**
+	 * @author Josh Cummings
+	 * @since 5.3
+	 */
+	public final static class OAuth2ClientRequestPostProcessor implements RequestPostProcessor {
+		private String registrationId = "test";
+		private ClientRegistration clientRegistration;
+		private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+				"access-token", null, null, Collections.singleton("user"));
+
+		private OAuth2ClientRequestPostProcessor() {
+		}
+
+		private OAuth2ClientRequestPostProcessor(String registrationId) {
+			this.registrationId = registrationId;
+			clientRegistration(c -> {});
+		}
+
+		/**
+		 * Use this {@link ClientRegistration}
+		 *
+		 * @param clientRegistration
+		 * @return the {@link OAuth2ClientRequestPostProcessor} for further configuration
+		 */
+		public OAuth2ClientRequestPostProcessor clientRegistration(ClientRegistration clientRegistration) {
+			this.clientRegistration = clientRegistration;
+			return this;
+		}
+
+		/**
+		 * Use this {@link Consumer} to configure a {@link ClientRegistration}
+		 *
+		 * @param clientRegistrationConfigurer the {@link ClientRegistration} configurer
+		 * @return the {@link OAuth2ClientRequestPostProcessor} for further configuration
+		 */
+		public OAuth2ClientRequestPostProcessor clientRegistration
+				(Consumer<ClientRegistration.Builder> clientRegistrationConfigurer) {
+
+			ClientRegistration.Builder builder = clientRegistrationBuilder();
+			clientRegistrationConfigurer.accept(builder);
+			this.clientRegistration = builder.build();
+			return this;
+		}
+
+		/**
+		 * Use this {@link OAuth2AccessToken}
+		 *
+		 * @param accessToken the {@link OAuth2AccessToken} to use
+		 * @return the {@link OAuth2ClientRequestPostProcessor} for further configuration
+		 */
+		public OAuth2ClientRequestPostProcessor accessToken(OAuth2AccessToken accessToken) {
+			this.accessToken = accessToken;
+			return this;
+		}
+
+		@Override
+		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			if (this.clientRegistration == null) {
+				throw new IllegalArgumentException("Please specify a ClientRegistration via one " +
+						"of the clientRegistration methods");
+			}
+			OAuth2AuthorizedClient client = new OAuth2AuthorizedClient
+					(this.clientRegistration, "test-subject", this.accessToken);
+			OAuth2AuthorizedClientRepository authorizedClientRepository =
+					new HttpSessionOAuth2AuthorizedClientRepository();
+			authorizedClientRepository.saveAuthorizedClient(client, null, request, new MockHttpServletResponse());
+			return request;
+		}
+
+		private ClientRegistration.Builder clientRegistrationBuilder() {
+			return ClientRegistration.withRegistrationId(this.registrationId)
+					.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+					.clientId("test-client")
+					.clientSecret("test-secret")
+					.tokenUri("https://idp.example.org/oauth/token");
 		}
 	}
 
