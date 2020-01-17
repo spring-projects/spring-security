@@ -2372,8 +2372,8 @@ A bean identifier, used for referring to the bean elsewhere in the context.
 [[nsa-ldap-server-ldif]]
 * **ldif**
 Explicitly specifies an ldif file resource to load into an embedded LDAP server.
-The ldiff is should be a Spring resource pattern (i.e. classpath:init.ldiff).
-The default is classpath*:*.ldiff
+The ldif should be a Spring resource pattern (i.e. classpath:init.ldif).
+The default is classpath*:*.ldif
 
 
 [[nsa-ldap-server-manager-dn]]
