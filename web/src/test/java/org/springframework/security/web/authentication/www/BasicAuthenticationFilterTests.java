@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.authentication.www;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Mockito.*;
 
@@ -320,4 +320,105 @@ public class BasicAuthenticationFilterTests {
 
 		assertThat(response.getStatus()).isEqualTo(200);
 	}
+
+	@Test
+	public void testCredentialsWithUmlautUsingCharset_Utf_8() throws Exception {
+		SecurityContextHolder.clearContext();
+
+		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken("rod", "äöü");
+		rodRequest.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
+		Authentication rod = new UsernamePasswordAuthenticationToken("rod", "äöü", AuthorityUtils.createAuthorityList("ROLE_1"));
+
+		manager = mock(AuthenticationManager.class);
+		when(manager.authenticate(rodRequest)).thenReturn(rod);
+		when(manager.authenticate(not(eq(rodRequest)))).thenThrow(new BadCredentialsException(""));
+
+		filter = new BasicAuthenticationFilter(manager, new BasicAuthenticationEntryPoint());
+
+		String token = "rod:äöü";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes("UTF-8"))));
+		request.setServletPath("/some_file.html");
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		// Test
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		FilterChain chain = mock(FilterChain.class);
+
+		filter.doFilter(request, response, chain);
+
+		assertThat(response.getStatus()).isEqualTo(200);
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("äöü");
+	}
+
+	@Test
+	public void testCredentialsWithUmlautUsingCharset_Iso_8859_1() throws Exception {
+		SecurityContextHolder.clearContext();
+
+		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken("rod", "äöü");
+		rodRequest.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
+		Authentication rod = new UsernamePasswordAuthenticationToken("rod", "äöü", AuthorityUtils.createAuthorityList("ROLE_1"));
+
+		manager = mock(AuthenticationManager.class);
+		when(manager.authenticate(rodRequest)).thenReturn(rod);
+		when(manager.authenticate(not(eq(rodRequest)))).thenThrow(new BadCredentialsException(""));
+
+		filter = new BasicAuthenticationFilter(manager, new BasicAuthenticationEntryPoint());
+		filter.setCredentialsCharset("ISO-8859-1");
+
+		String token = "rod:äöü";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes("ISO-8859-1"))));
+		request.setServletPath("/some_file.html");
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		// Test
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		FilterChain chain = mock(FilterChain.class);
+
+		filter.doFilter(request, response, chain);
+
+		assertThat(response.getStatus()).isEqualTo(200);
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("äöü");
+	}
+
+	@Test
+	public void testCredentialsWithUmlautUsingWrongCharset() throws Exception {
+		SecurityContextHolder.clearContext();
+
+		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken("rod", "äöü");
+		rodRequest.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
+		Authentication rod = new UsernamePasswordAuthenticationToken("rod", "äöü", AuthorityUtils.createAuthorityList("ROLE_1"));
+
+		manager = mock(AuthenticationManager.class);
+		when(manager.authenticate(rodRequest)).thenReturn(rod);
+		when(manager.authenticate(not(eq(rodRequest)))).thenThrow(new BadCredentialsException(""));
+
+		filter = new BasicAuthenticationFilter(manager, new BasicAuthenticationEntryPoint());
+		filter.setCredentialsCharset("ISO-8859-1");
+
+		String token = "rod:äöü";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes("UTF-8"))));
+		request.setServletPath("/some_file.html");
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		// Test
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		FilterChain chain = mock(FilterChain.class);
+
+		filter.doFilter(request, response, chain);
+
+		assertThat(response.getStatus()).isEqualTo(401);
+		verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+	}
+
 }
