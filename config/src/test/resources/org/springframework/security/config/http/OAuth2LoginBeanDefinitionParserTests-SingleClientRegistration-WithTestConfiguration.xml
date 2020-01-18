@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2002-2019 the original author or authors.
+  ~ Copyright 2002-2020 the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@
 
 	<http auto-config="true">
 		<intercept-url pattern="/**" access="authenticated"/>
-		<oauth2-login tokenendpoint-access-token-response-client-ref="testAccessTokenResponseClient"
-						userinfo-user-service-ref="testOAuth2UserService"
-						userinfo-oidc-user-service-ref="testOAuth2OidcUserService"/>
+		<oauth2-login access-token-response-client-ref="testAccessTokenResponseClient"
+						user-service-ref="testOAuth2UserService"
+						oidc-user-service-ref="testOAuth2OidcUserService"/>
 	</http>
 
 	<client-registrations>
@@ -50,9 +50,9 @@
 				  jwkset-uri="https://www.googleapis.com/oauth2/v3/certs"/>
 	</client-registrations>
 	
-	<b:bean id="testAccessTokenResponseClient" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.DummyAccessTokenResponse"/>
-	<b:bean id="testOAuth2UserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.DummyOAuth2UserService"/>
-	<b:bean id="testOAuth2OidcUserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.DummyOAuth2OidcUserService"/>
+	<b:bean id="testAccessTokenResponseClient" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockAccessTokenResponse"/>
+	<b:bean id="testOAuth2UserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2UserService"/>
+	<b:bean id="testOAuth2OidcUserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2OidcUserService"/>
 	<b:bean id="testAuthenticationSuccessListener" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.AuthenticationSuccessListener"/>
 	
 	<b:import resource="userservice.xml"/>

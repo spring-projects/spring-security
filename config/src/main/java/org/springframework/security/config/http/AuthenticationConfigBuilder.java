@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,12 +138,12 @@ final class AuthenticationConfigBuilder {
 
 	private String openIDLoginPage;
 
-	private String oauth2LoginFilterId = null;
-	private String oauth2AuthorizationRequestRedirectFilterId = null;
+	private String oauth2LoginFilterId;
+	private String oauth2AuthorizationRequestRedirectFilterId;
 	private BeanDefinition oauth2AuthorizationRequestRedirectFilter;
 	private BeanDefinition oauth2LoginEntryPoint;
-	private BeanReference oauth2LoginAuthenticationProviderRef = null;
-	private BeanReference oauth2LoginOidcAuthenticationProviderRef = null;
+	private BeanReference oauth2LoginAuthenticationProviderRef;
+	private BeanReference oauth2LoginOidcAuthenticationProviderRef;
 
 	AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
 			ParserContext pc, SessionCreationPolicy sessionPolicy,
@@ -246,9 +246,9 @@ final class AuthenticationConfigBuilder {
 	void createOAuth2LoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
 		Element oauth2LoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_LOGIN);
 		if (oauth2LoginElt != null) {
-			OAuth2LoginBeanDefinitionParser parser = new OAuth2LoginBeanDefinitionParser();
-			BeanDefinition filterBean = parser.parse(oauth2LoginElt, this.pc);
-			filterBean.getPropertyValues().addPropertyValue("authenticationManager", authManager);
+			OAuth2LoginBeanDefinitionParser parser = new OAuth2LoginBeanDefinitionParser(requestCache);
+			BeanDefinition oauth2LoginFilterBean = parser.parse(oauth2LoginElt, this.pc);
+			oauth2LoginFilterBean.getPropertyValues().addPropertyValue("authenticationManager", authManager);
 
 			// retrieve the other bean result
 			BeanDefinition oauth2LoginAuthProvider = parser.getOAuth2LoginAuthenticationProvider();
@@ -258,14 +258,14 @@ final class AuthenticationConfigBuilder {
 			// generate bean name to be registered
 			String oauth2LoginAuthenticationProviderId = pc.getReaderContext()
 					.generateBeanName(oauth2LoginAuthProvider);
-			oauth2LoginFilterId = pc.getReaderContext().generateBeanName(filterBean);
+			oauth2LoginFilterId = pc.getReaderContext().generateBeanName(oauth2LoginFilterBean);
 			oauth2AuthorizationRequestRedirectFilterId = pc.getReaderContext()
 					.generateBeanName(oauth2AuthorizationRequestRedirectFilter);
 
 			// register the component
 			pc.registerBeanComponent(new BeanComponentDefinition(oauth2AuthorizationRequestRedirectFilter,
 					oauth2AuthorizationRequestRedirectFilterId));
-			pc.registerBeanComponent(new BeanComponentDefinition(filterBean, oauth2LoginFilterId));
+			pc.registerBeanComponent(new BeanComponentDefinition(oauth2LoginFilterBean, oauth2LoginFilterId));
 			pc.registerBeanComponent(
 					new BeanComponentDefinition(oauth2LoginAuthProvider, oauth2LoginAuthenticationProviderId));
 

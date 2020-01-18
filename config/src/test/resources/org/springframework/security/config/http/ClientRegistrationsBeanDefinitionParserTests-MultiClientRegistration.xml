@@ -23,15 +23,6 @@
 			https://www.springframework.org/schema/security/spring-security.xsd
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
-
-	<http auto-config="true">
-		<intercept-url pattern="/**" access="authenticated"/>
-		<oauth2-login access-token-response-client-ref="testAccessTokenResponseClient"
-						user-service-ref="testOAuth2UserService"
-						oidc-user-service-ref="testOAuth2OidcUserService"
-						user-authorities-mapper-ref="testGrantedAuthoritiesMapper"/>
-	</http>
-
 	<client-registrations>
 		<client-registration registration-id="google-login"
 							 client-id="google-client-id"
@@ -42,21 +33,28 @@
 							 scope="openid,profile,email"
 							 client-name="Google"
 							 provider-id="google"/>
+		<client-registration registration-id="github-login"
+							 client-id="github-client-id"
+							 client-secret="github-client-secret"
+							 client-authentication-method="basic"
+							 authorization-grant-type="authorization_code"
+							 redirect-uri="{baseUrl}/login/oauth2/code/{registrationId}"
+							 scope="openid,profile,email"
+							 client-name="Github"
+							 provider-id="github"/>
 		<provider provider-id="google"
 				  authorization-uri="https://accounts.google.com/o/oauth2/v2/auth"
 				  token-uri="https://www.googleapis.com/oauth2/v4/token"
 				  userinfo-uri="https://www.googleapis.com/oauth2/v3/userinfo"
 				  userinfo-authentication-method="header"
 				  username-attribute-name="sub"
-				  jwkset-uri="https://www.googleapis.com/oauth2/v3/certs"/>
+				  jwkset-uri="https://www.googleapis.com/oauth2/v3/certs"
+				  issuer-uri="https://accounts.google.com"/>
+		<provider provider-id="github"
+				  authorization-uri="https://github.com/login/oauth/authorize"
+				  token-uri="https://github.com/login/oauth/access_token"
+				  userinfo-uri="https://api.github.com/user"
+				  userinfo-authentication-method="header"
+				  username-attribute-name="id"/>
 	</client-registrations>
-	
-	<b:bean id="testAccessTokenResponseClient" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockAccessTokenResponse"/>
-	<b:bean id="testOAuth2UserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2UserService"/>
-	<b:bean id="testOAuth2OidcUserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2OidcUserService"/>
-	<b:bean id="testAuthenticationSuccessListener" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.AuthenticationSuccessListener"/>
-	<b:bean id="testGrantedAuthoritiesMapper" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockGrantedAuthoritiesMapper"/>
-	
-	
-	<b:import resource="userservice.xml"/>
 </b:beans>

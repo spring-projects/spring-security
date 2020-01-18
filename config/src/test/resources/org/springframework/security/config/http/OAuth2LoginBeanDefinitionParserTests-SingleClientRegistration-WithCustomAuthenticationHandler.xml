@@ -29,7 +29,8 @@
 		<oauth2-login access-token-response-client-ref="testAccessTokenResponseClient"
 						user-service-ref="testOAuth2UserService"
 						oidc-user-service-ref="testOAuth2OidcUserService"
-						user-authorities-mapper-ref="testGrantedAuthoritiesMapper"/>
+						authentication-success-handler-ref="testHandler"
+						authentication-failure-handler-ref="testHandler"/>
 	</http>
 
 	<client-registrations>
@@ -50,13 +51,11 @@
 				  username-attribute-name="sub"
 				  jwkset-uri="https://www.googleapis.com/oauth2/v3/certs"/>
 	</client-registrations>
-	
+
 	<b:bean id="testAccessTokenResponseClient" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockAccessTokenResponse"/>
 	<b:bean id="testOAuth2UserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2UserService"/>
 	<b:bean id="testOAuth2OidcUserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2OidcUserService"/>
-	<b:bean id="testAuthenticationSuccessListener" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.AuthenticationSuccessListener"/>
-	<b:bean id="testGrantedAuthoritiesMapper" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockGrantedAuthoritiesMapper"/>
-	
-	
+	<b:bean id="testHandler" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.TeapotAuthenticationHandler"/>
+
 	<b:import resource="userservice.xml"/>
 </b:beans>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,12 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
@@ -61,6 +63,7 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 	private static final String ATT_USERINFO_AUTHENTICATION_METHOD = "userinfo-authentication-method";
 	private static final String ATT_USERNAME_ATTRIBUTE_NAME = "username-attribute-name";
 	private static final String ATT_JWKSET_URI = "jwkset-uri";
+	private static final String ATT_ISSUER_URI = "issuer-uri";
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
@@ -68,12 +71,13 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 				parserContext.extractSource(element));
 		parserContext.pushContainingComponent(compositeDef);
 
-		Map<String, Map<String, String>> providerDetailMap = retrieveProviders(element);
+		Map<String, Map<String, String>> providerDetailMap = getProviders(element);
 
-		List<ClientRegistration> clientRegs = retrieveClientRegistrations(element, providerDetailMap);
+		List<ClientRegistration> clientRegs = getClientRegistrations(element, providerDetailMap);
 
 		BeanDefinition inMemClientRegRepoBeanDef = BeanDefinitionBuilder
-				.rootBeanDefinition(InMemoryClientRegistrationRepository.class).addConstructorArgValue(clientRegs)
+				.rootBeanDefinition(InMemoryClientRegistrationRepository.class)
+				.addConstructorArgValue(clientRegs)
 				.getBeanDefinition();
 		String beanName = parserContext.getReaderContext().generateBeanName(inMemClientRegRepoBeanDef);
 		parserContext.registerBeanComponent(new BeanComponentDefinition(inMemClientRegRepoBeanDef, beanName));
@@ -90,7 +94,7 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 		return null;
 	}
 
-	private List<ClientRegistration> retrieveClientRegistrations(Element element,
+	private List<ClientRegistration> getClientRegistrations(Element element,
 			Map<String, Map<String, String>> providerDetailMap) {
 		List<Element> clientRegElts = DomUtils.getChildElementsByTagName(element, ELT_CLIENT_REGISTRATION);
 		List<ClientRegistration> clientRegs = new ArrayList<>();
@@ -110,23 +114,33 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 					: new HashMap<>();
 
 			Set<String> scopes = new HashSet<>(Arrays.asList(scope.split(",")));
-			ClientRegistration clientReg = ClientRegistration.withRegistrationId(regId).clientId(clientId)
+			String issuerUri = providerDetail.get(ATT_ISSUER_URI);
+			ClientRegistration.Builder builder = StringUtils.isEmpty(issuerUri)
+					? ClientRegistration.withRegistrationId(regId)
+					: ClientRegistrations.fromIssuerLocation(issuerUri).registrationId(regId);
+
+			ClientRegistration clientReg = builder.clientId(clientId)
 					.clientSecret(clientSecret)
 					.clientAuthenticationMethod(new ClientAuthenticationMethod(clientAuthMethod))
-					.authorizationGrantType(new AuthorizationGrantType(authGrantType)).redirectUriTemplate(redirUri)
-					.scope(scopes).clientName(clientName).authorizationUri(providerDetail.get(ATT_AUTHORIZATION_URI))
-					.tokenUri(providerDetail.get(ATT_TOKEN_URI)).userInfoUri(providerDetail.get(ATT_USERINFO_URI))
+					.authorizationGrantType(new AuthorizationGrantType(authGrantType))
+					.redirectUriTemplate(redirUri)
+					.scope(scopes)
+					.clientName(clientName)
+					.authorizationUri(providerDetail.get(ATT_AUTHORIZATION_URI))
+					.tokenUri(providerDetail.get(ATT_TOKEN_URI))
+					.userInfoUri(providerDetail.get(ATT_USERINFO_URI))
 					.userInfoAuthenticationMethod(
 							new AuthenticationMethod(providerDetail.get(ATT_USERINFO_AUTHENTICATION_METHOD)))
 					.userNameAttributeName(providerDetail.get(ATT_USERNAME_ATTRIBUTE_NAME))
-					.jwkSetUri(providerDetail.get(ATT_JWKSET_URI)).build();
+					.jwkSetUri(providerDetail.get(ATT_JWKSET_URI))
+					.build();
 
 			clientRegs.add(clientReg);
 		}
 		return clientRegs;
 	}
 
-	private Map<String, Map<String, String>> retrieveProviders(Element element) {
+	private Map<String, Map<String, String>> getProviders(Element element) {
 		List<Element> providerRegElts = DomUtils.getChildElementsByTagName(element, ELT_PROVIDER);
 		Map<String, Map<String, String>> providerDetailMap = new HashMap<>();
 		for (Element providerRegElt : providerRegElts) {
@@ -140,6 +154,7 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 					providerRegElt.getAttribute(ATT_USERINFO_AUTHENTICATION_METHOD));
 			detail.put(ATT_USERNAME_ATTRIBUTE_NAME, providerRegElt.getAttribute(ATT_USERNAME_ATTRIBUTE_NAME));
 			detail.put(ATT_JWKSET_URI, providerRegElt.getAttribute(ATT_JWKSET_URI));
+			detail.put(ATT_ISSUER_URI, providerRegElt.getAttribute(ATT_ISSUER_URI));
 
 			providerDetailMap.put(providerId, detail);
 		}

@@ -1460,28 +1460,58 @@
          <xs:attributeGroup ref="security:oauth2-login.attlist"/>
       </xs:complexType>
    </xs:element>
-   <xs:attributeGroup name="oauth2-login.attlist">
-      <xs:attribute name="tokenendpoint-access-token-response-client-ref" type="xs:token">
+  <xs:attributeGroup name="oauth2-login.attlist">
+      <xs:attribute name="client-registration-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to ClientRegistrationRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorized-client-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to OAuth2AuthorizedClientRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorized-client-service-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to OAuth2AuthorizedClientService
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorization-request-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to AuthorizationRequestRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorization-request-resolver-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to OAuth2AuthorizationRequestResolver
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="access-token-response-client-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to OAuth2AccessTokenResponseClient
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="userinfo-user-service-ref" type="xs:token">
+      <xs:attribute name="user-authorities-mapper-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to GrantedAuthoritiesMapper
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="user-service-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to OAuth2UserService
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="userinfo-oidc-user-service-ref" type="xs:token">
+      <xs:attribute name="oidc-user-service-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to OidcUserService
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="userinfo-user-authorities-mapper-ref" type="xs:token">
-         <xs:annotation>
-            <xs:documentation>Reference to GrantedAuthoritiesMapper
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -1491,15 +1521,27 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="authorizationendpoint-authorization-request-resolver-ref" type="xs:token">
-         <xs:annotation>
-            <xs:documentation>Reference to OAuth2AuthorizationRequestResolver
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
       <xs:attribute name="login-page" type="xs:token">
          <xs:annotation>
             <xs:documentation>Specifies the URL to send users to if login is required
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-success-handler-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Specifies authentication success handler
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-failure-handler-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Specifies authentication failure handler
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="jwt-decoder-factory-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Specifies JWT decoder factory for OidcAuthorizationCodeAuthenticationProvider
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

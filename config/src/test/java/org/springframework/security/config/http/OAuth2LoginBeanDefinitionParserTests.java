@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,21 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
@@ -37,9 +42,12 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -57,6 +65,8 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.web.servlet.MockMvc;
@@ -73,6 +83,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -82,6 +93,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Tests for {@link OAuth2LoginBeanDefinitionParser}.
@@ -98,6 +110,15 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	private ClientRegistrationRepository clientRegistrationRepository;
 
 	@Autowired
+	private OAuth2LoginAuthenticationFilter oauth2LoginAuthenticationFilter;
+
+	@Autowired(required = false)
+	private OAuth2AuthorizedClientRepository oauth2AuthorizedClientRepository;
+
+	@Autowired(required = false)
+	private OAuth2AuthorizedClientService oauth2AuthorizedClientService;
+
+	@Autowired
 	SecurityContextRepository securityContextRepository;
 
 	@Autowired(required = false)
@@ -106,6 +127,10 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	@Autowired(required = false)
 	private OidcAuthorizationCodeAuthenticationProvider oidcAuthorizationCodeAuthenticationProvider;
 
+	@Autowired(required = false)
+	private JwtDecoderFactory<ClientRegistration> jwtDecoderFactory;
+
+	@Autowired(required = false)
 	private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 
 	@Autowired
@@ -209,7 +234,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	public void successOidcLoginWhenSingleClientRegistrationThenRedirectToDefaultUrl() throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration-WithTestConfiguration")).autowire();
 		// set the jwt decoder to test instance
-		oidcAuthorizationCodeAuthenticationProvider.setJwtDecoderFactory(new DummyOAuth2OidcJwtDecoderFactory());
+		oidcAuthorizationCodeAuthenticationProvider.setJwtDecoderFactory(new MockOAuth2OidcJwtDecoderFactory());
 
 		MockHttpSession session = new MockHttpSession();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
@@ -250,6 +275,35 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	}
 
 	@Test
+	public void successOidcLoginWhenSingleClientRegistrationWithJwtDecoderFactoryRefThenRedirectToDefaultUrl()
+			throws Exception {
+		this.spring.configLocations(this.xml("SingleClientRegistration-WithJwtDecoderFactory")).autowire();
+
+		Field jwtDecoderFactoryField = oidcAuthorizationCodeAuthenticationProvider.getClass()
+				.getDeclaredField("jwtDecoderFactory");
+		jwtDecoderFactoryField.setAccessible(true);
+		Object jwtDecoderFactoryFieldVal = jwtDecoderFactoryField.get(oidcAuthorizationCodeAuthenticationProvider);
+		assertThat(jwtDecoderFactoryFieldVal).isInstanceOf(MockOAuth2OidcJwtDecoderFactory.class);
+		assertThat(jwtDecoderFactoryFieldVal).isSameAs(jwtDecoderFactory);
+
+		MockHttpSession session = new MockHttpSession();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setServletPath("/login/oauth2/code/google");
+		request.setSession(session);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		OAuth2AuthorizationRequest authRequest = createOAuth2AuthorizationRequest(
+				clientRegistrationRepository.findByRegistrationId("google-login"), "openid");
+		authorizationRequestRepository.saveAuthorizationRequest(authRequest, request, response);
+
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("code", "code123");
+		params.add("state", "state123");
+		this.mvc.perform(get("/login/oauth2/code/google").params(params).session(session))
+				.andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
 	public void successLoginWhenSingleClientRegistrationAndCustomAuthoritiesThenRedirectToDefaultUrlWithCorrectAuthorities()
 			throws Exception {
 		this.spring.configLocations(this.xml("SingleClientRegistration-WithCustomGrantedAuthorities")).autowire();
@@ -283,7 +337,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.spring.configLocations(this.xml("SingleClientRegistration-WithCustomGrantedAuthorities")).autowire();
 
 		// set the jwt decoder to test instance
-		oidcAuthorizationCodeAuthenticationProvider.setJwtDecoderFactory(new DummyOAuth2OidcJwtDecoderFactory());
+		oidcAuthorizationCodeAuthenticationProvider.setJwtDecoderFactory(new MockOAuth2OidcJwtDecoderFactory());
 
 		MockHttpSession session = new MockHttpSession();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
@@ -345,7 +399,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 				.autowire();
 
 		this.mvc.perform(get("/oauth2/authorization/google")).andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl(DummyAuthorizationRequestResolver.REQUEST_URI));
+				.andExpect(redirectedUrl(MockAuthorizationRequestResolver.REQUEST_URI));
 	}
 
 	// gh-5347
@@ -375,6 +429,108 @@ public class OAuth2LoginBeanDefinitionParserTests {
 				.andExpect(redirectedUrl("http://localhost/login"));
 	}
 
+	@Test
+	public void customClientRegistrationRepository() throws Exception {
+		this.spring.configLocations(this.xml("WithCustomClientRegistrationRepository")).autowire();
+
+		assertThat(clientRegistrationRepository).isInstanceOf(MockClientRegistrationRepository.class);
+		ClientRegistration clientReg = clientRegistrationRepository.findByRegistrationId("mock");
+		assertThat(clientReg.getRegistrationId()).isEqualTo("mock");
+
+		Field field = oauth2LoginAuthenticationFilter.getClass().getDeclaredField("clientRegistrationRepository");
+		field.setAccessible(true);
+		Object fieldVal = field.get(oauth2LoginAuthenticationFilter);
+		assertThat(fieldVal).isInstanceOf(MockClientRegistrationRepository.class);
+		assertThat(fieldVal).isSameAs(clientRegistrationRepository);
+	}
+
+	@Test
+	public void customAuthorizedClientRepository() throws Exception {
+		this.spring.configLocations(this.xml("WithCustomAuthorizedClientRepository")).autowire();
+
+		assertThat(oauth2AuthorizedClientRepository).isInstanceOf(MockOAuth2AuthorizedClientRepository.class);
+
+		Field field = oauth2LoginAuthenticationFilter.getClass().getDeclaredField("authorizedClientRepository");
+		field.setAccessible(true);
+		Object fieldVal = field.get(oauth2LoginAuthenticationFilter);
+		assertThat(fieldVal).isInstanceOf(MockOAuth2AuthorizedClientRepository.class);
+		assertThat(fieldVal).isSameAs(oauth2AuthorizedClientRepository);
+	}
+
+	@Test
+	public void customAuthorizedClientService() throws Exception {
+		this.spring.configLocations(this.xml("WithCustomAuthorizedClientService")).autowire();
+
+		assertThat(oauth2AuthorizedClientService).isInstanceOf(MockOAuth2AuthorizedClientService.class);
+
+		Field authorizedClientRepositoryField = oauth2LoginAuthenticationFilter.getClass()
+				.getDeclaredField("authorizedClientRepository");
+		authorizedClientRepositoryField.setAccessible(true);
+		Object authorizedClientRepositoryFieldVal = authorizedClientRepositoryField
+				.get(oauth2LoginAuthenticationFilter);
+		assertThat(authorizedClientRepositoryFieldVal)
+				.isInstanceOf(AuthenticatedPrincipalOAuth2AuthorizedClientRepository.class);
+
+		Field authorizedClientServiceField = authorizedClientRepositoryFieldVal.getClass()
+				.getDeclaredField("authorizedClientService");
+		authorizedClientServiceField.setAccessible(true);
+		Object authorizedClientServiceFieldVal = authorizedClientServiceField.get(authorizedClientRepositoryFieldVal);
+		assertThat(authorizedClientServiceFieldVal).isInstanceOf(MockOAuth2AuthorizedClientService.class);
+		assertThat(authorizedClientServiceFieldVal).isSameAs(oauth2AuthorizedClientService);
+	}
+
+	@Test
+	public void customAuthorizationRequestRepository() throws Exception {
+		this.spring.configLocations(this.xml("WithCustomAuthorizationRequestRepository")).autowire();
+
+		assertThat(authorizationRequestRepository).isInstanceOf(MockOAuth2AuthorizationRequestRepository.class);
+
+		Field authorizationRequestRepositoryField = oauth2LoginAuthenticationFilter.getClass()
+				.getDeclaredField("authorizationRequestRepository");
+		authorizationRequestRepositoryField.setAccessible(true);
+		Object authorizationRequestRepositoryFieldVal = authorizationRequestRepositoryField
+				.get(oauth2LoginAuthenticationFilter);
+		assertThat(authorizationRequestRepositoryFieldVal).isInstanceOf(MockOAuth2AuthorizationRequestRepository.class);
+		assertThat(authorizationRequestRepositoryFieldVal).isSameAs(authorizationRequestRepository);
+	}
+
+	@Test
+	public void requestWithSingleClientRegistrationAndCustomSuccessAuthenticationHandler() throws Exception {
+		this.spring.configLocations(this.xml("SingleClientRegistration-WithCustomAuthenticationHandler")).autowire();
+
+		MockHttpSession session = new MockHttpSession();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setServletPath("/login/oauth2/code/google");
+		request.setSession(session);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		OAuth2AuthorizationRequest authRequest = createOAuth2AuthorizationRequest(
+				clientRegistrationRepository.findByRegistrationId("google-login"));
+		authorizationRequestRepository.saveAuthorizationRequest(authRequest, request, response);
+
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("code", "code123");
+		params.add("state", "state123");
+		this.mvc.perform(get("/login/oauth2/code/google").params(params).session(session))
+				.andExpect(status().isIAmATeapot());
+
+		Authentication authentication = this.securityContextRepository
+				.loadContext(new HttpRequestResponseHolder(request, response)).getAuthentication();
+		assertThat(authentication.getAuthorities()).hasSize(1);
+		assertThat(authentication.getAuthorities()).first().isInstanceOf(OAuth2UserAuthority.class)
+				.hasToString("ROLE_USER");
+	}
+
+	@Test
+	public void requestWithSingleClientRegistrationAndCustomFailureAuthenticationHandler() throws Exception {
+		this.spring.configLocations(this.xml("SingleClientRegistration-WithCustomAuthenticationHandler")).autowire();
+
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("code", "code123");
+		params.add("state", "state123");
+		this.mvc.perform(get("/login/oauth2/code/google").params(params)).andExpect(status().isIAmATeapot());
+	}
+
 	private String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
@@ -389,7 +545,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 				.scope(scopes).build();
 	}
 
-	public static class DummyAccessTokenResponse
+	public static class MockAccessTokenResponse
 			implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
 
 		public static final String ACCESS_TOKEN_VALUE = "accessToken123";
@@ -407,7 +563,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		}
 	}
 
-	public static class DummyOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+	public static class MockOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
 		@Override
 		public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -418,7 +574,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 
 	}
 
-	public static class DummyOAuth2OidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
+	public static class MockOAuth2OidcUserService implements OAuth2UserService<OidcUserRequest, OidcUser> {
 
 		@Override
 		public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
@@ -439,7 +595,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 
 	}
 
-	public static class DummyOAuth2OidcJwtDecoderFactory implements JwtDecoderFactory<ClientRegistration> {
+	public static class MockOAuth2OidcJwtDecoderFactory implements JwtDecoderFactory<ClientRegistration> {
 
 		@Override
 		public JwtDecoder createDecoder(ClientRegistration context) {
@@ -456,7 +612,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 
 	}
 
-	public static class DummyGrantedAuthoritiesMapper implements GrantedAuthoritiesMapper {
+	public static class MockGrantedAuthoritiesMapper implements GrantedAuthoritiesMapper {
 
 		@Override
 		public Collection<? extends GrantedAuthority> mapAuthorities(
@@ -469,7 +625,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 
 	}
 
-	public static class DummyAuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
+	public static class MockAuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
 
 		static final String REQUEST_URI = "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1";
 
@@ -490,4 +646,94 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		}
 
 	}
+
+	public static class MockClientRegistrationRepository implements ClientRegistrationRepository {
+		@Override
+		public ClientRegistration findByRegistrationId(String registrationId) {
+			return CommonOAuth2Provider.FACEBOOK.getBuilder(registrationId).clientId("facebook-client").build();
+		}
+	}
+
+	public static class MockOAuth2AuthorizedClientRepository implements OAuth2AuthorizedClientRepository {
+
+		@Override
+		public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
+				Authentication principal, HttpServletRequest request) {
+			// leave blank
+			return null;
+		}
+
+		@Override
+		public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal,
+				HttpServletRequest request, HttpServletResponse response) {
+			// leave blank
+		}
+
+		@Override
+		public void removeAuthorizedClient(String clientRegistrationId, Authentication principal,
+				HttpServletRequest request, HttpServletResponse response) {
+			// leave blank
+		}
+
+	}
+
+	public static class MockOAuth2AuthorizedClientService implements OAuth2AuthorizedClientService {
+
+		@Override
+		public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
+				String principalName) {
+			// leave blank
+			return null;
+		}
+
+		@Override
+		public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
+			// leave blank
+		}
+
+		@Override
+		public void removeAuthorizedClient(String clientRegistrationId, String principalName) {
+			// leave blank
+		}
+	}
+
+	public static class MockOAuth2AuthorizationRequestRepository
+			implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
+
+		@Override
+		public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
+			// leave blank
+			return null;
+		}
+
+		@Override
+		public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest,
+				HttpServletRequest request, HttpServletResponse response) {
+			// leave blank
+		}
+
+		@Override
+		public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
+			// leave blank
+			return null;
+		}
+
+	}
+
+	public static class TeapotAuthenticationHandler
+			implements AuthenticationSuccessHandler, AuthenticationFailureHandler {
+
+		@Override
+		public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+				AuthenticationException exception) {
+			response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+		}
+
+		@Override
+		public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+				Authentication authentication) {
+			response.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
+		}
+	}
+
 }

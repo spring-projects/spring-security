@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,13 @@ import java.util.Map;
 
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Elements;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
@@ -62,13 +62,22 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String ELT_CLIENT_REGISTRATION = "client-registration";
 	private static final String ATT_REGISTRATION_ID = "registration-id";
-	private static final String ATT_TOKENENDPOINT_ACCESS_TOKEN_RESPONSE_CLIENT_REF = "tokenendpoint-access-token-response-client-ref";
-	private static final String ATT_USERINFO_USER_SERVICE_REF = "userinfo-user-service-ref";
-	private static final String ATT_USERINFO_OIDC_USER_SERVICE_REF = "userinfo-oidc-user-service-ref";
-	private static final String ATT_USERINFO_USER_AUTH_MAPPER_REF = "userinfo-user-authorities-mapper-ref";
+	private static final String ATT_CLIENT_REGISTRATION_REPOSITORY_REF = "client-registration-repository-ref";
+	private static final String ATT_AUTHORIZED_CLIENT_REPOSITORY_REF = "authorized-client-repository-ref";
+	private static final String ATT_AUTHORIZED_CLIENT_SERVICE_REF = "authorized-client-service-ref";
+	private static final String ATT_AUTHORIZATION_REQUEST_REPOSITORY_REF = "authorization-request-repository-ref";
+	private static final String ATT_AUTHORIZATION_REQUEST_RESOLVER_REF = "authorization-request-resolver-ref";
+	private static final String ATT_ACCESS_TOKEN_RESPONSE_CLIENT_REF = "access-token-response-client-ref";
+	private static final String ATT_USER_AUTHORITIES_MAPPER_REF = "user-authorities-mapper-ref";
+	private static final String ATT_USER_SERVICE_REF = "user-service-ref";
+	private static final String ATT_OIDC_USER_SERVICE_REF = "oidc-user-service-ref";
 	private static final String ATT_LOGIN_PROCESSING_URL = "login-processing-url";
-	private static final String ATT_AUTHORIZATIONENDPOINT_AUTH_REQ_RESOLVER_REF = "authorizationendpoint-authorization-request-resolver-ref";
 	private static final String ATT_LOGIN_PAGE = "login-page";
+	private static final String ATT_AUTHENTICATION_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
+	private static final String ATT_AUTHENTICATION_FAILURE_HANDLER_REF = "authentication-failure-handler-ref";
+	private static final String ATT_JWT_DECODER_FACTORY_REF = "jwt-decoder-factory-ref";
+
+	private BeanReference requestCache;
 
 	private BeanDefinition oauth2AuthorizationRequestRedirectFilter;
 
@@ -78,54 +87,64 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private BeanDefinition oauth2LoginOidcAuthenticationProvider;
 
+	OAuth2LoginBeanDefinitionParser(BeanReference requestCache) {
+		this.requestCache = requestCache;
+	}
+
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
-		BeanMetadataElement accessTokenResponseClient = retrieveAccessTokenResponseClient(element);
-		BeanMetadataElement oauth2UserService = retrieveOAuth2UserService(element);
-		BeanMetadataElement oauth2AuthRequestRepository = BeanDefinitionBuilder.rootBeanDefinition(
-				"org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository")
-				.getBeanDefinition();
+		BeanMetadataElement clientRegistrationRepository = getClientRegistrationRepository(element);
+		BeanMetadataElement authorizedClientRepository = getAuthorizedClientRepository(element,
+				clientRegistrationRepository);
+		BeanMetadataElement accessTokenResponseClient = getAccessTokenResponseClient(element);
+		BeanMetadataElement oauth2UserService = getOAuth2UserService(element);
+		BeanMetadataElement oauth2AuthRequestRepository = getOAuth2AuthorizationRequestRepository(element);
 
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(OAuth2LoginAuthenticationFilter.class)
-				.addConstructorArgValue(new RuntimeBeanReference(ClientRegistrationRepository.class))
-				.addConstructorArgValue(new RuntimeBeanReference(OAuth2AuthorizedClientService.class))
+				.addConstructorArgValue(clientRegistrationRepository).addConstructorArgValue(authorizedClientRepository)
 				.addPropertyValue("authorizationRequestRepository", oauth2AuthRequestRepository);
 
 		String loginProcessingUrl = element.getAttribute(ATT_LOGIN_PROCESSING_URL);
 		if (!StringUtils.isEmpty(loginProcessingUrl)) {
 			builder.addConstructorArgValue(loginProcessingUrl);
+		} else {
+			builder.addConstructorArgValue(OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
 		}
 
 		BeanDefinitionBuilder oauth2LoginAuthenticationProviderBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(OAuth2LoginAuthenticationProvider.class)
 				.addConstructorArgValue(accessTokenResponseClient).addConstructorArgValue(oauth2UserService);
 
-		String oauth2UserAuthMapperRef = element.getAttribute(ATT_USERINFO_USER_AUTH_MAPPER_REF);
+		String oauth2UserAuthMapperRef = element.getAttribute(ATT_USER_AUTHORITIES_MAPPER_REF);
 		if (!StringUtils.isEmpty(oauth2UserAuthMapperRef)) {
 			oauth2LoginAuthenticationProviderBuilder.addPropertyReference("authoritiesMapper", oauth2UserAuthMapperRef);
 		}
 
 		oauth2LoginAuthenticationProvider = oauth2LoginAuthenticationProviderBuilder.getBeanDefinition();
 
-		oauth2LoginOidcAuthenticationProvider = retrieveOAuth2OidcAuthProvider(element, accessTokenResponseClient,
+		oauth2LoginOidcAuthenticationProvider = getOAuth2OidcAuthProvider(element, accessTokenResponseClient,
 				oauth2UserAuthMapperRef, parserContext);
 
 		BeanDefinitionBuilder oauth2AuthorizationRequestRedirectFilterBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(OAuth2AuthorizationRequestRedirectFilter.class);
 
-		String oauth2AuthorizationRequestResolverRef = element
-				.getAttribute(ATT_AUTHORIZATIONENDPOINT_AUTH_REQ_RESOLVER_REF);
+		String oauth2AuthorizationRequestResolverRef = element.getAttribute(ATT_AUTHORIZATION_REQUEST_RESOLVER_REF);
 		if (!StringUtils.isEmpty(oauth2AuthorizationRequestResolverRef)) {
 			oauth2AuthorizationRequestRedirectFilterBuilder
 					.addConstructorArgReference(oauth2AuthorizationRequestResolverRef);
 		} else {
-			oauth2AuthorizationRequestRedirectFilterBuilder
-					.addConstructorArgValue(new RuntimeBeanReference(ClientRegistrationRepository.class));
+			oauth2AuthorizationRequestRedirectFilterBuilder.addConstructorArgValue(clientRegistrationRepository);
 		}
 
-		oauth2AuthorizationRequestRedirectFilterBuilder.addPropertyValue("authorizationRequestRepository",
-				oauth2AuthRequestRepository);
+		oauth2AuthorizationRequestRedirectFilterBuilder
+				.addPropertyValue("authorizationRequestRepository", oauth2AuthRequestRepository)
+				.addPropertyValue("requestCache", requestCache);
 		oauth2AuthorizationRequestRedirectFilter = oauth2AuthorizationRequestRedirectFilterBuilder.getBeanDefinition();
+
+		String authenticationSuccessHandlerRef = element.getAttribute(ATT_AUTHENTICATION_SUCCESS_HANDLER_REF);
+		if (!StringUtils.isEmpty(authenticationSuccessHandlerRef)) {
+			builder.addPropertyReference("authenticationSuccessHandler", authenticationSuccessHandlerRef);
+		}
 
 		String loginPage = element.getAttribute(ATT_LOGIN_PAGE);
 		if (!StringUtils.isEmpty(loginPage)) {
@@ -141,27 +160,83 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 						.addPropertyValue("defaultEntryPoint", new LoginUrlAuthenticationEntryPoint(DEFAULT_LOGIN_URI))
 						.getBeanDefinition();
 
-				BeanDefinitionBuilder failureBuilder = BeanDefinitionBuilder.rootBeanDefinition(
-						"org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler");
-				failureBuilder.addConstructorArgValue(
-						DEFAULT_LOGIN_URI + "?" + DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME);
+				String authenticationFailureHandlerRef = element.getAttribute(ATT_AUTHENTICATION_FAILURE_HANDLER_REF);
+				if (!StringUtils.isEmpty(authenticationFailureHandlerRef)) {
+					builder.addPropertyReference("authenticationFailureHandler", authenticationFailureHandlerRef);
+				} else {
+					BeanDefinitionBuilder failureBuilder = BeanDefinitionBuilder.rootBeanDefinition(
+							"org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler");
+					failureBuilder.addConstructorArgValue(
+							DEFAULT_LOGIN_URI + "?" + DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME);
 
-				builder.addPropertyValue("authenticationFailureHandler", failureBuilder.getBeanDefinition());
+					builder.addPropertyValue("authenticationFailureHandler", failureBuilder.getBeanDefinition());
+				}
 			}
 		}
 
 		return builder.getBeanDefinition();
 	}
 
-	private BeanDefinition retrieveOAuth2OidcAuthProvider(Element element,
-			BeanMetadataElement accessTokenResponseClient, String oauth2UserAuthMapperRef,
-			ParserContext parserContext) {
+	private BeanMetadataElement getOAuth2AuthorizationRequestRepository(Element element) {
+		BeanMetadataElement oauth2AuthRequestRepository = null;
+		String oauth2AuthRequestRepositoryRef = element.getAttribute(ATT_AUTHORIZATION_REQUEST_REPOSITORY_REF);
+		if (!StringUtils.isEmpty(oauth2AuthRequestRepositoryRef)) {
+			oauth2AuthRequestRepository = new RuntimeBeanReference(oauth2AuthRequestRepositoryRef);
+		} else {
+			oauth2AuthRequestRepository = BeanDefinitionBuilder.rootBeanDefinition(
+					"org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository")
+					.getBeanDefinition();
+		}
+		return oauth2AuthRequestRepository;
+	}
+
+	private BeanMetadataElement getAuthorizedClientRepository(Element element,
+			BeanMetadataElement clientRegistrationRepository) {
+		BeanMetadataElement authorizedClientRepository = null;
+
+		String authorizedClientRepositoryRef = element.getAttribute(ATT_AUTHORIZED_CLIENT_REPOSITORY_REF);
+		if (!StringUtils.isEmpty(authorizedClientRepositoryRef)) {
+			authorizedClientRepository = new RuntimeBeanReference(authorizedClientRepositoryRef);
+		} else {
+			BeanMetadataElement oauth2AuthorizedClientService = null;
+			String authorizedClientServiceRef = element.getAttribute(ATT_AUTHORIZED_CLIENT_SERVICE_REF);
+			if (!StringUtils.isEmpty(authorizedClientServiceRef)) {
+				oauth2AuthorizedClientService = new RuntimeBeanReference(authorizedClientServiceRef);
+			} else {
+				oauth2AuthorizedClientService = BeanDefinitionBuilder
+						.rootBeanDefinition(
+								"org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService")
+						.addConstructorArgValue(clientRegistrationRepository).getBeanDefinition();
+			}
+
+			authorizedClientRepository = BeanDefinitionBuilder.rootBeanDefinition(
+					"org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository")
+					.addConstructorArgValue(oauth2AuthorizedClientService).getBeanDefinition();
+		}
+
+		return authorizedClientRepository;
+	}
+
+	private BeanMetadataElement getClientRegistrationRepository(Element element) {
+		BeanMetadataElement clientRegistrationRepository = null;
+
+		String clientRegistrationRepositoryRef = element.getAttribute(ATT_CLIENT_REGISTRATION_REPOSITORY_REF);
+		if (!StringUtils.isEmpty(clientRegistrationRepositoryRef)) {
+			clientRegistrationRepository = new RuntimeBeanReference(clientRegistrationRepositoryRef);
+		} else {
+			clientRegistrationRepository = new RuntimeBeanReference(ClientRegistrationRepository.class);
+		}
+		return clientRegistrationRepository;
+	}
+
+	private BeanDefinition getOAuth2OidcAuthProvider(Element element, BeanMetadataElement accessTokenResponseClient,
+			String oauth2UserAuthMapperRef, ParserContext parserContext) {
 		BeanDefinition oauth2OidcAuthProvider = null;
 		boolean oidcAuthenticationProviderEnabled = ClassUtils
 				.isPresent("org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 
 		if (oidcAuthenticationProviderEnabled) {
-			BeanMetadataElement oidcUserService = retrieveOAuth2OidcUserService(element);
+			BeanMetadataElement oidcUserService = getOAuth2OidcUserService(element);
 
 			BeanDefinitionBuilder oauth2OidcAuthProviderBuilder = BeanDefinitionBuilder.rootBeanDefinition(
 					"org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider")
@@ -169,6 +244,11 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 			if (!StringUtils.isEmpty(oauth2UserAuthMapperRef)) {
 				oauth2OidcAuthProviderBuilder.addPropertyReference("authoritiesMapper", oauth2UserAuthMapperRef);
+			}
+
+			String jwtDecoderFactoryRef = element.getAttribute(ATT_JWT_DECODER_FACTORY_REF);
+			if (!StringUtils.isEmpty(jwtDecoderFactoryRef)) {
+				oauth2OidcAuthProviderBuilder.addPropertyReference("jwtDecoderFactory", jwtDecoderFactoryRef);
 			}
 
 			oauth2OidcAuthProvider = oauth2OidcAuthProviderBuilder.getBeanDefinition();
@@ -181,9 +261,9 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		return oauth2OidcAuthProvider;
 	}
 
-	private BeanMetadataElement retrieveOAuth2OidcUserService(Element element) {
+	private BeanMetadataElement getOAuth2OidcUserService(Element element) {
 		BeanMetadataElement oauth2OidcUserService = null;
-		String oauth2UserServiceRef = element.getAttribute(ATT_USERINFO_OIDC_USER_SERVICE_REF);
+		String oauth2UserServiceRef = element.getAttribute(ATT_OIDC_USER_SERVICE_REF);
 		if (!StringUtils.isEmpty(oauth2UserServiceRef)) {
 			oauth2OidcUserService = new RuntimeBeanReference(oauth2UserServiceRef);
 		} else {
@@ -194,9 +274,9 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		return oauth2OidcUserService;
 	}
 
-	private BeanMetadataElement retrieveOAuth2UserService(Element element) {
+	private BeanMetadataElement getOAuth2UserService(Element element) {
 		BeanMetadataElement oauth2UserService = null;
-		String oauth2UserServiceRef = element.getAttribute(ATT_USERINFO_USER_SERVICE_REF);
+		String oauth2UserServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);
 		if (!StringUtils.isEmpty(oauth2UserServiceRef)) {
 			oauth2UserService = new RuntimeBeanReference(oauth2UserServiceRef);
 		} else {
@@ -207,10 +287,10 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		return oauth2UserService;
 	}
 
-	private BeanMetadataElement retrieveAccessTokenResponseClient(Element element) {
+	private BeanMetadataElement getAccessTokenResponseClient(Element element) {
 		BeanMetadataElement accessTokenResponseClient = null;
 
-		String accessTokenResponseClientRef = element.getAttribute(ATT_TOKENENDPOINT_ACCESS_TOKEN_RESPONSE_CLIENT_REF);
+		String accessTokenResponseClientRef = element.getAttribute(ATT_ACCESS_TOKEN_RESPONSE_CLIENT_REF);
 		if (!StringUtils.isEmpty(accessTokenResponseClientRef)) {
 			accessTokenResponseClient = new RuntimeBeanReference(accessTokenResponseClientRef);
 		} else {
@@ -221,19 +301,19 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		return accessTokenResponseClient;
 	}
 
-	public BeanDefinition getOAuth2AuthorizationRequestRedirectFilter() {
+	BeanDefinition getOAuth2AuthorizationRequestRedirectFilter() {
 		return oauth2AuthorizationRequestRedirectFilter;
 	}
 
-	public BeanDefinition getOAuth2LoginAuthenticationEntryPoint() {
+	BeanDefinition getOAuth2LoginAuthenticationEntryPoint() {
 		return oauth2LoginAuthenticationEntryPoint;
 	}
 
-	public BeanDefinition getOAuth2LoginAuthenticationProvider() {
+	BeanDefinition getOAuth2LoginAuthenticationProvider() {
 		return oauth2LoginAuthenticationProvider;
 	}
 
-	public BeanDefinition getOAuth2LoginOidcAuthenticationProvider() {
+	BeanDefinition getOAuth2LoginOidcAuthenticationProvider() {
 		return oauth2LoginOidcAuthenticationProvider;
 	}
 

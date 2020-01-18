@@ -26,28 +26,12 @@
 
 	<http auto-config="true">
 		<intercept-url pattern="/**" access="authenticated"/>
-		<oauth2-login/>
-		<form-login/>
+		<oauth2-login client-registration-repository-ref="testClientRegistrationRepository"
+						authorized-client-service-ref="testAuthorizedClientService"/>
 	</http>
 
-	<client-registrations>
-		<client-registration registration-id="google-login"
-							 client-id="google-client-id"
-							 client-secret="google-client-secret"
-							 client-authentication-method="basic"
-							 authorization-grant-type="authorization_code"
-							 redirect-uri="{baseUrl}/login/oauth2/code/{registrationId}"
-							 scope="openid,profile,email"
-							 client-name="Google"
-							 provider-id="google"/>
-		<provider provider-id="google"
-				  authorization-uri="https://accounts.google.com/o/oauth2/v2/auth"
-				  token-uri="https://www.googleapis.com/oauth2/v4/token"
-				  userinfo-uri="https://www.googleapis.com/oauth2/v3/userinfo"
-				  userinfo-authentication-method="header"
-				  username-attribute-name="sub"
-				  jwkset-uri="https://www.googleapis.com/oauth2/v3/certs"/>
-	</client-registrations>
+	<b:bean id="testClientRegistrationRepository" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockClientRegistrationRepository"/>
+	<b:bean id="testAuthorizedClientService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2AuthorizedClientService"/>
 
 	<b:import resource="userservice.xml"/>
 </b:beans>

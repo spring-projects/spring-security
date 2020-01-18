@@ -29,7 +29,7 @@
 		<oauth2-login access-token-response-client-ref="testAccessTokenResponseClient"
 						user-service-ref="testOAuth2UserService"
 						oidc-user-service-ref="testOAuth2OidcUserService"
-						user-authorities-mapper-ref="testGrantedAuthoritiesMapper"/>
+						jwt-decoder-factory-ref="testJwtDecoderFactory"/>
 	</http>
 
 	<client-registrations>
@@ -55,8 +55,7 @@
 	<b:bean id="testOAuth2UserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2UserService"/>
 	<b:bean id="testOAuth2OidcUserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2OidcUserService"/>
 	<b:bean id="testAuthenticationSuccessListener" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.AuthenticationSuccessListener"/>
-	<b:bean id="testGrantedAuthoritiesMapper" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockGrantedAuthoritiesMapper"/>
-	
+	<b:bean id="testJwtDecoderFactory" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2OidcJwtDecoderFactory"/>
 	
 	<b:import resource="userservice.xml"/>
 </b:beans>
