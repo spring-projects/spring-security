@@ -20,19 +20,6 @@ if (!project.hasProperty("locksDisabled")) {
 ext.rsocketVersion = "1.+"
 ext.openSamlVersion = "3.+"
 
-// https://github.com/gradle/gradle/issues/7576#issuecomment-434637595
-configurations {
-	management {
-		canBeResolved false
-		canBeConsumed false
-	}
-}
-configurations.all {
-	if (canBeResolved) {
-		extendsFrom(configurations.management)
-	}
-}
-
 dependencies {
 	management platform("org.springframework:spring-framework-bom:$springVersion")
 	management platform("io.projectreactor:reactor-bom:$reactorVersion")
