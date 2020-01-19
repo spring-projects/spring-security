@@ -10,6 +10,7 @@ dependencies {
 	optional project(':spring-security-oauth2-jose')
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.springframework:spring-webflux'
+	optional 'org.springframework:spring-jdbc'
 
 	testCompile project(path: ':spring-security-oauth2-core', configuration: 'tests')
 	testCompile project(path: ':spring-security-oauth2-jose', configuration: 'tests')
@@ -19,6 +20,8 @@ dependencies {
 	testCompile 'io.projectreactor.netty:reactor-netty'
 	testCompile 'io.projectreactor:reactor-test'
 	testCompile 'io.projectreactor.tools:blockhound'
+
+	testRuntime 'org.hsqldb:hsqldb'
 
 	provided 'javax.servlet:javax.servlet-api'
 }
