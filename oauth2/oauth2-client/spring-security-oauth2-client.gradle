@@ -12,6 +12,7 @@ dependencies {
 	optional 'org.springframework:spring-webflux'
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+	optional 'org.springframework:spring-jdbc'
 
 	testCompile project(path: ':spring-security-oauth2-core', configuration: 'tests')
 	testCompile project(path: ':spring-security-oauth2-jose', configuration: 'tests')
@@ -21,6 +22,8 @@ dependencies {
 	testCompile 'io.projectreactor:reactor-test'
 	testCompile 'io.projectreactor.tools:blockhound'
 	testCompile 'org.skyscreamer:jsonassert'
+
+	testRuntime 'org.hsqldb:hsqldb'
 
 	provided 'javax.servlet:javax.servlet-api'
 }
