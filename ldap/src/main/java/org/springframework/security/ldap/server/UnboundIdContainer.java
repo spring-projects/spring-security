@@ -114,10 +114,10 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 
 	private void importLdif(InMemoryDirectoryServer directoryServer) {
 		if (StringUtils.hasText(this.ldif)) {
-			Resource resource = this.context.getResource(this.ldif);
 			try {
-				if (resource.exists()) {
-					try (InputStream inputStream = resource.getInputStream()) {
+				Resource[] resources = this.context.getResources(this.ldif);
+				if (resources.length > 0 && resources[0].exists()) {
+					try (InputStream inputStream = resources[0].getInputStream()) {
 						directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
 					}
 				}
