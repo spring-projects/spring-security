@@ -23,6 +23,7 @@ import static org.mockito.Mockito.*;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.junit.After;
@@ -39,6 +40,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.util.WebUtils;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * Tests {@link BasicAuthenticationFilter}.
@@ -322,7 +325,7 @@ public class BasicAuthenticationFilterTests {
 	}
 
 	@Test
-	public void testCredentialsWithUmlautUsingCharset_Utf_8() throws Exception {
+	public void doFilterWhenTokenAndFilterCharsetMatchDefaultThenAuthenticated() throws Exception {
 		SecurityContextHolder.clearContext();
 
 		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken("rod", "äöü");
@@ -337,7 +340,7 @@ public class BasicAuthenticationFilterTests {
 
 		String token = "rod:äöü";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes("UTF-8"))));
+		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes(StandardCharsets.UTF_8))));
 		request.setServletPath("/some_file.html");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -348,14 +351,14 @@ public class BasicAuthenticationFilterTests {
 
 		filter.doFilter(request, response, chain);
 
-		assertThat(response.getStatus()).isEqualTo(200);
+		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("äöü");
 	}
 
 	@Test
-	public void testCredentialsWithUmlautUsingCharset_Iso_8859_1() throws Exception {
+	public void doFilterWhenTokenAndFilterCharsetMatchNonDefaultThenAuthenticated() throws Exception {
 		SecurityContextHolder.clearContext();
 
 		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken("rod", "äöü");
@@ -371,7 +374,7 @@ public class BasicAuthenticationFilterTests {
 
 		String token = "rod:äöü";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes("ISO-8859-1"))));
+		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes(StandardCharsets.ISO_8859_1))));
 		request.setServletPath("/some_file.html");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -382,14 +385,14 @@ public class BasicAuthenticationFilterTests {
 
 		filter.doFilter(request, response, chain);
 
-		assertThat(response.getStatus()).isEqualTo(200);
+		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("äöü");
 	}
 
 	@Test
-	public void testCredentialsWithUmlautUsingWrongCharset() throws Exception {
+	public void doFilterWhenTokenAndFilterCharsetDoNotMatchThenUnauthorized() throws Exception {
 		SecurityContextHolder.clearContext();
 
 		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken("rod", "äöü");
@@ -405,7 +408,7 @@ public class BasicAuthenticationFilterTests {
 
 		String token = "rod:äöü";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes("UTF-8"))));
+		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes(StandardCharsets.UTF_8))));
 		request.setServletPath("/some_file.html");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -416,7 +419,7 @@ public class BasicAuthenticationFilterTests {
 
 		filter.doFilter(request, response, chain);
 
-		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
