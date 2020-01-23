@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.www;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -276,6 +277,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	public void setCredentialsCharset(String credentialsCharset) {
 		Assert.hasText(credentialsCharset, "credentialsCharset cannot be null or empty");
 		this.credentialsCharset = credentialsCharset;
+		this.authenticationConverter.setCredentialsCharset(Charset.forName(credentialsCharset));
 	}
 
 	protected String getCredentialsCharset(HttpServletRequest httpRequest) {
