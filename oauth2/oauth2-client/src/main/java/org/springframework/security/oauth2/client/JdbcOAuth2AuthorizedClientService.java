@@ -15,11 +15,10 @@
  */
 package org.springframework.security.oauth2.client;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.ArgumentTypePreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.core.Authentication;
@@ -28,13 +27,10 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -46,37 +42,18 @@ import java.util.Set;
 
 /**
  * A JDBC implementation of an {@link OAuth2AuthorizedClientService}
- * that uses a {@link JdbcTemplate} for {@link OAuth2AuthorizedClient} persistence.
+ * that uses a {@link JdbcOperations} for {@link OAuth2AuthorizedClient} persistence.
  *
  * <p>
- * In order to enable {@link Transactional} for this {@code OAuth2AuthorizedClientService},
- * ensure you declare {@link EnableTransactionManagement} within a {@link Configuration}.
- *
- * <p>
- * <b>NOTE:</b> This {@code OAuth2AuthorizedClientService} depends on the following
- * table definition and therefore MUST be defined in the database schema.
- *
- * <pre>
- * CREATE TABLE oauth2_authorized_client (
- *   client_registration_id varchar(100) NOT NULL,
- *   principal_name varchar(100) NOT NULL,
- *   access_token_type varchar(75) NOT NULL,
- *   access_token_value varchar(7000) NOT NULL,
- *   access_token_issued_at timestamp NOT NULL,
- *   access_token_expires_at timestamp NOT NULL,
- *   access_token_scopes varchar(1000) DEFAULT NULL,
- *   refresh_token_value varchar(7000) DEFAULT NULL,
- *   refresh_token_issued_at timestamp DEFAULT NULL,
- *   created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
- *   PRIMARY KEY (client_registration_id, principal_name)
- * );
- * </pre>
+ * <b>NOTE:</b> This {@code OAuth2AuthorizedClientService} depends on the table definition
+ * described in "classpath:org/springframework/security/oauth2/client/oauth2-client-schema.sql"
+ * and therefore MUST be defined in the database schema.
  *
  * @author Joe Grandja
  * @since 5.3
  * @see OAuth2AuthorizedClientService
  * @see OAuth2AuthorizedClient
- * @see JdbcTemplate
+ * @see JdbcOperations
  * @see RowMapper
  */
 @Repository
@@ -99,7 +76,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			" (" + COLUMN_NAMES + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String REMOVE_AUTHORIZED_CLIENT_SQL = "DELETE FROM " + TABLE_NAME +
 			" WHERE " + PK_FILTER;
-	protected final JdbcTemplate jdbcTemplate;
+	protected final JdbcOperations jdbcOperations;
 	protected RowMapper<OAuth2AuthorizedClientData> authorizedClientDataRowMapper;
 	protected Converter<OAuth2AuthorizedClientData, OAuth2AuthorizedClient> authorizedClientDataConverter;
 	protected Converter<OAuth2AuthorizedClientHolder, OAuth2AuthorizedClientData> authorizedClientConverter;
@@ -107,21 +84,20 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 	/**
 	 * Constructs a {@code JdbcOAuth2AuthorizedClientService} using the provided parameters.
 	 *
-	 * @param dataSource the data source
+	 * @param jdbcOperations the JDBC operations
 	 * @param clientRegistrationRepository the repository of client registrations
 	 */
 	public JdbcOAuth2AuthorizedClientService(
-			DataSource dataSource, ClientRegistrationRepository clientRegistrationRepository) {
+			JdbcOperations jdbcOperations, ClientRegistrationRepository clientRegistrationRepository) {
 
-		Assert.notNull(dataSource, "dataSource cannot be null");
+		Assert.notNull(jdbcOperations, "jdbcOperations cannot be null");
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		this.jdbcOperations = jdbcOperations;
 		this.authorizedClientDataRowMapper = new OAuth2AuthorizedClientDataRowMapper();
 		this.authorizedClientDataConverter = new OAuth2AuthorizedClientDataConverter(clientRegistrationRepository);
 		this.authorizedClientConverter = new OAuth2AuthorizedClientConverter();
 	}
 
-	@Transactional(readOnly = true)
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, String principalName) {
@@ -132,13 +108,12 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		int[] argTypes = {Types.VARCHAR, Types.VARCHAR};
 		PreparedStatementSetter pss = new ArgumentTypePreparedStatementSetter(args, argTypes);
 
-		List<OAuth2AuthorizedClientData> result = this.jdbcTemplate.query(
+		List<OAuth2AuthorizedClientData> result = this.jdbcOperations.query(
 				LOAD_AUTHORIZED_CLIENT_SQL, pss, this.authorizedClientDataRowMapper);
 
 		return !result.isEmpty() ? (T) this.authorizedClientDataConverter.convert(result.get(0)) : null;
 	}
 
-	@Transactional
 	@Override
 	public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
@@ -170,10 +145,9 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		};
 		PreparedStatementSetter pss = new ArgumentTypePreparedStatementSetter(args, argTypes);
 
-		this.jdbcTemplate.update(SAVE_AUTHORIZED_CLIENT_SQL, pss);
+		this.jdbcOperations.update(SAVE_AUTHORIZED_CLIENT_SQL, pss);
 	}
 
-	@Transactional
 	@Override
 	public void removeAuthorizedClient(String clientRegistrationId, String principalName) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
@@ -183,7 +157,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		int[] argTypes = {Types.VARCHAR, Types.VARCHAR};
 		PreparedStatementSetter pss = new ArgumentTypePreparedStatementSetter(args, argTypes);
 
-		this.jdbcTemplate.update(REMOVE_AUTHORIZED_CLIENT_SQL, pss);
+		this.jdbcOperations.update(REMOVE_AUTHORIZED_CLIENT_SQL, pss);
 	}
 
 	/**

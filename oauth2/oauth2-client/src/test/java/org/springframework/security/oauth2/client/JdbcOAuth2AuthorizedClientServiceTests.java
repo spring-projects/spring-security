@@ -21,6 +21,8 @@ import org.junit.Test;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.ArgumentTypePreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
@@ -37,7 +39,6 @@ import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -46,7 +47,11 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link JdbcOAuth2AuthorizedClientService}.
@@ -54,10 +59,12 @@ import static org.mockito.Mockito.*;
  * @author Joe Grandja
  */
 public class JdbcOAuth2AuthorizedClientServiceTests {
+	private static final String OAUTH2_CLIENT_SCHEMA_SQL_RESOURCE = "org/springframework/security/oauth2/client/oauth2-client-schema.sql";
 	private static int principalId = 1000;
 	private ClientRegistration clientRegistration;
 	private ClientRegistrationRepository clientRegistrationRepository;
 	private EmbeddedDatabase db;
+	private JdbcOperations jdbcOperations;
 	private JdbcOAuth2AuthorizedClientService authorizedClientService;
 
 	@Before
@@ -66,8 +73,9 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 		this.clientRegistrationRepository = mock(ClientRegistrationRepository.class);
 		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(this.clientRegistration);
 		this.db = createDb();
+		this.jdbcOperations = new JdbcTemplate(this.db);
 		this.authorizedClientService = new JdbcOAuth2AuthorizedClientService(
-				this.db, this.clientRegistrationRepository);
+				this.jdbcOperations, this.clientRegistrationRepository);
 	}
 
 	@After
@@ -76,15 +84,15 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
-	public void constructorWhenDataSourceIsNullThenThrowIllegalArgumentException() {
+	public void constructorWhenJdbcOperationsIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new JdbcOAuth2AuthorizedClientService(null, this.clientRegistrationRepository))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("dataSource cannot be null");
+				.hasMessage("jdbcOperations cannot be null");
 	}
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new JdbcOAuth2AuthorizedClientService(this.db, null))
+		assertThatThrownBy(() -> new JdbcOAuth2AuthorizedClientService(this.jdbcOperations, null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("clientRegistrationRepository cannot be null");
 	}
@@ -299,7 +307,8 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 	public void tableDefinitionWhenCustomThenAbleToOverride() {
 		CustomTableDefinitionJdbcOAuth2AuthorizedClientService customAuthorizedClientService =
 				new CustomTableDefinitionJdbcOAuth2AuthorizedClientService(
-						createDb("custom-oauth2-client-schema.sql"), this.clientRegistrationRepository);
+						new JdbcTemplate(createDb("custom-oauth2-client-schema.sql")),
+						this.clientRegistrationRepository);
 
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient authorizedClient = createAuthorizedClient(principal, this.clientRegistration);
@@ -319,7 +328,7 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 	}
 
 	private static EmbeddedDatabase createDb() {
-		return createDb("oauth2-client-schema.sql");
+		return createDb(OAUTH2_CLIENT_SCHEMA_SQL_RESOURCE);
 	}
 
 	private static EmbeddedDatabase createDb(String schema) {
@@ -377,8 +386,8 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 				" WHERE " + PK_FILTER;
 
 		private CustomTableDefinitionJdbcOAuth2AuthorizedClientService(
-				DataSource dataSource, ClientRegistrationRepository clientRegistrationRepository) {
-			super(dataSource, clientRegistrationRepository);
+				JdbcOperations jdbcOperations, ClientRegistrationRepository clientRegistrationRepository) {
+			super(jdbcOperations, clientRegistrationRepository);
 			setAuthorizedClientDataRowMapper(new OAuth2AuthorizedClientDataRowMapper());
 		}
 
@@ -388,7 +397,7 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 			Object[] args = {clientRegistrationId, principalName};
 			int[] argTypes = {Types.VARCHAR, Types.VARCHAR};
 			PreparedStatementSetter pss = new ArgumentTypePreparedStatementSetter(args, argTypes);
-			List<OAuth2AuthorizedClientData> result = this.jdbcTemplate.query(
+			List<OAuth2AuthorizedClientData> result = this.jdbcOperations.query(
 					LOAD_AUTHORIZED_CLIENT_SQL, pss, this.authorizedClientDataRowMapper);
 			return !result.isEmpty() ? (T) this.authorizedClientDataConverter.convert(result.get(0)) : null;
 		}
@@ -420,7 +429,7 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 					Types.TIMESTAMP
 			};
 			PreparedStatementSetter pss = new ArgumentTypePreparedStatementSetter(args, argTypes);
-			this.jdbcTemplate.update(SAVE_AUTHORIZED_CLIENT_SQL, pss);
+			this.jdbcOperations.update(SAVE_AUTHORIZED_CLIENT_SQL, pss);
 		}
 
 		@Override
@@ -428,7 +437,7 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 			Object[] args = {clientRegistrationId, principalName};
 			int[] argTypes = {Types.VARCHAR, Types.VARCHAR};
 			PreparedStatementSetter pss = new ArgumentTypePreparedStatementSetter(args, argTypes);
-			this.jdbcTemplate.update(REMOVE_AUTHORIZED_CLIENT_SQL, pss);
+			this.jdbcOperations.update(REMOVE_AUTHORIZED_CLIENT_SQL, pss);
 		}
 
 		private static class OAuth2AuthorizedClientDataRowMapper implements RowMapper<OAuth2AuthorizedClientData> {
