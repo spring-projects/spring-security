@@ -28,6 +28,7 @@ dependencies {
 	constraints {
 		management "ch.qos.logback:logback-classic:1.+"
 		management "com.fasterxml.jackson.core:jackson-databind:2.+"
+		management 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.+'
 		management "com.google.appengine:appengine-api-1.0-sdk:$gaeVersion"
 		management "com.google.appengine:appengine-api-labs:$gaeVersion"
 		management "com.google.appengine:appengine-api-stubs:$gaeVersion"

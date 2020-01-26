@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 the original author or authors.
+ * Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ import java.util.Set;
  *     mapper.registerModule(new WebJackson2Module());
  *     mapper.registerModule(new WebServletJackson2Module());
  *     mapper.registerModule(new WebServerJackson2Module());
+ *     mapper.registerModule(new OAuth2ClientJackson2Module());
  * </pre>
  *
  * @author Jitendra Singh.
@@ -77,6 +78,10 @@ public final class SecurityJackson2Modules {
 	);
 	private static final String webServletJackson2ModuleClass =
 			"org.springframework.security.web.jackson2.WebServletJackson2Module";
+	private static final String oauth2ClientJackson2ModuleClass =
+			"org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module";
+	private static final String javaTimeJackson2ModuleClass =
+			"com.fasterxml.jackson.datatype.jsr310.JavaTimeModule";
 
 	private SecurityJackson2Modules() {
 	}
@@ -120,6 +125,12 @@ public final class SecurityJackson2Modules {
 		}
 		if (ClassUtils.isPresent("javax.servlet.http.Cookie", loader)) {
 			addToModulesList(loader, modules, webServletJackson2ModuleClass);
+		}
+		if (ClassUtils.isPresent("org.springframework.security.oauth2.client.OAuth2AuthorizedClient", loader)) {
+			addToModulesList(loader, modules, oauth2ClientJackson2ModuleClass);
+		}
+		if (ClassUtils.isPresent(javaTimeJackson2ModuleClass, loader)) {
+			addToModulesList(loader, modules, javaTimeJackson2ModuleClass);
 		}
 		return modules;
 	}
