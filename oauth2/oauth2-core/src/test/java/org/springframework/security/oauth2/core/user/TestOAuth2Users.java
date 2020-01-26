@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,12 @@
 package org.springframework.security.oauth2.core.user;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 /**
@@ -29,10 +31,18 @@ import java.util.Map;
 public class TestOAuth2Users {
 
 	public static DefaultOAuth2User create() {
-		List<GrantedAuthority> roles = AuthorityUtils.createAuthorityList("ROLE_USER");
-		String attrName = "username";
+		String nameAttributeKey = "username";
 		Map<String, Object> attributes = new HashMap<>();
-		attributes.put(attrName, "user");
-		return new DefaultOAuth2User(roles, attributes, attrName);
+		attributes.put(nameAttributeKey, "user");
+		Collection<GrantedAuthority> authorities = authorities(attributes);
+		return new DefaultOAuth2User(authorities, attributes, nameAttributeKey);
+	}
+
+	private static Collection<GrantedAuthority> authorities(Map<String, Object> attributes) {
+		return new LinkedHashSet<>(
+				Arrays.asList(
+						new OAuth2UserAuthority(attributes),
+						new SimpleGrantedAuthority("SCOPE_read"),
+						new SimpleGrantedAuthority("SCOPE_write")));
 	}
 }

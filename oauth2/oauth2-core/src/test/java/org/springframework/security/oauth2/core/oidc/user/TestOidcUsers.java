@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 package org.springframework.security.oauth2.core.oidc.user;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.LinkedHashSet;
 
 /**
  * @author Joe Grandja
@@ -32,16 +32,37 @@ import java.util.Map;
 public class TestOidcUsers {
 
 	public static DefaultOidcUser create() {
-		List<GrantedAuthority> roles = AuthorityUtils.createAuthorityList("ROLE_USER");
-		return new DefaultOidcUser(roles, idToken());
+		OidcIdToken idToken = idToken();
+		OidcUserInfo userInfo = userInfo();
+		return new DefaultOidcUser(
+				authorities(idToken, userInfo), idToken, userInfo);
 	}
 
 	private static OidcIdToken idToken() {
-		Map<String, Object> claims = new HashMap<>();
-		claims.put(IdTokenClaimNames.SUB, "subject");
-		claims.put(IdTokenClaimNames.ISS, "http://localhost/issuer");
-		claims.put(IdTokenClaimNames.AUD, Collections.singletonList("client"));
-		claims.put(IdTokenClaimNames.AZP, "client");
-		return new OidcIdToken("id-token", Instant.now(), Instant.now().plusSeconds(3600), claims);
+		Instant issuedAt = Instant.now();
+		Instant expiresAt = issuedAt.plusSeconds(3600);
+		return OidcIdToken.withTokenValue("id-token")
+				.issuedAt(issuedAt)
+				.expiresAt(expiresAt)
+				.subject("subject")
+				.issuer("http://localhost/issuer")
+				.audience(Collections.unmodifiableSet(new LinkedHashSet<>(Collections.singletonList("client"))))
+				.authorizedParty("client")
+				.build();
+	}
+
+	private static OidcUserInfo userInfo() {
+		return OidcUserInfo.builder()
+				.subject("subject")
+				.name("full name")
+				.build();
+	}
+
+	private static Collection<? extends GrantedAuthority> authorities(OidcIdToken idToken, OidcUserInfo userInfo) {
+		return new LinkedHashSet<>(
+				Arrays.asList(
+						new OidcUserAuthority(idToken, userInfo),
+						new SimpleGrantedAuthority("SCOPE_read"),
+						new SimpleGrantedAuthority("SCOPE_write")));
 	}
 }
