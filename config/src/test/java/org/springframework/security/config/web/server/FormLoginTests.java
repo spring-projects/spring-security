@@ -37,6 +37,7 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.csrf.CsrfToken;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -243,6 +244,31 @@ public class FormLoginTests {
 				.submit(HomePage.class);
 
 		assertThat(driver.getCurrentUrl()).endsWith("/failure");
+	}
+
+	@Test
+	public void formLoginWhenCustomRequiresAuthenticationMatcherThenUsed() {
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authorizeExchange()
+				.pathMatchers("/login", "/sign-in").permitAll()
+				.anyExchange().authenticated()
+				.and()
+			.formLogin()
+				.requiresAuthenticationMatcher(new PathPatternParserServerWebExchangeMatcher("/sign-in"))
+				.and()
+			.build();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+
+		driver.get("http://localhost/sign-in");
+
+		assertThat(driver.getCurrentUrl()).endsWith("/login?error");
 	}
 
 	@Test
