@@ -3050,7 +3050,9 @@ public class ServerHttpSecurity {
 			this.defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(loginPage);
 			this.authenticationEntryPoint = this.defaultEntryPoint;
 			this.requiresAuthenticationMatcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, loginPage);
-			this.authenticationFailureHandler = new RedirectServerAuthenticationFailureHandler(loginPage + "?error");
+			if (this.authenticationFailureHandler == null) {
+				this.authenticationFailureHandler = new RedirectServerAuthenticationFailureHandler(loginPage + "?error");
+			}
 			return this;
 		}
 

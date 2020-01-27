@@ -33,6 +33,7 @@ import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverB
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
+import org.springframework.security.web.server.authentication.RedirectServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.csrf.CsrfToken;
@@ -211,6 +212,37 @@ public class FormLoginTests {
 			.submit(HomePage.class);
 
 		homePage.assertAt();
+	}
+
+	@Test
+	public void formLoginWhenCustomAuthenticationFailureHandlerThenUsed() {
+		SecurityWebFilterChain securityWebFilter = this.http
+			.authorizeExchange()
+				.pathMatchers("/login", "/failure").permitAll()
+				.anyExchange().authenticated()
+				.and()
+			.formLogin()
+				.authenticationFailureHandler(new RedirectServerAuthenticationFailureHandler("/failure"))
+				.and()
+			.build();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+				.webTestClientSetup(webTestClient)
+				.build();
+
+		DefaultLoginPage loginPage = HomePage.to(driver, DefaultLoginPage.class)
+				.assertAt();
+
+		loginPage.loginForm()
+				.username("invalid")
+				.password("invalid")
+				.submit(HomePage.class);
+
+		assertThat(driver.getCurrentUrl()).endsWith("/failure");
 	}
 
 	@Test
