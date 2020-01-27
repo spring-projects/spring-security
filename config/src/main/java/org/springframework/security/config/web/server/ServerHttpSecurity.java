@@ -3049,7 +3049,9 @@ public class ServerHttpSecurity {
 		public FormLoginSpec loginPage(String loginPage) {
 			this.defaultEntryPoint = new RedirectServerAuthenticationEntryPoint(loginPage);
 			this.authenticationEntryPoint = this.defaultEntryPoint;
-			this.requiresAuthenticationMatcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, loginPage);
+			if (this.requiresAuthenticationMatcher == null) {
+				this.requiresAuthenticationMatcher = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, loginPage);
+			}
 			if (this.authenticationFailureHandler == null) {
 				this.authenticationFailureHandler = new RedirectServerAuthenticationFailureHandler(loginPage + "?error");
 			}
