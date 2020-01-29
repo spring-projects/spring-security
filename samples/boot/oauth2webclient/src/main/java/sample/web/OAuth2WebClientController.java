@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package sample.web;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,18 +32,14 @@ import static org.springframework.security.oauth2.client.web.reactive.function.c
 public class OAuth2WebClientController {
 	private final WebClient webClient;
 
-	private final String uri;
-
-	public OAuth2WebClientController(WebClient webClient, @Value("${resource-uri}") String uri) {
+	public OAuth2WebClientController(WebClient webClient) {
 		this.webClient = webClient;
-		this.uri = uri;
 	}
 
 	@GetMapping("/explicit")
 	String explicit(Model model) {
 		String body = this.webClient
 				.get()
-				.uri(this.uri)
 				.attributes(clientRegistrationId("client-id"))
 				.retrieve()
 				.bodyToMono(String.class)
@@ -57,7 +52,6 @@ public class OAuth2WebClientController {
 	String implicit(Model model) {
 		String body = this.webClient
 				.get()
-				.uri(this.uri)
 				.retrieve()
 				.bodyToMono(String.class)
 				.block();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package sample.web;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.stereotype.Controller;
@@ -35,18 +34,14 @@ import static org.springframework.security.oauth2.client.web.reactive.function.c
 public class RegisteredOAuth2AuthorizedClientController {
 	private final WebClient webClient;
 
-	private final String uri;
-
-	public RegisteredOAuth2AuthorizedClientController(WebClient webClient, @Value("${resource-uri}") String uri) {
+	public RegisteredOAuth2AuthorizedClientController(WebClient webClient) {
 		this.webClient = webClient;
-		this.uri = uri;
 	}
 
 	@GetMapping("/explicit")
 	String explicit(Model model, @RegisteredOAuth2AuthorizedClient("client-id") OAuth2AuthorizedClient authorizedClient) {
 		String body = this.webClient
 				.get()
-				.uri(this.uri)
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.retrieve()
 				.bodyToMono(String.class)
@@ -59,7 +54,6 @@ public class RegisteredOAuth2AuthorizedClientController {
 	String implicit(Model model, @RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
 		String body = this.webClient
 				.get()
-				.uri(this.uri)
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.retrieve()
 				.bodyToMono(String.class)
