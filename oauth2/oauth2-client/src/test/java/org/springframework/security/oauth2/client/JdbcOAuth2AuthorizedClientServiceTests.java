@@ -37,7 +37,6 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
-import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -364,7 +363,6 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 				clientRegistration, principal.getName(), accessToken, refreshToken);
 	}
 
-	@Repository
 	private static class CustomTableDefinitionJdbcOAuth2AuthorizedClientService extends JdbcOAuth2AuthorizedClientService {
 		private static final String COLUMN_NAMES =
 				"clientRegistrationId, " +

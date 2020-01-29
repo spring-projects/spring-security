@@ -26,7 +26,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
-import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -56,7 +55,6 @@ import java.util.Set;
  * @see JdbcOperations
  * @see RowMapper
  */
-@Repository
 public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClientService {
 	private static final String COLUMN_NAMES =
 			"client_registration_id, " +
