@@ -13,33 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core.http.converter;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+package org.springframework.security.oauth2.core.endpoint;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 
 /**
- * Tests for {@link OAuth2AccessTokenResponseParametersConverter}.
+ * Tests for {@link OAuth2AccessTokenResponseMapConverter}.
  *
  * @author Nikita Konev
  */
-public class OAuth2AccessTokenResponseParametersConverterTest {
+public class OAuth2AccessTokenResponseMapConverterTest {
 
-	private OAuth2AccessTokenResponseParametersConverter messageConverter;
+	private OAuth2AccessTokenResponseMapConverter messageConverter;
 
 	@Before
 	public void setup() {
-		this.messageConverter = new OAuth2AccessTokenResponseParametersConverter();
+		this.messageConverter = new OAuth2AccessTokenResponseMapConverter();
 	}
 
 

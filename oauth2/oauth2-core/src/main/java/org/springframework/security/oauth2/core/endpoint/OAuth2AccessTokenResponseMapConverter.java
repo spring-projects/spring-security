@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core.http.converter;
-
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+package org.springframework.security.oauth2.core.endpoint;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * A {@link Converter} that converts the provided {@link OAuth2AccessTokenResponse}
@@ -34,7 +32,7 @@ import java.util.Map;
  * @author Nikita Konev
  * @since 5.3
  */
-public final class OAuth2AccessTokenResponseParametersConverter implements Converter<OAuth2AccessTokenResponse, Map<String, String>> {
+public final class OAuth2AccessTokenResponseMapConverter implements Converter<OAuth2AccessTokenResponse, Map<String, String>> {
 
 	@Override
 	public Map<String, String> convert(OAuth2AccessTokenResponse tokenResponse) {
