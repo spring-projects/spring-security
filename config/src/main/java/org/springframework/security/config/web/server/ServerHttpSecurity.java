@@ -529,6 +529,10 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationConverter authenticationConverter;
 
+		private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
+
+		private ServerAuthenticationFailureHandler authenticationFailureHandler;
+
 		/**
 		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
 		 * {@link OAuth2AuthorizationCodeReactiveAuthenticationManager}
@@ -598,6 +602,16 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
+		public OAuth2LoginSpec authenticationSuccessHandler(ServerAuthenticationSuccessHandler serverAuthenticationSuccessHandler) {
+			this.authenticationSuccessHandler = serverAuthenticationSuccessHandler;
+			return this;
+		}
+
+		public OAuth2LoginSpec authenticationFailureHandler(ServerAuthenticationFailureHandler serverAuthenticationFailureHandler) {
+			this.authenticationFailureHandler = serverAuthenticationFailureHandler;
+			return this;
+		}
+
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
@@ -617,8 +631,8 @@ public class ServerHttpSecurity {
 			AuthenticationWebFilter authenticationFilter = new OAuth2LoginAuthenticationWebFilter(manager, authorizedClientRepository);
 			authenticationFilter.setRequiresAuthenticationMatcher(createAttemptAuthenticationRequestMatcher());
 			authenticationFilter.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
-			authenticationFilter.setAuthenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler());
-			authenticationFilter.setAuthenticationFailureHandler(new RedirectServerAuthenticationFailureHandler("/login?error"));
+			authenticationFilter.setAuthenticationSuccessHandler(getAuthenticationSuccessHandler());
+			authenticationFilter.setAuthenticationFailureHandler(getAuthenticationFailureHandler());
 			authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
 
 			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
@@ -699,6 +713,22 @@ public class ServerHttpSecurity {
 				service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
 			}
 			return service;
+		}
+
+		private ServerAuthenticationSuccessHandler getAuthenticationSuccessHandler() {
+			ServerAuthenticationSuccessHandler successHandler = getBeanOrNull(ServerAuthenticationSuccessHandler.class);
+			if (successHandler == null) {
+				successHandler = new RedirectServerAuthenticationSuccessHandler();
+			}
+			return successHandler;
+		}
+
+		private ServerAuthenticationFailureHandler getAuthenticationFailureHandler() {
+			ServerAuthenticationFailureHandler failureHandler = getBeanOrNull(ServerAuthenticationFailureHandler.class);
+			if (failureHandler == null) {
+				failureHandler = new RedirectServerAuthenticationFailureHandler("/login?error");
+			}
+			return failureHandler;
 		}
 
 		private OAuth2LoginSpec() {}
