@@ -4,7 +4,7 @@ def keystore = "$rootDir/samples/certificates/server.jks"
 def password = 'password'
 
 dependencies {
-	compile "org.jasig.cas:cas-server-webapp:4.0.0@war"
+	compile "org.jasig.cas:cas-server-webapp:4.0.7@war"
 	compile slf4jDependencies
 	runtime 'org.aspectj:aspectjrt'
 	runtime 'org.aspectj:aspectjtools'
