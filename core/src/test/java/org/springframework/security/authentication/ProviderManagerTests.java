@@ -35,11 +35,10 @@ import static org.mockito.Mockito.*;
  *
  * @author Ben Alex
  */
-@SuppressWarnings("unchecked")
 public class ProviderManagerTests {
 
 	@Test(expected = ProviderNotFoundException.class)
-	public void authenticationFailsWithUnsupportedToken() throws Exception {
+	public void authenticationFailsWithUnsupportedToken() {
 		Authentication token = new AbstractAuthenticationToken(null) {
 			public Object getCredentials() {
 				return "";
@@ -55,7 +54,7 @@ public class ProviderManagerTests {
 	}
 
 	@Test
-	public void credentialsAreClearedByDefault() throws Exception {
+	public void credentialsAreClearedByDefault() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				"Test", "Password");
 		ProviderManager mgr = makeProviderManager();
@@ -71,8 +70,7 @@ public class ProviderManagerTests {
 	@Test
 	public void authenticationSucceedsWithSupportedTokenAndReturnsExpectedObject() {
 		final Authentication a = mock(Authentication.class);
-		ProviderManager mgr = new ProviderManager(
-				Arrays.asList(createProviderWhichReturns(a)));
+		ProviderManager mgr = new ProviderManager(createProviderWhichReturns(a));
 		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
 		mgr.setAuthenticationEventPublisher(publisher);
 
@@ -122,7 +120,7 @@ public class ProviderManagerTests {
 			}
 		};
 
-		ProviderManager authMgr = new ProviderManager(Arrays.asList(provider));
+		ProviderManager authMgr = new ProviderManager(provider);
 
 		TestingAuthenticationToken request = createAuthenticationToken();
 		request.setDetails(requestDetails);
@@ -132,8 +130,7 @@ public class ProviderManagerTests {
 	}
 
 	@Test
-	public void detailsAreSetOnAuthenticationTokenIfNotAlreadySetByProvider()
-			throws Exception {
+	public void detailsAreSetOnAuthenticationTokenIfNotAlreadySetByProvider() {
 		Object details = new Object();
 		ProviderManager authMgr = makeProviderManager();
 
@@ -149,8 +146,8 @@ public class ProviderManagerTests {
 	public void authenticationExceptionIsIgnoredIfLaterProviderAuthenticates() {
 		final Authentication authReq = mock(Authentication.class);
 		ProviderManager mgr = new ProviderManager(
-				Arrays.asList(createProviderWhichThrows(new BadCredentialsException("",
-						new Throwable())), createProviderWhichReturns(authReq)));
+				createProviderWhichThrows(new BadCredentialsException("",
+						new Throwable())), createProviderWhichReturns(authReq));
 		assertThat(mgr.authenticate(mock(Authentication.class))).isSameAs(authReq);
 	}
 
@@ -185,7 +182,7 @@ public class ProviderManagerTests {
 		}
 		catch (AccountStatusException expected) {
 		}
-		verifyZeroInteractions(otherProvider);
+		verifyNoInteractions(otherProvider);
 	}
 
 	@Test
@@ -194,7 +191,7 @@ public class ProviderManagerTests {
 		Authentication authReq = mock(Authentication.class);
 		when(parent.authenticate(authReq)).thenReturn(authReq);
 		ProviderManager mgr = new ProviderManager(
-				Arrays.asList(mock(AuthenticationProvider.class)), parent);
+				Collections.singletonList(mock(AuthenticationProvider.class)), parent);
 		assertThat(mgr.authenticate(authReq)).isSameAs(authReq);
 	}
 
@@ -205,14 +202,14 @@ public class ProviderManagerTests {
 		});
 		AuthenticationManager parent = mock(AuthenticationManager.class);
 		ProviderManager mgr = new ProviderManager(
-				Arrays.asList(iThrowAccountStatusException), parent);
+				Collections.singletonList(iThrowAccountStatusException), parent);
 		try {
 			mgr.authenticate(mock(Authentication.class));
 			fail("Expected exception");
 		}
 		catch (AccountStatusException expected) {
 		}
-		verifyZeroInteractions(parent);
+		verifyNoInteractions(parent);
 	}
 
 	@Test
@@ -225,7 +222,7 @@ public class ProviderManagerTests {
 		// Set a provider that throws an exception - this is the exception we expect to be
 		// propagated
 		ProviderManager mgr = new ProviderManager(
-				Arrays.asList(createProviderWhichThrows(new BadCredentialsException(""))),
+				Collections.singletonList(createProviderWhichThrows(new BadCredentialsException(""))),
 				parent);
 		mgr.setAuthenticationEventPublisher(publisher);
 
@@ -242,7 +239,7 @@ public class ProviderManagerTests {
 	public void authenticationExceptionFromParentOverridesPreviousOnes() {
 		AuthenticationManager parent = mock(AuthenticationManager.class);
 		ProviderManager mgr = new ProviderManager(
-				Arrays.asList(createProviderWhichThrows(new BadCredentialsException(""))),
+				Collections.singletonList(createProviderWhichThrows(new BadCredentialsException(""))),
 				parent);
 		final Authentication authReq = mock(Authentication.class);
 		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
@@ -262,12 +259,11 @@ public class ProviderManagerTests {
 	}
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void statusExceptionIsPublished() {
 		AuthenticationManager parent = mock(AuthenticationManager.class);
 		final LockedException expected = new LockedException("");
 		ProviderManager mgr = new ProviderManager(
-				Arrays.asList(createProviderWhichThrows(expected)), parent);
+				Collections.singletonList(createProviderWhichThrows(expected)), parent);
 		final Authentication authReq = mock(Authentication.class);
 		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
 		mgr.setAuthenticationEventPublisher(publisher);
@@ -303,10 +299,9 @@ public class ProviderManagerTests {
 	@Test
 	public void authenticateWhenFailsInParentAndPublishesThenChildDoesNotPublish() {
 		BadCredentialsException badCredentialsExParent = new BadCredentialsException("Bad Credentials in parent");
-		ProviderManager parentMgr = new ProviderManager(
-				Collections.singletonList(createProviderWhichThrows(badCredentialsExParent)));
+		ProviderManager parentMgr = new ProviderManager(createProviderWhichThrows(badCredentialsExParent));
 		ProviderManager childMgr = new ProviderManager(Collections.singletonList(createProviderWhichThrows(
-						new BadCredentialsException("Bad Credentials in child"))), parentMgr);
+				new BadCredentialsException("Bad Credentials in child"))), parentMgr);
 
 		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
 		parentMgr.setAuthenticationEventPublisher(publisher);
@@ -348,17 +343,14 @@ public class ProviderManagerTests {
 	}
 
 	private ProviderManager makeProviderManager() {
-		MockProvider provider1 = new MockProvider();
-		List<AuthenticationProvider> providers = new ArrayList<>();
-		providers.add(provider1);
-
-		return new ProviderManager(providers);
+		MockProvider provider = new MockProvider();
+		return new ProviderManager(provider);
 	}
 
 	// ~ Inner Classes
 	// ==================================================================================================
 
-	private class MockProvider implements AuthenticationProvider {
+	private static class MockProvider implements AuthenticationProvider {
 		public Authentication authenticate(Authentication authentication)
 				throws AuthenticationException {
 			if (supports(authentication.getClass())) {
@@ -372,7 +364,7 @@ public class ProviderManagerTests {
 		public boolean supports(Class<?> authentication) {
 			return TestingAuthenticationToken.class.isAssignableFrom(authentication)
 					|| UsernamePasswordAuthenticationToken.class
-							.isAssignableFrom(authentication);
+					.isAssignableFrom(authentication);
 		}
 	}
 }
