@@ -25,7 +25,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -376,27 +375,38 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		private String buildAuthorizationRequestUri() {
 			MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-			parameters.set(OAuth2ParameterNames.RESPONSE_TYPE, this.responseType.getValue());
-			parameters.set(OAuth2ParameterNames.CLIENT_ID, this.clientId);
+			parameters.set(OAuth2ParameterNames.RESPONSE_TYPE, percentEncode(this.responseType.getValue()));
+			parameters.set(OAuth2ParameterNames.CLIENT_ID, percentEncode(this.clientId));
 			if (!CollectionUtils.isEmpty(this.scopes)) {
 				parameters.set(OAuth2ParameterNames.SCOPE,
-						StringUtils.collectionToDelimitedString(this.scopes, " "));
+						percentEncode(StringUtils.collectionToDelimitedString(this.scopes, " ")));
 			}
 			if (this.state != null) {
-				parameters.set(OAuth2ParameterNames.STATE, this.state);
+				parameters.set(OAuth2ParameterNames.STATE, percentEncode(this.state));
 			}
 			if (this.redirectUri != null) {
-				parameters.set(OAuth2ParameterNames.REDIRECT_URI, this.redirectUri);
+				parameters.set(OAuth2ParameterNames.REDIRECT_URI, percentEncode(this.redirectUri));
 			}
 			if (!CollectionUtils.isEmpty(this.additionalParameters)) {
-				this.additionalParameters.forEach((k, v) -> parameters.set(k, v.toString()));
+				this.additionalParameters.forEach((k, v) ->
+						parameters.set(percentEncode(k), percentEncode(v.toString())));
 			}
 
 			return UriComponentsBuilder.fromHttpUrl(this.authorizationUri)
 					.queryParams(parameters)
-					.encode(StandardCharsets.UTF_8)
 					.build()
 					.toUriString();
+		}
+
+		// Encode query parameter value according to RFC 3986
+		private static String percentEncode(String value) {
+			return UriComponentsBuilder
+					.fromPath("")
+					.queryParam("t", value)
+					.build()
+					.encode()
+					.toUriString()
+					.substring(3);
 		}
 
 		private LinkedHashSet<String> toLinkedHashSet(String... scope) {

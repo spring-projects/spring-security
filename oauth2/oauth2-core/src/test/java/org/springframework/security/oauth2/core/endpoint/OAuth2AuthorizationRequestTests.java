@@ -307,4 +307,19 @@ public class OAuth2AuthorizationRequestTests {
 						"response_type=code&client_id=client-id&state=state&" +
 						"redirect_uri=https://example.com/authorize/oauth2/code/registration-id");
 	}
+
+	@Test
+	public void buildWhenAuthorizationUriIncludesEscapedQueryParameterThenAuthorizationRequestUrlIncludesIt() {
+		OAuth2AuthorizationRequest authorizationRequest =
+				TestOAuth2AuthorizationRequests.request()
+						.authorizationUri(AUTHORIZATION_URI +
+								"?claims=%7B%22userinfo%22%3A%7B%22email_verified%22%3A%7B%22essential%22%3Atrue%7D%7D%7D").build();
+
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.isEqualTo("https://provider.com/oauth2/authorize?" +
+						"claims=%7B%22userinfo%22%3A%7B%22email_verified%22%3A%7B%22essential%22%3Atrue%7D%7D%7D&" +
+						"response_type=code&client_id=client-id&state=state&" +
+						"redirect_uri=https://example.com/authorize/oauth2/code/registration-id");
+	}
 }
