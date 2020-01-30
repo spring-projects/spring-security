@@ -66,7 +66,7 @@ class JettyCasService extends Server {
 		String password = System.getProperty('javax.net.ssl.trustStorePassword','password')
 
 
-		SslContextFactory sslContextFactory = new SslContextFactory();
+		SslContextFactory sslContextFactory = new SslContextFactory.Server();
 		sslContextFactory.setKeyStorePath(getTrustStore());
 		sslContextFactory.setKeyStorePassword(password);
 		sslContextFactory.setKeyManagerPassword(password);
