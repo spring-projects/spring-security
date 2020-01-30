@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,14 +101,30 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	private AuthenticationManager parent;
 	private boolean eraseCredentialsAfterAuthentication = true;
 
-	public ProviderManager(List<AuthenticationProvider> providers) {
-		this(providers, null);
-	}
-
+	/**
+	 * Construct a {@link ProviderManager} using the given {@link AuthenticationProvider}s
+	 *
+	 * @param providers the {@link AuthenticationProvider}s to use
+	 */
 	public ProviderManager(AuthenticationProvider... providers) {
 		this(Arrays.asList(providers), null);
 	}
 
+	/**
+	 * Construct a {@link ProviderManager} using the given {@link AuthenticationProvider}s
+	 *
+	 * @param providers the {@link AuthenticationProvider}s to use
+	 */
+	public ProviderManager(List<AuthenticationProvider> providers) {
+		this(providers, null);
+	}
+
+	/**
+	 * Construct a {@link ProviderManager} using the provided parameters
+	 *
+	 * @param providers the {@link AuthenticationProvider}s to use
+	 * @param parent a parent {@link AuthenticationManager} to fall back to
+	 */
 	public ProviderManager(List<AuthenticationProvider> providers,
 			AuthenticationManager parent) {
 		Assert.notNull(providers, "providers list cannot be null");
