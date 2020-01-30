@@ -19,18 +19,39 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
 import java.util.Collections;
 
 /**
- * Jackson {@code Module} for {@code spring-security-oauth2-client}, which registers
- * {@link OAuth2AuthorizationRequestMixin}, {@link ClientRegistrationMixin},
- * {@link OAuth2AccessTokenMixin}, {@link OAuth2RefreshTokenMixin}
- * and {@link OAuth2AuthorizedClientMixin}.
+ * Jackson {@code Module} for {@code spring-security-oauth2-client},
+ * that registers the following mix-in annotations:
+ *
+ * <ul>
+ *     <li>{@link OAuth2AuthorizationRequestMixin}</li>
+ *     <li>{@link ClientRegistrationMixin}</li>
+ *     <li>{@link OAuth2AccessTokenMixin}</li>
+ *     <li>{@link OAuth2RefreshTokenMixin}</li>
+ *     <li>{@link OAuth2AuthorizedClientMixin}</li>
+ *     <li>{@link OAuth2UserAuthorityMixin}</li>
+ *     <li>{@link DefaultOAuth2UserMixin}</li>
+ *     <li>{@link OidcIdTokenMixin}</li>
+ *     <li>{@link OidcUserInfoMixin}</li>
+ *     <li>{@link OidcUserAuthorityMixin}</li>
+ *     <li>{@link DefaultOidcUserMixin}</li>
+ *     <li>{@link OAuth2AuthenticationTokenMixin}</li>
+ * </ul>
+ *
  * If not already enabled, default typing will be automatically enabled
  * as type info is required to properly serialize/deserialize objects.
  * In order to use this module just add it to your {@code ObjectMapper} configuration.
@@ -50,6 +71,13 @@ import java.util.Collections;
  * @see OAuth2AccessTokenMixin
  * @see OAuth2RefreshTokenMixin
  * @see OAuth2AuthorizedClientMixin
+ * @see OAuth2UserAuthorityMixin
+ * @see DefaultOAuth2UserMixin
+ * @see OidcIdTokenMixin
+ * @see OidcUserInfoMixin
+ * @see OidcUserAuthorityMixin
+ * @see DefaultOidcUserMixin
+ * @see OAuth2AuthenticationTokenMixin
  */
 public class OAuth2ClientJackson2Module extends SimpleModule {
 
@@ -66,5 +94,12 @@ public class OAuth2ClientJackson2Module extends SimpleModule {
 		context.setMixInAnnotations(OAuth2AccessToken.class, OAuth2AccessTokenMixin.class);
 		context.setMixInAnnotations(OAuth2RefreshToken.class, OAuth2RefreshTokenMixin.class);
 		context.setMixInAnnotations(OAuth2AuthorizedClient.class, OAuth2AuthorizedClientMixin.class);
+		context.setMixInAnnotations(OAuth2UserAuthority.class, OAuth2UserAuthorityMixin.class);
+		context.setMixInAnnotations(DefaultOAuth2User.class, DefaultOAuth2UserMixin.class);
+		context.setMixInAnnotations(OidcIdToken.class, OidcIdTokenMixin.class);
+		context.setMixInAnnotations(OidcUserInfo.class, OidcUserInfoMixin.class);
+		context.setMixInAnnotations(OidcUserAuthority.class, OidcUserAuthorityMixin.class);
+		context.setMixInAnnotations(DefaultOidcUser.class, DefaultOidcUserMixin.class);
+		context.setMixInAnnotations(OAuth2AuthenticationToken.class, OAuth2AuthenticationTokenMixin.class);
 	}
 }

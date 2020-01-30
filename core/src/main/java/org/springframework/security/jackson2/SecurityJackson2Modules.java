@@ -199,8 +199,11 @@ public final class SecurityJackson2Modules {
 			"java.util.Collections$UnmodifiableRandomAccessList",
 			"java.util.Collections$SingletonList",
 			"java.util.Date",
+			"java.time.Instant",
+			"java.net.URL",
 			"java.util.TreeMap",
 			"java.util.HashMap",
+			"java.util.LinkedHashMap",
 			"org.springframework.security.core.context.SecurityContextImpl"
 		)));
 

@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -40,11 +39,13 @@ final class UnmodifiableMapDeserializer extends JsonDeserializer<Map<?, ?>> {
 	@Override
 	public Map<?, ?> deserialize(JsonParser parser, DeserializationContext context) throws IOException {
 		ObjectMapper mapper = (ObjectMapper) parser.getCodec();
-		JsonNode treeNode = mapper.readTree(parser);
+		JsonNode mapNode = mapper.readTree(parser);
 		Map<String, Object> result = new LinkedHashMap<>();
-		if (treeNode instanceof ObjectNode) {
-			ObjectNode objectNode = (ObjectNode) treeNode;
-			objectNode.fields().forEachRemaining(field -> result.put(field.getKey(), field.getValue().asText()));
+		if (mapNode != null && mapNode.isObject()) {
+			Iterable<Map.Entry<String, JsonNode>> fields = mapNode::fields;
+			for (Map.Entry<String, JsonNode> field : fields) {
+				result.put(field.getKey(), mapper.readValue(field.getValue().traverse(mapper), Object.class));
+			}
 		}
 		return Collections.unmodifiableMap(result);
 	}
