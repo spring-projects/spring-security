@@ -95,8 +95,13 @@ public class ProviderManagerTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testStartupFailsIfProvidersNotSet() {
-		new ProviderManager(null);
+	public void testStartupFailsIfProvidersNotSetAsList() {
+		new ProviderManager((List<AuthenticationProvider>) null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testStartupFailsIfProvidersNotSetAsVarargs() {
+		new ProviderManager((AuthenticationProvider) null);
 	}
 
 	@Test

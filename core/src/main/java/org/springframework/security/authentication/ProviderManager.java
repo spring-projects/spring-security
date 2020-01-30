@@ -15,6 +15,7 @@
  */
 package org.springframework.security.authentication;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -104,6 +105,10 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		this(providers, null);
 	}
 
+	public ProviderManager(AuthenticationProvider... providers) {
+		this(Arrays.asList(providers), null);
+	}
+
 	public ProviderManager(List<AuthenticationProvider> providers,
 			AuthenticationManager parent) {
 		Assert.notNull(providers, "providers list cannot be null");
@@ -124,6 +129,9 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			throw new IllegalArgumentException(
 					"A parent AuthenticationManager or a list "
 							+ "of AuthenticationProviders is required");
+		} else if (providers.contains(null)) {
+			throw new IllegalArgumentException(
+					"providers list cannot contain null values");
 		}
 	}
 
