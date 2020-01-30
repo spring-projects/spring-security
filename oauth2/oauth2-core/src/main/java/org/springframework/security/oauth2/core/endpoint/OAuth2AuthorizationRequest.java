@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -376,27 +377,32 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		private String buildAuthorizationRequestUri() {
 			MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-			parameters.set(OAuth2ParameterNames.RESPONSE_TYPE, this.responseType.getValue());
-			parameters.set(OAuth2ParameterNames.CLIENT_ID, this.clientId);
+			parameters.set(OAuth2ParameterNames.RESPONSE_TYPE, encodeQueryParam(this.responseType.getValue()));
+			parameters.set(OAuth2ParameterNames.CLIENT_ID, encodeQueryParam(this.clientId));
 			if (!CollectionUtils.isEmpty(this.scopes)) {
 				parameters.set(OAuth2ParameterNames.SCOPE,
-						StringUtils.collectionToDelimitedString(this.scopes, " "));
+						encodeQueryParam(StringUtils.collectionToDelimitedString(this.scopes, " ")));
 			}
 			if (this.state != null) {
-				parameters.set(OAuth2ParameterNames.STATE, this.state);
+				parameters.set(OAuth2ParameterNames.STATE, encodeQueryParam(this.state));
 			}
 			if (this.redirectUri != null) {
-				parameters.set(OAuth2ParameterNames.REDIRECT_URI, this.redirectUri);
+				parameters.set(OAuth2ParameterNames.REDIRECT_URI, encodeQueryParam(this.redirectUri));
 			}
 			if (!CollectionUtils.isEmpty(this.additionalParameters)) {
-				this.additionalParameters.forEach((k, v) -> parameters.set(k, v.toString()));
+				this.additionalParameters.forEach((k, v) ->
+						parameters.set(encodeQueryParam(k), encodeQueryParam(v.toString())));
 			}
 
 			return UriComponentsBuilder.fromHttpUrl(this.authorizationUri)
 					.queryParams(parameters)
-					.encode(StandardCharsets.UTF_8)
 					.build()
 					.toUriString();
+		}
+
+		// Encode query parameter value according to RFC 3986
+		private static String encodeQueryParam(String value) {
+			return UriUtils.encodeQueryParam(value, StandardCharsets.UTF_8);
 		}
 
 		private LinkedHashSet<String> toLinkedHashSet(String... scope) {

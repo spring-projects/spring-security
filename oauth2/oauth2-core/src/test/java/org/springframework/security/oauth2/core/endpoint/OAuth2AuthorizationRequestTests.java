@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -306,5 +306,39 @@ public class OAuth2AuthorizationRequestTests {
 						"param1=value1&param2=value2&" +
 						"response_type=code&client_id=client-id&state=state&" +
 						"redirect_uri=https://example.com/authorize/oauth2/code/registration-id");
+	}
+
+	@Test
+	public void buildWhenAuthorizationUriIncludesEscapedQueryParameterThenAuthorizationRequestUrlIncludesIt() {
+		OAuth2AuthorizationRequest authorizationRequest =
+				TestOAuth2AuthorizationRequests.request()
+						.authorizationUri(AUTHORIZATION_URI +
+								"?claims=%7B%22userinfo%22%3A%7B%22email_verified%22%3A%7B%22essential%22%3Atrue%7D%7D%7D").build();
+
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.isEqualTo("https://provider.com/oauth2/authorize?" +
+						"claims=%7B%22userinfo%22%3A%7B%22email_verified%22%3A%7B%22essential%22%3Atrue%7D%7D%7D&" +
+						"response_type=code&client_id=client-id&state=state&" +
+						"redirect_uri=https://example.com/authorize/oauth2/code/registration-id");
+	}
+
+	@Test
+	public void buildWhenNonAsciiAdditionalParametersThenProperlyEncoded() {
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("item amount", "19.95" + '\u20ac');
+		additionalParameters.put("item name", "H" + '\u00c5' + "M" + '\u00d6');
+		additionalParameters.put('\u00e2' + "ge", "4" + '\u00bd');
+		OAuth2AuthorizationRequest authorizationRequest =
+				TestOAuth2AuthorizationRequests.request()
+						.additionalParameters(additionalParameters)
+						.build();
+
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.isEqualTo("https://example.com/login/oauth/authorize?" +
+						"response_type=code&client_id=client-id&state=state&" +
+						"redirect_uri=https://example.com/authorize/oauth2/code/registration-id&" +
+						"item%20amount=19.95%E2%82%AC&%C3%A2ge=4%C2%BD&item%20name=H%C3%85M%C3%96");
 	}
 }
