@@ -557,17 +557,13 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.invalidSessionStrategy != null) {
 			return this.invalidSessionStrategy;
 		}
-		if (this.invalidSessionUrl != null) {
-			this.invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(
-					this.invalidSessionUrl);
-		}
+
 		if (this.invalidSessionUrl == null) {
 			return null;
 		}
-		if (this.invalidSessionStrategy == null) {
-			this.invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(
+
+		this.invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(
 					this.invalidSessionUrl);
-		}
 		return this.invalidSessionStrategy;
 	}
 
@@ -580,10 +576,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			return null;
 		}
 
-		if (this.expiredSessionStrategy == null) {
-			this.expiredSessionStrategy = new SimpleRedirectSessionInformationExpiredStrategy(
-					this.expiredUrl);
-		}
+		this.expiredSessionStrategy = new SimpleRedirectSessionInformationExpiredStrategy(
+				this.expiredUrl);
 		return this.expiredSessionStrategy;
 	}
 
@@ -596,10 +590,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			return null;
 		}
 
-		if (this.sessionAuthenticationFailureHandler == null) {
-			this.sessionAuthenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler(
-					this.sessionAuthenticationErrorUrl);
-		}
+		this.sessionAuthenticationFailureHandler = new SimpleUrlAuthenticationFailureHandler(
+				this.sessionAuthenticationErrorUrl);
 		return this.sessionAuthenticationFailureHandler;
 	}
 
