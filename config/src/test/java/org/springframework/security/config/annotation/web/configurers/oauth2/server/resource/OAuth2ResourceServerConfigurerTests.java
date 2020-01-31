@@ -94,6 +94,7 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -256,7 +257,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		this.mvc.perform(get("/").with(bearerToken(token)))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt: Malformed Jwk set"));
+				.andExpect(header().string("WWW-Authenticate", "Bearer"));
 	}
 
 	@Test
@@ -269,7 +270,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 		this.mvc.perform(get("/").with(bearerToken(token)))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("Invalid token"));
+				.andExpect(header().string("WWW-Authenticate", "Bearer"));
 	}
 
 	@Test
@@ -1099,7 +1100,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(CustomAuthenticationEventPublisher.class).autowire();
 
 		when(bean(JwtDecoder.class).decode(anyString()))
-				.thenThrow(new JwtException("problem"));
+				.thenThrow(new BadJwtException("problem"));
 
 		this.mvc.perform(get("/").with(bearerToken("token")));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.crypto.SecretKey;
 
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -120,7 +121,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	public Jwt decode(String token) throws JwtException {
 		JWT jwt = parse(token);
 		if (jwt instanceof PlainJWT) {
-			throw new JwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
+			throw new BadJwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
 		}
 		Jwt createdJwt = createJwt(token, jwt);
 		return validateJwt(createdJwt);
@@ -130,7 +131,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		try {
 			return JWTParser.parse(token);
 		} catch (Exception ex) {
-			throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
+			throw new BadJwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 		}
 	}
 
@@ -152,11 +153,13 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			} else {
 				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 			}
+		} catch (JOSEException ex) {
+			throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 		} catch (Exception ex) {
 			if (ex.getCause() instanceof ParseException) {
-				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed payload"));
+				throw new BadJwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "Malformed payload"));
 			} else {
-				throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
+				throw new BadJwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 			}
 		}
 	}
