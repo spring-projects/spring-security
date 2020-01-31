@@ -20,9 +20,11 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
@@ -71,7 +73,11 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 		this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 	}
 
-	private OAuth2AuthenticationException onError(JwtException e) {
-		return new InvalidBearerTokenException(e.getMessage(), e);
+	private AuthenticationException onError(JwtException e) {
+		if (e instanceof BadJwtException) {
+			return new InvalidBearerTokenException(e.getMessage(), e);
+		} else {
+			return new AuthenticationServiceException(e.getMessage(), e);
+		}
 	}
 }

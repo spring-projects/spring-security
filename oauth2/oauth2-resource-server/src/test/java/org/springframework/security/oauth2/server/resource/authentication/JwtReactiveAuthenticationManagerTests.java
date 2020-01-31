@@ -25,8 +25,10 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
@@ -82,7 +84,7 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenJwtExceptionThenOAuth2AuthenticationException() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(any())).thenReturn(Mono.error(new JwtException("Oops")));
+		when(this.jwtDecoder.decode(any())).thenReturn(Mono.error(new BadJwtException("Oops")));
 
 		assertThatCode(() -> this.manager.authenticate(token).block())
 				.isInstanceOf(OAuth2AuthenticationException.class);
@@ -92,13 +94,24 @@ public class JwtReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
 		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
-		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new JwtException("with \"invalid\" chars"));
+		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new BadJwtException("with \"invalid\" chars"));
 
 		assertThatCode(() -> this.manager.authenticate(token).block())
 				.isInstanceOf(OAuth2AuthenticationException.class)
 				.hasFieldOrPropertyWithValue(
 						"error.description",
 						"Invalid token");
+	}
+
+	// gh-7785
+	@Test
+	public void authenticateWhenDecoderFailsGenericallyThenThrowsGenericException() {
+		BearerTokenAuthenticationToken token = new BearerTokenAuthenticationToken("token-1");
+		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new JwtException("no jwk set"));
+
+		assertThatCode(() -> this.manager.authenticate(token).block())
+				.isInstanceOf(AuthenticationException.class)
+				.isNotInstanceOf(OAuth2AuthenticationException.class);
 	}
 
 	@Test

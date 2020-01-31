@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void decodeWhenJwtInvalidThenThrowJwtException() {
 		assertThatThrownBy(() -> this.jwtDecoder.decode("invalid"))
-				.isInstanceOf(JwtException.class);
+				.isInstanceOf(BadJwtException.class);
 	}
 
 	// gh-5168
@@ -152,14 +152,14 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void decodeWhenPlainJwtThenExceptionDoesNotMentionClass() {
 		assertThatCode(() -> this.jwtDecoder.decode(UNSIGNED_JWT))
-				.isInstanceOf(JwtException.class)
+				.isInstanceOf(BadJwtException.class)
 				.hasMessageContaining("Unsupported algorithm of none");
 	}
 
 	@Test
 	public void decodeWhenJwtIsMalformedThenReturnsStockException() {
 		assertThatCode(() -> this.jwtDecoder.decode(MALFORMED_JWT))
-				.isInstanceOf(JwtException.class)
+				.isInstanceOf(BadJwtException.class)
 				.hasMessage("An error occurred while attempting to decode the Jwt: Malformed payload");
 	}
 
@@ -205,6 +205,18 @@ public class NimbusJwtDecoderTests {
 		assertThat(jwt.getClaims().get("custom")).isEqualTo("value");
 	}
 
+	// gh-7885
+	@Test
+	public void decodeWhenClaimSetConverterFailsThenBadJwtException() {
+		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
+		this.jwtDecoder.setClaimSetConverter(claimSetConverter);
+
+		when(claimSetConverter.convert(any(Map.class))).thenThrow(new IllegalArgumentException("bad conversion"));
+
+		assertThatCode(() -> this.jwtDecoder.decode(SIGNED_JWT))
+				.isInstanceOf(BadJwtException.class);
+	}
+
 	@Test
 	public void decodeWhenSignedThenOk() {
 		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withSigning(JWK_SET));
@@ -217,6 +229,7 @@ public class NimbusJwtDecoderTests {
 		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(withSigning(MALFORMED_JWK_SET));
 		assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT))
 				.isInstanceOf(JwtException.class)
+				.isNotInstanceOf(BadJwtException.class)
 				.hasMessage("An error occurred while attempting to decode the Jwt: Malformed Jwk set");
 	}
 
@@ -229,6 +242,7 @@ public class NimbusJwtDecoderTests {
 			server.shutdown();
 			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT))
 					.isInstanceOf(JwtException.class)
+					.isNotInstanceOf(BadJwtException.class)
 					.hasMessageContaining("An error occurred while attempting to decode the Jwt");
 		}
 	}
@@ -301,7 +315,7 @@ public class NimbusJwtDecoderTests {
 	public void decodeWhenSignatureMismatchesAlgorithmThenThrowsException() throws Exception {
 		NimbusJwtDecoder decoder = withPublicKey(key()).signatureAlgorithm(SignatureAlgorithm.RS512).build();
 		Assertions.assertThatCode(() -> decoder.decode(RS256_SIGNED_JWT))
-				.isInstanceOf(JwtException.class);
+				.isInstanceOf(BadJwtException.class);
 	}
 
 	@Test
@@ -345,7 +359,7 @@ public class NimbusJwtDecoderTests {
 		SignedJWT signedJWT = signedJwt(secretKey, macAlgorithm, claimsSet);
 		NimbusJwtDecoder decoder = withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS512).build();
 		assertThatThrownBy(() -> decoder.decode(signedJWT.serialize()))
-				.isInstanceOf(JwtException.class)
+				.isInstanceOf(BadJwtException.class)
 				.hasMessageContaining("Unsupported algorithm of HS256");
 	}
 

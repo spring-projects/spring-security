@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,7 +136,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	public Mono<Jwt> decode(String token) throws JwtException {
 		JWT jwt = parse(token);
 		if (jwt instanceof PlainJWT) {
-			throw new JwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
+			throw new BadJwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
 		}
 		return this.decode(jwt);
 	}
@@ -145,7 +145,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		try {
 			return JWTParser.parse(token);
 		} catch (Exception ex) {
-			throw new JwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
+			throw new BadJwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
 		}
 	}
 
@@ -155,19 +155,25 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 				.map(set -> createJwt(parsedToken, set))
 				.map(this::validateJwt)
 				.onErrorMap(e -> !(e instanceof IllegalStateException) && !(e instanceof JwtException), e -> new JwtException("An error occurred while attempting to decode the Jwt: ", e));
+		} catch (JwtException ex) {
+			throw ex;
 		} catch (RuntimeException ex) {
 			throw new JwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
 		}
 	}
 
 	private Jwt createJwt(JWT parsedJwt, JWTClaimsSet jwtClaimsSet) {
-		Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
-		Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
+		try {
+			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
+			Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
 
-		return Jwt.withTokenValue(parsedJwt.getParsedString())
-				.headers(h -> h.putAll(headers))
-				.claims(c -> c.putAll(claims))
-				.build();
+			return Jwt.withTokenValue(parsedJwt.getParsedString())
+					.headers(h -> h.putAll(headers))
+					.claims(c -> c.putAll(claims))
+					.build();
+		} catch (Exception ex) {
+			throw new BadJwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
+		}
 	}
 
 	private Jwt validateJwt(Jwt jwt) {
@@ -345,7 +351,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 		private JWKSelector createSelector(Set<JWSAlgorithm> expectedJwsAlgorithms, Header header) {
 			if (!expectedJwsAlgorithms.contains(header.getAlgorithm())) {
-				throw new JwtException("Unsupported algorithm of " + header.getAlgorithm());
+				throw new BadJwtException("Unsupported algorithm of " + header.getAlgorithm());
 			}
 
 			return new JWKSelector(JWKMatcher.forJWSHeader((JWSHeader) header));
@@ -514,7 +520,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 							.collectList()
 							.map(jwks -> createClaimsSet(jwtProcessor, jwt, new JWKSecurityContext(jwks)));
 				}
-				throw new JwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
+				throw new BadJwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
 			};
 		}
 	}
@@ -524,7 +530,10 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		try {
 			return jwtProcessor.process(parsedToken, context);
 		}
-		catch (BadJOSEException | JOSEException e) {
+		catch (BadJOSEException e) {
+			throw new BadJwtException("Failed to validate the token", e);
+		}
+		catch (JOSEException e) {
 			throw new JwtException("Failed to validate the token", e);
 		}
 	}

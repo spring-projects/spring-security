@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,7 +171,7 @@ public class NimbusReactiveJwtDecoderTests {
 	@Test
 	public void decodeWhenNoPeriodThenFail() {
 		assertThatCode(() -> this.decoder.decode("").block())
-				.isInstanceOf(JwtException.class);
+				.isInstanceOf(BadJwtException.class);
 	}
 
 	@Test
@@ -184,26 +184,26 @@ public class NimbusReactiveJwtDecoderTests {
 	@Test
 	public void decodeWhenInvalidSignatureThenFail() {
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken.substring(0, this.messageReadToken.length() - 2)).block())
-				.isInstanceOf(JwtException.class);
+				.isInstanceOf(BadJwtException.class);
 	}
 
 	@Test
 	public void decodeWhenAlgNoneThenFail() {
 		assertThatCode(() -> this.decoder.decode("ew0KICAiYWxnIjogIm5vbmUiLA0KICAidHlwIjogIkpXVCINCn0.ew0KICAic3ViIjogIjEyMzQ1Njc4OTAiLA0KICAibmFtZSI6ICJKb2huIERvZSIsDQogICJpYXQiOiAxNTE2MjM5MDIyDQp9.").block())
-			.isInstanceOf(JwtException.class)
+			.isInstanceOf(BadJwtException.class)
 			.hasMessage("Unsupported algorithm of none");
 	}
 
 	@Test
 	public void decodeWhenInvalidAlgMismatchThenFail() {
 		assertThatCode(() -> this.decoder.decode("ew0KICAiYWxnIjogIkVTMjU2IiwNCiAgInR5cCI6ICJKV1QiDQp9.ew0KICAic3ViIjogIjEyMzQ1Njc4OTAiLA0KICAibmFtZSI6ICJKb2huIERvZSIsDQogICJpYXQiOiAxNTE2MjM5MDIyDQp9.").block())
-				.isInstanceOf(JwtException.class);
+				.isInstanceOf(BadJwtException.class);
 	}
 
 	@Test
 	public void decodeWhenUnsignedTokenThenMessageDoesNotMentionClass() {
 		assertThatCode(() -> this.decoder.decode(this.unsignedToken).block())
-				.isInstanceOf(JwtException.class)
+				.isInstanceOf(BadJwtException.class)
 				.hasMessage("Unsupported algorithm of none");
 	}
 
@@ -217,7 +217,7 @@ public class NimbusReactiveJwtDecoderTests {
 		when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
 
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
-				.isInstanceOf(JwtException.class)
+				.isInstanceOf(JwtValidationException.class)
 				.hasMessageContaining("mock-description");
 	}
 
@@ -232,6 +232,18 @@ public class NimbusReactiveJwtDecoderTests {
 		assertThat(jwt.getClaims().size()).isEqualTo(1);
 		assertThat(jwt.getClaims().get("custom")).isEqualTo("value");
 		verify(claimSetConverter).convert(any(Map.class));
+	}
+
+	// gh-7885
+	@Test
+	public void decodeWhenClaimSetConverterFailsThenBadJwtException() {
+		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
+		this.decoder.setClaimSetConverter(claimSetConverter);
+
+		when(claimSetConverter.convert(any(Map.class))).thenThrow(new IllegalArgumentException("bad conversion"));
+
+		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())
+				.isInstanceOf(BadJwtException.class);
 	}
 
 	@Test
@@ -310,7 +322,7 @@ public class NimbusReactiveJwtDecoderTests {
 		NimbusReactiveJwtDecoder decoder =
 				withPublicKey(key()).signatureAlgorithm(SignatureAlgorithm.RS512).build();
 		assertThatCode(() -> decoder.decode(this.rsa256).block())
-				.isInstanceOf(JwtException.class);
+				.isInstanceOf(BadJwtException.class);
 	}
 
 	@Test
@@ -372,7 +384,7 @@ public class NimbusReactiveJwtDecoderTests {
 
 		this.decoder = withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS512).build();
 		assertThatThrownBy(() -> this.decoder.decode(signedJWT.serialize()).block())
-				.isInstanceOf(JwtException.class);
+				.isInstanceOf(BadJwtException.class);
 	}
 
 	@Test

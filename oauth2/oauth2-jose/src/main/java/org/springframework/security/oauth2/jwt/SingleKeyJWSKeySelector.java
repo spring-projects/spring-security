@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ final class SingleKeyJWSKeySelector<C extends SecurityContext> implements JWSKey
 	@Override
 	public List<? extends Key> selectJWSKeys(JWSHeader header, C context) {
 		if (!this.expectedJwsAlgorithm.equals(header.getAlgorithm())) {
-			throw new IllegalArgumentException("Unsupported algorithm of " + header.getAlgorithm());
+			throw new BadJwtException("Unsupported algorithm of " + header.getAlgorithm());
 		}
 		return this.keySet;
 	}
