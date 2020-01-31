@@ -31,8 +31,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
-import org.springframework.security.oauth2.client.web.server.WebSessionOAuth2ServerAuthorizationRequestRepository;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -44,7 +42,6 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.DelegatingReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -1581,7 +1578,7 @@ public class ServerHttpSecurity {
 
 		private JwtSpec jwt;
 		private OpaqueTokenSpec opaqueToken;
-		private ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver;
+		private ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver;
 
 		/**
 		 * Configures the {@link ServerAccessDeniedHandler} to use for requests authenticating with
@@ -1631,10 +1628,10 @@ public class ServerHttpSecurity {
 		 *
 		 * @param authenticationManagerResolver the {@link ReactiveAuthenticationManagerResolver}
 		 * @return the {@link OAuth2ResourceServerSpec} for additional configuration
-		 * @since 5.2
+		 * @since 5.3
 		 */
 		public OAuth2ResourceServerSpec authenticationManagerResolver(
-				ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver) {
+				ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver) {
 			Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
 			this.authenticationManagerResolver = authenticationManagerResolver;
 			return this;

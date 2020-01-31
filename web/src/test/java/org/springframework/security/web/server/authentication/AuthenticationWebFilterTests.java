@@ -23,7 +23,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import reactor.core.publisher.Mono;
 
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
@@ -34,9 +33,15 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -56,7 +61,7 @@ public class AuthenticationWebFilterTests {
 	@Mock
 	private ServerSecurityContextRepository securityContextRepository;
 	@Mock
-	private ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver;
+	private ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver;
 
 	private AuthenticationWebFilter filter;
 

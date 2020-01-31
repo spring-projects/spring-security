@@ -17,7 +17,8 @@ package org.springframework.security.web.server.authentication;
 
 import java.util.function.Function;
 
-import org.springframework.http.server.reactive.ServerHttpRequest;
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
@@ -33,8 +34,6 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-
-import reactor.core.publisher.Mono;
 
 /**
  * A {@link WebFilter} that performs authentication of a particular request. An outline of the logic:
@@ -69,7 +68,7 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class AuthenticationWebFilter implements WebFilter {
-	private final ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver;
+	private final ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver;
 
 	private ServerAuthenticationSuccessHandler authenticationSuccessHandler = new WebFilterChainServerAuthenticationSuccessHandler();
 
@@ -93,9 +92,9 @@ public class AuthenticationWebFilter implements WebFilter {
 	/**
 	 * Creates an instance
 	 * @param authenticationManagerResolver the authentication manager resolver to use
-	 * @since 5.2
+	 * @since 5.3
 	 */
-	public AuthenticationWebFilter(ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver) {
+	public AuthenticationWebFilter(ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver) {
 		Assert.notNull(authenticationManagerResolver, "authenticationResolverManager cannot be null");
 		this.authenticationManagerResolver = authenticationManagerResolver;
 	}
@@ -113,7 +112,7 @@ public class AuthenticationWebFilter implements WebFilter {
 		WebFilterChain chain, Authentication token) {
 		WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 
-		return this.authenticationManagerResolver.resolve(exchange.getRequest())
+		return this.authenticationManagerResolver.resolve(exchange)
 			.flatMap(authenticationManager -> authenticationManager.authenticate(token))
 			.switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
 			.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))

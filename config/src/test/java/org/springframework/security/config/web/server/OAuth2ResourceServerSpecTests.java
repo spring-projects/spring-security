@@ -49,7 +49,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
@@ -76,6 +75,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.reactive.DispatcherHandler;
 import org.springframework.web.reactive.config.EnableWebFlux;
+import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -280,13 +280,13 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenUsingCustomAuthenticationManagerResolverThenUsesItAccordingly() {
 		this.spring.register(CustomAuthenticationManagerResolverConfig.class).autowire();
 
-		ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver =
+		ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver =
 				this.spring.getContext().getBean(ReactiveAuthenticationManagerResolver.class);
 
 		ReactiveAuthenticationManager authenticationManager =
 				this.spring.getContext().getBean(ReactiveAuthenticationManager.class);
 
-		when(authenticationManagerResolver.resolve(any(ServerHttpRequest.class)))
+		when(authenticationManagerResolver.resolve(any(ServerWebExchange.class)))
 			.thenReturn(Mono.just(authenticationManager));
 		when(authenticationManager.authenticate(any(Authentication.class)))
 			.thenReturn(Mono.error(new OAuth2AuthenticationException(new OAuth2Error("mock-failure"))));
@@ -697,7 +697,7 @@ public class OAuth2ResourceServerSpecTests {
 		}
 
 		@Bean
-		ReactiveAuthenticationManagerResolver<ServerHttpRequest> authenticationManagerResolver() {
+		ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver() {
 			return mock(ReactiveAuthenticationManagerResolver.class);
 		}
 
