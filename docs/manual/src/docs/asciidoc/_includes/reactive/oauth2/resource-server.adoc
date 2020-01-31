@@ -1005,6 +1005,77 @@ ReactiveOpaqueTokenIntrospector introspector() {
 }
 ----
 
+[[oauth2resourceserver-multitenancy]]
+== Multi-tenancy
+
+A resource server is considered multi-tenant when there are multiple strategies for verifying a bearer token, keyed by some tenant identifier.
+
+For example, your resource server may accept bearer tokens from two different authorization servers.
+Or, your authorization server may represent a multiplicity of issuers.
+
+In each case, there are two things that need to be done and trade-offs associated with how you choose to do them:
+
+1. Resolve the tenant
+2. Propagate the tenant
+
+=== Resolving the Tenant By Claim
+
+One way to differentiate tenants is by the issuer claim. Since the issuer claim accompanies signed JWTs, this can be done with the `JwtIssuerReactiveAuthenticationManagerResolver`, like so:
+
+[source,java]
+----
+JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver
+    ("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
+
+http
+    .authorizeRequests(authorize -> authorize
+        .anyRequest().authenticated()
+    )
+    .oauth2ResourceServer(oauth2 -> oauth2
+        .authenticationManagerResolver(authenticationManagerResolver)
+    );
+----
+
+This is nice because the issuer endpoints are loaded lazily.
+In fact, the corresponding `JwtReactiveAuthenticationManager` is instantiated only when the first request with the corresponding issuer is sent.
+This allows for an application startup that is independent from those authorization servers being up and available.
+
+==== Dynamic Tenants
+
+Of course, you may not want to restart the application each time a new tenant is added.
+In this case, you can configure the `JwtIssuerReactiveAuthenticationManagerResolver` with a repository of `ReactiveAuthenticationManager` instances, which you can edit at runtime, like so:
+
+[source,java]
+----
+private Mono<ReactiveAuthenticationManager> addManager(
+		Map<String, ReactiveAuthenticationManager> authenticationManagers, String issuer) {
+
+	return Mono.fromCallable(() -> ReactiveJwtDecoders.fromIssuerLocation(issuer))
+            .subscribeOn(Schedulers.boundedElastic())
+            .map(JwtReactiveAuthenticationManager::new)
+            .doOnNext(authenticationManager -> authenticationManagers.put(issuer, authenticationManager));
+}
+
+// ...
+
+JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver =
+        new JwtIssuerReactiveAuthenticationManagerResolver(authenticationManagers::get);
+
+http
+    .authorizeRequests(authorize -> authorize
+        .anyRequest().authenticated()
+    )
+    .oauth2ResourceServer(oauth2 -> oauth2
+        .authenticationManagerResolver(authenticationManagerResolver)
+    );
+----
+
+In this case, you construct `JwtIssuerReactiveAuthenticationManagerResolver` with a strategy for obtaining the `ReactiveAuthenticationManager` given the issuer.
+This approach allows us to add and remove elements from the repository (shown as a `Map` in the snippet) at runtime.
+
+NOTE: It would be unsafe to simply take any issuer and construct an `ReactiveAuthenticationManager` from it.
+The issuer should be one that the code can verify from a trusted source like a whitelist.
+
 == Bearer Token Propagation
 
 Now that you're in possession of a bearer token, it might be handy to pass that to downstream services.
