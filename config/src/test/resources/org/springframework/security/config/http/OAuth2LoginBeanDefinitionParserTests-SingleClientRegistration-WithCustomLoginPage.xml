@@ -26,34 +26,9 @@
 
 	<http auto-config="true">
 		<intercept-url pattern="/**" access="authenticated"/>
-		<oauth2-login access-token-response-client-ref="testAccessTokenResponseClient"
-						user-service-ref="testOAuth2UserService"
-						oidc-user-service-ref="testOAuth2OidcUserService"
-						login-page="/custom-login"/>
+		<oauth2-login  login-page="/custom-login"/>
 	</http>
 
-	<client-registrations>
-		<client-registration registration-id="google-login"
-							 client-id="google-client-id"
-							 client-secret="google-client-secret"
-							 client-authentication-method="basic"
-							 authorization-grant-type="authorization_code"
-							 redirect-uri="{baseUrl}/login/oauth2/code/{registrationId}"
-							 scope="openid,profile,email"
-							 client-name="Google"
-							 provider-id="google"/>
-		<provider provider-id="google"
-				  authorization-uri="https://accounts.google.com/o/oauth2/v2/auth"
-				  token-uri="https://www.googleapis.com/oauth2/v4/token"
-				  userinfo-uri="https://www.googleapis.com/oauth2/v3/userinfo"
-				  userinfo-authentication-method="header"
-				  username-attribute-name="sub"
-				  jwkset-uri="https://www.googleapis.com/oauth2/v3/certs"/>
-	</client-registrations>
-	
-	<b:bean id="testAccessTokenResponseClient" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockAccessTokenResponse"/>
-	<b:bean id="testOAuth2UserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2UserService"/>
-	<b:bean id="testOAuth2OidcUserService" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2OidcUserService"/>
-	
+	<b:import resource="../oauth2/client/google-registration.xml"/>
 	<b:import resource="userservice.xml"/>
 </b:beans>

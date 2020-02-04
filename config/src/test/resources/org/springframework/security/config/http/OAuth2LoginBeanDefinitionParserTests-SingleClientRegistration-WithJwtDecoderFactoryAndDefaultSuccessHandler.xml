@@ -30,7 +30,7 @@
 						jwt-decoder-factory-ref="jwtDecoderFactory"
 						user-authorities-mapper-ref="grantedAuthoritiesMapper"
 						authorization-request-repository-ref="authorizationRequestRepository"
-						authentication-success-handler-ref="authenticationSuccessHandler"/>
+						/>
 	</http>
 	
 	<b:bean name="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
@@ -44,9 +44,6 @@
 	</b:bean>
 	<b:bean name="authorizationRequestRepository" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.client.web.AuthorizationRequestRepository"/>
-	</b:bean>
-	<b:bean name="authenticationSuccessHandler" class="org.mockito.Mockito" factory-method="mock">
-			<b:constructor-arg value="org.springframework.security.web.authentication.AuthenticationSuccessHandler"/>
 	</b:bean>
 
 	<b:import resource="../oauth2/client/google-registration.xml"/>

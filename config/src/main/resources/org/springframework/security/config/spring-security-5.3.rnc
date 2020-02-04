@@ -529,7 +529,7 @@ provider.attlist &=
 	attribute authorization-uri {xsd:token}?
 provider.attlist &=
 	## The Token Endpoint URI for the Authorization Server.
-	attribute token-uri {xsd:token}
+	attribute token-uri {xsd:token}?
 provider.attlist &=
 	## The UserInfo Endpoint URI used to access the claims/attributes of the authenticated end-user.
 	attribute userinfo-uri {xsd:token}?

@@ -26,12 +26,28 @@
 
 	<http auto-config="true">
 		<intercept-url pattern="/**" access="authenticated"/>
-		<oauth2-login client-registration-repository-ref="testClientRegistrationRepository"
-						authorized-client-repository-ref="testAuthorizedClientRepository"/>
+		<oauth2-login client-registration-repository-ref="clientRegistrationRepository"
+						authorized-client-repository-ref="authorizedClientRepository"
+						access-token-response-client-ref="accessTokenResponseClient"
+						user-service-ref="oauth2UserService"
+						authorization-request-repository-ref="authorizationRequestRepository"/>
 	</http>
 
-	<b:bean id="testClientRegistrationRepository" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockClientRegistrationRepository"/>
-	<b:bean id="testAuthorizedClientRepository" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.MockOAuth2AuthorizedClientRepository"/>
+	<b:bean name="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
+			<b:constructor-arg value="org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient"/>
+	</b:bean>
+	<b:bean name="oauth2UserService" class="org.mockito.Mockito" factory-method="mock">
+			<b:constructor-arg value="org.springframework.security.oauth2.client.userinfo.OAuth2UserService"/>
+	</b:bean>
+	<b:bean name="authorizationRequestRepository" class="org.mockito.Mockito" factory-method="mock">
+			<b:constructor-arg value="org.springframework.security.oauth2.client.web.AuthorizationRequestRepository"/>
+	</b:bean>
+	<b:bean name="clientRegistrationRepository" class="org.mockito.Mockito" factory-method="mock">
+			<b:constructor-arg value="org.springframework.security.oauth2.client.registration.ClientRegistrationRepository"/>
+	</b:bean>
+	<b:bean name="authorizedClientRepository" class="org.mockito.Mockito" factory-method="mock">
+			<b:constructor-arg value="org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository"/>
+	</b:bean>
 
 	<b:import resource="userservice.xml"/>
 </b:beans>

@@ -26,11 +26,11 @@
 
 	<http auto-config="true">
 		<intercept-url pattern="/**" access="authenticated"/>
-		<oauth2-login authorization-request-resolver-ref="oauth2AuthorizationRequestResolver"/>
+		<oauth2-login authentication-failure-handler-ref="authenticationFailureHandler"/>
 	</http>
 
-	<b:bean name="oauth2AuthorizationRequestResolver" class="org.mockito.Mockito" factory-method="mock">
-			<b:constructor-arg value="org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver"/>
+	<b:bean name="authenticationFailureHandler" class="org.mockito.Mockito" factory-method="mock">
+			<b:constructor-arg value="org.springframework.security.web.authentication.AuthenticationFailureHandler"/>
 	</b:bean>
 
 	<b:import resource="../oauth2/client/google-registration.xml"/>

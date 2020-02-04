@@ -145,6 +145,8 @@ final class AuthenticationConfigBuilder {
 	private BeanReference oauth2LoginAuthenticationProviderRef;
 	private BeanReference oauth2LoginOidcAuthenticationProviderRef;
 
+	private BeanDefinition oauth2LoginLinks;
+
 	AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
 			ParserContext pc, SessionCreationPolicy sessionPolicy,
 			BeanReference requestCache, BeanReference authenticationManager,
@@ -246,7 +248,8 @@ final class AuthenticationConfigBuilder {
 	void createOAuth2LoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
 		Element oauth2LoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_LOGIN);
 		if (oauth2LoginElt != null) {
-			OAuth2LoginBeanDefinitionParser parser = new OAuth2LoginBeanDefinitionParser(requestCache);
+			OAuth2LoginBeanDefinitionParser parser = new OAuth2LoginBeanDefinitionParser(requestCache, portMapper,
+					portResolver, sessionStrategy, allowSessionCreation);
 			BeanDefinition oauth2LoginFilterBean = parser.parse(oauth2LoginElt, this.pc);
 			oauth2LoginFilterBean.getPropertyValues().addPropertyValue("authenticationManager", authManager);
 
@@ -261,6 +264,7 @@ final class AuthenticationConfigBuilder {
 			oauth2LoginFilterId = pc.getReaderContext().generateBeanName(oauth2LoginFilterBean);
 			oauth2AuthorizationRequestRedirectFilterId = pc.getReaderContext()
 					.generateBeanName(oauth2AuthorizationRequestRedirectFilter);
+			oauth2LoginLinks = parser.getOAuth2LoginLinks();
 
 			// register the component
 			pc.registerBeanComponent(new BeanComponentDefinition(oauth2AuthorizationRequestRedirectFilter,
@@ -582,7 +586,7 @@ final class AuthenticationConfigBuilder {
 	}
 
 	void createLoginPageFilterIfNeeded() {
-		boolean needLoginPage = formFilterId != null || openIDFilterId != null;
+		boolean needLoginPage = formFilterId != null || openIDFilterId != null || oauth2LoginFilterId != null;
 
 		// If no login page has been defined, add in the default page generator.
 		if (needLoginPage && formLoginPage == null && openIDLoginPage == null) {
@@ -606,6 +610,12 @@ final class AuthenticationConfigBuilder {
 				loginPageFilter.addConstructorArgReference(openIDFilterId);
 				loginPageFilter.addPropertyValue("openIDauthenticationUrl",
 						openidLoginProcessingUrl);
+			}
+
+			if (oauth2LoginFilterId != null) {
+				loginPageFilter.addConstructorArgReference(oauth2LoginFilterId);
+				loginPageFilter.addPropertyValue("Oauth2LoginEnabled", true);
+				loginPageFilter.addPropertyValue("Oauth2AuthenticationUrlToClientName", oauth2LoginLinks);
 			}
 
 			loginPageGenerationFilter = loginPageFilter.getBeanDefinition();

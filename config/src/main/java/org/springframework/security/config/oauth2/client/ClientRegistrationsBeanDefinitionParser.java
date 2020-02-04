@@ -16,21 +16,19 @@
 package org.springframework.security.config.oauth2.client;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
@@ -43,6 +41,7 @@ import org.w3c.dom.Element;
 
 /**
  * @author Ruby Hartono
+ * @since 5.3
  */
 public final class ClientRegistrationsBeanDefinitionParser implements BeanDefinitionParser {
 
@@ -73,28 +72,19 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 
 		Map<String, Map<String, String>> providerDetailMap = getProviders(element);
 
-		List<ClientRegistration> clientRegs = getClientRegistrations(element, providerDetailMap);
+		List<ClientRegistration> clientRegs = getClientRegistrations(element, parserContext, providerDetailMap);
 
 		BeanDefinition inMemClientRegRepoBeanDef = BeanDefinitionBuilder
-				.rootBeanDefinition(InMemoryClientRegistrationRepository.class)
-				.addConstructorArgValue(clientRegs)
+				.rootBeanDefinition(InMemoryClientRegistrationRepository.class).addConstructorArgValue(clientRegs)
 				.getBeanDefinition();
 		String beanName = parserContext.getReaderContext().generateBeanName(inMemClientRegRepoBeanDef);
 		parserContext.registerBeanComponent(new BeanComponentDefinition(inMemClientRegRepoBeanDef, beanName));
-
-		BeanDefinition inMemOAuth2AuthorizedClientServiceBeanDef = BeanDefinitionBuilder
-				.rootBeanDefinition(InMemoryOAuth2AuthorizedClientService.class)
-				.addConstructorArgValue(new RuntimeBeanReference(InMemoryClientRegistrationRepository.class))
-				.getBeanDefinition();
-		beanName = parserContext.getReaderContext().generateBeanName(inMemOAuth2AuthorizedClientServiceBeanDef);
-		parserContext.registerBeanComponent(
-				new BeanComponentDefinition(inMemOAuth2AuthorizedClientServiceBeanDef, beanName));
 
 		parserContext.popAndRegisterContainingComponent();
 		return null;
 	}
 
-	private List<ClientRegistration> getClientRegistrations(Element element,
+	private List<ClientRegistration> getClientRegistrations(Element element, ParserContext parserContext,
 			Map<String, Map<String, String>> providerDetailMap) {
 		List<Element> clientRegElts = DomUtils.getChildElementsByTagName(element, ELT_CLIENT_REGISTRATION);
 		List<ClientRegistration> clientRegs = new ArrayList<>();
@@ -105,36 +95,31 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 			String clientSecret = clientRegElt.getAttribute(ATT_CLIENT_SECRET);
 			String clientAuthMethod = clientRegElt.getAttribute(ATT_CLIENT_AUTHENTICATION_METHOD);
 			String authGrantType = clientRegElt.getAttribute(ATT_AUTHORIZATION_GRANT_TYPE);
-			String redirUri = clientRegElt.getAttribute(ATT_REDIRECT_URI);
+			String redirectUri = clientRegElt.getAttribute(ATT_REDIRECT_URI);
 			String scope = clientRegElt.getAttribute(ATT_SCOPE);
 			String clientName = clientRegElt.getAttribute(ATT_CLIENT_NAME);
 			String providerId = clientRegElt.getAttribute(ATT_PROVIDER_ID);
-			Map<String, String> providerDetail = providerDetailMap.containsKey(providerId)
-					? providerDetailMap.get(providerId)
-					: new HashMap<>();
 
-			Set<String> scopes = new HashSet<>(Arrays.asList(scope.split(",")));
-			String issuerUri = providerDetail.get(ATT_ISSUER_URI);
-			ClientRegistration.Builder builder = StringUtils.isEmpty(issuerUri)
-					? ClientRegistration.withRegistrationId(regId)
-					: ClientRegistrations.fromIssuerLocation(issuerUri).registrationId(regId);
+			Set<String> scopes = StringUtils.commaDelimitedListToSet(scope);
+			ClientRegistration.Builder builder = getBuilderFromIssuerIfPossible(regId, providerId, providerDetailMap);
+			if (builder == null) {
+				builder = getBuilder(regId, providerId, providerDetailMap);
+				if (builder == null) {
+					Object source = parserContext.extractSource(element);
+					parserContext.getReaderContext().error(getErrorMessage(providerId, regId), source);
+					// error on the config skip to next element
+					break;
+				}
+			}
 
 			ClientRegistration clientReg = builder.clientId(clientId)
 					.clientSecret(clientSecret)
 					.clientAuthenticationMethod(new ClientAuthenticationMethod(clientAuthMethod))
 					.authorizationGrantType(new AuthorizationGrantType(authGrantType))
-					.redirectUriTemplate(redirUri)
+					.redirectUriTemplate(redirectUri)
 					.scope(scopes)
 					.clientName(clientName)
-					.authorizationUri(providerDetail.get(ATT_AUTHORIZATION_URI))
-					.tokenUri(providerDetail.get(ATT_TOKEN_URI))
-					.userInfoUri(providerDetail.get(ATT_USERINFO_URI))
-					.userInfoAuthenticationMethod(
-							new AuthenticationMethod(providerDetail.get(ATT_USERINFO_AUTHENTICATION_METHOD)))
-					.userNameAttributeName(providerDetail.get(ATT_USERNAME_ATTRIBUTE_NAME))
-					.jwkSetUri(providerDetail.get(ATT_JWKSET_URI))
 					.build();
-
 			clientRegs.add(clientReg);
 		}
 		return clientRegs;
@@ -159,5 +144,91 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 			providerDetailMap.put(providerId, detail);
 		}
 		return providerDetailMap;
+	}
+
+	private static ClientRegistration.Builder getBuilderFromIssuerIfPossible(String registrationId,
+			String configuredProviderId, Map<String, Map<String, String>> providers) {
+		String providerId = (configuredProviderId != null) ? configuredProviderId : registrationId;
+		if (providers.containsKey(providerId)) {
+			Map<String, String> provider = providers.get(providerId);
+			String issuer = provider.get(ATT_ISSUER_URI);
+			if (!StringUtils.isEmpty(issuer)) {
+				ClientRegistration.Builder builder = ClientRegistrations.fromIssuerLocation(issuer)
+						.registrationId(registrationId);
+				return getBuilder(builder, provider);
+			}
+		}
+		return null;
+	}
+
+	private static ClientRegistration.Builder getBuilder(String registrationId, String configuredProviderId,
+			Map<String, Map<String, String>> providers) {
+		String providerId = (configuredProviderId != null) ? configuredProviderId : registrationId;
+		CommonOAuth2Provider provider = getCommonProvider(providerId);
+		if (provider == null && !providers.containsKey(providerId)) {
+			return null;
+		}
+		ClientRegistration.Builder builder = (provider != null) ? provider.getBuilder(registrationId)
+				: ClientRegistration.withRegistrationId(registrationId);
+		if (providers.containsKey(providerId)) {
+			return getBuilder(builder, providers.get(providerId));
+		}
+		return builder;
+	}
+
+	private static ClientRegistration.Builder getBuilder(ClientRegistration.Builder builder,
+			Map<String, String> provider) {
+		getOptionalIfNotEmpty(provider.get(ATT_AUTHORIZATION_URI)).ifPresent(builder::authorizationUri);
+		getOptionalIfNotEmpty(provider.get(ATT_TOKEN_URI)).ifPresent(builder::tokenUri);
+		getOptionalIfNotEmpty(provider.get(ATT_USERINFO_URI)).ifPresent(builder::userInfoUri);
+		getOptionalIfNotEmpty(provider.get(ATT_USERINFO_AUTHENTICATION_METHOD)).map(AuthenticationMethod::new)
+				.ifPresent(builder::userInfoAuthenticationMethod);
+		getOptionalIfNotEmpty(provider.get(ATT_JWKSET_URI)).ifPresent(builder::jwkSetUri);
+		getOptionalIfNotEmpty(provider.get(ATT_USERNAME_ATTRIBUTE_NAME)).ifPresent(builder::userNameAttributeName);
+		return builder;
+	}
+
+	private static Optional<String> getOptionalIfNotEmpty(String str) {
+		return Optional.ofNullable(str).filter(s -> !s.isEmpty());
+	}
+
+	private static CommonOAuth2Provider getCommonProvider(String providerId) {
+		try {
+			String value = providerId.toString().trim();
+			if (value.isEmpty()) {
+				return null;
+			}
+			try {
+				return CommonOAuth2Provider.valueOf(value);
+			} catch (Exception ex) {
+				return findEnum(value);
+			}
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+
+	private static CommonOAuth2Provider findEnum(String value) {
+		String name = getCanonicalName(value);
+		for (CommonOAuth2Provider candidate : EnumSet.allOf(CommonOAuth2Provider.class)) {
+			String candidateName = getCanonicalName(candidate.name());
+			if (name.equals(candidateName)) {
+				return candidate;
+			}
+		}
+		throw new IllegalArgumentException(
+				"No enum constant " + CommonOAuth2Provider.class.getCanonicalName() + "." + value);
+	}
+
+	private static String getCanonicalName(String name) {
+		StringBuilder canonicalName = new StringBuilder(name.length());
+		name.chars().filter(Character::isLetterOrDigit).map(Character::toLowerCase)
+				.forEach((c) -> canonicalName.append((char) c));
+		return canonicalName.toString();
+	}
+
+	private static String getErrorMessage(String configuredProviderId, String registrationId) {
+		return ((configuredProviderId != null) ? "Unknown provider ID '" + configuredProviderId + "'"
+				: "Provider ID must be specified for client registration '" + registrationId + "'");
 	}
 }

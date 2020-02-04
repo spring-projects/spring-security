@@ -1668,7 +1668,7 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="token-uri" use="required" type="xs:token">
+      <xs:attribute name="token-uri" type="xs:token">
          <xs:annotation>
             <xs:documentation>The Token Endpoint URI for the Authorization Server.
                 </xs:documentation>
