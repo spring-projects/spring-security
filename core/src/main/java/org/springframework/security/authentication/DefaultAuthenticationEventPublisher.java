@@ -149,7 +149,10 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 	 * @param additionalExceptionMappings where keys are the fully-qualified string name
 	 * of the exception class and the values are the fully-qualified string name of the
 	 * event class to fire.
+	 *
+	 * @deprecated use {@link #setAdditionalExceptionMappings(Map)}
 	 */
+	@Deprecated
 	@SuppressWarnings({ "unchecked" })
 	public void setAdditionalExceptionMappings(Properties additionalExceptionMappings) {
 		Assert.notNull(additionalExceptionMappings,
@@ -166,6 +169,26 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 				throw new RuntimeException("Failed to load authentication event class "
 						+ eventClass);
 			}
+		}
+	}
+
+	/**
+	 * Sets additional exception to event mappings. These are automatically merged with
+	 * the default exception to event mappings that <code>ProviderManager</code> defines.
+	 *
+	 * @param mappings where keys are exception classes and values are event classes.
+	 * @since 5.3
+	 */
+	public void setAdditionalExceptionMappings(Map<Class<? extends AuthenticationException>,
+			Class<? extends AbstractAuthenticationFailureEvent>> mappings){
+		Assert.notEmpty(mappings, "The mappings Map must not be empty nor null");
+		for (Map.Entry<Class<? extends AuthenticationException>, Class<? extends AbstractAuthenticationFailureEvent>> entry
+				: mappings.entrySet()) {
+				Class<?> exceptionClass = entry.getKey();
+				Class<?> eventClass = entry.getValue();
+				Assert.notNull(exceptionClass, "exceptionClass cannot be null");
+				Assert.notNull(eventClass, "eventClass cannot be null");
+				addMapping(exceptionClass.getName(), (Class<? extends AbstractAuthenticationFailureEvent>) eventClass);
 		}
 	}
 
