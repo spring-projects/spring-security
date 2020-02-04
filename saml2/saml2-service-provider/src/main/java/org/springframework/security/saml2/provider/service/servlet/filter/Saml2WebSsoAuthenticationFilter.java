@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ package org.springframework.security.saml2.provider.service.servlet.filter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
+import org.springframework.security.saml2.provider.service.authentication.Saml2Error;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -32,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
@@ -86,8 +89,14 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 		byte[] b = Saml2Utils.decode(saml2Response);
 
 		String responseXml = inflateIfRequired(request, b);
+		String registrationId = this.matcher.matcher(request).getVariables().get("registrationId");
 		RelyingPartyRegistration rp =
-				this.relyingPartyRegistrationRepository.findByRegistrationId(this.matcher.matcher(request).getVariables().get("registrationId"));
+				this.relyingPartyRegistrationRepository.findByRegistrationId(registrationId);
+		if (rp == null) {
+			Saml2Error saml2Error = new Saml2Error(RELYING_PARTY_REGISTRATION_NOT_FOUND,
+					"Relying Party Registration not found with ID: " + registrationId);
+			throw new Saml2AuthenticationException(saml2Error);
+		}
 		String localSpEntityId = Saml2Utils.getServiceProviderEntityId(rp, request);
 		final Saml2AuthenticationToken authentication = new Saml2AuthenticationToken(
 				responseXml,
