@@ -21,13 +21,15 @@ import java.util.Collection;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
+import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.util.Assert;
@@ -94,7 +96,11 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 				.onErrorMap(OAuth2IntrospectionException.class, this::onError);
 	}
 
-	private OAuth2AuthenticationException onError(OAuth2IntrospectionException e) {
-		return new InvalidBearerTokenException(e.getMessage(), e);
+	private AuthenticationException onError(OAuth2IntrospectionException e) {
+		if (e instanceof BadOpaqueTokenException) {
+			return new InvalidBearerTokenException(e.getMessage(), e);
+		} else {
+			return new AuthenticationServiceException(e.getMessage(), e);
+		}
 	}
 }

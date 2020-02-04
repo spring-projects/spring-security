@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,9 +140,9 @@ public class NimbusReactiveOpaqueTokenIntrospectorTests {
 				new NimbusReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, webClient);
 
 		assertThatCode(() -> introspectionClient.introspect("token").block())
-				.isInstanceOf(OAuth2IntrospectionException.class)
+				.isInstanceOf(BadOpaqueTokenException.class)
 				.extracting("message")
-				.isEqualTo("Provided token [token] isn't active");
+				.isEqualTo("Provided token isn't active");
 	}
 
 	@Test

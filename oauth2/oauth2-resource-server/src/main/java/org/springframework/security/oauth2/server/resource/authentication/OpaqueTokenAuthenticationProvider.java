@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,6 +28,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
+import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.util.Assert;
@@ -88,8 +90,10 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 		OAuth2AuthenticatedPrincipal principal;
 		try {
 			principal = this.introspector.introspect(bearer.getToken());
-		} catch (OAuth2IntrospectionException failed) {
+		} catch (BadOpaqueTokenException failed) {
 			throw new InvalidBearerTokenException(failed.getMessage());
+		} catch (OAuth2IntrospectionException failed) {
+			throw new AuthenticationServiceException(failed.getMessage());
 		}
 
 		AbstractAuthenticationToken result = convert(principal, bearer.getToken());
