@@ -17,6 +17,7 @@ package org.springframework.security.oauth2.client.jackson2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.DecimalUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -31,8 +32,7 @@ import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.text.DateFormat;
-import java.util.Date;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,7 +46,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Joe Grandja
  */
 public class OAuth2AuthorizedClientMixinTests {
-	private static DateFormat dateFormatter;
 	private ObjectMapper mapper;
 	private ClientRegistration.Builder clientRegistrationBuilder;
 	private OAuth2AccessToken accessToken;
@@ -58,7 +57,6 @@ public class OAuth2AuthorizedClientMixinTests {
 		ClassLoader loader = getClass().getClassLoader();
 		this.mapper = new ObjectMapper();
 		this.mapper.registerModules(SecurityJackson2Modules.getModules(loader));
-		dateFormatter = this.mapper.getDateFormat();
 		Map<String, Object> providerConfigurationMetadata = new LinkedHashMap<>();
 		providerConfigurationMetadata.put("config1", "value1");
 		providerConfigurationMetadata.put("config2", "value2");
@@ -299,8 +297,8 @@ public class OAuth2AuthorizedClientMixinTests {
 				"      \"value\": \"" + accessToken.getTokenType().getValue() + "\"\n" +
 				"    },\n" +
 				"    \"tokenValue\": \"" + accessToken.getTokenValue() + "\",\n" +
-				"    \"issuedAt\": \"" + dateFormatter.format(Date.from(accessToken.getIssuedAt())) + "\",\n" +
-				"    \"expiresAt\": \"" + dateFormatter.format(Date.from(accessToken.getExpiresAt())) + "\",\n" +
+				"    \"issuedAt\": " + toString(accessToken.getIssuedAt()) + ",\n" +
+				"    \"expiresAt\": " + toString(accessToken.getExpiresAt()) + ",\n" +
 				"    \"scopes\": [\n" +
 				"      \"java.util.Collections$UnmodifiableSet\",\n" +
 				"      [" + scopes + "]\n" +
@@ -317,9 +315,16 @@ public class OAuth2AuthorizedClientMixinTests {
 		return "{\n" +
 				"    \"@class\": \"org.springframework.security.oauth2.core.OAuth2RefreshToken\",\n" +
 				"    \"tokenValue\": \"" + refreshToken.getTokenValue() + "\",\n" +
-				"    \"issuedAt\": \"" + dateFormatter.format(Date.from(refreshToken.getIssuedAt())) + "\",\n" +
-				"    \"expiresAt\": " + (refreshToken.getExpiresAt() != null ? "\"" + dateFormatter.format(Date.from(refreshToken.getExpiresAt())) + "\"" : null) + "\n" +
+				"    \"issuedAt\": " + toString(refreshToken.getIssuedAt()) + ",\n" +
+				"    \"expiresAt\": " + toString(refreshToken.getExpiresAt()) + "\n" +
 				"}";
 		// @formatter:on
+	}
+
+	private static String toString(Instant instant) {
+		if (instant == null) {
+			return null;
+		}
+		return DecimalUtils.toBigDecimal(instant.getEpochSecond(), instant.getNano()).toString();
 	}
 }

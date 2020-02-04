@@ -17,11 +17,9 @@ package org.springframework.security.oauth2.client.jackson2;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 
 import java.time.Instant;
@@ -43,6 +41,6 @@ abstract class OAuth2RefreshTokenMixin {
 	@JsonCreator
 	OAuth2RefreshTokenMixin(
 			@JsonProperty("tokenValue") String tokenValue,
-			@JsonProperty("issuedAt") @JsonFormat(pattern = StdDateFormat.DATE_FORMAT_STR_ISO8601, timezone = "UTC") Instant issuedAt) {
+			@JsonProperty("issuedAt") Instant issuedAt) {
 	}
 }

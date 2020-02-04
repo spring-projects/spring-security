@@ -17,7 +17,7 @@ package org.springframework.security.oauth2.client.jackson2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.DecimalUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -37,11 +37,10 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.text.DateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +54,6 @@ import static org.springframework.security.oauth2.core.oidc.StandardClaimNames.N
  * @author Joe Grandja
  */
 public class OAuth2AuthenticationTokenMixinTests {
-	private static DateFormat dateFormatter;
 	private ObjectMapper mapper;
 
 	@Before
@@ -63,8 +61,6 @@ public class OAuth2AuthenticationTokenMixinTests {
 		ClassLoader loader = getClass().getClassLoader();
 		this.mapper = new ObjectMapper();
 		this.mapper.registerModules(SecurityJackson2Modules.getModules(loader));
-		this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-		dateFormatter = this.mapper.getDateFormat();
 	}
 
 	@Test
@@ -309,17 +305,17 @@ public class OAuth2AuthenticationTokenMixinTests {
 		return "{\n" +
 				"      \"@class\": \"org.springframework.security.oauth2.core.oidc.OidcIdToken\",\n" +
 				"      \"tokenValue\": \"" + idToken.getTokenValue() + "\",\n" +
-				"      \"issuedAt\": \"" + dateFormatter.format(Date.from(idToken.getIssuedAt())) + "\",\n" +
-				"      \"expiresAt\": \"" + dateFormatter.format(Date.from(idToken.getExpiresAt())) + "\",\n" +
+				"      \"issuedAt\": " + toString(idToken.getIssuedAt()) + ",\n" +
+				"      \"expiresAt\": " + toString(idToken.getExpiresAt()) + ",\n" +
 				"      \"claims\": {\n" +
 				"        \"@class\": \"java.util.Collections$UnmodifiableMap\",\n" +
 				"        \"iat\": [\n" +
 				"          \"java.time.Instant\",\n" +
-				"          \"" + idToken.getIssuedAt().toString() + "\"\n" +
+				"          " + toString(idToken.getIssuedAt()) + "\n" +
 				"        ],\n" +
 				"        \"exp\": [\n" +
 				"          \"java.time.Instant\",\n" +
-				"          \"" + idToken.getExpiresAt().toString() + "\"\n" +
+				"          " + toString(idToken.getExpiresAt()) + "\n" +
 				"        ],\n" +
 				"        \"sub\": \"" + idToken.getSubject() + "\",\n" +
 				"        \"iss\": \"" + idToken.getIssuer() + "\",\n" +
@@ -347,5 +343,12 @@ public class OAuth2AuthenticationTokenMixinTests {
 				"      }\n" +
 				"    }";
 		// @formatter:on
+	}
+
+	private static String toString(Instant instant) {
+		if (instant == null) {
+			return null;
+		}
+		return DecimalUtils.toBigDecimal(instant.getEpochSecond(), instant.getNano()).toString();
 	}
 }
