@@ -103,7 +103,7 @@ public class SecurityEvaluationContextExtension
 	}
 
 	@Override
-	public Object getRootObject() {
+	public SecurityExpressionRoot getRootObject() {
 		Authentication authentication = getAuthentication();
 		return new SecurityExpressionRoot(authentication) {
 		};
