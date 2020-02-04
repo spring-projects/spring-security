@@ -60,6 +60,7 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.test.web.reactive.server.MockServerConfigurer;
@@ -180,6 +181,39 @@ public class SecurityMockServerConfigurers {
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
 				null, null, Collections.singleton("user"));
 		return new OidcLoginMutator(accessToken);
+	}
+
+	/**
+	 * Updates the ServerWebExchange to establish a {@link OAuth2AuthorizedClient} in the session.
+	 * All details are declarative and do not require the corresponding OAuth 2.0 tokens to be valid.
+	 *
+	 * <p>
+	 * 	The support works by associating the authorized client to the ServerWebExchange
+	 * 	via the {@link WebSessionServerOAuth2AuthorizedClientRepository}
+	 * </p>
+	 *
+	 * @return the {@link OAuth2ClientMutator} to further configure or use
+	 * @since 5.3
+	 */
+	public static OAuth2ClientMutator mockOAuth2Client() {
+		return new OAuth2ClientMutator();
+	}
+
+	/**
+	 * Updates the ServerWebExchange to establish a {@link OAuth2AuthorizedClient} in the session.
+	 * All details are declarative and do not require the corresponding OAuth 2.0 tokens to be valid.
+	 *
+	 * <p>
+	 * 	The support works by associating the authorized client to the ServerWebExchange
+	 * 	via the {@link WebSessionServerOAuth2AuthorizedClientRepository}
+	 * </p>
+	 *
+	 * @param registrationId The registration id associated with the {@link OAuth2AuthorizedClient}
+	 * @return the {@link OAuth2ClientMutator} to further configure or use
+	 * @since 5.3
+	 */
+	public static OAuth2ClientMutator mockOAuth2Client(String registrationId) {
+		return new OAuth2ClientMutator(registrationId);
 	}
 
 	public static CsrfMutator csrf() {
@@ -591,12 +625,19 @@ public class SecurityMockServerConfigurers {
 		@Override
 		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
 			OAuth2AuthenticationToken token = getToken();
-			builder.filters(addAuthorizedClientFilter(token));
+			mockOAuth2Client()
+					.accessToken(this.accessToken)
+					.clientRegistration(this.clientRegistration)
+					.beforeServerCreated(builder);
 			mockAuthentication(getToken()).beforeServerCreated(builder);
 		}
 
 		@Override
 		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
+			mockOAuth2Client()
+					.accessToken(this.accessToken)
+					.clientRegistration(this.clientRegistration)
+					.afterConfigureAdded(serverSpec);
 			mockAuthentication(getToken()).afterConfigureAdded(serverSpec);
 		}
 
@@ -606,24 +647,16 @@ public class SecurityMockServerConfigurers {
 				@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
 				@Nullable ClientHttpConnector connector) {
 			OAuth2AuthenticationToken token = getToken();
-			httpHandlerBuilder.filters(addAuthorizedClientFilter(token));
+			mockOAuth2Client()
+					.accessToken(this.accessToken)
+					.clientRegistration(this.clientRegistration)
+					.afterConfigurerAdded(builder, httpHandlerBuilder, connector);
 			mockAuthentication(token).afterConfigurerAdded(builder, httpHandlerBuilder, connector);
-		}
-
-		private Consumer<List<WebFilter>> addAuthorizedClientFilter(OAuth2AuthenticationToken token) {
-			OAuth2AuthorizedClient client = getClient();
-			return filters -> filters.add(0, (exchange, chain) ->
-					this.authorizedClientRepository.saveAuthorizedClient(client, token, exchange)
-							.then(chain.filter(exchange)));
 		}
 
 		private OAuth2AuthenticationToken getToken() {
 			OAuth2User oauth2User = this.oauth2User.get();
 			return new OAuth2AuthenticationToken(oauth2User, oauth2User.getAuthorities(), this.clientRegistration.getRegistrationId());
-		}
-
-		private OAuth2AuthorizedClient getClient() {
-			return new OAuth2AuthorizedClient(this.clientRegistration, getToken().getName(), this.accessToken);
 		}
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
@@ -760,12 +793,19 @@ public class SecurityMockServerConfigurers {
 		@Override
 		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
 			OAuth2AuthenticationToken token = getToken();
-			builder.filters(addAuthorizedClientFilter(token));
+			mockOAuth2Client()
+					.accessToken(this.accessToken)
+					.clientRegistration(this.clientRegistration)
+					.beforeServerCreated(builder);
 			mockAuthentication(getToken()).beforeServerCreated(builder);
 		}
 
 		@Override
 		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
+			mockOAuth2Client()
+					.accessToken(this.accessToken)
+					.clientRegistration(this.clientRegistration)
+					.afterConfigureAdded(serverSpec);
 			mockAuthentication(getToken()).afterConfigureAdded(serverSpec);
 		}
 
@@ -775,15 +815,11 @@ public class SecurityMockServerConfigurers {
 				@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
 				@Nullable ClientHttpConnector connector) {
 			OAuth2AuthenticationToken token = getToken();
-			httpHandlerBuilder.filters(addAuthorizedClientFilter(token));
+			mockOAuth2Client()
+					.accessToken(this.accessToken)
+					.clientRegistration(this.clientRegistration)
+					.afterConfigurerAdded(builder, httpHandlerBuilder, connector);
 			mockAuthentication(token).afterConfigurerAdded(builder, httpHandlerBuilder, connector);
-		}
-
-		private Consumer<List<WebFilter>> addAuthorizedClientFilter(OAuth2AuthenticationToken token) {
-			OAuth2AuthorizedClient client = getClient();
-			return filters -> filters.add(0, (exchange, chain) ->
-					authorizedClientRepository.saveAuthorizedClient(client, token, exchange)
-							.then(chain.filter(exchange)));
 		}
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
@@ -796,10 +832,6 @@ public class SecurityMockServerConfigurers {
 		private OAuth2AuthenticationToken getToken() {
 			OidcUser oidcUser = this.oidcUser.get();
 			return new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(), this.clientRegistration.getRegistrationId());
-		}
-
-		private OAuth2AuthorizedClient getClient() {
-			return new OAuth2AuthorizedClient(this.clientRegistration, getToken().getName(), this.accessToken);
 		}
 
 		private Collection<GrantedAuthority> getAuthorities() {
@@ -829,6 +861,107 @@ public class SecurityMockServerConfigurers {
 
 		private OidcUser defaultPrincipal() {
 			return new DefaultOidcUser(getAuthorities(), getOidcIdToken(), this.userInfo);
+		}
+	}
+
+	/**
+	 * @author Josh Cummings
+	 * @since 5.3
+	 */
+	public final static class OAuth2ClientMutator implements WebTestClientConfigurer, MockServerConfigurer {
+		private String registrationId = "test";
+		private ClientRegistration clientRegistration;
+		private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+				"access-token", null, null, Collections.singleton("user"));
+
+		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository =
+				new WebSessionServerOAuth2AuthorizedClientRepository();
+
+		private OAuth2ClientMutator() {
+		}
+
+		private OAuth2ClientMutator(String registrationId) {
+			this.registrationId = registrationId;
+			clientRegistration(c -> {});
+		}
+
+		/**
+		 * Use this {@link ClientRegistration}
+		 *
+		 * @param clientRegistration
+		 * @return the {@link SecurityMockMvcRequestPostProcessors.OAuth2ClientRequestPostProcessor} for further configuration
+		 */
+		public OAuth2ClientMutator clientRegistration(ClientRegistration clientRegistration) {
+			this.clientRegistration = clientRegistration;
+			return this;
+		}
+
+		/**
+		 * Use this {@link Consumer} to configure a {@link ClientRegistration}
+		 *
+		 * @param clientRegistrationConfigurer the {@link ClientRegistration} configurer
+		 * @return the {@link SecurityMockMvcRequestPostProcessors.OAuth2ClientRequestPostProcessor} for further configuration
+		 */
+		public OAuth2ClientMutator clientRegistration
+				(Consumer<ClientRegistration.Builder> clientRegistrationConfigurer) {
+
+			ClientRegistration.Builder builder = clientRegistrationBuilder();
+			clientRegistrationConfigurer.accept(builder);
+			this.clientRegistration = builder.build();
+			return this;
+		}
+
+		/**
+		 * Use this {@link OAuth2AccessToken}
+		 *
+		 * @param accessToken the {@link OAuth2AccessToken} to use
+		 * @return the {@link SecurityMockMvcRequestPostProcessors.OAuth2ClientRequestPostProcessor} for further configuration
+		 */
+		public OAuth2ClientMutator accessToken(OAuth2AccessToken accessToken) {
+			this.accessToken = accessToken;
+			return this;
+		}
+
+
+		@Override
+		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
+			builder.filters(addAuthorizedClientFilter());
+		}
+
+		@Override
+		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
+
+		}
+
+		@Override
+		public void afterConfigurerAdded(
+				WebTestClient.Builder builder,
+				@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
+				@Nullable ClientHttpConnector connector) {
+			httpHandlerBuilder.filters(addAuthorizedClientFilter());
+		}
+
+		private Consumer<List<WebFilter>> addAuthorizedClientFilter() {
+			OAuth2AuthorizedClient client = getClient();
+			return filters -> filters.add(0, (exchange, chain) ->
+					authorizedClientRepository.saveAuthorizedClient(client, null, exchange)
+							.then(chain.filter(exchange)));
+		}
+
+		private OAuth2AuthorizedClient getClient() {
+			if (this.clientRegistration == null) {
+				throw new IllegalArgumentException("Please specify a ClientRegistration via one " +
+						"of the clientRegistration methods");
+			}
+			return new OAuth2AuthorizedClient(this.clientRegistration, "test-subject", this.accessToken);
+		}
+
+		private ClientRegistration.Builder clientRegistrationBuilder() {
+			return ClientRegistration.withRegistrationId(this.registrationId)
+					.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+					.clientId("test-client")
+					.clientSecret("test-secret")
+					.tokenUri("https://idp.example.org/oauth/token");
 		}
 	}
 }
