@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static org.mockito.Mockito.*;
 
 import org.junit.*;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureCredentialsExpiredEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureDisabledEvent;
@@ -136,6 +137,47 @@ public class DefaultAuthenticationEventPublisherTests {
 		publisher.publishAuthenticationFailure(new AuthenticationException("") {
 		}, mock(Authentication.class));
 		verifyZeroInteractions(appPublisher);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void emptyMapCausesException() {
+		Map<Class<? extends AuthenticationException>,
+				Class<? extends AbstractAuthenticationFailureEvent>> mappings = new HashMap<>();
+		publisher = new DefaultAuthenticationEventPublisher();
+		publisher.setAdditionalExceptionMappings(mappings);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void missingExceptionClassCausesException() {
+		Map<Class<? extends AuthenticationException>,
+				Class<? extends AbstractAuthenticationFailureEvent>> mappings = new HashMap<>();
+		mappings.put(null, AuthenticationFailureLockedEvent.class);
+		publisher = new DefaultAuthenticationEventPublisher();
+		publisher.setAdditionalExceptionMappings(mappings);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void missingEventClassAsMapValueCausesException() {
+		Map<Class<? extends AuthenticationException>,
+				Class<? extends AbstractAuthenticationFailureEvent>> mappings = new HashMap<>();
+		mappings.put(LockedException.class, null);
+		publisher = new DefaultAuthenticationEventPublisher();
+		publisher.setAdditionalExceptionMappings(mappings);
+	}
+
+	@Test
+	public void additionalExceptionMappingsUsingMapAreSupported() {
+		publisher = new DefaultAuthenticationEventPublisher();
+		Map<Class<? extends AuthenticationException>,
+				Class<? extends AbstractAuthenticationFailureEvent>> mappings = new HashMap<>();
+		mappings.put(MockAuthenticationException.class,AuthenticationFailureDisabledEvent.class);
+		publisher.setAdditionalExceptionMappings(mappings);
+		ApplicationEventPublisher appPublisher = mock(ApplicationEventPublisher.class);
+
+		publisher.setApplicationEventPublisher(appPublisher);
+		publisher.publishAuthenticationFailure(new MockAuthenticationException("test"),
+				mock(Authentication.class));
+		verify(appPublisher).publishEvent(isA(AuthenticationFailureDisabledEvent.class));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
