@@ -134,7 +134,7 @@ dependencyManagement {
 		dependency 'org.assertj:assertj-core:3.11.1'
 		dependency 'org.attoparser:attoparser:2.0.4.RELEASE'
 		dependency 'org.bouncycastle:bcpkix-jdk15on:1.64'
-		dependency 'org.bouncycastle:bcprov-jdk15on:1.62'
+		dependency 'org.bouncycastle:bcprov-jdk15on:1.64'
 		dependency 'org.codehaus.groovy:groovy-all:2.4.14'
 		dependency 'org.codehaus.groovy:groovy-json:2.4.14'
 		dependency 'org.codehaus.groovy:groovy:2.4.14'
