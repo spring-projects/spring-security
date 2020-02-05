@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 
 package org.springframework.security.oauth2.client.oidc.web.server.logout;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
+import javax.servlet.ServletException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -155,8 +157,36 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	}
 
 	@Test
+	public void logoutWhenUsingPostLogoutRedirectUriTemplateThenBuildsItForRedirect()
+			throws IOException, ServletException {
+
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(
+				TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES,
+				this.registration.getRegistrationId());
+		when(this.exchange.getPrincipal()).thenReturn(Mono.just(token));
+		MockServerHttpRequest request = MockServerHttpRequest.get("https://rp.example.org/").build();
+		when(this.exchange.getRequest()).thenReturn(request);
+		WebFilterExchange f = new WebFilterExchange(exchange, this.chain);
+
+		this.handler.setPostLogoutRedirectUri("{baseUrl}");
+		this.handler.onLogoutSuccess(f, token).block();
+
+		assertThat(redirectedUrl(this.exchange))
+				.isEqualTo("https://endpoint?" +
+						"id_token_hint=id-token&" +
+						"post_logout_redirect_uri=https://rp.example.org");
+	}
+
+	@Test
 	public void setPostLogoutRedirectUriWhenGivenNullThenThrowsException() {
-		assertThatThrownBy(() -> this.handler.setPostLogoutRedirectUri(null))
+		assertThatThrownBy(() -> this.handler.setPostLogoutRedirectUri((URI) null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setPostLogoutRedirectUriTemplateWhenGivenNullThenThrowsException() {
+		assertThatThrownBy(() -> this.handler.setPostLogoutRedirectUri((String) null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 

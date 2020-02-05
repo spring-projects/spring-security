@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.oidc.web.logout;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,7 +28,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -41,7 +44,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
-	private URI postLogoutRedirectUri;
+	private String postLogoutRedirectUri;
 
 	public OidcClientInitiatedLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
@@ -54,9 +57,14 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 		String targetUrl = null;
 		URI endSessionEndpoint;
 		if (authentication instanceof OAuth2AuthenticationToken && authentication.getPrincipal() instanceof OidcUser) {
-			endSessionEndpoint = this.endSessionEndpoint((OAuth2AuthenticationToken) authentication);
+			String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+			ClientRegistration clientRegistration = this.clientRegistrationRepository
+					.findByRegistrationId(registrationId);
+			endSessionEndpoint = this.endSessionEndpoint(clientRegistration);
 			if (endSessionEndpoint != null) {
-				targetUrl = endpointUri(endSessionEndpoint, authentication);
+				String idToken = idToken(authentication);
+				URI postLogoutRedirectUri = postLogoutRedirectUri(request);
+				targetUrl = endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri);
 			}
 		}
 		if (targetUrl == null) {
@@ -66,13 +74,11 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 		return targetUrl;
 	}
 
-	private URI endSessionEndpoint(OAuth2AuthenticationToken token) {
-		String registrationId = token.getAuthorizedClientRegistrationId();
-		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
-
+	private URI endSessionEndpoint(ClientRegistration clientRegistration) {
 		URI result = null;
 		if (clientRegistration != null) {
-			Object endSessionEndpoint = clientRegistration.getProviderDetails().getConfigurationMetadata().get("end_session_endpoint");
+			Object endSessionEndpoint = clientRegistration.getProviderDetails().getConfigurationMetadata()
+					.get("end_session_endpoint");
 			if (endSessionEndpoint != null) {
 				result = URI.create(endSessionEndpoint.toString());
 			}
@@ -81,25 +87,62 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 		return result;
 	}
 
-	private String endpointUri(URI endSessionEndpoint, Authentication authentication) {
-		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(endSessionEndpoint);
-		builder.queryParam("id_token_hint", idToken(authentication));
-		if (this.postLogoutRedirectUri != null) {
-			builder.queryParam("post_logout_redirect_uri", this.postLogoutRedirectUri);
-		}
-		return builder.encode(StandardCharsets.UTF_8).build().toUriString();
-	}
-
 	private String idToken(Authentication authentication) {
 		return ((OidcUser) authentication.getPrincipal()).getIdToken().getTokenValue();
+	}
+
+	private URI postLogoutRedirectUri(HttpServletRequest request) {
+		if (this.postLogoutRedirectUri == null) {
+			return null;
+		}
+		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+				.replacePath(request.getContextPath())
+				.replaceQuery(null)
+				.fragment(null)
+				.build();
+		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
+				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
+				.toUri();
+	}
+
+
+	private String endpointUri(URI endSessionEndpoint, String idToken, URI postLogoutRedirectUri) {
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(endSessionEndpoint);
+		builder.queryParam("id_token_hint", idToken);
+		if (postLogoutRedirectUri != null) {
+			builder.queryParam("post_logout_redirect_uri", postLogoutRedirectUri);
+		}
+		return builder.encode(StandardCharsets.UTF_8).build().toUriString();
 	}
 
 	/**
 	 * Set the post logout redirect uri to use
 	 *
 	 * @param postLogoutRedirectUri - A valid URL to which the OP should redirect after logging out the user
+	 * @deprecated {@link #setPostLogoutRedirectUri(String)}
 	 */
+	@Deprecated
 	public void setPostLogoutRedirectUri(URI postLogoutRedirectUri) {
+		Assert.notNull(postLogoutRedirectUri, "postLogoutRedirectUri cannot be null");
+		this.postLogoutRedirectUri = postLogoutRedirectUri.toASCIIString();
+	}
+
+	/**
+	 * Set the post logout redirect uri template to use. Supports the {@code "{baseUrl}"}
+	 * placeholder, for example:
+	 *
+	 * <pre>
+	 * 	handler.setPostLogoutRedirectUriTemplate("{baseUrl}");
+	 * </pre>
+	 *
+	 * will make so that {@code post_logout_redirect_uri} will be set to the base url for the client
+	 * application.
+	 *
+	 * @param postLogoutRedirectUri - A template for creating the {@code post_logout_redirect_uri}
+	 * query parameter
+	 * @since 5.3
+	 */
+	public void setPostLogoutRedirectUri(String postLogoutRedirectUri) {
 		Assert.notNull(postLogoutRedirectUri, "postLogoutRedirectUri cannot be null");
 		this.postLogoutRedirectUri = postLogoutRedirectUri;
 	}
