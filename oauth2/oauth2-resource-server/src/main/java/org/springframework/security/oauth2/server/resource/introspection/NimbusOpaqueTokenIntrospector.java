@@ -133,7 +133,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	public OAuth2AuthenticatedPrincipal introspect(String token) {
 		RequestEntity<?> requestEntity = this.requestEntityConverter.convert(token);
 		if (requestEntity == null) {
-			throw new OAuth2IntrospectionException("Provided token [" + token + "] isn't active");
+			throw new OAuth2IntrospectionException("requestEntityConverter returned a null entity");
 		}
 
 		ResponseEntity<String> responseEntity = makeRequest(requestEntity);
@@ -143,7 +143,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 		// relying solely on the authorization server to validate this token (not checking 'exp', for example)
 		if (!introspectionSuccessResponse.isActive()) {
-			throw new OAuth2IntrospectionException("Provided token [" + token + "] isn't active");
+			throw new OAuth2IntrospectionException("Provided token isn't active");
 		}
 
 		return convertClaimsSet(introspectionSuccessResponse);

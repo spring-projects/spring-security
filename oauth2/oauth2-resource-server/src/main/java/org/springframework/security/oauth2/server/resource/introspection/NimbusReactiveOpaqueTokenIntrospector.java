@@ -154,7 +154,7 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	private void validate(String token, TokenIntrospectionSuccessResponse response) {
 		// relying solely on the authorization server to validate this token (not checking 'exp', for example)
 		if (!response.isActive()) {
-			throw new OAuth2IntrospectionException("Provided token [" + token + "] isn't active");
+			throw new OAuth2IntrospectionException("Provided token isn't active");
 		}
 	}
 

@@ -1127,7 +1127,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.with(bearerToken("token")))
 				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE,
-						containsString("Provided token [token] isn't active")));
+						containsString("Provided token isn't active")));
 	}
 
 	@Test
