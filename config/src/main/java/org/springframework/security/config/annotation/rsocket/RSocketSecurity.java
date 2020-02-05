@@ -30,6 +30,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
+import org.springframework.security.rsocket.authentication.AuthenticationPayloadExchangeConverter;
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 import org.springframework.security.rsocket.authentication.AnonymousPayloadInterceptor;
 import org.springframework.security.rsocket.authentication.AuthenticationPayloadInterceptor;
@@ -44,6 +45,7 @@ import org.springframework.security.rsocket.util.matcher.RoutePayloadExchangeMat
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -116,6 +118,8 @@ public class RSocketSecurity {
 
 	private BasicAuthenticationSpec basicAuthSpec;
 
+	private SimpleAuthenticationSpec simpleAuthSpec;
+
 	private JwtSpec jwtSpec;
 
 	private AuthorizePayloadsSpec authorizePayload;
@@ -145,6 +149,58 @@ public class RSocketSecurity {
 		return this;
 	}
 
+	/**
+	 * Adds support for validating a username and password using
+	 * <a href="https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Simple.md">Simple Authentication</a>
+	 * @param simple a customizer
+	 * @return RSocketSecurity for additional configuration
+	 * @since 5.3
+	 */
+	public RSocketSecurity simpleAuthentication(Customizer<SimpleAuthenticationSpec> simple) {
+		if (this.simpleAuthSpec == null) {
+			this.simpleAuthSpec = new SimpleAuthenticationSpec();
+		}
+		simple.customize(this.simpleAuthSpec);
+		return this;
+	}
+
+	/**
+	 * @since 5.3
+	 */
+	public class SimpleAuthenticationSpec {
+		private ReactiveAuthenticationManager authenticationManager;
+
+		public SimpleAuthenticationSpec authenticationManager(ReactiveAuthenticationManager authenticationManager) {
+			this.authenticationManager = authenticationManager;
+			return this;
+		}
+
+		private ReactiveAuthenticationManager getAuthenticationManager() {
+			if (this.authenticationManager == null) {
+				return RSocketSecurity.this.authenticationManager;
+			}
+			return this.authenticationManager;
+		}
+
+		protected AuthenticationPayloadInterceptor build() {
+			ReactiveAuthenticationManager manager = getAuthenticationManager();
+			AuthenticationPayloadInterceptor result = new AuthenticationPayloadInterceptor(manager);
+			result.setAuthenticationConverter(new AuthenticationPayloadExchangeConverter());
+			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
+			return result;
+		}
+
+		private SimpleAuthenticationSpec() {}
+	}
+
+	/**
+	 * Adds authentication with BasicAuthenticationPayloadExchangeConverter.
+	 *
+	 * @param basic
+	 * @return
+	 * @deprecated Use {@link #simpleAuthentication(Customizer)}
+	 */
+	@Deprecated
 	public RSocketSecurity basicAuthentication(Customizer<BasicAuthenticationSpec> basic) {
 		if (this.basicAuthSpec == null) {
 			this.basicAuthSpec = new BasicAuthenticationSpec();
@@ -206,12 +262,17 @@ public class RSocketSecurity {
 			return RSocketSecurity.this.authenticationManager;
 		}
 
-		protected AuthenticationPayloadInterceptor build() {
+		protected List<AuthenticationPayloadInterceptor> build() {
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
-			AuthenticationPayloadInterceptor result = new AuthenticationPayloadInterceptor(manager);
-			result.setAuthenticationConverter(new BearerPayloadExchangeConverter());
-			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
-			return result;
+			AuthenticationPayloadInterceptor legacy = new AuthenticationPayloadInterceptor(manager);
+			legacy.setAuthenticationConverter(new BearerPayloadExchangeConverter());
+			legacy.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
+
+			AuthenticationPayloadInterceptor standard = new AuthenticationPayloadInterceptor(manager);
+			standard.setAuthenticationConverter(new AuthenticationPayloadExchangeConverter());
+			standard.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
+
+			return Arrays.asList(standard, legacy);
 		}
 
 		private JwtSpec() {}
@@ -240,8 +301,11 @@ public class RSocketSecurity {
 		if (this.basicAuthSpec != null) {
 			result.add(this.basicAuthSpec.build());
 		}
+		if (this.simpleAuthSpec != null) {
+			result.add(this.simpleAuthSpec.build());
+		}
 		if (this.jwtSpec != null) {
-			result.add(this.jwtSpec.build());
+			result.addAll(this.jwtSpec.build());
 		}
 		result.add(anonymous());
 

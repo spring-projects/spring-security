@@ -31,7 +31,9 @@ import java.util.Map;
  *
  * @author Rob Winch
  * @since 5.2
+ * @deprecated Basic Authentication did not evolve into a standard. Use Simple Authentication instead.
  */
+@Deprecated
 public class BasicAuthenticationDecoder extends AbstractDecoder<UsernamePasswordMetadata> {
 	public BasicAuthenticationDecoder() {
 		super(UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE);

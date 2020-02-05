@@ -16,32 +16,38 @@
 
 package org.springframework.security.rsocket.metadata;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.rsocket.metadata.security.AuthMetadataFlyweight;
 import org.reactivestreams.Publisher;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.codec.AbstractEncoder;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
-import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.util.MimeType;
+import org.springframework.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * Encodes {@link UsernamePasswordMetadata#BASIC_AUTHENTICATION_MIME_TYPE}
+ * Encodes
+ * <a href="https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Simple.md">Simple</a>
+ * Authentication.
  *
  * @author Rob Winch
- * @since 5.2
- * @deprecated Basic Authentication did not evolve into a standard. use {@link SimpleAuthenticationEncoder}
+ * @since 5.3
  */
-@Deprecated
-public class BasicAuthenticationEncoder extends
+public class SimpleAuthenticationEncoder extends
 		AbstractEncoder<UsernamePasswordMetadata> {
 
-	public BasicAuthenticationEncoder() {
-		super(UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE);
+	private static final MimeType AUTHENTICATION_MIME_TYPE = MimeTypeUtils.parseMimeType("message/x.rsocket.authentication.v0");
+
+	private NettyDataBufferFactory defaultBufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
+
+	public SimpleAuthenticationEncoder() {
+		super(AUTHENTICATION_MIME_TYPE);
 	}
 
 	@Override
@@ -59,20 +65,17 @@ public class BasicAuthenticationEncoder extends
 			Map<String, Object> hints) {
 		String username = credentials.getUsername();
 		String password = credentials.getPassword();
-		byte[] usernameBytes = username.getBytes(StandardCharsets.UTF_8);
-		byte[] usernameBytesLengthBytes = ByteBuffer.allocate(4).putInt(usernameBytes.length).array();
-		DataBuffer metadata = bufferFactory.allocateBuffer();
-		boolean release = true;
-		try {
-			metadata.write(usernameBytesLengthBytes);
-			metadata.write(usernameBytes);
-			metadata.write(password.getBytes(StandardCharsets.UTF_8));
-			release = false;
-			return metadata;
-		} finally {
-			if (release) {
-				DataBufferUtils.release(metadata);
-			}
+		NettyDataBufferFactory factory = nettyFactory(bufferFactory);
+		ByteBufAllocator allocator = factory.getByteBufAllocator();
+		ByteBuf simpleAuthentication = AuthMetadataFlyweight
+				.encodeSimpleMetadata(allocator, username.toCharArray(), password.toCharArray());
+		return factory.wrap(simpleAuthentication);
+	}
+
+	private NettyDataBufferFactory nettyFactory(DataBufferFactory bufferFactory) {
+		if (bufferFactory instanceof NettyDataBufferFactory) {
+			return (NettyDataBufferFactory) bufferFactory;
 		}
+		return this.defaultBufferFactory;
 	}
 }

@@ -47,6 +47,7 @@ class SecuritySocketAcceptorInterceptorConfiguration {
 		}
 		rsocket
 			.basicAuthentication(Customizer.withDefaults())
+			.simpleAuthentication(Customizer.withDefaults())
 			.authorizePayload(authz ->
 				authz
 					.setup().authenticated()

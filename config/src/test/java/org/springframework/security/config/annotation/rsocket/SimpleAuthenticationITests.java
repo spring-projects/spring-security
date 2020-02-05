@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.rsocket;
 
 import io.rsocket.RSocketFactory;
+import io.rsocket.exceptions.ApplicationErrorException;
 import io.rsocket.frame.decoder.PayloadDecoder;
 import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
@@ -31,37 +33,32 @@ import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import org.springframework.security.oauth2.jwt.TestJwts;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.rsocket.core.PayloadSocketAcceptorInterceptor;
 import org.springframework.security.rsocket.core.SecuritySocketAcceptorInterceptor;
-import org.springframework.security.rsocket.metadata.BearerTokenAuthenticationEncoder;
-import org.springframework.security.rsocket.metadata.BearerTokenMetadata;
+import org.springframework.security.rsocket.metadata.SimpleAuthenticationEncoder;
+import org.springframework.security.rsocket.metadata.UsernamePasswordMetadata;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static io.rsocket.metadata.WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * @author Rob Winch
  */
 @ContextConfiguration
 @RunWith(SpringRunner.class)
-public class JwtITests {
+public class SimpleAuthenticationITests {
 	@Autowired
 	RSocketMessageHandler handler;
 
@@ -70,9 +67,6 @@ public class JwtITests {
 
 	@Autowired
 	ServerController controller;
-
-	@Autowired
-	ReactiveJwtDecoder decoder;
 
 	private CloseableChannel server;
 
@@ -97,56 +91,42 @@ public class JwtITests {
 	}
 
 	@Test
-	public void routeWhenBearerThenAuthorized() {
-		BearerTokenMetadata credentials =
-				new BearerTokenMetadata("token");
-		when(this.decoder.decode(any())).thenReturn(Mono.just(jwt()));
-		this.requester = requester()
-				.setupMetadata(credentials.getToken(), BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+	public void retrieveMonoWhenSecureThenDenied() throws Exception {
+		this.requester = RSocketRequester.builder()
+				.rsocketStrategies(this.handler.getRSocketStrategies())
+				.connectTcp("localhost", this.server.address().getPort())
 				.block();
 
-		String hiRob = this.requester.route("secure.retrieve-mono")
-				.data("rob")
+		String data = "rob";
+		assertThatCode(() -> this.requester.route("secure.retrieve-mono")
+				.data(data)
 				.retrieveMono(String.class)
-				.block();
-
-		assertThat(hiRob).isEqualTo("Hi rob");
+				.block()
+			)
+			.isInstanceOf(ApplicationErrorException.class);
+		assertThat(this.controller.payloads).isEmpty();
 	}
 
 	@Test
-	public void routeWhenAuthenticationBearerThenAuthorized() {
+	public void retrieveMonoWhenAuthorizedThenGranted() {
 		MimeType authenticationMimeType = MimeTypeUtils.parseMimeType(MESSAGE_RSOCKET_AUTHENTICATION.getString());
 
-		BearerTokenMetadata credentials =
-				new BearerTokenMetadata("token");
-		when(this.decoder.decode(any())).thenReturn(Mono.just(jwt()));
-		this.requester = requester()
+		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("rob", "password");
+		this.requester = RSocketRequester.builder()
 				.setupMetadata(credentials, authenticationMimeType)
-				.connectTcp(this.server.address().getHostName(), this.server.address().getPort())
+				.rsocketStrategies(this.handler.getRSocketStrategies())
+				.connectTcp("localhost", this.server.address().getPort())
 				.block();
-
+		String data = "rob";
 		String hiRob = this.requester.route("secure.retrieve-mono")
-				.data("rob")
+				.metadata(credentials, authenticationMimeType)
+				.data(data)
 				.retrieveMono(String.class)
 				.block();
 
 		assertThat(hiRob).isEqualTo("Hi rob");
+		assertThat(this.controller.payloads).containsOnly(data);
 	}
-
-	private Jwt jwt() {
-		return TestJwts.jwt()
-				.claim(IdTokenClaimNames.ISS, "https://issuer.example.com")
-				.claim(IdTokenClaimNames.SUB, "rob")
-				.claim(IdTokenClaimNames.AUD, Arrays.asList("client-id"))
-				.build();
-	}
-
-	private RSocketRequester.Builder requester() {
-		return RSocketRequester.builder()
-				.rsocketStrategies(this.handler.getRSocketStrategies());
-	}
-
 
 	@Configuration
 	@EnableRSocketSecurity
@@ -167,25 +147,30 @@ public class JwtITests {
 		@Bean
 		public RSocketStrategies rsocketStrategies() {
 			return RSocketStrategies.builder()
-					.encoder(new BearerTokenAuthenticationEncoder())
+					.encoder(new SimpleAuthenticationEncoder())
 					.build();
 		}
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
 			rsocket
-				.authorizePayload(authorize ->
-					authorize
-						.anyRequest().authenticated()
-						.anyExchange().permitAll()
-				)
-				.jwt(Customizer.withDefaults());
+					.authorizePayload(authorize ->
+							authorize
+									.anyRequest().authenticated()
+									.anyExchange().permitAll()
+					)
+					.simpleAuthentication(Customizer.withDefaults());
 			return rsocket.build();
 		}
 
 		@Bean
-		ReactiveJwtDecoder jwtDecoder() {
-			return mock(ReactiveJwtDecoder.class);
+		MapReactiveUserDetailsService uds() {
+			UserDetails rob = User.withDefaultPasswordEncoder()
+					.username("rob")
+					.password("password")
+					.roles("USER", "ADMIN")
+					.build();
+			return new MapReactiveUserDetailsService(rob);
 		}
 	}
 
@@ -194,8 +179,13 @@ public class JwtITests {
 		private List<String> payloads = new ArrayList<>();
 
 		@MessageMapping("**")
-		String connect(String payload) {
+		String retrieveMono(String payload) {
+			add(payload);
 			return "Hi " + payload;
+		}
+
+		private void add(String p) {
+			this.payloads.add(p);
 		}
 	}
 

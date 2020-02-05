@@ -32,7 +32,7 @@ public class HelloRSocketSecurityConfig {
 }
 -----
 
-This configuration enables <<rsocket-authentication-basic,basic authentication>> and sets up <<authorization,rsocket-authorization>> to require an authenticated user for any request.
+This configuration enables <<rsocket-authentication-simple,simple authentication>> and sets up <<authorization,rsocket-authorization>> to require an authenticated user for any request.
 
 == Adding SecuritySocketAcceptorInterceptor
 
@@ -73,12 +73,18 @@ If we need to restrict the connection to the web application itself, we can prov
 Then each user would have different authorities but not the `SETUP` authority.
 This means that individual users can make requests but not make additional connections.
 
-[[rsocket-authentication-basic]]
-=== Basic Authentication
+[[rsocket-authentication-simple]]
+=== Simple Authentication
 
-Spring Security has early support for https://github.com/rsocket/rsocket/issues/272[RSocket's Basic Authentication Metadata Extension].
+Spring Security has support for https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Simple.md[Simple Authentication Metadata Extension].
 
-The RSocket receiver can decode the credentials using `BasicAuthenticationPayloadExchangeConverter` which is automatically setup using the `basicAuthentication` portion of the DSL.
+[NOTE]
+====
+Basic Authentication drafts evolved into Simple Authentication and is only supported for backward compatibility.
+See `RSocketSecurity.basicAuthentication(Customizer)` for setting it up.
+====
+
+The RSocket receiver can decode the credentials using `AuthenticationPayloadExchangeConverter` which is automatically setup using the `simpleAuthentication` portion of the DSL.
 An explicit configuration can be found below.
 
 [source,java]
@@ -91,26 +97,28 @@ PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
 					.anyRequest().authenticated()
 					.anyExchange().permitAll()
 		)
-		.basicAuthentication(Customizer.withDefaults());
+		.simpleAuthentication(Customizer.withDefaults());
 	return rsocket.build();
 }
 ----
 
-The RSocket sender can send credentials using `BasicAuthenticationEncoder` which can be added to Spring's `RSocketStrategies`.
+The RSocket sender can send credentials using `SimpleAuthenticationEncoder` which can be added to Spring's `RSocketStrategies`.
 
 [source,java]
 ----
 RSocketStrategies.Builder strategies = ...;
-strategies.encoder(new BasicAuthenticationEncoder());
+strategies.encoder(new SimpleAuthenticationEncoder());
 ----
 
 It can then be used to send a username and password to the receiver in the setup:
 
 [source,java]
 ----
+MimeType authenticationMimeType =
+	MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
 UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "password");
 Mono<RSocketRequester> requester = RSocketRequester.builder()
-	.setupMetadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+	.setupMetadata(credentials, authenticationMimeType)
 	.rsocketStrategies(strategies.build())
 	.connectTcp(host, port);
 ----
@@ -125,7 +133,7 @@ UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("user", "pas
 public Mono<AirportLocation> findRadar(String code) {
 	return this.requester.flatMap(req ->
 		req.route("find.radar.{code}", code)
-			.metadata(credentials, UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE)
+			.metadata(credentials, authenticationMimeType)
 			.retrieveMono(AirportLocation.class)
 	);
 }
@@ -134,7 +142,7 @@ public Mono<AirportLocation> findRadar(String code) {
 [[rsocket-authentication-jwt]]
 === JWT
 
-Spring Security has early support for https://github.com/rsocket/rsocket/issues/272[RSocket's Bearer Token Authentication Metadata Extension].
+Spring Security has support for https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Bearer.md[Bearer Token Authentication Metadata Extension].
 The support comes in the form of authenticating a JWT (determining the JWT is valid) and then using the JWT to make authorization decisions.
 
 The RSocket receiver can decode the credentials using `BearerPayloadExchangeConverter` which is automatically setup using the `jwt` portion of the DSL.
@@ -172,9 +180,11 @@ For example, the token can be sent at setup time:
 
 [source,java]
 ----
-String token = ...;
+MimeType authenticationMimeType =
+	MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
+BearerTokenMetadata token = ...;
 Mono<RSocketRequester> requester = RSocketRequester.builder()
-	.setupMetadata(token, BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE)
+	.setupMetadata(token, authenticationMimeType)
 	.connectTcp(host, port);
 ----
 
@@ -182,13 +192,15 @@ Alternatively or additionally, the token can be sent in a request.
 
 [source,java]
 ----
+MimeType authenticationMimeType =
+	MimeTypeUtils.parseMimeType(WellKnownMimeType.MESSAGE_RSOCKET_AUTHENTICATION.getString());
 Mono<RSocketRequester> requester;
-String token = ...;
+BearerTokenMetadata token = ...;
 
 public Mono<AirportLocation> findRadar(String code) {
 	return this.requester.flatMap(req ->
 		req.route("find.radar.{code}", code)
-	        .metadata(token, BearerTokenMetadata.BEARER_AUTHENTICATION_MIME_TYPE)
+	        .metadata(token, authenticationMimeType)
 			.retrieveMono(AirportLocation.class)
 	);
 }
