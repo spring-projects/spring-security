@@ -15,7 +15,8 @@
  */
 package sample.web;
 
-import org.springframework.beans.factory.annotation.Value;
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.stereotype.Controller;
@@ -23,7 +24,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
 
@@ -37,18 +37,14 @@ public class RegisteredOAuth2AuthorizedClientController {
 
 	private final WebClient webClient;
 
-	private final String uri;
-
-	public RegisteredOAuth2AuthorizedClientController(WebClient webClient, @Value("${resource-uri}") String uri) {
+	public RegisteredOAuth2AuthorizedClientController(WebClient webClient) {
 		this.webClient = webClient;
-		this.uri = uri;
 	}
 
 	@GetMapping("/explicit")
 	String explicit(Model model, @RegisteredOAuth2AuthorizedClient("client-id") OAuth2AuthorizedClient authorizedClient) {
 		Mono<String> body = this.webClient
 				.get()
-				.uri(this.uri)
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.retrieve()
 				.bodyToMono(String.class);
@@ -60,7 +56,6 @@ public class RegisteredOAuth2AuthorizedClientController {
 	String implicit(Model model, @RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
 		Mono<String> body = this.webClient
 				.get()
-				.uri(this.uri)
 				.attributes(oauth2AuthorizedClient(authorizedClient))
 				.retrieve()
 				.bodyToMono(String.class);

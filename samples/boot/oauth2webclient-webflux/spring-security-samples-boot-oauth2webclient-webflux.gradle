@@ -11,4 +11,5 @@ dependencies {
 
 	testCompile project(':spring-security-test')
 	testCompile 'org.springframework.boot:spring-boot-starter-test'
+	testCompile 'com.squareup.okhttp3:mockwebserver'
 }

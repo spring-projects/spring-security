@@ -15,13 +15,13 @@
  */
 package sample.web;
 
-import org.springframework.beans.factory.annotation.Value;
+import reactor.core.publisher.Mono;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
 
@@ -34,18 +34,14 @@ import static org.springframework.security.oauth2.client.web.reactive.function.c
 public class OAuth2WebClientController {
 	private final WebClient webClient;
 
-	private final String uri;
-
-	public OAuth2WebClientController(WebClient webClient, @Value("${resource-uri}") String uri) {
+	public OAuth2WebClientController(WebClient webClient) {
 		this.webClient = webClient;
-		this.uri = uri;
 	}
 
 	@GetMapping("/explicit")
 	String explicit(Model model) {
 		Mono<String> body = this.webClient
 				.get()
-				.uri(this.uri)
 				.attributes(clientRegistrationId("client-id"))
 				.retrieve()
 				.bodyToMono(String.class);
@@ -57,7 +53,6 @@ public class OAuth2WebClientController {
 	String implicit(Model model) {
 		Mono<String> body = this.webClient
 				.get()
-				.uri(this.uri)
 				.retrieve()
 				.bodyToMono(String.class);
 		model.addAttribute("body", body);
