@@ -1,0 +1,14 @@
+releasenotes:
+  sections:
+    - title: "New Features"
+      emoji: ":star:"
+      labels: ["enhancement"]
+    - title: "Bug Fixes"
+      emoji: ":beetle:"
+      labels: ["bug", "regression"]
+    - title: "Dependency Upgrades"
+      emoji: ":hammer:"
+      labels: ["dependency-upgrade"]
+    - title: "Non-passive"
+      emoji: ":rewind:"
+      labels: ["breaks-passivity"]
