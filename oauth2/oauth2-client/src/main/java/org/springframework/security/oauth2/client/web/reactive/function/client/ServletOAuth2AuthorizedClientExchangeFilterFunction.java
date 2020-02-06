@@ -36,6 +36,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.util.Assert;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -389,15 +390,11 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 				attrs.containsKey(HTTP_SERVLET_RESPONSE_ATTR_NAME)) {
 			return;
 		}
-		ServletRequestAttributes context = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		HttpServletRequest request = null;
-		HttpServletResponse response = null;
-		if (context != null) {
-			request = context.getRequest();
-			response = context.getResponse();
+		RequestAttributes context = RequestContextHolder.getRequestAttributes();
+		if (context instanceof ServletRequestAttributes) {
+			attrs.putIfAbsent(HTTP_SERVLET_REQUEST_ATTR_NAME,  ((ServletRequestAttributes) context).getRequest());
+			attrs.putIfAbsent(HTTP_SERVLET_RESPONSE_ATTR_NAME, ((ServletRequestAttributes) context).getResponse());
 		}
-		attrs.putIfAbsent(HTTP_SERVLET_REQUEST_ATTR_NAME, request);
-		attrs.putIfAbsent(HTTP_SERVLET_RESPONSE_ATTR_NAME, response);
 	}
 
 	private void populateDefaultAuthentication(Map<String, Object> attrs) {

@@ -28,6 +28,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.web.reactive.function.client.MockExchangeFunction;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -36,6 +37,7 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import reactor.core.CoreSubscriber;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Operators;
 import reactor.test.StepVerifier;
 import reactor.util.context.Context;
 
@@ -137,6 +139,55 @@ public class SecurityReactorContextConfigurationTests {
 
 		Context resultContext = subscriber.currentContext();
 		assertThat(resultContext).isSameAs(parentContext);
+	}
+
+	@Test
+	public void allowAnyKindOfRequestAttributes() {
+		RequestContextHolder.setRequestAttributes(
+				new RequestAttributes() {
+					@Override
+					public Object getAttribute(String name, int scope) {
+						return null;
+					}
+
+					@Override
+					public void setAttribute(String name, Object value, int scope) {
+
+					}
+
+					@Override
+					public void removeAttribute(String name, int scope) {
+
+					}
+
+					@Override
+					public String[] getAttributeNames(int scope) {
+						return new String[0];
+					}
+
+					@Override
+					public void registerDestructionCallback(String name, Runnable callback, int scope) {
+
+					}
+
+					@Override
+					public Object resolveReference(String key) {
+						return null;
+					}
+
+					@Override
+					public String getSessionId() {
+						return null;
+					}
+
+					@Override
+					public Object getSessionMutex() {
+						return null;
+					}
+				});
+
+		CoreSubscriber<Object> subscriber = this.subscriberRegistrar.createSubscriberIfNecessary(Operators.emptySubscriber());
+		assertThat(subscriber).isInstanceOf(SecurityReactorContextConfiguration.SecurityReactorContextSubscriber.class);
 	}
 
 	@Test
