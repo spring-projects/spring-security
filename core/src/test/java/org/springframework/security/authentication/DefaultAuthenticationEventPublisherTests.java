@@ -27,6 +27,7 @@ import org.springframework.security.authentication.event.AuthenticationFailureLo
 import org.springframework.security.authentication.event.AuthenticationFailureProviderNotFoundEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureServiceExceptionEvent;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -135,6 +136,37 @@ public class DefaultAuthenticationEventPublisherTests {
 		publisher.publishAuthenticationFailure(new AuthenticationException("") {
 		}, mock(Authentication.class));
 		verifyZeroInteractions(appPublisher);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void defaultAuthenticationFailureEventClassSetNullThen() {
+		publisher = new DefaultAuthenticationEventPublisher();
+		publisher.setDefaultAuthenticationFailureEvent(null);
+	}
+
+	@Test
+	public void defaultAuthenticationFailureEventIsPublished() {
+		publisher = new DefaultAuthenticationEventPublisher();
+		publisher.setDefaultAuthenticationFailureEvent(AuthenticationFailureBadCredentialsEvent.class);
+		ApplicationEventPublisher appPublisher = mock(ApplicationEventPublisher.class);
+
+		publisher.setApplicationEventPublisher(appPublisher);
+		publisher.publishAuthenticationFailure(new AuthenticationException("") {
+		}, mock(Authentication.class));
+		verify(appPublisher).publishEvent(isA(AuthenticationFailureBadCredentialsEvent.class));
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void defaultAuthenticationFailureEventMissingAppropriateConstructorThen() {
+		publisher = new DefaultAuthenticationEventPublisher();
+		publisher.setDefaultAuthenticationFailureEvent(AuthenticationFailureEventWithoutAppropriateConstructor.class);
+	}
+
+	private static final class AuthenticationFailureEventWithoutAppropriateConstructor extends
+			AbstractAuthenticationFailureEvent {
+		AuthenticationFailureEventWithoutAppropriateConstructor(Authentication auth) {
+			super(auth, new AuthenticationException("") {});
+		}
 	}
 
 	private static final class MockAuthenticationException extends

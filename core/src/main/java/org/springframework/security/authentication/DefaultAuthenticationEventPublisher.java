@@ -64,6 +64,7 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 
 	private ApplicationEventPublisher applicationEventPublisher;
 	private final HashMap<String, Constructor<? extends AbstractAuthenticationEvent>> exceptionMappings = new HashMap<>();
+	private Constructor<? extends AbstractAuthenticationFailureEvent> defaultAuthenticationFailureEventConstructor;
 
 	public DefaultAuthenticationEventPublisher() {
 		this(null);
@@ -114,6 +115,13 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 			catch (IllegalAccessException | InvocationTargetException | InstantiationException ignored) {
 			}
 		}
+		else if (defaultAuthenticationFailureEventConstructor != null) {
+			try {
+				event = defaultAuthenticationFailureEventConstructor.newInstance(authentication, exception);
+			}
+			catch (IllegalAccessException | InvocationTargetException | InstantiationException ignored) {
+			}
+		}
 
 		if (event != null) {
 			if (applicationEventPublisher != null) {
@@ -157,6 +165,26 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 				throw new RuntimeException("Failed to load authentication event class "
 						+ eventClass);
 			}
+		}
+	}
+
+	/**
+	 * Sets a default authentication failure event as a fallback event for any unmapped
+	 * exceptions not mapped in the exception mappings.
+	 *
+	 * @param defaultAuthenticationFailureEventClass is the authentication failure event class
+	 * to be fired for unmapped exceptions.
+	 */
+	public void setDefaultAuthenticationFailureEvent(
+			Class<? extends AbstractAuthenticationFailureEvent> defaultAuthenticationFailureEventClass) {
+		Assert.notNull(defaultAuthenticationFailureEventClass,
+				"The defaultAuthenticationFailureEventClass must not be null");
+		try {
+			this.defaultAuthenticationFailureEventConstructor = defaultAuthenticationFailureEventClass
+					.getConstructor(Authentication.class, AuthenticationException.class);
+		} catch (NoSuchMethodException e) {
+			throw new RuntimeException("Default Authentication Failure event class "
+					+ defaultAuthenticationFailureEventClass.getName() + " has no suitable constructor");
 		}
 	}
 
