@@ -20,11 +20,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.jdbc.core.ArgumentTypePreparedStatementSetter;
+import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
@@ -37,11 +38,17 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -97,24 +104,17 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
-	public void setAuthorizedClientDataRowMapperWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientService.setAuthorizedClientDataRowMapper(null))
+	public void setAuthorizedClientRowMapperWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.authorizedClientService.setAuthorizedClientRowMapper(null))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizedClientDataRowMapper cannot be null");
+				.hasMessage("authorizedClientRowMapper cannot be null");
 	}
 
 	@Test
-	public void setAuthorizedClientDataConverterWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientService.setAuthorizedClientDataConverter(null))
+	public void setAuthorizedClientParametersMapperWhenNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.authorizedClientService.setAuthorizedClientParametersMapper(null))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizedClientDataConverter cannot be null");
-	}
-
-	@Test
-	public void setAuthorizedClientConverterWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizedClientService.setAuthorizedClientConverter(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizedClientConverter cannot be null");
+				.hasMessage("authorizedClientParametersMapper cannot be null");
 	}
 
 	@Test
@@ -247,15 +247,12 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 
 	@Test
 	public void saveLoadAuthorizedClientWhenCustomStrategiesSetThenCalled() throws Exception {
-		JdbcOAuth2AuthorizedClientService.OAuth2AuthorizedClientDataRowMapper authorizedClientDataRowMapper =
-				spy(new JdbcOAuth2AuthorizedClientService.OAuth2AuthorizedClientDataRowMapper());
-		this.authorizedClientService.setAuthorizedClientDataRowMapper(authorizedClientDataRowMapper);
-		JdbcOAuth2AuthorizedClientService.OAuth2AuthorizedClientDataConverter authorizedClientDataConverter =
-				spy(new JdbcOAuth2AuthorizedClientService.OAuth2AuthorizedClientDataConverter(this.clientRegistrationRepository));
-		this.authorizedClientService.setAuthorizedClientDataConverter(authorizedClientDataConverter);
-		JdbcOAuth2AuthorizedClientService.OAuth2AuthorizedClientConverter authorizedClientConverter =
-				spy(new JdbcOAuth2AuthorizedClientService.OAuth2AuthorizedClientConverter());
-		this.authorizedClientService.setAuthorizedClientConverter(authorizedClientConverter);
+		JdbcOAuth2AuthorizedClientService.OAuth2AuthorizedClientRowMapper authorizedClientRowMapper =
+				spy(new JdbcOAuth2AuthorizedClientService.OAuth2AuthorizedClientRowMapper(this.clientRegistrationRepository));
+		this.authorizedClientService.setAuthorizedClientRowMapper(authorizedClientRowMapper);
+		JdbcOAuth2AuthorizedClientService.OAuth2AuthorizedClientParametersMapper authorizedClientParametersMapper =
+				spy(new JdbcOAuth2AuthorizedClientService.OAuth2AuthorizedClientParametersMapper());
+		this.authorizedClientService.setAuthorizedClientParametersMapper(authorizedClientParametersMapper);
 
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient authorizedClient = createAuthorizedClient(principal, this.clientRegistration);
@@ -264,9 +261,8 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 		this.authorizedClientService.loadAuthorizedClient(
 				this.clientRegistration.getRegistrationId(), principal.getName());
 
-		verify(authorizedClientDataRowMapper).mapRow(any(), anyInt());
-		verify(authorizedClientDataConverter).convert(any());
-		verify(authorizedClientConverter).convert(any());
+		verify(authorizedClientRowMapper).mapRow(any(), anyInt());
+		verify(authorizedClientParametersMapper).apply(any());
 	}
 
 	@Test
@@ -386,73 +382,90 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 		private CustomTableDefinitionJdbcOAuth2AuthorizedClientService(
 				JdbcOperations jdbcOperations, ClientRegistrationRepository clientRegistrationRepository) {
 			super(jdbcOperations, clientRegistrationRepository);
-			setAuthorizedClientDataRowMapper(new OAuth2AuthorizedClientDataRowMapper());
+			setAuthorizedClientRowMapper(new OAuth2AuthorizedClientRowMapper(clientRegistrationRepository));
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
 		public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, String principalName) {
-			Object[] args = {clientRegistrationId, principalName};
-			int[] argTypes = {Types.VARCHAR, Types.VARCHAR};
-			PreparedStatementSetter pss = new ArgumentTypePreparedStatementSetter(args, argTypes);
-			List<OAuth2AuthorizedClientData> result = this.jdbcOperations.query(
-					LOAD_AUTHORIZED_CLIENT_SQL, pss, this.authorizedClientDataRowMapper);
-			return !result.isEmpty() ? (T) this.authorizedClientDataConverter.convert(result.get(0)) : null;
+			SqlParameterValue[] parameters = new SqlParameterValue[] {
+					new SqlParameterValue(Types.VARCHAR, clientRegistrationId),
+					new SqlParameterValue(Types.VARCHAR, principalName)
+			};
+			PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters);
+			List<OAuth2AuthorizedClient> result = this.jdbcOperations.query(
+					LOAD_AUTHORIZED_CLIENT_SQL, pss, this.authorizedClientRowMapper);
+			return !result.isEmpty() ? (T) result.get(0) : null;
 		}
 
 		@Override
 		public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
-			OAuth2AuthorizedClientData authorizedClientData = this.authorizedClientConverter.convert(
+			List<SqlParameterValue> parameters = this.authorizedClientParametersMapper.apply(
 					new OAuth2AuthorizedClientHolder(authorizedClient, principal));
-			Object[] args = {
-					authorizedClientData.getClientRegistrationId(),
-					authorizedClientData.getPrincipalName(),
-					authorizedClientData.getAccessTokenType(),
-					authorizedClientData.getAccessTokenValue(),
-					authorizedClientData.getAccessTokenIssuedAt(),
-					authorizedClientData.getAccessTokenExpiresAt(),
-					authorizedClientData.getAccessTokenScopes(),
-					authorizedClientData.getRefreshTokenValue(),
-					authorizedClientData.getRefreshTokenIssuedAt()
-			};
-			int[] argTypes = {
-					Types.VARCHAR,
-					Types.VARCHAR,
-					Types.VARCHAR,
-					Types.VARCHAR,
-					Types.TIMESTAMP,
-					Types.TIMESTAMP,
-					Types.VARCHAR,
-					Types.VARCHAR,
-					Types.TIMESTAMP
-			};
-			PreparedStatementSetter pss = new ArgumentTypePreparedStatementSetter(args, argTypes);
+			PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
 			this.jdbcOperations.update(SAVE_AUTHORIZED_CLIENT_SQL, pss);
 		}
 
 		@Override
 		public void removeAuthorizedClient(String clientRegistrationId, String principalName) {
-			Object[] args = {clientRegistrationId, principalName};
-			int[] argTypes = {Types.VARCHAR, Types.VARCHAR};
-			PreparedStatementSetter pss = new ArgumentTypePreparedStatementSetter(args, argTypes);
+			SqlParameterValue[] parameters = new SqlParameterValue[] {
+					new SqlParameterValue(Types.VARCHAR, clientRegistrationId),
+					new SqlParameterValue(Types.VARCHAR, principalName)
+			};
+			PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters);
 			this.jdbcOperations.update(REMOVE_AUTHORIZED_CLIENT_SQL, pss);
 		}
 
-		private static class OAuth2AuthorizedClientDataRowMapper implements RowMapper<OAuth2AuthorizedClientData> {
+		private static class OAuth2AuthorizedClientRowMapper implements RowMapper<OAuth2AuthorizedClient> {
+			private final ClientRegistrationRepository clientRegistrationRepository;
+
+			private OAuth2AuthorizedClientRowMapper(ClientRegistrationRepository clientRegistrationRepository) {
+				Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+				this.clientRegistrationRepository = clientRegistrationRepository;
+			}
 
 			@Override
-			public OAuth2AuthorizedClientData mapRow(ResultSet rs, int rowNum) throws SQLException {
-				OAuth2AuthorizedClientData authorizedClientData = new OAuth2AuthorizedClientData();
-				authorizedClientData.setClientRegistrationId(rs.getString("clientRegistrationId"));
-				authorizedClientData.setPrincipalName(rs.getString("principalName"));
-				authorizedClientData.setAccessTokenType(rs.getString("accessTokenType"));
-				authorizedClientData.setAccessTokenValue(rs.getString("accessTokenValue"));
-				authorizedClientData.setAccessTokenIssuedAt(rs.getTimestamp("accessTokenIssuedAt"));
-				authorizedClientData.setAccessTokenExpiresAt(rs.getTimestamp("accessTokenExpiresAt"));
-				authorizedClientData.setAccessTokenScopes(rs.getString("accessTokenScopes"));
-				authorizedClientData.setRefreshTokenValue(rs.getString("refreshTokenValue"));
-				authorizedClientData.setRefreshTokenIssuedAt(rs.getTimestamp("refreshTokenIssuedAt"));
-				return authorizedClientData;
+			public OAuth2AuthorizedClient mapRow(ResultSet rs, int rowNum) throws SQLException {
+				String clientRegistrationId = rs.getString("clientRegistrationId");
+				ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(
+						clientRegistrationId);
+				if (clientRegistration == null) {
+					throw new DataRetrievalFailureException("The ClientRegistration with id '" +
+							clientRegistrationId + "' exists in the data source, " +
+							"however, it was not found in the ClientRegistrationRepository.");
+				}
+
+				OAuth2AccessToken.TokenType tokenType = null;
+				if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(
+						rs.getString("accessTokenType"))) {
+					tokenType = OAuth2AccessToken.TokenType.BEARER;
+				}
+				String tokenValue = rs.getString("accessTokenValue");
+				Instant issuedAt = rs.getTimestamp("accessTokenIssuedAt").toInstant();
+				Instant expiresAt = rs.getTimestamp("accessTokenExpiresAt").toInstant();
+				Set<String> scopes = Collections.emptySet();
+				String accessTokenScopes = rs.getString("accessTokenScopes");
+				if (accessTokenScopes != null) {
+					scopes = StringUtils.commaDelimitedListToSet(accessTokenScopes);
+				}
+				OAuth2AccessToken accessToken = new OAuth2AccessToken(
+						tokenType, tokenValue, issuedAt, expiresAt, scopes);
+
+				OAuth2RefreshToken refreshToken = null;
+				tokenValue = rs.getString("refreshTokenValue");
+				if (tokenValue != null) {
+					issuedAt = null;
+					Timestamp refreshTokenIssuedAt = rs.getTimestamp("refreshTokenIssuedAt");
+					if (refreshTokenIssuedAt != null) {
+						issuedAt = refreshTokenIssuedAt.toInstant();
+					}
+					refreshToken = new OAuth2RefreshToken(tokenValue, issuedAt);
+				}
+
+				String principalName = rs.getString("principalName");
+
+				return new OAuth2AuthorizedClient(
+						clientRegistration, principalName, accessToken, refreshToken);
 			}
 		}
 	}
