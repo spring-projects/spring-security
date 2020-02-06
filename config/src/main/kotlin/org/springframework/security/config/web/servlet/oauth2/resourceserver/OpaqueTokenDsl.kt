@@ -29,10 +29,24 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
  * @property introspector the [OpaqueTokenIntrospector] to use.
  */
 class OpaqueTokenDsl {
-    var introspectionUri: String? = null
-    var introspector: OpaqueTokenIntrospector? = null
-
+    private var _introspectionUri: String? = null
+    private var _introspector: OpaqueTokenIntrospector? = null
     private var clientCredentials: Pair<String, String>? = null
+
+    var introspectionUri: String?
+        get() = _introspectionUri
+        set(value) {
+            _introspectionUri = value
+            _introspector = null
+        }
+    var introspector: OpaqueTokenIntrospector?
+        get() = _introspector
+        set(value) {
+            _introspector = value
+            _introspectionUri = null
+            clientCredentials = null
+        }
+
 
     /**
      * Configures the credentials for Introspection endpoint.
@@ -42,6 +56,7 @@ class OpaqueTokenDsl {
      */
     fun introspectionClientCredentials(clientId: String, clientSecret: String) {
         clientCredentials = Pair(clientId, clientSecret)
+        _introspector = null
     }
 
     internal fun get(): (OAuth2ResourceServerConfigurer<HttpSecurity>.OpaqueTokenConfigurer) -> Unit {

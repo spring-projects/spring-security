@@ -138,6 +138,41 @@ class OpaqueTokenDslTests {
         }
     }
 
+    @Test
+    fun `opaque token when custom introspector set after client credentials then introspector used`() {
+        this.spring.register(IntrospectorAfterClientCredentialsConfig::class.java, AuthenticationController::class.java).autowire()
+        `when`(IntrospectorAfterClientCredentialsConfig.INTROSPECTOR.introspect(ArgumentMatchers.anyString()))
+                .thenReturn(DefaultOAuth2AuthenticatedPrincipal(mapOf(Pair(JwtClaimNames.SUB, "mock-subject")), emptyList()))
+
+        this.mockMvc.get("/authenticated") {
+            header("Authorization", "Bearer token")
+        }
+
+        verify(IntrospectorAfterClientCredentialsConfig.INTROSPECTOR).introspect("token")
+    }
+
+    @EnableWebSecurity
+    open class IntrospectorAfterClientCredentialsConfig : WebSecurityConfigurerAdapter() {
+        companion object {
+            var INTROSPECTOR: OpaqueTokenIntrospector = mock(OpaqueTokenIntrospector::class.java)
+        }
+
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                oauth2ResourceServer {
+                    opaqueToken {
+                        introspectionUri = "/introspect"
+                        introspectionClientCredentials("clientId", "clientSecret")
+                        introspector = INTROSPECTOR
+                    }
+                }
+            }
+        }
+    }
+
     @RestController
     class AuthenticationController {
         @GetMapping("/authenticated")
