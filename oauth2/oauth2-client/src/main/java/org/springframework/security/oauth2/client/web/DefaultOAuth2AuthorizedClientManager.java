@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -121,9 +122,9 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 	private static HttpServletRequest getHttpServletRequestOrDefault(Map<String, Object> attributes) {
 		HttpServletRequest servletRequest = (HttpServletRequest) attributes.get(HttpServletRequest.class.getName());
 		if (servletRequest == null) {
-			ServletRequestAttributes context = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-			if (context != null) {
-				servletRequest = context.getRequest();
+			RequestAttributes context = RequestContextHolder.getRequestAttributes();
+			if (context instanceof ServletRequestAttributes) {
+				servletRequest = ((ServletRequestAttributes) context).getRequest();
 			}
 		}
 		return servletRequest;
@@ -132,9 +133,9 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 	private static HttpServletResponse getHttpServletResponseOrDefault(Map<String, Object> attributes) {
 		HttpServletResponse servletResponse = (HttpServletResponse) attributes.get(HttpServletResponse.class.getName());
 		if (servletResponse == null) {
-			ServletRequestAttributes context = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-			if (context != null) {
-				servletResponse = context.getResponse();
+			RequestAttributes context = RequestContextHolder.getRequestAttributes();
+			if (context instanceof ServletRequestAttributes) {
+				servletResponse =  ((ServletRequestAttributes) context).getResponse();
 			}
 		}
 		return servletResponse;
