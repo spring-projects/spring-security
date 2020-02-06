@@ -25,10 +25,10 @@ import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
@@ -85,7 +85,7 @@ class JwtDslTests {
     }
 
     @Test
-    fun `opaque token when custom JWT authentication converter then converter used`() {
+    fun `JWT when custom JWT authentication converter then converter used`() {
         this.spring.register(CustomJwtAuthenticationConverterConfig::class.java).autowire()
         `when`(CustomJwtAuthenticationConverterConfig.DECODER.decode(anyString())).thenReturn(
                 Jwt.withTokenValue("token")
@@ -124,6 +124,43 @@ class JwtDslTests {
         @Bean
         open fun jwtDecoder(): JwtDecoder {
             return DECODER
+        }
+    }
+
+    @Test
+    fun `JWT when custom JWT decoder set after jwkSetUri then decoder used`() {
+        this.spring.register(JwtDecoderAfterJwkSetUriConfig::class.java).autowire()
+        `when`(JwtDecoderAfterJwkSetUriConfig.DECODER.decode(anyString())).thenReturn(
+                Jwt.withTokenValue("token")
+                        .header("alg", "none")
+                        .claim(IdTokenClaimNames.SUB, "user")
+                        .build())
+
+        this.mockMvc.get("/") {
+            header("Authorization", "Bearer token")
+        }
+
+        verify(JwtDecoderAfterJwkSetUriConfig.DECODER).decode(any())
+    }
+
+    @EnableWebSecurity
+    open class JwtDecoderAfterJwkSetUriConfig : WebSecurityConfigurerAdapter() {
+        companion object {
+            var DECODER: JwtDecoder = mock(JwtDecoder::class.java)
+        }
+
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                oauth2ResourceServer {
+                    jwt {
+                        jwkSetUri = "https://jwk-uri"
+                        jwtDecoder = DECODER
+                    }
+                }
+            }
         }
     }
 }

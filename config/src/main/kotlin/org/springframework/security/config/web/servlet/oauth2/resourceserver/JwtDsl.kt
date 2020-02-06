@@ -35,9 +35,22 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
  * <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a> URL
  */
 class JwtDsl {
+    private var _jwtDecoder: JwtDecoder? = null
+    private var _jwkSetUri: String? = null
+
     var jwtAuthenticationConverter: Converter<Jwt, out AbstractAuthenticationToken>? = null
-    var jwtDecoder: JwtDecoder? = null
-    var jwkSetUri: String? = null
+    var jwtDecoder: JwtDecoder?
+        get() = _jwtDecoder
+        set(value) {
+            _jwtDecoder = value
+            _jwkSetUri = null
+        }
+    var jwkSetUri: String?
+        get() = _jwkSetUri
+        set(value) {
+            _jwkSetUri = value
+            _jwtDecoder = null
+        }
 
     internal fun get(): (OAuth2ResourceServerConfigurer<HttpSecurity>.JwtConfigurer) -> Unit {
         return { jwt ->
