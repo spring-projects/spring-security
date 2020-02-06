@@ -2,6 +2,7 @@ def isSnapshot = version?.matches(/^.*[.-]BUILD-SNAPSHOT$/)
 def isRelease = !isSnapshot
 
 if(project.hasProperty("signing.keyId") && isRelease) {
+	apply plugin: "signing"
 	sign(project)
 }
 
