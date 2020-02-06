@@ -322,4 +322,23 @@ public class OAuth2AuthorizationRequestTests {
 						"response_type=code&client_id=client-id&state=state&" +
 						"redirect_uri=https://example.com/authorize/oauth2/code/registration-id");
 	}
+
+	@Test
+	public void buildWhenNonAsciiAdditionalParametersThenProperlyEncoded() {
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("item amount", "19.95€");
+		additionalParameters.put("item name", "HÅMÖ");
+		additionalParameters.put("âge", "4½");
+		OAuth2AuthorizationRequest authorizationRequest =
+				TestOAuth2AuthorizationRequests.request()
+						.additionalParameters(additionalParameters)
+						.build();
+
+		assertThat(authorizationRequest.getAuthorizationRequestUri()).isNotNull();
+		assertThat(authorizationRequest.getAuthorizationRequestUri())
+				.isEqualTo("https://example.com/login/oauth/authorize?" +
+						"response_type=code&client_id=client-id&state=state&" +
+						"redirect_uri=https://example.com/authorize/oauth2/code/registration-id&" +
+						"item%20amount=19.95%E2%82%AC&%C3%A2ge=4%C2%BD&item%20name=H%C3%85M%C3%96");
+	}
 }

@@ -23,8 +23,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -375,21 +377,21 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		private String buildAuthorizationRequestUri() {
 			MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-			parameters.set(OAuth2ParameterNames.RESPONSE_TYPE, percentEncode(this.responseType.getValue()));
-			parameters.set(OAuth2ParameterNames.CLIENT_ID, percentEncode(this.clientId));
+			parameters.set(OAuth2ParameterNames.RESPONSE_TYPE, encodeQueryParam(this.responseType.getValue()));
+			parameters.set(OAuth2ParameterNames.CLIENT_ID, encodeQueryParam(this.clientId));
 			if (!CollectionUtils.isEmpty(this.scopes)) {
 				parameters.set(OAuth2ParameterNames.SCOPE,
-						percentEncode(StringUtils.collectionToDelimitedString(this.scopes, " ")));
+						encodeQueryParam(StringUtils.collectionToDelimitedString(this.scopes, " ")));
 			}
 			if (this.state != null) {
-				parameters.set(OAuth2ParameterNames.STATE, percentEncode(this.state));
+				parameters.set(OAuth2ParameterNames.STATE, encodeQueryParam(this.state));
 			}
 			if (this.redirectUri != null) {
-				parameters.set(OAuth2ParameterNames.REDIRECT_URI, percentEncode(this.redirectUri));
+				parameters.set(OAuth2ParameterNames.REDIRECT_URI, encodeQueryParam(this.redirectUri));
 			}
 			if (!CollectionUtils.isEmpty(this.additionalParameters)) {
 				this.additionalParameters.forEach((k, v) ->
-						parameters.set(percentEncode(k), percentEncode(v.toString())));
+						parameters.set(encodeQueryParam(k), encodeQueryParam(v.toString())));
 			}
 
 			return UriComponentsBuilder.fromHttpUrl(this.authorizationUri)
@@ -399,14 +401,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		}
 
 		// Encode query parameter value according to RFC 3986
-		private static String percentEncode(String value) {
-			return UriComponentsBuilder
-					.fromPath("")
-					.queryParam("t", value)
-					.build()
-					.encode()
-					.toUriString()
-					.substring(3);
+		private static String encodeQueryParam(String value) {
+			return UriUtils.encodeQueryParam(value, StandardCharsets.UTF_8);
 		}
 
 		private LinkedHashSet<String> toLinkedHashSet(String... scope) {
