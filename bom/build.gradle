@@ -1,5 +1,8 @@
 apply plugin: 'maven-bom'
 apply from: "$rootDir/gradle/maven-deployment.gradle"
+apply from: "$rootDir/gradle/artifactory.gradle"
+apply from: "$rootDir/gradle/ossrh.gradle"
+apply from: "$rootDir/gradle/deploy-artifacts.gradle"
 
 generatePom.enabled = false
 sonarqube.skipProject = true

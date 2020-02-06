@@ -12,6 +12,9 @@ buildscript {
 		classpath('org.asciidoctor:asciidoctor-gradle-plugin:1.5.1')
 		classpath("io.spring.gradle:docbook-reference-plugin:0.3.1")
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.19.RELEASE")
+		classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.12.0"
+		classpath 'org.hidetake:gradle-ssh-plugin:2.10.1'
+		classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.1'
 	}
 }
 
@@ -20,6 +23,7 @@ plugins {
 }
 
 apply plugin: 'base'
+apply from: "$rootDir/gradle/finalize-deploy.gradle"
 
 description = 'Spring Security'
 
@@ -86,7 +90,6 @@ configure(allprojects - javaProjects) {
 }
 
 configure(subprojects - coreModuleProjects - project(':spring-security-samples-javaconfig-messages') - project(':spring-security-bom')) {
-	tasks.findByPath("artifactoryPublish")?.enabled = false
 	sonarqube {
 		skipProject = true
 	}
@@ -102,10 +105,13 @@ configure(javaProjects) {
 	}
 	apply from: "$rootDir/gradle/ide.gradle"
 	apply from: "$rootDir/gradle/release-checks.gradle"
-	apply from: "$rootDir/gradle/maven-deployment.gradle"
 }
 
 configure(coreModuleProjects) {
+	apply from: "$rootDir/gradle/maven-deployment.gradle"
+	apply from: "$rootDir/gradle/artifactory.gradle"
+	apply from: "$rootDir/gradle/ossrh.gradle"
+	apply from: "$rootDir/gradle/deploy-artifacts.gradle"
 	apply plugin: 'emma'
 	apply plugin: 'spring-io'
 

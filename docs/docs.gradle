@@ -1,5 +1,7 @@
 	// Docbook and Javadoc building and uploading tasks
 apply plugin: 'base'
+apply from: "$rootDir/gradle/deploy-docs.gradle"
+apply from: "$rootDir/gradle/deploy-schema.gradle"
 
 task docs {
 	dependsOn 'manual:reference', 'apidocs', 'guides:asciidoctor'
@@ -152,6 +154,7 @@ task schemaZip(type: Zip) {
 			}
 			assert xsdFile != null
 			into (shortName) {
+				duplicatesStrategy 'exclude'
 				from xsdFile.path
 			}
 		}

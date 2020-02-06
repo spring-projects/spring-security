@@ -1,0 +1,11 @@
+def isSnapshot = version?.matches(/^.*[.-]BUILD-SNAPSHOT$/)
+
+task deployArtifacts {
+	group = 'Deploy tasks'
+	description = "Deploys the artifacts to either Artifactory or Maven Central"
+	if(isSnapshot) {
+		dependsOn "artifactoryPublish"
+	} else {
+		dependsOn "uploadArchives"
+	}
+}

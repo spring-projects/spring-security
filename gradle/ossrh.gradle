@@ -1,0 +1,45 @@
+def isSnapshot = version?.matches(/^.*[.-]BUILD-SNAPSHOT$/)
+def isRelease = !isSnapshot
+
+if(project.hasProperty("signing.keyId") && isRelease) {
+	sign(project)
+}
+
+if(project.hasProperty('ossrhUsername')) {
+	uploadArchives {
+		repositories {
+			mavenDeployer {
+				repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+					authentication(userName: project.ossrhUsername, password: project.ossrhPassword)
+				}
+
+				snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+					authentication(userName: project.ossrhUsername, password: project.ossrhPassword)
+				}
+			}
+		}
+	}
+}
+
+def sign(Project project) {
+	project.install {
+		repositories {
+			mavenDeployer {
+				beforeDeployment { MavenDeployment deployment -> project.signing.signPom(deployment) }
+			}
+		}
+	}
+
+	project.uploadArchives {
+		repositories {
+			mavenDeployer {
+				beforeDeployment { MavenDeployment deployment -> project.signing.signPom(deployment) }
+			}
+		}
+	}
+
+	project.signing {
+		required { project.gradle.taskGraph.hasTask("uploadArchives") }
+		sign project.configurations.archives
+	}
+}

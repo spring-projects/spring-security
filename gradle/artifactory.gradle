@@ -1,0 +1,33 @@
+apply plugin: "com.jfrog.artifactory"
+
+def isSnapshot = version?.matches(/^.*[.-]BUILD-SNAPSHOT$/)
+
+artifactory {
+	contextUrl = 'https://repo.spring.io'
+	publish {
+		repository {
+			repoKey = isSnapshot ? 'libs-snapshot-local' : 'libs-release-local'
+			if(project.hasProperty('artifactoryUsername')) {
+				username = artifactoryUsername
+				password = artifactoryPassword
+			}
+		}
+	}
+}
+
+artifactoryPublish {
+	publishConfigs 'archives'
+	publishIvy false
+	properties = [
+			'bintray.package': "${project.group}:spring-security",
+			'bintray.version': "${project.version}"
+	]
+}
+
+artifactory {
+	publish {
+		defaults {
+			publishConfigs('archives')
+		}
+	}
+}

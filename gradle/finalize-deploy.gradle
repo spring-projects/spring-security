@@ -1,0 +1,13 @@
+def isSnapshot = version?.matches(/^.*[.-]BUILD-SNAPSHOT$/)
+def isRelease = !isSnapshot
+
+task finalizeDeployArtifacts {
+}
+
+if (isRelease && project.hasProperty("ossrhUsername")) {
+	project.ext.nexusUsername = project.ossrhUsername
+	project.ext.nexusPassword = project.ossrhPassword
+	project.getPluginManager().apply("io.codearte.nexus-staging")
+	finalizeDeployArtifacts.dependsOn project.tasks.closeAndReleaseRepository
+	project.nexusStaging.packageGroup = 'org.springframework'
+}
