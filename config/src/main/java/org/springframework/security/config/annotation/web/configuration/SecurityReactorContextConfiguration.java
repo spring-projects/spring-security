@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import reactor.core.CoreSubscriber;
@@ -92,32 +93,21 @@ class SecurityReactorContextConfiguration {
 		}
 
 		private static boolean contextAttributesAvailable() {
-			HttpServletRequest servletRequest = null;
-			HttpServletResponse servletResponse = null;
-			ServletRequestAttributes requestAttributes =
-					(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-			if (requestAttributes != null) {
-				servletRequest = requestAttributes.getRequest();
-				servletResponse = requestAttributes.getResponse();
-			}
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-			if (authentication != null || servletRequest != null || servletResponse != null) {
-				return true;
-			}
-			return false;
+			return SecurityContextHolder.getContext().getAuthentication() != null ||
+					RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes;
 		}
 
 		private static Map<Object, Object> getContextAttributes() {
 			HttpServletRequest servletRequest = null;
 			HttpServletResponse servletResponse = null;
-			ServletRequestAttributes requestAttributes =
-					(ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-			if (requestAttributes != null) {
-				servletRequest = requestAttributes.getRequest();
-				servletResponse = requestAttributes.getResponse();
+			RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+			if (requestAttributes instanceof ServletRequestAttributes) {
+				ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
+				servletRequest = servletRequestAttributes.getRequest();
+				servletResponse = servletRequestAttributes.getResponse();	// possible null
 			}
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-			if (authentication == null && servletRequest == null && servletResponse == null) {
+			if (authentication == null && servletRequest == null) {
 				return Collections.emptyMap();
 			}
 
