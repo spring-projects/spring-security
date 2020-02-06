@@ -25,6 +25,12 @@ install {
 	}
 }
 
+uploadArchives {
+	repositories.mavenDeployer {
+		customizePom(pom, project)
+	}
+}
+
 def customizePom(pom, gradleProject) {
 	pom.whenConfigured { p ->
 		p.dependencies.findAll{ it.scope == "optional" }.each {
