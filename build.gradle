@@ -14,7 +14,7 @@ buildscript {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.19.RELEASE")
 		classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.12.0"
 		classpath 'org.hidetake:gradle-ssh-plugin:2.10.1'
-		classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.1'
+		classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.10.0'
 	}
 }
 
