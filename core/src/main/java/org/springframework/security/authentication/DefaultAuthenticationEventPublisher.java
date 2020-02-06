@@ -107,20 +107,12 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 
 	public void publishAuthenticationFailure(AuthenticationException exception,
 			Authentication authentication) {
-		Constructor<? extends AbstractAuthenticationEvent> constructor = exceptionMappings
-				.get(exception.getClass().getName());
+		Constructor<? extends AbstractAuthenticationEvent> constructor = getEventConstructor(exception);
 		AbstractAuthenticationEvent event = null;
 
 		if (constructor != null) {
 			try {
 				event = constructor.newInstance(authentication, exception);
-			}
-			catch (IllegalAccessException | InvocationTargetException | InstantiationException ignored) {
-			}
-		}
-		else if (defaultAuthenticationFailureEventConstructor != null) {
-			try {
-				event = defaultAuthenticationFailureEventConstructor.newInstance(authentication, exception);
 			}
 			catch (IllegalAccessException | InvocationTargetException | InstantiationException ignored) {
 			}
@@ -137,6 +129,12 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 						+ exception.getClass().getName());
 			}
 		}
+	}
+
+	private Constructor<? extends AbstractAuthenticationEvent> getEventConstructor(AuthenticationException exception) {
+		Constructor<? extends AbstractAuthenticationEvent> eventConstructor =
+				this.exceptionMappings.get(exception.getClass().getName());
+		return (eventConstructor == null ? this.defaultAuthenticationFailureEventConstructor : eventConstructor);
 	}
 
 	public void setApplicationEventPublisher(
@@ -181,7 +179,7 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 	public void setDefaultAuthenticationFailureEvent(
 			Class<? extends AbstractAuthenticationFailureEvent> defaultAuthenticationFailureEventClass) {
 		Assert.notNull(defaultAuthenticationFailureEventClass,
-				"The defaultAuthenticationFailureEventClass must not be null");
+				"defaultAuthenticationFailureEventClass must not be null");
 		try {
 			this.defaultAuthenticationFailureEventConstructor = defaultAuthenticationFailureEventClass
 					.getConstructor(Authentication.class, AuthenticationException.class);
