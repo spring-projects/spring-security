@@ -30,6 +30,10 @@ repositories {
 	mavenCentral()
 }
 
+nohttp {
+	source.exclude "**/*.svg" 
+}
+
 subprojects {
 	plugins.withType(JavaPlugin) {
 		project.sourceCompatibility='1.8'
