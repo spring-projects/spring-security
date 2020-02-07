@@ -8,8 +8,8 @@ or if you've authenticated this session.</p>
     <p>You are a supervisor! You can therefore see the <a href="extreme/index.jsp">extremely secure page</a>.</p>
 <% } %>
 
-<p><a href="../">Home</a>
-<p><a href="ptSample">Proxy Ticket Sample page</a></p>
-<p><a href="../logout">Logout</a>
+<p><a id="home" href="../">Home</a>
+<p><a id="proxy" href="ptSample">Proxy Ticket Sample page</a></p>
+<p><a id="logout" href="../logout">Logout</a>
 </body>
 </html>

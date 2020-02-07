@@ -3,12 +3,6 @@ apply plugin: 'io.spring.convention.spring-sample-war'
 def keystore = "$rootDir/samples/certificates/server.jks"
 def password = 'password'
 
-
-sourceSets {
-	test.resources.exclude 'GebConfig.groovy'
-	integrationTest.groovy.srcDir file('src/integration-test/groovy')
-}
-
 dependencies {
 	compile project(':spring-security-cas')
 	compile project(':spring-security-core')
@@ -24,10 +18,7 @@ dependencies {
 	runtime 'org.springframework:spring-context-support'
 
 	integrationTestCompile project(':spring-security-cas')
-	integrationTestCompile gebDependencies
 	integrationTestCompile seleniumDependencies
-	integrationTestCompile spockDependencies
-	integrationTestCompile 'org.codehaus.groovy:groovy'
 	integrationTestCompile 'org.eclipse.jetty:jetty-server'
 	integrationTestCompile 'org.eclipse.jetty:jetty-servlet'
 	integrationTestCompile 'org.slf4j:jcl-over-slf4j'
@@ -40,8 +31,6 @@ integrationTest {
 		def casServerHost = 'localhost:' + casServer().gretty.httpsPort
 		systemProperties['cas.server.host'] = casServerHost
 		systemProperties['cas.service.host'] = casServiceHost
-		systemProperties['geb.build.baseUrl'] = 'https://'+casServiceHost+'/cas-sample/'
-		systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
 		systemProperties['jar.path'] = jar.archivePath
 		systemProperties['javax.net.ssl.trustStore'] = keystore
 		systemProperties['javax.net.ssl.trustStorePassword'] = password

@@ -13,41 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.samples.cas
+package org.springframework.security.samples.cas;
 
-import org.eclipse.jetty.http.HttpVersion
-import org.eclipse.jetty.server.HttpConfiguration
-import org.eclipse.jetty.server.HttpConnectionFactory
-import org.eclipse.jetty.server.SecureRequestCustomizer
-import org.eclipse.jetty.server.ServerConnector
-import org.eclipse.jetty.server.SslConnectionFactory
+import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.eclipse.jetty.http.HttpVersion;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-
-import javax.servlet.ServletException
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-
-import org.eclipse.jetty.server.Request
-import org.eclipse.jetty.server.Server
-import org.eclipse.jetty.server.handler.AbstractHandler
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl;
 import org.jasig.cas.client.validation.Cas20ProxyTicketValidator;
+import org.jasig.cas.client.validation.TicketValidationException;
+
+import org.springframework.util.StringUtils;
 
 /**
  * A CAS Service that allows a PGT to be obtained. This is useful for testing use of proxy tickets.
  *
  * @author Rob Winch
  */
-class JettyCasService extends Server {
-	private Cas20ProxyTicketValidator validator
-	private int port = availablePort()
+public class JettyCasService extends Server {
+	private Cas20ProxyTicketValidator validator;
+	private int port = availablePort();
 
 	/**
 	 * The Proxy Granting Ticket. To initialize pgt, authenticate to the CAS Server with the service parameter
 	 * equal to {@link #serviceUrl()}.
 	 */
-	String pgt
+	String pgt;
 
 	/**
 	 * Start the CAS Service which will be available at {@link #serviceUrl()}.
@@ -55,16 +60,15 @@ class JettyCasService extends Server {
 	 * @param casServerUrl
 	 * @return
 	 */
-	def init(String casServerUrl) {
-		println "Initializing to " + casServerUrl
-		ProxyGrantingTicketStorage storage = new ProxyGrantingTicketStorageImpl()
-		validator = new Cas20ProxyTicketValidator(casServerUrl)
-		validator.setAcceptAnyProxy(true)
-		validator.setProxyGrantingTicketStorage(storage)
-		validator.setProxyCallbackUrl(absoluteUrl('callback'))
+	JettyCasService init(String casServerUrl) {
+		System.out.println("Initializing to " + casServerUrl);
+		ProxyGrantingTicketStorage storage = new ProxyGrantingTicketStorageImpl();
+		this.validator = new Cas20ProxyTicketValidator(casServerUrl);
+		this.validator.setAcceptAnyProxy(true);
+		this.validator.setProxyGrantingTicketStorage(storage);
+		this.validator.setProxyCallbackUrl(absoluteUrl("callback"));
 
-		String password = System.getProperty('javax.net.ssl.trustStorePassword','password')
-
+		String password = System.getProperty("javax.net.ssl.trustStorePassword", "password");
 
 		SslContextFactory sslContextFactory = new SslContextFactory.Server();
 		sslContextFactory.setKeyStorePath(getTrustStore());
@@ -83,30 +87,39 @@ class JettyCasService extends Server {
 		https_config.addCustomizer(src);
 
 		ServerConnector https = new ServerConnector(this,
-			new SslConnectionFactory(sslContextFactory,HttpVersion.HTTP_1_1.asString()),
+			new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
 			new HttpConnectionFactory(https_config));
 		https.setPort(port);
 		https.setIdleTimeout(500000);
 
-		addConnector(https)
+		addConnector(https);
 		setHandler(new AbstractHandler() {
 			public void handle(String target, Request baseRequest,
 					HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
-				def st = request.getParameter('ticket')
-				if(st) {
-					JettyCasService.this.validator.validate(st, JettyCasService.this.serviceUrl())
+				String st = request.getParameter("ticket");
+				if (StringUtils.hasText(st)) {
+					try {
+						JettyCasService.this.validator.validate(st, JettyCasService.this.serviceUrl());
+					} catch (TicketValidationException e) {
+						throw new IllegalArgumentException(e);
+					}
 				}
-				def pgt = request.getParameter('pgtId')
-				if(pgt) {
-				  JettyCasService.this.pgt = pgt
+				String pgt = request.getParameter("pgtId");
+				if (StringUtils.hasText(pgt)) {
+					JettyCasService.this.pgt = pgt;
 				}
 				response.setStatus(HttpServletResponse.SC_OK);
 				baseRequest.setHandled(true);
 			}
-		})
-		start()
-		this
+		});
+
+		try {
+			start();
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
+		return this;
 	}
 
 	/**
@@ -114,7 +127,7 @@ class JettyCasService extends Server {
 	 * @return
 	 */
 	String serviceUrl() {
-		absoluteUrl('service')
+		return absoluteUrl("service");
 	}
 
 	/**
@@ -123,24 +136,27 @@ class JettyCasService extends Server {
 	 * @return
 	 */
 	private String absoluteUrl(String relativeUrl) {
-		"https://localhost:${port}/${relativeUrl}"
+		return "https://localhost:" + port + "/" + relativeUrl;
 	}
 
 	private static String getTrustStore() {
-		String trustStoreLocation = System.getProperty('javax.net.ssl.trustStore')
-		if(trustStoreLocation == null || !new File(trustStoreLocation).isFile()) {
-			throw new  IllegalStateException('Could not find the trust store at path "'+trustStoreLocation+'". Specify the location using the javax.net.ssl.trustStore system property.')
+		String trustStoreLocation = System.getProperty("javax.net.ssl.trustStore");
+		if (trustStoreLocation == null || !new File(trustStoreLocation).isFile()) {
+			throw new  IllegalStateException("Could not find the trust store at path \"" + trustStoreLocation +
+					"\". Specify the location using the javax.net.ssl.trustStore system property.");
 		}
-		trustStoreLocation
+		return trustStoreLocation;
 	}
+
 	/**
 	 * Obtains a random available port (i.e. one that is not in use)
 	 * @return
 	 */
 	private static int availablePort() {
-		ServerSocket server = new ServerSocket(0)
-		int port = server.localPort
-		server.close()
-		port
+		try (ServerSocket server = new ServerSocket(0)) {
+			return server.getLocalPort();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 }

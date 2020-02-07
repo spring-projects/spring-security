@@ -9,7 +9,7 @@
 
 <p>You have logged out of this application, but may still have an active single-sign on session with CAS.</p>
 
-<p><a href="logout/cas">Logout of CAS</a></p>
+<p><a id="casLogout" href="logout/cas">Logout of CAS</a></p>
 
 </body>
 </html>

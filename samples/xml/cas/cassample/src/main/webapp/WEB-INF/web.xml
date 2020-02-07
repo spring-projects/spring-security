@@ -79,6 +79,10 @@
 		<url-pattern>/secure/ptSample</url-pattern>
 	</servlet-mapping>
 	<error-page>
+		<error-code>401</error-code>
+		<location>/401.jsp</location>
+	</error-page>
+	<error-page>
 		<error-code>403</error-code>
 		<location>/403.jsp</location>
 	</error-page>
