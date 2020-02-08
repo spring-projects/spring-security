@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.util.Assert;
+
+import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
 
 /**
  * Validates the "iss" claim in a {@link Jwt}, that is matches a configured value
@@ -28,13 +28,8 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
-	private static OAuth2Error INVALID_ISSUER =
-			new OAuth2Error(
-					OAuth2ErrorCodes.INVALID_REQUEST,
-					"This iss claim is not equal to the configured issuer",
-					"https://tools.ietf.org/html/rfc6750#section-3.1");
 
-	private final String issuer;
+	private final JwtClaimValidator<String> validator;
 
 	/**
 	 * Constructs a {@link JwtIssuerValidator} using the provided parameters
@@ -43,7 +38,7 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 	 */
 	public JwtIssuerValidator(String issuer) {
 		Assert.notNull(issuer, "issuer cannot be null");
-		this.issuer = issuer;
+		this.validator = new JwtClaimValidator(ISS, issuer::equals);
 	}
 
 	/**
@@ -52,12 +47,6 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 	@Override
 	public OAuth2TokenValidatorResult validate(Jwt token) {
 		Assert.notNull(token, "token cannot be null");
-
-		String tokenIssuer = token.getClaimAsString(JwtClaimNames.ISS);
-		if (this.issuer.equals(tokenIssuer)) {
-			return OAuth2TokenValidatorResult.success();
-		} else {
-			return OAuth2TokenValidatorResult.failure(INVALID_ISSUER);
-		}
+		return this.validator.validate(token);
 	}
 }
