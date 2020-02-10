@@ -16,12 +16,21 @@
 
 package org.springframework.security.config.annotation.web.configurers.saml2;
 
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Collections;
+import javax.servlet.ServletException;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.opensaml.saml.saml2.core.Assertion;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -56,15 +65,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Collections;
-import javax.servlet.ServletException;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.codehaus.groovy.runtime.InvokerHelper.asList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -76,9 +77,9 @@ import static org.springframework.security.config.annotation.web.configurers.sam
 public class Saml2LoginConfigurerTests {
 
 	private static final Converter<Assertion, Collection<? extends GrantedAuthority>>
-			AUTHORITIES_EXTRACTOR = a -> asList(new SimpleGrantedAuthority("TEST"));
+			AUTHORITIES_EXTRACTOR = a -> Arrays.asList(new SimpleGrantedAuthority("TEST"));
 	private static final GrantedAuthoritiesMapper AUTHORITIES_MAPPER =
-			authorities -> asList(new SimpleGrantedAuthority("TEST CONVERTED"));
+			authorities -> Arrays.asList(new SimpleGrantedAuthority("TEST CONVERTED"));
 	private static final Duration RESPONSE_TIME_VALIDATION_SKEW = Duration.ZERO;
 
 	@Autowired

@@ -42,7 +42,6 @@ dependencies {
 	testCompile project(path : ':spring-security-web', configuration : 'tests')
 	testCompile apachedsDependencies
 	testCompile powerMock2Dependencies
-	testCompile spockDependencies
 	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'ch.qos.logback:logback-classic'
 	testCompile 'io.projectreactor.netty:reactor-netty'
@@ -53,7 +52,6 @@ dependencies {
 	testCompile('net.sourceforge.htmlunit:htmlunit') {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
-	testCompile 'org.codehaus.groovy:groovy-all'
 	testCompile 'org.eclipse.persistence:javax.persistence'
 	testCompile 'org.hibernate:hibernate-entitymanager'
 	testCompile 'org.hsqldb:hsqldb'

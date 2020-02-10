@@ -17,7 +17,6 @@ dependencies {
 	testCompile 'commons-codec:commons-codec'
 	testCompile powerMock2Dependencies
 	testCompile slf4jDependencies
-	testCompile spockDependencies
 
 	testRuntime 'org.hsqldb:hsqldb'
 }

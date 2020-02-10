@@ -14,9 +14,6 @@ dependencies {
 	provided 'javax.servlet.jsp:javax.servlet.jsp-api'
 	provided 'javax.servlet:javax.servlet-api'
 
-	testCompile 'org.codehaus.groovy:groovy-all'
-	testCompile spockDependencies
-
 	testRuntime 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api'
 }
 

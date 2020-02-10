@@ -22,12 +22,10 @@ dependencies {
 	testCompile 'commons-codec:commons-codec'
 	testCompile 'io.projectreactor:reactor-test'
 	testCompile 'javax.xml.bind:jaxb-api'
-	testCompile 'org.codehaus.groovy:groovy-all'
 	testCompile 'org.skyscreamer:jsonassert'
 	testCompile 'org.springframework:spring-webflux'
 	testCompile 'org.synchronoss.cloud:nio-multipart-parser'
 	testCompile powerMock2Dependencies
-	testCompile spockDependencies
 
 	testRuntime 'org.hsqldb:hsqldb'
 }
