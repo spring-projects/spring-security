@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,12 +37,19 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+
+import java.net.URI;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * A {@code Filter} for the OAuth 2.0 Authorization Code Grant,
@@ -138,10 +145,10 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return this.requiresAuthenticationMatcher.matches(exchange)
-				.filter( matchResult -> matchResult.isMatch())
-				.flatMap( matchResult -> this.authenticationConverter.convert(exchange))
+				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+				.flatMap(matchResult -> this.authenticationConverter.convert(exchange))
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-				.flatMap( token -> authenticate(exchange, chain, token));
+				.flatMap(token -> authenticate(exchange, chain, token));
 	}
 
 	private Mono<Void> authenticate(ServerWebExchange exchange,
@@ -171,20 +178,34 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 	}
 
 	private Mono<ServerWebExchangeMatcher.MatchResult> matchesAuthorizationResponse(ServerWebExchange exchange) {
-		return this.authorizationRequestRepository.loadAuthorizationRequest(exchange)
-				.flatMap(authorizationRequest -> {
-					String requestUrl = UriComponentsBuilder.fromUri(exchange.getRequest().getURI())
-							.query(null)
-							.build()
-							.toUriString();
-					MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
-					if (requestUrl.equals(authorizationRequest.getRedirectUri()) &&
-							OAuth2AuthorizationResponseUtils.isAuthorizationResponse(queryParams)) {
-						return ServerWebExchangeMatcher.MatchResult.match();
-					}
-					return ServerWebExchangeMatcher.MatchResult.notMatch();
-				})
-				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+		return Mono.just(exchange)
+				.filter(exch -> OAuth2AuthorizationResponseUtils.isAuthorizationResponse(exch.getRequest().getQueryParams()))
+				.flatMap(exch -> this.authorizationRequestRepository.loadAuthorizationRequest(exchange)
+						.flatMap(authorizationRequest ->
+								matchesRedirectUri(exch.getRequest().getURI(), authorizationRequest.getRedirectUri())))
 				.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.notMatch());
+	}
+
+	private static Mono<ServerWebExchangeMatcher.MatchResult> matchesRedirectUri(
+			URI authorizationResponseUri, String authorizationRequestRedirectUri) {
+		UriComponents requestUri = UriComponentsBuilder.fromUri(authorizationResponseUri).build();
+		UriComponents redirectUri = UriComponentsBuilder.fromUriString(authorizationRequestRedirectUri).build();
+		Set<Map.Entry<String, List<String>>> requestUriParameters =
+				new LinkedHashSet<>(requestUri.getQueryParams().entrySet());
+		Set<Map.Entry<String, List<String>>> redirectUriParameters =
+				new LinkedHashSet<>(redirectUri.getQueryParams().entrySet());
+		// Remove the additional request parameters (if any) from the authorization response (request)
+		// before doing an exact comparison with the authorizationRequest.getRedirectUri() parameters (if any)
+		requestUriParameters.retainAll(redirectUriParameters);
+
+		if (Objects.equals(requestUri.getScheme(), redirectUri.getScheme()) &&
+				Objects.equals(requestUri.getUserInfo(), redirectUri.getUserInfo()) &&
+				Objects.equals(requestUri.getHost(), redirectUri.getHost()) &&
+				Objects.equals(requestUri.getPort(), redirectUri.getPort()) &&
+				Objects.equals(requestUri.getPath(), redirectUri.getPath()) &&
+				Objects.equals(requestUriParameters.toString(), redirectUriParameters.toString())) {
+			return ServerWebExchangeMatcher.MatchResult.match();
+		}
+		return ServerWebExchangeMatcher.MatchResult.notMatch();
 	}
 }
