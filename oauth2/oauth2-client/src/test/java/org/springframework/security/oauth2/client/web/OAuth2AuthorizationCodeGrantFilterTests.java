@@ -61,7 +61,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.core.TestOAuth2AccessTokens.noScopes;
 import static org.springframework.security.oauth2.core.TestOAuth2RefreshTokens.refreshToken;
@@ -186,7 +186,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		FilterChain filterChain = mock(FilterChain.class);
 		MockHttpServletRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
 		this.filter.doFilter(authorizationResponse, response, filterChain);
-		verifyNoInteractions(filterChain);
+		verifyZeroInteractions(filterChain);
 
 		// 2) redirect_uri with query parameters AND authorization response additional parameters
 		Map<String, String> additionalParameters = new LinkedHashMap<>();
@@ -196,7 +196,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 		authorizationResponse = createAuthorizationResponse(authorizationRequest, additionalParameters);
 		this.filter.doFilter(authorizationResponse, response, filterChain);
-		verifyNoInteractions(filterChain);
+		verifyZeroInteractions(filterChain);
 	}
 
 	// gh-7963
