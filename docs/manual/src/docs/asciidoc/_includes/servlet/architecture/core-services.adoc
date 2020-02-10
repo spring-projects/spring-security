@@ -79,7 +79,7 @@ Configuring the provider is quite simple:
 
 The `PasswordEncoder` is optional.
 A `PasswordEncoder` provides encoding and matching of encoded passwords presented in the `UserDetails` object that is returned from the configured `UserDetailsService`.
-This will be discussed in more detail <<core-services-password-encoding,below>>.
+This is discussed in more detail in <<authentication-password-storage>>.
 
 
 === UserDetailsService Implementations
@@ -105,7 +105,7 @@ Is easy to use create a custom `UserDetailsService` implementation that extracts
 This is particularly true if you're building a prototype application or just starting integrating Spring Security, when you don't really want to spend time configuring databases or writing `UserDetailsService` implementations.
 For this sort of situation, a simple option is to use the `user-service` element from the security <<ns-minimal,namespace>>:
 
-[source,xml]
+[source,xml,attrs="-attributes"]
 ----
 <user-service id="userDetailsService">
 <!-- Password is prefixed with {noop} to indicate to DelegatingPasswordEncoder that

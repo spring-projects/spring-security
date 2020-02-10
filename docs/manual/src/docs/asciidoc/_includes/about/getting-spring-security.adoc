@@ -276,7 +276,7 @@ dependencies {
 
 If you use additional features (such as LDAP, OpenID, and others), you need to also include the appropriate <<modules>>.
 
-Spring Security builds against Spring Framework {spring-core-version} but should generally work with any newer version of Spring Framework 5.x. {JB}
+Spring Security builds against Spring Framework {spring-core-version} but should generally work with any newer version of Spring Framework 5.x.
 Many users are likely to run afoul of the fact that Spring Security's transitive dependencies resolve Spring Framework {spring-core-version}, which can cause strange classpath problems.
 The easiest way to resolve this is to use the `spring-framework-bom` within your `<dependencyManagement>` section of your `pom.xml`.
 You can do so by using the https://github.com/spring-gradle-plugins/dependency-management-plugin[Dependency Management Plugin], as the following example shows:

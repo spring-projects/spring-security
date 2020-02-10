@@ -168,4 +168,8 @@ Below is a comprehensive list of Spring Security Filter ordering:
 
 include::technical-overview.adoc[]
 
+include::security-filter-chain.adoc[]
+
+include::core-filters.adoc[]
+
 include::core-services.adoc[]

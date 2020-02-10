@@ -19,7 +19,7 @@ public SpringAuthenticationProvider springAuthenticationProvider() {
 === AuthenticationProvider XML Configuration
 In practice you will need a more scalable source of user information than a few names added to the application context file.
 Most likely you will want to store your user information in something like a database or an LDAP server.
-LDAP namespace configuration is dealt with in the <<ldap,LDAP chapter>>, so we won't cover it here.
+LDAP namespace configuration is dealt with in the <<servlet-authentication-ldap,LDAP chapter>>, so we won't cover it here.
 If you have a custom implementation of Spring Security's `UserDetailsService`, called "myUserDetailsService" in your application context, then you can authenticate against this using
 
 [source,xml]

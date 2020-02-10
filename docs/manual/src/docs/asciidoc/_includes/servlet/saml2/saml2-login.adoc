@@ -46,8 +46,8 @@ the IDP sends an assertion to the SP.
 [[samllogin-feature-set]]
 === Saml 2 Login - Current Feature Set
 
-1. Service Provider (SP/Relying Party) is identified by `entityId = {baseUrl}/saml2/service-provider-metadata/{registrationId}`
-2. Receive assertion embedded in a SAML response via Http-POST or Http-Redirect at `{baseUrl}/login/saml2/sso/{registrationId}`
+1. Service Provider (SP/Relying Party) is identified by `+entityId = {baseUrl}/saml2/service-provider-metadata/{registrationId}+`
+2. Receive assertion embedded in a SAML response via Http-POST or Http-Redirect at `+{baseUrl}/login/saml2/sso/{registrationId}+`
 3. Requires the assertion to be signed, unless the response is signed
 4. Supports encrypted assertions
 5. Supports encrypted NameId elements
@@ -131,9 +131,7 @@ an incoming request. The URI patterns in `saml2Login` can contain the following 
 * `basePort`
 
 For example:
-```
-{baseUrl}/login/saml2/sso/{registrationId}
-```
+`+{baseUrl}/login/saml2/sso/{registrationId}+`
 
 ===== Relying Party
 
@@ -141,7 +139,7 @@ For example:
 * `registrationId` - (required) a unique identifer for this configuration mapping.
 This identifier may be used in URI paths, so care should be taken that no URI encoding is required.
 * `localEntityIdTemplate` - (optional) A URI pattern that creates an entity ID for this application based on the incoming request. The default is
-`{baseUrl}/saml2/service-provider-metadata/{registrationId}` and for a small sample application
+`+{baseUrl}/saml2/service-provider-metadata/{registrationId}+` and for a small sample application
 it would look like
 ```
 http://localhost:8080/saml2/service-provider-metadata/my-test-configuration
@@ -153,7 +151,7 @@ no patterns allowed.
 * `assertionConsumerServiceUrlTemplate` - (optional) A URI pattern that denotes the assertion
 consumer service URI to be sent with any `AuthNRequest` from the SP to the IDP during the SP initiated flow.
 While this can be a pattern the actual URI must resolve to the ACS endpoint on the SP.
-The default value is `{baseUrl}/login/saml2/sso/{registrationId}` and maps directly to the
+The default value is `+{baseUrl}/login/saml2/sso/{registrationId}+` and maps directly to the
 https://github.com/spring-projects/spring-security/blob/5.2.0.RELEASE/saml2/saml2-service-provider/src/main/java/org/springframework/security/saml2/provider/service/servlet/filter/Saml2WebSsoAuthenticationFilter.java#L42[`Saml2WebSsoAuthenticationFilter`] endpoint
 * `idpWebSsoUrl`  - (required) a fixed URI value for the IDP Single Sign On endpoint where
 the SP sends the `AuthNRequest` messages.
@@ -198,10 +196,10 @@ credentials on all the identity providers.
 The Spring Security SAML 2 implementation does not yet provide an endpoint for downloading
 SP metadata in XML format. The minimal pieces that are exchanged
 
-* *entity ID* - defaults to `{baseUrl}/saml2/service-provider-metadata/{registrationId}`
+* *entity ID* - defaults to `+{baseUrl}/saml2/service-provider-metadata/{registrationId}+`
 Other known configuration names that also use this same value
 ** Audience Restriction
-* *single signon URL* - defaults to `{baseUrl}/login/saml2/sso/{registrationId}`
+* *single signon URL* - defaults to `+{baseUrl}/login/saml2/sso/{registrationId}+`
 Other known configuration names that also use this same value
 ** Recipient URL
 ** Destination URL
@@ -212,9 +210,9 @@ credentials must be shared with the Identity Provider
 ==== Authentication Requests - SP Initiated Flow
 
 To initiate an authentication from the web application, a simple redirect to
-```
-{baseUrl}/saml2/authenticate/{registrationId}
-```
+
+`+{baseUrl}/saml2/authenticate/{registrationId}+`
+
 The endpoint will generate an `AuthNRequest` by invoking the `createAuthenticationRequest` method on a
 configurable factory. Just expose the `Saml2AuthenticationRequestFactory` as a bean in your configuration.
 [source,java]
@@ -345,9 +343,7 @@ To run the sample, follow these three steps
 It's very simple to use multiple providers, but there are some defaults that
 may trip you up if you don't pay attention. In our SAML configuration of
 `RelyingPartyRegistration` objects, we default an SP entity ID to
-```
-{baseUrl}/saml2/service-provider-metadata/{registrationId}
-```
+`+{baseUrl}/saml2/service-provider-metadata/{registrationId}+`
 
 That means in our two provider configuration, our system would look like
 
@@ -401,12 +397,15 @@ spring:
 ----
 
 If this is not desirable, you can manually override the local SP entity ID by using the
-```
+
+[source,attrs="-attributes"]
+----
 localEntityIdTemplate = {baseUrl}/saml2/service-provider-metadata
-```
+----
+
 If we change our local SP entity ID to this value, it is still important that we give
 out the correct single sign on URL (the assertion consumer service URL)
 for each registered identity provider based on the registration Id.
-`{baseUrl}/login/saml2/sso/{registrationId}`
+`+{baseUrl}/login/saml2/sso/{registrationId}+`
 
 

@@ -364,11 +364,11 @@ Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.1[Authorizat
 The `OAuth2AuthorizationRequestRedirectFilter` uses an `OAuth2AuthorizationRequestResolver` to resolve an `OAuth2AuthorizationRequest` and initiate the Authorization Code grant flow by redirecting the end-user's user-agent to the Authorization Server's Authorization Endpoint.
 
 The primary role of the `OAuth2AuthorizationRequestResolver` is to resolve an `OAuth2AuthorizationRequest` from the provided web request.
-The default implementation `DefaultOAuth2AuthorizationRequestResolver` matches on the (default) path `/oauth2/authorization/{registrationId}` extracting the `registrationId` and using it to build the `OAuth2AuthorizationRequest` for the associated `ClientRegistration`.
+The default implementation `DefaultOAuth2AuthorizationRequestResolver` matches on the (default) path `+/oauth2/authorization/{registrationId}+` extracting the `registrationId` and using it to build the `OAuth2AuthorizationRequest` for the associated `ClientRegistration`.
 
 Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
 
-[source,yaml]
+[source,yaml,attrs="-attributes"]
 ----
 spring:
   security:
@@ -395,7 +395,7 @@ which also initiates the Authorization Request redirect by the `OAuth2Authorizat
 
 If the OAuth 2.0 Client is a https://tools.ietf.org/html/rfc6749#section-2.1[Public Client], then configure the OAuth 2.0 Client registration as follows:
 
-[source,yaml]
+[source,yaml,attrs="-attributes"]
 ----
 spring:
   security:
@@ -421,7 +421,7 @@ The `DefaultOAuth2AuthorizationRequestResolver` also supports `URI` template var
 
 The following configuration uses all the supported `URI` template variables:
 
-[source,yaml]
+[source,yaml,attrs="-attributes"]
 ----
 spring:
   security:
@@ -435,9 +435,9 @@ spring:
 ----
 
 [NOTE]
-`{baseUrl}` resolves to `{baseScheme}://{baseHost}{basePort}{basePath}`
+`+{baseUrl}+` resolves to `+{baseScheme}://{baseHost}{basePort}{basePath}+`
 
-Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a <<appendix-proxy-server, Proxy Server>>.
+Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a <<http-proxy-server,Proxy Server>>.
 This ensures that the `X-Forwarded-*` headers are used when expanding the `redirect-uri`.
 
 ===== Customizing the Authorization Request

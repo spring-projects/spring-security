@@ -1,5 +1,4 @@
 [[session-mgmt]]
-[[ns-session-mgmt]]
 == Session Management
 HTTP session related functionality is handled by a combination of the `SessionManagementFilter` and the `SessionAuthenticationStrategy` interface, which the filter delegates to.
 Typical usage includes session-fixation protection attack prevention, detection of session timeouts and restrictions on how many sessions an authenticated user may have open concurrently.
@@ -126,7 +125,7 @@ It will then invoke the configured `SessionAuthenticationStrategy`.
 
 If the user is not currently authenticated, the filter will check whether an invalid session ID has been requested (because of a timeout, for example) and will invoke the configured `InvalidSessionStrategy`, if one is set.
 The most common behaviour is just to redirect to a fixed URL and this is encapsulated in the standard implementation `SimpleRedirectInvalidSessionStrategy`.
-The latter is also used when configuring an invalid session URL through the namespace,<<ns-session-mgmt,as described earlier>>.
+The latter is also used when configuring an invalid session URL through the namespace,<<session-mgmt,as described earlier>>.
 
 
 === SessionAuthenticationStrategy

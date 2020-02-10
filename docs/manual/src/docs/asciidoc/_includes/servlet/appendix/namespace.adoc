@@ -1248,7 +1248,7 @@ By default, an instance of `PortMapperImpl` will be added to the configuration f
 This element can optionally be used to override the default mappings which that class defines.
 Each child `<port-mapping>` element defines a pair of HTTP:HTTPS ports.
 The default mappings are 80:443 and 8080:8443.
-An example of overriding these can be found in the <<ns-requires-channel,namespace introduction>>.
+An example of overriding these can be found in <<servlet-http-redirect>>.
 
 
 [[nsa-port-mappings-parents]]
@@ -1751,7 +1751,7 @@ All elements which create `AuthenticationProvider` instances should be children 
 [[nsa-authentication-manager-alias]]
 * **alias**
 This attribute allows you to define an alias name for the internal instance for use in your own configuration.
-Its use is described in the<<ns-auth-manager,namespace introduction>>.
+Its use is described in the <<ns-auth-manager,namespace introduction>>.
 
 
 [[nsa-authentication-manager-erase-credentials]]
@@ -1912,7 +1912,7 @@ select username, password, enabled from users where username = ?
 
 [[nsa-password-encoder]]
 ==== <password-encoder>
-Authentication providers can optionally be configured to use a password encoder as described in the <<ns-password-encoder,namespace introduction>>.
+Authentication providers can optionally be configured to use a password encoder as described in the <<authentication-password-storage>>.
 This will result in the bean being injected with the appropriate `PasswordEncoder` instance.
 
 
@@ -2338,7 +2338,7 @@ A method name
 
 [[nsa-ldap]]
 === LDAP Namespace Options
-LDAP is covered in some details in <<ldap,its own chapter>>.
+LDAP is covered in some details in <<servlet-authentication-ldap,its own chapter>>.
 We will expand on that here with some explanation of how the namespace options map to Spring beans.
 The LDAP implementation uses Spring LDAP extensively, so some familiarity with that project's API may be useful.
 
@@ -2348,7 +2348,7 @@ The LDAP implementation uses Spring LDAP extensively, so some familiarity with t
 `<ldap-server>` Element
 This element sets up a Spring LDAP `ContextSource` for use by the other LDAP beans, defining the location of the LDAP server and other information (such as a username and password, if it doesn't allow anonymous access) for connecting to it.
 It can also be used to create an embedded server for testing.
-Details of the syntax for both options are covered in the <<ldap-server,LDAP chapter>>.
+Details of the syntax for both options are covered in the <<servlet-authentication-ldap,LDAP chapter>>.
 The actual `ContextSource` implementation is `DefaultSpringSecurityContextSource` which extends Spring LDAP's `LdapContextSource` class.
 The `manager-dn` and `manager-password` attributes map to the latter's `userDn` and `password` properties respectively.
 
@@ -2443,7 +2443,7 @@ Defaults to "" (searching from the root).
 * **group-search-filter**
 Group search filter.
 Maps to the ``DefaultLdapAuthoritiesPopulator``'s `groupSearchFilter` property.
-Defaults to (uniqueMember={0}).
+Defaults to `+(uniqueMember={0})+`.
 The substituted parameter is the DN of the user.
 
 
@@ -2476,8 +2476,8 @@ If set, the framework will attempt to load standard attributes for the defined c
 * **user-dn-pattern**
 If your users are at a fixed location in the directory (i.e. you can work out the DN directly from the username without doing a directory search), you can use this attribute to map directly to the DN.
 It maps directly to the `userDnPatterns` property of `AbstractLdapAuthenticator`.
-The value is a specific pattern used to build the user's DN, for example "uid={0},ou=people".
-The key "{0}" must be present and will be substituted with the username.
+The value is a specific pattern used to build the user's DN, for example `+uid={0},ou=people+`.
+The key `+{0}+` must be present and will be substituted with the username.
 
 
 [[nsa-ldap-authentication-provider-user-search-base]]
@@ -2490,20 +2490,20 @@ Only used with a 'user-search-filter'.
 
 If you need to perform a search to locate the user in the directory, then you can set these attributes to control the search.
 The `BindAuthenticator` will be configured with a `FilterBasedLdapUserSearch` and the attribute values map directly to the first two arguments of that bean's constructor.
-If these attributes aren't set and no `user-dn-pattern` has been supplied as an alternative, then the default search values of `user-search-filter="(uid={0})"` and `user-search-base=""` will be used.
+If these attributes aren't set and no `user-dn-pattern` has been supplied as an alternative, then the default search values of `+user-search-filter="(uid={0})"+` and `user-search-base=""` will be used.
 
 
 [[nsa-ldap-authentication-provider-user-search-filter]]
 * **user-search-filter**
 The LDAP filter used to search for users (optional).
-For example "(uid={0})".
+For example `+(uid={0})+`.
 The substituted parameter is the user's login name.
 
 +
 
 If you need to perform a search to locate the user in the directory, then you can set these attributes to control the search.
 The `BindAuthenticator` will be configured with a `FilterBasedLdapUserSearch` and the attribute values map directly to the first two arguments of that bean's constructor.
-If these attributes aren't set and no `user-dn-pattern` has been supplied as an alternative, then the default search values of `user-search-filter="(uid={0})"` and `user-search-base=""` will be used.
+If these attributes aren't set and no `user-dn-pattern` has been supplied as an alternative, then the default search values of `+user-search-filter="(uid={0})"+` and `user-search-base=""` will be used.
 
 
 [[nsa-ldap-authentication-provider-children]]
@@ -2582,7 +2582,7 @@ Defaults to "" (searching from the root).
 [[nsa-ldap-user-service-group-search-filter]]
 * **group-search-filter**
 Group search filter.
-Defaults to (uniqueMember={0}).
+Defaults to `+(uniqueMember={0})+`.
 The substituted parameter is the DN of the user.
 
 
@@ -2625,5 +2625,5 @@ Only used with a 'user-search-filter'.
 [[nsa-ldap-user-service-user-search-filter]]
 * **user-search-filter**
 The LDAP filter used to search for users (optional).
-For example "(uid={0})".
+For example `+(uid={0})+`.
 The substituted parameter is the user's login name.

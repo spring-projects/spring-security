@@ -5,12 +5,12 @@ Spring Security's `InMemoryUserDetailsManager` implements <<servlet-authenticati
 `InMemoryUserDetailsManager` provides management of `UserDetails` by implementing the `UserDetailsManager` interface.
 `UserDetails` based authentication is used by Spring Security when it is configured to <<servlet-authentication-unpwd-input,accept a username/password>> for authentication.
 
-In this sample we use <<authentication-password-storage-boot-cli,Spring Boot CLI>> to encode the password of `password` and get the encoded password of `{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW`.
+In this sample we use <<authentication-password-storage-boot-cli,Spring Boot CLI>> to encode the password of `password` and get the encoded password of `+{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW+`.
 
 .InMemoryUserDetailsManager Java Configuration
 ====
 .Java
-[source,java,role="primary"]
+[source,java,role="primary",attrs="-attributes"]
 ----
 @Bean
 public UserDetailsService users() {
@@ -29,7 +29,7 @@ public UserDetailsService users() {
 ----
 
 .XML
-[source,xml,role="secondary"]
+[source,xml,role="secondary",attrs="-attributes"]
 ----
 <user-service>
 	<user name="user"
@@ -42,7 +42,7 @@ public UserDetailsService users() {
 ----
 
 .Kotlin
-[source,kotlin,role="secondary"]
+[source,kotlin,role="secondary,attrs="-attributes""]
 ----
 @Bean
 fun users(): UserDetailsService {
@@ -114,11 +114,11 @@ fun users(): UserDetailsService {
 ====
 
 There is no simple way to use `User.withDefaultPasswordEncoder` with XML based configuration.
-For demos or just getting started, you can choose to prefix the password with `{noop}` to indicate <<authentication-password-storage-dpe-format,no encoding should be used>>.
+For demos or just getting started, you can choose to prefix the password with `+{noop}+` to indicate <<authentication-password-storage-dpe-format,no encoding should be used>>.
 
-.<user-service> `{noop}` XML Configuration
+.<user-service> `+{noop}+` XML Configuration
 ====
-[source,xml]
+[source,xml,attrs="-attributes"]
 ----
 <user-service>
 	<user name="user"

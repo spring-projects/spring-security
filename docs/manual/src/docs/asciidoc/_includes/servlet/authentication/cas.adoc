@@ -92,7 +92,7 @@ The web application side of CAS is made easy due to Spring Security.
 It is assumed you already know the basics of using Spring Security, so these are not covered again below.
 We'll assume a namespace based configuration is being used and add in the CAS beans as required.
 Each section builds upon the previous section.
-A full<<cas-sample,CAS sample application>> can be found in the Spring Security Samples.
+A full CAS sample application can be found in the Spring Security <<samples,Samples>>.
 
 
 [[cas-st]]
@@ -148,7 +148,7 @@ You can use these properties to customize things like behavior for authenticatio
 
 Next you need to add a `CasAuthenticationProvider` and its collaborators:
 
-[source,xml]
+[source,xml,attrs="-attributes"]
 ----
 <security:authentication-manager alias="authenticationManager">
 <security:authentication-provider ref="casAuthenticationProvider" />
@@ -337,7 +337,7 @@ An example configuration is shown below.
 [[cas-pt-client-sample]]
 ===== Calling a Stateless Service Using a Proxy Ticket
 Now that Spring Security obtains PGTs, you can use them to create proxy tickets which can be used to authenticate to a stateless service.
-The <<cas-sample,CAS sample application>> contains a working example in the `ProxyTicketSampleServlet`.
+The CAS <<samples,sample application>> contains a working example in the `ProxyTicketSampleServlet`.
 Example code can be found below:
 
 [source,java]

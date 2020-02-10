@@ -39,10 +39,10 @@ The redirect URI is the path in the application that the end-user's user-agent i
 
 In the "Set a redirect URI" sub-section, ensure that the *Authorized redirect URIs* field is set to `http://localhost:8080/login/oauth2/code/google`.
 
-TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
+TIP: The default redirect URI template is `+{baseUrl}/login/oauth2/code/{registrationId}+`.
 The *_registrationId_* is a unique identifier for the <<oauth2Client-client-registration,ClientRegistration>>.
 
-IMPORTANT: If the OAuth Client is running behind a proxy server, it is recommended to check <<appendix-proxy-server, Proxy Server Configuration>> to ensure the application is correctly configured.
+IMPORTANT: If the OAuth Client is running behind a proxy server, it is recommended to check <<http-proxy-server,Proxy Server Configuration>> to ensure the application is correctly configured.
 Also, see the supported <<oauth2Client-auth-code-redirect-uri, `URI` template variables>> for `redirect-uri`.
 
 
@@ -248,7 +248,7 @@ If you need to override the auto-configuration based on your specific requiremen
 
 The following example shows how to register a `ClientRegistrationRepository` `@Bean`:
 
-[source,java]
+[source,java,attrs="-attributes"]
 ----
 @Configuration
 public class OAuth2LoginConfig {
@@ -305,7 +305,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 
 The following example shows how to completely override the auto-configuration by registering a `ClientRegistrationRepository` `@Bean` and providing a `WebSecurityConfigurerAdapter`.
 
-[source,java]
+[source,java,attrs="-attributes"]
 ----
 @Configuration
 public class OAuth2LoginConfig {
@@ -508,7 +508,7 @@ See `InMemoryClientRegistrationRepository` for reference.
 
 The link's destination for each OAuth Client defaults to the following:
 
-`OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI` + "/{registrationId}"
+`+OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/{registrationId}"+`
 
 The following line shows an example:
 
@@ -595,7 +595,7 @@ You also need to ensure the `ClientRegistration.redirectUriTemplate` matches the
 
 The following listing shows an example:
 
-[source,java]
+[source,java,attrs="-attributes"]
 ----
 return CommonOAuth2Provider.GOOGLE.getBuilder("google")
 	.clientId("google-client-id")

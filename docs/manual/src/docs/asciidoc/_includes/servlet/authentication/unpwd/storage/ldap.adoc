@@ -284,7 +284,7 @@ An example of bind authentication configuration can be found below.
 .Bind Authentication
 ====
 .Java
-[source,java,role="primary"]
+[source,java,role="primary",attrs="-attributes"]
 ----
 @Bean
 BindAuthenticator authenticator(BaseLdapPathContextSource contextSource) {
@@ -300,14 +300,14 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 ----
 
 .XML
-[source,xml,role="secondary"]
+[source,xml,role="secondary",attrs="-attributes"]
 ----
 <ldap-authentication-provider
 	user-dn-pattern="uid={0},ou=people"/>
 ----
 
 .Kotlin
-[source,kotlin,role="secondary"]
+[source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Bean
 fun authenticator(contextSource: BaseLdapPathContextSource): BindAuthenticator {
@@ -330,7 +330,7 @@ If instead you wished to configure an LDAP search filter to locate the user, you
 .Bind Authentication with Search Filter
 ====
 .Java
-[source,java,role="primary"]
+[source,java,role="primary",attrs="-attributes"]
 ----
 @Bean
 BindAuthenticator authenticator(BaseLdapPathContextSource contextSource) {
@@ -350,7 +350,7 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 ----
 
 .XML
-[source,xml,role="secondary"]
+[source,xml,role="secondary",attrs="-attributes"]
 ----
 <ldap-authentication-provider
 		user-search-filter="(uid={0})"
@@ -358,7 +358,7 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 ----
 
 .Kotlin
-[source,kotlin,role="secondary"]
+[source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Bean
 fun authenticator(contextSource: BaseLdapPathContextSource): BindAuthenticator {
@@ -377,7 +377,7 @@ fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthentication
 ----
 ====
 
-If used with the `ContextSource` <<servlet-authentication-ldap-contextsource,definition above>>, this would perform a search under the DN `ou=people,dc=springframework,dc=org` using `(uid={0})` as a filter.
+If used with the `ContextSource` <<servlet-authentication-ldap-contextsource,definition above>>, this would perform a search under the DN `ou=people,dc=springframework,dc=org` using `+(uid={0})+` as a filter.
 Again the user login name is substituted for the parameter in the filter name, so it will search for an entry with the `uid` attribute equal to the user name.
 If a user search base isn't supplied, the search will be performed from the root.
 
@@ -405,7 +405,7 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 ----
 
 .XML
-[source,xml,role="secondary"]
+[source,xml,role="secondary",attrs="-attributes"]
 ----
 <ldap-authentication-provider
 		user-dn-pattern="uid={0},ou=people">
@@ -451,7 +451,7 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 ----
 
 .XML
-[source,xml,role="secondary"]
+[source,xml,role="secondary",attrs="-attributes"]
 ----
 <ldap-authentication-provider
 		user-dn-pattern="uid={0},ou=people">
@@ -492,7 +492,7 @@ Spring Security's `LdapAuthoritiesPopulator` is used to determine what authorite
 .Minimal Password Compare Configuration
 ====
 .Java
-[source,java,role="primary"]
+[source,java,role="primary",attrs="-attributes"]
 ----
 @Bean
 LdapAuthoritiesPopulator authorities(BaseLdapPathContextSource contextSource) {
@@ -510,7 +510,7 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 ----
 
 .XML
-[source,xml,role="secondary"]
+[source,xml,role="secondary",attrs="-attributes"]
 ----
 <ldap-authentication-provider
 	user-dn-pattern="uid={0},ou=people"
@@ -518,7 +518,7 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 ----
 
 .Kotlin
-[source,kotlin,role="secondary"]
+[source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Bean
 fun authorities(contextSource: BaseLdapPathContextSource): LdapAuthoritiesPopulator {

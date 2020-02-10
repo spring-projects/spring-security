@@ -117,7 +117,7 @@ We still specify the `issuer-uri` so that Resource Server still validates the `i
 [NOTE]
 This property can also be supplied directly on the <<webflux-oauth2resourceserver-jwt-jwkseturi-dsl,DSL>>.
 
-[[webflux-oauth2resourceserver-sansboot]]
+[[webflux-oauth2resourceserver-jwt-sansboot]]
 === Overriding or Replacing Boot Auto Configuration
 
 There are two `@Bean` s that Spring Boot generates on Resource Server's behalf.
@@ -559,6 +559,7 @@ This can be handy when revocation is a requirement.
 When using https://spring.io/projects/spring-boot[Spring Boot], configuring an application as a resource server that uses introspection consists of two basic steps.
 First, include the needed dependencies and second, indicate the introspection endpoint details.
 
+[[webflux-oauth2resourceserver-opaque-introspectionuri]]
 ==== Specifying the Authorization Server
 
 To specify where the introspection endpoint is, simply do:
@@ -1005,7 +1006,7 @@ ReactiveOpaqueTokenIntrospector introspector() {
 }
 ----
 
-[[oauth2resourceserver-multitenancy]]
+[[webflux-oauth2resourceserver-multitenancy]]
 == Multi-tenancy
 
 A resource server is considered multi-tenant when there are multiple strategies for verifying a bearer token, keyed by some tenant identifier.

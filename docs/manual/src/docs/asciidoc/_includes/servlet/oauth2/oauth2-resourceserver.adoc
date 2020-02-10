@@ -709,6 +709,7 @@ This can be handy when revocation is a requirement.
 When using https://spring.io/projects/spring-boot[Spring Boot], configuring an application as a resource server that uses introspection consists of two basic steps.
 First, include the needed dependencies and second, indicate the introspection endpoint details.
 
+[[oauth2resourceserver-opaque-introspectionuri]]
 ==== Specifying the Authorization Server
 
 To specify where the introspection endpoint is, simply do:
