@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
 import org.springframework.security.web.util.matcher.RequestMatcher
 import org.springframework.util.ClassUtils
+import javax.servlet.Filter
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -640,6 +641,31 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     fun oauth2ResourceServer(oauth2ResourceServerConfiguration: OAuth2ResourceServerDsl.() -> Unit) {
         val oauth2ResourceServerCustomizer = OAuth2ResourceServerDsl().apply(oauth2ResourceServerConfiguration).get()
         this.http.oauth2ResourceServer(oauth2ResourceServerCustomizer)
+    }
+
+    /**
+     * Adds the [Filter] at the location of the specified [Filter] class.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebSecurity
+     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     *
+     *  override fun configure(http: HttpSecurity) {
+     *      http {
+     *          addFilterAt(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
+     *      }
+     *  }
+     * }
+     * ```
+     *
+     * @param filter the [Filter] to register
+     * @param atFilter the location of another [Filter] that is already registered
+     * (i.e. known) with Spring Security.
+     */
+    fun addFilterAt(filter: Filter, atFilter: Class<out Filter>) {
+        this.http.addFilterAt(filter, atFilter)
     }
 
     /**

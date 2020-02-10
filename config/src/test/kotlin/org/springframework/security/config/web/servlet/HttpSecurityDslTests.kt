@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.servlet
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,6 +30,8 @@ import org.springframework.security.config.test.SpringTestRule
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
+import org.springframework.security.web.FilterChainProxy
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter
@@ -39,6 +42,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
+import javax.servlet.Filter
 
 /**
  * Tests for [HttpSecurityDsl]
@@ -211,5 +215,28 @@ class HttpSecurityDslTests {
                 }
             }
         }
+    }
+
+    @Test
+    fun `HTTP security when custom filter configured then custom filter added to filter chain`() {
+        this.spring.register(CustomFilterConfig::class.java).autowire()
+
+        val filterChain = spring.context.getBean(FilterChainProxy::class.java)
+        val filters: List<Filter> = filterChain.getFilters("/")
+
+        assertThat(filters).hasSize(1)
+        assertThat(filters[0]).isExactlyInstanceOf(CustomFilterConfig.CustomFilter::class.java)
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class CustomFilterConfig : WebSecurityConfigurerAdapter(true) {
+        override fun configure(http: HttpSecurity) {
+            http {
+                addFilterAt(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
+            }
+        }
+
+        class CustomFilter : UsernamePasswordAuthenticationFilter()
     }
 }
