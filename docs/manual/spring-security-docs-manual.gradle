@@ -4,7 +4,7 @@ apply plugin: 'io.spring.convention.dependency-set'
 apply plugin: 'io.spring.convention.repository'
 apply plugin: 'java'
 
-asciidoctor {
+asciidoctorj {
 	def ghTag = snapshotBuild ? 'master' : project.version
 	def ghUrl = "https://github.com/spring-projects/spring-security/tree/$ghTag"
 	attributes 'spring-security-version' : project.version,
@@ -12,9 +12,7 @@ asciidoctor {
 		revnumber : project.version,
 		'gh-url': ghUrl,
 		'gh-samples-url': "$ghUrl/samples"
-	asciidoctorj {
-		attributeProvider resolvedVersions(project.configurations.testCompile)
-	}
+	attributeProvider resolvedVersions(project.configurations.testCompile)
 }
 
 docsZip {
