@@ -19,8 +19,13 @@ package org.springframework.security.config.web.servlet
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
 
+/**
+ * A base class that provides authorization rules for [RequestMatcher]s and patterns.
+ *
+ * @author Eleftheria Stein
+ * @since 5.3
+ */
 abstract class AbstractRequestMatcherDsl {
-
     /**
      * Matches any request.
      */
