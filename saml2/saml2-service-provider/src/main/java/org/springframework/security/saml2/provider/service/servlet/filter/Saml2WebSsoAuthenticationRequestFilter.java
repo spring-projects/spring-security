@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,28 @@
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequest;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
+import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher.MatchResult;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 import static java.lang.String.format;
-import static org.springframework.security.saml2.provider.service.servlet.filter.Saml2Utils.deflate;
-import static org.springframework.security.saml2.provider.service.servlet.filter.Saml2Utils.encode;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static org.springframework.util.StringUtils.hasText;
 
 /**
  * @since 5.2
@@ -47,9 +46,7 @@ import static org.springframework.security.saml2.provider.service.servlet.filter
 public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter {
 
 	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
-
 	private RequestMatcher redirectMatcher = new AntPathRequestMatcher("/saml2/authenticate/{registrationId}");
-
 	private Saml2AuthenticationRequestFactory authenticationRequestFactory = new OpenSamlAuthenticationRequestFactory();
 
 	public Saml2WebSsoAuthenticationRequestFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
@@ -91,39 +88,47 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	}
 
 	private String createSamlRequestRedirectUrl(HttpServletRequest request, RelyingPartyRegistration relyingParty) {
-		Saml2AuthenticationRequest authNRequest = createAuthenticationRequest(relyingParty, request);
-		String xml = this.authenticationRequestFactory.createAuthenticationRequest(authNRequest);
-		String encoded = encode(deflate(xml));
-		String relayState = request.getParameter("RelayState");
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder
-				.fromUriString(relyingParty.getIdpWebSsoUrl())
-				.queryParam("SAMLRequest", UriUtils.encode(encoded, StandardCharsets.ISO_8859_1));
-
-		if (StringUtils.hasText(relayState)) {
-			uriBuilder.queryParam("RelayState", UriUtils.encode(relayState, StandardCharsets.ISO_8859_1));
-		}
-
+		Saml2AuthenticationRequestContext authnRequest = createRedirectAuthenticationRequestContext(relyingParty, request);
+		Saml2RedirectAuthenticationRequest authNData =
+				this.authenticationRequestFactory.createRedirectAuthenticationRequest(authnRequest);
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(authNData.getAuthenticationRequestUri());
+		addParameter("SAMLRequest", authNData.getSamlRequest(), uriBuilder);
+		addParameter("RelayState", authNData.getRelayState(), uriBuilder);
+		addParameter("SigAlg", authNData.getSigAlg(), uriBuilder);
+		addParameter("Signature", authNData.getSignature(), uriBuilder);
 		return uriBuilder
 				.build(true)
 				.toUriString();
 	}
 
-	private Saml2AuthenticationRequest createAuthenticationRequest(RelyingPartyRegistration relyingParty, HttpServletRequest request) {
-		String localSpEntityId = Saml2Utils.getServiceProviderEntityId(relyingParty, request);
-		return Saml2AuthenticationRequest
+	private void addParameter(String name, String value, UriComponentsBuilder builder) {
+		Assert.hasText(name, "name cannot be empty or null");
+		if (hasText(value)) {
+			builder.queryParam(
+					UriUtils.encode(name, ISO_8859_1),
+					UriUtils.encode(value, ISO_8859_1)
+			);
+		}
+	}
+
+	private Saml2AuthenticationRequestContext createRedirectAuthenticationRequestContext(
+			RelyingPartyRegistration relyingParty,
+			HttpServletRequest request) {
+		String localSpEntityId = Saml2ServletUtils.getServiceProviderEntityId(relyingParty, request);
+		return Saml2AuthenticationRequestContext
 				.builder()
 				.issuer(localSpEntityId)
-				.destination(relyingParty.getIdpWebSsoUrl())
-				.credentials(c -> c.addAll(relyingParty.getCredentials()))
+				.relyingPartyRegistration(relyingParty)
 				.assertionConsumerServiceUrl(
-						Saml2Utils.resolveUrlTemplate(
+						Saml2ServletUtils.resolveUrlTemplate(
 								relyingParty.getAssertionConsumerServiceUrlTemplate(),
-								Saml2Utils.getApplicationUri(request),
+								Saml2ServletUtils.getApplicationUri(request),
 								relyingParty.getRemoteIdpEntityId(),
 								relyingParty.getRegistrationId()
 						)
 				)
-				.build();
+				.relayState(request.getParameter("RelayState"))
+				.build()
+				;
 	}
-
 }
