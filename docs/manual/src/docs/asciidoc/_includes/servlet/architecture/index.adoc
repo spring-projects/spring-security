@@ -14,7 +14,7 @@ The picture below shows the typical layering of the handlers for a single HTTP r
 
 .FilterChain
 [[servlet-filterchain-figure]]
-image::{figures}/filterchain.svg[]
+image::{figures}/filterchain.png[]
 
 The client sends a request to the application, and the container creates a `FilterChain` which contains the ``Filter``s and `Servlet` that should process the `HttpServletRequest` based on the path of the request URI.
 At most one `Servlet` can handle a single `HttpServletRequest` and `HttpServletResponse`.
@@ -51,7 +51,7 @@ Here is a picture of how `DelegatingFilterProxy` fits into the <<servlet-filterc
 
 .DelegatingFilterProxy
 [[servlet-delegatingfilterproxy-figure]]
-image::{figures}/delegatingfilterproxy.svg[]
+image::{figures}/delegatingfilterproxy.png[]
 
 `DelegatingFilterProxy` looks up __Bean Filter~0~__ from the `ApplicationContext` and then invokes __Bean Filter~0~__.
 The pseudo code of `DelegatingFilterProxy` can be seen below.
@@ -84,7 +84,7 @@ Since `FilterChainProxy` is a Bean, it is typically wrapped in a <<servlet-deleg
 
 .FilterChainProxy
 [[servlet-filterchainproxy-figure]]
-image::{figures}/filterchainproxy.svg[]
+image::{figures}/filterchainproxy.png[]
 
 The <<servlet-security-filters,Security Filters>> in `SecurityFilterChain` are typically Beans, but they are registered with `FilterChainProxy` instead of <<servlet-delegatingfilterproxy>>.
 `FilterChainProxy` provides a number of advantages to registering directly with the Servlet container or <<servlet-delegatingfilterproxy>>.
@@ -108,7 +108,7 @@ This allows providing a totally separate configuration for different _slices_ if
 
 .Multiple SecurityFilterChain
 [[servlet-multi-securityfilterchain-figure]]
-image::{figures}/multi-securityfilterchain.svg[]
+image::{figures}/multi-securityfilterchain.png[]
 
 In the <<servlet-multi-securityfilterchain-figure>> Figure `FilterChainProxy` decides which `SecurityFilterChain` should be used.
 Only the first `SecurityFilterChain` that matches will be invoked.
