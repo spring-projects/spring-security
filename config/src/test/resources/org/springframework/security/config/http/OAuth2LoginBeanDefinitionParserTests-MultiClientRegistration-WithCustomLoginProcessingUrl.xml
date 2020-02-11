@@ -32,20 +32,20 @@
 						authorization-request-repository-ref="authorizationRequestRepository"
 						authentication-success-handler-ref="authenticationSuccessHandler" />
 	</http>
-	
-	<b:bean name="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
+
+	<b:bean id="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient"/>
 	</b:bean>
-	<b:bean name="oauth2UserService" class="org.mockito.Mockito" factory-method="mock">
+	<b:bean id="oauth2UserService" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.client.userinfo.OAuth2UserService"/>
 	</b:bean>
-	<b:bean name="authorizationRequestRepository" class="org.mockito.Mockito" factory-method="mock">
+	<b:bean id="authorizationRequestRepository" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.client.web.AuthorizationRequestRepository"/>
 	</b:bean>
-	<b:bean name="authenticationSuccessHandler" class="org.mockito.Mockito" factory-method="mock">
+	<b:bean id="authenticationSuccessHandler" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.web.authentication.AuthenticationSuccessHandler"/>
 	</b:bean>
 
-	<b:import resource="../oauth2/client/google-registration.xml"/>
+	<b:import resource="../oauth2/client/google-github-registration.xml"/>
 	<b:import resource="userservice.xml"/>
 </b:beans>

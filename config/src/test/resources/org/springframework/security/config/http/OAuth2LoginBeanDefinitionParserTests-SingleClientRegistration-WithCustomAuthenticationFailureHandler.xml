@@ -29,7 +29,7 @@
 		<oauth2-login authentication-failure-handler-ref="authenticationFailureHandler"/>
 	</http>
 
-	<b:bean name="authenticationFailureHandler" class="org.mockito.Mockito" factory-method="mock">
+	<b:bean id="authenticationFailureHandler" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.web.authentication.AuthenticationFailureHandler"/>
 	</b:bean>
 

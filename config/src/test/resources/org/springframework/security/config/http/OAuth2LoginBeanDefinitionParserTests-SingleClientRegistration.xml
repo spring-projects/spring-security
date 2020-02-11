@@ -27,8 +27,31 @@
 	<http auto-config="true">
 		<intercept-url pattern="/**" access="authenticated"/>
 		<oauth2-login/>
+		<request-cache ref="requestCache" />
 	</http>
 
-	<b:import resource="../oauth2/client/google-registration.xml"/>
+	<client-registrations>
+		<client-registration registration-id="google-login"
+							 client-id="google-client-id"
+							 client-secret="google-client-secret"
+							 client-authentication-method="basic"
+							 authorization-grant-type="authorization_code"
+							 redirect-uri="{baseUrl}/login/oauth2/code/{registrationId}"
+							 scope="openid,profile,email"
+							 client-name="Google"
+							 provider-id="google"/>
+		<provider provider-id="google"
+				  authorization-uri="https://accounts.google.com/o/oauth2/v2/auth"
+				  token-uri="https://www.googleapis.com/oauth2/v4/token"
+				  userinfo-uri="https://www.googleapis.com/oauth2/v3/userinfo"
+				  userinfo-authentication-method="header"
+				  username-attribute-name="sub"
+				  jwkset-uri="https://www.googleapis.com/oauth2/v3/certs"/>
+	</client-registrations>
+
+	<b:bean id="requestCache" class="org.mockito.Mockito" factory-method="mock">
+		<b:constructor-arg value="org.springframework.security.web.savedrequest.RequestCache"/>
+	</b:bean>
+
 	<b:import resource="userservice.xml"/>
 </b:beans>

@@ -1463,85 +1463,85 @@
   <xs:attributeGroup name="oauth2-login.attlist">
       <xs:attribute name="client-registration-repository-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Reference to ClientRegistrationRepository
+            <xs:documentation>Reference to the ClientRegistrationRepository
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="authorized-client-repository-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Reference to OAuth2AuthorizedClientRepository
+            <xs:documentation>Reference to the OAuth2AuthorizedClientRepository
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="authorized-client-service-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Reference to OAuth2AuthorizedClientService
+            <xs:documentation>Reference to the OAuth2AuthorizedClientService
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="authorization-request-repository-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Reference to AuthorizationRequestRepository
+            <xs:documentation>Reference to the AuthorizationRequestRepository
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="authorization-request-resolver-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Reference to OAuth2AuthorizationRequestResolver
+            <xs:documentation>Reference to the OAuth2AuthorizationRequestResolver
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="access-token-response-client-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Reference to OAuth2AccessTokenResponseClient
+            <xs:documentation>Reference to the OAuth2AccessTokenResponseClient
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="user-authorities-mapper-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Reference to GrantedAuthoritiesMapper
+            <xs:documentation>Reference to the GrantedAuthoritiesMapper
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="user-service-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Reference to OAuth2UserService
+            <xs:documentation>Reference to the OAuth2UserService
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="oidc-user-service-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Reference to OidcUserService
+            <xs:documentation>Reference to the OpenID Connect OAuth2UserService
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="login-processing-url" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Specifies the URL to validate the credentials.
+            <xs:documentation>The URI where the filter processes authentication requests
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="login-page" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Specifies the URL to send users to if login is required
+            <xs:documentation>The URI to send users to login
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="authentication-success-handler-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Specifies authentication success handler
+            <xs:documentation>Reference to the AuthenticationSuccessHandler
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="authentication-failure-handler-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Specifies authentication failure handler
+            <xs:documentation>Reference to the AuthenticationFailureHandler
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="jwt-decoder-factory-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>Specifies JWT decoder factory for OidcAuthorizationCodeAuthenticationProvider
+            <xs:documentation>Reference to the JwtDecoderFactory used by OidcAuthorizationCodeAuthenticationProvider
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -1601,7 +1601,7 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-      <xs:attribute name="authorization-grant-type" use="required">
+      <xs:attribute name="authorization-grant-type">
          <xs:annotation>
             <xs:documentation>The OAuth 2.0 Authorization Framework defines four Authorization Grant types. The
                 supported values are authorization_code, client_credentials, password and implicit.
@@ -2989,7 +2989,7 @@
          <xs:enumeration value="CORS_FILTER"/>
          <xs:enumeration value="CSRF_FILTER"/>
          <xs:enumeration value="LOGOUT_FILTER"/>
-         <xs:enumeration value="OAUTH2_REDIRECT_FILTER"/>
+         <xs:enumeration value="OAUTH2_AUTHORIZATION_REQUEST_FILTER"/>
          <xs:enumeration value="X509_FILTER"/>
          <xs:enumeration value="PRE_AUTH_FILTER"/>
          <xs:enumeration value="CAS_FILTER"/>

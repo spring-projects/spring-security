@@ -33,19 +33,19 @@
 						authorization-request-repository-ref="authorizationRequestRepository"/>
 	</http>
 
-	<b:bean name="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
+	<b:bean id="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient"/>
 	</b:bean>
-	<b:bean name="oauth2UserService" class="org.mockito.Mockito" factory-method="mock">
+	<b:bean id="oauth2UserService" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.client.userinfo.OAuth2UserService"/>
 	</b:bean>
-	<b:bean name="authorizationRequestRepository" class="org.mockito.Mockito" factory-method="mock">
+	<b:bean id="authorizationRequestRepository" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.client.web.AuthorizationRequestRepository"/>
 	</b:bean>
-	<b:bean name="clientRegistrationRepository" class="org.mockito.Mockito" factory-method="mock">
+	<b:bean id="clientRegistrationRepository" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.client.registration.ClientRegistrationRepository"/>
 	</b:bean>
-	<b:bean name="authorizedClientRepository" class="org.mockito.Mockito" factory-method="mock">
+	<b:bean id="authorizedClientRepository" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository"/>
 	</b:bean>
 

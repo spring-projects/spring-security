@@ -39,7 +39,7 @@
 							 client-authentication-method="basic"
 							 authorization-grant-type="authorization_code"
 							 redirect-uri="{baseUrl}/login/oauth2/code/{registrationId}"
-							 scope="openid,profile,email"
+							 scope="read:user"
 							 client-name="Github"
 							 provider-id="github"/>
 		<provider provider-id="google"

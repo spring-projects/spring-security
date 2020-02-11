@@ -441,46 +441,46 @@ oauth2-login =
 	## Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
 	element oauth2-login {oauth2-login.attlist}
 oauth2-login.attlist &=
-	## Reference to ClientRegistrationRepository
+	## Reference to the ClientRegistrationRepository
 	attribute client-registration-repository-ref {xsd:token}?
 oauth2-login.attlist &=
-	## Reference to OAuth2AuthorizedClientRepository
+	## Reference to the OAuth2AuthorizedClientRepository
 	attribute authorized-client-repository-ref {xsd:token}?
 oauth2-login.attlist &=
-	## Reference to OAuth2AuthorizedClientService
+	## Reference to the OAuth2AuthorizedClientService
 	attribute authorized-client-service-ref {xsd:token}?
 oauth2-login.attlist &=
-	## Reference to AuthorizationRequestRepository
+	## Reference to the AuthorizationRequestRepository
 	attribute authorization-request-repository-ref {xsd:token}?
 oauth2-login.attlist &=
-	## Reference to OAuth2AuthorizationRequestResolver
+	## Reference to the OAuth2AuthorizationRequestResolver
 	attribute authorization-request-resolver-ref {xsd:token}?
 oauth2-login.attlist &=
-	## Reference to OAuth2AccessTokenResponseClient
+	## Reference to the OAuth2AccessTokenResponseClient
 	attribute access-token-response-client-ref {xsd:token}?
 oauth2-login.attlist &=
-	## Reference to GrantedAuthoritiesMapper
+	## Reference to the GrantedAuthoritiesMapper
 	attribute user-authorities-mapper-ref {xsd:token}?
 oauth2-login.attlist &=
-	## Reference to OAuth2UserService
+	## Reference to the OAuth2UserService
 	attribute user-service-ref {xsd:token}?
 oauth2-login.attlist &=
-	## Reference to OidcUserService
+	## Reference to the OpenID Connect OAuth2UserService
 	attribute oidc-user-service-ref {xsd:token}?
 oauth2-login.attlist &=
-	## Specifies the URL to validate the credentials.
+	## The URI where the filter processes authentication requests
 	attribute login-processing-url {xsd:token}?
 oauth2-login.attlist &=
-	## Specifies the URL to send users to if login is required
+	## The URI to send users to login
 	attribute login-page {xsd:token}?
 oauth2-login.attlist &=
-	## Specifies authentication success handler
+	## Reference to the AuthenticationSuccessHandler
 	attribute authentication-success-handler-ref {xsd:token}?
 oauth2-login.attlist &=
-	## Specifies authentication failure handler
+	## Reference to the AuthenticationFailureHandler
 	attribute authentication-failure-handler-ref {xsd:token}?
 oauth2-login.attlist &=
-	## Specifies JWT decoder factory for OidcAuthorizationCodeAuthenticationProvider
+	## Reference to the JwtDecoderFactory used by OidcAuthorizationCodeAuthenticationProvider
 	attribute jwt-decoder-factory-ref {xsd:token}?
 
 client-registrations =
@@ -504,7 +504,7 @@ client-registration.attlist &=
 	attribute client-authentication-method {"basic" | "post" | "none"}?
 client-registration.attlist &=
 	## The OAuth 2.0 Authorization Framework defines four Authorization Grant types. The supported values are authorization_code, client_credentials, password and implicit.
-	attribute authorization-grant-type {"authorization_code" | "client_credentials" | "password" | "implicit"}
+	attribute authorization-grant-type {"authorization_code" | "client_credentials" | "password" | "implicit"}?
 client-registration.attlist &=
 	## The client’s registered redirect URI that the Authorization Server redirects the end-user’s user-agent to after the end-user has authenticated and authorized access to the client.
 	attribute redirect-uri {xsd:token}?
@@ -1024,4 +1024,4 @@ position =
 	## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
 	attribute position {named-security-filter}
 
-named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "OAUTH2_REDIRECT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "OAUTH2_AUTHORIZATION_REQUEST_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"

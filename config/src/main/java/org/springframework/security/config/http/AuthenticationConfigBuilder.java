@@ -139,12 +139,10 @@ final class AuthenticationConfigBuilder {
 	private String openIDLoginPage;
 
 	private String oauth2LoginFilterId;
-	private String oauth2AuthorizationRequestRedirectFilterId;
 	private BeanDefinition oauth2AuthorizationRequestRedirectFilter;
 	private BeanDefinition oauth2LoginEntryPoint;
 	private BeanReference oauth2LoginAuthenticationProviderRef;
 	private BeanReference oauth2LoginOidcAuthenticationProviderRef;
-
 	private BeanDefinition oauth2LoginLinks;
 
 	AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
@@ -247,43 +245,42 @@ final class AuthenticationConfigBuilder {
 
 	void createOAuth2LoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
 		Element oauth2LoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_LOGIN);
-		if (oauth2LoginElt != null) {
-			OAuth2LoginBeanDefinitionParser parser = new OAuth2LoginBeanDefinitionParser(requestCache, portMapper,
-					portResolver, sessionStrategy, allowSessionCreation);
-			BeanDefinition oauth2LoginFilterBean = parser.parse(oauth2LoginElt, this.pc);
-			oauth2LoginFilterBean.getPropertyValues().addPropertyValue("authenticationManager", authManager);
-
-			// retrieve the other bean result
-			BeanDefinition oauth2LoginAuthProvider = parser.getOAuth2LoginAuthenticationProvider();
-			oauth2AuthorizationRequestRedirectFilter = parser.getOAuth2AuthorizationRequestRedirectFilter();
-			oauth2LoginEntryPoint = parser.getOAuth2LoginAuthenticationEntryPoint();
-
-			// generate bean name to be registered
-			String oauth2LoginAuthenticationProviderId = pc.getReaderContext()
-					.generateBeanName(oauth2LoginAuthProvider);
-			oauth2LoginFilterId = pc.getReaderContext().generateBeanName(oauth2LoginFilterBean);
-			oauth2AuthorizationRequestRedirectFilterId = pc.getReaderContext()
-					.generateBeanName(oauth2AuthorizationRequestRedirectFilter);
-			oauth2LoginLinks = parser.getOAuth2LoginLinks();
-
-			// register the component
-			pc.registerBeanComponent(new BeanComponentDefinition(oauth2AuthorizationRequestRedirectFilter,
-					oauth2AuthorizationRequestRedirectFilterId));
-			pc.registerBeanComponent(new BeanComponentDefinition(oauth2LoginFilterBean, oauth2LoginFilterId));
-			pc.registerBeanComponent(
-					new BeanComponentDefinition(oauth2LoginAuthProvider, oauth2LoginAuthenticationProviderId));
-
-			oauth2LoginAuthenticationProviderRef = new RuntimeBeanReference(oauth2LoginAuthenticationProviderId);
-
-			// oidc provider
-			BeanDefinition oauth2LoginOidcAuthProvider = parser.getOAuth2LoginOidcAuthenticationProvider();
-			String oauth2LoginOidcAuthenticationProviderId = pc.getReaderContext()
-					.generateBeanName(oauth2LoginOidcAuthProvider);
-			pc.registerBeanComponent(
-					new BeanComponentDefinition(oauth2LoginOidcAuthProvider, oauth2LoginOidcAuthenticationProviderId));
-			oauth2LoginOidcAuthenticationProviderRef = new RuntimeBeanReference(
-					oauth2LoginOidcAuthenticationProviderId);
+		if (oauth2LoginElt == null) {
+			return;
 		}
+
+		OAuth2LoginBeanDefinitionParser parser = new OAuth2LoginBeanDefinitionParser(requestCache, portMapper,
+				portResolver, sessionStrategy, allowSessionCreation);
+		BeanDefinition oauth2LoginFilterBean = parser.parse(oauth2LoginElt, this.pc);
+		oauth2LoginFilterBean.getPropertyValues().addPropertyValue("authenticationManager", authManager);
+
+		// retrieve the other bean result
+		BeanDefinition oauth2LoginAuthProvider = parser.getOAuth2LoginAuthenticationProvider();
+		oauth2AuthorizationRequestRedirectFilter = parser.getOAuth2AuthorizationRequestRedirectFilter();
+		oauth2LoginEntryPoint = parser.getOAuth2LoginAuthenticationEntryPoint();
+
+		// generate bean name to be registered
+		String oauth2LoginAuthProviderId = pc.getReaderContext()
+				.generateBeanName(oauth2LoginAuthProvider);
+		oauth2LoginFilterId = pc.getReaderContext().generateBeanName(oauth2LoginFilterBean);
+		String oauth2AuthorizationRequestRedirectFilterId = pc.getReaderContext()
+				.generateBeanName(oauth2AuthorizationRequestRedirectFilter);
+		oauth2LoginLinks = parser.getOAuth2LoginLinks();
+
+		// register the component
+		pc.registerBeanComponent(new BeanComponentDefinition(oauth2LoginFilterBean, oauth2LoginFilterId));
+		pc.registerBeanComponent(new BeanComponentDefinition(
+				oauth2AuthorizationRequestRedirectFilter, oauth2AuthorizationRequestRedirectFilterId));
+		pc.registerBeanComponent(new BeanComponentDefinition(oauth2LoginAuthProvider, oauth2LoginAuthProviderId));
+
+		oauth2LoginAuthenticationProviderRef = new RuntimeBeanReference(oauth2LoginAuthProviderId);
+
+		// oidc provider
+		BeanDefinition oauth2LoginOidcAuthProvider = parser.getOAuth2LoginOidcAuthenticationProvider();
+		String oauth2LoginOidcAuthProviderId = pc.getReaderContext().generateBeanName(oauth2LoginOidcAuthProvider);
+		pc.registerBeanComponent(new BeanComponentDefinition(
+				oauth2LoginOidcAuthProvider, oauth2LoginOidcAuthProviderId));
+		oauth2LoginOidcAuthenticationProviderRef = new RuntimeBeanReference(oauth2LoginOidcAuthProviderId);
 	}
 
 	void createOpenIDLoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
@@ -870,7 +867,7 @@ final class AuthenticationConfigBuilder {
 
 		if (oauth2LoginFilterId != null) {
 			filters.add(new OrderDecorator(new RuntimeBeanReference(oauth2LoginFilterId), OAUTH2_LOGIN_FILTER));
-			filters.add(new OrderDecorator(oauth2AuthorizationRequestRedirectFilter, OAUTH2_REDIRECT_FILTER));
+			filters.add(new OrderDecorator(oauth2AuthorizationRequestRedirectFilter, OAUTH2_AUTHORIZATION_REQUEST_FILTER));
 		}
 
 		if (openIDFilterId != null) {

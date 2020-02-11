@@ -28,22 +28,21 @@
 		<intercept-url pattern="/**" access="authenticated"/>
 		<oauth2-login access-token-response-client-ref="accessTokenResponseClient"
 						jwt-decoder-factory-ref="jwtDecoderFactory"
-						user-authorities-mapper-ref="grantedAuthoritiesMapper"
-						authorization-request-repository-ref="authorizationRequestRepository"
-						/>
+						authorization-request-repository-ref="authorizationRequestRepository"/>
+		<request-cache ref="requestCache" />
 	</http>
-	
-	<b:bean name="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
+
+	<b:bean id="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient"/>
 	</b:bean>
-	<b:bean name="jwtDecoderFactory" class="org.mockito.Mockito" factory-method="mock">
+	<b:bean id="jwtDecoderFactory" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.jwt.JwtDecoderFactory"/>
 	</b:bean>
-	<b:bean name="grantedAuthoritiesMapper" class="org.mockito.Mockito" factory-method="mock">
-			<b:constructor-arg value="org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper"/>
-	</b:bean>
-	<b:bean name="authorizationRequestRepository" class="org.mockito.Mockito" factory-method="mock">
+	<b:bean id="authorizationRequestRepository" class="org.mockito.Mockito" factory-method="mock">
 			<b:constructor-arg value="org.springframework.security.oauth2.client.web.AuthorizationRequestRepository"/>
+	</b:bean>
+	<b:bean id="requestCache" class="org.mockito.Mockito" factory-method="mock">
+		<b:constructor-arg value="org.springframework.security.web.savedrequest.RequestCache"/>
 	</b:bean>
 
 	<b:import resource="../oauth2/client/google-registration.xml"/>

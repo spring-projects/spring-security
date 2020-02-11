@@ -897,72 +897,72 @@ The <<oauth2login,OAuth 2.0 Login>> feature configures authentication support us
 
 [[nsa-oauth2-login-client-registration-repository-ref]]
 * **client-registration-repository-ref**
-Reference to `ClientRegistrationRepository`.
+Reference to the `ClientRegistrationRepository`.
 
 
 [[nsa-oauth2-login-authorized-client-repository-ref]]
 * **authorized-client-repository-ref**
-Reference to `OAuth2AuthorizedClientRepository`.
+Reference to the `OAuth2AuthorizedClientRepository`.
 
 
 [[nsa-oauth2-login-authorized-client-service-ref]]
 * **authorized-client-service-ref**
-Reference to `OAuth2AuthorizedClientService`.
+Reference to the `OAuth2AuthorizedClientService`.
 
 
 [[nsa-oauth2-login-authorization-request-repository-ref]]
 * **authorization-request-repository-ref**
-Reference to `AuthorizationRequestRepository`.
+Reference to the `AuthorizationRequestRepository`.
 
 
 [[nsa-oauth2-login-authorization-request-resolver-ref]]
 * **authorization-request-resolver-ref**
-Reference to `OAuth2AuthorizationRequestResolver`.
+Reference to the `OAuth2AuthorizationRequestResolver`.
 
 
 [[nsa-oauth2-login-access-token-response-client-ref]]
 * **access-token-response-client-ref**
-Reference to `OAuth2AccessTokenResponseClient`.
+Reference to the `OAuth2AccessTokenResponseClient`.
 
 
 [[nsa-oauth2-login-user-authorities-mapper-ref]]
 * **user-authorities-mapper-ref**
-Reference to `GrantedAuthoritiesMapper`.
+Reference to the `GrantedAuthoritiesMapper`.
 
 
 [[nsa-oauth2-login-user-service-ref]]
 * **user-service-ref**
-Reference to `OAuth2UserService`.
+Reference to the `OAuth2UserService`.
 
 
 [[nsa-oauth2-login-oidc-user-service-ref]]
 * **oidc-user-service-ref**
-Reference to `OidcUserService`.
+Reference to the OpenID Connect `OAuth2UserService`.
 
 
 [[nsa-oauth2-login-login-processing-url]]
 * **login-processing-url**
-Specifies the URL to validate the credentials.
+The URI where the filter processes authentication requests.
 
 
 [[nsa-oauth2-login-login-page]]
 * **login-page**
-Specifies the URL to send users to if login is required
+The URI to send users to login.
 
 
 [[nsa-oauth2-login-authentication-success-handler-ref]]
 * **authentication-success-handler-ref**
-Specifies authentication success handler
+Reference to the `AuthenticationSuccessHandler`.
 
 
 [[nsa-oauth2-login-authentication-failure-handler-ref]]
 * **authentication-failure-handler-ref**
-Specifies authentication failure handler
+Reference to the `AuthenticationFailureHandler`.
 
 
 [[nsa-oauth2-login-jwt-decoder-factory-ref]]
 * **jwt-decoder-factory-ref**
-Specifies JWT decoder factory for OidcAuthorizationCodeAuthenticationProvider
+Reference to the `JwtDecoderFactory` used by `OidcAuthorizationCodeAuthenticationProvider`.
 
 
 [[nsa-client-registrations]]
