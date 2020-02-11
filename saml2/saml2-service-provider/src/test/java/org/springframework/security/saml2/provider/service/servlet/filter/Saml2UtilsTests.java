@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class Saml2UtilsTests {
 	@Test
 	public void decodeWhenUsingSamlUtilsBase64ThenXmlIsValid() throws Exception {
 		String responseUrlDecoded = getSsoCircleEncodedXml();
-		String xml = new String(Saml2Utils.decode(responseUrlDecoded), UTF_8);
+		String xml = new String(Saml2Utils.samlDecode(responseUrlDecoded), UTF_8);
 		validateSsoCircleXml(xml);
 	}
 

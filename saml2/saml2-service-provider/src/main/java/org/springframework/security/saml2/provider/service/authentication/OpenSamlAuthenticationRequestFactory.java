@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,24 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
-import org.opensaml.saml.common.xml.SAMLConstants;
-import org.springframework.util.Assert;
-
 import org.joda.time.DateTime;
+import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
+import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest.Builder;
+import org.springframework.util.Assert;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptyList;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDeflate;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlEncode;
 
 /**
  * @since 5.2
@@ -35,11 +43,50 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	private final OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
 	private String protocolBinding = SAMLConstants.SAML2_POST_BINDING_URI;
 
+	@Override
+	@Deprecated
+	public String createAuthenticationRequest(Saml2AuthenticationRequest request) {
+		return createAuthenticationRequest(request, request.getCredentials());
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String createAuthenticationRequest(Saml2AuthenticationRequest request) {
+	public Saml2PostAuthenticationRequest createPostAuthenticationRequest(Saml2AuthenticationRequestContext context) {
+		String xml = createAuthenticationRequest(context, context.getRelyingPartyRegistration().getSigningCredentials());
+		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context)
+				.samlRequest(samlEncode(xml.getBytes(UTF_8)))
+				.build();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Saml2RedirectAuthenticationRequest createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext context) {
+		String xml = createAuthenticationRequest(context, emptyList());
+		List<Saml2X509Credential> signingCredentials = context.getRelyingPartyRegistration().getSigningCredentials();
+		Builder result = Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context);
+
+		String deflatedAndEncoded = samlEncode(samlDeflate(xml));
+		Map<String, String> signedParams = this.saml.signQueryParameters(
+				signingCredentials,
+				deflatedAndEncoded,
+				context.getRelayState()
+		);
+		result.samlRequest(signedParams.get("SAMLRequest"))
+				.relayState(signedParams.get("RelayState"))
+				.sigAlg(signedParams.get("SigAlg"))
+				.signature(signedParams.get("Signature"));
+		return result.build();
+	}
+
+	private String createAuthenticationRequest(Saml2AuthenticationRequestContext request, List<Saml2X509Credential> credentials) {
+		return createAuthenticationRequest(Saml2AuthenticationRequest.withAuthenticationRequestContext(request).build(), credentials);
+	}
+
+	private String createAuthenticationRequest(Saml2AuthenticationRequest context, List<Saml2X509Credential> credentials) {
 		AuthnRequest auth = this.saml.buildSAMLObject(AuthnRequest.class);
 		auth.setID("ARQ" + UUID.randomUUID().toString().substring(1));
 		auth.setIssueInstant(new DateTime(this.clock.millis()));
@@ -47,14 +94,14 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		auth.setIsPassive(Boolean.FALSE);
 		auth.setProtocolBinding(protocolBinding);
 		Issuer issuer = this.saml.buildSAMLObject(Issuer.class);
-		issuer.setValue(request.getIssuer());
+		issuer.setValue(context.getIssuer());
 		auth.setIssuer(issuer);
-		auth.setDestination(request.getDestination());
-		auth.setAssertionConsumerServiceURL(request.getAssertionConsumerServiceUrl());
+		auth.setDestination(context.getDestination());
+		auth.setAssertionConsumerServiceURL(context.getAssertionConsumerServiceUrl());
 		return this.saml.toXml(
 				auth,
-				request.getCredentials(),
-				request.getIssuer()
+				credentials,
+				context.getIssuer()
 		);
 	}
 
@@ -71,11 +118,14 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	}
 
 	/**
-	 * Sets the {@code protocolBinding} to use when generating authentication requests
+	 * Sets the {@code protocolBinding} to use when generating authentication requests.
 	 * Acceptable values are {@link SAMLConstants#SAML2_POST_BINDING_URI} and
 	 * {@link SAMLConstants#SAML2_REDIRECT_BINDING_URI}
+	 * The IDP will be reading this value in the {@code AuthNRequest} to determine how to
+	 * send the Response/Assertion to the ACS URL, assertion consumer service URL.
 	 *
-	 * @param protocolBinding
+	 * @param protocolBinding either {@link SAMLConstants#SAML2_POST_BINDING_URI} or
+	 * {@link SAMLConstants#SAML2_REDIRECT_BINDING_URI}
 	 * @throws IllegalArgumentException if the protocolBinding is not valid
 	 */
 	public void setProtocolBinding(String protocolBinding) {

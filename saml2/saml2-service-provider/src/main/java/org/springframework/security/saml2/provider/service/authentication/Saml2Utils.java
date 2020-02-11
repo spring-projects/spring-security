@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.servlet.filter;
+package org.springframework.security.saml2.provider.service.authentication;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.security.saml2.Saml2Exception;
