@@ -21,7 +21,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
 
 /**
- * A Kotlin DSL to configure JWT Resource Server Support using idiomatic Kotlin code.
+ * A Kotlin DSL to configure opaque token Resource Server Support using idiomatic Kotlin code.
  *
  * @author Eleftheria Stein
  * @since 5.3
