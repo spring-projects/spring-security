@@ -33,8 +33,8 @@ public class Saml2AuthenticationRequestFactoryTests {
 
 	private RelyingPartyRegistration registration = RelyingPartyRegistration.withRegistrationId("id")
 			.assertionConsumerServiceUrlTemplate("template")
-			.idpWebSsoUrl("https://example.com/destination")
-			.remoteIdpEntityId("remote-entity-id")
+			.providerDetails(c -> c.webSsoUrl("https://example.com/destination"))
+			.providerDetails(c -> c.entityId("remote-entity-id"))
 			.localEntityIdTemplate("local-entity-id")
 			.credentials(c -> c.addAll(relyingPartyCredentials()))
 			.build();

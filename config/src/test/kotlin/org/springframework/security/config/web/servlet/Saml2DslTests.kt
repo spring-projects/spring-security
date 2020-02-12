@@ -85,10 +85,10 @@ class Saml2DslTests {
                     relyingPartyRegistrationRepository =
                             InMemoryRelyingPartyRegistrationRepository(
                                     RelyingPartyRegistration.withRegistrationId("samlId")
-                                            .remoteIdpEntityId("entityId")
                                             .assertionConsumerServiceUrlTemplate("{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI)
                                             .credentials { c -> c.add(Saml2X509Credential(loadCert("rod.cer"), VERIFICATION)) }
-                                            .idpWebSsoUrl("ssoUrl")
+                                            .providerDetails { c -> c.webSsoUrl("ssoUrl") }
+                                            .providerDetails { c -> c.entityId("entityId") }
                                             .build()
                             )
                 }

@@ -54,7 +54,11 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	 */
 	@Override
 	public Saml2PostAuthenticationRequest createPostAuthenticationRequest(Saml2AuthenticationRequestContext context) {
-		String xml = createAuthenticationRequest(context, context.getRelyingPartyRegistration().getSigningCredentials());
+		List<Saml2X509Credential> signingCredentials = context.getRelyingPartyRegistration().getProviderDetails().isSignAuthNRequest() ?
+				context.getRelyingPartyRegistration().getSigningCredentials() :
+				emptyList();
+
+		String xml = createAuthenticationRequest(context, signingCredentials);
 		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context)
 				.samlRequest(samlEncode(xml.getBytes(UTF_8)))
 				.build();
@@ -66,19 +70,24 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	@Override
 	public Saml2RedirectAuthenticationRequest createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext context) {
 		String xml = createAuthenticationRequest(context, emptyList());
-		List<Saml2X509Credential> signingCredentials = context.getRelyingPartyRegistration().getSigningCredentials();
 		Builder result = Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context);
-
 		String deflatedAndEncoded = samlEncode(samlDeflate(xml));
-		Map<String, String> signedParams = this.saml.signQueryParameters(
-				signingCredentials,
-				deflatedAndEncoded,
-				context.getRelayState()
-		);
-		result.samlRequest(signedParams.get("SAMLRequest"))
-				.relayState(signedParams.get("RelayState"))
-				.sigAlg(signedParams.get("SigAlg"))
-				.signature(signedParams.get("Signature"));
+		result.samlRequest(deflatedAndEncoded)
+				.relayState(context.getRelayState());
+
+		if (context.getRelyingPartyRegistration().getProviderDetails().isSignAuthNRequest()) {
+			List<Saml2X509Credential> signingCredentials = context.getRelyingPartyRegistration().getSigningCredentials();
+			Map<String, String> signedParams = this.saml.signQueryParameters(
+					signingCredentials,
+					deflatedAndEncoded,
+					context.getRelayState()
+			);
+			result.samlRequest(signedParams.get("SAMLRequest"))
+					.relayState(signedParams.get("RelayState"))
+					.sigAlg(signedParams.get("SigAlg"))
+					.signature(signedParams.get("Signature"));
+		}
+
 		return result.build();
 	}
 

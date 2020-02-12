@@ -16,17 +16,21 @@
 
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
+import org.springframework.http.MediaType;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
+import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher.MatchResult;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
@@ -74,23 +78,42 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 		}
 
 		String registrationId = matcher.getVariables().get("registrationId");
-		sendRedirect(request, response, registrationId);
+		RelyingPartyRegistration relyingParty = this.relyingPartyRegistrationRepository.findByRegistrationId(registrationId);
+		if (relyingParty == null) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(format("Creating SAML2 SP Authentication Request for IDP[%s]", relyingParty.getRegistrationId()));
+		}
+		Saml2AuthenticationRequestContext authnRequestCtx = createRedirectAuthenticationRequestContext(relyingParty, request);
+		if (relyingParty.getProviderDetails().getBinding() == Saml2MessageBinding.REDIRECT) {
+			sendRedirect(response, authnRequestCtx);
+		}
+		else {
+			sendPost(response, authnRequestCtx);
+		}
 	}
 
-	private void sendRedirect(HttpServletRequest request, HttpServletResponse response, String registrationId)
+	private void sendRedirect(HttpServletResponse response, Saml2AuthenticationRequestContext authnRequestCtx)
 			throws IOException {
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug(format("Creating SAML2 SP Authentication Request for IDP[%s]", registrationId));
-		}
-		RelyingPartyRegistration relyingParty = this.relyingPartyRegistrationRepository.findByRegistrationId(registrationId);
-		String redirectUrl = createSamlRequestRedirectUrl(request, relyingParty);
+		String redirectUrl = createSamlRequestRedirectUrl(authnRequestCtx);
 		response.sendRedirect(redirectUrl);
 	}
 
-	private String createSamlRequestRedirectUrl(HttpServletRequest request, RelyingPartyRegistration relyingParty) {
-		Saml2AuthenticationRequestContext authnRequest = createRedirectAuthenticationRequestContext(relyingParty, request);
+	private void sendPost(HttpServletResponse response, Saml2AuthenticationRequestContext authnRequestCtx)
+			throws IOException {
+		Saml2PostAuthenticationRequest authNData =
+				this.authenticationRequestFactory.createPostAuthenticationRequest(authnRequestCtx);
+		String html = createSamlPostRequestFormData(authNData);
+		response.setContentType(MediaType.TEXT_HTML_VALUE);
+		response.getWriter().write(html);
+	}
+
+	private String createSamlRequestRedirectUrl(Saml2AuthenticationRequestContext authnRequestCtx) {
+
 		Saml2RedirectAuthenticationRequest authNData =
-				this.authenticationRequestFactory.createRedirectAuthenticationRequest(authnRequest);
+				this.authenticationRequestFactory.createRedirectAuthenticationRequest(authnRequestCtx);
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(authNData.getAuthenticationRequestUri());
 		addParameter("SAMLRequest", authNData.getSamlRequest(), uriBuilder);
 		addParameter("RelayState", authNData.getRelayState(), uriBuilder);
@@ -123,12 +146,64 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 						Saml2ServletUtils.resolveUrlTemplate(
 								relyingParty.getAssertionConsumerServiceUrlTemplate(),
 								Saml2ServletUtils.getApplicationUri(request),
-								relyingParty.getRemoteIdpEntityId(),
+								relyingParty.getProviderDetails().getEntityId(),
 								relyingParty.getRegistrationId()
 						)
 				)
 				.relayState(request.getParameter("RelayState"))
 				.build()
 				;
+	}
+
+	private String htmlEscape(String value) {
+		if (hasText(value)) {
+			return HtmlUtils.htmlEscape(value);
+		}
+		return value;
+	}
+
+	private String createSamlPostRequestFormData(Saml2PostAuthenticationRequest request) {
+		String destination = request.getAuthenticationRequestUri();
+		String relayState = htmlEscape(request.getRelayState());
+		String samlRequest = htmlEscape(request.getSamlRequest());
+		StringBuilder postHtml = new StringBuilder()
+				.append("<!DOCTYPE html>\n")
+				.append("<html>\n")
+				.append("    <head>\n")
+				.append("        <meta charset=\"utf-8\" />\n")
+				.append("    </head>\n")
+				.append("    <body onload=\"document.forms[0].submit()\">\n")
+				.append("        <noscript>\n")
+				.append("            <p>\n")
+				.append("                <strong>Note:</strong> Since your browser does not support JavaScript,\n")
+				.append("                you must press the Continue button once to proceed.\n")
+				.append("            </p>\n")
+				.append("        </noscript>\n")
+				.append("        \n")
+				.append("        <form action=\"").append(destination).append("\" method=\"post\">\n")
+				.append("            <div>\n")
+				.append("                <input type=\"hidden\" name=\"SAMLRequest\" value=\"")
+				.append(samlRequest)
+				.append("\"/>\n")
+				;
+		if (hasText(relayState)) {
+			postHtml
+					.append("                <input type=\"hidden\" name=\"RelayState\" value=\"")
+					.append(relayState)
+					.append("\"/>\n");
+		}
+		postHtml
+				.append("            </div>\n")
+				.append("            <noscript>\n")
+				.append("                <div>\n")
+				.append("                    <input type=\"submit\" value=\"Continue\"/>\n")
+				.append("                </div>\n")
+				.append("            </noscript>\n")
+				.append("        </form>\n")
+				.append("        \n")
+				.append("    </body>\n")
+				.append("</html>")
+		;
+		return postHtml.toString();
 	}
 }

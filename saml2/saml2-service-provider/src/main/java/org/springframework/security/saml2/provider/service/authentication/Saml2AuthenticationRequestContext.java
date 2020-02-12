@@ -91,7 +91,7 @@ public final class Saml2AuthenticationRequestContext {
 	 * @return the Destination value
 	 */
 	public String getDestination() {
-		return this.getRelyingPartyRegistration().getIdpWebSsoUrl();
+		return this.getRelyingPartyRegistration().getProviderDetails().getWebSsoUrl();
 	}
 
 	/**

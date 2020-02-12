@@ -26,12 +26,12 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
-import java.nio.charset.StandardCharsets;
-
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDecode;
 import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.relyingPartyCredentials;
+import static org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.withRelyingPartyRegistration;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.REDIRECT;
 
@@ -46,19 +46,20 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
+	private RelyingPartyRegistration relyingPartyRegistration;
 
 	@Before
 	public void setUp() {
-		RelyingPartyRegistration registration = RelyingPartyRegistration.withRegistrationId("id")
+		relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("id")
 				.assertionConsumerServiceUrlTemplate("template")
-				.idpWebSsoUrl("https://destination/sso")
-				.remoteIdpEntityId("remote-entity-id")
+				.providerDetails(c -> c.webSsoUrl("https://destination/sso"))
+				.providerDetails(c -> c.entityId("remote-entity-id"))
 				.localEntityIdTemplate("local-entity-id")
 				.credentials(c -> c.addAll(relyingPartyCredentials()))
 				.build();
 		contextBuilder = Saml2AuthenticationRequestContext.builder()
 				.issuer("https://issuer")
-				.relyingPartyRegistration(registration)
+				.relyingPartyRegistration(relyingPartyRegistration)
 				.assertionConsumerServiceUrl("https://issuer/sso");
 		context = contextBuilder.build();
 		factory = new OpenSamlAuthenticationRequestFactory();
@@ -82,6 +83,60 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 		assertThat(result.getSigAlg()).isNotEmpty();
 		assertThat(result.getSignature()).isNotEmpty();
 		assertThat(result.getBinding()).isEqualTo(REDIRECT);
+	}
+
+	@Test
+	public void createRedirectAuthenticationRequestWhenNotSignRequestThenNoSignatureIsPresent() {
+
+		context = contextBuilder
+				.relayState("Relay State Value")
+				.relyingPartyRegistration(
+						withRelyingPartyRegistration(relyingPartyRegistration)
+						.providerDetails(c -> c.signAuthNRequest(false))
+						.build()
+				)
+				.build();
+		Saml2RedirectAuthenticationRequest result = factory.createRedirectAuthenticationRequest(context);
+		assertThat(result.getSamlRequest()).isNotEmpty();
+		assertThat(result.getRelayState()).isEqualTo("Relay State Value");
+		assertThat(result.getSigAlg()).isNull();
+		assertThat(result.getSignature()).isNull();
+		assertThat(result.getBinding()).isEqualTo(REDIRECT);
+	}
+
+	@Test
+	public void createPostAuthenticationRequestWhenNotSignRequestThenNoSignatureIsPresent() {
+		context = contextBuilder
+				.relayState("Relay State Value")
+				.relyingPartyRegistration(
+						withRelyingPartyRegistration(relyingPartyRegistration)
+								.providerDetails(c -> c.signAuthNRequest(false))
+								.build()
+				)
+				.build();
+		Saml2PostAuthenticationRequest result = factory.createPostAuthenticationRequest(context);
+		assertThat(result.getSamlRequest()).isNotEmpty();
+		assertThat(result.getRelayState()).isEqualTo("Relay State Value");
+		assertThat(result.getBinding()).isEqualTo(POST);
+		assertThat(new String(samlDecode(result.getSamlRequest()), UTF_8))
+				.doesNotContain("ds:Signature");
+	}
+
+	@Test
+	public void createPostAuthenticationRequestWhenSignRequestThenSignatureIsPresent() {
+		context = contextBuilder
+				.relayState("Relay State Value")
+				.relyingPartyRegistration(
+						withRelyingPartyRegistration(relyingPartyRegistration)
+								.build()
+				)
+				.build();
+		Saml2PostAuthenticationRequest result = factory.createPostAuthenticationRequest(context);
+		assertThat(result.getSamlRequest()).isNotEmpty();
+		assertThat(result.getRelayState()).isEqualTo("Relay State Value");
+		assertThat(result.getBinding()).isEqualTo(POST);
+		assertThat(new String(samlDecode(result.getSamlRequest()), UTF_8))
+				.contains("ds:Signature");
 	}
 
 	@Test
@@ -114,7 +169,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 			samlRequest = Saml2Utils.samlInflate(samlDecode(samlRequest));
 		}
 		else {
-			samlRequest = new String(samlDecode(samlRequest), StandardCharsets.UTF_8);
+			samlRequest = new String(samlDecode(samlRequest), UTF_8);
 		}
 		return (AuthnRequest) OpenSamlImplementation.getInstance().resolve(samlRequest);
 	}

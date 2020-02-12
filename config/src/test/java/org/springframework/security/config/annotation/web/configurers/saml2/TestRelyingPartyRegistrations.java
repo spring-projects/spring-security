@@ -43,8 +43,8 @@ public class TestRelyingPartyRegistrations {
 		Saml2X509Credential idpVerificationCertificate = verificationCertificate();
 		String acsUrlTemplate = "{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
 		return RelyingPartyRegistration.withRegistrationId(registrationId)
-				.remoteIdpEntityId(idpEntityId)
-				.idpWebSsoUrl(webSsoEndpoint)
+				.providerDetails(c -> c.entityId(idpEntityId))
+				.providerDetails(c -> c.webSsoUrl(webSsoEndpoint))
 				.credentials(c -> c.add(signingCredential))
 				.credentials(c -> c.add(idpVerificationCertificate))
 				.localEntityIdTemplate(localEntityIdTemplate)
