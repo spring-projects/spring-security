@@ -18,6 +18,7 @@ package org.springframework.security.config.web.servlet.headers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
+import org.springframework.security.config.web.servlet.SecurityMarker
 
 /**
  * A Kotlin DSL to configure the [HttpSecurity] cache control headers using idiomatic
@@ -26,6 +27,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
  * @author Eleftheria Stein
  * @since 5.3
  */
+@SecurityMarker
 class CacheControlDsl {
     private var disabled = false
 

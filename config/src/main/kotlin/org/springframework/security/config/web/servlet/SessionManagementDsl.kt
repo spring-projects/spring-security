@@ -32,6 +32,7 @@ import org.springframework.security.web.session.InvalidSessionStrategy
  * @author Eleftheria Stein
  * @since 5.3
  */
+@SecurityMarker
 class SessionManagementDsl {
     var invalidSessionUrl: String? = null
     var invalidSessionStrategy: InvalidSessionStrategy? = null

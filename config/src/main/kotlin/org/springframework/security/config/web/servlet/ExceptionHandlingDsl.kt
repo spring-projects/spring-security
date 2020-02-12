@@ -33,6 +33,7 @@ import java.util.*
  * @property accessDeniedHandler the [AccessDeniedHandler] to use
  * @property authenticationEntryPoint the [AuthenticationEntryPoint] to use
  */
+@SecurityMarker
 class ExceptionHandlingDsl {
     var accessDeniedPage: String? = null
     var accessDeniedHandler: AccessDeniedHandler? = null

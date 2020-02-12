@@ -18,6 +18,7 @@ package org.springframework.security.config.web.servlet.headers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
+import org.springframework.security.config.web.servlet.SecurityMarker
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter
 
 /**
@@ -28,6 +29,7 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
  * @since 5.3
  * @property policy the policy to be used in the response header.
  */
+@SecurityMarker
 class ReferrerPolicyDsl {
     var policy: ReferrerPolicyHeaderWriter.ReferrerPolicy? = null
 

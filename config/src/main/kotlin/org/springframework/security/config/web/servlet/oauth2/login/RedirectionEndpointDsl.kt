@@ -18,6 +18,7 @@ package org.springframework.security.config.web.servlet.oauth2.login
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer
+import org.springframework.security.config.web.servlet.SecurityMarker
 
 /**
  * A Kotlin DSL to configure the Authorization Server's Redirection Endpoint using
@@ -27,6 +28,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
  * @since 5.3
  * @property baseUri the URI where the authorization response will be processed.
  */
+@SecurityMarker
 class RedirectionEndpointDsl {
     var baseUri: String? = null
 

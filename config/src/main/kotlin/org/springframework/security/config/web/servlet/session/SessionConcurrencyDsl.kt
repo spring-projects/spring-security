@@ -18,6 +18,7 @@ package org.springframework.security.config.web.servlet.session
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer
+import org.springframework.security.config.web.servlet.SecurityMarker
 import org.springframework.security.core.session.SessionRegistry
 import org.springframework.security.web.session.SessionInformationExpiredStrategy
 
@@ -36,8 +37,8 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
  * [maximumSessions] has been reached. Otherwise (default), the user who authenticates
  * is allowed access and an existing user's session is expired.
  * @property sessionRegistry the [SessionRegistry] implementation used.
- *
  */
+@SecurityMarker
 class SessionConcurrencyDsl {
     var maximumSessions: Int? = null
     var expiredUrl: String? = null

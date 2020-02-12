@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest
  * determining when CSRF should be applied.
  * @property sessionAuthenticationStrategy the [SessionAuthenticationStrategy] to use.
  */
+@SecurityMarker
 class CsrfDsl {
     var csrfTokenRepository: CsrfTokenRepository? = null
     var requireCsrfProtectionMatcher: RequestMatcher? = null

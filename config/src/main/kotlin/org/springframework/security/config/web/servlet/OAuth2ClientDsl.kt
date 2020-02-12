@@ -50,6 +50,7 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepo
  * @property authorizedClientRepository the repository for authorized client(s).
  * @property authorizedClientService the service for authorized client(s).
  */
+@SecurityMarker
 class OAuth2ClientDsl {
     var clientRegistrationRepository: ClientRegistrationRepository? = null
     var authorizedClientRepository: OAuth2AuthorizedClientRepository? = null

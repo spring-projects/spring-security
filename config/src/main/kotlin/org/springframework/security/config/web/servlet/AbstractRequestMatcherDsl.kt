@@ -25,6 +25,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher
  * @author Eleftheria Stein
  * @since 5.3
  */
+@SecurityMarker
 abstract class AbstractRequestMatcherDsl {
     /**
      * Matches any request.

@@ -18,6 +18,7 @@ package org.springframework.security.config.web.servlet.oauth2.client
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2ClientConfigurer
+import org.springframework.security.config.web.servlet.SecurityMarker
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository
@@ -34,6 +35,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
  * @property accessTokenResponseClient the client used for requesting the access token credential
  * from the Token Endpoint.
  */
+@SecurityMarker
 class AuthorizationCodeGrantDsl {
     var authorizationRequestResolver: OAuth2AuthorizationRequestResolver? = null
     var authorizationRequestRepository: AuthorizationRequestRepository<OAuth2AuthorizationRequest>? = null

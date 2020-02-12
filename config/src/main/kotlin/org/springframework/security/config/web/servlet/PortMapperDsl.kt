@@ -28,6 +28,7 @@ import org.springframework.security.web.PortMapper
  * @since 5.3
  * @property portMapper allows specifying the [PortMapper] instance.
  */
+@SecurityMarker
 class PortMapperDsl {
     private val mappings = mutableListOf<Pair<Int, Int>>()
 

@@ -37,6 +37,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
  * @property authenticationFilter the [AnonymousAuthenticationFilter] used to populate
  * an anonymous user.
  */
+@SecurityMarker
 class AnonymousDsl {
     var key: String? = null
     var principal: Any? = null

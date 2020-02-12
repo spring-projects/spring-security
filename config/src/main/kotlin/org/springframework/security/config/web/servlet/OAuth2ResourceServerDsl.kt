@@ -37,6 +37,7 @@ import org.springframework.security.web.access.AccessDeniedHandler
  * @property bearerTokenResolver the [BearerTokenResolver] to use for requests authenticating
  * with <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s.
  */
+@SecurityMarker
 class OAuth2ResourceServerDsl {
     var accessDeniedHandler: AccessDeniedHandler? = null
     var authenticationEntryPoint: AuthenticationEntryPoint? = null

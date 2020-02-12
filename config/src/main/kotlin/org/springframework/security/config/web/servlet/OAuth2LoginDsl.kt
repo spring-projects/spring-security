@@ -48,6 +48,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
  * @property permitAll whether to grant access to the urls for [failureUrl] as well as
  * for the [HttpSecurityBuilder], the [loginPage] and [loginProcessingUrl] for every user
  */
+@SecurityMarker
 class OAuth2LoginDsl {
     var clientRegistrationRepository: ClientRegistrationRepository? = null
     var authorizedClientRepository: OAuth2AuthorizedClientRepository? = null

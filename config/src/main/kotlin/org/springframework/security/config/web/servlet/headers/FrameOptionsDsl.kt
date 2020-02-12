@@ -18,6 +18,7 @@ package org.springframework.security.config.web.servlet.headers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
+import org.springframework.security.config.web.servlet.SecurityMarker
 
 /**
  * A Kotlin DSL to configure the [HttpSecurity] X-Frame-Options header using
@@ -29,6 +30,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
  * application.
  * @property deny deny framing any content from this application.
  */
+@SecurityMarker
 class FrameOptionsDsl {
     var sameOrigin: Boolean? = null
     var deny: Boolean? = null

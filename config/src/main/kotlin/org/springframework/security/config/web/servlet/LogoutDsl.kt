@@ -42,6 +42,7 @@ import javax.servlet.http.HttpSession
  * @property logoutSuccessHandler the [LogoutSuccessHandler] to use after logout has occurred.
  * If this is specified, [logoutSuccessUrl] is ignored.
  */
+@SecurityMarker
 class LogoutDsl {
     var clearAuthentication: Boolean? = null
     var invalidateHttpSession: Boolean? = null

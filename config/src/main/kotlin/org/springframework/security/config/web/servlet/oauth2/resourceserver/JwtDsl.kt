@@ -20,6 +20,7 @@ import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
+import org.springframework.security.config.web.servlet.SecurityMarker
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
 
@@ -34,6 +35,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
  * @property jwkSetUri configures a [JwtDecoder] using a
  * <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a> URL
  */
+@SecurityMarker
 class JwtDsl {
     private var _jwtDecoder: JwtDecoder? = null
     private var _jwkSetUri: String? = null

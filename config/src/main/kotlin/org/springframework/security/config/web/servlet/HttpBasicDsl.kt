@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest
  * @property authenticationDetailsSource the custom [AuthenticationDetailsSource] to use for
  * basic authentication.
  */
+@SecurityMarker
 class HttpBasicDsl {
     var realmName: String? = null
     var authenticationEntryPoint: AuthenticationEntryPoint? = null

@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletRequest
  * @property authenticationUserDetailsService the [AuthenticationUserDetailsService] to use
  * @property subjectPrincipalRegex the regex to extract the principal from the certificate
  */
+@SecurityMarker
 class X509Dsl {
     var x509AuthenticationFilter: X509AuthenticationFilter? = null
     var x509PrincipalExtractor: X509PrincipalExtractor? = null

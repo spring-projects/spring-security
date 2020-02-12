@@ -18,6 +18,7 @@ package org.springframework.security.config.web.servlet.headers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
+import org.springframework.security.config.web.servlet.SecurityMarker
 
 /**
  * A Kotlin DSL to configure the [HttpSecurity] XSS protection header using
@@ -29,6 +30,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
  * @property xssProtectionEnabled if true, the header value will contain a value of 1.
  * If false, will explicitly disable specify that X-XSS-Protection is disabled.
  */
+@SecurityMarker
 class XssProtectionConfigDsl {
     var block: Boolean? = null
     var xssProtectionEnabled: Boolean? = null
