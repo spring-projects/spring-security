@@ -126,7 +126,7 @@ All you need to enable web security to begin with is
 
 Which says that we want all URLs within our application to be secured, requiring the role `ROLE_USER` to access them, we want to log in to the application using a form with username and password, and that we want a logout URL registered which will allow us to log out of the application.
 `<http>` element is the parent for all web-related namespace functionality.
-The `<intercept-url>` element defines a `pattern` which is matched against the URLs of incoming requests using an ant path style syntax footnote:[See the section on pass:specialcharacters,macros[<<request-matching>>] in the Web Application Infrastructure chapter for more details on how matches are actually performed.].
+The `<intercept-url>` element defines a `pattern` which is matched against the URLs of incoming requests using an ant path style syntax footnote:[See the section on pass:specialcharacters,macros[<<servlet-httpfirewall,`HttpFirewall`>>] for more details on how matches are actually performed.].
 You can also use regular-expression matching as an alternative (see the namespace appendix for more details).
 The `access` attribute defines the access requirements for requests matching the given pattern.
 With the default configuration, this is typically a comma-separated list of roles, one of which a user must have to be allowed to make the request.

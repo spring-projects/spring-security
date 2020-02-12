@@ -94,8 +94,7 @@ For that reason, if you are attempting to troubleshoot Spring Security's Servlet
 Second, since `FilterChainProxy` is central to Spring Security usage it can perform tasks that are not viewed as optional.
 // FIXME: Add a link to SecurityContext
 For example, it clears out the `SecurityContext` to avoid memory leaks.
-// FIXME: Add a link to HttpFirewall
-It also applies Spring Security's `HttpFirewall` to protect applications against certain types of attacks.
+It also applies Spring Security's <<servlet-httpfirewall,`HttpFirewall`>> to protect applications against certain types of attacks.
 
 In addition, it provides more flexibility in determining when a `SecurityFilterChain` should be invoked.
 // FIXME: Add link to SecurityFitlerChain
@@ -167,8 +166,6 @@ Below is a comprehensive list of Spring Security Filter ordering:
 * SwitchUserFilter
 
 include::technical-overview.adoc[]
-
-include::security-filter-chain.adoc[]
 
 include::core-filters.adoc[]
 
