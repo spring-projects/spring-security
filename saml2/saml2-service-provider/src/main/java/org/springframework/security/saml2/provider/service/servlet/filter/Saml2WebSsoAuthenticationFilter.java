@@ -61,8 +61,8 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	 * @param filterProcessesUrl the processing URL, must contain a {registrationId} variable. Required.
 	 */
 	public Saml2WebSsoAuthenticationFilter(
-			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
-			String filterProcessesUrl) {
+				RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
+				String filterProcessesUrl) {
 		super(filterProcessesUrl);
 		Assert.notNull(relyingPartyRegistrationRepository, "relyingPartyRegistrationRepository cannot be null");
 		Assert.hasText(filterProcessesUrl, "filterProcessesUrl must contain a URL pattern");
@@ -86,7 +86,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
 		String saml2Response = request.getParameter("SAMLResponse");
-		byte[] b = Saml2Utils.samlDecode(saml2Response);
+		byte[] b = Saml2Utils.decode(saml2Response);
 
 		String responseXml = inflateIfRequired(request, b);
 		String registrationId = this.matcher.matcher(request).getVariables().get("registrationId");
@@ -97,7 +97,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 					"Relying Party Registration not found with ID: " + registrationId);
 			throw new Saml2AuthenticationException(saml2Error);
 		}
-		String localSpEntityId = Saml2ServletUtils.getServiceProviderEntityId(rp, request);
+		String localSpEntityId = Saml2Utils.getServiceProviderEntityId(rp, request);
 		final Saml2AuthenticationToken authentication = new Saml2AuthenticationToken(
 				responseXml,
 				request.getRequestURL().toString(),
@@ -110,7 +110,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 
 	private String inflateIfRequired(HttpServletRequest request, byte[] b) {
 		if (HttpMethod.GET.matches(request.getMethod())) {
-			return Saml2Utils.samlInflate(b);
+			return Saml2Utils.inflate(b);
 		}
 		else {
 			return new String(b, UTF_8);

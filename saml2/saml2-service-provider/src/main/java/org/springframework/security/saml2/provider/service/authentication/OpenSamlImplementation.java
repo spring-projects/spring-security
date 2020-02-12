@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.saml2.provider.service.authentication;
+
+import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.credentials.Saml2X509Credential;
 
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
@@ -39,7 +41,6 @@ import org.opensaml.security.credential.CredentialSupport;
 import org.opensaml.security.credential.UsageType;
 import org.opensaml.security.x509.BasicX509Credential;
 import org.opensaml.xmlsec.SignatureSigningParameters;
-import org.opensaml.xmlsec.crypto.XMLSigningUtil;
 import org.opensaml.xmlsec.encryption.support.ChainingEncryptedKeyResolver;
 import org.opensaml.xmlsec.encryption.support.EncryptedKeyResolver;
 import org.opensaml.xmlsec.encryption.support.InlineEncryptedKeyResolver;
@@ -47,29 +48,21 @@ import org.opensaml.xmlsec.encryption.support.SimpleRetrievalMethodEncryptedKeyR
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureSupport;
-import org.springframework.security.saml2.Saml2Exception;
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
-import org.springframework.security.saml2.provider.service.authentication.Saml2Utils;
-import org.springframework.util.Assert;
-import org.springframework.web.util.UriUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
 import java.io.ByteArrayInputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
-import static org.springframework.util.StringUtils.hasText;
 
 /**
  * @since 5.2
@@ -198,68 +191,11 @@ final class OpenSamlImplementation {
 		}
 	}
 
-	/**
-	 * Returns query parameter after creating a Query String signature
-	 * All return values are unencoded and will need to be encoded prior to sending
-	 * The methods {@link UriUtils#encode(String, Charset)} and {@link UriUtils#decode(String, Charset)}
-	 * with the {@link StandardCharsets#ISO_8859_1} character set are used for all URL encoding/decoding.
-	 * @param signingCredentials - credentials to be used for signature
-	 * @return a map of unencoded query parameters with the following keys:
-	 * {@code {SAMLRequest, RelayState (may be null)}, SigAlg, Signature}
-	 *
-	 */
-	Map<String, String> signQueryParameters(
-			List<Saml2X509Credential> signingCredentials,
-			String samlRequest,
-			String relayState) {
-		Assert.notNull(samlRequest, "samlRequest cannot be null");
-		String algorithmUri = SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256;
-		StringBuilder queryString = new StringBuilder();
-		queryString
-				.append("SAMLRequest")
-				.append("=")
-				.append(UriUtils.encode(samlRequest, StandardCharsets.ISO_8859_1))
-				.append("&");
-		if (hasText(relayState)) {
-			queryString
-					.append("RelayState")
-					.append("=")
-					.append(UriUtils.encode(relayState, StandardCharsets.ISO_8859_1))
-					.append("&");
-		}
-		queryString
-				.append("SigAlg")
-				.append("=")
-				.append(UriUtils.encode(algorithmUri, StandardCharsets.ISO_8859_1));
-
-		try {
-			byte[] rawSignature = XMLSigningUtil.signWithURI(
-					getSigningCredential(signingCredentials, ""),
-					algorithmUri,
-					queryString.toString().getBytes(StandardCharsets.UTF_8)
-			);
-			String b64Signature = Saml2Utils.samlEncode(rawSignature);
-
-			Map<String, String> result = new LinkedHashMap<>();
-			result.put("SAMLRequest", samlRequest);
-			if (hasText(relayState)) {
-				result.put("RelayState", relayState);
-			}
-			result.put("SigAlg", algorithmUri);
-			result.put("Signature", b64Signature);
-			return result;
-		}
-		catch (SecurityException e) {
-			throw new Saml2Exception(e);
-		}
-	}
-
 	/*
 	 * ==============================================================
 	 * PRIVATE METHODS
 	 * ==============================================================
 	 */
-
 	private XMLObject resolve(byte[] xml) {
 		XMLObject parsed = parse(xml);
 		if (parsed != null) {

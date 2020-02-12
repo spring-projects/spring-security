@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,10 +29,9 @@ import java.util.function.Consumer;
  * from the service provider to the identity provider
  * https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf (line 2031)
  *
+ * @see {@link Saml2AuthenticationRequestFactory}
  * @since 5.2
- * @deprecated use {@link Saml2AuthenticationRequestContext}
  */
-@Deprecated
 public final class Saml2AuthenticationRequest {
 	private final String issuer;
 	private final List<Saml2X509Credential> credentials;
@@ -56,6 +55,7 @@ public final class Saml2AuthenticationRequest {
 				this.credentials.add(c);
 			}
 		}
+		Assert.notEmpty(this.credentials, "at least one SIGNING credential must be present");
 	}
 
 
@@ -102,20 +102,6 @@ public final class Saml2AuthenticationRequest {
 	 */
 	public static Builder builder() {
 		return new Builder();
-	}
-
-	/**
-	 * A builder for {@link Saml2AuthenticationRequest}.
-	 * @param context a context object to copy values from.
-	 * returns a builder object
-	 */
-	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
-		return new Builder()
-				.assertionConsumerServiceUrl(context.getAssertionConsumerServiceUrl())
-				.issuer(context.getIssuer())
-				.destination(context.getDestination())
-				.credentials(c -> c.addAll(context.getRelyingPartyRegistration().getCredentials()))
-				;
 	}
 
 	/**

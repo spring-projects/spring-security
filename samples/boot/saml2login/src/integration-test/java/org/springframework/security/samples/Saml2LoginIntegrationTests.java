@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.springframework.security.saml2.provider.service.authentication;
+package org.springframework.security.samples;
 
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
@@ -53,6 +52,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.AssertionErrors;
 import org.springframework.test.web.servlet.MockMvc;
@@ -63,7 +63,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.servlet.http.HttpSession;
 import java.io.ByteArrayInputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -74,18 +73,19 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.UUID;
+import javax.servlet.http.HttpSession;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.startsWith;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.buildConditions;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.buildIssuer;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.buildSubject;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.buildSubjectConfirmation;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.buildSubjectConfirmationData;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.encryptNameId;
+import static org.springframework.security.samples.OpenSamlActionTestingSupport.buildConditions;
+import static org.springframework.security.samples.OpenSamlActionTestingSupport.buildIssuer;
+import static org.springframework.security.samples.OpenSamlActionTestingSupport.buildSubject;
+import static org.springframework.security.samples.OpenSamlActionTestingSupport.buildSubjectConfirmation;
+import static org.springframework.security.samples.OpenSamlActionTestingSupport.buildSubjectConfirmationData;
+import static org.springframework.security.samples.OpenSamlActionTestingSupport.encryptNameId;
+import static org.springframework.security.samples.OpenSamlActionTestingSupport.inflate;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.web.WebAttributes.AUTHENTICATION_EXCEPTION;
@@ -133,15 +133,10 @@ public class Saml2LoginIntegrationTests {
 		mockMvc.perform(
 				get("http://localhost:8080/saml2/authenticate/simplesamlphp")
 						.param("RelayState", "relay state value with spaces")
-						.param("OtherParam", "OtherParamValue")
-						.param("OtherParam2", "OtherParamValue2")
 		)
 				.andExpect(status().is3xxRedirection())
 				.andExpect(header().string("Location", startsWith("https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php?SAMLRequest=")))
-				.andExpect(header().string("Location", containsString("RelayState=relay%20state%20value%20with%20spaces")))
-				//check order of parameters
-				.andExpect(header().string("Location", matchesRegex(".*\\?SAMLRequest\\=.*\\&RelayState\\=.*\\&SigAlg\\=.*\\&Signature\\=.*")));
-
+				.andExpect(header().string("Location", containsString("RelayState=relay%20state%20value%20with%20spaces")));
 	}
 
 	@Test
@@ -156,7 +151,7 @@ public class Saml2LoginIntegrationTests {
 		String request = parameters.getFirst("SAMLRequest");
 		AssertionErrors.assertNotNull("SAMLRequest parameter is missing", request);
 		request = URLDecoder.decode(request);
-		request = Saml2Utils.samlInflate(Saml2Utils.samlDecode(request));
+		request = inflate(OpenSamlActionTestingSupport.decode(request));
 		AuthnRequest authnRequest = (AuthnRequest) fromXml(request);
 		String destination = authnRequest.getDestination();
 		assertEquals(
@@ -303,7 +298,7 @@ public class Saml2LoginIntegrationTests {
 		String xml = toXml(response);
 		return mockMvc.perform(post("http://localhost:8080/login/saml2/sso/simplesamlphp")
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.param("SAMLResponse", Saml2Utils.samlEncode(xml.getBytes(UTF_8))))
+				.param("SAMLResponse", OpenSamlActionTestingSupport.encode(xml.getBytes(UTF_8))))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl(redirectUrl));
 	}
