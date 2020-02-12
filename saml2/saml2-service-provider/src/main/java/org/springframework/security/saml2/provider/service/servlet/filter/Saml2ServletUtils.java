@@ -39,7 +39,7 @@ final class Saml2ServletUtils {
 		return resolveUrlTemplate(
 				rp.getLocalEntityIdTemplate(),
 				getApplicationUri(request),
-				rp.getRemoteIdpEntityId(),
+				rp.getProviderDetails().getEntityId(),
 				rp.getRegistrationId()
 		);
 	}

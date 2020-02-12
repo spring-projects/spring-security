@@ -16,10 +16,6 @@
 
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import javax.servlet.ServletException;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockFilterChain;
@@ -27,11 +23,17 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriUtils;
+
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;
 import static org.springframework.security.saml2.provider.service.servlet.filter.TestSaml2SigningCredentials.signingCredential;
 
 public class Saml2WebSsoAuthenticationRequestFilterTests {
@@ -55,8 +57,8 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 
 		rpBuilder = RelyingPartyRegistration
 				.withRegistrationId("registration-id")
-				.remoteIdpEntityId("idp-entity-id")
-				.idpWebSsoUrl(IDP_SSO_URL)
+				.providerDetails(c -> c.entityId("idp-entity-id"))
+				.providerDetails(c -> c.webSsoUrl(IDP_SSO_URL))
 				.assertionConsumerServiceUrlTemplate("template")
 				.credentials(c -> c.add(signingCredential()));
 	}
@@ -107,6 +109,42 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 				.contains("SigAlg=")
 				.contains("Signature=")
 				.startsWith(IDP_SSO_URL);
+	}
+
+	@Test
+	public void doFilterWhenSignatureIsDisabledThenSignatureParametersAreNotInTheRedirectURL() throws Exception {
+		when(repository.findByRegistrationId("registration-id")).thenReturn(
+				rpBuilder
+						.providerDetails(c -> c.signAuthNRequest(false))
+						.build()
+		);
+		final String relayStateValue = "https://my-relay-state.example.com?with=param&other=param";
+		final String relayStateEncoded = UriUtils.encode(relayStateValue, StandardCharsets.ISO_8859_1);
+		request.setParameter("RelayState", relayStateValue);
+		filter.doFilterInternal(request, response, filterChain);
+		assertThat(response.getHeader("Location"))
+				.contains("RelayState="+relayStateEncoded)
+				.doesNotContain("SigAlg=")
+				.doesNotContain("Signature=")
+				.startsWith(IDP_SSO_URL);
+	}
+
+	@Test
+	public void doFilterWhenPostFormDataIsPresent() throws Exception {
+		when(repository.findByRegistrationId("registration-id")).thenReturn(
+				rpBuilder
+						.providerDetails(c -> c.binding(POST))
+						.build()
+		);
+		final String relayStateValue = "https://my-relay-state.example.com?with=param&other=param&javascript{alert('1');}";
+		final String relayStateEncoded = HtmlUtils.htmlEscape(relayStateValue);
+		request.setParameter("RelayState", relayStateValue);
+		filter.doFilterInternal(request, response, filterChain);
+		assertThat(response.getHeader("Location")).isNull();
+		assertThat(response.getContentAsString())
+				.contains("<form action=\"https://sso-url.example.com/IDP/SSO\" method=\"post\">")
+				.contains("<input type=\"hidden\" name=\"SAMLRequest\"")
+				.contains("value=\""+relayStateEncoded+"\"");
 	}
 
 }

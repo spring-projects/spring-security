@@ -51,8 +51,8 @@ import static org.springframework.util.Assert.notNull;
  *		//IDP certificate for verification of incoming messages
  *		Saml2X509Credential idpVerificationCertificate = getVerificationCertificate();
  *		RelyingPartyRegistration rp = RelyingPartyRegistration.withRegistrationId(registrationId)
- * 				.remoteIdpEntityId(idpEntityId)
- * 				.idpWebSsoUrl(webSsoEndpoint)
+ * 				.providerDetails(config -> config.entityId(idpEntityId));
+ * 				.providerDetails(config -> config.webSsoUrl(url));
  * 				.credentials(c -> c.add(signingCredential))
  * 				.credentials(c -> c.add(idpVerificationCertificate))
  * 				.localEntityIdTemplate(localEntityIdTemplate)
@@ -64,37 +64,41 @@ import static org.springframework.util.Assert.notNull;
 public class RelyingPartyRegistration {
 
 	private final String registrationId;
-	private final String remoteIdpEntityId;
 	private final String assertionConsumerServiceUrlTemplate;
-	private final String idpWebSsoUrl;
 	private final List<Saml2X509Credential> credentials;
 	private final String localEntityIdTemplate;
+	private final ProviderDetails providerDetails;
 
-	private RelyingPartyRegistration(String idpEntityId, String registrationId, String assertionConsumerServiceUrlTemplate,
-			String idpWebSsoUri, List<Saml2X509Credential> credentials, String localEntityIdTemplate) {
-		hasText(idpEntityId, "idpEntityId cannot be empty");
+	private RelyingPartyRegistration(
+			String registrationId,
+			String assertionConsumerServiceUrlTemplate,
+			ProviderDetails providerDetails,
+			List<Saml2X509Credential> credentials,
+			String localEntityIdTemplate) {
 		hasText(registrationId, "registrationId cannot be empty");
 		hasText(assertionConsumerServiceUrlTemplate, "assertionConsumerServiceUrlTemplate cannot be empty");
 		hasText(localEntityIdTemplate, "localEntityIdTemplate cannot be empty");
 		notEmpty(credentials, "credentials cannot be empty");
-		notNull(idpWebSsoUri, "idpWebSsoUri cannot be empty");
+		notNull(providerDetails, "providerDetails cannot be null");
+		hasText(providerDetails.webSsoUrl, "providerDetails.webSsoUrl cannot be empty");
 		for (Saml2X509Credential c : credentials) {
 			notNull(c, "credentials cannot contain null elements");
 		}
 		this.registrationId = registrationId;
-		this.remoteIdpEntityId = idpEntityId;
 		this.assertionConsumerServiceUrlTemplate = assertionConsumerServiceUrlTemplate;
 		this.credentials = unmodifiableList(new LinkedList<>(credentials));
-		this.idpWebSsoUrl = idpWebSsoUri;
+		this.providerDetails = providerDetails;
 		this.localEntityIdTemplate = localEntityIdTemplate;
 	}
 
 	/**
 	 * Returns the entity ID of the IDP, the asserting party.
 	 * @return entity ID of the asserting party
+	 * @deprecated use {@link ProviderDetails#getEntityId()} from {@link #getProviderDetails()}
 	 */
+	@Deprecated
 	public String getRemoteIdpEntityId() {
-		return this.remoteIdpEntityId;
+		return this.providerDetails.getEntityId();
 	}
 
 	/**
@@ -119,9 +123,20 @@ public class RelyingPartyRegistration {
 	 * Contains the URL for which to send the SAML 2 Authentication Request to initiate
 	 * a single sign on flow.
 	 * @return a IDP URL that accepts REDIRECT or POST binding for authentication requests
+	 * @deprecated use {@link ProviderDetails#getWebSsoUrl()} from {@link #getProviderDetails()}
 	 */
+	@Deprecated
 	public String getIdpWebSsoUrl() {
-		return this.idpWebSsoUrl;
+		return this.getProviderDetails().webSsoUrl;
+	}
+
+	/**
+	 * Returns specific configuration around the Identity Provider SSO endpoint
+	 * @return the IDP SSO endpoint configuration
+	 * @since 5.3
+	 */
+	public ProviderDetails getProviderDetails() {
+		return this.providerDetails;
 	}
 
 	/**
@@ -200,13 +215,158 @@ public class RelyingPartyRegistration {
 		return new Builder(registrationId);
 	}
 
-	public static class Builder {
+	/**
+	 * Creates a {@code RelyingPartyRegistration} {@link Builder} based on an existing object
+	 * @param registration the {@code RelyingPartyRegistration}
+	 * @return {@code Builder} to create a {@code RelyingPartyRegistration} object
+	 */
+	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
+		Assert.notNull(registration, "registration cannot be null");
+		return withRegistrationId(registration.getRegistrationId())
+				.providerDetails(c -> {
+					c.webSsoUrl(registration.getProviderDetails().getWebSsoUrl());
+					c.binding(registration.getProviderDetails().getBinding());
+					c.signAuthNRequest(registration.getProviderDetails().isSignAuthNRequest());
+					c.entityId(registration.getProviderDetails().getEntityId());
+				})
+				.credentials(c -> c.addAll(registration.getCredentials()))
+				.localEntityIdTemplate(registration.getLocalEntityIdTemplate())
+				.assertionConsumerServiceUrlTemplate(registration.getAssertionConsumerServiceUrlTemplate())
+				;
+	}
+
+	/**
+	 * Configuration for IDP SSO endpoint configuration
+	 * @since 5.3
+	 */
+	public final static class ProviderDetails {
+		private final String entityId;
+		private final String webSsoUrl;
+		private final boolean signAuthNRequest;
+		private final Saml2MessageBinding binding;
+
+		private ProviderDetails(
+				String entityId,
+				String webSsoUrl,
+				boolean signAuthNRequest,
+				Saml2MessageBinding binding) {
+			hasText(entityId, "entityId cannot be null or empty");
+			notNull(webSsoUrl, "webSsoUrl cannot be null");
+			notNull(binding, "binding cannot be null");
+			this.entityId = entityId;
+			this.webSsoUrl = webSsoUrl;
+			this.signAuthNRequest = signAuthNRequest;
+			this.binding = binding;
+		}
+
+		/**
+		 * Returns the entity ID of the Identity Provider
+		 * @return the entity ID of the IDP
+		 */
+		public String getEntityId() {
+			return entityId;
+		}
+
+		/**
+		 * Contains the URL for which to send the SAML 2 Authentication Request to initiate
+		 * a single sign on flow.
+		 * @return a IDP URL that accepts REDIRECT or POST binding for authentication requests
+		 */
+		public String getWebSsoUrl() {
+			return webSsoUrl;
+		}
+
+		/**
+		 * @return {@code true} if AuthNRequests from this relying party to the IDP should be signed
+		 * {@code false} if no signature is required.
+		 */
+		public boolean isSignAuthNRequest() {
+			return signAuthNRequest;
+		}
+
+		/**
+		 * @return the type of SAML 2 Binding the AuthNRequest should be sent on
+		 */
+		public Saml2MessageBinding getBinding() {
+			return binding;
+		}
+
+		/**
+		 * Builder for IDP SSO endpoint configuration
+		 * @since 5.3
+		 */
+		public final static class Builder {
+			private String entityId;
+			private String webSsoUrl;
+			private boolean signAuthNRequest = true;
+			private Saml2MessageBinding binding = Saml2MessageBinding.REDIRECT;
+
+			/**
+			 * Sets the {@code EntityID} for the remote asserting party, the Identity Provider.
+			 *
+			 * @param entityId - the EntityID of the IDP. May be a URL.
+			 * @return this object
+			 */
+			public Builder entityId(String entityId) {
+				this.entityId = entityId;
+				return this;
+			}
+
+			/**
+			 * Sets the {@code SSO URL} for the remote asserting party, the Identity Provider.
+			 *
+			 * @param url - a URL that accepts authentication requests via REDIRECT or POST bindings
+			 * @return this object
+			 */
+			public Builder webSsoUrl(String url) {
+				this.webSsoUrl = url;
+				return this;
+			}
+
+			/**
+			 * Set to true if the AuthNRequest message should be signed
+			 *
+			 * @param signAuthNRequest true if the message should be signed
+			 * @return this object
+			 */
+			public Builder signAuthNRequest(boolean signAuthNRequest) {
+				this.signAuthNRequest = signAuthNRequest;
+				return this;
+			}
+
+
+			/**
+			 * Sets the message binding to be used when sending an AuthNRequest message
+			 *
+			 * @param binding either {@link Saml2MessageBinding#POST} or {@link Saml2MessageBinding#REDIRECT}
+			 * @return this object
+			 */
+			public Builder binding(Saml2MessageBinding binding) {
+				this.binding = binding;
+				return this;
+			}
+
+			/**
+			 * Creates an immutable ProviderDetails object representing the configuration for an Identity Provider, IDP
+			 * @return immutable ProviderDetails object
+			 */
+			public ProviderDetails build() {
+				return new ProviderDetails(
+						this.entityId,
+						this.webSsoUrl,
+						this.signAuthNRequest,
+						this.binding
+				);
+			}
+		}
+	}
+
+	public final static class Builder {
 		private String registrationId;
-		private String remoteIdpEntityId;
-		private String idpWebSsoUrl;
 		private String assertionConsumerServiceUrlTemplate;
 		private List<Saml2X509Credential> credentials = new LinkedList<>();
 		private String localEntityIdTemplate = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
+		private ProviderDetails.Builder providerDetails = new ProviderDetails.Builder();
 
 		private Builder(String registrationId) {
 			this.registrationId = registrationId;
@@ -227,9 +387,11 @@ public class RelyingPartyRegistration {
 		 * Sets the {@code entityId} for the remote asserting party, the Identity Provider.
 		 * @param entityId the IDP entityId
 		 * @return this object
+		 * @deprecated use {@link #providerDetails(Consumer< ProviderDetails.Builder >)}
 		 */
+		@Deprecated
 		public Builder remoteIdpEntityId(String entityId) {
-			this.remoteIdpEntityId = entityId;
+			this.providerDetails(idp -> idp.entityId(entityId));
 			return this;
 		}
 
@@ -250,9 +412,21 @@ public class RelyingPartyRegistration {
 		 * Sets the {@code SSO URL} for the remote asserting party, the Identity Provider.
 		 * @param url - a URL that accepts authentication requests via REDIRECT or POST bindings
 		 * @return this object
+		 * @deprecated use {@link #providerDetails(Consumer< ProviderDetails.Builder >)}
 		 */
+		@Deprecated
 		public Builder idpWebSsoUrl(String url) {
-			this.idpWebSsoUrl = url;
+			providerDetails(config -> config.webSsoUrl(url));
+			return this;
+		}
+
+		/**
+		 * Configures the IDP SSO endpoint
+		 * @param providerDetails a consumer that configures the IDP SSO endpoint
+		 * @return this object
+		 */
+		public Builder providerDetails(Consumer<ProviderDetails.Builder> providerDetails) {
+			providerDetails.accept(this.providerDetails);
 			return this;
 		}
 
@@ -288,17 +462,19 @@ public class RelyingPartyRegistration {
 			return this;
 		}
 
+		/**
+		 * Constructs a RelyingPartyRegistration object based on the builder configurations
+		 * @return a RelyingPartyRegistration instance
+		 */
 		public RelyingPartyRegistration build() {
 			return new RelyingPartyRegistration(
-					remoteIdpEntityId,
-					registrationId,
-					assertionConsumerServiceUrlTemplate,
-					idpWebSsoUrl,
-					credentials,
-					localEntityIdTemplate
+					this.registrationId,
+					this.assertionConsumerServiceUrlTemplate,
+					this.providerDetails.build(),
+					this.credentials,
+					this.localEntityIdTemplate
 			);
 		}
 	}
-
 
 }

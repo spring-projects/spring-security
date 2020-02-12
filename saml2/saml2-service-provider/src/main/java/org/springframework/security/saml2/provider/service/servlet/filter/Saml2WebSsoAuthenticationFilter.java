@@ -101,7 +101,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 		final Saml2AuthenticationToken authentication = new Saml2AuthenticationToken(
 				responseXml,
 				request.getRequestURL().toString(),
-				rp.getRemoteIdpEntityId(),
+				rp.getProviderDetails().getEntityId(),
 				localSpEntityId,
 				rp.getCredentials()
 		);
