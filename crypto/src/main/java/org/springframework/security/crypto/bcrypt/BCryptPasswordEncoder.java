@@ -119,6 +119,11 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 			return false;
 		}
 
+		if(rawPassword.toString() == null || rawPassword.toString.length() == 0){
+			logger.warn("Empty raw password");
+			return false;
+		}
+
 		return BCrypt.checkpw(rawPassword.toString(), encodedPassword);
 	}
 
