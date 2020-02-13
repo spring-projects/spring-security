@@ -123,7 +123,6 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 			logger.warn("Empty raw password");
 			return false;
 		}
-
 		return BCrypt.checkpw(rawPassword.toString(), encodedPassword);
 	}
 
