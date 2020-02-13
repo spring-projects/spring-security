@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,6 @@
  */
 package org.springframework.security.oauth2.client.web.reactive.function.client;
 
-import java.net.URI;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,8 +23,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.util.context.Context;
-
 import org.springframework.core.codec.ByteBufferEncoder;
 import org.springframework.core.codec.CharSequenceEncoder;
 import org.springframework.http.HttpHeaders;
@@ -60,7 +46,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
+import org.springframework.security.oauth2.client.OAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
@@ -78,6 +66,9 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -89,16 +80,37 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
@@ -127,6 +139,14 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshTokenTokenResponseClient;
 	@Mock
 	private OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenResponseClient;
+	@Mock
+	private OAuth2AuthorizationFailureHandler authorizationFailureHandler;
+	@Captor
+	private ArgumentCaptor<OAuth2AuthorizationException> authorizationExceptionCaptor;
+	@Captor
+	private ArgumentCaptor<Authentication> authenticationCaptor;
+	@Captor
+	private ArgumentCaptor<Map<String, Object>> attributesCaptor;
 	@Mock
 	private WebClient.RequestHeadersSpec<?> spec;
 	@Captor
@@ -167,7 +187,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		this.authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
-		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
+		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientManager);
 	}
 
 	@After
@@ -233,7 +253,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 		Map<String, Object> attrs = getDefaultRequestAttributes();
 		assertThat(getAuthentication(attrs)).isEqualTo(this.authentication);
-		verifyZeroInteractions(this.authorizedClientRepository);
+		verifyNoInteractions(this.authorizedClientRepository);
 	}
 
 	private Map<String, Object> getDefaultRequestAttributes() {
@@ -647,6 +667,215 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(getBody(request)).isEmpty();
 	}
 
+	@Test
+	public void filterWhenUnauthorizedThenInvokeFailureHandler() {
+		assertHttpStatusInvokesFailureHandler(HttpStatus.UNAUTHORIZED, OAuth2ErrorCodes.INVALID_TOKEN);
+	}
+
+	@Test
+	public void filterWhenForbiddenThenInvokeFailureHandler() {
+		assertHttpStatusInvokesFailureHandler(HttpStatus.FORBIDDEN, OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+	}
+
+	private void assertHttpStatusInvokesFailureHandler(HttpStatus httpStatus, String expectedErrorCode) {
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.registration, "principalName", this.accessToken);
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse))
+				.build();
+
+		when(this.exchange.getResponse().rawStatusCode()).thenReturn(httpStatus.value());
+		when(this.exchange.getResponse().headers()).thenReturn(mock(ClientResponse.Headers.class));
+		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
+
+		this.function.filter(request, this.exchange).block();
+
+		verify(this.authorizationFailureHandler).onAuthorizationFailure(
+				this.authorizationExceptionCaptor.capture(),
+				this.authenticationCaptor.capture(),
+				this.attributesCaptor.capture());
+
+		assertThat(this.authorizationExceptionCaptor.getValue())
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+					assertThat(e.getError().getErrorCode()).isEqualTo(expectedErrorCode);
+					assertThat(e).hasNoCause();
+					assertThat(e).hasMessageContaining(expectedErrorCode);
+				});
+		assertThat(this.authenticationCaptor.getValue().getName())
+				.isEqualTo(authorizedClient.getPrincipalName());
+		assertThat(this.attributesCaptor.getValue())
+				.containsExactly(
+						entry(HttpServletRequest.class.getName(), servletRequest),
+						entry(HttpServletResponse.class.getName(), servletResponse));
+	}
+
+	@Test
+	public void filterWhenWWWAuthenticateHeaderIncludesErrorThenInvokeFailureHandler() {
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.registration, "principalName", this.accessToken);
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse))
+				.build();
+
+		String wwwAuthenticateHeader = "Bearer error=\"insufficient_scope\", " +
+				"error_description=\"The request requires higher privileges than provided by the access token.\", " +
+				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"";
+		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);
+		when(headers.header(eq(HttpHeaders.WWW_AUTHENTICATE)))
+				.thenReturn(Collections.singletonList(wwwAuthenticateHeader));
+		when(this.exchange.getResponse().headers()).thenReturn(headers);
+		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
+
+		this.function.filter(request, this.exchange).block();
+
+		verify(this.authorizationFailureHandler).onAuthorizationFailure(
+				this.authorizationExceptionCaptor.capture(),
+				this.authenticationCaptor.capture(),
+				this.attributesCaptor.capture());
+
+		assertThat(this.authorizationExceptionCaptor.getValue())
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+					assertThat(e.getError().getErrorCode()).isEqualTo(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+					assertThat(e.getError().getDescription()).isEqualTo("The request requires higher privileges than provided by the access token.");
+					assertThat(e.getError().getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
+					assertThat(e).hasNoCause();
+					assertThat(e).hasMessageContaining(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+				});
+		assertThat(this.authenticationCaptor.getValue().getName())
+				.isEqualTo(authorizedClient.getPrincipalName());
+		assertThat(this.attributesCaptor.getValue())
+				.containsExactly(
+						entry(HttpServletRequest.class.getName(), servletRequest),
+						entry(HttpServletResponse.class.getName(), servletResponse));
+	}
+
+	@Test
+	public void filterWhenUnauthorizedWithWebClientExceptionThenInvokeFailureHandler() {
+		assertHttpStatusWithWebClientExceptionInvokesFailureHandler(
+				HttpStatus.UNAUTHORIZED, OAuth2ErrorCodes.INVALID_TOKEN);
+	}
+
+	@Test
+	public void filterWhenForbiddenWithWebClientExceptionThenInvokeFailureHandler() {
+		assertHttpStatusWithWebClientExceptionInvokesFailureHandler(
+				HttpStatus.FORBIDDEN, OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+	}
+
+	private void assertHttpStatusWithWebClientExceptionInvokesFailureHandler(
+			HttpStatus httpStatus, String expectedErrorCode) {
+
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.registration, "principalName", this.accessToken);
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse))
+				.build();
+
+		WebClientResponseException exception = WebClientResponseException.create(
+				httpStatus.value(),
+				httpStatus.getReasonPhrase(),
+				HttpHeaders.EMPTY,
+				new byte[0],
+				StandardCharsets.UTF_8);
+		ExchangeFunction throwingExchangeFunction = r -> Mono.error(exception);
+		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
+
+		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction).block())
+				.isEqualTo(exception);
+
+		verify(this.authorizationFailureHandler).onAuthorizationFailure(
+				this.authorizationExceptionCaptor.capture(),
+				this.authenticationCaptor.capture(),
+				this.attributesCaptor.capture());
+
+		assertThat(this.authorizationExceptionCaptor.getValue())
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+					assertThat(e.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+					assertThat(e.getError().getErrorCode()).isEqualTo(expectedErrorCode);
+					assertThat(e).hasCause(exception);
+					assertThat(e).hasMessageContaining(expectedErrorCode);
+				});
+		assertThat(this.authenticationCaptor.getValue().getName())
+				.isEqualTo(authorizedClient.getPrincipalName());
+		assertThat(this.attributesCaptor.getValue())
+				.containsExactly(
+						entry(HttpServletRequest.class.getName(), servletRequest),
+						entry(HttpServletResponse.class.getName(), servletResponse));
+	}
+
+	@Test
+	public void filterWhenAuthorizationExceptionThenInvokeFailureHandler() {
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.registration, "principalName", this.accessToken);
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse))
+				.build();
+
+		OAuth2AuthorizationException authorizationException = new OAuth2AuthorizationException(
+				new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN));
+		ExchangeFunction throwingExchangeFunction = r -> Mono.error(authorizationException);
+		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
+
+		assertThatCode(() -> this.function.filter(request, throwingExchangeFunction).block())
+				.isEqualTo(authorizationException);
+
+		verify(this.authorizationFailureHandler).onAuthorizationFailure(
+				this.authorizationExceptionCaptor.capture(),
+				this.authenticationCaptor.capture(),
+				this.attributesCaptor.capture());
+
+		assertThat(this.authorizationExceptionCaptor.getValue())
+				.isInstanceOfSatisfying(OAuth2AuthorizationException.class, e -> {
+					assertThat(e.getError().getErrorCode()).isEqualTo(authorizationException.getError().getErrorCode());
+					assertThat(e).hasNoCause();
+					assertThat(e).hasMessageContaining(OAuth2ErrorCodes.INVALID_TOKEN);
+				});
+		assertThat(this.authenticationCaptor.getValue().getName())
+				.isEqualTo(authorizedClient.getPrincipalName());
+		assertThat(this.attributesCaptor.getValue())
+				.containsExactly(
+						entry(HttpServletRequest.class.getName(), servletRequest),
+						entry(HttpServletResponse.class.getName(), servletResponse));
+	}
+
+	@Test
+	public void filterWhenOtherHttpStatusThenDoesNotInvokeFailureHandler() {
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				this.registration, "principalName", this.accessToken);
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.attributes(httpServletRequest(servletRequest))
+				.attributes(httpServletResponse(servletResponse))
+				.build();
+
+		when(this.exchange.getResponse().rawStatusCode()).thenReturn(HttpStatus.BAD_REQUEST.value());
+		when(this.exchange.getResponse().headers()).thenReturn(mock(ClientResponse.Headers.class));
+		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
+
+		this.function.filter(request, this.exchange).block();
+
+		verifyNoInteractions(this.authorizationFailureHandler);
+	}
+
 	private Context context(HttpServletRequest servletRequest, HttpServletResponse servletResponse, Authentication authentication) {
 		Map<Object, Object> contextAttributes = new HashMap<>();
 		contextAttributes.put(HttpServletRequest.class, servletRequest);
@@ -688,5 +917,4 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		request.body().insert(body, context).block();
 		return body.getBodyAsString().block();
 	}
-
 }

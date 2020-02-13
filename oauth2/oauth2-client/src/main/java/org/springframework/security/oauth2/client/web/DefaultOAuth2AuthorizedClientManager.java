@@ -15,22 +15,20 @@
  */
 package org.springframework.security.oauth2.client.web;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
+import org.springframework.security.oauth2.client.OAuth2AuthorizationFailureHandler;
+import org.springframework.security.oauth2.client.OAuth2AuthorizationSuccessHandler;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -39,19 +37,57 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
 /**
- * The default implementation of an {@link OAuth2AuthorizedClientManager}.
+ * The default implementation of an {@link OAuth2AuthorizedClientManager}
+ * for use within the context of a {@code HttpServletRequest}.
+ *
+ * <p>
+ * (When operating <em>outside</em> of the context of a {@code HttpServletRequest},
+ * use {@link AuthorizedClientServiceOAuth2AuthorizedClientManager} instead.)
+ *
+ * <h2>Authorized Client Persistence</h2>
+ *
+ * <p>
+ * This manager utilizes an {@link OAuth2AuthorizedClientRepository}
+ * to persist {@link OAuth2AuthorizedClient}s.
+ *
+ * <p>
+ * By default, when an authorization attempt succeeds, the {@link OAuth2AuthorizedClient}
+ * will be saved in the {@link OAuth2AuthorizedClientRepository}.
+ * This functionality can be changed by configuring a custom {@link OAuth2AuthorizationSuccessHandler}
+ * via {@link #setAuthorizationSuccessHandler(OAuth2AuthorizationSuccessHandler)}.
+ *
+ * <p>
+ * By default, when an authorization attempt fails due to an
+ * {@value OAuth2ErrorCodes#INVALID_GRANT} error,
+ * the previously saved {@link OAuth2AuthorizedClient}
+ * will be removed from the {@link OAuth2AuthorizedClientRepository}.
+ * (The {@value OAuth2ErrorCodes#INVALID_GRANT} error can occur
+ * when a refresh token that is no longer valid is used to retrieve a new access token.)
+ * This functionality can be changed by configuring a custom {@link OAuth2AuthorizationFailureHandler}
+ * via {@link #setAuthorizationFailureHandler(OAuth2AuthorizationFailureHandler)}.
  *
  * @author Joe Grandja
  * @since 5.2
  * @see OAuth2AuthorizedClientManager
  * @see OAuth2AuthorizedClientProvider
+ * @see OAuth2AuthorizationSuccessHandler
+ * @see OAuth2AuthorizationFailureHandler
  */
 public final class DefaultOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private OAuth2AuthorizedClientProvider authorizedClientProvider = context -> null;
-	private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper = new DefaultContextAttributesMapper();
+	private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper;
+	private OAuth2AuthorizationSuccessHandler authorizationSuccessHandler;
+	private OAuth2AuthorizationFailureHandler authorizationFailureHandler;
 
 	/**
 	 * Constructs a {@code DefaultOAuth2AuthorizedClientManager} using the provided parameters.
@@ -65,6 +101,9 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientRepository = authorizedClientRepository;
+		this.contextAttributesMapper = new DefaultContextAttributesMapper();
+		this.authorizationSuccessHandler = new SaveAuthorizedClientOAuth2AuthorizationSuccessHandler(authorizedClientRepository);
+		this.authorizationFailureHandler = new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(authorizedClientRepository);
 	}
 
 	@Nullable
@@ -105,9 +144,17 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 				})
 				.build();
 
-		authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
+		try {
+			authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
+		} catch (OAuth2AuthorizationException ex) {
+			this.authorizationFailureHandler.onAuthorizationFailure(
+					ex, principal, createAttributes(servletRequest, servletResponse));
+			throw ex;
+		}
+
 		if (authorizedClient != null) {
-			this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, servletRequest, servletResponse);
+			this.authorizationSuccessHandler.onAuthorizationSuccess(
+					authorizedClient, principal, createAttributes(servletRequest, servletResponse));
 		} else {
 			// In the case of re-authorization, the returned `authorizedClient` may be null if re-authorization is not supported.
 			// For these cases, return the provided `authorizationContext.authorizedClient`.
@@ -119,12 +166,19 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		return authorizedClient;
 	}
 
+	private static Map<String, Object> createAttributes(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(HttpServletRequest.class.getName(), servletRequest);
+		attributes.put(HttpServletResponse.class.getName(), servletResponse);
+		return attributes;
+	}
+
 	private static HttpServletRequest getHttpServletRequestOrDefault(Map<String, Object> attributes) {
 		HttpServletRequest servletRequest = (HttpServletRequest) attributes.get(HttpServletRequest.class.getName());
 		if (servletRequest == null) {
-			RequestAttributes context = RequestContextHolder.getRequestAttributes();
-			if (context instanceof ServletRequestAttributes) {
-				servletRequest = ((ServletRequestAttributes) context).getRequest();
+			RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+			if (requestAttributes instanceof ServletRequestAttributes) {
+				servletRequest = ((ServletRequestAttributes) requestAttributes).getRequest();
 			}
 		}
 		return servletRequest;
@@ -133,9 +187,9 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 	private static HttpServletResponse getHttpServletResponseOrDefault(Map<String, Object> attributes) {
 		HttpServletResponse servletResponse = (HttpServletResponse) attributes.get(HttpServletResponse.class.getName());
 		if (servletResponse == null) {
-			RequestAttributes context = RequestContextHolder.getRequestAttributes();
-			if (context instanceof ServletRequestAttributes) {
-				servletResponse =  ((ServletRequestAttributes) context).getResponse();
+			RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+			if (requestAttributes instanceof ServletRequestAttributes) {
+				servletResponse =  ((ServletRequestAttributes) requestAttributes).getResponse();
 			}
 		}
 		return servletResponse;
@@ -161,6 +215,36 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 	public void setContextAttributesMapper(Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper) {
 		Assert.notNull(contextAttributesMapper, "contextAttributesMapper cannot be null");
 		this.contextAttributesMapper = contextAttributesMapper;
+	}
+
+	/**
+	 * Sets the {@link OAuth2AuthorizationSuccessHandler} that handles successful authorizations.
+	 *
+	 * <p>
+	 * A {@link SaveAuthorizedClientOAuth2AuthorizationSuccessHandler} is used by default.
+	 *
+	 * @param authorizationSuccessHandler the {@link OAuth2AuthorizationSuccessHandler} that handles successful authorizations
+	 * @see SaveAuthorizedClientOAuth2AuthorizationSuccessHandler
+	 * @since 5.3
+	 */
+	public void setAuthorizationSuccessHandler(OAuth2AuthorizationSuccessHandler authorizationSuccessHandler) {
+		Assert.notNull(authorizationSuccessHandler, "authorizationSuccessHandler cannot be null");
+		this.authorizationSuccessHandler = authorizationSuccessHandler;
+	}
+
+	/**
+	 * Sets the {@link OAuth2AuthorizationFailureHandler} that handles authorization failures.
+	 *
+	 * <p>
+	 * A {@link RemoveAuthorizedClientOAuth2AuthorizationFailureHandler} is used by default.
+	 *
+	 * @param authorizationFailureHandler the {@link OAuth2AuthorizationFailureHandler} that handles authorization failures
+	 * @see RemoveAuthorizedClientOAuth2AuthorizationFailureHandler
+	 * @since 5.3
+	 */
+	public void setAuthorizationFailureHandler(OAuth2AuthorizationFailureHandler authorizationFailureHandler) {
+		Assert.notNull(authorizationFailureHandler, "authorizationFailureHandler cannot be null");
+		this.authorizationFailureHandler = authorizationFailureHandler;
 	}
 
 	/**

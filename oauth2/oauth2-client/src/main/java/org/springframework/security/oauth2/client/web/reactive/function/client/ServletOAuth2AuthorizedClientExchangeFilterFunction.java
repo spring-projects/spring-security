@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.oauth2.client.web.reactive.function.client;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.ClientCredentialsOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
@@ -35,7 +38,13 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.RemoveAuthorizedClientOAuth2AuthorizationFailureHandler;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -44,6 +53,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.context.Context;
@@ -52,18 +62,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * Provides an easy mechanism for using an {@link OAuth2AuthorizedClient} to make OAuth2 requests by including the
- * token as a Bearer Token. It also provides mechanisms for looking up the {@link OAuth2AuthorizedClient}. This class is
- * intended to be used in a servlet environment.
+ * Provides an easy mechanism for using an {@link OAuth2AuthorizedClient} to make OAuth 2.0 requests
+ * by including the {@link OAuth2AuthorizedClient#getAccessToken() access token} as a bearer token.
  *
+ * <p>
+ * <b>NOTE:</b>This class is intended to be used in a {@code Servlet} environment.
+ *
+ * <p>
  * Example usage:
  *
  * <pre>
- * ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2 = new ServletOAuth2AuthorizedClientExchangeFilterFunction(clientRegistrationRepository, authorizedClientRepository);
+ * ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2 = new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
  * WebClient webClient = WebClient.builder()
  *    .apply(oauth2.oauth2Configuration())
  *    .build();
@@ -76,23 +93,35 @@ import java.util.function.Consumer;
  *    .bodyToMono(String.class);
  * </pre>
  *
- * An attempt to automatically refresh the token will be made if all of the following
- * are true:
+ * <h3>Authentication and Authorization Failures</h3>
  *
- * <ul>
- * <li>The {@link OAuth2AuthorizedClientManager} is not null</li>
- * <li>A refresh token is present on the {@link OAuth2AuthorizedClient}</li>
- * <li>The access token is expired</li>
- * <li>The {@link SecurityContextHolder} will be used to attempt to save
- * the token. If it is empty, then the principal name on the {@link OAuth2AuthorizedClient}
- * will be used to create an Authentication for saving.</li>
- * </ul>
+ * <p>
+ * Since 5.3, this filter function has the ability to forward authentication (HTTP 401 Unauthorized)
+ * and authorization (HTTP 403 Forbidden) failures from an OAuth 2.0 Resource Server
+ * to a {@link OAuth2AuthorizationFailureHandler}.
+ * A {@link RemoveAuthorizedClientOAuth2AuthorizationFailureHandler} can be used
+ * to remove the cached {@link OAuth2AuthorizedClient}, so that future requests will result
+ * in a new token being retrieved from an Authorization Server, and sent to the Resource Server.
+ *
+ * <p>
+ * If the {@link #ServletOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)}
+ * constructor is used, a {@link RemoveAuthorizedClientOAuth2AuthorizationFailureHandler}
+ * will be configured automatically.
+ *
+ * <p>
+ * If the {@link #ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)}
+ * constructor is used, a {@link RemoveAuthorizedClientOAuth2AuthorizationFailureHandler}
+ * will <em>NOT</em> be configured automatically.
+ * It is recommended that you configure one via {@link #setAuthorizationFailureHandler(OAuth2AuthorizationFailureHandler)}.
  *
  * @author Rob Winch
  * @author Joe Grandja
  * @author Roman Matiushchenko
  * @since 5.1
  * @see OAuth2AuthorizedClientManager
+ * @see DefaultOAuth2AuthorizedClientManager
+ * @see OAuth2AuthorizedClientProvider
+ * @see OAuth2AuthorizedClientProviderBuilder
  */
 public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implements ExchangeFilterFunction {
 
@@ -103,6 +132,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	 * The request attribute name used to locate the {@link OAuth2AuthorizedClient}.
 	 */
 	private static final String OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME = OAuth2AuthorizedClient.class.getName();
+
 	private static final String CLIENT_REGISTRATION_ID_ATTR_NAME = OAuth2AuthorizedClient.class.getName().concat(".CLIENT_REGISTRATION_ID");
 	private static final String AUTHENTICATION_ATTR_NAME = Authentication.class.getName();
 	private static final String HTTP_SERVLET_REQUEST_ATTR_NAME = HttpServletRequest.class.getName();
@@ -125,11 +155,29 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	private String defaultClientRegistrationId;
 
+	private ClientResponseHandler clientResponseHandler;
+
+	@FunctionalInterface
+	private interface ClientResponseHandler {
+		Mono<ClientResponse> handleResponse(ClientRequest request, Mono<ClientResponse> response);
+	}
+
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction() {
 	}
 
 	/**
 	 * Constructs a {@code ServletOAuth2AuthorizedClientExchangeFilterFunction} using the provided parameters.
+	 *
+	 * <p>
+	 * When this constructor is used, authentication (HTTP 401) and authorization (HTTP 403)
+	 * failures returned from an OAuth 2.0 Resource Server will <em>NOT</em> be forwarded to an
+	 * {@link OAuth2AuthorizationFailureHandler}.
+	 * Therefore, future requests to the Resource Server will most likely use the same (likely invalid) token,
+	 * resulting in the same errors returned from the Resource Server.
+	 * It is recommended to configure a {@link RemoveAuthorizedClientOAuth2AuthorizationFailureHandler}
+	 * via {@link #setAuthorizationFailureHandler(OAuth2AuthorizationFailureHandler)}
+	 * so that authentication and authorization failures returned from a Resource Server
+	 * will result in removing the authorized client, so that a new token is retrieved for future requests.
 	 *
 	 * @since 5.2
 	 * @param authorizedClientManager the {@link OAuth2AuthorizedClientManager} which manages the authorized client(s)
@@ -137,10 +185,24 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager authorizedClientManager) {
 		Assert.notNull(authorizedClientManager, "authorizedClientManager cannot be null");
 		this.authorizedClientManager = authorizedClientManager;
+		this.clientResponseHandler =  (request, responseMono) -> responseMono;
 	}
 
 	/**
 	 * Constructs a {@code ServletOAuth2AuthorizedClientExchangeFilterFunction} using the provided parameters.
+	 *
+	 * <p>
+	 * Since 5.3, when this constructor is used, authentication (HTTP 401)
+	 * and authorization (HTTP 403) failures returned from an OAuth 2.0 Resource Server
+	 * will be forwarded to a {@link RemoveAuthorizedClientOAuth2AuthorizationFailureHandler},
+	 * which will potentially remove the {@link OAuth2AuthorizedClient} from the given
+	 * {@link OAuth2AuthorizedClientRepository}, depending on the OAuth 2.0 error code returned.
+	 * Authentication failures returned from an OAuth 2.0 Resource Server typically indicate
+	 * that the token is invalid, and should not be used in future requests.
+	 * Removing the authorized client from the repository will ensure that the existing
+	 * token will not be sent for future requests to the Resource Server,
+	 * and a new token is retrieved from the Authorization Server and used for
+	 * future requests to the Resource Server.
 	 *
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientRepository the repository of authorized clients
@@ -148,12 +210,20 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction(
 			ClientRegistrationRepository clientRegistrationRepository,
 			OAuth2AuthorizedClientRepository authorizedClientRepository) {
-		this.authorizedClientManager = createDefaultAuthorizedClientManager(clientRegistrationRepository, authorizedClientRepository);
+
+		OAuth2AuthorizationFailureHandler authorizationFailureHandler =
+				new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(authorizedClientRepository);
+
+		this.authorizedClientManager = createDefaultAuthorizedClientManager(
+				clientRegistrationRepository, authorizedClientRepository, authorizationFailureHandler);
 		this.defaultAuthorizedClientManager = true;
+		this.clientResponseHandler = new AuthorizationFailureForwarder(authorizationFailureHandler);
 	}
 
 	private static OAuth2AuthorizedClientManager createDefaultAuthorizedClientManager(
-			ClientRegistrationRepository clientRegistrationRepository, OAuth2AuthorizedClientRepository authorizedClientRepository) {
+			ClientRegistrationRepository clientRegistrationRepository,
+			OAuth2AuthorizedClientRepository authorizedClientRepository,
+			OAuth2AuthorizationFailureHandler authorizationFailureHandler) {
 
 		OAuth2AuthorizedClientProvider authorizedClientProvider =
 				OAuth2AuthorizedClientProviderBuilder.builder()
@@ -165,6 +235,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				clientRegistrationRepository, authorizedClientRepository);
 		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+		authorizedClientManager.setAuthorizationFailureHandler(authorizationFailureHandler);
 
 		return authorizedClientManager;
 	}
@@ -333,19 +404,47 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		updateDefaultAuthorizedClientManager();
 	}
 
+	/**
+	 * Sets the {@link OAuth2AuthorizationFailureHandler} that handles
+	 * authentication and authorization failures when communicating
+	 * to the OAuth 2.0 Resource Server.
+	 *
+	 * <p>
+	 * For example, a {@link RemoveAuthorizedClientOAuth2AuthorizationFailureHandler}
+	 * is typically used to remove the cached {@link OAuth2AuthorizedClient},
+	 * so that the same token is no longer used in future requests to the Resource Server.
+	 *
+	 * <p>
+	 * The failure handler used by default depends on which constructor was used
+	 * to construct this {@link ServletOAuth2AuthorizedClientExchangeFilterFunction}.
+	 * See the constructors for more details.
+	 *
+	 * @param authorizationFailureHandler the {@link OAuth2AuthorizationFailureHandler} that handles authentication and authorization failures
+	 * @since 5.3
+	 */
+	public void setAuthorizationFailureHandler(OAuth2AuthorizationFailureHandler authorizationFailureHandler) {
+		Assert.notNull(authorizationFailureHandler, "authorizationFailureHandler cannot be null");
+		this.clientResponseHandler = new AuthorizationFailureForwarder(authorizationFailureHandler);
+	}
+
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
 		return mergeRequestAttributesIfNecessary(request)
 				.filter(req -> req.attribute(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME).isPresent())
-				.flatMap(req -> authorizedClient(getOAuth2AuthorizedClient(req.attributes()), req))
+				.flatMap(req -> reauthorizeClient(getOAuth2AuthorizedClient(req.attributes()), req))
 				.switchIfEmpty(Mono.defer(() ->
 						mergeRequestAttributesIfNecessary(request)
 								.filter(req -> resolveClientRegistrationId(req) != null)
 								.flatMap(req -> authorizeClient(resolveClientRegistrationId(req), req))
 				))
 				.map(authorizedClient -> bearer(request, authorizedClient))
-				.flatMap(next::exchange)
-				.switchIfEmpty(Mono.defer(() -> next.exchange(request)));
+				.flatMap(requestWithBearer -> exchangeAndHandleResponse(requestWithBearer, next))
+				.switchIfEmpty(Mono.defer(() -> exchangeAndHandleResponse(request, next)));
+	}
+
+	private Mono<ClientResponse> exchangeAndHandleResponse(ClientRequest request, ExchangeFunction next) {
+		return next.exchange(request)
+				.transform(responseMono -> this.clientResponseHandler.handleResponse(request, responseMono));
 	}
 
 	private Mono<ClientRequest> mergeRequestAttributesIfNecessary(ClientRequest request) {
@@ -443,13 +542,14 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		});
 		OAuth2AuthorizeRequest authorizeRequest = builder.build();
 
-		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated thread via subscribeOn(Schedulers.boundedElastic())
-		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated thread via subscribeOn(Schedulers.boundedElastic())
+		// NOTE:
+		// 'authorizedClientManager.authorize()' needs to be executed
+		// on a dedicated thread via subscribeOn(Schedulers.boundedElastic())
 		// since it performs a blocking I/O operation using RestTemplate internally
 		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(authorizeRequest)).subscribeOn(Schedulers.boundedElastic());
 	}
 
-	private Mono<OAuth2AuthorizedClient> authorizedClient(OAuth2AuthorizedClient authorizedClient, ClientRequest request) {
+	private Mono<OAuth2AuthorizedClient> reauthorizeClient(OAuth2AuthorizedClient authorizedClient, ClientRequest request) {
 		if (this.authorizedClientManager == null) {
 			return Mono.just(authorizedClient);
 		}
@@ -472,7 +572,9 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		});
 		OAuth2AuthorizeRequest reauthorizeRequest = builder.build();
 
-		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated thread via subscribeOn(Schedulers.boundedElastic())
+		// NOTE:
+		// 'authorizedClientManager.authorize()' needs to be executed
+		// on a dedicated thread via subscribeOn(Schedulers.boundedElastic())
 		// since it performs a blocking I/O operation using RestTemplate internally
 		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(reauthorizeRequest)).subscribeOn(Schedulers.boundedElastic());
 	}
@@ -480,6 +582,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	private ClientRequest bearer(ClientRequest request, OAuth2AuthorizedClient authorizedClient) {
 		return ClientRequest.from(request)
 					.headers(headers -> headers.setBearerAuth(authorizedClient.getAccessToken().getTokenValue()))
+					.attributes(oauth2AuthorizedClient(authorizedClient))
 					.build();
 	}
 
@@ -548,6 +651,185 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 		private UnsupportedOperationException unsupported() {
 			return new UnsupportedOperationException("Not Supported");
+		}
+	}
+
+	/**
+	 * Forwards authentication and authorization failures to an
+	 * {@link OAuth2AuthorizationFailureHandler}.
+	 *
+	 * @since 5.3
+	 */
+	private static class AuthorizationFailureForwarder implements ClientResponseHandler {
+
+		/**
+		 * A map of HTTP status code to OAuth 2.0 error code for
+		 * HTTP status codes that should be interpreted as
+		 * authentication or authorization failures.
+		 */
+		private final Map<Integer, String> httpStatusToOAuth2ErrorCodeMap;
+
+		/**
+		 * The {@link OAuth2AuthorizationFailureHandler} to notify
+		 * when an authentication/authorization failure occurs.
+		 */
+		private final OAuth2AuthorizationFailureHandler authorizationFailureHandler;
+
+		private AuthorizationFailureForwarder(OAuth2AuthorizationFailureHandler authorizationFailureHandler) {
+			Assert.notNull(authorizationFailureHandler, "authorizationFailureHandler cannot be null");
+			this.authorizationFailureHandler = authorizationFailureHandler;
+
+			Map<Integer, String> httpStatusToOAuth2Error = new HashMap<>();
+			httpStatusToOAuth2Error.put(HttpStatus.UNAUTHORIZED.value(), OAuth2ErrorCodes.INVALID_TOKEN);
+			httpStatusToOAuth2Error.put(HttpStatus.FORBIDDEN.value(), OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+			this.httpStatusToOAuth2ErrorCodeMap = Collections.unmodifiableMap(httpStatusToOAuth2Error);
+		}
+
+		@Override
+		public Mono<ClientResponse> handleResponse(ClientRequest request, Mono<ClientResponse> responseMono) {
+			return responseMono
+					.flatMap(response -> handleResponse(request, response)
+							.thenReturn(response))
+					.onErrorResume(WebClientResponseException.class, e -> handleWebClientResponseException(request, e)
+							.then(Mono.error(e)))
+					.onErrorResume(OAuth2AuthorizationException.class, e -> handleAuthorizationException(request, e)
+							.then(Mono.error(e)));
+		}
+
+		private Mono<Void> handleResponse(ClientRequest request, ClientResponse response) {
+			return Mono.justOrEmpty(resolveErrorIfPossible(response))
+					.flatMap(oauth2Error -> {
+						Map<String, Object> attrs = request.attributes();
+						OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(attrs);
+						if (authorizedClient == null) {
+							return Mono.empty();
+						}
+
+						ClientAuthorizationException authorizationException = new ClientAuthorizationException(
+								oauth2Error, authorizedClient.getClientRegistration().getRegistrationId());
+
+						Authentication principal = new PrincipalNameAuthentication(authorizedClient.getPrincipalName());
+						HttpServletRequest servletRequest = getRequest(attrs);
+						HttpServletResponse servletResponse = getResponse(attrs);
+
+						return handleAuthorizationFailure(authorizationException, principal, servletRequest, servletResponse);
+					});
+		}
+
+		private OAuth2Error resolveErrorIfPossible(ClientResponse response) {
+			// Try to resolve from 'WWW-Authenticate' header
+			if (!response.headers().header(HttpHeaders.WWW_AUTHENTICATE).isEmpty()) {
+				String wwwAuthenticateHeader = response.headers().header(HttpHeaders.WWW_AUTHENTICATE).get(0);
+				Map<String, String> authParameters = parseAuthParameters(wwwAuthenticateHeader);
+				if (authParameters.containsKey(OAuth2ParameterNames.ERROR)) {
+					return new OAuth2Error(
+							authParameters.get(OAuth2ParameterNames.ERROR),
+							authParameters.get(OAuth2ParameterNames.ERROR_DESCRIPTION),
+							authParameters.get(OAuth2ParameterNames.ERROR_URI));
+				}
+			}
+			return resolveErrorIfPossible(response.rawStatusCode());
+		}
+
+		private OAuth2Error resolveErrorIfPossible(int statusCode) {
+			if (this.httpStatusToOAuth2ErrorCodeMap.containsKey(statusCode)) {
+				return new OAuth2Error(
+						this.httpStatusToOAuth2ErrorCodeMap.get(statusCode),
+						null,
+						"https://tools.ietf.org/html/rfc6750#section-3.1");
+			}
+			return null;
+		}
+
+		private Map<String, String> parseAuthParameters(String wwwAuthenticateHeader) {
+			return Stream.of(wwwAuthenticateHeader)
+					.filter(header -> !StringUtils.isEmpty(header))
+					.filter(header -> header.toLowerCase().startsWith("bearer"))
+					.map(header -> header.substring("bearer".length()))
+					.map(header -> header.split(","))
+					.flatMap(Stream::of)
+					.map(parameter -> parameter.split("="))
+					.filter(parameter -> parameter.length > 1)
+					.collect(Collectors.toMap(
+							parameters -> parameters[0].trim(),
+							parameters -> parameters[1].trim().replace("\"", "")));
+		}
+
+		/**
+		 * Handles the given http status code returned from a resource server
+		 * by notifying the authorization failure handler if the http status
+		 * code is in the {@link #httpStatusToOAuth2ErrorCodeMap}.
+		 *
+		 * @param request the request being processed
+		 * @param exception The root cause exception for the failure
+		 * @return a {@link Mono} that completes empty after the authorization failure handler completes
+		 */
+		private Mono<Void> handleWebClientResponseException(ClientRequest request, WebClientResponseException exception) {
+			return Mono.justOrEmpty(resolveErrorIfPossible(exception.getRawStatusCode()))
+					.flatMap(oauth2Error -> {
+						Map<String, Object> attrs = request.attributes();
+						OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(attrs);
+						if (authorizedClient == null) {
+							return Mono.empty();
+						}
+
+						ClientAuthorizationException authorizationException = new ClientAuthorizationException(
+								oauth2Error, authorizedClient.getClientRegistration().getRegistrationId(), exception);
+
+						Authentication principal = new PrincipalNameAuthentication(authorizedClient.getPrincipalName());
+						HttpServletRequest servletRequest = getRequest(attrs);
+						HttpServletResponse servletResponse = getResponse(attrs);
+
+						return handleAuthorizationFailure(authorizationException, principal, servletRequest, servletResponse);
+					});
+		}
+
+		/**
+		 * Handles the given {@link OAuth2AuthorizationException} that occurred downstream
+		 * by notifying the authorization failure handler.
+		 *
+		 * @param request the request being processed
+		 * @param authorizationException the authorization exception to include in the failure event
+		 * @return a {@link Mono} that completes empty after the authorization failure handler completes
+		 */
+		private Mono<Void> handleAuthorizationException(ClientRequest request, OAuth2AuthorizationException authorizationException) {
+			return Mono.justOrEmpty(request)
+					.flatMap(req -> {
+						Map<String, Object> attrs = req.attributes();
+						OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(attrs);
+						if (authorizedClient == null) {
+							return Mono.empty();
+						}
+
+						Authentication principal = new PrincipalNameAuthentication(authorizedClient.getPrincipalName());
+						HttpServletRequest servletRequest = getRequest(attrs);
+						HttpServletResponse servletResponse = getResponse(attrs);
+
+						return handleAuthorizationFailure(authorizationException, principal, servletRequest, servletResponse);
+					});
+		}
+
+		/**
+		 * Delegates the failed authorization to the {@link OAuth2AuthorizationFailureHandler}.
+		 *
+		 * @param exception the {@link OAuth2AuthorizationException} to include in the failure event
+		 * @param principal the principal associated with the failed authorization attempt
+		 * @param servletRequest the currently active {@code HttpServletRequest}
+		 * @param servletResponse the currently active {@code HttpServletResponse}
+		 * @return a {@link Mono} that completes empty after the {@link OAuth2AuthorizationFailureHandler} completes
+		 */
+		private Mono<Void> handleAuthorizationFailure(OAuth2AuthorizationException exception,
+				Authentication principal, HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+			Runnable runnable = () -> this.authorizationFailureHandler.onAuthorizationFailure(
+					exception, principal, createAttributes(servletRequest, servletResponse));
+			return Mono.fromRunnable(runnable).subscribeOn(Schedulers.boundedElastic()).then();
+		}
+
+		private static Map<String, Object> createAttributes(HttpServletRequest servletRequest, HttpServletResponse servletResponse) {
+			Map<String, Object> attributes = new HashMap<>();
+			attributes.put(HttpServletRequest.class.getName(), servletRequest);
+			attributes.put(HttpServletResponse.class.getName(), servletResponse);
+			return attributes;
 		}
 	}
 }
