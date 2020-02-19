@@ -15,8 +15,6 @@
  */
 package org.springframework.security.config.http;
 
-import static org.springframework.security.config.http.SecurityFilters.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanMetadataElement;
@@ -59,8 +57,26 @@ import org.w3c.dom.Element;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+
+import static org.springframework.security.config.http.SecurityFilters.ANONYMOUS_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.BASIC_AUTH_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.EXCEPTION_TRANSLATION_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.FORM_LOGIN_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.LOGIN_PAGE_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.LOGOUT_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.LOGOUT_PAGE_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.OAUTH2_AUTHORIZATION_REQUEST_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.OAUTH2_LOGIN_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.OPENID_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.PRE_AUTH_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.REMEMBER_ME_FILTER;
+import static org.springframework.security.config.http.SecurityFilters.X509_FILTER;
 
 /**
  * Handles creation of authentication mechanism filters and related beans for &lt;http&gt;
@@ -145,6 +161,10 @@ final class AuthenticationConfigBuilder {
 	private BeanReference oauth2LoginOidcAuthenticationProviderRef;
 	private BeanDefinition oauth2LoginLinks;
 
+	private BeanDefinition authorizationRequestRedirectFilter;
+	private BeanDefinition authorizationCodeGrantFilter;
+	private BeanReference authorizationCodeAuthenticationProviderRef;
+
 	AuthenticationConfigBuilder(Element element, boolean forceAutoConfig,
 			ParserContext pc, SessionCreationPolicy sessionPolicy,
 			BeanReference requestCache, BeanReference authenticationManager,
@@ -166,6 +186,7 @@ final class AuthenticationConfigBuilder {
 		createBasicFilter(authenticationManager);
 		createFormLoginFilter(sessionStrategy, authenticationManager);
 		createOAuth2LoginFilter(sessionStrategy, authenticationManager);
+		createOAuth2ClientFilter(requestCache, authenticationManager);
 		createOpenIDLoginFilter(sessionStrategy, authenticationManager);
 		createX509Filter(authenticationManager);
 		createJeeFilter(authenticationManager);
@@ -281,6 +302,36 @@ final class AuthenticationConfigBuilder {
 		pc.registerBeanComponent(new BeanComponentDefinition(
 				oauth2LoginOidcAuthProvider, oauth2LoginOidcAuthProviderId));
 		oauth2LoginOidcAuthenticationProviderRef = new RuntimeBeanReference(oauth2LoginOidcAuthProviderId);
+	}
+
+	void createOAuth2ClientFilter(BeanReference requestCache, BeanReference authenticationManager) {
+		Element oauth2ClientElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_CLIENT);
+		if (oauth2ClientElt == null) {
+			return;
+		}
+
+		OAuth2ClientBeanDefinitionParser parser = new OAuth2ClientBeanDefinitionParser(
+				requestCache, authenticationManager);
+		parser.parse(oauth2ClientElt, this.pc);
+
+		this.authorizationRequestRedirectFilter = parser.getAuthorizationRequestRedirectFilter();
+		String authorizationRequestRedirectFilterId = pc.getReaderContext()
+				.generateBeanName(this.authorizationRequestRedirectFilter);
+		this.pc.registerBeanComponent(new BeanComponentDefinition(
+				this.authorizationRequestRedirectFilter, authorizationRequestRedirectFilterId));
+
+		this.authorizationCodeGrantFilter = parser.getAuthorizationCodeGrantFilter();
+		String authorizationCodeGrantFilterId = pc.getReaderContext()
+				.generateBeanName(this.authorizationCodeGrantFilter);
+		this.pc.registerBeanComponent(new BeanComponentDefinition(
+				this.authorizationCodeGrantFilter, authorizationCodeGrantFilterId));
+
+		BeanDefinition authorizationCodeAuthenticationProvider = parser.getAuthorizationCodeAuthenticationProvider();
+		String authorizationCodeAuthenticationProviderId = pc.getReaderContext()
+				.generateBeanName(authorizationCodeAuthenticationProvider);
+		this.pc.registerBeanComponent(new BeanComponentDefinition(
+				authorizationCodeAuthenticationProvider, authorizationCodeAuthenticationProviderId));
+		this.authorizationCodeAuthenticationProviderRef = new RuntimeBeanReference(authorizationCodeAuthenticationProviderId);
 	}
 
 	void createOpenIDLoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
@@ -884,6 +935,11 @@ final class AuthenticationConfigBuilder {
 			filters.add(new OrderDecorator(basicFilter, BASIC_AUTH_FILTER));
 		}
 
+		if (authorizationCodeGrantFilter != null) {
+			filters.add(new OrderDecorator(authorizationRequestRedirectFilter, OAUTH2_AUTHORIZATION_REQUEST_FILTER));
+			filters.add(new OrderDecorator(authorizationCodeGrantFilter, OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER));
+		}
+
 		filters.add(new OrderDecorator(etf, EXCEPTION_TRANSLATION_FILTER));
 
 		return filters;
@@ -918,6 +974,10 @@ final class AuthenticationConfigBuilder {
 
 		if (oauth2LoginOidcAuthenticationProviderRef != null) {
 			providers.add(oauth2LoginOidcAuthenticationProviderRef);
+		}
+
+		if (authorizationCodeAuthenticationProviderRef != null) {
+			providers.add(authorizationCodeAuthenticationProviderRef);
 		}
 
 		return providers;

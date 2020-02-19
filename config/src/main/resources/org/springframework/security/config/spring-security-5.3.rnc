@@ -296,7 +296,7 @@ http-firewall =
 
 http =
 	## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "security" attribute to "none".
-	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
+	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
 http.attlist &=
 	## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
 	attribute pattern {xsd:token}?
@@ -482,6 +482,32 @@ oauth2-login.attlist &=
 oauth2-login.attlist &=
 	## Reference to the JwtDecoderFactory used by OidcAuthorizationCodeAuthenticationProvider
 	attribute jwt-decoder-factory-ref {xsd:token}?
+
+oauth2-client =
+	## Configures OAuth 2.0 Client support.
+	element oauth2-client {oauth2-client.attlist, (authorization-code-grant?) }
+oauth2-client.attlist &=
+	## Reference to the ClientRegistrationRepository
+	attribute client-registration-repository-ref {xsd:token}?
+oauth2-client.attlist &=
+	## Reference to the OAuth2AuthorizedClientRepository
+	attribute authorized-client-repository-ref {xsd:token}?
+oauth2-client.attlist &=
+	## Reference to the OAuth2AuthorizedClientService
+	attribute authorized-client-service-ref {xsd:token}?
+
+authorization-code-grant =
+	## Configures OAuth 2.0 Authorization Code Grant.
+	element authorization-code-grant {authorization-code-grant.attlist, empty}
+authorization-code-grant.attlist &=
+	## Reference to the AuthorizationRequestRepository
+	attribute authorization-request-repository-ref {xsd:token}?
+authorization-code-grant.attlist &=
+	## Reference to the OAuth2AuthorizationRequestResolver
+	attribute authorization-request-resolver-ref {xsd:token}?
+authorization-code-grant.attlist &=
+	## Reference to the OAuth2AccessTokenResponseClient
+	attribute access-token-response-client-ref {xsd:token}?
 
 client-registrations =
 	## Container element for client(s) registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
@@ -1024,4 +1050,4 @@ position =
 	## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
 	attribute position {named-security-filter}
 
-named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "OAUTH2_AUTHORIZATION_REQUEST_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "OAUTH2_AUTHORIZATION_REQUEST_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"

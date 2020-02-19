@@ -164,6 +164,7 @@ The default value is true.
 * <<nsa-intercept-url,intercept-url>>
 * <<nsa-jee,jee>>
 * <<nsa-logout,logout>>
+* <<nsa-oauth2-client,oauth2-client>>
 * <<nsa-oauth2-login,oauth2-login>>
 * <<nsa-openid-login,openid-login>>
 * <<nsa-port-mappings,port-mappings>>
@@ -963,6 +964,71 @@ Reference to the `AuthenticationFailureHandler`.
 [[nsa-oauth2-login-jwt-decoder-factory-ref]]
 * **jwt-decoder-factory-ref**
 Reference to the `JwtDecoderFactory` used by `OidcAuthorizationCodeAuthenticationProvider`.
+
+
+[[nsa-oauth2-client]]
+==== <oauth2-client>
+Configures <<oauth2client,OAuth 2.0 Client>> support.
+
+
+[[nsa-oauth2-client-parents]]
+===== Parent Elements of <oauth2-client>
+
+* <<nsa-http,http>>
+
+[[nsa-oauth2-client-attributes]]
+===== <oauth2-client> Attributes
+
+
+[[nsa-oauth2-client-client-registration-repository-ref]]
+* **client-registration-repository-ref**
+Reference to the `ClientRegistrationRepository`.
+
+
+[[nsa-oauth2-client-authorized-client-repository-ref]]
+* **authorized-client-repository-ref**
+Reference to the `OAuth2AuthorizedClientRepository`.
+
+
+[[nsa-oauth2-client-authorized-client-service-ref]]
+* **authorized-client-service-ref**
+Reference to the `OAuth2AuthorizedClientService`.
+
+
+[[nsa-oauth2-client-children]]
+===== Child Elements of <oauth2-client>
+
+* <<nsa-authorization-code-grant,authorization-code-grant>>
+
+
+[[nsa-authorization-code-grant]]
+==== <authorization-code-grant>
+Configures <<oauth2Client-auth-grant-support,OAuth 2.0 Authorization Code Grant>>.
+
+
+[[nsa-authorization-code-grant-parents]]
+===== Parent Elements of <authorization-code-grant>
+
+* <<nsa-oauth2-client,oauth2-client>>
+
+
+[[nsa-authorization-code-grant-attributes]]
+===== <authorization-code-grant> Attributes
+
+
+[[nsa-authorization-code-grant-authorization-request-repository-ref]]
+* **authorization-request-repository-ref**
+Reference to the `AuthorizationRequestRepository`.
+
+
+[[nsa-authorization-code-grant-authorization-request-resolver-ref]]
+* **authorization-request-resolver-ref**
+Reference to the `OAuth2AuthorizationRequestResolver`.
+
+
+[[nsa-authorization-code-grant-access-token-response-client-ref]]
+* **access-token-response-client-ref**
+Reference to the `OAuth2AccessTokenResponseClient`.
 
 
 [[nsa-client-registrations]]

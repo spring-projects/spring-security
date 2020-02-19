@@ -956,6 +956,7 @@
                </xs:complexType>
             </xs:element>
             <xs:element ref="security:oauth2-login"/>
+            <xs:element ref="security:oauth2-client"/>
             <xs:element name="openid-login">
                <xs:annotation>
                   <xs:documentation>Sets up form login for authentication with an Open ID identity
@@ -1542,6 +1543,67 @@
       <xs:attribute name="jwt-decoder-factory-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to the JwtDecoderFactory used by OidcAuthorizationCodeAuthenticationProvider
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="oauth2-client">
+      <xs:annotation>
+         <xs:documentation>Configures OAuth 2.0 Client support.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element minOccurs="0" ref="security:authorization-code-grant"/>
+         </xs:sequence>
+         <xs:attributeGroup ref="security:oauth2-client.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="oauth2-client.attlist">
+      <xs:attribute name="client-registration-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the ClientRegistrationRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorized-client-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the OAuth2AuthorizedClientRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorized-client-service-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the OAuth2AuthorizedClientService
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="authorization-code-grant">
+      <xs:annotation>
+         <xs:documentation>Configures OAuth 2.0 Authorization Code Grant.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:authorization-code-grant.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="authorization-code-grant.attlist">
+      <xs:attribute name="authorization-request-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the AuthorizationRequestRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorization-request-resolver-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the OAuth2AuthorizationRequestResolver
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="access-token-response-client-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the OAuth2AccessTokenResponseClient
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -3006,6 +3068,7 @@
          <xs:enumeration value="JAAS_API_SUPPORT_FILTER"/>
          <xs:enumeration value="REMEMBER_ME_FILTER"/>
          <xs:enumeration value="ANONYMOUS_FILTER"/>
+         <xs:enumeration value="OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER"/>
          <xs:enumeration value="SESSION_MANAGEMENT_FILTER"/>
          <xs:enumeration value="EXCEPTION_TRANSLATION_FILTER"/>
          <xs:enumeration value="FILTER_SECURITY_INTERCEPTOR"/>
