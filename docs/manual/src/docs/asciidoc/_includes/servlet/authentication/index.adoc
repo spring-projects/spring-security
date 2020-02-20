@@ -7,6 +7,8 @@ This section discusses:
 * <<servlet-authentication-unpwd>>
 // FIXME: Add other mechanisms
 
+include::architecture/index.adoc[leveloffset=+1]
+
 include::unpwd/index.adoc[leveloffset=+1]
 
 include::authentication-provider.adoc[]
