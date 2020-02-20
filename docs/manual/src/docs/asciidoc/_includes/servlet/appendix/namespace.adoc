@@ -967,7 +967,7 @@ Reference to the `JwtDecoderFactory` used by `OidcAuthorizationCodeAuthenticatio
 
 [[nsa-client-registrations]]
 ==== <client-registrations>
-A container element for client(s) registered (`ClientRegistration`) with an OAuth 2.0 or OpenID Connect 1.0 Provider.
+A container element for client(s) registered (<<oauth2Client-client-registration,ClientRegistration>>) with an OAuth 2.0 or OpenID Connect 1.0 Provider.
 
 
 [[nsa-client-registrations-children]]
@@ -979,7 +979,7 @@ A container element for client(s) registered (`ClientRegistration`) with an OAut
 
 [[nsa-client-registration]]
 ==== <client-registration>
-Represents a client registered (`ClientRegistration`) with an OAuth 2.0 or OpenID Connect 1.0 Provider.
+Represents a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
 
 
 [[nsa-client-registration-parents]]
