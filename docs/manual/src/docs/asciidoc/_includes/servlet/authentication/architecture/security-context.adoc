@@ -1,0 +1,5 @@
+[[servlet-authentication-securitycontext]]
+= SecurityContext
+
+The {security-api-url}org/springframework/security/core/context/SecurityContext.html[`SecurityContext`] is obtained from the <<servlet-authentication-securitycontextholder>>.
+The `SecurityContext` contains an <<servlet-authentication-authentication>> object.
