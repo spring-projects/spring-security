@@ -78,13 +78,17 @@ However, Spring typically uses a `ContextLoaderListener` to load the Spring Bean
 == FilterChainProxy
 
 Spring Security's Servlet support is contained within `FilterChainProxy`.
-`FilterChainProxy` is a special `Filter` provided by Spring Security that allows delegating to many `Filter` instances through the `SecurityFilterChain` API.
-// FIXME: link to SecurityFilterChain
+`FilterChainProxy` is a special `Filter` provided by Spring Security that allows delegating to many `Filter` instances through <<servlet-securityfilterchain,`SecurityFilterChain`>>.
 Since `FilterChainProxy` is a Bean, it is typically wrapped in a <<servlet-delegatingfilterproxy>>.
 
 .FilterChainProxy
 [[servlet-filterchainproxy-figure]]
 image::{figures}/filterchainproxy.png[]
+
+[[servlet-securityfilterchain]]
+== SecurityFilterChain
+
+{security-api-url}org/springframework/security/web/SecurityFilterChain.html[`SecurityFilterChain`] is used by <<servlet-filterchainproxy>> to determine which Spring Security ``Filter``s should be invoked for this request.
 
 The <<servlet-security-filters,Security Filters>> in `SecurityFilterChain` are typically Beans, but they are registered with `FilterChainProxy` instead of <<servlet-delegatingfilterproxy>>.
 `FilterChainProxy` provides a number of advantages to registering directly with the Servlet container or <<servlet-delegatingfilterproxy>>.
@@ -97,7 +101,6 @@ For example, it clears out the `SecurityContext` to avoid memory leaks.
 It also applies Spring Security's <<servlet-httpfirewall,`HttpFirewall`>> to protect applications against certain types of attacks.
 
 In addition, it provides more flexibility in determining when a `SecurityFilterChain` should be invoked.
-// FIXME: Add link to SecurityFitlerChain
 In a Servlet container, ``Filter``s are invoked based upon the URL alone.
 // FIXME: Link to RequestMatcher
 However, `FilterChainProxy` can determine invocation based upon anything in the `HttpServletRequest` by leveraging the `RequestMatcher` interface.
@@ -125,6 +128,7 @@ In fact, a `SecurityFilterChain` might have zero security ``Filter``s if the app
 [[servlet-security-filters]]
 == Security Filters
 
+The Security Filters are inserted into the <<servlet-filterchainproxy>> with the <<servlet-securityfilterchain>> API.
 The <<servlet-filters-review,order of ``Filter``>>s matters.
 It is typically not necessary to know the ordering of Spring Security's ``Filter``s.
 However, there are times that it is beneficial to know the ordering

@@ -95,6 +95,7 @@ fun configure(http: HttpSecurity) {
 
 [[servlet-authentication-form-custom-html]]
 When the login page is specified in the Spring Security configuration, you are responsible for rendering the page.
+// FIXME: default login page rendered by Spring Security
 Below is a https://www.thymeleaf.org/[Thymeleaf] template that produces an HTML login form that complies with a login page of `/login`.:
 
 .Log In Form
