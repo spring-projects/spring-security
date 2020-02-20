@@ -1,0 +1,18 @@
+[[servlet-authentication-authentication]]
+= Authentication
+
+The {security-api-url}org/springframework/security/core/Authentication.html[`Authentication`] serves two main purposes within Spring Security:
+
+* An input to `AuthenticationManager` to provide the credentials a user has provided to authenticate.
+When used in this scenario, `isAuthenticated()` returns `false`.
+* Represents the currently authenticated user.
+The current `Authentication` can be obtained from the <<servlet-authentication-securitycontext>>.
+
+The `Authentication` contains:
+
+* `principal` - identifies the user.
+When authenticating with a username/password this is often an instance of `UserDetails`.
+* `credentials` - Often a password.
+In many cases this will be cleared after the user is authenticated to ensure it is not leaked.
+* `authorities` - the <<servlet-authentication-granted-authority,``GrantedAuthority``s>> are high level permissions the user is granted.
+A few examples are roles or scopes.
