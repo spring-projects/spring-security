@@ -1,0 +1,20 @@
+[[servlet-authentication-authenticationentrypoint]]
+= Request Credentials with `AuthenticationEntryPoint`
+
+{security-api-url}org/springframework/security/web/AuthenticationEntryPoint.html[`AuthenticationEntryPoint`] is used to send an HTTP response that requests credentials from a client.
+
+Sometimes a client will proactively include credentials such as a username/password to request a resource.
+In these cases, Spring Security does not need to provide an HTTP response that requests credentials from the client since they are already included.
+
+In other cases, a client will make an unauthenticated request to a resource that they are not authorized to access.
+In this case, an implementation of `AuthenticationEntryPoint` is used to request credentials from the client.
+The `AuthenticationEntryPoint` implementation might perform a redirect to a log in page, respond with an https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/WWW-Authenticate[WWW-Authenticate] header, etc.
+
+[[servlet-authentication-authenticationentrypoint-example]]
+To better understand how `AuthenticationEntryPoint` is used, let's take a look at a concrete example.
+
+* First, a user makes an unauthenticated request to a resource that is not authorized.
+Spring Security's <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> indicate that the unauthenticated request is __Denied__.
+* Since the request is __Denied__, <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> handles the `AccessDeniedException` by first saving the request (so that it can be requested again after successful authentication) and then redirecting to the log in page with the configured `AuthenticationEntryPoint`.
+* The browser will then request the log in page.
+Something within the application, must <<servlet-authentication-form-custom,render the log in page>>.
