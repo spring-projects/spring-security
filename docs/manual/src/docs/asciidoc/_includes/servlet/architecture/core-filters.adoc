@@ -3,34 +3,8 @@
 There are some key filters which will always be used in a web application which uses Spring Security, so we'll look at these and their supporting classes and interfaces first.
 We won't cover every feature, so be sure to look at the Javadoc for them if you want to get the complete picture.
 
-[[exception-translation-filter]]
-=== ExceptionTranslationFilter
-The `ExceptionTranslationFilter` sits above the `FilterSecurityInterceptor` in the security filter stack.
-It doesn't do any actual security enforcement itself, but handles exceptions thrown by the security interceptors and provides suitable and HTTP responses.
-
-[source,xml]
-----
-
-<bean id="exceptionTranslationFilter"
-class="org.springframework.security.web.access.ExceptionTranslationFilter">
-<property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
-<property name="accessDeniedHandler" ref="accessDeniedHandler"/>
-</bean>
-
-<bean id="authenticationEntryPoint"
-class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-<property name="loginFormUrl" value="/login.jsp"/>
-</bean>
-
-<bean id="accessDeniedHandler"
-	class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
-<property name="errorPage" value="/accessDenied.htm"/>
-</bean>
-
-----
-
 [[auth-entry-point]]
-==== AuthenticationEntryPoint
+=== AuthenticationEntryPoint
 The `AuthenticationEntryPoint` will be called if the user requests a secure HTTP resource but they are not authenticated.
 An appropriate `AuthenticationException` or `AccessDeniedException` will be thrown by a security interceptor further down the call stack, triggering the `commence` method on the entry point.
 This does the job of presenting the appropriate response to the user so that authentication can begin.
@@ -39,7 +13,7 @@ The actual implementation used will depend on the authentication mechanism you w
 
 
 [[access-denied-handler]]
-==== AccessDeniedHandler
+=== AccessDeniedHandler
 What happens if a user is already authenticated and they try to access a protected resource? In normal usage, this shouldn't happen because the application workflow should be restricted to operations to which a user has access.
 For example, an HTML link to an administration page might be hidden from users who do not have an admin role.
 You can't rely on hiding links for security though, as there's always a possibility that a user will just enter the URL directly in an attempt to bypass the restrictions.
@@ -62,7 +36,7 @@ See <<nsa-access-denied-handler,the namespace appendix>> for more details.
 
 
 [[request-caching]]
-==== SavedRequest s and the RequestCache Interface
+=== SavedRequest s and the RequestCache Interface
 Another responsibility of `ExceptionTranslationFilter` responsibilities is to save the current request before invoking the `AuthenticationEntryPoint`.
 This allows the request to be restored after the user has authenticated (see previous overview of <<tech-intro-web-authentication,web authentication>>).
 A typical example would be where the user logs in with a form, and is then redirected to the original URL by the default `SavedRequestAwareAuthenticationSuccessHandler` (see <<form-login-flow-handling,below>>).

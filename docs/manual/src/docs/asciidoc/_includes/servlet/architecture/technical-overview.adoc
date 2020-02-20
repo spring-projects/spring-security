@@ -276,14 +276,6 @@ Otherwise, you'll receive back an HTTP error code 403, which means "forbidden".
 Spring Security has distinct classes responsible for most of the steps described above.
 The main participants (in the order that they are used) are the `ExceptionTranslationFilter`, an `AuthenticationEntryPoint` and an "authentication mechanism", which is responsible for calling the `AuthenticationManager` which we saw in the previous section.
 
-
-==== ExceptionTranslationFilter
-`ExceptionTranslationFilter` is a Spring Security filter that has responsibility for detecting any Spring Security exceptions that are thrown.
-Such exceptions will generally be thrown by an `AbstractSecurityInterceptor`, which is the main provider of authorization services.
-We will discuss `AbstractSecurityInterceptor` in the next section, but for now we just need to know that it produces Java exceptions and knows nothing about HTTP or how to go about authenticating a principal.
-Instead the `ExceptionTranslationFilter` offers this service, with specific responsibility for either returning error code 403 (if the principal has been authenticated and therefore simply lacks sufficient access - as per step seven above), or launching an `AuthenticationEntryPoint` (if the principal has not been authenticated and therefore we need to go commence step three).
-
-
 [[tech-intro-auth-entry-point]]
 ==== AuthenticationEntryPoint
 The `AuthenticationEntryPoint` is responsible for step three in the above list.

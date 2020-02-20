@@ -161,9 +161,11 @@ Below is a comprehensive list of Spring Security Filter ordering:
 * AnonymousAuthenticationFilter
 * OAuth2AuthorizationCodeGrantFilter
 * SessionManagementFilter
-* ExceptionTranslationFilter
+* <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>>
 * <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>>
 * SwitchUserFilter
+
+include::exception-translation-filter.adoc[leveloffset=+1]
 
 include::technical-overview.adoc[]
 
