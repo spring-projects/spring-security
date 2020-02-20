@@ -10,49 +10,6 @@ We'll take a look here at some of the Java types that you'll find in the core mo
 They represent the building blocks of the framework, so if you ever need to go beyond a simple namespace configuration then it's important that you understand what they are, even if you don't actually need to interact with them directly.
 
 
-====  SecurityContextHolder, SecurityContext and Authentication Objects
-The most fundamental object is `SecurityContextHolder`.
-This is where we store details of the present security context of the application, which includes details of the principal currently using the application.
-By default the `SecurityContextHolder` uses a `ThreadLocal` to store these details, which means that the security context is always available to methods in the same thread of execution, even if the security context is not explicitly passed around as an argument to those methods.
-Using a `ThreadLocal` in this way is quite safe if care is taken to clear the thread after the present principal's request is processed.
-Of course, Spring Security takes care of this for you automatically so there is no need to worry about it.
-
-Some applications aren't entirely suitable for using a `ThreadLocal`, because of the specific way they work with threads.
-For example, a Swing client might want all threads in a Java Virtual Machine to use the same security context.
-`SecurityContextHolder` can be configured with a strategy on startup to specify how you would like the context to be stored.
-For a standalone application you would use the `SecurityContextHolder.MODE_GLOBAL` strategy.
-Other applications might want to have threads spawned by the secure thread also assume the same security identity.
-This is achieved by using `SecurityContextHolder.MODE_INHERITABLETHREADLOCAL`.
-You can change the mode from the default `SecurityContextHolder.MODE_THREADLOCAL` in two ways.
-The first is to set a system property, the second is to call a static method on `SecurityContextHolder`.
-Most applications won't need to change from the default, but if you do, take a look at the JavaDoc for `SecurityContextHolder` to learn more.
-
-
-===== Obtaining information about the current user
-Inside the `SecurityContextHolder` we store details of the principal currently interacting with the application.
-Spring Security uses an `Authentication` object to represent this information.
-You won't normally need to create an `Authentication` object yourself, but it is fairly common for users to query the `Authentication` object.
-You can use the following code block - from anywhere in your application - to obtain the name of the currently authenticated user, for example:
-
-
-[source,java]
-----
-
-Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-if (principal instanceof UserDetails) {
-String username = ((UserDetails)principal).getUsername();
-} else {
-String username = principal.toString();
-}
-----
-
-
-The object returned by the call to `getContext()` is an instance of the `SecurityContext` interface.
-This is the object that is kept in thread-local storage.
-As we'll see below, most authentication mechanisms within Spring Security return an instance of `UserDetails` as the principal.
-
-
 [[tech-userdetailsservice]]
 ==== The UserDetailsService
 Another item to note from the above code fragment is that you can obtain a principal from the `Authentication` object.
