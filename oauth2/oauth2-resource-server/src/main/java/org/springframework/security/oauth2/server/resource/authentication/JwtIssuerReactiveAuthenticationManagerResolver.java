@@ -121,7 +121,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 		return this.issuerConverter.convert(exchange)
 				.flatMap(issuer ->
 					this.issuerAuthenticationManagerResolver.resolve(issuer).switchIfEmpty(
-							Mono.error(new InvalidBearerTokenException("Invalid issuer " + issuer)))
+							Mono.error(() -> new InvalidBearerTokenException("Invalid issuer " + issuer)))
 				);
 	}
 
@@ -142,7 +142,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 			try {
 				String issuer = JWTParser.parse(token.getToken()).getJWTClaimsSet().getIssuer();
 				return Mono.justOrEmpty(issuer).switchIfEmpty(
-						Mono.error(new InvalidBearerTokenException("Missing issuer")));
+						Mono.error(() -> new InvalidBearerTokenException("Missing issuer")));
 			} catch (Exception e) {
 				return Mono.error(new InvalidBearerTokenException(e.getMessage()));
 			}
