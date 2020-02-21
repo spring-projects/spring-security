@@ -16,9 +16,9 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -54,6 +54,7 @@ import org.springframework.web.server.ServerWebExchange;
  * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>.
  *
  * @author Josh Cummings
+ * @author Roman Matiushchenko
  * @since 5.3
  */
 public final class JwtIssuerReactiveAuthenticationManagerResolver
@@ -79,8 +80,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
 		this.issuerAuthenticationManagerResolver =
-				new TrustedIssuerJwtAuthenticationManagerResolver
-						(Collections.unmodifiableCollection(trustedIssuers)::contains);
+				new TrustedIssuerJwtAuthenticationManagerResolver(new ArrayList<>(trustedIssuers)::contains);
 	}
 
 	/**
@@ -133,26 +133,26 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 		@Override
 		public Mono<String> convert(@NonNull ServerWebExchange exchange) {
-			return this.converter.convert(exchange)
-					.cast(BearerTokenAuthenticationToken.class)
-					.flatMap(this::issuer);
-		}
-
-		private Mono<String> issuer(BearerTokenAuthenticationToken token) {
-			try {
-				String issuer = JWTParser.parse(token.getToken()).getJWTClaimsSet().getIssuer();
-				return Mono.justOrEmpty(issuer).switchIfEmpty(
-						Mono.error(() -> new InvalidBearerTokenException("Missing issuer")));
-			} catch (Exception e) {
-				return Mono.error(new InvalidBearerTokenException(e.getMessage()));
-			}
+			return this.converter.convert(exchange).map(convertedToken -> {
+				BearerTokenAuthenticationToken token = (BearerTokenAuthenticationToken) convertedToken;
+				try {
+					String issuer = JWTParser.parse(token.getToken()).getJWTClaimsSet().getIssuer();
+					if (issuer == null) {
+						throw new InvalidBearerTokenException("Missing issuer");
+					} else {
+						return issuer;
+					}
+				} catch (Exception e) {
+					throw  new InvalidBearerTokenException(e.getMessage(), e);
+				}
+			});
 		}
 	}
 
 	private static class TrustedIssuerJwtAuthenticationManagerResolver
 			implements ReactiveAuthenticationManagerResolver<String> {
 
-		private final Map<String, Mono<? extends ReactiveAuthenticationManager>> authenticationManagers =
+		private final Map<String, Mono<ReactiveAuthenticationManager>> authenticationManagers =
 				new ConcurrentHashMap<>();
 		private final Predicate<String> trustedIssuer;
 
@@ -162,15 +162,15 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 		@Override
 		public Mono<ReactiveAuthenticationManager> resolve(String issuer) {
-			return Mono.just(issuer)
-					.filter(this.trustedIssuer)
-					.flatMap(iss ->
-						this.authenticationManagers.computeIfAbsent(iss, k ->
-							Mono.fromCallable(() -> ReactiveJwtDecoders.fromIssuerLocation(iss))
-									.subscribeOn(Schedulers.boundedElastic())
-									.map(JwtReactiveAuthenticationManager::new)
-									.cache())
-					);
+			if (!this.trustedIssuer.test(issuer)) {
+				return Mono.empty();
+			}
+			return this.authenticationManagers.computeIfAbsent(issuer, k ->
+					Mono.<ReactiveAuthenticationManager>fromCallable(() ->
+							new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k))
+					)
+					.subscribeOn(Schedulers.boundedElastic())
+					.cache());
 		}
 	}
 }
