@@ -1,0 +1,10 @@
+[[servlet-authentication-authenticationmanager]]
+= AuthenticationManager
+
+{security-api-url}org/springframework/security/authentication/AuthenticationManager.html[`AuthenticationManager`] is the API that defines how Spring Security's Filters perform  <<authentication,authentication>>.
+The `Authentication` that is returned is then set on the <<servlet-authentication-securitycontextholder>>.
+If you are not integrating with <<servlet-filterchainproxy,Spring Security's ``Filters``s>>, you can set the `SecurityContextHolder` directly and are not required to use an `AuthenticationManager`.
+
+While the implementation of `AuthenticationManager` could be anything, Spring Security provides `ProviderManager` which allows users to provide multiple `AuthenticationProvider` implementations.
+// FIXME: link to ProviderManager
+// FIXME: add configuration
