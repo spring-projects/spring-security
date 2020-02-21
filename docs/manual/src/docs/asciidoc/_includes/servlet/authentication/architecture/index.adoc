@@ -1,8 +1,3 @@
-[[servlet-authentication-architecture]]
-= Authentication Architecture
-
-This section builds on <<servlet-architecture,Servlet Architecture and Implementation>> by digging deeper into how <<authentication>> works within Servlet based applications.
-
 include::security-context-holder.adoc[leveloffset=+1]
 
 include::security-context.adoc[leveloffset=+1]
@@ -11,9 +6,9 @@ include::authentication.adoc[leveloffset=+1]
 
 include::granted-authority.adoc[leveloffset=+1]
 
-include::abstract-authentication-processing-filter.adoc[leveloffset=+1]
-
 include::authentication-entry-point.adoc[leveloffset=+1]
+
+include::abstract-authentication-processing-filter.adoc[leveloffset=+1]
 
 include::authentication-manager.adoc[leveloffset=+1]
 

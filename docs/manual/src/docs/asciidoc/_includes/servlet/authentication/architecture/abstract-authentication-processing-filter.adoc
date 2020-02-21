@@ -1,3 +1,4 @@
+[[servlet-authentication-abstractprocessingfilter]]
 = AbstractAuthenticationProcessingFilter
 :figures: images/servlet/authentication/architecture
 :icondir: images/icons
