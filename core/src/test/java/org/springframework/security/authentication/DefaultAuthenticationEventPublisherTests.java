@@ -170,7 +170,7 @@ public class DefaultAuthenticationEventPublisherTests {
 		publisher = new DefaultAuthenticationEventPublisher();
 		Map<Class<? extends AuthenticationException>,
 				Class<? extends AbstractAuthenticationFailureEvent>> mappings = new HashMap<>();
-		mappings.put(MockAuthenticationException.class,AuthenticationFailureDisabledEvent.class);
+		mappings.put(MockAuthenticationException.class, AuthenticationFailureDisabledEvent.class);
 		publisher.setAdditionalExceptionMappings(mappings);
 		ApplicationEventPublisher appPublisher = mock(ApplicationEventPublisher.class);
 
