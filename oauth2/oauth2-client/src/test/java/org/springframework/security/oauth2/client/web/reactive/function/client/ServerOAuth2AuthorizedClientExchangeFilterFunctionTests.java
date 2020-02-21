@@ -74,6 +74,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ServerWebExchange;
@@ -98,6 +99,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -173,6 +175,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		this.authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
 		when(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any())).thenReturn(Mono.empty());
+		when(this.exchange.getResponse().headers()).thenReturn(mock(ClientResponse.Headers.class));
 	}
 
 	@Test
@@ -614,6 +617,54 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 					assertThat(e.getError().getErrorCode()).isEqualTo("insufficient_scope");
 					assertThat(e).hasCause(exception);
 					assertThat(e).hasMessageContaining("[insufficient_scope]");
+				});
+		assertThat(authenticationCaptor.getValue())
+				.isInstanceOf(AnonymousAuthenticationToken.class);
+		assertThat(attributesCaptor.getValue())
+				.containsExactly(entry(ServerWebExchange.class.getName(), this.serverWebExchange));
+	}
+
+	@Test
+	public void filterWhenWWWAuthenticateHeaderIncludesErrorThenInvokeFailureHandler() {
+		function.setAuthorizationFailureHandler(authorizationFailureHandler);
+
+		PublisherProbe<Void> publisherProbe = PublisherProbe.empty();
+		when(authorizationFailureHandler.onAuthorizationFailure(any(), any(), any())).thenReturn(publisherProbe.mono());
+
+		OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", this.accessToken.getIssuedAt());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration,
+				"principalName", this.accessToken, refreshToken);
+		ClientRequest request = ClientRequest.create(GET, URI.create("https://example.com"))
+				.attributes(oauth2AuthorizedClient(authorizedClient))
+				.build();
+
+		String wwwAuthenticateHeader = "Bearer error=\"insufficient_scope\", " +
+				"error_description=\"The request requires higher privileges than provided by the access token.\", " +
+				"error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\"";
+		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);
+		when(headers.header(eq(HttpHeaders.WWW_AUTHENTICATE)))
+				.thenReturn(Collections.singletonList(wwwAuthenticateHeader));
+		when(this.exchange.getResponse().headers()).thenReturn(headers);
+
+		this.function.filter(request, this.exchange)
+				.subscriberContext(serverWebExchange())
+				.block();
+
+		assertThat(publisherProbe.wasSubscribed()).isTrue();
+
+		verify(authorizationFailureHandler).onAuthorizationFailure(
+				authorizationExceptionCaptor.capture(),
+				authenticationCaptor.capture(),
+				attributesCaptor.capture());
+
+		assertThat(authorizationExceptionCaptor.getValue())
+				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> {
+					assertThat(e.getClientRegistrationId()).isEqualTo(registration.getRegistrationId());
+					assertThat(e.getError().getErrorCode()).isEqualTo(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+					assertThat(e.getError().getDescription()).isEqualTo("The request requires higher privileges than provided by the access token.");
+					assertThat(e.getError().getUri()).isEqualTo("https://tools.ietf.org/html/rfc6750#section-3.1");
+					assertThat(e).hasNoCause();
+					assertThat(e).hasMessageContaining(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
 				});
 		assertThat(authenticationCaptor.getValue())
 				.isInstanceOf(AnonymousAuthenticationToken.class);
