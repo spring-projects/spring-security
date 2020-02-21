@@ -936,7 +936,7 @@ final class AuthenticationConfigBuilder {
 		}
 
 		if (authorizationCodeGrantFilter != null) {
-			filters.add(new OrderDecorator(authorizationRequestRedirectFilter, OAUTH2_AUTHORIZATION_REQUEST_FILTER));
+			filters.add(new OrderDecorator(authorizationRequestRedirectFilter, OAUTH2_AUTHORIZATION_REQUEST_FILTER.getOrder()+1));
 			filters.add(new OrderDecorator(authorizationCodeGrantFilter, OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER));
 		}
 
