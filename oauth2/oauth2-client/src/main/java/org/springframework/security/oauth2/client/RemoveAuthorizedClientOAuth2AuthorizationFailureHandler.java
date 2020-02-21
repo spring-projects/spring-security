@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.web;
+package org.springframework.security.oauth2.client;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.ClientAuthorizationException;
-import org.springframework.security.oauth2.client.OAuth2AuthorizationFailureHandler;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.util.Assert;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,8 +30,8 @@ import java.util.Set;
 
 /**
  * An {@link OAuth2AuthorizationFailureHandler} that removes an {@link OAuth2AuthorizedClient}
- * from an {@link OAuth2AuthorizedClientRepository} or {@link OAuth2AuthorizedClientService}
- * for a specific set of OAuth 2.0 error codes.
+ * when the {@link OAuth2Error#getErrorCode()} matches
+ * one of the configured {@link OAuth2ErrorCodes OAuth 2.0 error codes}.
  *
  * @author Joe Grandja
  * @since 5.3
@@ -74,73 +70,58 @@ public class RemoveAuthorizedClientOAuth2AuthorizationFailureHandler implements 
 	private final Set<String> removeAuthorizedClientErrorCodes;
 
 	/**
-	 * A delegate that removes an {@link OAuth2AuthorizedClient} from a
+	 * A delegate that removes an {@link OAuth2AuthorizedClient} from an
 	 * {@link OAuth2AuthorizedClientRepository} or {@link OAuth2AuthorizedClientService}
 	 * if the error code is one of the {@link #removeAuthorizedClientErrorCodes}.
 	 */
 	private final OAuth2AuthorizedClientRemover delegate;
 
+	/**
+	 * Removes an {@link OAuth2AuthorizedClient} from an
+	 * {@link OAuth2AuthorizedClientRepository} or {@link OAuth2AuthorizedClientService}.
+	 */
 	@FunctionalInterface
-	private interface OAuth2AuthorizedClientRemover {
+	public interface OAuth2AuthorizedClientRemover {
+
+		/**
+		 * Removes the {@link OAuth2AuthorizedClient} associated to the
+		 * provided client registration identifier and End-User {@link Authentication} (Resource Owner).
+		 *
+		 * @param clientRegistrationId the identifier for the client's registration
+		 * @param principal the End-User {@link Authentication} (Resource Owner)
+		 * @param attributes an immutable {@code Map} of (optional) attributes present under certain conditions.
+		 *                   For example, this might contain a {@code javax.servlet.http.HttpServletRequest}
+		 *                   and {@code javax.servlet.http.HttpServletResponse} if the authorization was performed
+		 *                   within the context of a {@code javax.servlet.ServletContext}.
+		 */
 		void removeAuthorizedClient(String clientRegistrationId, Authentication principal, Map<String, Object> attributes);
 	}
 
 	/**
 	 * Constructs a {@code RemoveAuthorizedClientOAuth2AuthorizationFailureHandler} using the provided parameters.
 	 *
-	 * @param authorizedClientRepository the repository from which authorized clients will be removed
-	 *                                   if the error code is one of the {@link #DEFAULT_REMOVE_AUTHORIZED_CLIENT_ERROR_CODES}.
-	 */
-	public RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(OAuth2AuthorizedClientRepository authorizedClientRepository) {
-		this(authorizedClientRepository, DEFAULT_REMOVE_AUTHORIZED_CLIENT_ERROR_CODES);
-	}
-
-	/**
-	 * Constructs a {@code RemoveAuthorizedClientOAuth2AuthorizationFailureHandler} using the provided parameters.
-	 *
-	 * @param authorizedClientRepository the repository from which authorized clients will be removed
-	 *                                   if the error code is one of the {@link #removeAuthorizedClientErrorCodes}.
-	 * @param removeAuthorizedClientErrorCodes the OAuth 2.0 error codes which will trigger removal of an authorized client.
-	 * @see OAuth2ErrorCodes
-	 */
-	public RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(
-			OAuth2AuthorizedClientRepository authorizedClientRepository,
-			Set<String> removeAuthorizedClientErrorCodes) {
-		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
-		Assert.notNull(removeAuthorizedClientErrorCodes, "removeAuthorizedClientErrorCodes cannot be null");
-		this.removeAuthorizedClientErrorCodes = Collections.unmodifiableSet(new HashSet<>(removeAuthorizedClientErrorCodes));
-		this.delegate = (clientRegistrationId, principal, attributes) ->
-				authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
-						(HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
-						(HttpServletResponse) attributes.get(HttpServletResponse.class.getName()));
-	}
-
-	/**
-	 * Constructs a {@code RemoveAuthorizedClientOAuth2AuthorizationFailureHandler} using the provided parameters.
-	 *
-	 * @param authorizedClientService the service from which authorized clients will be removed
+	 * @param authorizedClientRemover the {@link OAuth2AuthorizedClientRemover} used for removing an {@link OAuth2AuthorizedClient}
 	 *                                if the error code is one of the {@link #DEFAULT_REMOVE_AUTHORIZED_CLIENT_ERROR_CODES}.
 	 */
-	public RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(OAuth2AuthorizedClientService authorizedClientService) {
-		this(authorizedClientService, DEFAULT_REMOVE_AUTHORIZED_CLIENT_ERROR_CODES);
+	public RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(OAuth2AuthorizedClientRemover authorizedClientRemover) {
+		this(authorizedClientRemover, DEFAULT_REMOVE_AUTHORIZED_CLIENT_ERROR_CODES);
 	}
 
 	/**
 	 * Constructs a {@code RemoveAuthorizedClientOAuth2AuthorizationFailureHandler} using the provided parameters.
 	 *
-	 * @param authorizedClientService the service from which authorized clients will be removed
+	 * @param authorizedClientRemover the {@link OAuth2AuthorizedClientRemover} used for removing an {@link OAuth2AuthorizedClient}
 	 *                                if the error code is one of the {@link #removeAuthorizedClientErrorCodes}.
 	 * @param removeAuthorizedClientErrorCodes the OAuth 2.0 error codes which will trigger removal of an authorized client.
 	 * @see OAuth2ErrorCodes
 	 */
 	public RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(
-			OAuth2AuthorizedClientService authorizedClientService,
+			OAuth2AuthorizedClientRemover authorizedClientRemover,
 			Set<String> removeAuthorizedClientErrorCodes) {
-		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
+		Assert.notNull(authorizedClientRemover, "authorizedClientRemover cannot be null");
 		Assert.notNull(removeAuthorizedClientErrorCodes, "removeAuthorizedClientErrorCodes cannot be null");
 		this.removeAuthorizedClientErrorCodes = Collections.unmodifiableSet(new HashSet<>(removeAuthorizedClientErrorCodes));
-		this.delegate = (clientRegistrationId, principal, attributes) ->
-				authorizedClientService.removeAuthorizedClient(clientRegistrationId, principal.getName());
+		this.delegate = authorizedClientRemover;
 	}
 
 	@Override
@@ -149,6 +130,7 @@ public class RemoveAuthorizedClientOAuth2AuthorizationFailureHandler implements 
 
 		if (authorizationException instanceof ClientAuthorizationException &&
 				hasRemovalErrorCode(authorizationException)) {
+
 			ClientAuthorizationException clientAuthorizationException = (ClientAuthorizationException) authorizationException;
 			this.delegate.removeAuthorizedClient(
 					clientAuthorizationException.getClientRegistrationId(), principal, attributes);

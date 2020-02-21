@@ -29,6 +29,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizationSuccessHand
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.RemoveAuthorizedClientOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -84,8 +85,19 @@ public class DefaultOAuth2AuthorizedClientManagerTests {
 		this.authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
 		this.authorizedClientProvider = mock(OAuth2AuthorizedClientProvider.class);
 		this.contextAttributesMapper = mock(Function.class);
-		this.authorizationSuccessHandler = spy(new SaveAuthorizedClientOAuth2AuthorizationSuccessHandler(this.authorizedClientRepository));
-		this.authorizationFailureHandler = spy(new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(this.authorizedClientRepository));
+		this.authorizationSuccessHandler = spy(new OAuth2AuthorizationSuccessHandler() {
+			@Override
+			public void onAuthorizationSuccess(OAuth2AuthorizedClient authorizedClient, Authentication principal, Map<String, Object> attributes) {
+				authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal,
+						(HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
+						(HttpServletResponse) attributes.get(HttpServletResponse.class.getName()));
+			}
+		});
+		this.authorizationFailureHandler = spy(new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(
+				(clientRegistrationId, principal, attributes) ->
+						authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
+								(HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
+								(HttpServletResponse) attributes.get(HttpServletResponse.class.getName()))));
 		this.authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientRepository);
 		this.authorizedClientManager.setAuthorizedClientProvider(this.authorizedClientProvider);

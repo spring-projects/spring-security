@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,10 +31,10 @@ import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
@@ -100,19 +100,9 @@ public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessT
 			httpRequest.setReadTimeout(30000);
 			tokenResponse = com.nimbusds.oauth2.sdk.TokenResponse.parse(httpRequest.send());
 		} catch (ParseException | IOException ex) {
-			int statusCode = 500;
-			OAuth2Error oauth2Error = new OAuth2Error(
-					INVALID_TOKEN_RESPONSE_ERROR_CODE,
-					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: " + ex.getMessage(),
-					null);
-			String message = String.format("Error retrieving OAuth 2.0 Access Token (HTTP Status Code: %s) %s",
-					statusCode,
-					oauth2Error);
-			throw new ClientAuthorizationException(
-					oauth2Error,
-					clientRegistration.getRegistrationId(),
-					message,
-					ex);
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_TOKEN_RESPONSE_ERROR_CODE,
+					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: " + ex.getMessage(), null);
+			throw new OAuth2AuthorizationException(oauth2Error, ex);
 		}
 
 		if (!tokenResponse.indicatesSuccess()) {
@@ -127,7 +117,7 @@ public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessT
 						errorObject.getDescription(),
 						errorObject.getURI() != null ? errorObject.getURI().toString() : null);
 			}
-			throw new ClientAuthorizationException(oauth2Error, clientRegistration.getRegistrationId());
+			throw new OAuth2AuthorizationException(oauth2Error);
 		}
 
 		AccessTokenResponse accessTokenResponse = (AccessTokenResponse) tokenResponse;

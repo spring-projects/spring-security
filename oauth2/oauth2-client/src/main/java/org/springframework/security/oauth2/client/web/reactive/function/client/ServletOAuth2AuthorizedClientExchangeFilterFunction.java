@@ -31,6 +31,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.RemoveAuthorizedClientOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
@@ -38,7 +39,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.RemoveAuthorizedClientOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
@@ -212,8 +212,11 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 			OAuth2AuthorizedClientRepository authorizedClientRepository) {
 
 		OAuth2AuthorizationFailureHandler authorizationFailureHandler =
-				new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(authorizedClientRepository);
-
+				new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(
+						(clientRegistrationId, principal, attributes) ->
+								authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
+										(HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
+										(HttpServletResponse) attributes.get(HttpServletResponse.class.getName())));
 		this.authorizedClientManager = createDefaultAuthorizedClientManager(
 				clientRegistrationRepository, authorizedClientRepository, authorizationFailureHandler);
 		this.defaultAuthorizedClientManager = true;

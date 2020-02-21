@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.RemoveAuthorizedClientOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
@@ -102,8 +103,15 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientRepository = authorizedClientRepository;
 		this.contextAttributesMapper = new DefaultContextAttributesMapper();
-		this.authorizationSuccessHandler = new SaveAuthorizedClientOAuth2AuthorizationSuccessHandler(authorizedClientRepository);
-		this.authorizationFailureHandler = new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(authorizedClientRepository);
+		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) ->
+				authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal,
+						(HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
+						(HttpServletResponse) attributes.get(HttpServletResponse.class.getName()));
+		this.authorizationFailureHandler = new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(
+				(clientRegistrationId, principal, attributes) ->
+						authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
+								(HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
+								(HttpServletResponse) attributes.get(HttpServletResponse.class.getName())));
 	}
 
 	@Nullable
@@ -221,10 +229,9 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 	 * Sets the {@link OAuth2AuthorizationSuccessHandler} that handles successful authorizations.
 	 *
 	 * <p>
-	 * A {@link SaveAuthorizedClientOAuth2AuthorizationSuccessHandler} is used by default.
+	 * The default saves {@link OAuth2AuthorizedClient}s in the {@link OAuth2AuthorizedClientRepository}.
 	 *
 	 * @param authorizationSuccessHandler the {@link OAuth2AuthorizationSuccessHandler} that handles successful authorizations
-	 * @see SaveAuthorizedClientOAuth2AuthorizationSuccessHandler
 	 * @since 5.3
 	 */
 	public void setAuthorizationSuccessHandler(OAuth2AuthorizationSuccessHandler authorizationSuccessHandler) {

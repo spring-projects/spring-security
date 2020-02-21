@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResp
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
 
@@ -86,8 +87,13 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
 				authorizedClient.getClientRegistration(), authorizedClient.getAccessToken(),
 				authorizedClient.getRefreshToken(), scopes);
-		OAuth2AccessTokenResponse tokenResponse =
-				this.accessTokenResponseClient.getTokenResponse(refreshTokenGrantRequest);
+
+		OAuth2AccessTokenResponse tokenResponse;
+		try {
+			tokenResponse = this.accessTokenResponseClient.getTokenResponse(refreshTokenGrantRequest);
+		} catch (OAuth2AuthorizationException ex) {
+			throw new ClientAuthorizationException(ex.getError(), authorizedClient.getClientRegistration().getRegistrationId(), ex);
+		}
 
 		return new OAuth2AuthorizedClient(context.getAuthorizedClient().getClientRegistration(),
 				context.getPrincipal().getName(), tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());

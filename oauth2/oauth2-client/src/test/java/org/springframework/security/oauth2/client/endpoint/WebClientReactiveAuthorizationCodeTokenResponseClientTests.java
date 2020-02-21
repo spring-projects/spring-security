@@ -24,10 +24,10 @@ import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -41,7 +41,10 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -178,7 +181,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-			.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
+			.isInstanceOfSatisfying(OAuth2AuthorizationException.class, e -> assertThat(e.getError().getErrorCode()).isEqualTo("unauthorized_client"))
 			.hasMessageContaining("unauthorized_client");
 	}
 
@@ -189,7 +192,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenErrorResponse).setResponseCode(HttpStatus.INTERNAL_SERVER_ERROR.value()));
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-				.isInstanceOf(ClientAuthorizationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("server_error");
 	}
 
@@ -204,7 +207,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
 
 		assertThatThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest()).block())
-				.isInstanceOf(ClientAuthorizationException.class)
+				.isInstanceOf(OAuth2AuthorizationException.class)
 				.hasMessageContaining("invalid_token_response");
 	}
 

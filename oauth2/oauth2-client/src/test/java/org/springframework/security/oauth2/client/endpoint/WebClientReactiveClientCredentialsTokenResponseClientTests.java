@@ -24,17 +24,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.validateMockitoUsage;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -157,10 +161,9 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
 
 		assertThatThrownBy(() -> this.client.getTokenResponse(request).block())
-				.isInstanceOfSatisfying(ClientAuthorizationException.class, e -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
+				.isInstanceOfSatisfying(OAuth2AuthorizationException.class, e -> assertThat(e.getError().getErrorCode()).isEqualTo("invalid_token_response"))
 				.hasMessageContaining("[invalid_token_response]")
-				.hasMessageContaining("Empty OAuth 2.0 Access Token Response")
-				.hasMessageContaining("HTTP Status Code: 301");
+				.hasMessageContaining("Empty OAuth 2.0 Access Token Response");
 
 	}
 

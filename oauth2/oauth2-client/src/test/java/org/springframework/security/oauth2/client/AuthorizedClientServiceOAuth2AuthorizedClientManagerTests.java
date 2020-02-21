@@ -23,14 +23,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.client.web.RemoveAuthorizedClientOAuth2AuthorizationFailureHandler;
-import org.springframework.security.oauth2.client.web.SaveAuthorizedClientOAuth2AuthorizationSuccessHandler;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
+import java.util.Map;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,8 +69,15 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 		this.authorizedClientService = mock(OAuth2AuthorizedClientService.class);
 		this.authorizedClientProvider = mock(OAuth2AuthorizedClientProvider.class);
 		this.contextAttributesMapper = mock(Function.class);
-		this.authorizationSuccessHandler = spy(new SaveAuthorizedClientOAuth2AuthorizationSuccessHandler(this.authorizedClientService));
-		this.authorizationFailureHandler = spy(new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(this.authorizedClientService));
+		this.authorizationSuccessHandler = spy(new OAuth2AuthorizationSuccessHandler() {
+			@Override
+			public void onAuthorizationSuccess(OAuth2AuthorizedClient authorizedClient, Authentication principal, Map<String, Object> attributes) {
+				authorizedClientService.saveAuthorizedClient(authorizedClient, principal);
+			}
+		});
+		this.authorizationFailureHandler = spy(new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(
+				(clientRegistrationId, principal, attributes) ->
+						this.authorizedClientService.removeAuthorizedClient(clientRegistrationId, principal.getName())));
 		this.authorizedClientManager = new AuthorizedClientServiceOAuth2AuthorizedClientManager(
 				this.clientRegistrationRepository, this.authorizedClientService);
 		this.authorizedClientManager.setAuthorizedClientProvider(this.authorizedClientProvider);

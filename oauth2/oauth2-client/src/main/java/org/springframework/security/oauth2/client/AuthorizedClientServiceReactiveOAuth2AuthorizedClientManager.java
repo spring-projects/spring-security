@@ -18,8 +18,6 @@ package org.springframework.security.oauth2.client;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler;
-import org.springframework.security.oauth2.client.web.SaveAuthorizedClientReactiveOAuth2AuthorizationSuccessHandler;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
@@ -91,8 +89,11 @@ public final class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientService = authorizedClientService;
-		this.authorizationSuccessHandler = new SaveAuthorizedClientReactiveOAuth2AuthorizationSuccessHandler(authorizedClientService);
-		this.authorizationFailureHandler = new RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler(authorizedClientService);
+		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) ->
+				authorizedClientService.saveAuthorizedClient(authorizedClient, principal);
+		this.authorizationFailureHandler = new RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler(
+				(clientRegistrationId, principal, attributes) ->
+						this.authorizedClientService.removeAuthorizedClient(clientRegistrationId, principal.getName()));
 	}
 
 	@Override
@@ -179,11 +180,9 @@ public final class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 	/**
 	 * Sets the handler that handles successful authorizations.
 	 *
-	 * <p>A {@link SaveAuthorizedClientReactiveOAuth2AuthorizationSuccessHandler}
-	 * is used by default.</p>
+	 * The default saves {@link OAuth2AuthorizedClient}s in the {@link ReactiveOAuth2AuthorizedClientService}.
 	 *
 	 * @param authorizationSuccessHandler the handler that handles successful authorizations.
-	 * @see SaveAuthorizedClientReactiveOAuth2AuthorizationSuccessHandler
 	 * @since 5.3
 	 */
 	public void setAuthorizationSuccessHandler(ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler) {

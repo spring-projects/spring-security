@@ -17,10 +17,8 @@ package org.springframework.security.oauth2.client.endpoint;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
@@ -167,36 +165,7 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 	 */
 	private Mono<OAuth2AccessTokenResponse> readTokenResponse(T grantRequest, ClientResponse response) {
 		return response.body(oauth2AccessTokenResponse())
-				.onErrorMap(OAuth2AuthorizationException.class, e -> createClientAuthorizationException(
-						response,
-						clientRegistration(grantRequest).getRegistrationId(),
-						e))
 				.map(tokenResponse -> populateTokenResponse(grantRequest, tokenResponse));
-	}
-
-	/**
-	 * Wraps the given {@link OAuth2AuthorizationException} in a {@link ClientAuthorizationException}
-	 * that provides response details, and a more descriptive exception message.
-	 *
-	 * @param response the token response
-	 * @param clientRegistrationId the id of the {@link ClientRegistration} for which a token is being requested
-	 * @param authorizationException the {@link OAuth2AuthorizationException} to wrap
-	 * @return the {@link ClientAuthorizationException} that wraps the given {@link OAuth2AuthorizationException}
-	 */
-	private OAuth2AuthorizationException createClientAuthorizationException(
-			ClientResponse response,
-			String clientRegistrationId,
-			OAuth2AuthorizationException authorizationException) {
-
-		String message = String.format("Error retrieving OAuth 2.0 Access Token (HTTP Status Code: %s) %s",
-				response.rawStatusCode(),
-				authorizationException.getError());
-
-		return new ClientAuthorizationException(
-				authorizationException.getError(),
-				clientRegistrationId,
-				message,
-				authorizationException);
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClie
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
@@ -77,6 +78,8 @@ public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider imple
 
 		return Mono.just(new OAuth2ClientCredentialsGrantRequest(clientRegistration))
 				.flatMap(this.accessTokenResponseClient::getTokenResponse)
+				.onErrorMap(OAuth2AuthorizationException.class,
+						e -> new ClientAuthorizationException(e.getError(), clientRegistration.getRegistrationId(), e))
 				.map(tokenResponse -> new OAuth2AuthorizedClient(
 						clientRegistration, context.getPrincipal().getName(), tokenResponse.getAccessToken()));
 	}

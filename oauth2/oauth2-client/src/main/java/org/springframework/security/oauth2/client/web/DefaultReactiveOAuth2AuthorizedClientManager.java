@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizationFai
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizationSuccessHandler;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
@@ -101,8 +102,13 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientRepository = authorizedClientRepository;
-		this.authorizationSuccessHandler = new SaveAuthorizedClientReactiveOAuth2AuthorizationSuccessHandler(authorizedClientRepository);
-		this.authorizationFailureHandler = new RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler(authorizedClientRepository);
+		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) ->
+				authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal,
+						(ServerWebExchange) attributes.get(ServerWebExchange.class.getName()));
+		this.authorizationFailureHandler = new RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler(
+				(clientRegistrationId, principal, attributes) ->
+						authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
+								(ServerWebExchange) attributes.get(ServerWebExchange.class.getName())));
 	}
 
 	@Override
@@ -230,11 +236,9 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 	/**
 	 * Sets the handler that handles successful authorizations.
 	 *
-	 * <p>A {@link SaveAuthorizedClientReactiveOAuth2AuthorizationSuccessHandler}
-	 * is used by default.</p>
+	 * The default saves {@link OAuth2AuthorizedClient}s in the {@link ServerOAuth2AuthorizedClientRepository}.
 	 *
 	 * @param authorizationSuccessHandler the handler that handles successful authorizations.
-	 * @see SaveAuthorizedClientReactiveOAuth2AuthorizationSuccessHandler
 	 * @since 5.3
 	 */
 	public void setAuthorizationSuccessHandler(ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler) {

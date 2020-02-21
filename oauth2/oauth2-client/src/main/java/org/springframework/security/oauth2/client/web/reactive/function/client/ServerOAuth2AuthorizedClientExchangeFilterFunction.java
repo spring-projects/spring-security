@@ -34,14 +34,13 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.RefreshTokenReactiveOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler;
-import org.springframework.security.oauth2.client.web.SaveAuthorizedClientReactiveOAuth2AuthorizationSuccessHandler;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.UnAuthenticatedServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
@@ -191,7 +190,10 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 																ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
 
 		ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler =
-				new RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler(authorizedClientRepository);
+				new RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler(
+						(clientRegistrationId, principal, attributes) ->
+								authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
+										(ServerWebExchange) attributes.get(ServerWebExchange.class.getName())));
 
 		this.authorizedClientManager = createDefaultAuthorizedClientManager(
 				clientRegistrationRepository,
@@ -518,7 +520,9 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 				ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler) {
 			this.clientRegistrationRepository = clientRegistrationRepository;
 			this.authorizedClientRepository = authorizedClientRepository;
-			this.authorizationSuccessHandler = new SaveAuthorizedClientReactiveOAuth2AuthorizationSuccessHandler(authorizedClientRepository);
+			this.authorizationSuccessHandler = (authorizedClient, principal, attributes) ->
+					authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal,
+							(ServerWebExchange) attributes.get(ServerWebExchange.class.getName()));
 			this.authorizationFailureHandler = authorizationFailureHandler;
 		}
 

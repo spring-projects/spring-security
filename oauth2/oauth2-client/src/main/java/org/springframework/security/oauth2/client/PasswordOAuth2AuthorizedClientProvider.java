@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRe
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -96,8 +97,13 @@ public final class PasswordOAuth2AuthorizedClientProvider implements OAuth2Autho
 
 		OAuth2PasswordGrantRequest passwordGrantRequest =
 				new OAuth2PasswordGrantRequest(clientRegistration, username, password);
-		OAuth2AccessTokenResponse tokenResponse =
-				this.accessTokenResponseClient.getTokenResponse(passwordGrantRequest);
+
+		OAuth2AccessTokenResponse tokenResponse;
+		try {
+			tokenResponse = this.accessTokenResponseClient.getTokenResponse(passwordGrantRequest);
+		} catch (OAuth2AuthorizationException ex) {
+			throw new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(), ex);
+		}
 
 		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
 				tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
