@@ -87,10 +87,10 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 
 		request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 
-		if (forceEagerSessionCreation) {
+		if (debug && forceEagerSessionCreation) {
 			HttpSession session = request.getSession();
 
-			if (debug && session.isNew()) {
+			if (session.isNew()) {
 				logger.debug("Eagerly created session: " + session.getId());
 			}
 		}
