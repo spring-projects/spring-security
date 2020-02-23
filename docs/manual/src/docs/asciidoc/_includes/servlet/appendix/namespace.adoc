@@ -1082,7 +1082,7 @@ The supported values are *basic*, *post* and *none* https://tools.ietf.org/html/
 [[nsa-client-registration-authorization-grant-type]]
 * **authorization-grant-type**
 The OAuth 2.0 Authorization Framework defines four https://tools.ietf.org/html/rfc6749#section-1.3[Authorization Grant] types.
-The supported values are `authorization_code`, `client_credentials`, `password` and `implicit`.
+The supported values are `authorization_code`, `client_credentials` and `password`.
 
 
 [[nsa-client-registration-redirect-uri]]

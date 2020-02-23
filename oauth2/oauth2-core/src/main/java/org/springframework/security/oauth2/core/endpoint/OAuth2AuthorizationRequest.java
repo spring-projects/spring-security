@@ -186,8 +186,13 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	/**
 	 * Returns a new {@link Builder}, initialized with the implicit grant type.
 	 *
+	 * @deprecated It is not recommended to use the implicit flow
+	 * due to the inherent risks of returning access tokens in an HTTP redirect
+	 * without any confirmation that it has been received by the client.
+	 * @see <a target="_blank" href="https://oauth.net/2/grant-types/implicit/">OAuth 2.0 Implicit Grant</a>
 	 * @return the {@link Builder}
 	 */
+	@Deprecated
 	public static Builder implicit() {
 		return new Builder(AuthorizationGrantType.IMPLICIT);
 	}

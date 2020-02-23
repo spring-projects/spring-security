@@ -36,7 +36,17 @@ import java.io.Serializable;
 public final class AuthorizationGrantType implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	public static final AuthorizationGrantType AUTHORIZATION_CODE = new AuthorizationGrantType("authorization_code");
+
+	/**
+	 * It is not recommended to use the implicit flow
+	 * due to the inherent risks of returning access tokens in an HTTP redirect
+	 * without any confirmation that it has been received by the client.
+	 *
+	 * @see <a target="_blank" href="https://oauth.net/2/grant-types/implicit/">OAuth 2.0 Implicit Grant</a>
+	 */
+	@Deprecated
 	public static final AuthorizationGrantType IMPLICIT = new AuthorizationGrantType("implicit");
+
 	public static final AuthorizationGrantType REFRESH_TOKEN = new AuthorizationGrantType("refresh_token");
 	public static final AuthorizationGrantType CLIENT_CREDENTIALS = new AuthorizationGrantType("client_credentials");
 	public static final AuthorizationGrantType PASSWORD = new AuthorizationGrantType("password");
