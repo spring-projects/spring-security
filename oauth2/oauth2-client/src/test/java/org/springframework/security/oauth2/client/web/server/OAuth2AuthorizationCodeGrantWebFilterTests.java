@@ -69,7 +69,6 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		this.filter = new OAuth2AuthorizationCodeGrantWebFilter(
 				this.authenticationManager, this.clientRegistrationRepository,
 				this.authorizedClientRepository);
-		when(this.authorizationRequestRepository.loadAuthorizationRequest(any())).thenReturn(Mono.empty());
 		this.filter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 	}
 

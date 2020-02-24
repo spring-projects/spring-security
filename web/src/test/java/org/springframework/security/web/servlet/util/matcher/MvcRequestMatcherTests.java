@@ -66,9 +66,6 @@ public class MvcRequestMatcherTests {
 
 	@Test
 	public void extractUriTemplateVariablesSuccess() throws Exception {
-		when(this.introspector.getMatchableHandlerMapping(this.request))
-				.thenReturn(this.mapping);
-
 		this.matcher = new MvcRequestMatcher(this.introspector, "/{p}");
 		when(this.introspector.getMatchableHandlerMapping(this.request)).thenReturn(null);
 
