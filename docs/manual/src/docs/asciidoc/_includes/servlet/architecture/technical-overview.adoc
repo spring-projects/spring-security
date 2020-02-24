@@ -42,7 +42,7 @@ Remember the advantage that whatever your `UserDetailsService` returns can alway
 There is often some confusion about `UserDetailsService`.
 It is purely a DAO for user data and performs no other function other than to supply that data to other components within the framework.
 In particular, it __does not__ authenticate the user, which is done by the `AuthenticationManager`.
-In many cases it makes more sense to <<core-services-authentication-manager,implement `AuthenticationProvider`>> directly if you require a custom authentication process.
+In many cases it makes more sense to implement `AuthenticationProvider` directly if you require a custom authentication process.
 
 ====
 
@@ -188,7 +188,7 @@ All you need to do is write a filter (or equivalent) that reads the third-party 
 In this case you also need to think about things which are normally taken care of automatically by the built-in authentication infrastructure.
 For example, you might need to pre-emptively create an HTTP session to <<tech-intro-sec-context-persistence,cache the context between requests>>, before you write the response to the client footnote:[It isn't possible to create a session once the response has been committed.].
 
-If you're wondering how the `AuthenticationManager` is implemented in a real world example, we'll look at that in the <<core-services-authentication-manager,core services chapter>>.
+If you're wondering how the `AuthenticationManager` is implemented in a real world example, we'll look at that in the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>>.
 
 
 [[tech-intro-web-authentication]]

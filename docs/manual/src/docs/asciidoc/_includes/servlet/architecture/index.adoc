@@ -1,5 +1,6 @@
 [[servlet-architecture]]
 = Architecture and Implementation
+// FIXME: change to something like Servlet Security: The Big Picture
 :figures: images/servlet/architecture
 
 This section discusses Spring Security's high level architecture within Servlet based applications.

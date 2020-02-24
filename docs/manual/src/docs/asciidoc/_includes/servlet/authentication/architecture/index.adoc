@@ -12,9 +12,7 @@ include::abstract-authentication-processing-filter.adoc[leveloffset=+1]
 
 include::authentication-manager.adoc[leveloffset=+1]
 
-// authenticationmanager
-
-// providermanager
+include::provider-manager.adoc[leveloffset=+1]
 
 // authenticationprovider
 
