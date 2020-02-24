@@ -31,6 +31,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -51,7 +53,8 @@ import static org.mockito.Mockito.*;
 /**
  * Tests for {@link DefaultReactiveOAuth2AuthorizedClientManager}.
  *
- * @author Joe Grandja
+ * @author Joe Grandjad
+ * @author OGAWA, Takeshi
  */
 public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 	private ReactiveClientRegistrationRepository clientRegistrationRepository;
@@ -363,6 +366,28 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
 		String[] requestScopeAttribute = authorizationContext.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		assertThat(requestScopeAttribute).contains("read", "write");
+	}
+
+	@Test
+	public void authorizeAgainWhenReauthorizeFails() {
+		when(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
+				.thenThrow(new OAuth2AuthorizationException(new OAuth2Error("invalid_token_response")))
+				.thenReturn(Mono.just(this.authorizedClient));
+		when(this.clientRegistrationRepository.findByRegistrationId(
+				eq(this.clientRegistration.getRegistrationId()))).thenReturn(Mono.just(this.clientRegistration));
+
+		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
+				.principal(this.principal)
+				.build();
+
+		this.authorizedClientManager.authorize(reauthorizeRequest).subscriberContext(this.context).block();
+
+		verify(this.authorizedClientProvider, times(2)).authorize(this.authorizationContextCaptor.capture());
+
+		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getAllValues().get(1);
+		assertThat(authorizationContext.getClientRegistration()).isEqualTo(this.clientRegistration);
+		assertThat(authorizationContext.getAuthorizedClient()).isNull();
+		assertThat(authorizationContext.getPrincipal()).isEqualTo(this.principal);
 	}
 
 	private Mono<ServerWebExchange> currentServerWebExchange() {

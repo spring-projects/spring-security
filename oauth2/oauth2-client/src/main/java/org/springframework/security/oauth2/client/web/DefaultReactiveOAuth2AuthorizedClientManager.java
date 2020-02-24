@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -40,6 +41,7 @@ import java.util.function.Function;
  * The default implementation of a {@link ReactiveOAuth2AuthorizedClientManager}.
  *
  * @author Joe Grandja
+ * @author OGAWA, Takeshi
  * @since 5.2
  * @see ReactiveOAuth2AuthorizedClientManager
  * @see ReactiveOAuth2AuthorizedClientProvider
@@ -81,7 +83,9 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 							.flatMap(reauthorizedClient -> saveAuthorizedClient(reauthorizedClient, principal, serverWebExchange))
 							// Default to the existing authorizedClient if the client was not re-authorized
 							.defaultIfEmpty(authorizeRequest.getAuthorizedClient() != null ?
-									authorizeRequest.getAuthorizedClient() : authorizedClient);
+									authorizeRequest.getAuthorizedClient() : authorizedClient)
+							// If the refresh token fails, get the token again
+							.onErrorResume(OAuth2AuthorizationException.class, (ex) -> Mono.empty());
 				})
 				.switchIfEmpty(Mono.deferWithContext(context ->
 						// Authorize
