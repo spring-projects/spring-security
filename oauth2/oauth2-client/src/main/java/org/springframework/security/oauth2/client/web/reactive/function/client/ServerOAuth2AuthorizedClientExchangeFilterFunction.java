@@ -521,8 +521,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			this.clientRegistrationRepository = clientRegistrationRepository;
 			this.authorizedClientRepository = authorizedClientRepository;
 			this.authorizationSuccessHandler = (authorizedClient, principal, attributes) ->
-					authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal,
-							(ServerWebExchange) attributes.get(ServerWebExchange.class.getName()));
+					authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, null);
 			this.authorizationFailureHandler = authorizationFailureHandler;
 		}
 
