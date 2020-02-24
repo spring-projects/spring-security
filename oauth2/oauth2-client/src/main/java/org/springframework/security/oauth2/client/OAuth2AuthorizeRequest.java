@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.client;
 
 import org.springframework.lang.Nullable;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
@@ -132,6 +133,33 @@ public final class OAuth2AuthorizeRequest {
 		private Builder(OAuth2AuthorizedClient authorizedClient) {
 			Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 			this.authorizedClient = authorizedClient;
+		}
+
+		/**
+		 * Sets the name of the {@code Principal} (to be) associated to the authorized client.
+		 *
+		 * @since 5.3
+		 * @param principalName the name of the {@code Principal} (to be) associated to the authorized client
+		 * @return the {@link Builder}
+		 */
+		public Builder principal(String principalName) {
+			return principal(createAuthentication(principalName));
+		}
+
+		private static Authentication createAuthentication(final String principalName) {
+			Assert.hasText(principalName, "principalName cannot be empty");
+
+			return new AbstractAuthenticationToken(null) {
+				@Override
+				public Object getCredentials() {
+					return "";
+				}
+
+				@Override
+				public Object getPrincipal() {
+					return principalName;
+				}
+			};
 		}
 
 		/**

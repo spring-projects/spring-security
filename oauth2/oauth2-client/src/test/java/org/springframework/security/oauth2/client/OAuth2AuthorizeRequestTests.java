@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
 
 /**
  * Tests for {@link OAuth2AuthorizeRequest}.
@@ -59,6 +61,13 @@ public class OAuth2AuthorizeRequestTests {
 	}
 
 	@Test
+	public void withClientRegistrationIdWhenPrincipalNameIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId()).principal((String) null).build())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("principalName cannot be empty");
+	}
+
+	@Test
 	public void withClientRegistrationIdWhenAllValuesProvidedThenAllValuesAreSet() {
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
 				.principal(this.principal)
@@ -88,5 +97,16 @@ public class OAuth2AuthorizeRequestTests {
 		assertThat(authorizeRequest.getAuthorizedClient()).isEqualTo(this.authorizedClient);
 		assertThat(authorizeRequest.getPrincipal()).isEqualTo(this.principal);
 		assertThat(authorizeRequest.getAttributes()).contains(entry("name1", "value1"), entry("name2", "value2"));
+	}
+
+	@Test
+	public void withClientRegistrationIdWhenPrincipalNameProvidedThenPrincipalCreated() {
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+				.principal("principalName")
+				.build();
+
+		assertThat(authorizeRequest.getClientRegistrationId()).isEqualTo(this.clientRegistration.getRegistrationId());
+		assertThat(authorizeRequest.getAuthorizedClient()).isNull();
+		assertThat(authorizeRequest.getPrincipal().getName()).isEqualTo("principalName");
 	}
 }
