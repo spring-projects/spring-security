@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 /**
  * A {@link HttpMessageConverter} for an {@link OAuth2AccessTokenResponse OAuth 2.0 Access Token Response}.
@@ -55,8 +56,8 @@ import java.util.HashMap;
 public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpMessageConverter<OAuth2AccessTokenResponse> {
 	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
-	private static final ParameterizedTypeReference<Map<String, String>> PARAMETERIZED_RESPONSE_TYPE =
-			new ParameterizedTypeReference<Map<String, String>>() {};
+	private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE =
+			new ParameterizedTypeReference<Map<String, Object>>() {};
 
 	private GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters.getJsonMessageConverter();
 
@@ -80,10 +81,16 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 			throws HttpMessageNotReadableException {
 
 		try {
+			// gh-6463
+			// Parse parameter values as Object in order to handle potential JSON Object and then convert values to String
 			@SuppressWarnings("unchecked")
-			Map<String, String> tokenResponseParameters = (Map<String, String>) this.jsonMessageConverter.read(
+			Map<String, Object> tokenResponseParameters = (Map<String, Object>) this.jsonMessageConverter.read(
 					PARAMETERIZED_RESPONSE_TYPE.getType(), null, inputMessage);
-			return this.tokenResponseConverter.convert(tokenResponseParameters);
+			return this.tokenResponseConverter.convert(
+					tokenResponseParameters.entrySet().stream()
+							.collect(Collectors.toMap(
+									Map.Entry::getKey,
+									entry -> entry.getValue().toString())));
 		} catch (Exception ex) {
 			throw new HttpMessageNotReadableException("An error occurred reading the OAuth 2.0 Access Token Response: " +
 					ex.getMessage(), ex, inputMessage);
