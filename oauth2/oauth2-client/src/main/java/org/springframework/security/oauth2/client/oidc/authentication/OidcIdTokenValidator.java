@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.net.URL;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	private static final Duration DEFAULT_CLOCK_SKEW = Duration.ofSeconds(60);
 	private final ClientRegistration clientRegistration;
 	private Duration clockSkew = DEFAULT_CLOCK_SKEW;
+	private Clock clock = Clock.systemUTC();
 
 	public OidcIdTokenValidator(ClientRegistration clientRegistration) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
@@ -95,7 +97,7 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		// TODO Depends on gh-4413
 
 		// 9. The current time MUST be before the time represented by the exp Claim.
-		Instant now = Instant.now();
+		Instant now = Instant.now(this.clock);
 		if (now.minus(this.clockSkew).isAfter(idToken.getExpiresAt())) {
 			invalidClaims.put(IdTokenClaimNames.EXP, idToken.getExpiresAt());
 		}
@@ -126,6 +128,19 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		Assert.notNull(clockSkew, "clockSkew cannot be null");
 		Assert.isTrue(clockSkew.getSeconds() >= 0, "clockSkew must be >= 0");
 		this.clockSkew = clockSkew;
+	}
+
+	/**
+	 * Sets the {@link Clock} used in {@link Instant#now(Clock)}
+	 * when validating the {@link JwtClaimNames#EXP exp}
+	 * and {@link JwtClaimNames#IAT iat} claims.
+	 *
+	 * @since 5.3
+	 * @param clock the clock
+	 */
+	public void setClock(Clock clock) {
+		Assert.notNull(clock, "clock cannot be null");
+		this.clock = clock;
 	}
 
 	private static OAuth2Error invalidIdToken(Map<String, Object> invalidClaims) {
