@@ -108,7 +108,10 @@ public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OA
 	/**
 	 * Sets the maximum acceptable clock skew, which is used when checking the
 	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} expiry. The default is 60 seconds.
-	 * An access token is considered expired if it's before {@code Instant.now(this.clock) - clockSkew}.
+	 *
+	 * <p>
+	 * An access token is considered expired if {@code OAuth2AccessToken#getExpiresAt() - clockSkew}
+	 * is before the current time {@code clock#instant()}.
 	 *
 	 * @param clockSkew the maximum acceptable clock skew
 	 */
