@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,6 +94,39 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 		assertThat(accessTokenResponse.getAdditionalParameters()).containsExactly(
 				entry("custom_parameter_1", "custom-value-1"), entry("custom_parameter_2", "custom-value-2"));
 
+	}
+
+	// gh-6463
+	@Test
+	public void readInternalWhenSuccessfulTokenResponseWithObjectThenReadOAuth2AccessTokenResponse() throws Exception {
+		String tokenResponse = "{\n" +
+				"	\"access_token\": \"access-token-1234\",\n" +
+				"   \"token_type\": \"bearer\",\n" +
+				"   \"expires_in\": 3600,\n" +
+				"   \"scope\": \"read write\",\n" +
+				"   \"refresh_token\": \"refresh-token-1234\",\n" +
+				"   \"custom_object_1\": {\"name1\": \"value1\"},\n" +
+				"   \"custom_object_2\": [\"value1\", \"value2\"],\n" +
+				"   \"custom_parameter_1\": \"custom-value-1\",\n" +
+				"   \"custom_parameter_2\": \"custom-value-2\"\n" +
+				"}\n";
+
+		MockClientHttpResponse response = new MockClientHttpResponse(
+				tokenResponse.getBytes(), HttpStatus.OK);
+
+		OAuth2AccessTokenResponse accessTokenResponse = this.messageConverter.readInternal(
+				OAuth2AccessTokenResponse.class, response);
+
+		assertThat(accessTokenResponse.getAccessToken().getTokenValue()).isEqualTo("access-token-1234");
+		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
+		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBeforeOrEqualTo(Instant.now().plusSeconds(3600));
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read", "write");
+		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo("refresh-token-1234");
+		assertThat(accessTokenResponse.getAdditionalParameters()).containsExactly(
+				entry("custom_object_1", "{name1=value1}"),
+				entry("custom_object_2", "[value1, value2]"),
+				entry("custom_parameter_1", "custom-value-1"),
+				entry("custom_parameter_2", "custom-value-2"));
 	}
 
 	@Test
