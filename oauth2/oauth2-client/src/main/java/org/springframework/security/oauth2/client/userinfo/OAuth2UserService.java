@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
  * @param <R> The type of OAuth 2.0 User Request
  * @param <U> The type of OAuth 2.0 User
  */
+@FunctionalInterface
 public interface OAuth2UserService<R extends OAuth2UserRequest, U extends OAuth2User> {
 
 	/**

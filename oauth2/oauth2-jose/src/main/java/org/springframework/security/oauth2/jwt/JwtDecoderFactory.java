@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ package org.springframework.security.oauth2.jwt;
  *
  * @param <C> The type that provides contextual information used to create a specific {@code JwtDecoder}.
  */
+@FunctionalInterface
 public interface JwtDecoderFactory<C> {
 
 	/**
