@@ -19,15 +19,21 @@ package org.springframework.security.config.web.servlet
 import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.provisioning.InMemoryUserDetailsManager
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
 import org.springframework.security.web.util.matcher.RegexRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -166,6 +172,63 @@ class AuthorizeRequestsDslTests {
             @RequestMapping("/user/{user}")
             fun path(@PathVariable user: String) {
             }
+        }
+    }
+
+    @Test
+    fun `request when user has allowed role then responds with OK`() {
+        this.spring.register(HasRoleConfig::class.java).autowire()
+
+        this.mockMvc.get("/") {
+            with(httpBasic("admin", "password"))
+        }.andExpect {
+            status { isOk }
+        }
+    }
+
+    @Test
+    fun `request when user does not have allowed role then responds with forbidden`() {
+        this.spring.register(HasRoleConfig::class.java).autowire()
+
+        this.mockMvc.get("/") {
+            with(httpBasic("user", "password"))
+        }.andExpect {
+            status { isForbidden }
+        }
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class HasRoleConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize("/**", hasRole("ADMIN"))
+                }
+                httpBasic { }
+            }
+        }
+
+        @RestController
+        internal class PathController {
+            @GetMapping("/")
+            fun index() {
+            }
+        }
+
+        @Bean
+        override fun userDetailsService(): UserDetailsService {
+            val userDetails = User.withDefaultPasswordEncoder()
+                    .username("user")
+                    .password("password")
+                    .roles("USER")
+                    .build()
+            val adminDetails = User.withDefaultPasswordEncoder()
+                    .username("admin")
+                    .password("password")
+                    .roles("ADMIN")
+                    .build()
+            return InMemoryUserDetailsManager(userDetails, adminDetails)
         }
     }
 

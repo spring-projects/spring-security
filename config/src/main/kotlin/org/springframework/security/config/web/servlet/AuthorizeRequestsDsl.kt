@@ -106,6 +106,15 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
     fun hasAuthority(authority: String) = "hasAuthority('$authority')"
 
     /**
+     * Specify that URLs require a particular role.
+     *
+     * @param role the role to require (i.e. USER, ADMIN, etc).
+     * @return the SpEL expression "hasRole" with the given role as a
+     * parameter
+     */
+    fun hasRole(role: String) = "hasRole('$role')"
+
+    /**
      * Specify that URLs are allowed by anyone.
      */
     val permitAll = "permitAll"
