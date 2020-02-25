@@ -20,6 +20,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -32,11 +36,6 @@ import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -102,7 +101,7 @@ public class JwtDecodersTests {
 		JwtDecoder decoder = JwtDecoders.fromOidcIssuerLocation(this.issuer);
 		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH))
 				.isInstanceOf(JwtValidationException.class)
-				.hasMessageContaining("This iss claim is not equal to the configured issuer");
+				.hasMessageContaining("The iss claim is not valid");
 	}
 
 	@Test
@@ -111,7 +110,7 @@ public class JwtDecodersTests {
 		JwtDecoder decoder = JwtDecoders.fromIssuerLocation(this.issuer);
 		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH))
 				.isInstanceOf(JwtValidationException.class)
-				.hasMessageContaining("This iss claim is not equal to the configured issuer");
+				.hasMessageContaining("The iss claim is not valid");
 	}
 
 	@Test
@@ -120,7 +119,7 @@ public class JwtDecodersTests {
 		JwtDecoder decoder = JwtDecoders.fromIssuerLocation(this.issuer);
 		assertThatCode(() -> decoder.decode(ISSUER_MISMATCH))
 				.isInstanceOf(JwtValidationException.class)
-				.hasMessageContaining("This iss claim is not equal to the configured issuer");
+				.hasMessageContaining("The iss claim is not valid");
 	}
 
 	@Test
