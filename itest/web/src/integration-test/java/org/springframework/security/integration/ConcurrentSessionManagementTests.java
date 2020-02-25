@@ -15,6 +15,17 @@
  */
 package org.springframework.security.integration;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.Test;
+
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.session.SessionDestroyedEvent;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -24,16 +35,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.session.SessionDestroyedEvent;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 /**
  * @author Luke Taylor
@@ -47,7 +48,7 @@ public class ConcurrentSessionManagementTests extends AbstractWebServerIntegrati
 
 		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-concurrency.xml", "classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
 
-		mockMvc.perform(get("secure/index").session(session1))
+		mockMvc.perform(get("/secure/index").session(session1))
 			.andExpect(status().is3xxRedirection());
 
 		MockHttpServletRequestBuilder login1 = login()
