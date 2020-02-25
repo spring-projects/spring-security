@@ -42,7 +42,7 @@ public UserDetailsService users() {
 ----
 
 .Kotlin
-[source,kotlin,role="secondary,attrs="-attributes""]
+[source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Bean
 fun users(): UserDetailsService {
