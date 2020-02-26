@@ -47,6 +47,19 @@ protected void configure(HttpSecurity http) throws Exception {
 	<intercept-url pattern="/**" access="authenticated"/>
 </http>
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+fun configure(http: HttpSecurity) {
+    http {
+        // ...
+        authorizeRequests {
+            authorize(anyRequest, authenticated)
+        }
+    }
+}
+----
 ====
 
 We can configure Spring Security to have different rules by adding more rules in order of precedence.
@@ -82,6 +95,24 @@ protected void configure(HttpSecurity http) throws Exception {
 	<intercept-url pattern="/db/**" access="hasRole('ADMIN') and hasRole('DBA')"/> <!--4-->
 	<intercept-url pattern="/**" access="denyAll"/> <!--5-->
 </http>
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+fun configure(http: HttpSecurity) {
+   http {
+        authorizeRequests { // <1>
+            authorize("/resources/**", permitAll) // <2>
+            authorize("/signup", permitAll)
+            authorize("/about", permitAll)
+
+            authorize("/admin/**", hasRole("ADMIN")) // <3>
+            authorize("/db/**", "hasRole('ADMIN') and hasRole('DBA')") // <4>
+            authorize(anyRequest, denyAll) // <5>
+        }
+    }
+}
 ----
 ====
 <1> There are multiple authorization rules specified.
