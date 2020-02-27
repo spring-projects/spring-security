@@ -16,6 +16,7 @@
 
 package org.springframework.security.test.web.reactive.server;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,7 +27,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
@@ -47,7 +50,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -58,8 +63,10 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -151,6 +158,20 @@ public class SecurityMockServerConfigurers {
 	 */
 	public static JwtMutator mockJwt() {
 		return new JwtMutator();
+	}
+
+	/**
+	 * Updates the ServerWebExchange to establish a {@link SecurityContext} that has a
+	 * {@link BearerTokenAuthentication} for the
+	 * {@link Authentication} and an {@link OAuth2AuthenticatedPrincipal} for the
+	 * {@link Authentication#getPrincipal()}. All details are
+	 * declarative and do not require the token to be valid.
+	 *
+	 * @return the {@link OpaqueTokenMutator} to further configure or use
+	 * @since 5.3
+	 */
+	public static OpaqueTokenMutator mockOpaqueToken() {
+		return new OpaqueTokenMutator();
 	}
 
 	/**
@@ -513,6 +534,165 @@ public class SecurityMockServerConfigurers {
 
 		private <T extends WebTestClientConfigurer & MockServerConfigurer> T configurer() {
 			return mockAuthentication(new JwtAuthenticationToken(this.jwt, this.authoritiesConverter.convert(this.jwt)));
+		}
+	}
+
+	/**
+	 * @author Josh Cummings
+	 * @since 5.3
+	 */
+	public final static class OpaqueTokenMutator implements WebTestClientConfigurer, MockServerConfigurer {
+		private Supplier<Map<String, Object>> attributes = this::defaultAttributes;
+		private Supplier<Collection<GrantedAuthority>> authorities = this::defaultAuthorities;
+
+		private Supplier<OAuth2AuthenticatedPrincipal> principal = this::defaultPrincipal;
+
+		private OpaqueTokenMutator() { }
+
+		/**
+		 * Mutate the attributes using the given {@link Consumer}
+		 *
+		 * @param attributesConsumer The {@link Consumer} for mutating the {@Map} of attributes
+		 * @return the {@link OpaqueTokenMutator} for further configuration
+		 */
+		public OpaqueTokenMutator attributes(Consumer<Map<String, Object>> attributesConsumer) {
+			Assert.notNull(attributesConsumer, "attributesConsumer cannot be null");
+			this.attributes = () -> {
+				Map<String, Object> attributes = defaultAttributes();
+				attributesConsumer.accept(attributes);
+				return attributes;
+			};
+			this.principal = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Use the provided authorities in the resulting principal
+		 * @param authorities the authorities to use
+		 * @return the {@link OpaqueTokenMutator} for further configuration
+		 */
+		public OpaqueTokenMutator authorities(Collection<GrantedAuthority> authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = () -> authorities;
+			this.principal = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Use the provided authorities in the resulting principal
+		 * @param authorities the authorities to use
+		 * @return the {@link OpaqueTokenMutator} for further configuration
+		 */
+		public OpaqueTokenMutator authorities(GrantedAuthority... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = () -> Arrays.asList(authorities);
+			this.principal = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Use the provided scopes as the authorities in the resulting principal
+		 * @param scopes the scopes to use
+		 * @return the {@link OpaqueTokenMutator} for further configuration
+		 */
+		public OpaqueTokenMutator scopes(String... scopes) {
+			Assert.notNull(scopes, "scopes cannot be null");
+			this.authorities = () -> getAuthorities(Arrays.asList(scopes));
+			this.principal = this::defaultPrincipal;
+			return this;
+		}
+
+		/**
+		 * Use the provided principal
+		 * @param principal the principal to use
+		 * @return the {@link OpaqueTokenMutator} for further configuration
+		 */
+		public OpaqueTokenMutator principal(OAuth2AuthenticatedPrincipal principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = () -> principal;
+			return this;
+		}
+
+		@Override
+		public void beforeServerCreated(WebHttpHandlerBuilder builder) {
+			configurer().beforeServerCreated(builder);
+		}
+
+		@Override
+		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
+			configurer().afterConfigureAdded(serverSpec);
+		}
+
+		@Override
+		public void afterConfigurerAdded(
+				WebTestClient.Builder builder,
+				@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
+				@Nullable ClientHttpConnector connector) {
+			httpHandlerBuilder.filter((exchange, chain) -> {
+				CsrfWebFilter.skipExchange(exchange);
+				return chain.filter(exchange);
+			});
+			configurer().afterConfigurerAdded(builder, httpHandlerBuilder, connector);
+		}
+
+		private <T extends WebTestClientConfigurer & MockServerConfigurer> T configurer() {
+			OAuth2AuthenticatedPrincipal principal = this.principal.get();
+			OAuth2AccessToken accessToken = getOAuth2AccessToken(principal);
+			BearerTokenAuthentication token = new BearerTokenAuthentication
+					(principal, accessToken, principal.getAuthorities());
+			return mockAuthentication(token);
+		}
+
+		private Map<String, Object> defaultAttributes() {
+			Map<String, Object> attributes = new HashMap<>();
+			attributes.put(OAuth2IntrospectionClaimNames.SUBJECT, "user");
+			attributes.put(OAuth2IntrospectionClaimNames.SCOPE, "read");
+			return attributes;
+		}
+
+		private Collection<GrantedAuthority> defaultAuthorities() {
+			Map<String, Object> attributes = this.attributes.get();
+			Object scope = attributes.get(OAuth2IntrospectionClaimNames.SCOPE);
+			if (scope == null) {
+				return Collections.emptyList();
+			}
+			if (scope instanceof Collection) {
+				return getAuthorities((Collection) scope);
+			}
+			String scopes = scope.toString();
+			if (StringUtils.isBlank(scopes)) {
+				return Collections.emptyList();
+			}
+			return getAuthorities(Arrays.asList(scopes.split(" ")));
+		}
+
+		private OAuth2AuthenticatedPrincipal defaultPrincipal() {
+			return new DefaultOAuth2AuthenticatedPrincipal
+					(this.attributes.get(), this.authorities.get());
+		}
+
+		private Collection<GrantedAuthority> getAuthorities(Collection<?> scopes) {
+			return scopes.stream()
+					.map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope))
+					.collect(Collectors.toList());
+		}
+
+		private OAuth2AccessToken getOAuth2AccessToken(OAuth2AuthenticatedPrincipal principal) {
+			Instant expiresAt = getInstant(principal.getAttributes(), "exp");
+			Instant issuedAt = getInstant(principal.getAttributes(), "iat");
+			return new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+					"token", issuedAt, expiresAt);
+		}
+
+		private Instant getInstant(Map<String, Object> attributes, String name) {
+			Object value = attributes.get(name);
+			if (value == null) {
+				return null;
+			}
+			if (value instanceof Instant) {
+				return (Instant) value;
+			}
+			throw new IllegalArgumentException(name + " attribute must be of type Instant");
 		}
 	}
 
