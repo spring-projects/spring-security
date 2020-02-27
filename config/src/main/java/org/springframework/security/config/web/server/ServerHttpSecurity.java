@@ -3293,7 +3293,7 @@ public class ServerHttpSecurity {
 		 * @author Ankur Pathak
 		 */
 		public HeaderSpec writer(ServerHttpHeadersWriter serverHttpHeadersWriter) {
-			Assert.notNull(serverHttpHeadersWriter, () -> "serverHttpHeadersWriter cannot be null");
+			Assert.notNull(serverHttpHeadersWriter, "serverHttpHeadersWriter cannot be null");
 			this.writers.add(serverHttpHeadersWriter);
 			return this;
 		}
