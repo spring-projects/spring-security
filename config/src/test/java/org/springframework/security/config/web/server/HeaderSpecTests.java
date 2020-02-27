@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
@@ -46,9 +47,12 @@ import static org.springframework.security.config.Customizer.withDefaults;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Ankur Pathak
  * @since 5.0
  */
 public class HeaderSpecTests {
+	private final static String CUSTOM_HEADER = "CUSTOM-HEADER";
+	private final static String CUSTOM_VALUE = "CUSTOM-VALUE";
 
 	private ServerHttpSecurity http = ServerHttpSecurity.http();
 
@@ -383,6 +387,20 @@ public class HeaderSpecTests {
 								.policy(ReferrerPolicy.NO_REFERRER_WHEN_DOWNGRADE)
 						)
 				);
+
+		assertHeaders();
+	}
+
+	@Test
+	public void headersWhenCustomHeadersWriter() {
+		this.expectedHeaders.add(CUSTOM_HEADER, CUSTOM_VALUE);
+		this.http.headers(headers -> headers.writer(exchange -> {
+			return Mono.just(exchange)
+					.doOnNext(it -> {
+						it.getResponse().getHeaders().add(CUSTOM_HEADER, CUSTOM_VALUE);
+					}).then();
+
+		}));
 
 		assertHeaders();
 	}
