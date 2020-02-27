@@ -10,7 +10,7 @@ Next, the `AbstractAuthenticationProcessingFilter` can authenticate any authenti
 
 image::{figures}/abstractauthenticationprocessingfilter.png[]
 
-image:{icondir}/number_1.png[] When the user submits their credentials, the `AbstractAuthenticationProcessingFilter` creates an <<servlet-authentication>> from the `HttpServletRequest` to be authenticated.
+image:{icondir}/number_1.png[] When the user submits their credentials, the `AbstractAuthenticationProcessingFilter` creates an <<servlet-authentication-authentication,`Authentication`>> from the `HttpServletRequest` to be authenticated.
 The type of `Authentication` created depends on the subclass of `AbstractAuthenticationProcessingFilter`.
 For example, `UsernamePasswordAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` from a __username__ and __password__ that are submitted in the `HttpServletRequest`.
 // FIXME: link UsernamePasswordAuthenticationFilter

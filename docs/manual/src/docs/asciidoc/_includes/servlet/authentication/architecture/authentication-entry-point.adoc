@@ -1,5 +1,8 @@
 [[servlet-authentication-authenticationentrypoint]]
 = Request Credentials with `AuthenticationEntryPoint`
+:figures: images/servlet/authentication/architecture
+:icondir: images/icons
+
 
 {security-api-url}org/springframework/security/web/AuthenticationEntryPoint.html[`AuthenticationEntryPoint`] is used to send an HTTP response that requests credentials from a client.
 
@@ -11,10 +14,20 @@ In this case, an implementation of `AuthenticationEntryPoint` is used to request
 The `AuthenticationEntryPoint` implementation might perform a redirect to a log in page, respond with an https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/WWW-Authenticate[WWW-Authenticate] header, etc.
 
 [[servlet-authentication-authenticationentrypoint-example]]
-To better understand how `AuthenticationEntryPoint` is used, let's take a look at a concrete example.
+To better understand how `AuthenticationEntryPoint` is used, let's take a look at a concrete example using <<servlet-authentication-form,form based log in>>.
+// FIXME: link to form based login
 
-* First, a user makes an unauthenticated request to a resource that is not authorized.
-Spring Security's <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> indicate that the unauthenticated request is __Denied__.
-* Since the request is __Denied__, <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> handles the `AccessDeniedException` by first saving the request (so that it can be requested again after successful authentication) and then redirecting to the log in page with the configured `AuthenticationEntryPoint`.
-* The browser will then request the log in page.
-Something within the application, must <<servlet-authentication-form-custom,render the log in page>>.
+.AuthenticationEntryPoint with Form Log In
+image::{figures}/request-credentials.png[]
+
+The figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+
+image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
+
+image:{icondir}/number_2.png[] Spring Security's <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
+
+image:{icondir}/number_3.png[] Since the user is not authenticated, <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> initiates __Start Authentication__ and sends a redirect to the log in page with the configured `AuthenticationEntryPoint`.
+
+image:{icondir}/number_4.png[] The browser will then request the log in page that it was redirected to.
+
+image:{icondir}/number_5.png[] Something within the application, must <<servlet-authentication-form-custom,render the log in page>>.
