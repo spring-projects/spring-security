@@ -3285,6 +3285,20 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Configures custom headers writer
+		 *
+		 * @param serverHttpHeadersWriter the {@link ServerHttpHeadersWriter} to provide custom headers writer
+		 * @return the {@link HeaderSpec} to customize
+		 * @since 5.3.0
+		 * @author Ankur Pathak
+		 */
+		public HeaderSpec writer(ServerHttpHeadersWriter serverHttpHeadersWriter) {
+			Assert.notNull(serverHttpHeadersWriter, () -> "serverHttpHeadersWriter cannot be null");
+			this.writers.add(serverHttpHeadersWriter);
+			return this;
+		}
+
+		/**
 		 * Configures the Strict Transport Security response headers
 		 * @return the {@link HstsSpec} to configure
 		 */
