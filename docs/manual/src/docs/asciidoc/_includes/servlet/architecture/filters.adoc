@@ -1,0 +1,33 @@
+[[servlet-filters-review]]
+= A Review of ``Filter``s
+
+Spring Security's Servlet support is based on Servlet ``Filter``s, so it is helpful to look at the role of ``Filter``s generally first.
+The picture below shows the typical layering of the handlers for a single HTTP request.
+
+.FilterChain
+[[servlet-filterchain-figure]]
+image::{figures}/filterchain.png[]
+
+The client sends a request to the application, and the container creates a `FilterChain` which contains the ``Filter``s and `Servlet` that should process the `HttpServletRequest` based on the path of the request URI.
+At most one `Servlet` can handle a single `HttpServletRequest` and `HttpServletResponse`.
+However, more than one `Filter` can be used to:
+
+* Prevent downstream ``Filter``s or the `Servlet` from being invoked.
+In this instance the `Filter` will typically write the `HttpServletResponse`.
+* Modify the `HttpServletRequest` or `HttpServletResponse` used by the downstream ``Filter``s and `Servlet`
+
+The power of the `Filter` comes from the `FilterChain` that is passed into it.
+
+.`FilterChain` Usage Example
+===
+[source,java]
+----
+public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+	// do something before the rest of the application
+    chain.doFilter(request, response); // invoke the rest of the application
+    // do something after the rest of the application
+}
+----
+===
+
+Since a `Filter` only impacts downstream ``Filter``s and the `Servlet`, the order each `Filter` is invoked is extremely important.

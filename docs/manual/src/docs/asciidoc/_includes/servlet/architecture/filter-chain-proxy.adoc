@@ -1,0 +1,10 @@
+[[servlet-filterchainproxy]]
+= FilterChainProxy
+
+Spring Security's Servlet support is contained within `FilterChainProxy`.
+`FilterChainProxy` is a special `Filter` provided by Spring Security that allows delegating to many `Filter` instances through <<servlet-securityfilterchain,`SecurityFilterChain`>>.
+Since `FilterChainProxy` is a Bean, it is typically wrapped in a <<servlet-delegatingfilterproxy>>.
+
+.FilterChainProxy
+[[servlet-filterchainproxy-figure]]
+image::{figures}/filterchainproxy.png[]

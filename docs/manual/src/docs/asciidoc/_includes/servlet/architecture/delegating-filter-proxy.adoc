@@ -1,0 +1,33 @@
+[[servlet-delegatingfilterproxy]]
+= DelegatingFilterProxy
+
+Spring provides a `Filter` implementation named `DelegatingFilterProxy` that allows bridging between the Servlet container's lifecycle and Spring's `ApplicationContext`.
+The Servlet container allows registering ``Filter``s using its own standards, but it is not aware of Spring defined Beans.
+`DelegatingFilterProxy` can be registered via standard Servlet container mechanisms, but delegate all the work to a Spring Bean that implements `Filter`.
+
+Here is a picture of how `DelegatingFilterProxy` fits into the <<servlet-filterchain-figure>>.
+
+.DelegatingFilterProxy
+[[servlet-delegatingfilterproxy-figure]]
+image::{figures}/delegatingfilterproxy.png[]
+
+`DelegatingFilterProxy` looks up __Bean Filter~0~__ from the `ApplicationContext` and then invokes __Bean Filter~0~__.
+The pseudo code of `DelegatingFilterProxy` can be seen below.
+
+.`DelegatingFilterProxy` Pseudo Code
+====
+[source,java,subs="+quotes,+macros"]
+----
+public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+	// Lazily get Filter that was registered as a Spring Bean
+	// For the example in <<servlet-delegatingfilterproxy-figure>> `delegate` is an instance of __Bean Filter~0~__
+	Filter delegate = getFilterBean(someBeanName);
+	// delegate work to the Spring Bean
+	delegate.doFilter(request, response);
+}
+----
+====
+
+Another benefit of `DelegatingFilterProxy` is that it allows delaying looking `Filter` bean instances.
+This is important because the container needs to register the `Filter` instances before the container can startup.
+However, Spring typically uses a `ContextLoaderListener` to load the Spring Beans which will not be done until after the `Filter` instances need to be registered.
