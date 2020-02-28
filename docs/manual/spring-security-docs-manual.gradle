@@ -4,6 +4,15 @@ apply plugin: 'io.spring.convention.dependency-set'
 apply plugin: 'io.spring.convention.repository'
 apply plugin: 'java'
 
+asciidoctor {
+	attributes([stylesheet: 'css/style.css'])
+	resources {
+		from(sourceDir) {
+			include "css/**"
+		}
+	}
+}
+
 asciidoctorj {
 	def ghTag = snapshotBuild ? 'master' : project.version
 	def ghUrl = "https://github.com/spring-projects/spring-security/tree/$ghTag"
