@@ -29,7 +29,7 @@ You may be able to explicitly delete the JSESSIONID cookie on logging out, for e
 Unfortunately this can't be guaranteed to work with every servlet container, so you will need to test it in your environment
 
 [NOTE]
-===
+====
 If you are running your application behind a proxy, you may also be able to remove the session cookie by configuring the proxy server.
 For example, using Apache HTTPD's mod_headers, the following directive would delete the `JSESSIONID` cookie by expiring it in the response to a logout request (assuming the application is deployed under the path `/tutorial`):
 
@@ -39,7 +39,7 @@ For example, using Apache HTTPD's mod_headers, the following directive would del
 Header always set Set-Cookie "JSESSIONID=;Path=/tutorial;Expires=Thu, 01 Jan 1970 00:00:00 GMT"
 </LocationMatch>
 ----
-===
+====
 
 
 [[ns-concurrent-sessions]]

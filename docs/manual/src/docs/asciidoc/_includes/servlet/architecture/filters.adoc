@@ -20,7 +20,7 @@ In this instance the `Filter` will typically write the `HttpServletResponse`.
 The power of the `Filter` comes from the `FilterChain` that is passed into it.
 
 .`FilterChain` Usage Example
-===
+====
 [source,java]
 ----
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
@@ -29,6 +29,6 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
     // do something after the rest of the application
 }
 ----
-===
+====
 
 Since a `Filter` only impacts downstream ``Filter``s and the `Servlet`, the order each `Filter` is invoked is extremely important.

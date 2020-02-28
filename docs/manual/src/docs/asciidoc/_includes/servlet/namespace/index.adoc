@@ -240,11 +240,11 @@ The order of the filters is always strictly enforced when using the namespace.
 When the application context is being created, the filter beans are sorted by the namespace handling code and the standard Spring Security filters each have an alias in the namespace and a well-known position.
 
 [NOTE]
-===
+====
 In previous versions, the sorting took place after the filter instances had been created, during post-processing of the application context.
 In version 3.0+ the sorting is now done at the bean metadata level, before the classes have been instantiated.
 This has implications for how you add your own filters to the stack as the entire filter list must be known during the parsing of the `<http>` element, so the syntax has changed slightly in 3.0.
-===
+====
 
 The filters, aliases and namespace elements/attributes which create the filters are shown in <<filter-stack>>.
 The filters are listed in the order in which they occur in the filter chain.
@@ -347,7 +347,7 @@ The names "FIRST" and "LAST" can be used with the `position` attribute to indica
 
 .Avoiding filter position conflicts
 [TIP]
-===
+====
 
 If you are inserting a custom filter which may occupy the same position as one of the standard filters created by the namespace then it's important that you don't include the namespace versions by mistake.
 Remove any elements which create filters whose functionality you want to replace.
@@ -356,7 +356,7 @@ Note that you can't replace filters which are created by the use of the `<http>`
 Some other filters are added by default, but you can disable them.
 An `AnonymousAuthenticationFilter` is added by default and unless you have <<ns-session-fixation,session-fixation protection>> disabled, a `SessionManagementFilter` will also be added to the filter chain.
 
-===
+====
 
 If you're replacing a namespace filter which requires an authentication entry point (i.e. where the authentication process is triggered by an attempt by an unauthenticated user to access to a secured resource), you will need to add a custom entry point bean too.
 
