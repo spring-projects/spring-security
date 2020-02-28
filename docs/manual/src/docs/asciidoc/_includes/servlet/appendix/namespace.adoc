@@ -177,7 +177,7 @@ The default value is true.
 [[nsa-access-denied-handler]]
 ==== <access-denied-handler>
 This element allows you to set the `errorPage` property for the default `AccessDeniedHandler` used by the `ExceptionTranslationFilter`, using the <<nsa-access-denied-handler-error-page,error-page>> attribute, or to supply your own implementation using the<<nsa-access-denied-handler-ref,ref>> attribute.
-This is discussed in more detail in the section on the <<access-denied-handler,ExceptionTranslationFilter>>.
+This is discussed in more detail in the section on the <<servlet-exceptiontranslationfilter,ExceptionTranslationFilter>>.
 
 
 [[nsa-access-denied-handler-parents]]
@@ -2058,7 +2058,7 @@ It is the same as the alias element, but provides a more consistent experience w
 
 [[nsa-authentication-provider]]
 ==== <authentication-provider>
-Unless used with a `ref` attribute, this element is shorthand for configuring a <<core-services-dao-provider,DaoAuthenticationProvider>>.
+Unless used with a `ref` attribute, this element is shorthand for configuring a `DaoAuthenticationProvider`.
 `DaoAuthenticationProvider` loads user information from a `UserDetailsService` and compares the username/password combination with the values supplied at login.
 The `UserDetailsService` instance can be defined either by using an available namespace element (`jdbc-user-service` or by using the `user-service-ref` attribute to point to a bean defined elsewhere in the application context).
 

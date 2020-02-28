@@ -18,9 +18,3 @@ include::security-filter-chain.adoc[leveloffset=+1]
 include::security-filters.adoc[leveloffset=+1]
 
 include::exception-translation-filter.adoc[leveloffset=+1]
-
-include::technical-overview.adoc[]
-
-include::core-filters.adoc[]
-
-include::core-services.adoc[]

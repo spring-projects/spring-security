@@ -49,9 +49,8 @@ OpenIDAuthenticationToken token =
 List<OpenIDAttribute> attributes = token.getAttributes();
 ----
 
+We can obtain the `OpenIDAuthenticationToken` from the <<servlet-authentication-securitycontextholder>>.
 The `OpenIDAttribute` contains the attribute type and the retrieved value (or values in the case of multi-valued attributes).
-We'll see more about how the `SecurityContextHolder` class is used when we look at core Spring Security components in the <<core-components,technical overview>> chapter.
-Multiple attribute exchange configurations are also be supported, if you wish to use multiple identity providers.
 You can supply multiple `attribute-exchange` elements, using an `identifier-matcher` attribute on each.
 This contains a regular expression which will be matched against the OpenID identifier supplied by the user.
 See the OpenID sample application in the codebase for an example configuration, providing different attribute lists for the Google, Yahoo and MyOpenID providers.

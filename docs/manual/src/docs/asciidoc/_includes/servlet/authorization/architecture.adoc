@@ -35,7 +35,7 @@ All `AuthenticationProvider` s included with the security architecture use `Simp
 
 [[authz-pre-invocation]]
 == Pre-Invocation Handling
-As we've also seen in the <<secure-objects,Technical Overview>> chapter, Spring Security provides interceptors which control access to secure objects such as method invocations or web requests.
+Spring Security provides interceptors which control access to secure objects such as method invocations or web requests.
 A pre-invocation decision on whether the invocation is allowed to proceed is made by the `AccessDecisionManager`.
 
 

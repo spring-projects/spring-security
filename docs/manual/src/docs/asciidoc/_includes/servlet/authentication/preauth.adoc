@@ -74,8 +74,7 @@ The `PreAuthenticatedGrantedAuthoritiesUserDetailsService` class does this.
 Alternatively, it may delegate to a standard `UserDetailsService` via the `UserDetailsByNameServiceWrapper` implementation.
 
 ==== Http403ForbiddenEntryPoint
-The `AuthenticationEntryPoint` was discussed in the <<tech-intro-auth-entry-point,technical overview>> chapter.
-Normally it is responsible for kick-starting the authentication process for an unauthenticated user (when they try to access a protected resource), but in the pre-authenticated case this doesn't apply.
+The <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is responsible for kick-starting the authentication process for an unauthenticated user (when they try to access a protected resource), but in the pre-authenticated case this doesn't apply.
 You would only configure the `ExceptionTranslationFilter` with an instance of this class if you aren't using pre-authentication in combination with other authentication mechanisms.
 It will be called if the user is rejected by the `AbstractPreAuthenticatedProcessingFilter` resulting in a null authentication.
 It always returns a `403`-forbidden response code if called.

@@ -198,7 +198,7 @@ It's worth cross-checking this if you want to start understanding what the impor
 
 The configuration above defines two users, their passwords and their roles within the application (which will be used for access control).
 It is also possible to load user information from a standard properties file using the `properties` attribute on `user-service`.
-See the section on <<core-services-in-memory-service,in-memory authentication>> for more details on the file format.
+See the section on <<servlet-authentication-inmemory,in-memory authentication>> for more details on the file format.
 Using the `<authentication-provider>` element means that the user information will be used by the authentication manager to process authentication requests.
 You can have multiple `<authentication-provider>` elements to define different authentication sources and each will be consulted in turn.
 
@@ -224,7 +224,6 @@ This is useful if your application always requires that the user starts at a "ho
 
 For even more control over the destination, you can use the `authentication-success-handler-ref` attribute as an alternative to `default-target-url`.
 The referenced bean should be an instance of `AuthenticationSuccessHandler`.
-You'll find more on this in the <<form-login-flow-handling,Core Filters>> chapter and also in the namespace appendix, as well as information on how to customize the flow when authentication fails.
 
 [[ns-web-advanced]]
 == Advanced Web Features

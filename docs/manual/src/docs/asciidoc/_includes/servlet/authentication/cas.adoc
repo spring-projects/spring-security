@@ -81,7 +81,7 @@ These names are largely self-explanatory, except `NamedCasProxyDecider` which al
 * `CasAuthenticationProvider` will next request a `AuthenticationUserDetailsService` to load the `GrantedAuthority` objects that apply to the user contained in the `Assertion`.
 * If there were no problems, `CasAuthenticationProvider` constructs a `CasAuthenticationToken` including the details contained in the `TicketResponse` and the ``GrantedAuthority``s.
 * Control then returns to `CasAuthenticationFilter`, which places the created `CasAuthenticationToken` in the security context.
-* The user's browser is redirected to the original page that caused the `AuthenticationException` (or a <<form-login-flow-handling,custom destination>> depending on the configuration).
+* The user's browser is redirected to the original page that caused the `AuthenticationException` (or a custom destination depending on the configuration).
 
 It's good that you're still here!
 Let's now look at how this is configured
