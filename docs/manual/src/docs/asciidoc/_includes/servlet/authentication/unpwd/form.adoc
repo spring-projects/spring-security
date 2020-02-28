@@ -1,7 +1,5 @@
 [[servlet-authentication-form]]
 = Form Login
-:figures: images/servlet/authentication/unpwd
-:icondir: images/icons
 
 Spring Security provides support for username and password being provided through an html form.
 This section provides details on how form based authentication works within Spring Security.
@@ -11,7 +9,7 @@ Let's take a look at how form based log in works within Spring Security.
 First, we see how the user is redirected to the log in form.
 
 .Redirecting to the Log In Page
-image::{figures}/request-credentials.png[]
+image::{figures}/loginurlauthenticationentrypoint.png[]
 
 The figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
 

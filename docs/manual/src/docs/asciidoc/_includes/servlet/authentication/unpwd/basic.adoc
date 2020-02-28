@@ -4,6 +4,51 @@
 This section provides details on how Spring Security provides support for https://tools.ietf.org/html/rfc7617[Basic HTTP Authentication] for servlet based applications.
 // FIXME: describe authenticationentrypoint, authenticationfailurehandler, authenticationsuccesshandler
 
+Let's take a look at how HTTP Basic Authentication works within Spring Security.
+First, we see the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client.
+
+.Sending WWW-Authenticate Header
+image::{figures}/basicauthenticationentrypoint.png[]
+
+The figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+
+image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
+
+image:{icondir}/number_2.png[] Spring Security's <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
+
+image:{icondir}/number_3.png[] Since the user is not authenticated, <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> initiates __Start Authentication__.
+The configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is an instance of {security-api-url}org/springframework/security/web/authentication/www/BasicAuthenticationEntryPoint.html[`BasicAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
+The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
+
+When a client receives the WWW-Authenticate header it knows it should retry with a username and password.
+Below is the flow for the username and password being processed.
+
+.Authenticating Username and Password
+image::{figures}/basicauthenticationfilter.png[]
+
+The figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+
+
+image:{icondir}/number_1.png[] When the user submits their username and password, the `UsernamePasswordAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` which is a type of <<servlet-authentication-authentication,`Authentication`>> by extracting the username and password from the `HttpServletRequest`.
+
+image:{icondir}/number_2.png[] Next, the `UsernamePasswordAuthenticationToken` is passed into the `AuthenticationManager` to be authenticated.
+The details of what `AuthenticationManager` look like depend on how the <<servlet-authentication-unpwd-storage,user information is stored>>.
+
+image:{icondir}/number_3.png[] If authentication fails, then __Failure__
+
+* The <<servlet-authentication-securitycontextholder>> is cleared out.
+* `RememberMeServices.loginFail` is invoked.
+If remember me is not configured, this is a no-op.
+// FIXME: link to rememberme
+* `AuthenticationEntryPoint` is invoked to trigger the WWW-Authenticate to be sent again.
+
+image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
+* The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
+* `RememberMeServices.loginSuccess` is invoked.
+If remember me is not configured, this is a no-op.
+// FIXME: link to rememberme
+* The `BasicAuthenticationFilter` invokes `FilterChain.doFilter(request,response)` to continue with the rest of the application logic.
+
 Spring Security's HTTP Basic Authentication support in is enabled by default.
 However, as soon as any servlet based configuration is provided, HTTP Basic must be explicitly provided.
 
