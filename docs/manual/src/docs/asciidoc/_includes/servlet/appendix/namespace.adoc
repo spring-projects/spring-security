@@ -27,7 +27,7 @@ The positions of the standard filters are fixed (see
 You can, of course, still do this if you need full control of the configuration.
 
 
-All filters which require a reference to the `AuthenticationManager` will be automatically injected with the internal instance created by the namespace configuration (see the <<ns-auth-manager,introductory chapter>> for more on the `AuthenticationManager`).
+All filters which require a reference to the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> will be automatically injected with the internal instance created by the namespace configuration.
 
 Each `<http>` namespace block always creates an `SecurityContextPersistenceFilter`, an `ExceptionTranslationFilter` and a `FilterSecurityInterceptor`.
 These are fixed and cannot be replaced with alternatives.
@@ -2033,7 +2033,6 @@ All elements which create `AuthenticationProvider` instances should be children 
 [[nsa-authentication-manager-alias]]
 * **alias**
 This attribute allows you to define an alias name for the internal instance for use in your own configuration.
-Its use is described in the <<ns-auth-manager,namespace introduction>>.
 
 
 [[nsa-authentication-manager-erase-credentials]]
@@ -2062,7 +2061,7 @@ It is the same as the alias element, but provides a more consistent experience w
 Unless used with a `ref` attribute, this element is shorthand for configuring a <<core-services-dao-provider,DaoAuthenticationProvider>>.
 `DaoAuthenticationProvider` loads user information from a `UserDetailsService` and compares the username/password combination with the values supplied at login.
 The `UserDetailsService` instance can be defined either by using an available namespace element (`jdbc-user-service` or by using the `user-service-ref` attribute to point to a bean defined elsewhere in the application context).
-You can find examples of these variations in the <<ns-auth-providers,namespace introduction>>.
+
 
 
 [[nsa-authentication-provider-parents]]

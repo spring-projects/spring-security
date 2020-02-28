@@ -1,0 +1,6 @@
+[[servlet-authentication-authenticationprovider]]
+= AuthenticationProvider
+
+Multiple {security-api-url}org/springframework/security/authentication/AuthenticationProvider.html[``AuthenticationProvider``s] can be injected into <<servlet-authentication-providermanager,`ProviderManager`>>.
+Each `AuthenticationProvider` performs a specific type of authentication.
+For example, `DaoAuthenticationProvider` supports username/password based authentication while `JwtAuthenticationProvider` supports authenticating a JWT token.

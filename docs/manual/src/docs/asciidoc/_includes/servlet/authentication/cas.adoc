@@ -139,7 +139,7 @@ The following beans should be configured to commence the CAS authentication proc
 ----
 
 For CAS to operate, the `ExceptionTranslationFilter` must have its `authenticationEntryPoint` property set to the `CasAuthenticationEntryPoint` bean.
-This can easily be done using <<ns-entry-point-ref,entry-point-ref>> as is done in the example above.
+This can easily be done using <<nsa-http-entry-point-ref,entry-point-ref>> as is done in the example above.
 The `CasAuthenticationEntryPoint` must refer to the `ServiceProperties` bean (discussed above), which provides the URL to the enterprise's CAS login server.
 This is where the user's browser will be redirected.
 

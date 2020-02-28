@@ -6,14 +6,17 @@ include::authentication.adoc[leveloffset=+1]
 
 include::granted-authority.adoc[leveloffset=+1]
 
-include::authentication-entry-point.adoc[leveloffset=+1]
-
-include::abstract-authentication-processing-filter.adoc[leveloffset=+1]
-
 include::authentication-manager.adoc[leveloffset=+1]
 
 include::provider-manager.adoc[leveloffset=+1]
 
-// authenticationprovider
+include::authentication-provider.adoc[leveloffset=+1]
+
+include::authentication-entry-point.adoc[leveloffset=+1]
+
+// FIXME: authenticationsuccesshandler
+// FIXME: authenticationfailurehandler
+
+include::abstract-authentication-processing-filter.adoc[leveloffset=+1]
 
 // daoauthenticationprovider (goes in username/password)

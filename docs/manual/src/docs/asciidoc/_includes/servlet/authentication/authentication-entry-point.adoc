@@ -1,7 +1,0 @@
-[[ns-entry-point-ref]]
-== Setting a Custom AuthenticationEntryPoint
-If you aren't using form login, OpenID or basic authentication through the namespace, you may want to define an authentication filter and entry point using a traditional bean syntax and link them into the namespace, as we've just seen.
-The corresponding `AuthenticationEntryPoint` can be set using the `entry-point-ref` attribute on the `<http>` element.
-
-The CAS sample application is a good example of the use of custom beans with the namespace, including this syntax.
-If you aren't familiar with authentication entry points, they are discussed in the <<tech-intro-auth-entry-point,technical overview>> chapter.

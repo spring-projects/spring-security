@@ -15,11 +15,12 @@ If you need concrete flows that explain how these pieces fit together, look in s
 * <<servlet-authentication-securitycontext>> - is obtained from the `SecurityContextHolder` and contains the `Authentication` of the currently authenticated user.
 * <<servlet-authentication-authentication>> - Can be the input to `AuthenticationManager` to provide the credentials a user has provided to authenticate or the current user from the `SecurityContext`.
 * <<servlet-authentication-granted-authority>> - An authority that is granted to the principal on the `Authentication` (i.e. roles, scopes, etc.)
+* <<servlet-authentication-authenticationmanager>> -  the API that defines how Spring Security's Filters perform  <<authentication,authentication>>.
+* <<servlet-authentication-providermanager>> -  the most common implementation of `AuthenticationManager`.
+* <<servlet-authentication-authenticationprovider>> - used by `ProviderManager` to perform a specific type of authentication.
 * <<servlet-authentication-authenticationentrypoint>> - used for requesting credentials from a client (i.e. redirecting to a log in page, sending a `WWW-Authenticate` response, etc.)
 * <<servlet-authentication-abstractprocessingfilter>> - a base `Filter` used for authentication.
 This also gives a good idea of the high level flow of authentication and how pieces work together.
-* <<servlet-authentication-authenticationmanager>> -  the API that defines how Spring Security's Filters perform  <<authentication,authentication>>.
-* <<servlet-authentication-providermanager>> -  the most common implementation of `AuthenticationManager`.
 
 [[servlet-authentication-mechanisms]]
 *Authentication Mechanisms*
@@ -33,10 +34,6 @@ This also gives a good idea of the high level flow of authentication and how pie
 include::architecture/index.adoc[]
 
 include::unpwd/index.adoc[leveloffset=+1]
-
-include::authentication-provider.adoc[]
-
-include::authentication-manager.adoc[]
 
 include::session-management.adoc[]
 
@@ -58,4 +55,3 @@ include::runas.adoc[]
 
 include::logout.adoc[]
 
-include::authentication-entry-point.adoc[]

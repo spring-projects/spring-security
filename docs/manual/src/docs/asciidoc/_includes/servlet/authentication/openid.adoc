@@ -19,7 +19,6 @@ You should then register yourself with an OpenID provider (such as myopenid.com)
 
 You should be able to login using the `myopenid.com` site to authenticate.
 It is also possible to select a specific `UserDetailsService` bean for use OpenID by setting the `user-service-ref` attribute on the `openid-login` element.
-See the previous section on <<ns-auth-providers,authentication providers>> for more information.
 Note that we have omitted the password attribute from the above user configuration, since this set of user data is only being used to load the authorities for the user.
 A random password will be generated internally, preventing you from accidentally using this user data as an authentication source elsewhere in your configuration.
 
