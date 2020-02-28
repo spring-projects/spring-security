@@ -33,10 +33,16 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 	private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter
 			= new JwtGrantedAuthoritiesConverter();
 
+	private String principalNameClaim;
+
 	@Override
 	public final AbstractAuthenticationToken convert(Jwt jwt) {
 		Collection<GrantedAuthority> authorities = extractAuthorities(jwt);
-		return new JwtAuthenticationToken(jwt, authorities);
+		if (this.principalNameClaim != null && jwt.containsClaim(this.principalNameClaim)) {
+			return new JwtAuthenticationToken(jwt, authorities, jwt.getClaimAsString(this.principalNameClaim));
+		} else {
+			return new JwtAuthenticationToken(jwt, authorities);
+		}
 	}
 
 	/**
@@ -64,5 +70,9 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 	public void setJwtGrantedAuthoritiesConverter(Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter) {
 		Assert.notNull(jwtGrantedAuthoritiesConverter, "jwtGrantedAuthoritiesConverter cannot be null");
 		this.jwtGrantedAuthoritiesConverter = jwtGrantedAuthoritiesConverter;
+	}
+
+	public void setPrincipalNameClaim(String principalNameClaim) {
+		this.principalNameClaim = principalNameClaim;
 	}
 }

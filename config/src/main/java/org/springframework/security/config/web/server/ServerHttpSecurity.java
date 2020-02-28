@@ -1794,8 +1794,8 @@ public class ServerHttpSecurity {
 		public class JwtSpec {
 			private ReactiveAuthenticationManager authenticationManager;
 			private ReactiveJwtDecoder jwtDecoder;
-			private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter
-					= new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter());
+			private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter;
+			private String principalNameClaim;
 
 			/**
 			 * Configures the {@link ReactiveAuthenticationManager} to use
@@ -1855,6 +1855,16 @@ public class ServerHttpSecurity {
 				return this;
 			}
 
+			/**
+			 * Name of a JWT claim to use as a principal name
+			 * @param principalNameClaim name of a JWT claim
+			 * @return the {@code JwtSpec} for additional configuration
+			 */
+			public JwtSpec principalNameClaim(String principalNameClaim) {
+				this.principalNameClaim = principalNameClaim;
+				return this;
+			}
+
 			public OAuth2ResourceServerSpec and() {
 				return OAuth2ResourceServerSpec.this;
 			}
@@ -1877,6 +1887,12 @@ public class ServerHttpSecurity {
 
 			protected Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>>
 					getJwtAuthenticationConverter() {
+
+				if (this.jwtAuthenticationConverter == null) {
+					JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+					converter.setPrincipalNameClaim(this.principalNameClaim);
+					this.jwtAuthenticationConverter = new ReactiveJwtAuthenticationConverterAdapter(converter);
+				}
 
 				return this.jwtAuthenticationConverter;
 			}

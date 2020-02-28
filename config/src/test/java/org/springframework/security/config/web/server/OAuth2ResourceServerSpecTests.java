@@ -37,6 +37,7 @@ import org.apache.http.HttpHeaders;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.BeanCreationException;
@@ -79,6 +80,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -216,6 +218,17 @@ public class OAuth2ResourceServerSpecTests {
 				.expectStatus().isOk();
 
 		verify(jwtDecoder).decode(anyString());
+	}
+
+	@Test
+	public void getWhenDecoderConfiguredWithCustomPrincipalClaimName() {
+		this.spring.register(RootController.class, CustomPrincipalClaimName.class).autowire();
+
+		this.client.get().uri("/whoami")
+				.headers(headers -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).value(equalTo("message:read"));
 	}
 
 	@Test
@@ -789,6 +802,24 @@ public class OAuth2ResourceServerSpecTests {
 
 	@EnableWebFlux
 	@EnableWebFluxSecurity
+	static class CustomPrincipalClaimName {
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+				.oauth2ResourceServer()
+				.jwt()
+					.publicKey(publicKey())
+					.principalNameClaim("scope"); // something other than default 'sub'
+			// @formatter:on
+
+			return http.build();
+		}
+	}
+
+	@EnableWebFlux
+	@EnableWebFluxSecurity
 	static class IntrospectionConfig {
 		private MockWebServer mockWebServer = new MockWebServer();
 
@@ -881,6 +912,11 @@ public class OAuth2ResourceServerSpecTests {
 		@PostMapping
 		Mono<String> post() {
 			return Mono.just("ok");
+		}
+
+		@GetMapping("/whoami")
+		Mono<String> whoami() {
+			return ReactiveSecurityContextHolder.getContext().map(context -> context.getAuthentication().getName());
 		}
 	}
 

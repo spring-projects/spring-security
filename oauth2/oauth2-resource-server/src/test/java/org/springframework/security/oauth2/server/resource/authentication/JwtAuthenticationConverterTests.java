@@ -73,4 +73,22 @@ public class JwtAuthenticationConverterTests {
 		assertThat(authorities).containsExactly(
 				new SimpleGrantedAuthority("blah"));
 	}
+
+	@Test
+	public void convertWithConfiguredPrincipalClaimName() {
+		Jwt jwt = jwt().claim("username", "test-user").build();
+		this.jwtAuthenticationConverter.setPrincipalNameClaim("username");
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
+
+		assertThat(authentication.getName()).isEqualTo("test-user");
+	}
+
+	@Test
+	public void convertWithConfiguredPrincipalClaimNameWithMissingClaim() {
+		Jwt jwt = jwt().claim("username", "test-user").build();
+		this.jwtAuthenticationConverter.setPrincipalNameClaim("given_name");
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
+
+		assertThat(authentication.getName()).isEqualTo(jwt.getSubject());
+	}
 }
