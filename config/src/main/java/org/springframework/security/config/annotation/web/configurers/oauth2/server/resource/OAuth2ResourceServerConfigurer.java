@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -222,17 +222,22 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	@Override
 	public void init(H http) {
+		validateConfiguration();
+
 		registerDefaultAccessDeniedHandler(http);
 		registerDefaultEntryPoint(http);
 		registerDefaultCsrfOverride(http);
+
+		AuthenticationProvider authenticationProvider = getAuthenticationProvider();
+		if (authenticationProvider != null) {
+			http.authenticationProvider(authenticationProvider);
+		}
 	}
 
 	@Override
 	public void configure(H http) {
 		BearerTokenResolver bearerTokenResolver = getBearerTokenResolver();
 		this.requestMatcher.setBearerTokenResolver(bearerTokenResolver);
-
-		validateConfiguration();
 
 		AuthenticationManagerResolver resolver = this.authenticationManagerResolver;
 		if (resolver == null) {
@@ -321,9 +326,9 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return this.decoder;
 		}
 
-		AuthenticationManager getAuthenticationManager(H http) {
+		AuthenticationProvider getAuthenticationProvider() {
 			if (this.authenticationManager != null) {
-				return this.authenticationManager;
+				return null;
 			}
 
 			JwtDecoder decoder = getJwtDecoder();
@@ -333,9 +338,13 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			JwtAuthenticationProvider provider =
 					new JwtAuthenticationProvider(decoder);
 			provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
-			AuthenticationProvider authenticationProvider = postProcess(provider);
+			return postProcess(provider);
+		}
 
-			http.authenticationProvider(authenticationProvider);
+		AuthenticationManager getAuthenticationManager(H http) {
+			if (this.authenticationManager != null) {
+				return this.authenticationManager;
+			}
 
 			return http.getSharedObject(AuthenticationManager.class);
 		}
@@ -391,15 +400,18 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return this.context.getBean(OpaqueTokenIntrospector.class);
 		}
 
+		AuthenticationProvider getAuthenticationProvider() {
+			if (this.authenticationManager != null) {
+				return null;
+			}
+			OpaqueTokenIntrospector introspector = getIntrospector();
+			return new OpaqueTokenAuthenticationProvider(introspector);
+		}
+
 		AuthenticationManager getAuthenticationManager(H http) {
 			if (this.authenticationManager != null) {
 				return this.authenticationManager;
 			}
-
-			OpaqueTokenIntrospector introspector = getIntrospector();
-			OpaqueTokenAuthenticationProvider provider =
-					new OpaqueTokenAuthenticationProvider(introspector);
-			http.authenticationProvider(provider);
 
 			return http.getSharedObject(AuthenticationManager.class);
 		}
@@ -437,6 +449,18 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 
 		csrf.ignoringRequestMatchers(this.requestMatcher);
+	}
+
+	AuthenticationProvider getAuthenticationProvider() {
+		if (this.jwtConfigurer != null) {
+			return this.jwtConfigurer.getAuthenticationProvider();
+		}
+
+		if (this.opaqueTokenConfigurer != null) {
+			return this.opaqueTokenConfigurer.getAuthenticationProvider();
+		}
+
+		return null;
 	}
 
 	AuthenticationManager getAuthenticationManager(H http) {
