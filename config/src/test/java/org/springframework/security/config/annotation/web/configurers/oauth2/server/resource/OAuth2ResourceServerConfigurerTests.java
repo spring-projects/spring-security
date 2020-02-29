@@ -298,6 +298,18 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer"));
 	}
 
+	// gh-8031
+	@Test
+	public void getWhenAnonymousDisabledThenAllows() throws Exception {
+		this.spring.register(JwtDecoderConfig.class, AnonymousDisabledConfig.class).autowire();
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		when(decoder.decode(anyString())).thenReturn(JWT);
+
+		this.mvc.perform(get("/authenticated")
+				.with(bearerToken("token")))
+				.andExpect(status().isNotFound());
+	}
+
 	@Test
 	public void getWhenUsingDefaultsWithNoBearerTokenThenUnauthorized()
 			throws Exception {
@@ -652,7 +664,8 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void getBearerTokenResolverWhenDuplicateResolverBeansThenWiringException() {
-		assertThatCode(() -> this.spring.register(MultipleBearerTokenResolverBeansConfig.class).autowire())
+		assertThatCode(() -> this.spring
+				.register(JwtDecoderConfig.class, MultipleBearerTokenResolverBeansConfig.class).autowire())
 				.isInstanceOf(BeanCreationException.class)
 				.hasRootCauseInstanceOf(NoUniqueBeanDefinitionException.class);
 	}
@@ -1093,6 +1106,22 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.jwkSetUri(this.uri);
+			// @formatter:on
+		}
+	}
+
+	@EnableWebSecurity
+	static class AnonymousDisabledConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.anonymous().disable()
+				.oauth2ResourceServer()
+					.jwt();
 			// @formatter:on
 		}
 	}

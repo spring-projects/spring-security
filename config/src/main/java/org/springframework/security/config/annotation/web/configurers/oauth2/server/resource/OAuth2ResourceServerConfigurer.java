@@ -160,6 +160,25 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	@Override
 	public void init(H http) throws Exception {
+		if ( this.jwtConfigurer == null ) {
+			throw new IllegalStateException("Jwt is the only supported format for bearer tokens " +
+					"in Spring Security and no Jwt configuration was found. Make sure to specify " +
+					"a jwk set uri by doing http.oauth2ResourceServer().jwt().jwkSetUri(uri), or wire a " +
+					"JwtDecoder instance by doing http.oauth2ResourceServer().jwt().decoder(decoder), or " +
+					"expose a JwtDecoder instance as a bean and do http.oauth2ResourceServer().jwt().");
+		}
+
+		JwtDecoder decoder = this.jwtConfigurer.getJwtDecoder();
+		Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter =
+				this.jwtConfigurer.getJwtAuthenticationConverter();
+
+		JwtAuthenticationProvider provider =
+				new JwtAuthenticationProvider(decoder);
+		provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
+		provider = postProcess(provider);
+
+		http.authenticationProvider(provider);
+
 		registerDefaultAccessDeniedHandler(http);
 		registerDefaultEntryPoint(http);
 		registerDefaultCsrfOverride(http);
@@ -179,25 +198,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		filter = postProcess(filter);
 
 		http.addFilter(filter);
-
-		if ( this.jwtConfigurer == null ) {
-			throw new IllegalStateException("Jwt is the only supported format for bearer tokens " +
-					"in Spring Security and no Jwt configuration was found. Make sure to specify " +
-					"a jwk set uri by doing http.oauth2ResourceServer().jwt().jwkSetUri(uri), or wire a " +
-					"JwtDecoder instance by doing http.oauth2ResourceServer().jwt().decoder(decoder), or " +
-					"expose a JwtDecoder instance as a bean and do http.oauth2ResourceServer().jwt().");
-		}
-
-		JwtDecoder decoder = this.jwtConfigurer.getJwtDecoder();
-		Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter =
-				this.jwtConfigurer.getJwtAuthenticationConverter();
-
-		JwtAuthenticationProvider provider =
-				new JwtAuthenticationProvider(decoder);
-		provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
-		provider = postProcess(provider);
-
-		http.authenticationProvider(provider);
 	}
 
 	public class JwtConfigurer {
