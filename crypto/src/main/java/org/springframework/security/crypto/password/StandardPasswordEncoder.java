@@ -71,7 +71,7 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 	 * @param secret the secret key used in the encoding process (should not be shared)
 	 */
 	public StandardPasswordEncoder(CharSequence secret) {
-		this("SHA-256", secret);
+		this("SHA-512", secret);
 	}
 
 	public String encode(CharSequence rawPassword) {
