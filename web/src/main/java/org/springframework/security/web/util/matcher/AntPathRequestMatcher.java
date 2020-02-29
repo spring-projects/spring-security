@@ -108,7 +108,7 @@ public final class AntPathRequestMatcher
 	 *
 	 * @param pattern the ant pattern to use for matching
 	 * @param httpMethod the HTTP method. The {@code matches} method will return false if
-	 * the incoming request doesn't doesn't have the same method.
+	 * the incoming request doesn't have the same method.
 	 * @param caseSensitive true if the matcher should consider case, else false
 	 * @param urlPathHelper if non-null, will be used for extracting the path from the HttpServletRequest
 	 */
