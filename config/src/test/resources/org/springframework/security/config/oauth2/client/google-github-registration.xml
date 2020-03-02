@@ -45,15 +45,15 @@
 		<provider provider-id="google"
 				  authorization-uri="https://accounts.google.com/o/oauth2/v2/auth"
 				  token-uri="https://www.googleapis.com/oauth2/v4/token"
-				  userinfo-uri="https://www.googleapis.com/oauth2/v3/userinfo"
-				  userinfo-authentication-method="header"
-				  username-attribute-name="sub"
-				  jwkset-uri="https://www.googleapis.com/oauth2/v3/certs"/>
+				  user-info-uri="https://www.googleapis.com/oauth2/v3/userinfo"
+				  user-info-authentication-method="header"
+				  user-info-user-name-attribute="sub"
+				  jwk-set-uri="https://www.googleapis.com/oauth2/v3/certs"/>
 		<provider provider-id="github"
 				  authorization-uri="https://github.com/login/oauth/authorize"
 				  token-uri="https://github.com/login/oauth/access_token"
-				  userinfo-uri="https://api.github.com/user"
-				  userinfo-authentication-method="header"
-				  username-attribute-name="id"/>
+				  user-info-uri="https://api.github.com/user"
+				  user-info-authentication-method="header"
+				  user-info-user-name-attribute="id"/>
 	</client-registrations>
 </b:beans>

@@ -57,10 +57,10 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 	private static final String ATT_PROVIDER_ID = "provider-id";
 	private static final String ATT_AUTHORIZATION_URI = "authorization-uri";
 	private static final String ATT_TOKEN_URI = "token-uri";
-	private static final String ATT_USERINFO_URI = "userinfo-uri";
-	private static final String ATT_USERINFO_AUTHENTICATION_METHOD = "userinfo-authentication-method";
-	private static final String ATT_USERNAME_ATTRIBUTE_NAME = "username-attribute-name";
-	private static final String ATT_JWKSET_URI = "jwkset-uri";
+	private static final String ATT_USER_INFO_URI = "user-info-uri";
+	private static final String ATT_USER_INFO_AUTHENTICATION_METHOD = "user-info-authentication-method";
+	private static final String ATT_USER_INFO_USER_NAME_ATTRIBUTE = "user-info-user-name-attribute";
+	private static final String ATT_JWK_SET_URI = "jwk-set-uri";
 	private static final String ATT_ISSUER_URI = "issuer-uri";
 
 	@Override
@@ -138,14 +138,14 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 					.ifPresent(value -> provider.put(ATT_AUTHORIZATION_URI, value));
 			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_TOKEN_URI))
 					.ifPresent(value -> provider.put(ATT_TOKEN_URI, value));
-			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_USERINFO_URI))
-					.ifPresent(value -> provider.put(ATT_USERINFO_URI, value));
-			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_USERINFO_AUTHENTICATION_METHOD))
-					.ifPresent(value -> provider.put(ATT_USERINFO_AUTHENTICATION_METHOD, value));
-			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_USERNAME_ATTRIBUTE_NAME))
-					.ifPresent(value -> provider.put(ATT_USERNAME_ATTRIBUTE_NAME, value));
-			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_JWKSET_URI))
-					.ifPresent(value -> provider.put(ATT_JWKSET_URI, value));
+			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_USER_INFO_URI))
+					.ifPresent(value -> provider.put(ATT_USER_INFO_URI, value));
+			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_USER_INFO_AUTHENTICATION_METHOD))
+					.ifPresent(value -> provider.put(ATT_USER_INFO_AUTHENTICATION_METHOD, value));
+			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_USER_INFO_USER_NAME_ATTRIBUTE))
+					.ifPresent(value -> provider.put(ATT_USER_INFO_USER_NAME_ATTRIBUTE, value));
+			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_JWK_SET_URI))
+					.ifPresent(value -> provider.put(ATT_JWK_SET_URI, value));
 			getOptionalIfNotEmpty(providerElt.getAttribute(ATT_ISSUER_URI))
 					.ifPresent(value -> provider.put(ATT_ISSUER_URI, value));
 			providers.put(providerId, provider);
@@ -190,14 +190,14 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 				.ifPresent(builder::authorizationUri);
 		getOptionalIfNotEmpty(provider.get(ATT_TOKEN_URI))
 				.ifPresent(builder::tokenUri);
-		getOptionalIfNotEmpty(provider.get(ATT_USERINFO_URI))
+		getOptionalIfNotEmpty(provider.get(ATT_USER_INFO_URI))
 				.ifPresent(builder::userInfoUri);
-		getOptionalIfNotEmpty(provider.get(ATT_USERINFO_AUTHENTICATION_METHOD))
+		getOptionalIfNotEmpty(provider.get(ATT_USER_INFO_AUTHENTICATION_METHOD))
 				.map(AuthenticationMethod::new)
 				.ifPresent(builder::userInfoAuthenticationMethod);
-		getOptionalIfNotEmpty(provider.get(ATT_JWKSET_URI))
+		getOptionalIfNotEmpty(provider.get(ATT_JWK_SET_URI))
 				.ifPresent(builder::jwkSetUri);
-		getOptionalIfNotEmpty(provider.get(ATT_USERNAME_ATTRIBUTE_NAME))
+		getOptionalIfNotEmpty(provider.get(ATT_USER_INFO_USER_NAME_ATTRIBUTE))
 				.ifPresent(builder::userNameAttributeName);
 		return builder;
 	}

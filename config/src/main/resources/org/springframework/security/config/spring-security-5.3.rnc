@@ -558,16 +558,16 @@ provider.attlist &=
 	attribute token-uri {xsd:token}?
 provider.attlist &=
 	## The UserInfo Endpoint URI used to access the claims/attributes of the authenticated end-user.
-	attribute userinfo-uri {xsd:token}?
+	attribute user-info-uri {xsd:token}?
 provider.attlist &=
 	## The authentication method used when sending the access token to the UserInfo Endpoint. The supported values are header, form and query.
-	attribute userinfo-authentication-method {"header" | "form" | "query"}?
+	attribute user-info-authentication-method {"header" | "form" | "query"}?
 provider.attlist &=
 	## The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
-	attribute username-attribute-name {xsd:token}?
+	attribute user-info-user-name-attribute {xsd:token}?
 provider.attlist &=
 	## The URI used to retrieve the JSON Web Key (JWK) Set from the Authorization Server, which contains the cryptographic key(s) used to verify the JSON Web Signature (JWS) of the ID Token and optionally the UserInfo Response.
-	attribute jwkset-uri {xsd:token}?
+	attribute jwk-set-uri {xsd:token}?
 provider.attlist &=
 	## The URI used to discover the configuration information for an OAuth 2.0 or OpenID Connect 1.0 Provider.
 	attribute issuer-uri {xsd:token}?

@@ -1136,24 +1136,24 @@ The Authorization Endpoint URI for the Authorization Server.
 The Token Endpoint URI for the Authorization Server.
 
 
-[[nsa-provider-userinfo-uri]]
-* **userinfo-uri**
+[[nsa-provider-user-info-uri]]
+* **user-info-uri**
 The UserInfo Endpoint URI used to access the claims/attributes of the authenticated end-user.
 
 
-[[nsa-provider-userinfo-authentication-method]]
-* **userinfo-authentication-method**
+[[nsa-provider-user-info-authentication-method]]
+* **user-info-authentication-method**
 The authentication method used when sending the access token to the UserInfo Endpoint.
 The supported values are *header*, *form* and *query*.
 
 
-[[nsa-provider-username-attribute-name]]
-* **username-attribute-name**
+[[nsa-provider-user-info-user-name-attribute]]
+* **user-info-user-name-attribute**
 The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
 
 
-[[nsa-provider-jwkset-uri]]
-* **jwkset-uri**
+[[nsa-provider-jwk-set-uri]]
+* **jwk-set-uri**
 The URI used to retrieve the https://tools.ietf.org/html/rfc7517[JSON Web Key (JWK)] Set from the Authorization Server, which contains the cryptographic key(s) used to verify the https://tools.ietf.org/html/rfc7515[JSON Web Signature (JWS)] of the ID Token and optionally the UserInfo Response.
 
 

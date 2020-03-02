@@ -43,10 +43,10 @@
 		<provider provider-id="google"
 				  authorization-uri="https://accounts.google.com/o/oauth2/v2/auth"
 				  token-uri="https://www.googleapis.com/oauth2/v4/token"
-				  userinfo-uri="https://www.googleapis.com/oauth2/v3/userinfo"
-				  userinfo-authentication-method="header"
-				  username-attribute-name="sub"
-				  jwkset-uri="https://www.googleapis.com/oauth2/v3/certs"/>
+				  user-info-uri="https://www.googleapis.com/oauth2/v3/userinfo"
+				  user-info-authentication-method="header"
+				  user-info-user-name-attribute="sub"
+				  jwk-set-uri="https://www.googleapis.com/oauth2/v3/certs"/>
 	</client-registrations>
 
 	<b:bean id="requestCache" class="org.mockito.Mockito" factory-method="mock">

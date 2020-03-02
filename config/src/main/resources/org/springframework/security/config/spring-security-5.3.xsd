@@ -1737,14 +1737,14 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="userinfo-uri" type="xs:token">
+      <xs:attribute name="user-info-uri" type="xs:token">
          <xs:annotation>
             <xs:documentation>The UserInfo Endpoint URI used to access the claims/attributes of the authenticated
                 end-user.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="userinfo-authentication-method">
+      <xs:attribute name="user-info-authentication-method">
          <xs:annotation>
             <xs:documentation>The authentication method used when sending the access token to the UserInfo Endpoint. The
                 supported values are header, form and query.
@@ -1758,14 +1758,14 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-      <xs:attribute name="username-attribute-name" type="xs:token">
+      <xs:attribute name="user-info-user-name-attribute" type="xs:token">
          <xs:annotation>
             <xs:documentation>The name of the attribute returned in the UserInfo Response that references the Name or
                 Identifier of the end-user.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="jwkset-uri" type="xs:token">
+      <xs:attribute name="jwk-set-uri" type="xs:token">
          <xs:annotation>
             <xs:documentation>The URI used to retrieve the JSON Web Key (JWK) Set from the Authorization Server, which
                 contains the cryptographic key(s) used to verify the JSON Web Signature (JWS) of the ID
