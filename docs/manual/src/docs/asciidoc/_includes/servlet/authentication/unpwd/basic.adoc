@@ -43,6 +43,7 @@ If remember me is not configured, this is a no-op.
 * `AuthenticationEntryPoint` is invoked to trigger the WWW-Authenticate to be sent again.
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
+
 * The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
 * `RememberMeServices.loginSuccess` is invoked.
 If remember me is not configured, this is a no-op.
