@@ -1,0 +1,5 @@
+[[servlet-authentication-userdetails]]
+= UserDetails
+
+{security-api-url}org/springframework/security/core/userdetails/UserDetails.html[`UserDetails`] is returned by the <<servlet-authentication-userdetailsservice,`UserDetailsService`>>.
+The <<servlet-authentication-daoauthenticationprovider,`DaoAuthenticationProvider`>> validates the `UserDetails` and then returns an <<servlet-authentication-authentication,`Authentication`>> that has a principal that is the `UserDetails` returned by the configured `UserDetailsService`.

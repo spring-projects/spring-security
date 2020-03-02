@@ -1,0 +1,21 @@
+[[servlet-authentication-daoauthenticationprovider]]
+= DaoAuthenticationProvider
+
+{security-api-url}org/springframework/security/authentication/dao/DaoAuthenticationProvider.html[`DaoAuthenticationProvider`] is an <<servlet-authentication-authenticationprovider,`AuthenticationProvider`>> implementation that leverages a <<servlet-authentication-userdetailsservice,`UserDetailsService`>> and <<servlet-authentication-password-storage,`PasswordEncoder`>> to authenticate a username and password.
+
+Let's take a look at how `DaoAuthenticationProvider` works within Spring Security.
+The figure explains details of how the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> in figures from <<servlet-authentication-unpwd-input,Reading the Username & Password>> works.
+
+.`DaoAuthenticationProvider` Usage
+image::{figures}/daoauthenticationprovider.png[]
+
+image:{icondir}/number_1.png[] The authentication `Filter` from <<servlet-authentication-unpwd-input,Reading the Username & Password>> passes a `UsernamePasswordAuthenticationToken` to the `AuthenticationManager` which is implemented by <<servlet-authentication-providermanager,`ProviderManager`>>.
+
+image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an <<servlet-authentication-authenticationprovider>> of type `DaoAuthenticationProvider`.
+
+image:{icondir}/number_3.png[] `DaoAuthenticationProvider` looks up the `UserDetails` from the `UserDetailsService`.
+
+image:{icondir}/number_4.png[] `DaoAuthenticationProvider` then uses the <<servlet-authentication-password-storage,`PasswordEncoder`>> to validate the password on the `UserDetails` returned in the previous step.
+
+image:{icondir}/number_5.png[] When authentication is successful, the <<servlet-authentication-authentication,`Authentication`>> that is returned is of type `UsernamePasswordAuthenticationToken` and has a principal that is the `UserDetails` returned by the configured `UserDetailsService`.
+Ultimately, the returned `UsernamePasswordAuthenticationToken` will be set on the <<servlet-authentication-securitycontextholder,`SecurityContextHolder`>> by the authentication `Filter`.

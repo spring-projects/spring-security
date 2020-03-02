@@ -7,6 +7,8 @@ One of the most common ways to authenticate a user is by validating a username a
 As such, Spring Security provides comprehensive support for authenticating with a username and password.
 
 [[servlet-authentication-unpwd-input]]
+*Reading the Username & Password*
+
 Spring Security provides the following built in mechanisms for reading a username and password from the `HttpServletRequest`:
 
 * <<servlet-authentication-form,Form Login>>
@@ -14,12 +16,14 @@ Spring Security provides the following built in mechanisms for reading a usernam
 * <<servlet-authentication-digest,Digest Authentication>>
 
 [[servlet-authentication-unpwd-storage]]
+*Storage Mechanisms*
+
 Each of the supported mechanisms for reading a username and password can leverage any of the supported storage mechanisms:
 
 * Simple Storage with <<servlet-authentication-inmemory>>
 * Relational Databases with <<servlet-authentication-jdbc>>
-* LDAP Servers with <<servlet-authentication-ldap>>
 * Custom data stores with <<servlet-authentication-userdetailsservice>>
+* LDAP storage with <<servlet-authentication-ldap>>
 
 include::form.adoc[leveloffset=+1]
 
@@ -31,6 +35,12 @@ include::in-memory.adoc[leveloffset=+1]
 
 include::jdbc.adoc[leveloffset=+1]
 
-include::ldap.adoc[leveloffset=+1]
+include::user-details.adoc[leveloffset=+1]
 
 include::user-details-service.adoc[leveloffset=+1]
+
+include::password-encoder.adoc[leveloffset=+1]
+
+include::dao-authentication-provider.adoc[leveloffset=+1]
+
+include::ldap.adoc[leveloffset=+1]
