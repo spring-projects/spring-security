@@ -1,61 +1,74 @@
 [[new]]
-== What's New in Spring Security 5.2
+== What's New in Spring Security 5.3
 
-Spring Security 5.2 provides a number of new features.
+Spring Security 5.3 provides a number of new features.
 Below are the highlights of the release.
+
+=== Documentation Updates
+
+We will continue our effort to rewrite the documentation.
+
+Here's what you'll see in this release:
+
+* Added <<servlet-architecture,Servlet Security: The Big Picture>>
+* Updated <<servlet-authentication,Servlet Authentication>>
+** Rewrote
+** Added how things work, including <servlet-delegatingfilterproxy-figure,diagrams>>
+* Added <<{gh-samples-url}/boot/kotlin,Kotlin samples>>
+* Reskinned
+** Added scrolling menu
+** Added <<servlet-authentication-userdetailsservice,toggle>>
+** Updated styles
 
 === Servlet
 
-* Added https://github.com/spring-projects/spring-security/issues/5557[nested builder] support in HTTP Security DSL
+* Added <<kotlin-config-httpsecurity,Kotlin DSL>>
 * OAuth 2.0 Client
-** Introducing https://github.com/spring-projects/spring-security/pull/6845[OAuth2AuthorizedClientManager / OAuth2AuthorizedClientProvider]
-** Added https://github.com/spring-projects/spring-security/issues/7122[AuthorizedClientServiceOAuth2AuthorizedClientManager] which is capable of operating outside of a HttpServletRequest context
-** Public Client support with https://github.com/spring-projects/spring-security/issues/6446[PKCE]
-** Support for https://github.com/spring-projects/spring-security/issues/6003[Resource Owner Password Credentials] grant
-** Support for ID Token verification using a https://github.com/spring-projects/spring-security/issues/5465[Symmetric Key] via NimbusJwtDecoder
-** Added https://github.com/spring-projects/spring-security/issues/4442[nonce] to OpenID Connect Authentication Request
-** OpenID Connect https://github.com/spring-projects/spring-security/issues/5350[RP-Initiated Logout]
-** Updated <<oauth2client, documentation>>
+** Added Test support for <<testing-oauth2-client,OAuth 2.0 Client>>, <<testing-oauth2-login,OAuth 2.0 Login>>, and <<testing-oidc-login,OIDC Login>>
+** Improved https://github.com/spring-projects/spring-security/pull/7748[customizing the OAuth 2.0 Authorization Request]
+** Enhanced https://github.com/spring-projects/spring-security/issues/7842[OIDC logout success handler to support `\{baseUrl\}`]
+** Added https://github.com/spring-projects/spring-security/issues/7840[OAuth2Authorization success and failure handlers]
+** Added https://github.com/spring-projects/spring-security/issues/5184[XML support]
+** Added <<dbschema-oauth2-client,JDBC support for storing OAuth 2.0 tokens>>
+** Added https://github.com/spring-projects/spring-security/issues/4886[JSON serialization support for OAuth 2.0 tokens]
 * OAuth 2.0 Resource Server
-** Introducing https://github.com/spring-projects/spring-security/issues/5200[Token Introspection] (Opaque Tokens)
-** https://github.com/spring-projects/spring-security/issues/5351[Multi-tenancy] support
-** Added ExchangeFilterFunction that performs https://github.com/spring-projects/spring-security/issues/5334[Bearer Token propagation] (Token Relay)
-** Support for multiple https://github.com/spring-projects/spring-security/issues/6883[JWS algorithms] via NimbusJwtDecoder
-** Test support for https://github.com/spring-projects/spring-security/issues/6634[mock JWT]
-** Added https://github.com/spring-projects/spring-security/issues/7033[JWE] sample
-** Updated <<oauth2resourceserver, documentation>>
+** Added support for <<oauth2resourceserver-multitenancy,multiple issuers>>
+** Added <<testing-opaque-token,test support for Opaque Tokens>>
+** Added https://github.com/spring-projects/spring-security/pull/7962[generic claim validator]
+** Added https://github.com/spring-projects/spring-security/issues/5185[XML support]
+** Improved https://github.com/spring-projects/spring-security/pull/7826[bearer token error handling] for JWT and Opaque Token
+* SAML 2.0
+** Added <<servlet-saml2-opensamlauthenticationprovider-authenticationmanager,AuthenticationManager>> configuration
+** Added support for https://github.com/spring-projects/spring-security/issues/7711[AuthNRequest signatures]
+** Added support for https://github.com/spring-projects/spring-security/pull/7759[AuthNRequest POST binding]
 
 === WebFlux
 
-* Added https://github.com/spring-projects/spring-security/issues/7107[nested builder] support in HTTP Security DSL
+* Added https://github.com/spring-projects/spring-security/issues/7636[DSL support for custom header writers]
 * OAuth 2.0 Client
-** Introducing https://github.com/spring-projects/spring-security/pull/7116[ReactiveOAuth2AuthorizedClientManager / ReactiveOAuth2AuthorizedClientProvider]
-** Public Client support with https://github.com/spring-projects/spring-security/issues/6446[PKCE]
-** Support for https://github.com/spring-projects/spring-security/issues/6003[Resource Owner Password Credentials] grant
-** Support for ID Token verification using a https://github.com/spring-projects/spring-security/issues/5465[Symmetric Key] via NimbusReactiveJwtDecoder
-** Added https://github.com/spring-projects/spring-security/issues/4442[nonce] to OpenID Connect Authentication Request
-** OpenID Connect https://github.com/spring-projects/spring-security/issues/5350[RP-Initiated Logout]
+** Added Test support for https://github.com/spring-projects/spring-security/issues/7910[OAuth 2.0 Client], https://github.com/spring-projects/spring-security/issues/7828[OAuth 2.0 Login], and https://github.com/spring-projects/spring-security/issues/7680[OIDC Login]
+** Enhanced https://github.com/spring-projects/spring-security/issues/7842[OIDC logout success handler to support `\{baseUrl\}`]
+** Added https://github.com/spring-projects/spring-security/issues/7699[OAuth2Authorization success and failure handlers]
+** Added https://github.com/spring-projects/spring-security/issues/4886[JSON serialization support for OAuth 2.0 tokens]
+** Added https://github.com/spring-projects/spring-security/issues/7569[ReactiveOAuth2AuthorizedClientManager integration with AuthorizedClientService]
 * OAuth 2.0 Resource Server
-** Introducing https://github.com/spring-projects/spring-security/issues/6513[Token Introspection] (Opaque Tokens)
-** https://github.com/spring-projects/spring-security/issues/6727[Multi-tenancy] support
-** Added ExchangeFilterFunction that performs https://github.com/spring-projects/spring-security/issues/7284[Bearer Token propagation] (Token Relay)
-** Support for multiple https://github.com/spring-projects/spring-security/issues/6883[JWS algorithms] via NimbusReactiveJwtDecoder
-* Support for https://github.com/spring-projects/spring-security/issues/5038[X509]
+** Added support for <<webflux-oauth2resourceserver-multitenancy,multiple issuers>>
+** Added https://github.com/spring-projects/spring-security/issues/7827[test support for Opaque Tokens]
+** Improved https://github.com/spring-projects/spring-security/pull/7826[bearer token error handling] for JWT and Opaque Token
+
+=== RSocket
+
+* Added support for https://github.com/spring-projects/spring-security/issues/7935[RSocket Authentication extension]
 
 === Core
 
-* Introducing <<rsocket,RSocket>> support
-* Introducing https://github.com/spring-projects/spring-security/issues/6019[SAML Service Provider] support
-* Introducing https://github.com/spring-projects/spring-security/issues/6722[AuthenticationManagerResolver]
-* Introducing https://github.com/spring-projects/spring-security/issues/6506[AuthenticationFilter]
-* Introducing https://github.com/spring-projects/spring-security/issues/6546[@CurrentSecurityContext] for method arguments
-* Converting https://github.com/spring-projects/spring-security/issues/6494[key material] to Key instances
-* Support for https://github.com/spring-projects/spring-security/issues/4187[Clear-Site-Data] header
-* Introducing https://github.com/spring-projects/spring-security/issues/6453[CompositeHeaderWriter]
-* Added https://spring.io/blog/2019/06/10/announcing-nohttp[nohttp] to build
-* https://github.com/spring-projects/spring-security/issues/6774[JDK 12] support
-* Support for https://github.com/spring-projects/spring-security/issues/4469[path variables] in message expressions
-* Configuration classes are proxy-less and support https://github.com/spring-projects/spring-security/issues/6818[proxyBeanMethods=false]
-* Added https://github.com/spring-projects/spring-security/issues/5354[Argon2PasswordEncoder]
-* Support upgrading between different https://github.com/spring-projects/spring-security/pull/7042[BCrypt encodings]
-* Support upgrading between different https://github.com/spring-projects/spring-security/pull/7057[SCrypt encodings]
+* Enhanced Authentication Event Publisher support
+** Updated https://github.com/spring-projects/spring-security/pull/7802[configuration support]
+** Added https://github.com/spring-projects/spring-security/issues/7825,default event>> and <<https://github.com/spring-projects/spring-security/issues/7824[`Map`-based] exception mapping
+* Improved https://github.com/spring-projects/spring-security/issues/7891[integration with Spring Data]
+* Added support to https://github.com/spring-projects/spring-security/issues/7661[BCrypt to hash byte arrays]
+
+=== Build
+
+* Changed build to https://github.com/spring-projects/spring-security/issues/7788[use version ranges]
+* Removed https://github.com/spring-projects/spring-security/issues/4939[dependency on Groovy]
