@@ -1,0 +1,99 @@
+
+[[kotlin-config]]
+= Kotlin Configuration
+Spring Security Kotlin Configuration support has been available since Spring Security 5.3.
+It enables users to easily configure Spring Security using a native Kotlin DSL.
+
+NOTE: Spring Security provides https://github.com/spring-projects/spring-security/tree/master/samples/boot/kotlin[a sample applications] which demonstrates the use of Spring Security Kotlin Configuration.
+
+[[kotlin-config-httpsecurity]]
+== HttpSecurity
+
+How does Spring Security know that we want to require all users to be authenticated?
+How does Spring Security know we want to support form based authentication?
+There is a configuration class that is being invoked behind the scenes called `WebSecurityConfigurerAdapter`.
+It has a method called `configure` with the following default implementation:
+
+[source,kotlin]
+----
+fun configure(http: HttpSecurity) {
+   http {
+        authorizeRequests {
+            authorize(anyRequest, authenticated)
+        }
+       formLogin { }
+       httpBasic { }
+    }
+}
+----
+
+The default configuration above:
+
+* Ensures that any request to our application requires the user to be authenticated
+* Allows users to authenticate with form based login
+* Allows users to authenticate with HTTP Basic authentication
+
+You will notice that this configuration is quite similar the XML Namespace configuration:
+
+[source,xml]
+----
+<http>
+	<intercept-url pattern="/**" access="authenticated"/>
+	<form-login />
+	<http-basic />
+</http>
+----
+
+== Multiple HttpSecurity
+
+We can configure multiple HttpSecurity instances just as we can have multiple `<http>` blocks.
+The key is to extend the `WebSecurityConfigurerAdapter` multiple times.
+For example, the following is an example of having a different configuration for URL's that start with `/api/`.
+
+[source,kotlin]
+----
+@EnableWebSecurity
+class MultiHttpSecurityConfig {
+    @Bean                                                            <1>
+    public fun userDetailsService(): UserDetailsService {
+        val users: User.UserBuilder = User.withDefaultPasswordEncoder()
+        val manager = InMemoryUserDetailsManager()
+        manager.createUser(users.username("user").password("password").roles("USER").build())
+        manager.createUser(users.username("admin").password("password").roles("USER","ADMIN").build())
+        return manager
+    }
+
+    @Configuration
+    @Order(1)                                                        <2>
+    class ApiWebSecurityConfigurationAdapter: WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                securityMatcher("/api/**")                           <3>
+                authorizeRequests {
+                    authorize(anyRequest, hasRole("ADMIN"))
+                }
+                httpBasic { }
+            }
+        }
+    }
+
+    @Configuration                                                   <4>
+    class FormLoginWebSecurityConfigurerAdapter: WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                formLogin { }
+            }
+        }
+    }
+}
+----
+
+<1> Configure Authentication as normal
+<2> Create an instance of `WebSecurityConfigurerAdapter` that contains `@Order` to specify which `WebSecurityConfigurerAdapter` should be considered first.
+<3> The `http.antMatcher` states that this `HttpSecurity` will only be applicable to URLs that start with `/api/`
+<4> Create another instance of `WebSecurityConfigurerAdapter`.
+If the URL does not start with `/api/` this configuration will be used.
+This configuration is considered after `ApiWebSecurityConfigurationAdapter` since it has an `@Order` value after `1` (no `@Order` defaults to last).

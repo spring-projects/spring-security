@@ -20,6 +20,8 @@ include::integrations/index.adoc[leveloffset=+1]
 
 include::java-configuration/index.adoc[leveloffset=+1]
 
+include::kotlin-configuration/index.adoc[leveloffset=+1]
+
 include::namespace/index.adoc[leveloffset=+1]
 
 include::test/index.adoc[leveloffset=+1]
