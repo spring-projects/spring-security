@@ -783,6 +783,7 @@ public class SecurityMockServerConfigurers {
 			mockOAuth2Client()
 					.accessToken(this.accessToken)
 					.clientRegistration(this.clientRegistration)
+					.principalName(token.getPrincipal().getName())
 					.beforeServerCreated(builder);
 			mockAuthentication(getToken()).beforeServerCreated(builder);
 		}
@@ -1028,6 +1029,7 @@ public class SecurityMockServerConfigurers {
 	public final static class OAuth2ClientMutator implements WebTestClientConfigurer, MockServerConfigurer {
 		private String registrationId = "test";
 		private ClientRegistration clientRegistration;
+		private String principalName = "user";
 		private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				"access-token", null, null, Collections.singleton("read"));
 
@@ -1065,6 +1067,18 @@ public class SecurityMockServerConfigurers {
 			ClientRegistration.Builder builder = clientRegistrationBuilder();
 			clientRegistrationConfigurer.accept(builder);
 			this.clientRegistration = builder.build();
+			return this;
+		}
+
+		/**
+		 * Use this as the resource owner's principal name
+		 *
+		 * @param principalName the resource owner's principal name
+		 * @return the {@link OAuth2ClientMutator} for further configuration
+		 */
+		public OAuth2ClientMutator principalName(String principalName) {
+			Assert.notNull(principalName, "principalName cannot be null");
+			this.principalName = principalName;
 			return this;
 		}
 
@@ -1110,7 +1124,7 @@ public class SecurityMockServerConfigurers {
 				throw new IllegalArgumentException("Please specify a ClientRegistration via one " +
 						"of the clientRegistration methods");
 			}
-			return new OAuth2AuthorizedClient(this.clientRegistration, "user", this.accessToken);
+			return new OAuth2AuthorizedClient(this.clientRegistration, this.principalName, this.accessToken);
 		}
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {

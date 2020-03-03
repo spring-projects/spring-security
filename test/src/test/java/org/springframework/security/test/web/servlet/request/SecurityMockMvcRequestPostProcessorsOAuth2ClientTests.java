@@ -124,6 +124,13 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 	}
 
 	@Test
+	public void oauth2ClientWhenPrincipalNameThenUses() throws Exception {
+		this.mvc.perform(get("/principal-name")
+				.with(oauth2Client("registration-id").principalName("test-subject")))
+				.andExpect(content().string("test-subject"));
+	}
+
+	@Test
 	public void oauth2ClientWhenAccessTokenThenUses() throws Exception {
 		OAuth2AccessToken accessToken = noScopes();
 		this.mvc.perform(get("/access-token")
@@ -159,6 +166,11 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 			@GetMapping("/access-token")
 			String accessToken(@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
 				return authorizedClient.getAccessToken().getTokenValue();
+			}
+
+			@GetMapping("/principal-name")
+			String principalName(@RegisteredOAuth2AuthorizedClient("registration-id") OAuth2AuthorizedClient authorizedClient) {
+				return authorizedClient.getPrincipalName();
 			}
 
 			@GetMapping("/client-id")

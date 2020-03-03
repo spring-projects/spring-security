@@ -135,6 +135,16 @@ public class SecurityMockServerConfigurersOAuth2ClientTests extends AbstractMock
 	}
 
 	@Test
+	public void oauth2ClientWhenPrincipalNameThenUses() throws Exception {
+		this.client.mutateWith(mockOAuth2Client("registration-id")
+				.principalName("test-subject"))
+				.get().uri("/client")
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(String.class).isEqualTo("test-subject");
+	}
+
+	@Test
 	public void oauth2ClientWhenAccessTokenThenUses()
 			throws Exception {
 

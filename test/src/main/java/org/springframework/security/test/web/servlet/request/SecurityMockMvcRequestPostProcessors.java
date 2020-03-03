@@ -1401,6 +1401,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			request = new AuthenticationRequestPostProcessor(token).postProcessRequest(request);
 			return new OAuth2ClientRequestPostProcessor()
 					.clientRegistration(this.clientRegistration)
+					.principalName(oauth2User.getName())
 					.accessToken(this.accessToken)
 					.postProcessRequest(request);
 		}
@@ -1587,6 +1588,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	public final static class OAuth2ClientRequestPostProcessor implements RequestPostProcessor {
 		private String registrationId = "test";
 		private ClientRegistration clientRegistration;
+		private String principalName = "user";
 		private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				"access-token", null, null, Collections.singleton("read"));
 
@@ -1625,6 +1627,18 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
+		 * Use this as the resource owner's principal name
+		 *
+		 * @param principalName the resource owner's principal name
+		 * @return the {@link OAuth2ClientRequestPostProcessor} for further configuration
+		 */
+		public OAuth2ClientRequestPostProcessor principalName(String principalName) {
+			Assert.notNull(principalName, "principalName cannot be null");
+			this.principalName = principalName;
+			return this;
+		}
+
+		/**
 		 * Use this {@link OAuth2AccessToken}
 		 *
 		 * @param accessToken the {@link OAuth2AccessToken} to use
@@ -1642,7 +1656,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 						"of the clientRegistration methods");
 			}
 			OAuth2AuthorizedClient client = new OAuth2AuthorizedClient
-					(this.clientRegistration, "user", this.accessToken);
+					(this.clientRegistration, this.principalName, this.accessToken);
 			OAuth2AuthorizedClientRepository authorizedClientRepository =
 					new HttpSessionOAuth2AuthorizedClientRepository();
 			authorizedClientRepository.saveAuthorizedClient(client, null, request, new MockHttpServletResponse());
