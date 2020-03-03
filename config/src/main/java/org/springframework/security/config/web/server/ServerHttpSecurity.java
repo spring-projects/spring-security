@@ -55,6 +55,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -105,6 +106,7 @@ import org.springframework.security.web.server.DelegatingServerAuthenticationEnt
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
@@ -1823,6 +1825,28 @@ public class ServerHttpSecurity {
 			}
 		}
 
+		private class BearerTokenAuthenticationWebFilter extends AuthenticationWebFilter {
+			private ServerAuthenticationFailureHandler authenticationFailureHandler;
+
+			BearerTokenAuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager) {
+				super(authenticationManager);
+			}
+
+			@Override
+			public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
+				return super.filter(exchange, chain)
+						.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
+								.onAuthenticationFailure(webFilterExchange, e));
+			}
+
+			@Override
+			public void setAuthenticationFailureHandler(ServerAuthenticationFailureHandler authenticationFailureHandler) {
+				super.setAuthenticationFailureHandler(authenticationFailureHandler);
+				this.authenticationFailureHandler = authenticationFailureHandler;
+			}
+		}
+
 		/**
 		 * Configures JWT Resource Server Support
 		 */
@@ -1896,7 +1920,7 @@ public class ServerHttpSecurity {
 
 			protected void configure(ServerHttpSecurity http) {
 				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
-				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
+				AuthenticationWebFilter oauth2 = new BearerTokenAuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
 				http
@@ -2002,7 +2026,7 @@ public class ServerHttpSecurity {
 
 			protected void configure(ServerHttpSecurity http) {
 				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
-				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
+				AuthenticationWebFilter oauth2 = new BearerTokenAuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
