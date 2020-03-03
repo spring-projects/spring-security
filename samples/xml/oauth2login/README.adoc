@@ -1,0 +1,278 @@
+= OAuth 2.0 Login Sample
+
+This guide provides instructions on setting up the sample application with OAuth 2.0 Login using an OAuth 2.0 Provider or OpenID Connect 1.0 Provider.
+
+The following sections provide detailed steps for setting up OAuth 2.0 Login for these Providers:
+
+* <<google-login, Google>>
+* <<github-login, GitHub>>
+* <<facebook-login, Facebook>>
+* <<okta-login, Okta>>
+
+[[google-login]]
+== Login with Google
+
+This section shows how to configure the sample application using Google as the Authentication Provider and covers the following topics:
+
+* <<google-initial-setup,Initial setup>>
+* <<google-redirect-uri,Setting the redirect URI>>
+* <<google-application-config,Configure security.xml>>
+* <<google-boot-application,Deploy and start the application>>
+
+[[google-initial-setup]]
+=== Initial setup
+
+To use Google's OAuth 2.0 authentication system for login, you must set up a project in the Google API Console to obtain OAuth 2.0 credentials.
+
+NOTE: https://developers.google.com/identity/protocols/OpenIDConnect[Google's OAuth 2.0 implementation] for authentication conforms to the
+ https://openid.net/connect/[OpenID Connect 1.0] specification and is https://openid.net/certification/[OpenID Certified].
+
+Follow the instructions on the https://developers.google.com/identity/protocols/OpenIDConnect[OpenID Connect] page, starting in the section, "Setting up OAuth 2.0".
+
+After completing the "Obtain OAuth 2.0 credentials" instructions, you should have a new OAuth Client with credentials consisting of a Client ID and a Client Secret.
+
+[[google-redirect-uri]]
+=== Setting the redirect URI
+
+The redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Google
+and have granted access to the OAuth Client _(created in the previous step)_ on the Consent page.
+
+In the "Set a redirect URI" sub-section, ensure that the *Authorized redirect URIs* field is set to `http://localhost:8080/login/oauth2/code/google`.
+
+TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
+ The *_registrationId_* is a unique identifier for the `ClientRegistration`.
+
+IMPORTANT: If the application is running behind a proxy server, it is recommended to check https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#appendix-proxy-server[Proxy Server Configuration] to ensure the application is correctly configured.
+Also, see the supported https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#oauth2Client-auth-code-redirect-uri[`URI` template variables] for `redirect-uri`.
+
+[[google-application-config]]
+=== Configure security.xml
+
+Now that you have a new OAuth Client with Google, you need to configure the application to use the OAuth Client for the _authentication flow_. To do so:
+
+. Go to `security.xml` and set the following configuration:
++
+[source,xml]
+----
+<client-registration registration-id="google"
+					 client-id="google-client-id"
+					 client-secret="google-client-secret"
+					 provider-id="google"/>
+----
+
+. Replace the values in the `client-id` and `client-secret` attributes with the OAuth 2.0 credentials you created earlier.
+
+[[google-boot-application]]
+=== Deploy and start the application
+
+Deploy the WAR to a `Servlet` container and then go to `http://localhost:8080`.
+You are then redirected to the default _auto-generated_ login page, which displays a link for Google.
+
+Click on the Google link, and you are then redirected to Google for authentication.
+
+After authenticating with your Google account credentials, the next page presented to you is the Consent screen.
+The Consent screen asks you to either allow or deny access to the OAuth Client you created earlier.
+Click *Allow* to authorize the OAuth Client to access your email address and basic profile information.
+
+At this point, the OAuth Client retrieves your email address and basic profile information
+from the https://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
+
+[[github-login]]
+== Login with GitHub
+
+This section shows how to configure the sample application using GitHub as the Authentication Provider and covers the following topics:
+
+* <<github-register-application,Register OAuth application>>
+* <<github-application-config,Configure security.xml>>
+* <<github-boot-application,Deploy and start the application>>
+
+[[github-register-application]]
+=== Register OAuth application
+
+To use GitHub's OAuth 2.0 authentication system for login, you must https://github.com/settings/applications/new[Register a new OAuth application].
+
+When registering the OAuth application, ensure the *Authorization callback URL* is set to `http://localhost:8080/login/oauth2/code/github`.
+
+The Authorization callback URL (redirect URI) is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with GitHub
+and have granted access to the OAuth application on the _Authorize application_ page.
+
+TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
+ The *_registrationId_* is a unique identifier for the `ClientRegistration`.
+
+IMPORTANT: If the application is running behind a proxy server, it is recommended to check https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#appendix-proxy-server[Proxy Server Configuration] to ensure the application is correctly configured.
+Also, see the supported https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#oauth2Client-auth-code-redirect-uri[`URI` template variables] for `redirect-uri`.
+
+[[github-application-config]]
+=== Configure security.xml
+
+Now that you have a new OAuth application with GitHub, you need to configure the application to use the OAuth application for the _authentication flow_. To do so:
+
+. Go to `security.xml` and set the following configuration:
++
+[source,xml]
+----
+<client-registration registration-id="github"
+					 client-id="github-client-id"
+					 client-secret="github-client-secret"
+					 provider-id="github"/>
+----
+
+. Replace the values in the `client-id` and `client-secret` attributes with the OAuth 2.0 credentials you created earlier.
+
+[[github-boot-application]]
+=== Deploy and start the application
+
+Deploy the WAR to a `Servlet` container and then go to `http://localhost:8080`.
+You are then redirected to the default _auto-generated_ login page, which displays a link for GitHub.
+
+Click on the GitHub link, and you are then redirected to GitHub for authentication.
+
+After authenticating with your GitHub credentials, the next page presented to you is "Authorize application".
+This page will ask you to *Authorize* the application you created in the previous step.
+Click _Authorize application_ to allow the OAuth application to access your personal user data information.
+
+At this point, the OAuth Client retrieves your personal user information
+from the UserInfo Endpoint and establishes an authenticated session.
+
+[TIP]
+For detailed information returned from the UserInfo Endpoint, see the API documentation
+for https://developer.github.com/v3/users/#get-the-authenticated-user["Get the authenticated user"].
+
+[[facebook-login]]
+== Login with Facebook
+
+This section shows how to configure the sample application using Facebook as the Authentication Provider and covers the following topics:
+
+* <<facebook-register-application,Add a New App>>
+* <<facebook-application-config,Configure security.xml>>
+* <<facebook-boot-application,Deploy and start the application>>
+
+[[facebook-register-application]]
+=== Add a New App
+
+To use Facebook's OAuth 2.0 authentication system for login, you must first https://developers.facebook.com/apps[Add a New App].
+
+Select "Create a New App" and then the "Create a New App ID" page is presented. Enter the Display Name, Contact Email, Category and then click "Create App ID".
+
+NOTE: The selection for the _Category_ field is not relevant but it's a required field - select "Local".
+
+The next page presented is "Product Setup". Click the "Get Started" button for the *Facebook Login* product.
+In the left sidebar, under _Products -> Facebook Login_, select _Settings_.
+
+For the field *Valid OAuth redirect URIs*, enter `http://localhost:8080/login/oauth2/code/facebook` then click _Save Changes_.
+
+The OAuth redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Facebook
+and have granted access to the application on the _Authorize application_ page.
+
+TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
+ The *_registrationId_* is a unique identifier for the `ClientRegistration`.
+
+IMPORTANT: If the application is running behind a proxy server, it is recommended to check https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#appendix-proxy-server[Proxy Server Configuration] to ensure the application is correctly configured.
+Also, see the supported https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#oauth2Client-auth-code-redirect-uri[`URI` template variables] for `redirect-uri`.
+
+[[facebook-application-config]]
+=== Configure security.xml
+
+Now that you have created a new application with Facebook, you need to configure the sample application to use the application for the _authentication flow_. To do so:
+
+. Go to `security.xml` and set the following configuration:
++
+[source,xml]
+----
+<client-registration registration-id="facebook"
+					 client-id="facebook-client-id"
+					 client-secret="facebook-client-secret"
+					 provider-id="facebook"/>
+----
+
+. Replace the values in the `client-id` and `client-secret` attributes with the OAuth 2.0 credentials you created earlier.
+
+[[facebook-boot-application]]
+=== Deploy and start the application
+
+Deploy the WAR to a `Servlet` container and then go to `http://localhost:8080`.
+You are then redirected to the default _auto-generated_ login page, which displays a link for Facebook.
+
+Click on the Facebook link, and you are then redirected to Facebook for authentication.
+
+After authenticating with your Facebook credentials, the next page presented to you is "Authorize application".
+This page will ask you to *Authorize* the application you created in the previous step.
+Click _Authorize application_ to allow the OAuth application to access your _public profile_ and _email address_ information.
+
+At this point, the OAuth Client retrieves your personal user information
+from the UserInfo Endpoint and establishes an authenticated session.
+
+[[okta-login]]
+== Login with Okta
+
+This section shows how to configure the sample application using Okta as the Authentication Provider and covers the following topics:
+
+* <<okta-register-application,Add Application>>
+* <<okta-assign-application-people,Assign Application to People>>
+* <<okta-application-config,Configure security.xml>>
+* <<okta-boot-application,Deploy and start the application>>
+
+[[okta-register-application]]
+=== Add Application
+
+To use Okta's OAuth 2.0 authentication system for login, you must first https://www.okta.com/developer/signup[create a developer account].
+
+Sign in to your account sub-domain and navigate to _Applications -> Applications_ and then select the "Add Application" button.
+From the "Add Application" page, select the "Create New App" button and enter the following:
+
+* *Platform:* Web
+* *Sign on method:* OpenID Connect
+
+Select the _Create_ button.
+On the "General Settings" page, enter the Application Name (for example, "Spring Security Okta Login") and then select the _Next_ button.
+On the "Configure OpenID Connect" page, enter `http://localhost:8080/login/oauth2/code/okta` for the field *Redirect URIs* and then select _Finish_.
+
+The redirect URI is the path in the application that the end-user's user-agent is redirected back to after they have authenticated with Okta
+and have granted access to the application on the _Authorize application_ page.
+
+TIP: The default redirect URI template is `{baseUrl}/login/oauth2/code/{registrationId}`.
+ The *_registrationId_* is a unique identifier for the `ClientRegistration`.
+
+IMPORTANT: If the application is running behind a proxy server, it is recommended to check https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#appendix-proxy-server[Proxy Server Configuration] to ensure the application is correctly configured.
+Also, see the supported https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#oauth2Client-auth-code-redirect-uri[`URI` template variables] for `redirect-uri`.
+
+[[okta-assign-application-people]]
+=== Assign Application to People
+
+From the "General" tab of the application, select the "Assignments" tab and then select the _Assign_ button.
+Select _Assign to People_ and assign your account to the application. Then select the _Save and Go Back_ button.
+
+[[okta-application-config]]
+=== Configure security.xml
+
+Now that you have created a new application with Okta, you need to configure the sample application to use the application for the _authentication flow_. To do so:
+
+. Go to `security.xml` and set the following configuration:
++
+[source,xml]
+----
+<client-registration registration-id="okta"
+					 client-id="okta-client-id"
+					 client-secret="okta-client-secret"
+					 provider-id="okta"/>
+
+<provider provider-id="okta"
+		  authorization-uri="https://your-subdomain.oktapreview.com/oauth2/v1/authorize"
+		  token-uri="https://your-subdomain.oktapreview.com/oauth2/v1/token"
+		  user-info-uri="https://your-subdomain.oktapreview.com/oauth2/v1/userinfo"
+		  jwk-set-uri="https://your-subdomain.oktapreview.com/oauth2/v1/keys"/>
+----
+
+. Replace the values in the `client-id` and `client-secret` attributes with the OAuth 2.0 credentials you created earlier.
+As well, replace `https://your-subdomain.oktapreview.com` in `authorization-uri`, `token-uri`, `user-info-uri` and `jwk-set-uri` with the sub-domain assigned to your account during the registration process.
+
+[[okta-boot-application]]
+=== Deploy and start the application
+
+Deploy the WAR to a `Servlet` container and then go to `http://localhost:8080`.
+You are then redirected to the default _auto-generated_ login page, which displays a link for Okta.
+
+Click on the Okta link, and you are then redirected to Okta for authentication.
+
+After authenticating with your Okta account credentials, the OAuth Client retrieves your email address and basic profile information
+from the https://openid.net/specs/openid-connect-core-1_0.html#UserInfo[UserInfo Endpoint] and establishes an authenticated session.
