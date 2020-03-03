@@ -1,7 +1,7 @@
 [[reactive-x509]]
 = Reactive X.509 Authentication
 
-Similar to <<x509,Servlet X.509 authentication>>, reactive x509 authentication filter allows extracting an authentication token from a certificate provided by a client.
+Similar to <<servlet-x509,Servlet X.509 authentication>>, reactive x509 authentication filter allows extracting an authentication token from a certificate provided by a client.
 
 Below is an example of a reactive x509 security configuration:
 [source,java]

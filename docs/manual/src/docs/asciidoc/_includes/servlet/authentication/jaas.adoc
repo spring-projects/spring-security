@@ -1,4 +1,4 @@
-[[jaas]]
+[[servlet-jaas]]
 == Java Authentication and Authorization Service (JAAS) Provider
 
 

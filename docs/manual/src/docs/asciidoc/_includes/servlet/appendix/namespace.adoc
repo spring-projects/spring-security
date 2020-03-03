@@ -1536,7 +1536,7 @@ Defaults to "username".
 [[nsa-attribute-exchange]]
 ==== <attribute-exchange>
 The `attribute-exchange` element defines the list of attributes which should be requested from the identity provider.
-An example can be found in the <<ns-openid,OpenID Support>> section of the namespace configuration chapter.
+An example can be found in the <<servlet-openid,OpenID Support>> section of the namespace configuration chapter.
 More than one can be used, in which case each must have an `identifier-match` attribute, containing a regular expression which is matched against the supplied OpenID identifier.
 This allows different attribute lists to be fetched from different providers (Google, Yahoo etc).
 

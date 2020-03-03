@@ -8,8 +8,7 @@ This section discusses:
 *Architecture Components*
 
 This section describes the main architectural components of Spring Security's used in Servlet authentication.
-If you need concrete flows that explain how these pieces fit together, look in specific sections.
-// FIXME: add for example see form login if you want to see more concrete flows.
+If you need concrete flows that explain how these pieces fit together, look at the <<servlet-authentication-mechanisms,Authentication Mechanism>> specific sections.
 
 * <<servlet-authentication-securitycontextholder>> - The `SecurityContextHolder` is where Spring Security stores the details of who is <<authentication,authenticated>>.
 * <<servlet-authentication-securitycontext>> - is obtained from the `SecurityContextHolder` and contains the `Authentication` of the currently authenticated user.
@@ -27,7 +26,16 @@ This also gives a good idea of the high level flow of authentication and how pie
 
 // FIXME: brief description
 
-* <<servlet-authentication-unpwd>> - how to authenticate with a username/password
+* <<servlet-authentication-unpwd,Username and Password>> - how to authenticate with a username/password
+* <<oauth2login,OAuth 2.0 Login>> - OAuth 2.0 Log In with OpenID Connect and non-standard OAuth 2.0 Login (i.e. GitHub)
+* <<saml2,SAML 2.0 Login>> - SAML 2.0 Log In
+* <<servlet-cas,Central Authentication Server (CAS)>> - Central Authentication Server (CAS) Support
+* <<servlet-rememberme, Remember Me>> - How to remember a user past session expiration
+* <<servlet-jaas, JAAS Authentication>> - Authenticate with JAAS
+* <<servlet-openid,OpenID>> - OpenID Authentication (not to be confused with OpenID Connect)
+* <<servlet-preauth>> - Authenticate with an external mechanism such as https://www.siteminder.com/[SiteMinder] or Java EE security but still use Spring Security for authorization and protection against common exploits.
+* <<servlet-x509,X509 Authentication>> - X509 Authentication
+
 // FIXME: Add other mechanisms
 
 // We intentionally do not increase leveloffset, this is just for organization vs document structure

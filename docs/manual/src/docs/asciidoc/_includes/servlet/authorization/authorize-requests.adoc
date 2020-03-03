@@ -3,9 +3,9 @@
 :figures: images/servlet/authorization
 :icondir: images/icons
 
-This section builds on <<servlet-architecture,Servlet Architecture and Implementation>> by digging deeper into how <<authorization>> works within Servlet based applications.
+This section builds on <<servlet-architecture,Servlet Architecture and Implementation>> by digging deeper into how <<servlet-authorization,authorization>> works within Servlet based applications.
 
-The {security-api-url}org/springframework/security/web/access/intercept/FilterSecurityInterceptor.html[`FilterSecurityInterceptor`] provides <<authorization>> for ``HttpServletRequest``s.
+The {security-api-url}org/springframework/security/web/access/intercept/FilterSecurityInterceptor.html[`FilterSecurityInterceptor`] provides <<servlet-authorization,authorization>> for ``HttpServletRequest``s.
 It is inserted into the <<servlet-filterchainproxy>> as one of the <<servlet-security-filters>>.
 
 .Authorize HttpServletRequest

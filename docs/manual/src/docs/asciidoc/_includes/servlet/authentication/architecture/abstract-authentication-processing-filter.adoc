@@ -12,11 +12,9 @@ image::{figures}/abstractauthenticationprocessingfilter.png[]
 
 image:{icondir}/number_1.png[] When the user submits their credentials, the `AbstractAuthenticationProcessingFilter` creates an <<servlet-authentication-authentication,`Authentication`>> from the `HttpServletRequest` to be authenticated.
 The type of `Authentication` created depends on the subclass of `AbstractAuthenticationProcessingFilter`.
-For example, `UsernamePasswordAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` from a __username__ and __password__ that are submitted in the `HttpServletRequest`.
-// FIXME: link UsernamePasswordAuthenticationFilter
+For example, <<servlet-authentication-usernamepasswordauthenticationfilter,`UsernamePasswordAuthenticationFilter`>> creates a `UsernamePasswordAuthenticationToken` from a __username__ and __password__ that are submitted in the `HttpServletRequest`.
 
-image:{icondir}/number_2.png[] Next, the `Authentication` is passed into the `AuthenticationManager` to be authenticated.
-// FIXME: link to AuthenticationManager
+image:{icondir}/number_2.png[] Next, the <<servlet-authentication-authentication,`Authentication`>> is passed into the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> to be authenticated.
 
 image:{icondir}/number_3.png[] If authentication fails, then __Failure__
 

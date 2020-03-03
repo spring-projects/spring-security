@@ -34,7 +34,7 @@ Spring Security does not care what type of `Authentication` implementation is se
 Here we use `TestingAuthenticationToken` because it is very simple.
 A more common production scenario is `UsernamePasswordAuthenticationToken(userDetails, password, authorities)`.
 <3> Finally, we set the `SecurityContext` on the `SecurityContextHolder`.
-Spring Security will use this information for <<authorization>>.
+Spring Security will use this information for <<servlet-authorization,authorization>>.
 
 If you wish to obtain information about the authenticated principal, you can do so by accessing the `SecurityContextHolder`.
 

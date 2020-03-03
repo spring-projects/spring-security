@@ -32,7 +32,7 @@ public class HelloRSocketSecurityConfig {
 }
 -----
 
-This configuration enables <<rsocket-authentication-simple,simple authentication>> and sets up <<authorization,rsocket-authorization>> to require an authenticated user for any request.
+This configuration enables <<rsocket-authentication-simple,simple authentication>> and sets up <<rsocket-authorization,rsocket-authorization>> to require an authenticated user for any request.
 
 == Adding SecuritySocketAcceptorInterceptor
 

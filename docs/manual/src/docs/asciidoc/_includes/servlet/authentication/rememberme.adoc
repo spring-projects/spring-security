@@ -1,5 +1,4 @@
-[[remember-me]]
-[[ns-remember-me]]
+[[servlet-rememberme]]
 == Remember-Me Authentication
 
 

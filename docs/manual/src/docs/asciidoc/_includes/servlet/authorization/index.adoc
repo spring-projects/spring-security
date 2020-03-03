@@ -1,4 +1,4 @@
-[[authorization]]
+[[servlet-authorization]]
 = Authorization
 The advanced authorization capabilities within Spring Security represent one of the most compelling reasons for its popularity.
 Irrespective of how you choose to authenticate - whether using a Spring Security-provided mechanism and provider, or integrating with a container or other non-Spring Security authentication authority - you will find the authorization services can be used within your application in a consistent and simple way.

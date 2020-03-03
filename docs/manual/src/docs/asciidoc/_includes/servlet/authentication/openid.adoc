@@ -1,4 +1,4 @@
-[[ns-openid]]
+[[servlet-openid]]
 == OpenID Support
 The namespace supports https://openid.net/[OpenID] login either instead of, or in addition to normal form-based login, with a simple change:
 

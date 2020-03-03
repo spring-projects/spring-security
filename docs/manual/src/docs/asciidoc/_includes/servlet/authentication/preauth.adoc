@@ -1,4 +1,4 @@
-[[preauth]]
+[[servlet-preauth]]
 == Pre-Authentication Scenarios
 There are situations where you want to use Spring Security for authorization, but the user has already been reliably authenticated by some external system prior to accessing the application.
 We refer to these situations as "pre-authenticated" scenarios.
@@ -19,7 +19,7 @@ In some cases, the external mechanism may supply role/authority information for 
 === Pre-Authentication Framework Classes
 Because most pre-authentication mechanisms follow the same pattern, Spring Security has a set of classes which provide an internal framework for implementing pre-authenticated authentication providers.
 This removes duplication and allows new implementations to be added in a structured fashion, without having to write everything from scratch.
-You don't need to know about these classes if you want to use something like <<x509,X.509 authentication>>, as it already has a namespace configuration option which is simpler to use and get started with.
+You don't need to know about these classes if you want to use something like <<servlet-x509,X.509 authentication>>, as it already has a namespace configuration option which is simpler to use and get started with.
 If you need to use explicit bean configuration or are planning on writing your own implementation then an understanding of how the provided implementations work will be useful.
 You will find classes under the `org.springframework.security.web.authentication.preauth`.
 We just provide an outline here so you should consult the Javadoc and source where appropriate.
@@ -81,7 +81,7 @@ It always returns a `403`-forbidden response code if called.
 
 
 === Concrete Implementations
-X.509 authentication is covered in its <<x509,own chapter>>.
+X.509 authentication is covered in its <<servlet-x509,own chapter>>.
 Here we'll look at some classes which provide support for other pre-authenticated scenarios.
 
 

@@ -9,6 +9,6 @@ In these cases, Spring Security does not need to provide an HTTP response that r
 
 In other cases, a client will make an unauthenticated request to a resource that they are not authorized to access.
 In this case, an implementation of `AuthenticationEntryPoint` is used to request credentials from the client.
-The `AuthenticationEntryPoint` implementation might perform a <<servlet-authentication-form,redirect to a log in page>>, respond with an https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/WWW-Authenticate[WWW-Authenticate] header, etc.
+The `AuthenticationEntryPoint` implementation might perform a <<servlet-authentication-form,redirect to a log in page>>, respond with an <<servlet-authentication-basic,WWW-Authenticate>> header, etc.
 
 

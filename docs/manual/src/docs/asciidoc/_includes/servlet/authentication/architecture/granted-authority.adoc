@@ -1,12 +1,14 @@
 [[servlet-authentication-granted-authority]]
 = GrantedAuthority
-Besides the principal, another important method provided by `Authentication` is `getAuthorities()`.
+{security-api-url}org/springframework/security/core/GrantedAuthority.html[``GrantedAuthority``s] are high level permissions the user is granted. A few examples are roles or scopes.
+
+``GrantedAuthority``s can be obtained from the <<servlet-authentication-authentication,`Authentication.getAuthorities()`>> method.
 This method provides a `Collection` of `GrantedAuthority` objects.
 A `GrantedAuthority` is, not surprisingly, an authority that is granted to the principal.
 Such authorities are usually "roles", such as `ROLE_ADMINISTRATOR` or `ROLE_HR_SUPERVISOR`.
 These roles are later on configured for web authorization, method authorization and domain object authorization.
 Other parts of Spring Security are capable of interpreting these authorities, and expect them to be present.
-`GrantedAuthority` objects are usually loaded by the `UserDetailsService`.
+When using username/password based authentication ``GrantedAuthority``s are usually loaded by the <<servlet-authentication-userdetailsservice,`UserDetailsService`>>.
 
 Usually the `GrantedAuthority` objects are application-wide permissions.
 They are not specific to a given domain object.

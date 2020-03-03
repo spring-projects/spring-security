@@ -1,4 +1,4 @@
-[[cas]]
+[[servlet-cas]]
 == CAS Authentication
 
 [[cas-overview]]
