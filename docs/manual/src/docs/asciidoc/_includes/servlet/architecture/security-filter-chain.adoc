@@ -3,6 +3,10 @@
 
 {security-api-url}org/springframework/security/web/SecurityFilterChain.html[`SecurityFilterChain`] is used by <<servlet-filterchainproxy>> to determine which Spring Security ``Filter``s should be invoked for this request.
 
+.SecurityFilterChain
+[[servlet-securityfilterchain-figure]]
+image::{figures}/securityfilterchain.png[]
+
 The <<servlet-security-filters,Security Filters>> in `SecurityFilterChain` are typically Beans, but they are registered with `FilterChainProxy` instead of <<servlet-delegatingfilterproxy>>.
 `FilterChainProxy` provides a number of advantages to registering directly with the Servlet container or <<servlet-delegatingfilterproxy>>.
 First, it provides a starting point for all of Spring Security's Servlet support.
