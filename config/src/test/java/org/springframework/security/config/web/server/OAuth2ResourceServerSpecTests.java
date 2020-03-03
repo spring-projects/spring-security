@@ -173,6 +173,17 @@ public class OAuth2ResourceServerSpecTests {
 	}
 
 	@Test
+	public void getWhenEmptyBearerTokenThenReturnsInvalidToken() {
+		this.spring.register(PublicKeyConfig.class).autowire();
+
+		this.client.get()
+				.headers(headers -> headers.add("Authorization", "Bearer "))
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"invalid_token\""));
+	}
+
+	@Test
 	public void getWhenValidTokenAndPublicKeyInLambdaThenReturnsOk() {
 		this.spring.register(PublicKeyInLambdaConfig.class, RootController.class).autowire();
 
