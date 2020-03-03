@@ -280,10 +280,251 @@ mvc
 	.perform(formLogin("/auth").user("u","admin").password("p","pass"))
 ----
 
+[[testing-oidc-login]]
+==== Testing OIDC Login
 
-==== Testing Bearer Authentication
+In order to make an authenticated request on an OAuth 2.0 client, you would need to simulate some kind of grant flow with an authorization server.
+However, Spring Security's OAuth 2.0 Client test support can help remove much of this boilerplate.
+
+If your client uses OIDC to authenticate, then you can use the `oidcLogin()` `RequestPostProcessor` to configure a `MockMvc` request with an authenticated user.
+The simplest of these would look something like this:
+
+[source,java]
+----
+mvc.perform(get("/endpoint").with(oidcLogin()));
+----
+
+What this will do is create a mock `OidcUser`, passing it correctly through any authentication APIs so that it's available for your controllers and so on.
+It contains a mock `OidcUserInfo`, a mock `OidcIdToken`, and a mock `Collection` of granted authorities.
+Also, <<a mock `OAuth2AuthorizedClient`,testing-oauth2-client>> associated with the user is registered to an `HttpSessionOAuth2AuthorizedClientRepository`.
+
+By default, the user info has no claims, and the id token has the `sub` claim, like so:
+
+[source,json]
+----
+{
+    "sub" : "user"
+}
+----
+
+And the resulting `OidcUser`, were it tested, would pass in the following way:
+
+[source,java]
+----
+assertThat(user.getIdToken().getTokenValue()).isEqualTo("id-token");
+assertThat(user.getIdToken().getClaim("sub")).isEqualTo("user");
+assertThat(user.getUserInfo().getClaims()).isEmpty();
+GrantedAuthority authority = user.getAuthorities().iterator().next();
+assertThat(authority.getAuthority()).isEqualTo("SCOPE_read");
+----
+
+These values can, of course be configured.
+
+Any claims can be configured with their corresponding methods:
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(oidcLogin()
+                .idToken(idToken -> idToken.subject("my-subject"))
+                .userInfo(info -> info.firstName("Rob"))));
+----
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(oidcLogin().idToken(idToken -> idToken.claims(claims -> claims.remove("scope")))));
+----
+
+By default, `oidcLogin()` adds a `SCOPE_read` `GrantedAuthority`.
+However, this can be overridden simply by providing the list of `GrantedAuthority` instances that you need for your test:
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(oidcLogin().authorities(new SimpleGrantedAuthority("SCOPE_messages"))));
+----
+
+Or, you can supply all detail via an instance of `OidcUser` like so:
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(oidcLogin().oidcUser(new MyOidcUser())));
+----
+
+[[testing-oauth2-login]]
+==== Testing OAuth 2.0 Login
+
+Or, if your client uses OAuth 2.0 to authenticate, but not OIDC, then you can use the `oauth2Login()` `RequestPostProcessor` to configure a `MockMvc` request with an authenticated user.
+The simplest of these would look something like this:
+
+[source,java]
+----
+mvc.perform(get("/endpoint").with(oauth2Login()));
+----
+
+What this will do is create a mock `OAuth2User`, passing it correctly through any authentication APIs so that it's available for your controllers and so on.
+It contains a mock set of attributes and a mock `Collection` of granted authorities.
+Also, <<a mock `OAuth2AuthorizedClient`,testing-oauth2-client>> associated with the user is registered to an `HttpSessionOAuth2AuthorizedClientRepository`.
+
+By default, the set of attributes contains only `sub`:
+
+[source,json]
+----
+{
+  "sub" : "user"
+}
+----
+
+And the resulting `OAuth2User`, were it tested, would pass in the following way:
+
+[source,java]
+----
+assertThat(user.getClaim("sub")).isEqualTo("user");
+GrantedAuthority authority = user.getAuthorities().iterator().next();
+assertThat(authority.getAuthority()).isEqualTo("SCOPE_read");
+----
+
+These values can, of course be configured.
+
+Any claims can be configured via the underlying `Map`:
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(oauth2Login()
+                .attributes(attrs -> attrs.put("sub", "my-subject"))));
+----
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(oauth2Login()
+                .attributes(attrs -> attrs.remove("some_claim"))));
+----
+
+By default, `oauth2User()` adds a `SCOPE_read` `GrantedAuthority`.
+However, this can be overridden simply by providing the list of `GrantedAuthority` instances that you need for your test:
+
+[source,java]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(oauth2Login().authorities(new SimpleGrantedAuthority("SCOPE_messages"))));
+----
+
+Or, you can supply all detail via an instance of `OAuth2User` like so:
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(oauth2Login().oauth2User(new MyOAuth2User())));
+----
+
+[[testing-oauth2-client]]
+==== Testing OAuth 2.0 Clients
+
+Independent of how your user authenticates, there may be other OAuth 2.0 tokens that the request will need in order to communicate with resource servers, say in an integration test.
+
+If you need to express an OAuth 2.0 client in your test, then you can use the `oauth2Client()` `RequestPostProcessor` to configure a `MockMvc` request with an authorized client.
+The simplest of these would look something like this:
+
+[source,java]
+----
+mvc.perform(get("/endpoint").with(oauth2Client()));
+----
+
+What this will do is create a mock `OAuth2AuthorizedClient`, passing it correctly through any authentication APIs.
+It contains a mock `ClientRegistration` and associated access token.
+It will register this `ClientRegistration` and access token in an `HttpSessionOAuth2AuthorizedClientRepository`.
+
+By default, the access token contains only the `scope` attribute:
+
+[source,json]
+----
+{
+  "scope" : "read"
+}
+----
+
+And the resulting `OAuth2AuthorizedClient`, were it tested, would pass in the following way:
+
+[source,java]
+----
+assertThat(client.getClientRegistration().getRegistrationId()).isEqualTo("test");
+assertThat(client.getAccessToken().getTokenValue()).isEqualTo("access-token");
+assertThat(client.getPrincipalName()).isEqualTo("user");
+----
+
+These values can, of course, be configured.
+
+Any client details can be configured via the `ClientRegistration.Builder` like so:
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(oauth2Client()
+                .clientRegistration(client -> client.clientId("client-id"));
+----
+
+To supply the corresponding token, invoke `accessToken()` like this:
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(oauth2Client()
+                .accessToken(new OAuth2AccessToken(BEARER, "my-value", issuedAt, expiresAt, scopes))));
+----
+
+===== `ClientRegistrationRepository` and `OAuth2AuthorizedClientRepository`
+
+Under many circumstances, you will need to supply a registration id so that it can be looked up by exchange filter functions or `@RegisteredOAuth2AuthorizedClient` annotations.
+For this reason, `oauth2Client()` ships with a convenience method:
+
+[source,java]
+----
+mvc.perform(get("/endpoint").with(oauth2Client("facebook"));
+----
+
+This, however, doesn't know about your application's `ClientRegistrationRepository`, so calling this does not look up your "facebook" client registration for you.
+
+To configure a test with an actual `ClientRegistration` from your `ClientRegistrationRepository` you can do:
+
+[source,java]
+----
+@Autowired
+ClientRegistrationRepository clientRegistrationRepository;
+
+// ...
+
+mvc.perform(get("/endpoint")
+        .with(oauth2Client()
+                .clientRegistration(this.clientRegistrationRepository.findByRegistrationId("facebook"))));
+----
+
+Also, `oauth2Client()` doesn't know about your application's `OAuth2AuthorizedClientRepository`, which is what Spring Security uses to resolve `@RegisteredOAuth2AuthorizedClient` annotations.
+To make it available in your controllers, your app will need to be using an `HttpSessionOAuth2AuthorizedClientRepository` so that the token can be retrieved in a thread-safe way.
+
+You can isolate this configuration to your test via a test configuration like the following:
+
+[source,java]
+----
+@TestConfiguration
+static class TestAuthorizedClientRepositoryConfig {
+    @Bean
+    OAuth2AuthorizedClientRepository authorizedClientRepository() {
+        return new HttpSessionOAuth2AuthorizedClientRepository();
+    }
+}
+----
+
+[[testing-jwt]]
+==== Testing JWT Authentication
 
 In order to make an authorized request on a resource server, you need a bearer token.
+
 If your resource server is configured for JWTs, then this would mean that the bearer token needs to be signed and then encoded according to the JWT specification.
 All of this can be quite daunting, especially when this isn't the focus of your test.
 
@@ -398,6 +639,102 @@ mvc
 ----
 
 Note that as an alternative to these, you can also mock the `JwtDecoder` bean itself with a `@MockBean` annotation.
+
+[[testing-opaque-token]]
+==== Testing Opaque Token Authentication
+
+Or, if your resource server is configured for opaque tokens, then this would mean that the bearer token needs to be registered with and verified against an authorization server.
+This can be just as distracting as creating a signed JWT.
+
+There are two simple ways that you can overcome this difficulty and allow your tests to focus on authorization and not on representing bearer tokens.
+Let's take a look:
+
+===== `opaqueToken()` `RequestPostProcessor`
+
+The first way is via a `RequestPostProcessor`.
+The simplest of these would look something like this:
+
+[source,java]
+----
+mvc.perform(get("/endpoint").with(opaqueToken()));
+----
+
+What this will do is create a mock `OAuth2AuthenticatedPrincipal`, passing it correctly through any authentication APIs so that it's available for your authorization mechanisms to verify.
+
+By default, the set of attributes that it creates is like this:
+
+[source,json]
+----
+{
+  "sub" : "user",
+  "scope" : "read"
+}
+----
+
+And the resulting `OAuth2AuthenticatedPrincipal`, were it tested, would pass in the following way:
+
+[source,java]
+----
+assertThat(principal.getAttribute("sub")).isEqualTo("user");
+GrantedAuthority authority = principal.getAuthorities().iterator().next();
+assertThat(authority.getAuthority()).isEqualTo("SCOPE_read");
+----
+
+These values can, of course be configured.
+
+Any attributes can be configured via an underlying `Map`:
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(opaqueToken().attributes(attrs -> attrs
+                .put("sub", "my-subject")
+                .put("my-claim", "my-value"))));
+----
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(opaqueToken().attributes(attrs -> attrs
+                .remove("scope"))));
+----
+
+The `scope` attribute is processed the same way here as it is in a normal bearer token request.
+However, this can be overridden simply by providing the list of `GrantedAuthority` instances that you need for your test:
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(opaqueToken().authorities(new SimpleGrantedAuthority("SCOPE_messages"))));
+----
+
+Or, you can supply all detail via an instance of `OAuth2AuthenticatedPrincipal` like so:
+
+[source,java]
+----
+mvc.perform(get("/endpoint")
+        .with(opaqueToken().principal(new MyAuthenticatedPrincipal())));
+----
+
+===== `authentication()` `RequestPostProcessor`
+
+The second way is by using the `authentication()` `RequestPostProcessor`.
+Essentially, you can instantiate your own `BearerTokenAuthentication` and provide it in your test, like so:
+
+[source,java]
+----
+Map<String, Object> attributes = Collections.singletonMap("sub", "user");
+OAuth2AccessToken accessToken = new OAuth2AccessToken(BEARER, "token", null, null);
+Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("SCOPE_read");
+OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(attributes, authorities);
+
+BearerTokenAuthentication token = new BearerTokenAuthentication(attributes, accessToken, authorities);
+
+mvc.perform(get("/endpoint")
+        .with(authentication(token)));
+----
+
+Note that as an alternative to these, you can also mock the `OpaqueTokenIntrospector` bean itself with a `@MockBean` annotation.
 
 [[test-logout]]
 ==== Testing Logout
