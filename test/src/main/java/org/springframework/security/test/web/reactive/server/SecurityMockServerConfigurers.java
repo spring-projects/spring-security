@@ -591,18 +591,6 @@ public class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided scopes as the authorities in the resulting principal
-		 * @param scopes the scopes to use
-		 * @return the {@link OpaqueTokenMutator} for further configuration
-		 */
-		public OpaqueTokenMutator scopes(String... scopes) {
-			Assert.notNull(scopes, "scopes cannot be null");
-			this.authorities = () -> getAuthorities(Arrays.asList(scopes));
-			this.principal = this::defaultPrincipal;
-			return this;
-		}
-
-		/**
 		 * Use the provided principal
 		 * @param principal the principal to use
 		 * @return the {@link OpaqueTokenMutator} for further configuration

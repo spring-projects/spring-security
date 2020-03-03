@@ -51,7 +51,7 @@ public class OAuth2ResourceServerControllerTests {
 
 	@Test
 	public void messageCanBeReadWithScopeMessageReadAuthority() throws Exception {
-		this.mvc.perform(get("/message").with(opaqueToken().scopes("message:read")))
+		this.mvc.perform(get("/message").with(opaqueToken().attributes(a -> a.put("scope", "message:read"))))
 				.andExpect(content().string(is("secret message")));
 
 		this.mvc.perform(get("/message")
@@ -77,7 +77,7 @@ public class OAuth2ResourceServerControllerTests {
 	public void messageCanNotBeCreatedWithScopeMessageReadAuthority() throws Exception {
 		this.mvc.perform(post("/message")
 				.content("Hello message")
-				.with(opaqueToken().scopes("message:read")))
+				.with(opaqueToken().authorities(new SimpleGrantedAuthority("SCOPE_message:read"))))
 				.andExpect(status().isForbidden());
 	}
 
@@ -85,7 +85,7 @@ public class OAuth2ResourceServerControllerTests {
 	public void messageCanBeCreatedWithScopeMessageWriteAuthority() throws Exception {
 		this.mvc.perform(post("/message")
 				.content("Hello message")
-				.with(opaqueToken().scopes("message:write")))
+				.with(opaqueToken().authorities(new SimpleGrantedAuthority("SCOPE_message:write"))))
 				.andExpect(status().isOk())
 				.andExpect(content().string(is("Message was created. Content: Hello message")));
 	}

@@ -91,20 +91,6 @@ public class SecurityMockServerConfigurerOpaqueTokenTests extends AbstractMockSe
 	}
 
 	@Test
-	public void mockOpaqueTokenWhenScopesThenBearerTokenAuthentication() {
-		this.client
-				.mutateWith(mockOpaqueToken().scopes("scoped", "authorities"))
-				.get()
-				.exchange()
-				.expectStatus().isOk();
-
-		SecurityContext context = securityContextController.removeSecurityContext();
-		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
-				.containsOnly(new SimpleGrantedAuthority("SCOPE_scoped"),
-						new SimpleGrantedAuthority("SCOPE_authorities"));
-	}
-
-	@Test
 	public void mockOpaqueTokenWhenAttributesThenBearerTokenAuthentication() {
 		String sub = new String("my-subject");
 		this.client

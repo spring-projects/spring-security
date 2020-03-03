@@ -90,13 +90,6 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 	}
 
 	@Test
-	public void opaqueTokenWhenAuthoritiesSpecifiedThenGrantsAccess() throws Exception {
-		this.mvc.perform(get("/admin/scopes")
-				.with(opaqueToken().scopes("admin", "read")))
-				.andExpect(content().string("[\"SCOPE_admin\",\"SCOPE_read\"]"));
-	}
-
-	@Test
 	public void opaqueTokenWhenAttributeSpecifiedThenUserHasAttribute() throws Exception {
 		this.mvc.perform(get("/opaque-token/iss")
 				.with(opaqueToken().attributes(a -> a.put("iss", "https://idp.example.org"))))
