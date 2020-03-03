@@ -90,7 +90,7 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 		throws Exception {
 
 		this.mvc.perform(get("/name").with(oauth2Login()))
-				.andExpect(content().string("test-subject"));
+				.andExpect(content().string("user"));
 		this.mvc.perform(get("/admin/id-token/name").with(oauth2Login()))
 				.andExpect(status().isForbidden());
 	}
@@ -120,7 +120,7 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 	@Test
 	public void oauth2LoginWhenNameSpecifiedThenUserHasName() throws Exception {
 		OAuth2User oauth2User = new DefaultOAuth2User(
-				AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_user"),
+				AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_read"),
 				Collections.singletonMap("custom-attribute", "test-subject"),
 				"custom-attribute");
 		this.mvc.perform(get("/attributes/custom-attribute")
@@ -142,7 +142,7 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 	@Test
 	public void oauth2LoginWhenOAuth2UserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
 		OAuth2User oauth2User = new DefaultOAuth2User(
-				AuthorityUtils.createAuthorityList("SCOPE_user"),
+				AuthorityUtils.createAuthorityList("SCOPE_read"),
 				Collections.singletonMap("username", "user"),
 				"username");
 
@@ -167,7 +167,7 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 			http
 				.authorizeRequests(authorize -> authorize
 					.mvcMatchers("/admin/**").hasAuthority("SCOPE_admin")
-					.anyRequest().hasAuthority("SCOPE_user")
+					.anyRequest().hasAuthority("SCOPE_read")
 				).oauth2Login();
 		}
 

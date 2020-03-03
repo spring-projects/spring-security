@@ -86,9 +86,9 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 		assertThat(token.getAuthorizedClientRegistrationId()).isEqualTo("test");
 		assertThat(token.getPrincipal()).isInstanceOf(OidcUser.class);
 		assertThat(token.getPrincipal().getAttributes())
-				.containsEntry("sub", "test-subject");
+				.containsEntry("sub", "user");
 		assertThat((Collection<GrantedAuthority>) token.getPrincipal().getAuthorities())
-				.contains(new SimpleGrantedAuthority("SCOPE_user"));
+				.contains(new SimpleGrantedAuthority("SCOPE_read"));
 		assertThat(((OidcUser) token.getPrincipal()).getIdToken().getTokenValue())
 				.isEqualTo("id-token");
 	}
@@ -150,7 +150,7 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 	@Test
 	public void oidcLoginWhenOidcUserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
 		OidcUser oidcUser = new DefaultOidcUser(
-				AuthorityUtils.createAuthorityList("SCOPE_user"), idToken().build());
+				AuthorityUtils.createAuthorityList("SCOPE_read"), idToken().build());
 
 		this.client.mutateWith(mockOidcLogin()
 				.idToken(i -> i.subject("foo"))

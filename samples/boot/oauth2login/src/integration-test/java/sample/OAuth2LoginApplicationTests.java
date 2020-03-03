@@ -263,9 +263,9 @@ public class OAuth2LoginApplicationTests {
 	public void requestWhenMockOAuth2LoginThenIndex() throws Exception {
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("github");
 		this.mvc.perform(get("/").with(oauth2Login().clientRegistration(clientRegistration)))
-				.andExpect(model().attribute("userName", "test-subject"))
+				.andExpect(model().attribute("userName", "user"))
 				.andExpect(model().attribute("clientName", "GitHub"))
-				.andExpect(model().attribute("userAttributes", Collections.singletonMap("sub", "test-subject")));
+				.andExpect(model().attribute("userAttributes", Collections.singletonMap("sub", "user")));
 	}
 
 	private void assertLoginPage(HtmlPage page) {

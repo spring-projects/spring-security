@@ -398,7 +398,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 */
 	public static OAuth2LoginRequestPostProcessor oauth2Login() {
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
-				null, null, Collections.singleton("user"));
+				null, null, Collections.singleton("read"));
 		return new OAuth2LoginRequestPostProcessor(accessToken);
 	}
 
@@ -428,7 +428,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 */
 	public static OidcLoginRequestPostProcessor oidcLogin() {
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
-				null, null, Collections.singleton("user"));
+				null, null, Collections.singleton("read"));
 		return new OidcLoginRequestPostProcessor(accessToken);
 	}
 
@@ -1435,7 +1435,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private Map<String, Object> defaultAttributes() {
 			Map<String, Object> attributes = new HashMap<>();
-			attributes.put(this.nameAttributeKey, "test-subject");
+			attributes.put(this.nameAttributeKey, "user");
 			return attributes;
 		}
 
@@ -1495,7 +1495,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 */
 		public OidcLoginRequestPostProcessor idToken(Consumer<OidcIdToken.Builder> idTokenBuilderConsumer) {
 			OidcIdToken.Builder builder = OidcIdToken.withTokenValue("id-token");
-			builder.subject("test-subject");
+			builder.subject("user");
 			idTokenBuilderConsumer.accept(builder);
 			this.idToken = builder.build();
 			this.oidcUser = this::defaultPrincipal;
@@ -1577,7 +1577,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private OidcIdToken getOidcIdToken() {
 			if (this.idToken == null) {
 				return new OidcIdToken("id-token", null, null,
-						Collections.singletonMap(IdTokenClaimNames.SUB, "test-subject"));
+						Collections.singletonMap(IdTokenClaimNames.SUB, "user"));
 			} else {
 				return this.idToken;
 			}
@@ -1600,7 +1600,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private String registrationId = "test";
 		private ClientRegistration clientRegistration;
 		private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-				"access-token", null, null, Collections.singleton("user"));
+				"access-token", null, null, Collections.singleton("read"));
 
 		private OAuth2ClientRequestPostProcessor() {
 		}
@@ -1654,7 +1654,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 						"of the clientRegistration methods");
 			}
 			OAuth2AuthorizedClient client = new OAuth2AuthorizedClient
-					(this.clientRegistration, "test-subject", this.accessToken);
+					(this.clientRegistration, "user", this.accessToken);
 			OAuth2AuthorizedClientRepository authorizedClientRepository =
 					new HttpSessionOAuth2AuthorizedClientRepository();
 			authorizedClientRepository.saveAuthorizedClient(client, null, request, new MockHttpServletResponse());

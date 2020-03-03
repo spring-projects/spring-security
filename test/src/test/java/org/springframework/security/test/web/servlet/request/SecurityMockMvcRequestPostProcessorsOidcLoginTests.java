@@ -95,7 +95,7 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 		throws Exception {
 
 		this.mvc.perform(get("/name").with(oidcLogin()))
-				.andExpect(content().string("test-subject"));
+				.andExpect(content().string("user"));
 		this.mvc.perform(get("/admin/id-token/name").with(oidcLogin()))
 				.andExpect(status().isForbidden());
 	}
@@ -133,7 +133,7 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 	@Test
 	public void oidcLoginWhenOidcUserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
 		OidcUser oidcUser = new DefaultOidcUser(
-				AuthorityUtils.createAuthorityList("SCOPE_user"), idToken().build());
+				AuthorityUtils.createAuthorityList("SCOPE_read"), idToken().build());
 
 		this.mvc.perform(get("/id-token/sub")
 				.with(oidcLogin()
@@ -156,7 +156,7 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 			http
 				.authorizeRequests()
 					.mvcMatchers("/admin/**").hasAuthority("SCOPE_admin")
-					.anyRequest().hasAuthority("SCOPE_user")
+					.anyRequest().hasAuthority("SCOPE_read")
 					.and()
 				.oauth2Login();
 		}

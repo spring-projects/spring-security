@@ -79,6 +79,6 @@ public class OAuth2LoginControllerTests {
 		public void indexGreetsAuthenticatedUser() {
 			this.rest.mutateWith(mockOAuth2Login())
 					.get().uri("/").exchange()
-					.expectBody(String.class).value(containsString("test-subject"));
+					.expectBody(String.class).value(containsString("user"));
 		}
 }

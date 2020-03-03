@@ -86,9 +86,9 @@ public class SecurityMockServerConfigurersOAuth2LoginTests extends AbstractMockS
 		assertThat(token.getAuthorizedClientRegistrationId()).isEqualTo("test");
 		assertThat(token.getPrincipal()).isInstanceOf(OAuth2User.class);
 		assertThat(token.getPrincipal().getAttributes())
-				.containsEntry("sub", "test-subject");
+				.containsEntry("sub", "user");
 		assertThat((Collection<GrantedAuthority>) token.getPrincipal().getAuthorities())
-				.contains(new SimpleGrantedAuthority("SCOPE_user"));
+				.contains(new SimpleGrantedAuthority("SCOPE_read"));
 	}
 
 	@Test
@@ -134,7 +134,7 @@ public class SecurityMockServerConfigurersOAuth2LoginTests extends AbstractMockS
 	@Test
 	public void oauth2LoginWhenOAuth2UserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
 		OAuth2User oauth2User = new DefaultOAuth2User(
-				AuthorityUtils.createAuthorityList("SCOPE_user"),
+				AuthorityUtils.createAuthorityList("SCOPE_read"),
 				Collections.singletonMap("sub", "subject"),
 				"sub");
 

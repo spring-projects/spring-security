@@ -64,9 +64,9 @@ public class OAuth2LoginControllerTests {
 	@Test
 	public void rootWhenAuthenticatedReturnsUserAndClient() throws Exception {
 		this.mvc.perform(get("/").with(oauth2Login()))
-			.andExpect(model().attribute("userName", "test-subject"))
+			.andExpect(model().attribute("userName", "user"))
 			.andExpect(model().attribute("clientName", "test"))
-			.andExpect(model().attribute("userAttributes", Collections.singletonMap("sub", "test-subject")));
+			.andExpect(model().attribute("userAttributes", Collections.singletonMap("sub", "user")));
 	}
 
 	@Test

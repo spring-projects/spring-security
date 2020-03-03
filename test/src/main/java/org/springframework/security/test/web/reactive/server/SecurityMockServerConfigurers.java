@@ -185,7 +185,7 @@ public class SecurityMockServerConfigurers {
 	 */
 	public static OAuth2LoginMutator mockOAuth2Login() {
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
-				null, null, Collections.singleton("user"));
+				null, null, Collections.singleton("read"));
 		return new OAuth2LoginMutator(accessToken);
 	}
 
@@ -200,7 +200,7 @@ public class SecurityMockServerConfigurers {
 	 */
 	public static OidcLoginMutator mockOidcLogin() {
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
-				null, null, Collections.singleton("user"));
+				null, null, Collections.singleton("read"));
 		return new OidcLoginMutator(accessToken);
 	}
 
@@ -844,7 +844,7 @@ public class SecurityMockServerConfigurers {
 
 		private Map<String, Object> defaultAttributes() {
 			Map<String, Object> attributes = new HashMap<>();
-			attributes.put(this.nameAttributeKey, "test-subject");
+			attributes.put(this.nameAttributeKey, "user");
 			return attributes;
 		}
 
@@ -907,7 +907,7 @@ public class SecurityMockServerConfigurers {
 		 */
 		public OidcLoginMutator idToken(Consumer<OidcIdToken.Builder> idTokenBuilderConsumer) {
 			OidcIdToken.Builder builder = OidcIdToken.withTokenValue("id-token");
-			builder.subject("test-subject");
+			builder.subject("user");
 			idTokenBuilderConsumer.accept(builder);
 			this.idToken = builder.build();
 			this.oidcUser = this::defaultPrincipal;
@@ -1018,7 +1018,7 @@ public class SecurityMockServerConfigurers {
 
 		private OidcIdToken getOidcIdToken() {
 			if (this.idToken == null) {
-				return new OidcIdToken("id-token", null, null, Collections.singletonMap(IdTokenClaimNames.SUB, "test-subject"));
+				return new OidcIdToken("id-token", null, null, Collections.singletonMap(IdTokenClaimNames.SUB, "user"));
 			} else {
 				return this.idToken;
 			}
@@ -1041,7 +1041,7 @@ public class SecurityMockServerConfigurers {
 		private String registrationId = "test";
 		private ClientRegistration clientRegistration;
 		private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-				"access-token", null, null, Collections.singleton("user"));
+				"access-token", null, null, Collections.singleton("read"));
 
 		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository =
 				new WebSessionServerOAuth2AuthorizedClientRepository();
@@ -1122,7 +1122,7 @@ public class SecurityMockServerConfigurers {
 				throw new IllegalArgumentException("Please specify a ClientRegistration via one " +
 						"of the clientRegistration methods");
 			}
-			return new OAuth2AuthorizedClient(this.clientRegistration, "test-subject", this.accessToken);
+			return new OAuth2AuthorizedClient(this.clientRegistration, "user", this.accessToken);
 		}
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
