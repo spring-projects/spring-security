@@ -28,7 +28,7 @@ This also gives a good idea of the high level flow of authentication and how pie
 
 * <<servlet-authentication-unpwd,Username and Password>> - how to authenticate with a username/password
 * <<oauth2login,OAuth 2.0 Login>> - OAuth 2.0 Log In with OpenID Connect and non-standard OAuth 2.0 Login (i.e. GitHub)
-* <<saml2,SAML 2.0 Login>> - SAML 2.0 Log In
+* <<servlet-saml2,SAML 2.0 Login>> - SAML 2.0 Log In
 * <<servlet-cas,Central Authentication Server (CAS)>> - Central Authentication Server (CAS) Support
 * <<servlet-rememberme, Remember Me>> - How to remember a user past session expiration
 * <<servlet-jaas, JAAS Authentication>> - Authenticate with JAAS

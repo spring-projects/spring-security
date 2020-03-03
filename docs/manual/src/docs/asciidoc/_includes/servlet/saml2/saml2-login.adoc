@@ -1,4 +1,4 @@
-[[saml2login]]
+[[servlet-saml2-login]]
 == SAML 2.0 Login
 
 The SAML 2.0 Login, `saml2Login()`, feature provides an application with the capability to have users log in to the application by using their existing account at an SAML 2.0 Identity Provider (Okta, ADFS, etc).
@@ -7,7 +7,7 @@ NOTE: SAML 2.0 Login is implemented by using the *Web Browser SSO Profile*, as s
 https://www.oasis-open.org/committees/download.php/35389/sstc-saml-profiles-errata-2.0-wd-06-diff.pdf#page=15[SAML 2 Profiles].
 Our implementation is currently limited to a simple authentication scheme.
 
-[[saml2login-spring-security-saml2-history]]
+[[servlet-saml2-spring-security-history]]
 === SAML 2 Support in Spring Security
 
 SAML 2 Service Provider, SP a.k.a. a relying party, support existed as an
@@ -25,7 +25,7 @@ we didn't feel that we should build a library on top of another library.
 Instead we opted to provide framework support for SAML 2 authentication as part of
 https://github.com/spring-projects/spring-security[core Spring Security] instead.
 
-[[samllogin-concepts]]
+[[servlet-saml2-login-concepts]]
 === Saml 2 Login - High Level Concepts
 
 `saml2Login()` is aimed to support a fraction of the https://saml.xml.org/saml-specifications[SAML 2 feature set]
@@ -43,7 +43,7 @@ Okta, the IDP, sends an assertion to the web application, the SP.
 authentication request to the IDP requesting an assertion. Upon successful authentication on the IDP,
 the IDP sends an assertion to the SP.
 
-[[samllogin-feature-set]]
+[[servlet-saml2-login-feature-set]]
 === Saml 2 Login - Current Feature Set
 
 1. Service Provider (SP/Relying Party) is identified by `+entityId = {baseUrl}/saml2/service-provider-metadata/{registrationId}+`
@@ -56,6 +56,7 @@ the IDP sends an assertion to the SP.
 8. Public keys in `java.security.cert.X509Certificate` format.
 9. SP Initiated Authentication via an `AuthNRequest`
 
+[[servlet-saml2-login-tbd]]
 ==== Saml 2 Login - Not Yet Supported
 
 1. Mappings assertion conditions and attributes to session features (timeout, tracking, etc)
@@ -63,7 +64,7 @@ the IDP sends an assertion to the SP.
 3. Dynamic metadata generation
 4. Receiving and validating standalone assertion (not wrapped in a response object)
 
-[[samllogin-introduction-java-config]]
+[[servlet-saml2-javaconfig]]
 === Saml 2 Login - Introduction to Java Configuration
 
 To add `saml2Login()` to a Spring Security filter chain,
@@ -115,10 +116,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+[[servlet-saml2-relyingpartyregistration]]
 ==== RelyingPartyRegistration
 The https://github.com/spring-projects/spring-security/blob/5.2.0.RELEASE/saml2/saml2-service-provider/src/main/java/org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistration.java[`RelyingPartyRegistration`]
 object represents the mapping between this application, the SP, and the asserting party, the IDP.
 
+[[servlet-saml2-rpr-uripatterns]]
 ===== URI Patterns
 
 URI patterns are frequenty used to automatically generate URIs based on
@@ -133,6 +136,7 @@ an incoming request. The URI patterns in `saml2Login` can contain the following 
 For example:
 `+{baseUrl}/login/saml2/sso/{registrationId}+`
 
+[[servlet-saml2-rpr-relyingparty]]
 ===== Relying Party
 
 
@@ -174,6 +178,7 @@ credential if the first one fails.
 In a similar fashion, the SP configured private keys are used for decryption and attempted in the same order.
 The first SP credential (`type=SIGNING`) will be used when messages to the IDP are signed.
 
+[[servlet-saml2-rpr-duplicated]]
 ===== Duplicated Relying Party Configurations
 
 In the use case where an application uses multiple identity providers it becomes
@@ -191,6 +196,7 @@ for some identity providers vs others. This object model can ensure that there i
 disruption when configuration is changed in a multi IDP use case and you're not able to rotate
 credentials on all the identity providers.
 
+[[servlet-saml2-serviceprovider-metadata]]
 ==== Service Provider Metadata
 
 The Spring Security SAML 2 implementation does not yet provide an endpoint for downloading
@@ -207,6 +213,7 @@ Other known configuration names that also use this same value
 * X509Certificate - the certificate that you configure as part of your {SIGNING,DECRYPTION}
 credentials must be shared with the Identity Provider
 
+[[servlet-saml2-sp-initiated]]
 ==== Authentication Requests - SP Initiated Flow
 
 To initiate an authentication from the web application, a simple redirect to
@@ -222,6 +229,7 @@ public interface Saml2AuthenticationRequestFactory {
 }
 ----
 
+[[servlet-saml2-login-customize]]
 === Customizing Authentication Logic
 
 By default Spring Security configures the `OpenSamlAuthenticationProvider`
@@ -237,6 +245,7 @@ One customization strategy is to use an `ObjectPostProcessor`, which allows you 
 objects created by the implementation. Another option is to override the authentication
 manager for the filter that intercepts the SAMLResponse.
 
+[[servlet-saml2-opensamlauthenticationprovider]]
 ==== OpenSamlAuthenticationProvider ObjectPostProcessor
 
 [source,java]
@@ -268,6 +277,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+[[servlet-saml2-opensamlauthenticationprovider-authenticationmanager]]
 ==== Configure OpenSamlAuthenticationProvider as an Authentication Manager
 We can leverage the same method, `authenticationManager`, to override and customize the default
 `OpenSamlAuthenticationProvider`.
@@ -295,6 +305,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+[[servlet-saml2-custom-authenticationmanager]]
 ==== Custom Authentication Manager
 The authentication manager for the security filter can also be overwritten, using your own
 custom `AuthenticationManager` implementation.
@@ -321,7 +332,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
-[[samllogin-sample-boot]]
+[[servlet-saml2-sample-boot]]
 === Spring Boot 2.x Sample
 
 We are currently working with the Spring Boot team on the
@@ -338,6 +349,7 @@ To run the sample, follow these three steps
 ** User: `user`
 ** Password: `password`
 
+[[servlet-saml2-sample-idps]]
 ==== Multiple Identity Provider Sample
 
 It's very simple to use multiple providers, but there are some defaults that
