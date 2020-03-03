@@ -701,12 +701,13 @@ public class SecurityMockServerConfigurers {
 	 * @since 5.3
 	 */
 	public final static class OAuth2LoginMutator implements WebTestClientConfigurer, MockServerConfigurer {
+		private final String nameAttributeKey = "sub";
+
 		private ClientRegistration clientRegistration;
 		private OAuth2AccessToken accessToken;
 
 		private Supplier<Collection<GrantedAuthority>> authorities = this::defaultAuthorities;
 		private Supplier<Map<String, Object>> attributes = this::defaultAttributes;
-		private String nameAttributeKey = "sub";
 		private Supplier<OAuth2User> oauth2User = this::defaultPrincipal;
 
 		private final ServerOAuth2AuthorizedClientRepository authorizedClientRepository =
@@ -752,24 +753,10 @@ public class SecurityMockServerConfigurers {
 		public OAuth2LoginMutator attributes(Consumer<Map<String, Object>> attributesConsumer) {
 			Assert.notNull(attributesConsumer, "attributesConsumer cannot be null");
 			this.attributes = () -> {
-				Map<String, Object> attrs = new HashMap<>();
-				attrs.put(this.nameAttributeKey, "test-subject");
-				attributesConsumer.accept(attrs);
-				return attrs;
+				Map<String, Object> attributes = defaultAttributes();
+				attributesConsumer.accept(attributes);
+				return attributes;
 			};
-			this.oauth2User = this::defaultPrincipal;
-			return this;
-		}
-
-		/**
-		 * Use the provided key for the attribute containing the principal's name
-		 *
-		 * @param nameAttributeKey The attribute key to use
-		 * @return the {@link OAuth2LoginMutator} for further configuration
-		 */
-		public OAuth2LoginMutator nameAttributeKey(String nameAttributeKey) {
-			Assert.notNull(nameAttributeKey, "nameAttributeKey cannot be null");
-			this.nameAttributeKey = nameAttributeKey;
 			this.oauth2User = this::defaultPrincipal;
 			return this;
 		}
@@ -856,7 +843,9 @@ public class SecurityMockServerConfigurers {
 		}
 
 		private Map<String, Object> defaultAttributes() {
-			return Collections.singletonMap(this.nameAttributeKey, "test-subject");
+			Map<String, Object> attributes = new HashMap<>();
+			attributes.put(this.nameAttributeKey, "test-subject");
+			return attributes;
 		}
 
 		private OAuth2User defaultPrincipal() {

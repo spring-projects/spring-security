@@ -119,12 +119,16 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 
 	@Test
 	public void oauth2LoginWhenNameSpecifiedThenUserHasName() throws Exception {
+		OAuth2User oauth2User = new DefaultOAuth2User(
+				AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_user"),
+				Collections.singletonMap("custom-attribute", "test-subject"),
+				"custom-attribute");
 		this.mvc.perform(get("/attributes/custom-attribute")
-				.with(oauth2Login().nameAttributeKey("custom-attribute")))
+				.with(oauth2Login().oauth2User(oauth2User)))
 				.andExpect(content().string("test-subject"));
 
 		this.mvc.perform(get("/name")
-				.with(oauth2Login().nameAttributeKey("custom-attribute")))
+				.with(oauth2Login().oauth2User(oauth2User)))
 				.andExpect(content().string("test-subject"));
 	}
 
