@@ -1,3 +1,5 @@
+import java.util.concurrent.Callable
+
 apply plugin: 'io.spring.convention.spring-module'
 
 def includeProject = project(':spring-security-crypto')
@@ -34,9 +36,9 @@ dependencies {
 	testRuntime 'org.hsqldb:hsqldb'
 }
 
-task springVersion(type: versions.VersionsResourceTasks) {
-	versionsFile = file("${buildDir}/versions/spring-security.versions")
-	versions = provider { ["org.springframework:spring-core":"${springVersion()}"] }
+task springVersion(type: org.gradle.api.tasks.WriteProperties) {
+	outputFile = file("${buildDir}/versions/spring-security.versions")
+	property("org.springframework:spring-core", springVersion())
 }
 
 tasks.processResources {
@@ -52,11 +54,11 @@ tasks.sourcesJar.from {includeProject.sourceSets.main.java}
 configure(project.tasks.withType(Test)) {
 	doFirst {
 		systemProperties['springSecurityVersion'] = version
-		systemProperties['springVersion'] = springVersion()
+		systemProperties['springVersion'] = springVersion().call()
 	}
 }
 
-String springVersion() {
-	return project.configurations.compile.resolvedConfiguration.resolvedArtifacts
-    .find { it.name == 'spring-core' }.moduleVersion.id.version
+Callable<String> springVersion() {
+	return  (Callable<String>) { project.configurations.compile.resolvedConfiguration.resolvedArtifacts
+    .find { it.name == 'spring-core' }.moduleVersion.id.version }
 }
