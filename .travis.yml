@@ -13,4 +13,4 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-script: ./gradlew build --refresh-dependencies --no-daemon --continue
+script: ./gradlew build --continue
