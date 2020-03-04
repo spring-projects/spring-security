@@ -277,6 +277,13 @@ public class OAuth2ClientController {
 Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientRepository` and/or `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
 However, the application may choose to override and register a custom `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` `@Bean`.
 
+The default implementation of `OAuth2AuthorizedClientService` is `InMemoryOAuth2AuthorizedClientService`, which stores `OAuth2AuthorizedClient`(s) in-memory.
+
+Alternatively, the JDBC implementation `JdbcOAuth2AuthorizedClientService` may be configured for persisting `OAuth2AuthorizedClient`(s) in a database.
+
+[NOTE]
+`JdbcOAuth2AuthorizedClientService` depends on the table definition described in <<dbschema-oauth2-client, OAuth 2.0 Client Schema>>.
+
 
 [[oauth2Client-authorized-manager-provider]]
 ==== OAuth2AuthorizedClientManager / OAuth2AuthorizedClientProvider
