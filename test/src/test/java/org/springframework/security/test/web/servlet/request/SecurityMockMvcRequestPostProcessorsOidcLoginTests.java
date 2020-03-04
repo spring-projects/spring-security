@@ -38,6 +38,7 @@ import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2Aut
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.test.context.TestSecurityContextHolder;
@@ -129,6 +130,26 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 				.andExpect(content().string("email@email"));
 	}
 
+	@Test
+	public void oidcLoginWhenNameSpecifiedThenUserHasName() throws Exception {
+		OidcUser oidcUser = new DefaultOidcUser(
+				AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_read"),
+				OidcIdToken.withTokenValue("id-token").claim("custom-attribute", "test-subject").build(),
+				"custom-attribute");
+
+		this.mvc.perform(get("/id-token/custom-attribute")
+				.with(oidcLogin().oidcUser(oidcUser)))
+				.andExpect(content().string("test-subject"));
+
+		this.mvc.perform(get("/name")
+				.with(oidcLogin().oidcUser(oidcUser)))
+				.andExpect(content().string("test-subject"));
+
+		this.mvc.perform(get("/client-name")
+				.with(oidcLogin().oidcUser(oidcUser)))
+				.andExpect(content().string("test-subject"));
+	}
+
 	// gh-7794
 	@Test
 	public void oidcLoginWhenOidcUserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
@@ -177,6 +198,11 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 			@GetMapping("/name")
 			String name(@AuthenticationPrincipal OidcUser oidcUser) {
 				return oidcUser.getName();
+			}
+
+			@GetMapping("/client-name")
+			String clientName(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
+				return authorizedClient.getPrincipalName();
 			}
 
 			@GetMapping("/access-token")

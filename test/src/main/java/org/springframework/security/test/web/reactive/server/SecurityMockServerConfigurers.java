@@ -785,16 +785,18 @@ public class SecurityMockServerConfigurers {
 					.clientRegistration(this.clientRegistration)
 					.principalName(token.getPrincipal().getName())
 					.beforeServerCreated(builder);
-			mockAuthentication(getToken()).beforeServerCreated(builder);
+			mockAuthentication(token).beforeServerCreated(builder);
 		}
 
 		@Override
 		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
+			OAuth2AuthenticationToken token = getToken();
 			mockOAuth2Client()
 					.accessToken(this.accessToken)
 					.clientRegistration(this.clientRegistration)
+					.principalName(token.getPrincipal().getName())
 					.afterConfigureAdded(serverSpec);
-			mockAuthentication(getToken()).afterConfigureAdded(serverSpec);
+			mockAuthentication(token).afterConfigureAdded(serverSpec);
 		}
 
 		@Override
@@ -806,6 +808,7 @@ public class SecurityMockServerConfigurers {
 			mockOAuth2Client()
 					.accessToken(this.accessToken)
 					.clientRegistration(this.clientRegistration)
+					.principalName(token.getPrincipal().getName())
 					.afterConfigurerAdded(builder, httpHandlerBuilder, connector);
 			mockAuthentication(token).afterConfigurerAdded(builder, httpHandlerBuilder, connector);
 		}
@@ -953,18 +956,21 @@ public class SecurityMockServerConfigurers {
 			OAuth2AuthenticationToken token = getToken();
 			mockOAuth2Client()
 					.accessToken(this.accessToken)
+					.principalName(token.getPrincipal().getName())
 					.clientRegistration(this.clientRegistration)
 					.beforeServerCreated(builder);
-			mockAuthentication(getToken()).beforeServerCreated(builder);
+			mockAuthentication(token).beforeServerCreated(builder);
 		}
 
 		@Override
 		public void afterConfigureAdded(WebTestClient.MockServerSpec<?> serverSpec) {
+			OAuth2AuthenticationToken token = getToken();
 			mockOAuth2Client()
 					.accessToken(this.accessToken)
+					.principalName(token.getPrincipal().getName())
 					.clientRegistration(this.clientRegistration)
 					.afterConfigureAdded(serverSpec);
-			mockAuthentication(getToken()).afterConfigureAdded(serverSpec);
+			mockAuthentication(token).afterConfigureAdded(serverSpec);
 		}
 
 		@Override
@@ -975,6 +981,7 @@ public class SecurityMockServerConfigurers {
 			OAuth2AuthenticationToken token = getToken();
 			mockOAuth2Client()
 					.accessToken(this.accessToken)
+					.principalName(token.getPrincipal().getName())
 					.clientRegistration(this.clientRegistration)
 					.afterConfigurerAdded(builder, httpHandlerBuilder, connector);
 			mockAuthentication(token).afterConfigurerAdded(builder, httpHandlerBuilder, connector);

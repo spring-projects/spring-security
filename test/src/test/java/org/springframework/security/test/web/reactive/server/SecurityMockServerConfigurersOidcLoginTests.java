@@ -36,6 +36,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockOAuth2Login;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockOidcLogin;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
@@ -144,6 +146,34 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 		OAuth2AuthenticationToken token = this.controller.token;
 		assertThat(token.getPrincipal().getAttributes())
 				.containsEntry("email", "email@email");
+	}
+
+	@Test
+	public void oidcUserWhenNameSpecifiedThenUserHasName() throws Exception {
+		OidcUser oidcUser = new DefaultOidcUser(
+				AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_read"),
+				OidcIdToken.withTokenValue("id-token").claim("custom-attribute", "test-subject").build(),
+				"custom-attribute");
+
+		this.client.mutateWith(mockOAuth2Login()
+				.oauth2User(oidcUser))
+				.get().uri("/token")
+				.exchange()
+				.expectStatus().isOk();
+
+		OAuth2AuthenticationToken token = this.controller.token;
+		assertThat(token.getPrincipal().getName())
+				.isEqualTo("test-subject");
+
+		this.client.mutateWith(mockOAuth2Login()
+				.oauth2User(oidcUser))
+				.get().uri("/client")
+				.exchange()
+				.expectStatus().isOk();
+
+		OAuth2AuthorizedClient client = this.controller.authorizedClient;
+		assertThat(client.getPrincipalName())
+				.isEqualTo("test-subject");
 	}
 
 	// gh-7794

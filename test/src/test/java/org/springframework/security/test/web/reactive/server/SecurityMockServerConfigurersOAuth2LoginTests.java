@@ -132,6 +132,34 @@ public class SecurityMockServerConfigurersOAuth2LoginTests extends AbstractMockS
 	}
 
 	@Test
+	public void oauth2LoginWhenNameSpecifiedThenUserHasName() throws Exception {
+		OAuth2User oauth2User = new DefaultOAuth2User(
+				AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_read"),
+				Collections.singletonMap("custom-attribute", "test-subject"),
+				"custom-attribute");
+
+		this.client.mutateWith(mockOAuth2Login()
+				.oauth2User(oauth2User))
+				.get().uri("/token")
+				.exchange()
+				.expectStatus().isOk();
+
+		OAuth2AuthenticationToken token = this.controller.token;
+		assertThat(token.getPrincipal().getName())
+				.isEqualTo("test-subject");
+
+		this.client.mutateWith(mockOAuth2Login()
+				.oauth2User(oauth2User))
+				.get().uri("/client")
+				.exchange()
+				.expectStatus().isOk();
+
+		OAuth2AuthorizedClient client = this.controller.authorizedClient;
+		assertThat(client.getPrincipalName())
+				.isEqualTo("test-subject");
+	}
+
+	@Test
 	public void oauth2LoginWhenOAuth2UserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
 		OAuth2User oauth2User = new DefaultOAuth2User(
 				AuthorityUtils.createAuthorityList("SCOPE_read"),

@@ -130,6 +130,10 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 		this.mvc.perform(get("/name")
 				.with(oauth2Login().oauth2User(oauth2User)))
 				.andExpect(content().string("test-subject"));
+
+		this.mvc.perform(get("/client-name")
+				.with(oauth2Login().oauth2User(oauth2User)))
+				.andExpect(content().string("test-subject"));
 	}
 
 	@Test
@@ -191,6 +195,11 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 			@GetMapping("/client-id")
 			String authorizedClient(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
 				return authorizedClient.getClientRegistration().getClientId();
+			}
+
+			@GetMapping("/client-name")
+			String clientName(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
+				return authorizedClient.getPrincipalName();
 			}
 
 			@GetMapping("/attributes/{attribute}")
