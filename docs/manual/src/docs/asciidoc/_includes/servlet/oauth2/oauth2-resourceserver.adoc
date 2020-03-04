@@ -695,9 +695,19 @@ Adding a check for the `aud` claim is simple with the `OAuth2TokenValidator` API
 
 [source,java]
 ----
-public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
-    OAuth2Error error = new OAuth2Error("invalid_token", "The required audience is missing", null);
+OAuth2TokenValidator<Jwt> audienceValidator() {
+    return new JwtClaimValidator<List<String>>(AUD, aud -> aud.contains("messaging"));
+}
+----
 
+Or, for more control you can implement your own `OAuth2TokenValidator`:
+
+[source,java]
+----
+static class AudienceValidator implements OAuth2TokenValidator<Jwt> {
+    OAuth2Error error = new OAuth2Error("custom_code", "Custom error message", null);
+
+    @Override
     public OAuth2TokenValidatorResult validate(Jwt jwt) {
         if (jwt.getAudience().contains("messaging")) {
             return OAuth2TokenValidatorResult.success();
@@ -705,6 +715,12 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
             return OAuth2TokenValidatorResult.failure(error);
         }
     }
+}
+
+// ...
+
+OAuth2TokenValidator<Jwt> audienceValidator() {
+    return new AudienceValidator();
 }
 ----
 
@@ -717,7 +733,7 @@ JwtDecoder jwtDecoder() {
     NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder)
         JwtDecoders.fromIssuerLocation(issuerUri);
 
-    OAuth2TokenValidator<Jwt> audienceValidator = new AudienceValidator();
+    OAuth2TokenValidator<Jwt> audienceValidator = audienceValidator();
     OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(issuerUri);
     OAuth2TokenValidator<Jwt> withAudience = new DelegatingOAuth2TokenValidator<>(withIssuer, audienceValidator);
 

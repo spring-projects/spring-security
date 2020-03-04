@@ -36,7 +36,7 @@ Here's what you'll see in this release:
 * OAuth 2.0 Resource Server
 ** Added support for <<oauth2resourceserver-multitenancy,multiple issuers>>
 ** Added <<testing-opaque-token,test support for Opaque Tokens>>
-** Added https://github.com/spring-projects/spring-security/pull/7962[generic claim validator]
+** Added <<oauth2resourceserver-jwt-validation-custom,generic claim validator>>
 ** Added https://github.com/spring-projects/spring-security/issues/5185[XML support]
 ** Improved https://github.com/spring-projects/spring-security/pull/7826[bearer token error handling] for JWT and Opaque Token
 * SAML 2.0
