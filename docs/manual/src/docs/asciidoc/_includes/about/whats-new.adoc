@@ -14,8 +14,8 @@ Here's what you'll see in this release:
 * Added <<servlet-architecture,Servlet Security: The Big Picture>>
 * Updated <<servlet-authentication,Servlet Authentication>>
 ** Rewrote
-** Added how things work, including <servlet-delegatingfilterproxy-figure,diagrams>>
-* Added <<{gh-samples-url}/boot/kotlin,Kotlin samples>>
+** Added how things work, including <<servlet-delegatingfilterproxy-figure,diagrams>>
+* Added {gh-samples-url}/boot/kotlin[Kotlin samples]
 * Reskinned
 ** Added scrolling menu
 ** Added <<servlet-authentication-userdetailsservice,toggle>>
@@ -69,7 +69,7 @@ Here's what you'll see in this release:
 
 * Enhanced Authentication Event Publisher support
 ** Updated https://github.com/spring-projects/spring-security/pull/7802[configuration support]
-** Added https://github.com/spring-projects/spring-security/issues/7825,default event>> and <<https://github.com/spring-projects/spring-security/issues/7824[`Map`-based] exception mapping
+** Added https://github.com/spring-projects/spring-security/issues/7825[default event] and https://github.com/spring-projects/spring-security/issues/7824[`Map`-based] exception mapping
 * Improved https://github.com/spring-projects/spring-security/issues/7891[integration with Spring Data]
 * Added support to https://github.com/spring-projects/spring-security/issues/7661[BCrypt to hash byte arrays]
 
