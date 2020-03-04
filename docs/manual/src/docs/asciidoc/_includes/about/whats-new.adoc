@@ -4,6 +4,7 @@
 Spring Security 5.3 provides a number of new features.
 Below are the highlights of the release.
 
+[[whats-new-documentation]]
 === Documentation Updates
 
 We will continue our effort to rewrite the documentation.
@@ -20,6 +21,7 @@ Here's what you'll see in this release:
 ** Added <<servlet-authentication-userdetailsservice,toggle>>
 ** Updated styles
 
+[[whats-new-servlet]]
 === Servlet
 
 * Added <<kotlin-config-httpsecurity,Kotlin DSL>>
@@ -42,6 +44,7 @@ Here's what you'll see in this release:
 ** Added support for https://github.com/spring-projects/spring-security/issues/7711[AuthNRequest signatures]
 ** Added support for https://github.com/spring-projects/spring-security/pull/7759[AuthNRequest POST binding]
 
+[[whats-new-webflux]]
 === WebFlux
 
 * Added https://github.com/spring-projects/spring-security/issues/7636[DSL support for custom header writers]
@@ -56,11 +59,13 @@ Here's what you'll see in this release:
 ** Added https://github.com/spring-projects/spring-security/issues/7827[test support for Opaque Tokens]
 ** Improved https://github.com/spring-projects/spring-security/pull/7826[bearer token error handling] for JWT and Opaque Token
 
+[[whats-new-rsocket]]
 === RSocket
 
 * Added support for https://github.com/spring-projects/spring-security/issues/7935[RSocket Authentication extension]
 
-=== Core
+[[whats-new-additional]]
+=== Additional Updates
 
 * Enhanced Authentication Event Publisher support
 ** Updated https://github.com/spring-projects/spring-security/pull/7802[configuration support]
@@ -68,7 +73,8 @@ Here's what you'll see in this release:
 * Improved https://github.com/spring-projects/spring-security/issues/7891[integration with Spring Data]
 * Added support to https://github.com/spring-projects/spring-security/issues/7661[BCrypt to hash byte arrays]
 
-=== Build
+[[whats-new-build]]
+=== Build Changes
 
 * Changed build to https://github.com/spring-projects/spring-security/issues/7788[use version ranges]
 * Removed https://github.com/spring-projects/spring-security/issues/4939[dependency on Groovy]
