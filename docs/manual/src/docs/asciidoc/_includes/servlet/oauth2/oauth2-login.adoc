@@ -283,7 +283,10 @@ public class OAuth2LoginConfig {
 
 The following example shows how to provide a `WebSecurityConfigurerAdapter` with `@EnableWebSecurity` and enable OAuth 2.0 login through `httpSecurity.oauth2Login()`:
 
-[source,java]
+.OAuth2 Login Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -299,13 +302,34 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+            oauth2Login { }
+        }
+    }
+}
+----
+====
+
 
 [[oauth2login-completely-override-autoconfiguration]]
 ==== Completely Override the Auto-configuration
 
 The following example shows how to completely override the auto-configuration by registering a `ClientRegistrationRepository` `@Bean` and providing a `WebSecurityConfigurerAdapter`.
 
-[source,java,attrs="-attributes"]
+.Overriding the auto-configuration
+====
+.Java
+[source,java,role="primary",attrs="-attributes"]
 ----
 @Configuration
 public class OAuth2LoginConfig {
@@ -346,6 +370,50 @@ public class OAuth2LoginConfig {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary",attrs="-attributes"]
+----
+@Configuration
+class OAuth2LoginConfig {
+
+    @EnableWebSecurity
+    class OAuth2LoginSecurityConfig: WebSecurityConfigurerAdapter() {
+
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                oauth2Login { }
+            }
+        }
+    }
+
+    @Bean
+    fun clientRegistrationRepository(): ClientRegistrationRepository {
+        return InMemoryClientRegistrationRepository(googleClientRegistration())
+    }
+
+    private fun googleClientRegistration(): ClientRegistration {
+        return ClientRegistration.withRegistrationId("google")
+                .clientId("google-client-id")
+                .clientSecret("google-client-secret")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+                .scope("openid", "profile", "email", "address", "phone")
+                .authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
+                .tokenUri("https://www.googleapis.com/oauth2/v4/token")
+                .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
+                .userNameAttributeName(IdTokenClaimNames.SUB)
+                .jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
+                .clientName("Google")
+                .build()
+    }
+}
+----
+====
 
 
 [[oauth2login-javaconfig-wo-boot]]
@@ -407,7 +475,10 @@ For example, `oauth2Login().authorizationEndpoint()` allows configuring the _Aut
 
 The following code shows an example:
 
-[source,java]
+.Advanced OAuth2 Login Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -433,6 +504,34 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Login {
+                authorizationEndpoint {
+                    ...
+                }
+                redirectionEndpoint {
+                    ...
+                }
+                tokenEndpoint {
+                    ...
+                }
+                userInfoEndpoint {
+                    ...
+                }
+            }
+        }
+    }
+}
+----
+====
+
 The main goal of the `oauth2Login()` DSL was to closely align with the naming, as defined in the specifications.
 
 The OAuth 2.0 Authorization Framework defines the https://tools.ietf.org/html/rfc6749#section-3[Protocol Endpoints] as follows:
@@ -454,7 +553,10 @@ These claims are normally represented by a JSON object that contains a collectio
 
 The following code shows the complete configuration options available for the `oauth2Login()` DSL:
 
-[source,java]
+.OAuth2 Login Configuration Options
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -489,6 +591,43 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Login {
+                clientRegistrationRepository = clientRegistrationRepository()
+                authorizedClientRepository = authorizedClientRepository()
+                authorizedClientService = authorizedClientService()
+                loginPage = "/login"
+                authorizationEndpoint {
+                    baseUri = authorizationRequestBaseUri()
+                    authorizationRequestRepository = authorizationRequestRepository()
+                    authorizationRequestResolver = authorizationRequestResolver()
+                }
+                redirectionEndpoint {
+                    baseUri = authorizationResponseBaseUri()
+                }
+                tokenEndpoint {
+                    accessTokenResponseClient = accessTokenResponseClient()
+                }
+                userInfoEndpoint {
+                    userAuthoritiesMapper = userAuthoritiesMapper()
+                    userService = oauth2UserService()
+                    oidcUserService = oidcUserService()
+                    customUserType(GitHubOAuth2User::class.java, "github")
+                }
+            }
+        }
+    }
+}
+----
+====
+
 The following sections go into more detail on each of the configuration options available:
 
 * <<oauth2login-advanced-login-page, OAuth 2.0 Login Page>>
@@ -521,7 +660,10 @@ To override the default login page, configure `oauth2Login().loginPage()` and (o
 
 The following listing shows an example:
 
-[source,java]
+.OAuth2 Login Page Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -540,6 +682,26 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Login {
+                loginPage = "/login/oauth2"
+                authorizationEndpoint {
+                    baseUri = "/login/oauth2/authorization"
+                }
+            }
+        }
+    }
+}
+----
+====
 
 [IMPORTANT]
 You need to provide a `@Controller` with a `@RequestMapping("/login/oauth2")` that is capable of rendering the custom login page.
@@ -571,7 +733,10 @@ The default Authorization Response `baseUri` (redirection endpoint) is `*/login/
 
 If you would like to customize the Authorization Response `baseUri`, configure it as shown in the following example:
 
-[source,java]
+.Redirection Endpoint Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -588,6 +753,25 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Login {
+                redirectionEndpoint {
+                    baseUri = "/login/oauth2/callback/*"
+                }
+            }
+        }
+    }
+}
+----
+====
 
 [IMPORTANT]
 ====
@@ -636,7 +820,10 @@ There are a couple of options to choose from when mapping user authorities:
 
 Provide an implementation of `GrantedAuthoritiesMapper` and configure it as shown in the following example:
 
-[source,java]
+.Granted Authorities Mapper Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -683,9 +870,50 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Login {
+                userInfoEndpoint {
+                    userAuthoritiesMapper = userAuthoritiesMapper()
+                }
+            }
+        }
+    }
+
+    private fun userAuthoritiesMapper(): GrantedAuthoritiesMapper = GrantedAuthoritiesMapper { authorities: Collection<GrantedAuthority> ->
+        val mappedAuthorities = emptySet<GrantedAuthority>()
+
+        authorities.forEach { authority ->
+            if (authority is OidcUserAuthority) {
+                val idToken = authority.idToken
+                val userInfo = authority.userInfo
+                // Map the claims found in idToken and/or userInfo
+                // to one or more GrantedAuthority's and add it to mappedAuthorities
+            } else if (authority is OAuth2UserAuthority) {
+                val userAttributes = authority.attributes
+                // Map the attributes found in userAttributes
+                // to one or more GrantedAuthority's and add it to mappedAuthorities
+            }
+        }
+
+        mappedAuthorities
+    }
+}
+----
+====
+
 Alternatively, you may register a `GrantedAuthoritiesMapper` `@Bean` to have it automatically applied to the configuration, as shown in the following example:
 
-[source,java]
+.Granted Authorities Mapper Bean Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -703,6 +931,25 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Login { }
+        }
+    }
+
+    @Bean
+    fun userAuthoritiesMapper(): GrantedAuthoritiesMapper {
+        ...
+    }
+}
+----
+====
 
 [[oauth2login-advanced-map-authorities-oauth2userservice]]
 ====== Delegation-based strategy with OAuth2UserService
@@ -713,7 +960,10 @@ The `OAuth2UserRequest` (and `OidcUserRequest`) provides you access to the assoc
 
 The following example shows how to implement and configure a delegation-based strategy using an OpenID Connect 1.0 UserService:
 
-[source,java]
+.OAuth2UserService Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -751,6 +1001,46 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Login {
+                userInfoEndpoint {
+                    oidcUserService = oidcUserService()
+                }
+            }
+        }
+    }
+
+    @Bean
+    fun oidcUserService(): OAuth2UserService<OidcUserRequest, OidcUser> {
+        val delegate = OidcUserService()
+
+        return OAuth2UserService { userRequest ->
+            // Delegate to the default implementation for loading a user
+            var oidcUser = delegate.loadUser(userRequest)
+
+            val accessToken = userRequest.accessToken
+            val mappedAuthorities = HashSet<GrantedAuthority>()
+
+            // TODO
+            // 1) Fetch the authority information from the protected resource using accessToken
+            // 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
+            // 3) Create a copy of oidcUser but use the mappedAuthorities instead
+            oidcUser = DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo)
+
+            oidcUser
+        }
+    }
+}
+----
+====
 
 
 [[oauth2login-advanced-custom-user]]

@@ -124,7 +124,10 @@ There are two `@Bean` s that Spring Boot generates on Resource Server's behalf.
 
 The first is a `WebSecurityConfigurerAdapter` that configures the app as a resource server. When including `spring-security-oauth2-jose`, this `WebSecurityConfigurerAdapter` looks like:
 
-[source,java]
+.Default JWT Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 protected void configure(HttpSecurity http) {
     http
@@ -135,11 +138,30 @@ protected void configure(HttpSecurity http) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+fun configure(http: HttpSecurity) {
+    http {
+        authorizeRequests {
+            authorize(anyRequest, authenticated)
+        }
+        oauth2ResourceServer {
+            jwt { }
+        }
+    }
+}
+----
+====
+
 If the application doesn't expose a `WebSecurityConfigurerAdapter` bean, then Spring Boot will expose the above default one.
 
 Replacing this is as simple as exposing the bean within the application:
 
-[source,java]
+.Custom JWT Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -157,6 +179,28 @@ public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter 
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            authorizeRequests {
+                authorize("/messages/**", hasAuthority("SCOPE_message:read"))
+                authorize(anyRequest, authenticated)
+            }
+            oauth2ResourceServer {
+                jwt {
+                    jwtAuthenticationConverter = myConverter()
+                }
+            }
+        }
+    }
+}
+----
+====
 
 The above requires the scope of `message:read` for any URL that starts with `/messages/`.
 
@@ -184,7 +228,10 @@ And its configuration can be overridden using `jwkSetUri()` or replaced using `d
 
 An authorization server's JWK Set Uri can be configured <<oauth2resourceserver-jwt-jwkseturi,as a configuration property>> or it can be supplied in the DSL:
 
-[source,java]
+.JWK Set Uri Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
@@ -202,6 +249,27 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+            oauth2ResourceServer {
+                jwt {
+                    jwkSetUri = "https://idp.example.com/.well-known/jwks.json"
+                }
+            }
+        }
+    }
+}
+----
+====
+
 Using `jwkSetUri()` takes precedence over any configuration property.
 
 [[oauth2resourceserver-jwt-decoder-dsl]]
@@ -209,7 +277,10 @@ Using `jwkSetUri()` takes precedence over any configuration property.
 
 More powerful than `jwkSetUri()` is `decoder()`, which will completely replace any Boot auto configuration of `JwtDecoder`:
 
-[source,java]
+.JWT Decoder Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class DirectlyConfiguredJwtDecoder extends WebSecurityConfigurerAdapter {
@@ -226,6 +297,27 @@ public class DirectlyConfiguredJwtDecoder extends WebSecurityConfigurerAdapter {
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class DirectlyConfiguredJwtDecoder : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+            oauth2ResourceServer {
+                jwt {
+                    jwtDecoder = myCustomDecoder()
+                }
+            }
+        }
+    }
+}
+----
+====
 
 This is handy when deeper configuration, like <<oauth2resourceserver-jwt-validation,validation>>, <<oauth2resourceserver-jwt-claimsetmapping,mapping>>, or <<oauth2resourceserver-jwt-timeouts,request timeouts>>, is necessary.
 
@@ -411,7 +503,10 @@ When this is the case, Resource Server will attempt to coerce these scopes into 
 
 This means that to protect an endpoint or method with a scope derived from a JWT, the corresponding expressions should include this prefix:
 
-[source,java]
+.Authorization Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
@@ -426,6 +521,27 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            authorizeRequests {
+                authorize("/contacts/**", hasAuthority("SCOPE_contacts"))
+                authorize("/messages/**", hasAuthority("SCOPE_messages"))
+                authorize(anyRequest, authenticated)
+            }
+            oauth2ResourceServer {
+                jwt { }
+            }
+        }
+    }
+}
+----
+====
 
 Or similarly with method security:
 
@@ -444,7 +560,10 @@ Or, at other times, the resource server may need to adapt the attribute or a com
 
 To this end, the DSL exposes `jwtAuthenticationConverter()`:
 
-[source,java]
+.Authorities Extractor Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
@@ -471,6 +590,33 @@ Converter<Jwt, AbstractAuthenticationToken> grantedAuthoritiesExtractor() {
     return jwtAuthenticationConverter;
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+            oauth2ResourceServer {
+                jwt {
+                    jwtAuthenticationConverter = grantedAuthoritiesExtractor()
+                }
+            }
+        }
+    }
+
+    private fun grantedAuthoritiesExtractor(): JwtAuthenticationConverter {
+        val jwtAuthenticationConverter = JwtAuthenticationConverter()
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(GrantedAuthoritiesExtractor())
+        return jwtAuthenticationConverter
+    }
+}
+----
+====
 
 which is responsible for converting a `Jwt` into an `Authentication`.
 As part of its configuration, we can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
@@ -812,7 +958,10 @@ There are two `@Bean` s that Spring Boot generates on Resource Server's behalf.
 The first is a `WebSecurityConfigurerAdapter` that configures the app as a resource server.
 When use Opaque Token, this `WebSecurityConfigurerAdapter` looks like:
 
-[source,java]
+.Default Opaque Token Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 protected void configure(HttpSecurity http) {
     http
@@ -823,11 +972,30 @@ protected void configure(HttpSecurity http) {
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+override fun configure(http: HttpSecurity) {
+    http {
+        authorizeRequests {
+            authorize(anyRequest, authenticated)
+        }
+        oauth2ResourceServer {
+            opaqueToken { }
+        }
+    }
+}
+----
+====
+
 If the application doesn't expose a `WebSecurityConfigurerAdapter` bean, then Spring Boot will expose the above default one.
 
 Replacing this is as simple as exposing the bean within the application:
 
-[source,java]
+.Custom Opaque Token Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -845,6 +1013,28 @@ public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter 
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            authorizeRequests {
+                authorize("/messages/**", hasAuthority("SCOPE_message:read"))
+                authorize(anyRequest, authenticated)
+            }
+            oauth2ResourceServer {
+                opaqueToken {
+                    introspector = myIntrospector()
+                }
+            }
+        }
+    }
+}
+----
+====
 
 The above requires the scope of `message:read` for any URL that starts with `/messages/`.
 
@@ -869,7 +1059,10 @@ And its configuration can be overridden using `introspectionUri()` and `introspe
 
 An authorization server's Introspection Uri can be configured <<oauth2resourceserver-opaque-introspectionuri,as a configuration property>> or it can be supplied in the DSL:
 
-[source,java]
+.Introspection URI Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class DirectlyConfiguredIntrospectionUri extends WebSecurityConfigurerAdapter {
@@ -888,6 +1081,28 @@ public class DirectlyConfiguredIntrospectionUri extends WebSecurityConfigurerAda
 }
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class DirectlyConfiguredIntrospectionUri : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+            oauth2ResourceServer {
+                opaqueToken {
+                    introspectionUri = "https://idp.example.com/introspect"
+                    introspectionClientCredentials("client", "secret")
+                }
+            }
+        }
+    }
+}
+----
+====
+
 Using `introspectionUri()` takes precedence over any configuration property.
 
 [[oauth2resourceserver-opaque-introspector-dsl]]
@@ -895,7 +1110,10 @@ Using `introspectionUri()` takes precedence over any configuration property.
 
 More powerful than `introspectionUri()` is `introspector()`, which will completely replace any Boot auto configuration of `OpaqueTokenIntrospector`:
 
-[source,java]
+.Introspector Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class DirectlyConfiguredIntrospector extends WebSecurityConfigurerAdapter {
@@ -912,6 +1130,27 @@ public class DirectlyConfiguredIntrospector extends WebSecurityConfigurerAdapter
     }
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class DirectlyConfiguredIntrospector : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
+            }
+            oauth2ResourceServer {
+                opaqueToken {
+                    introspector = myCustomIntrospector()
+                }
+            }
+        }
+    }
+}
+----
+====
 
 This is handy when deeper configuration, like <<oauth2resourceserver-opaque-authorization-extraction,authority mapping>>, <<oauth2resourceserver-opaque-jwt-introspector,JWT revocation>>, or <<oauth2resourceserver-opaque-timeouts,request timeouts>>, is necessary.
 

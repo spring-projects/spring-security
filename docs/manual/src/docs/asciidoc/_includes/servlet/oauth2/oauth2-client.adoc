@@ -19,7 +19,10 @@ In addition, `HttpSecurity.oauth2Client().authorizationCodeGrant()` enables the 
 
 The following code shows the complete configuration options provided by the `HttpSecurity.oauth2Client()` DSL:
 
-[source,java]
+.OAuth2 Client Configuration Options
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -40,6 +43,30 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Client {
+                clientRegistrationRepository = clientRegistrationRepository()
+                authorizedClientRepository = authorizedClientRepository()
+                authorizedClientService = authorizedClientService()
+                authorizationCodeGrant {
+                    authorizationRequestRepository = authorizationRequestRepository()
+                    authorizationRequestResolver = authorizationRequestResolver()
+                    accessTokenResponseClient = accessTokenResponseClient()
+                }
+            }
+        }
+    }
+}
+----
+====
 
 The `OAuth2AuthorizedClientManager` is responsible for managing the authorization (or re-authorization) of an OAuth 2.0 Client, in collaboration with one or more `OAuth2AuthorizedClientProvider`(s).
 
@@ -583,7 +610,10 @@ The default implementation of `AuthorizationRequestRepository` is `HttpSessionOA
 
 If you have a custom implementation of `AuthorizationRequestRepository`, you may configure it as shown in the following example:
 
-[source,java]
+.AuthorizationRequestRepository Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -600,6 +630,25 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Client {
+                authorizationCodeGrant {
+                    authorizationRequestRepository = authorizationRequestRepository()
+                }
+            }
+        }
+    }
+}
+----
+====
 
 
 ===== Requesting an Access Token
@@ -645,7 +694,10 @@ It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error 
 
 Whether you customize `DefaultAuthorizationCodeTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
 
-[source,java]
+.Access Token Response Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @EnableWebSecurity
 public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -662,6 +714,25 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Client {
+                authorizationCodeGrant {
+                    accessTokenResponseClient = accessTokenResponseClient()
+                }
+            }
+        }
+    }
+}
+----
+====
 
 
 [[oauth2Client-refresh-token-grant]]
