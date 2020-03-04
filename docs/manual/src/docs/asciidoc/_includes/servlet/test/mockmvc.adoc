@@ -296,7 +296,7 @@ mvc.perform(get("/endpoint").with(oidcLogin()));
 
 What this will do is create a mock `OidcUser`, passing it correctly through any authentication APIs so that it's available for your controllers and so on.
 It contains a mock `OidcUserInfo`, a mock `OidcIdToken`, and a mock `Collection` of granted authorities.
-Also, <<a mock `OAuth2AuthorizedClient`,testing-oauth2-client>> associated with the user is registered to an `HttpSessionOAuth2AuthorizedClientRepository`.
+Also, <<testing-oauth2-client,a mock `OAuth2AuthorizedClient`>> associated with the user is registered to an `HttpSessionOAuth2AuthorizedClientRepository`.
 
 By default, the user info has no claims, and the id token has the `sub` claim, like so:
 
@@ -367,7 +367,7 @@ mvc.perform(get("/endpoint").with(oauth2Login()));
 
 What this will do is create a mock `OAuth2User`, passing it correctly through any authentication APIs so that it's available for your controllers and so on.
 It contains a mock set of attributes and a mock `Collection` of granted authorities.
-Also, <<a mock `OAuth2AuthorizedClient`,testing-oauth2-client>> associated with the user is registered to an `HttpSessionOAuth2AuthorizedClientRepository`.
+Also, <<testing-oauth2-client,a mock `OAuth2AuthorizedClient`>> associated with the user is registered to an `HttpSessionOAuth2AuthorizedClientRepository`.
 
 By default, the set of attributes contains only `sub`:
 
