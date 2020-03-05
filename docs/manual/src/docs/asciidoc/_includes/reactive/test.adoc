@@ -149,8 +149,401 @@ this.rest
 	...
 ----
 
+[[webflux-testing-oauth2]]
+=== Testing OAuth 2.0
 
-=== Testing Bearer Authentication
+When it comes to OAuth 2.0, the same principles covered earlier still apply: Ultimately, it depends on what your method under test is expecting to be in the `SecurityContextHolder`.
+
+For example, for a controller that looks like this:
+
+[source,java]
+----
+@GetMapping("/endpoint")
+public Mono<String> foo(Principal user) {
+    return Mono.just(user.getName());
+}
+----
+
+There's nothing OAuth2-specific about it, so you will likely be able to simply <<test-erms,use `@WithMockUser`>> and be fine.
+
+But, in cases where your controllers are bound to some aspect of Spring Security's OAuth 2.0 support, like the following:
+
+[source,java]
+----
+@GetMapping("/endpoint")
+public Mono<String> foo(@AuthenticationPrincipal OidcUser user) {
+    return Mono.just(user.getIdToken().getSubject());
+}
+----
+
+then Spring Security's test support can come in handy.
+
+[[webflux-testing-oidc-login]]
+=== Testing OIDC Login
+
+Testing the method above with `WebTestClient` would require simulating some kind of grant flow with an authorization server.
+Certainly this would be a daunting task, which is why Spring Security ships with support for removing this boilerplate.
+
+For example, we can tell Spring Security to include a default `OidcUser` using the `SecurityMockServerConfigurers#oidcLogin` method, like so:
+
+[source,java]
+----
+client
+    .mutateWith(mockOidcLogin()).get().uri("/endpoint").exchange();
+----
+
+What this will do is configure the associated `MockServerRequest` with an `OidcUser` that includes a simple `OidcIdToken`, `OidcUserInfo`, and `Collection` of granted authorities.
+
+Specifically, it will include an `OidcIdToken` with a `sub` claim set to `user`:
+
+[source,json]
+----
+assertThat(user.getIdToken().getClaim("sub")).isEqualTo("user");
+----
+
+an `OidcUserInfo` with no claims set:
+
+[source,json]
+----
+assertThat(user.getUserInfo().getClaims()).isEmpty();
+----
+
+and a `Collection` of authorities with just one authority, `SCOPE_read`:
+
+[source,json]
+----
+assertThat(user.getAuthorities()).hasSize(1);
+assertThat(user.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_read"));
+----
+
+Spring Security does the necessary work to make sure that the `OidcUser` instance is available for <<mvc-authentication-principal,the `@AuthenticationPrincipal` annotation>>.
+
+Further, it also links that `OidcUser` to a simple instance of `OAuth2AuthorizedClient` that it deposits into an `WebSessionOAuth2ServerAuthorizedClientRepository`.
+This can be handy if your tests <<webflux-testing-oauth2-client,use the `@RegisteredOAuth2AuthorizedClient` annotation>>..
+
+[[webflux-testing-oidc-login-authorities]]
+==== Configuring Authorities
+
+In many circumstances, your method is protected by filter or method security and needs your `Authentication` to have certain granted authorities to allow the request.
+
+In this case, you can supply what granted authorities you need using the `authorities()` method:
+
+[source,java]
+----
+client
+    .mutateWith(mockOidcLogin()
+        .authorities(new SimpleGrantedAuthority("SCOPE_message:read"))
+    )
+    .get().uri("/endpoint").exchange();
+----
+
+[[webflux-testing-oidc-login-claims]]
+==== Configuring Claims
+
+And while granted authorities are quite common across all of Spring Security, we also have claims in the case of OAuth 2.0.
+
+Let's say, for example, that you've got a `user_id` claim that indicates the user's id in your system.
+You might access it like so in a controller:
+
+[source,java]
+----
+@GetMapping("/endpoint")
+public Mono<String> foo(@AuthenticationPrincipal OidcUser oidcUser) {
+    String userId = oidcUser.getIdToken().getClaim("user_id");
+    // ...
+}
+----
+
+In that case, you'd want to specify that claim with the `idToken()` method:
+
+[source,java]
+----
+client
+    .mutateWith(mockOidcLogin()
+        .idToken(token -> token.claim("user_id", "1234"))
+    )
+    .get().uri("/endpoint").exchange();
+----
+
+since `OidcUser` collects its claims from `OidcIdToken`.
+
+[[webflux-testing-oidc-login-user]]
+==== Additional Configurations
+
+There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects:
+
+* `userInfo(OidcUserInfo.Builder)` - For configuring the `OidcUserInfo` instance
+* `clientRegistration(ClientRegistration)` - For configuring the associated `OAuth2AuthorizedClient` with a given `ClientRegistration`
+* `oidcUser(OidcUser)` - For configuring the complete `OidcUser` instance
+
+That last one is handy if you:
+1. Have your own implementation of `OidcUser`, or
+2. Need to change the name attribute
+
+For example, let's say that your authorization server sends the principal name in the `user_name` claim instead of the `sub` claim.
+In that case, you can configure an `OidcUser` by hand:
+
+[source,java]
+----
+OidcUser oidcUser = new DefaultOidcUser(
+        AuthorityUtils.createAuthorityList("SCOPE_message:read"),
+        Collections.singletonMap("user_name", "foo_user"),
+        "user_name");
+
+client
+    .mutateWith(mockOidcLogin().oidcUser(oidcUser))
+    .get().uri("/endpoint").exchange();
+----
+
+[[webflux-testing-oauth2-login]]
+=== Testing OAuth 2.0 Login
+
+As with <<webflux-testing-oidc-login,testing OIDC login>>, testing OAuth 2.0 Login presents a similar challenge of mocking a grant flow.
+And because of that, Spring Security also has test support for non-OIDC use cases.
+
+Let's say that we've got a controller that gets the logged-in user as an `OAuth2User`:
+
+[source,java]
+----
+@GetMapping("/endpoint")
+public Mono<String> foo(@AuthenticationPrincipal OAuth2User oauth2User) {
+    return Mono.just(oauth2User.getAttribute("sub"));
+}
+----
+
+In that case, we can tell Spring Security to include a default `OAuth2User` using the `SecurityMockServerConfigurers#oauth2User` method, like so:
+
+[source,java]
+----
+client
+    .mutateWith(mockOAuth2Login())
+    .get().uri("/endpoint").exchange();
+----
+
+What this will do is configure the associated `MockServerRequest` with an `OAuth2User` that includes a simple `Map` of attributes and `Collection` of granted authorities.
+
+Specifically, it will include a `Map` with a key/value pair of `sub`/`user`:
+
+[source,json]
+----
+assertThat((String) user.getAttribute("sub")).isEqualTo("user");
+----
+
+and a `Collection` of authorities with just one authority, `SCOPE_read`:
+
+[source,json]
+----
+assertThat(user.getAuthorities()).hasSize(1);
+assertThat(user.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_read"));
+----
+
+Spring Security does the necessary work to make sure that the `OAuth2User` instance is available for <<mvc-authentication-principal,the `@AuthenticationPrincipal` annotation>>.
+
+Further, it also links that `OAuth2User` to a simple instance of `OAuth2AuthorizedClient` that it deposits in an `WebSessionOAuth2ServerAuthorizedClientRepository`.
+This can be handy if your tests <<webflux-testing-oauth2-client,use the `@RegisteredOAuth2AuthorizedClient` annotation>>.
+
+[[webflux-testing-oauth2-login-authorities]]
+==== Configuring Authorities
+
+In many circumstances, your method is protected by filter or method security and needs your `Authentication` to have certain granted authorities to allow the request.
+
+In this case, you can supply what granted authorities you need using the `authorities()` method:
+
+[source,java]
+----
+client
+    .mutateWith(mockOAuth2Login()
+        .authorities(new SimpleGrantedAuthority("SCOPE_message:read"))
+    )
+    .get().uri("/endpoint").exchange();
+----
+
+[[webflux-testing-oauth2-login-claims]]
+==== Configuring Claims
+
+And while granted authorities are quite common across all of Spring Security, we also have claims in the case of OAuth 2.0.
+
+Let's say, for example, that you've got a `user_id` attribute that indicates the user's id in your system.
+You might access it like so in a controller:
+
+[source,java]
+----
+@GetMapping("/endpoint")
+public Mono<String> foo(@AuthenticationPrincipal OAuth2User oauth2User) {
+    String userId = oauth2User.getAttribute("user_id");
+    // ...
+}
+----
+
+In that case, you'd want to specify that attribute with the `attributes()` method:
+
+[source,java]
+----
+client
+    .mutateWith(mockOAuth2Login()
+        .attributes(attrs -> attrs.put("user_id", "1234"))
+    )
+    .get().uri("/endpoint").exchange();
+----
+
+[[webflux-testing-oauth2-login-user]]
+==== Additional Configurations
+
+There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects:
+
+* `clientRegistration(ClientRegistration)` - For configuring the associated `OAuth2AuthorizedClient` with a given `ClientRegistration`
+* `oauth2User(OAuth2User)` - For configuring the complete `OAuth2User` instance
+
+That last one is handy if you:
+1. Have your own implementation of `OAuth2User`, or
+2. Need to change the name attribute
+
+For example, let's say that your authorization server sends the principal name in the `user_name` claim instead of the `sub` claim.
+In that case, you can configure an `OAuth2User` by hand:
+
+[source,java]
+----
+OAuth2User oauth2User = new DefaultOAuth2User(
+        AuthorityUtils.createAuthorityList("SCOPE_message:read"),
+        Collections.singletonMap("user_name", "foo_user"),
+        "user_name");
+
+client
+    .mutateWith(mockOAuth2Login().oauth2User(oauth2User))
+    .get().uri("/endpoint").exchange();
+----
+
+[[webflux-testing-oauth2-client]]
+=== Testing OAuth 2.0 Clients
+
+Independent of how your user authenticates, you may have other tokens and client registrations that are in play for the request you are testing.
+For example, your controller may be relying on the client credentials grant to get a token that isn't associated with the user at all:
+
+[source,json]
+----
+@GetMapping("/endpoint")
+public Mono<String> foo(@RegisteredOAuth2AuthorizedClient("my-app") OAuth2AuthorizedClient authorizedClient) {
+    return this.webClient.get()
+        .attributes(oauth2AuthorizedClient(authorizedClient))
+        .retrieve()
+        .bodyToMono(String.class);
+}
+----
+
+Simulating this handshake with the authorization server could be cumbersome.
+Instead, you can use `SecurityMockServerConfigurers#oauth2Client` to add a `OAuth2AuthorizedClient` into an `WebSessionOAuth2ServerAuthorizedClientRepository`:
+
+[source,java]
+----
+client
+    .mutateWith(mockOAuth2Client("my-app"))
+    .get().uri("/endpoint").exchange();
+----
+
+If your application isn't already using an `WebSessionOAuth2ServerAuthorizedClientRepository`, then you can supply one as a `@TestConfiguration`:
+
+[source,java]
+----
+@TestConfiguration
+static class AuthorizedClientConfig {
+    @Bean
+    OAuth2ServerAuthorizedClientRepository authorizedClientRepository() {
+        return new WebSessionOAuth2ServerAuthorizedClientRepository();
+    }
+}
+----
+
+What this will do is create an `OAuth2AuthorizedClient` that has a simple `ClientRegistration`, `OAuth2AccessToken`, and resource owner name.
+
+Specifically, it will include a `ClientRegistration` with a client id of "test-client" and client secret of "test-secret":
+
+[source,json]
+----
+assertThat(authorizedClient.getClientRegistration().getClientId()).isEqualTo("test-client");
+assertThat(authorizedClient.getClientRegistration().getClientSecret()).isEqualTo("test-secret");
+----
+
+a resource owner name of "user":
+
+[source,json]
+----
+assertThat(authorizedClient.getPrincipalName()).isEqualTo("user");
+----
+
+and an `OAuth2AccessToken` with just one scope, `read`:
+
+[source,json]
+----
+assertThat(authorizedClient.getAccessToken().getScopes()).hasSize(1);
+assertThat(authorizedClient.getAccessToken().getScopes()).containsExactly("read");
+----
+
+Spring Security does the necessary work to make sure that the `OAuth2AuthorizedClient` instance is available in the associated `HttpSession`.
+That means that it can be retrieved from an `WebSessionOAuth2ServerAuthorizedClientRepository`.
+
+[[webflux-testing-oauth2-client-scopes]]
+==== Configuring Scopes
+
+In many circumstances, the OAuth 2.0 access token comes with a set of scopes.
+If your controller inspects these, say like so:
+
+[source,json]
+----
+@GetMapping("/endpoint")
+public Mono<String> foo(@RegisteredOAuth2AuthorizedClient("my-app") OAuth2AuthorizedClient authorizedClient) {
+    Set<String> scopes = authorizedClient.getAccessToken().getScopes();
+    if (scopes.contains("message:read")) {
+        return this.webClient.get()
+            .attributes(oauth2AuthorizedClient(authorizedClient))
+            .retrieve()
+            .bodyToMono(String.class);
+    }
+    // ...
+}
+----
+
+then you can configure the scope using the `accessToken()` method:
+
+[source,java]
+----
+client
+    .mutateWith(mockOAuth2Client("my-app")
+        .accessToken(new OAuth2AccessToken(BEARER, "token", null, null, Collections.singleton("message:read"))))
+    )
+    .get().uri("/endpoint").exchange();
+----
+
+[[webflux-testing-oauth2-client-registration]]
+==== Additional Configurations
+
+There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects:
+
+* `principalName(String)` - For configuring the resource owner name
+* `clientRegistration(Consumer<ClientRegistration.Builder>)` - For configuring the associated `ClientRegistration`
+* `clientRegistration(ClientRegistration)` - For configuring the complete `ClientRegistration`
+
+That last one is handy if you want to use a real `ClientRegistration`
+
+For example, let's say that you are wanting to use one of your app's `ClientRegistration` definitions, as specified in your `application.yml`.
+
+In that case, your test can autowire the `ReactiveClientRegistrationRepository` and look up the one your test needs:
+
+[source,java]
+----
+@Autowired
+ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+// ...
+
+client
+    .mutateWith(mockOAuth2Client()
+        .clientRegistration(this.clientRegistrationRepository.findByRegistrationId("facebook"))
+    )
+    .get().uri("/exchange").exchange();
+----
+
+[[webflux-testing-jwt]]
+=== Testing JWT Authentication
 
 In order to make an authorized request on a resource server, you need a bearer token.
 If your resource server is configured for JWTs, then this would mean that the bearer token needs to be signed and then encoded according to the JWT specification.
@@ -268,3 +661,120 @@ client
 ----
 
 Note that as an alternative to these, you can also mock the `ReactiveJwtDecoder` bean itself with a `@MockBean` annotation.
+
+[[webflux-testing-opaque-token]]
+=== Testing Opaque Token Authentication
+
+Similar to <<webflux-testing-jwt,JWTs>>, opaque tokens require an authorization server in order to verify their validity, which can make testing more difficult.
+To help with that, Spring Security has test support for opaque tokens.
+
+Let's say that we've got a controller that retrieves the authentication as a `BearerTokenAuthentication`:
+
+[source,java]
+----
+@GetMapping("/endpoint")
+public Mono<String> foo(BearerTokenAuthentication authentication) {
+    return Mono.just((String) authentication.getTokenAttributes("sub"));
+}
+----
+
+In that case, we can tell Spring Security to include a default `BearerTokenAuthentication` using the `SecurityMockServerConfigurers#opaqueToken` method, like so:
+
+[source,java]
+----
+client
+    .mutateWith(mockOpaqueToken())
+    .get().uri("/endpoint").exchange();
+----
+
+What this will do is configure the associated `MockHttpServletRequest` with a `BearerTokenAuthentication` that includes a simple `OAuth2AuthenticatedPrincipal`, `Map` of attributes, and `Collection` of granted authorities.
+
+Specifically, it will include a `Map` with a key/value pair of `sub`/`user`:
+
+[source,json]
+----
+assertThat((String) token.getTokenAttributes().get("sub")).isEqualTo("user");
+----
+
+and a `Collection` of authorities with just one authority, `SCOPE_read`:
+
+[source,json]
+----
+assertThat(token.getAuthorities()).hasSize(1);
+assertThat(token.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_read"));
+----
+
+Spring Security does the necessary work to make sure that the `BearerTokenAuthentication` instance is available for your controller methods.
+
+[[webflux-testing-opaque-token-authorities]]
+==== Configuring Authorities
+
+In many circumstances, your method is protected by filter or method security and needs your `Authentication` to have certain granted authorities to allow the request.
+
+In this case, you can supply what granted authorities you need using the `authorities()` method:
+
+[source,java]
+----
+client
+    .mutateWith(mockOpaqueToken()
+        .authorities(new SimpleGrantedAuthority("SCOPE_message:read"))
+    )
+    .get().uri("/endpoint").exchange();
+----
+
+[[webflux-testing-opaque-token-attributes]]
+==== Configuring Claims
+
+And while granted authorities are quite common across all of Spring Security, we also have attributes in the case of OAuth 2.0.
+
+Let's say, for example, that you've got a `user_id` attribute that indicates the user's id in your system.
+You might access it like so in a controller:
+
+[source,java]
+----
+@GetMapping("/endpoint")
+public Mono<String> foo(BearerTokenAuthentication authentication) {
+    String userId = (String) authentication.getTokenAttributes().get("user_id");
+    // ...
+}
+----
+
+In that case, you'd want to specify that attribute with the `attributes()` method:
+
+[source,java]
+----
+client
+    .mutateWith(mockOpaqueToken()
+        .attributes(attrs -> attrs.put("user_id", "1234"))
+    )
+    .get().uri("/endpoint").exchange();
+----
+
+[[webflux-testing-opaque-token-principal]]
+==== Additional Configurations
+
+There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects.
+
+One such is `principal(OAuth2AuthenticatedPrincipal)`, which you can use to configure the complete `OAuth2AuthenticatedPrincipal` instance that underlies the `BearerTokenAuthentication`
+
+It's handy if you:
+1. Have your own implementation of `OAuth2AuthenticatedPrincipal`, or
+2. Want to specify a different principal name
+
+For example, let's say that your authorization server sends the principal name in the `user_name` attribute instead of the `sub` attribute.
+In that case, you can configure an `OAuth2AuthenticatedPrincipal` by hand:
+
+[source,java]
+----
+Map<String, Object> attributes = Collections.singletonMap("user_name", "foo_user");
+OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(
+        (String) attributes.get("user_name"),
+        attributes,
+        AuthorityUtils.createAuthorityList("SCOPE_message:read"));
+
+client
+    .mutateWith(mockOpaqueToken().principal(principal))
+    .get().uri("/endpoint").exchange();
+----
+
+Note that as an alternative to using `mockOpaqueToken()` test support, you can also mock the `OpaqueTokenIntrospector` bean itself with a `@MockBean` annotation.
