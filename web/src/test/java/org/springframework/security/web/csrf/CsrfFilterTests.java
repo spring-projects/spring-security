@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -439,7 +439,7 @@ public class CsrfFilterTests {
 			assertThat(this.actual.getHeaderName()).isEqualTo(expected.getHeaderName());
 			assertThat(this.actual.getParameterName())
 					.isEqualTo(expected.getParameterName());
-			assertThat(this.actual.getToken()).isEqualTo(expected.getToken());
+			assertThat(this.actual.matches(expected.getToken())).isTrue();
 			return this;
 		}
 	}

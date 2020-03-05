@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public class CsrfAuthenticationStrategyTests {
 		// SEC-2404, SEC-2832
 		CsrfToken tokenInRequest = (CsrfToken) this.request
 				.getAttribute(CsrfToken.class.getName());
-		assertThat(tokenInRequest.getToken()).isSameAs(this.generatedToken.getToken());
+		assertThat(tokenInRequest.matches(this.generatedToken.getToken())).isTrue();
 		assertThat(tokenInRequest.getHeaderName())
 				.isSameAs(this.generatedToken.getHeaderName());
 		assertThat(tokenInRequest.getParameterName())

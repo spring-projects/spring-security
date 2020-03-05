@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,8 +44,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 		assertThat(request.getParameter("username")).isEqualTo("user");
 		assertThat(request.getParameter("password")).isEqualTo("password");
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName()))
-				.isEqualTo(token.getToken());
+		assertThat(token.matches(request.getParameter(token.getParameterName()))).isTrue();
 		assertThat(request.getRequestURI()).isEqualTo("/login");
 		assertThat(request.getParameter("_csrf")).isNotNull();
 	}
@@ -61,8 +60,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 		assertThat(request.getParameter("username")).isEqualTo("admin");
 		assertThat(request.getParameter("password")).isEqualTo("secret");
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName()))
-				.isEqualTo(token.getToken());
+		assertThat(token.matches(request.getParameter(token.getParameterName()))).isTrue();
 		assertThat(request.getRequestURI()).isEqualTo("/login");
 	}
 
@@ -77,8 +75,7 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 		assertThat(request.getParameter("username")).isEqualTo("admin");
 		assertThat(request.getParameter("password")).isEqualTo("secret");
 		assertThat(request.getMethod()).isEqualTo("POST");
-		assertThat(request.getParameter(token.getParameterName()))
-				.isEqualTo(token.getToken());
+		assertThat(token.matches(request.getParameter(token.getParameterName()))).isTrue();
 		assertThat(request.getRequestURI()).isEqualTo("/uri-login/val1/val2");
 	}
 

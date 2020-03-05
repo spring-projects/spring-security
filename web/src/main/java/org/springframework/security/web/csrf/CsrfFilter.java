@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,7 +122,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		if (actualToken == null) {
 			actualToken = request.getParameter(csrfToken.getParameterName());
 		}
-		if (!csrfToken.getToken().equals(actualToken)) {
+		if (!csrfToken.matches(actualToken)) {
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug("Invalid CSRF token found for "
 						+ UrlUtils.buildFullRequestUrl(request));

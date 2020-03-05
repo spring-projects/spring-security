@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.security.web.csrf;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,6 +44,9 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 	private String headerName = DEFAULT_CSRF_HEADER_NAME;
 
 	private String sessionAttributeName = DEFAULT_CSRF_TOKEN_ATTR_NAME;
+
+	private Function<String, CsrfToken> generateTokenProvider = (value) -> new DefaultCsrfToken(this.headerName,
+			this.parameterName, value);
 
 	/*
 	 * (non-Javadoc)
@@ -87,15 +91,16 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 	 * servlet .http.HttpServletRequest)
 	 */
 	public CsrfToken generateToken(HttpServletRequest request) {
-		return new DefaultCsrfToken(this.headerName, this.parameterName,
-				createNewToken());
+		return generateTokenProvider.apply(createNewToken());
 	}
 
 	/**
 	 * Sets the {@link HttpServletRequest} parameter name that the {@link CsrfToken} is
 	 * expected to appear on
 	 * @param parameterName the new parameter name to use
+	 * @deprecated use {@link #setGenerateToken(generateTokenProvider)} and pass the parameterName instead.
 	 */
+	@Deprecated
 	public void setParameterName(String parameterName) {
 		Assert.hasLength(parameterName, "parameterName cannot be null or empty");
 		this.parameterName = parameterName;
@@ -106,7 +111,9 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 	 * header that the response will contain the {@link CsrfToken}.
 	 *
 	 * @param headerName the new header name to use
+	 * @deprecated use {@link #setGenerateToken(generateTokenProvider)} and pass the headerName instead.
 	 */
+	@Deprecated
 	public void setHeaderName(String headerName) {
 		Assert.hasLength(headerName, "headerName cannot be null or empty");
 		this.headerName = headerName;
@@ -124,5 +131,23 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 
 	private String createNewToken() {
 		return UUID.randomUUID().toString();
+	}
+
+	/**
+	 * Sets generate token provider<br/>
+	 * <br/>
+	 * Example : <br/>
+	 * <br/>
+	 * {@code (headerName, parameterName, value) -> new  DefaultCsrfToken(headerName, parameterName, value)}<br/>
+	 *
+	 * @param generateTokenProvider provider to be used for generateToken and
+	 *                              loadToken
+	 * @since 5.4
+	 * @see GenerateTokenProvider
+	 * @see XorCsrfToken
+	 */
+	public void setGenerateToken(GenerateTokenProvider<? extends CsrfToken> generateTokenProvider) {
+		this.generateTokenProvider = (value) -> generateTokenProvider.generateToken(this.headerName, this.parameterName,
+				value);
 	}
 }

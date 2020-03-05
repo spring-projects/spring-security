@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package org.springframework.security.web.csrf;
 
 import java.util.UUID;
-
+import java.util.function.Function;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,13 +53,15 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private String cookieDomain;
 
+	private Function<String, CsrfToken> generateTokenProvider = (value) -> new DefaultCsrfToken(this.headerName,
+			this.parameterName, value);
+
 	public CookieCsrfTokenRepository() {
 	}
 
 	@Override
 	public CsrfToken generateToken(HttpServletRequest request) {
-		return new DefaultCsrfToken(this.headerName, this.parameterName,
-				createNewToken());
+		return this.generateTokenProvider.apply(createNewToken());
 	}
 
 	@Override
@@ -97,7 +99,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		if (!StringUtils.hasLength(token)) {
 			return null;
 		}
-		return new DefaultCsrfToken(this.headerName, this.parameterName, token);
+		return this.generateTokenProvider.apply(token);
 	}
 
 	/**
@@ -105,7 +107,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 *
 	 * @param parameterName the name of the HTTP request parameter that should be used to
 	 * provide a token
+	 * @deprecated use {@link #setGenerateToken(generateTokenProvider)} and pass the parameterName instead.
 	 */
+	@Deprecated
 	public void setParameterName(String parameterName) {
 		Assert.notNull(parameterName, "parameterName is not null");
 		this.parameterName = parameterName;
@@ -116,7 +120,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 *
 	 * @param headerName the name of the HTTP header that should be used to provide the
 	 * token
+	 * @deprecated use {@link #setGenerateToken(generateTokenProvider)} and pass the headerName instead.
 	 */
+	@Deprecated
 	public void setHeaderName(String headerName) {
 		Assert.notNull(headerName, "headerName is not null");
 		this.headerName = headerName;
@@ -195,4 +201,21 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		this.cookieDomain = cookieDomain;
 	}
 
+	/**
+	 * Sets generate token provider<br/>
+	 * <br/>
+	 * Example : <br/>
+	 * <br/>
+	 * {@code (headerName, parameterName, value) -> new  DefaultCsrfToken(headerName, parameterName, value)}<br/>
+	 *
+	 * @param generateTokenProvider provider to be used for generateToken and
+	 *                              loadToken
+	 * @since 5.4
+	 * @see GenerateTokenProvider
+	 * @see XorCsrfToken
+	 */
+	public void setGenerateToken(GenerateTokenProvider<? extends CsrfToken> generateTokenProvider) {
+		this.generateTokenProvider = (value) -> generateTokenProvider.generateToken(this.headerName, this.parameterName,
+				value);
+	}
 }

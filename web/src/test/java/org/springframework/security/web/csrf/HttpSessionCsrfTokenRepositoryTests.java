@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,61 @@ public class HttpSessionCsrfTokenRepositoryTests {
 	}
 
 	@Test
+	public void customGenerateToken() {
+		repo.setGenerateToken(XorCsrfToken.createGenerateTokenProvider());
+		token = repo.generateToken(request);
+
+		assertThat(token).isInstanceOf(XorCsrfToken.class);
+		assertThat(token.getParameterName()).isEqualTo("_csrf");
+		assertThat(token.getToken()).isNotEmpty();
+
+		CsrfToken loadedToken = repo.loadToken(request);
+
+		assertThat(loadedToken).isNull();
+	}
+
+	@Test
+	public void customGenerateTokenWithCustomHeaderAndParameter() {
+		// hardcoded the headerName and parameterName instead of using this.repository.setHeaderName
+		this.repo.setGenerateToken(
+				(pHeaderName, pParameterName, tokenValue) -> new DefaultCsrfToken("header", "parameter", tokenValue));
+
+		CsrfToken generateToken = this.repo.generateToken(this.request);
+
+		assertThat(generateToken).isNotNull();
+		assertThat(generateToken.getHeaderName()).isEqualTo("header");
+		assertThat(generateToken.getParameterName()).isEqualTo("parameter");
+		assertThat(generateToken.getToken()).isNotEmpty();
+	}
+
+	@Test
+	public void customGenerateTokenWithCustomHeaderAndParameterFromInstance() {
+		// a sample test where configuration instance was used to maintain headerName and parameterName
+		class ParameterConfiguration {
+			String header = "header";
+			String parameter = "parameter";
+		}
+
+		ParameterConfiguration paramInstance = new ParameterConfiguration();
+
+		// set the header and parameter
+		this.repo.setGenerateToken((pHeaderName, pParameterName,
+				tokenValue) -> new DefaultCsrfToken(paramInstance.header, paramInstance.parameter, tokenValue));
+
+		// if instance was modified then it will reflect on the generated token
+		paramInstance.header = "customHeader";
+		paramInstance.parameter = "customParameter";
+
+		CsrfToken generateToken = this.repo.generateToken(this.request);
+
+		assertThat(generateToken).isNotNull();
+		assertThat(generateToken).isInstanceOf(DefaultCsrfToken.class);
+		assertThat(generateToken.getHeaderName()).isEqualTo("customHeader");
+		assertThat(generateToken.getParameterName()).isEqualTo("customParameter");
+		assertThat(generateToken.getToken()).isNotEmpty();
+	}
+
+	@Test
 	public void generateCustomParameter() {
 		String paramName = "_csrf";
 		repo.setParameterName(paramName);
@@ -96,6 +151,20 @@ public class HttpSessionCsrfTokenRepositoryTests {
 		CsrfToken loadedToken = (CsrfToken) request.getSession().getAttribute(attrName);
 
 		assertThat(loadedToken).isEqualTo(tokenToSave);
+	}
+
+	@Test
+	public void saveTokenWithCustomGenerateToken() {
+		repo.setGenerateToken(XorCsrfToken.createGenerateTokenProvider());
+		CsrfToken tokenToSave = repo.generateToken(request);
+		repo.saveToken(tokenToSave, request, response);
+
+		CsrfToken loadedToken = (CsrfToken) repo.loadToken(request);
+
+		assertThat(tokenToSave).isInstanceOf(XorCsrfToken.class);
+		assertThat(loadedToken).isInstanceOf(XorCsrfToken.class);
+		assertThat(loadedToken).isSameAs(tokenToSave);
+		assertThat(loadedToken.matches(tokenToSave.getToken())).isTrue();
 	}
 
 	@Test
