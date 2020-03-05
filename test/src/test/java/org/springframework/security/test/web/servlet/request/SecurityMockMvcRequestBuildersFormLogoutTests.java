@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
 		assertThat(request.getMethod()).isEqualTo("POST");
 		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
+		assertThat(token.matches(request.getParameter(token.getParameterName()))).isTrue();
 		assertThat(request.getRequestURI()).isEqualTo("/logout");
 	}
 
@@ -66,6 +67,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
 		assertThat(request.getMethod()).isEqualTo("POST");
 		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
+		assertThat(token.matches(request.getParameter(token.getParameterName()))).isTrue();
 		assertThat(request.getRequestURI()).isEqualTo("/admin/logout");
 	}
 
@@ -77,6 +79,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
 		assertThat(request.getMethod()).isEqualTo("POST");
 		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
+		assertThat(token.matches(request.getParameter(token.getParameterName()))).isTrue();
 		assertThat(request.getRequestURI()).isEqualTo("/uri-logout/val1/val2");
 	}
 

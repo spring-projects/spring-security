@@ -121,6 +121,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		if (actualToken == null) {
 			actualToken = request.getParameter(csrfToken.getParameterName());
 		}
+		// if (!csrfToken.matches(actualToken)) { // TODO: Fix default matches() method to use constant time.
 		if (!equalsConstantTime(csrfToken.getToken(), actualToken)) {
 			this.logger.debug(
 					LogMessage.of(() -> "Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request)));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,7 @@ public class CsrfRequestDataValueProcessorTests {
 	@Test
 	public void getExtraHiddenFieldsHasCsrfTokenNoMethodSet() {
 		assertThat(this.processor.getExtraHiddenFields(this.request)).isEqualTo(this.expected);
+		assertThat(token.matches(processor.getExtraHiddenFields(request).get(token.getParameterName()))).isTrue();
 	}
 
 	@Test
@@ -92,12 +93,14 @@ public class CsrfRequestDataValueProcessorTests {
 	public void getExtraHiddenFieldsHasCsrfToken_POST() {
 		this.processor.processAction(this.request, "action", "POST");
 		assertThat(this.processor.getExtraHiddenFields(this.request)).isEqualTo(this.expected);
+		assertThat(token.matches(processor.getExtraHiddenFields(request).get(token.getParameterName()))).isTrue();
 	}
 
 	@Test
 	public void getExtraHiddenFieldsHasCsrfToken_post() {
 		this.processor.processAction(this.request, "action", "post");
 		assertThat(this.processor.getExtraHiddenFields(this.request)).isEqualTo(this.expected);
+		assertThat(token.matches(processor.getExtraHiddenFields(request).get(token.getParameterName()))).isTrue();
 	}
 
 	@Test
@@ -132,6 +135,7 @@ public class CsrfRequestDataValueProcessorTests {
 		expected.put(token.getParameterName(), token.getToken());
 		RequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();
 		assertThat(processor.getExtraHiddenFields(this.request)).isEqualTo(expected);
+		assertThat(token.matches(processor.getExtraHiddenFields(request).get(token.getParameterName()))).isTrue();
 	}
 
 }

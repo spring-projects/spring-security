@@ -361,7 +361,7 @@ public class CsrfFilterTests {
 		CsrfTokenAssert isEqualTo(CsrfToken expected) {
 			assertThat(this.actual.getHeaderName()).isEqualTo(expected.getHeaderName());
 			assertThat(this.actual.getParameterName()).isEqualTo(expected.getParameterName());
-			assertThat(this.actual.getToken()).isEqualTo(expected.getToken());
+			assertThat(this.actual.matches(expected.getToken())).isTrue();
 			return this;
 		}
 

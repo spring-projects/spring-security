@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ public class DefaultCsrfTokenMixinTests extends AbstractMixinTests {
 		assertThat(token.getHeaderName()).isEqualTo("csrf-header");
 		assertThat(token.getParameterName()).isEqualTo("_csrf");
 		assertThat(token.getToken()).isEqualTo("1");
+		assertThat(token.matches("1")).isTrue();
 	}
 
 	@Test
