@@ -18,7 +18,6 @@ package org.springframework.security.core.session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.Assert;
 
@@ -41,7 +40,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * @author Luke Taylor
  */
 public class SessionRegistryImpl implements SessionRegistry,
-		ApplicationListener<ApplicationEvent> {
+		ApplicationListener<AbstractSessionEvent> {
 
 	// ~ Instance fields
 	// ================================================================================================
@@ -102,7 +101,7 @@ public class SessionRegistryImpl implements SessionRegistry,
 		return sessionIds.get(sessionId);
 	}
 
-	public void onApplicationEvent(ApplicationEvent event) {
+	public void onApplicationEvent(AbstractSessionEvent event) {
 		if (event instanceof SessionDestroyedEvent) {
 			SessionDestroyedEvent sessionDestroyedEvent = (SessionDestroyedEvent) event;
 			String sessionId = sessionDestroyedEvent.getId();
