@@ -1307,11 +1307,14 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 		OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
 				new OidcClientInitiatedLogoutSuccessHandler(this.clientRegistrationRepository);
 
-		// Sets the `URI` that the End-User's User Agent will be redirected to
+		// Sets the location that the End-User's User Agent will be redirected to
 		// after the logout has been performed at the Provider
-		oidcLogoutSuccessHandler.setPostLogoutRedirectUri(URI.create("https://localhost:8080"));
+		oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
 
 		return oidcLogoutSuccessHandler;
 	}
 }
+
+NOTE: `OidcClientInitiatedLogoutSuccessHandler` supports the `{baseUrl}` placeholder.
+If used, the application's base URL, like `https://app.example.org`, will replace it at request time.
 ----
