@@ -38,6 +38,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTest {
 	public void setup() {
 		// generate random password, salt, and test data
 		password = UUID.randomUUID().toString();
+		/** insecure salt byte, recommend 64 or larger than 64*/
 		byte[] saltBytes = new byte[16];
 		secureRandom.nextBytes(saltBytes);
 		salt = new String(Hex.encode(saltBytes));
