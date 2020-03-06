@@ -10,7 +10,7 @@ if (!project.hasProperty("springDataVersion")) {
 	ext.springDataVersion = "Moore-SR+"
 }
 if (!project.hasProperty("kotlinVersion")) {
-	ext.kotlinVersion = "1.3.70"
+	ext.kotlinVersion = "1.+"
 }
 if (!project.hasProperty("locksDisabled")) {
 	dependencyLocking {
