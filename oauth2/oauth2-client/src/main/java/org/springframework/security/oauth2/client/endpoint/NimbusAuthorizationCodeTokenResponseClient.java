@@ -93,7 +93,7 @@ public class NimbusAuthorizationCodeTokenResponseClient implements OAuth2AccessT
 		com.nimbusds.oauth2.sdk.TokenResponse tokenResponse;
 		try {
 			// Send the Access Token request
-			TokenRequest tokenRequest = new TokenRequest(tokenUri, clientAuthentication, authorizationCodeGrant);
+			TokenRequest tokenRequest = new TokenRequest(tokenUri, clientAuthentication.getClientID(), authorizationCodeGrant);
 			HTTPRequest httpRequest = tokenRequest.toHTTPRequest();
 			httpRequest.setAccept(MediaType.APPLICATION_JSON_VALUE);
 			httpRequest.setConnectTimeout(30000);
