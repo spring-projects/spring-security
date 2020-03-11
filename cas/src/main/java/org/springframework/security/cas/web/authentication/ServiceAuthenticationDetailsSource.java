@@ -47,7 +47,7 @@ public class ServiceAuthenticationDetailsSource implements
 	// ===================================================================================================
 
 	/**
-	 * Creates an implementation that uses the specified ServiceProperites and the default
+	 * Creates an implementation that uses the specified ServiceProperties and the default
 	 * CAS artifactParameterName.
 	 *
 	 * @param serviceProperties The ServiceProperties to use to construct the serviceUrl.
