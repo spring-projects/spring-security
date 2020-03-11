@@ -168,7 +168,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	/**
 	 * Specifies the {@link AuthenticationSuccessHandler} to be used. The default is
-	 * {@link SavedRequestAwareAuthenticationSuccessHandler} with no additional properites
+	 * {@link SavedRequestAwareAuthenticationSuccessHandler} with no additional properties
 	 * set.
 	 *
 	 * @param successHandler the {@link AuthenticationSuccessHandler}.
