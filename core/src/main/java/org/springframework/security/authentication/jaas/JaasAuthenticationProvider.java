@@ -129,7 +129,7 @@ import org.springframework.util.Assert;
  *  &lt;/property&gt;
  * </pre>
  *
- * A configuration note: The JaasAuthenticationProvider uses the security properites
+ * A configuration note: The JaasAuthenticationProvider uses the security properties
  * "login.config.url.X" to configure jaas. If you would like to customize the way Jaas
  * gets configured, create a subclass of this and override the
  * {@link #configureJaas(Resource)} method.
