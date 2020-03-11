@@ -43,7 +43,7 @@ final class WithMockUserSecurityContextFactory implements
 				.username() : withUser.value();
 		if (username == null) {
 			throw new IllegalArgumentException(withUser
-					+ " cannot have null username on both username and value properites");
+					+ " cannot have null username on both username and value properties");
 		}
 
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
