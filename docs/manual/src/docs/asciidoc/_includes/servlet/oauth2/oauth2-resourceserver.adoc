@@ -1996,3 +1996,32 @@ RestTemplate rest() {
 	return rest;
 }
 ----
+
+[[oauth2resourceserver-bearertoken-failure]]
+=== Bearer Token Failure
+
+A bearer token may be invalid for a number of reasons. For example, the token may no longer be active.
+
+In these circumstances, Resource Server throws an `InvalidBearerTokenException`.
+Like other exceptions, this results in an OAuth 2.0 Bearer Token error response:
+
+[source,http request]
+----
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer error_code="invalid_token", error_description="Unsupported algorithm of none", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
+----
+
+Additionally, it is published as an `AuthenticationFailureBadCredentialsEvent`, which you can <<servlet-events,listen for in your application>> like so:
+
+[source,java]
+----
+@Component
+public class FailureEvents {
+	@EventListener
+    public void onFailure(AuthenticationFailureEvent failure) {
+		if (badCredentials.getAuthentication() instanceof BearerTokenAuthenticationToken) {
+		    // ... handle
+        }
+    }
+}
+----
