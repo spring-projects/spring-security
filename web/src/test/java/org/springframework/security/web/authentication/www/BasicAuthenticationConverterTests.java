@@ -111,4 +111,12 @@ public class BasicAuthenticationConverterTests {
 		assertThat(authentication.getName()).isEqualTo("rod");
 		assertThat(authentication.getCredentials()).isEqualTo("");
 	}
+
+	@Test(expected = BadCredentialsException.class)
+	public void requestWhenEmptyBasicAuthorizationHeaderTokenThenError() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic ");
+		converter.convert(request);
+	}
+
 }
