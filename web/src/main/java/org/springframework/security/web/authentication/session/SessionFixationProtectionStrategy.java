@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ public class SessionFixationProtectionStrategy extends
 		}
 
 		Map<String, Object> attributesToMigrate = extractAttributes(session);
-		int originMaxInactiveInterval = session.getMaxInactiveInterval();
+		int maxInactiveIntervalToMigrate = session.getMaxInactiveInterval();
 
 		session.invalidate();
 		session = request.getSession(true); // we now have a new session
@@ -100,7 +100,9 @@ public class SessionFixationProtectionStrategy extends
 		}
 
 		transferAttributes(attributesToMigrate, session);
-		session.setMaxInactiveInterval(originMaxInactiveInterval);
+		if (migrateSessionAttributes) {
+			session.setMaxInactiveInterval(maxInactiveIntervalToMigrate);
+		}
 		return session;
 	}
 

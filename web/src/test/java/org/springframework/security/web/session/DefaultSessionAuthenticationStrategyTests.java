@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,4 +161,34 @@ public class DefaultSessionAuthenticationStrategyTests {
 		assertThat(request.getSession(false)).isNotNull();
 	}
 
+	@Test
+	public void onAuthenticationWhenMigrateSessionAttributesTrueThenMaxInactiveIntervalIsMigrated() {
+		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
+		HttpServletRequest request = new MockHttpServletRequest();
+		HttpSession session = request.getSession();
+		session.setMaxInactiveInterval(1);
+
+		Authentication mockAuthentication = mock(Authentication.class);
+
+		strategy.onAuthentication(mockAuthentication, request,
+				new MockHttpServletResponse());
+
+		assertThat(request.getSession().getMaxInactiveInterval()).isEqualTo(1);
+	}
+
+	@Test
+	public void onAuthenticationWhenMigrateSessionAttributesFalseThenMaxInactiveIntervalIsNotMigrated() {
+		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
+		strategy.setMigrateSessionAttributes(false);
+		HttpServletRequest request = new MockHttpServletRequest();
+		HttpSession session = request.getSession();
+		session.setMaxInactiveInterval(1);
+
+		Authentication mockAuthentication = mock(Authentication.class);
+
+		strategy.onAuthentication(mockAuthentication, request,
+				new MockHttpServletResponse());
+
+		assertThat(request.getSession().getMaxInactiveInterval()).isNotEqualTo(1);
+	}
 }
