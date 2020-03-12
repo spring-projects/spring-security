@@ -421,7 +421,10 @@ class OAuth2LoginConfig {
 
 If you are not able to use Spring Boot 2.x and would like to configure one of the pre-defined providers in `CommonOAuth2Provider` (for example, Google), apply the following configuration:
 
-[source,java]
+.OAuth2 Login Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 @Configuration
 public class OAuth2LoginConfig {
@@ -464,6 +467,33 @@ public class OAuth2LoginConfig {
 	}
 }
 ----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http auto-config="true">
+	<intercept-url pattern="/**" access="authenticated"/>
+	<oauth2-login authorized-client-repository-ref="authorizedClientRepository"/>
+</http>
+
+<client-registrations>
+	<client-registration registration-id="google"
+						 client-id="google-client-id"
+						 client-secret="google-client-secret"
+						 provider-id="google"/>
+</client-registrations>
+
+<b:bean id="authorizedClientService"
+		class="org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService"
+		autowire="constructor"/>
+
+<b:bean id="authorizedClientRepository"
+		class="org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository">
+	<b:constructor-arg ref="authorizedClientService"/>
+</b:bean>
+----
+====
+
 
 [[oauth2login-advanced]]
 === Advanced Configuration
@@ -628,6 +658,33 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
 ----
 ====
 
+In addition to the `oauth2Login()` DSL, XML configuration is also supported.
+
+The following code shows the complete configuration options available in the <<nsa-oauth2-login, security namespace>>:
+
+.OAuth2 Login XML Configuration Options
+====
+[source,xml]
+----
+<http>
+	<oauth2-login client-registration-repository-ref="clientRegistrationRepository"
+				  authorized-client-repository-ref="authorizedClientRepository"
+				  authorized-client-service-ref="authorizedClientService"
+				  authorization-request-repository-ref="authorizationRequestRepository"
+				  authorization-request-resolver-ref="authorizationRequestResolver"
+				  access-token-response-client-ref="accessTokenResponseClient"
+				  user-authorities-mapper-ref="userAuthoritiesMapper"
+				  user-service-ref="oauth2UserService"
+				  oidc-user-service-ref="oidcUserService"
+				  login-processing-url="/login/oauth2/code/*"
+				  login-page="/login"
+				  authentication-success-handler-ref="authenticationSuccessHandler"
+				  authentication-failure-handler-ref="authenticationFailureHandler"
+				  jwt-decoder-factory-ref="jwtDecoderFactory"/>
+</http>
+----
+====
+
 The following sections go into more detail on each of the configuration options available:
 
 * <<oauth2login-advanced-login-page, OAuth 2.0 Login Page>>
@@ -701,6 +758,16 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
     }
 }
 ----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+	<oauth2-login login-page="/login/oauth2"
+				  ...
+    />
+</http>
+----
 ====
 
 [IMPORTANT]
@@ -770,6 +837,16 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
         }
     }
 }
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+	<oauth2-login login-processing-url="/login/oauth2/callback/*"
+				  ...
+    />
+</http>
 ----
 ====
 
@@ -906,6 +983,16 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
     }
 }
 ----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+	<oauth2-login user-authorities-mapper-ref="userAuthoritiesMapper"
+				  ...
+    />
+</http>
+----
 ====
 
 Alternatively, you may register a `GrantedAuthoritiesMapper` `@Bean` to have it automatically applied to the configuration, as shown in the following example:
@@ -1039,6 +1126,16 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
         }
     }
 }
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+	<oauth2-login oidc-user-service-ref="oidcUserService"
+				  ...
+    />
+</http>
 ----
 ====
 
