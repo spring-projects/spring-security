@@ -424,4 +424,20 @@ public class BasicAuthenticationFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
+	@Test
+	public void requestWhenEmptyBasicAuthorizationHeaderTokenThenUnauthorized() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic ");
+		request.setServletPath("/some_file.html");
+		request.setSession(new MockHttpSession());
+		final MockHttpServletResponse response = new MockHttpServletResponse();
+
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, response, chain);
+		verify(chain, never()).doFilter(any(ServletRequest.class),
+				any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
+	}
+
 }
