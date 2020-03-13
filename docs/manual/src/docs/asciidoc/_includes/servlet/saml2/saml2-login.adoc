@@ -139,7 +139,6 @@ For example:
 [[servlet-saml2-rpr-relyingparty]]
 ===== Relying Party
 
-
 * `registrationId` - (required) a unique identifer for this configuration mapping.
 This identifier may be used in URI paths, so care should be taken that no URI encoding is required.
 * `localEntityIdTemplate` - (optional) A URI pattern that creates an entity ID for this application based on the incoming request. The default is
@@ -150,15 +149,11 @@ http://localhost:8080/saml2/service-provider-metadata/my-test-configuration
 ```
 There is no requirement that this configuration option is a pattern, it can be a fixed URI value.
 
-* `remoteIdpEntityId` - (required) the entity ID of the Identity Provider. Always a fixed URI value or string,
-no patterns allowed.
 * `assertionConsumerServiceUrlTemplate` - (optional) A URI pattern that denotes the assertion
 consumer service URI to be sent with any `AuthNRequest` from the SP to the IDP during the SP initiated flow.
 While this can be a pattern the actual URI must resolve to the ACS endpoint on the SP.
 The default value is `+{baseUrl}/login/saml2/sso/{registrationId}+` and maps directly to the
 https://github.com/spring-projects/spring-security/blob/5.2.0.RELEASE/saml2/saml2-service-provider/src/main/java/org/springframework/security/saml2/provider/service/servlet/filter/Saml2WebSsoAuthenticationFilter.java#L42[`Saml2WebSsoAuthenticationFilter`] endpoint
-* `idpWebSsoUrl`  - (required) a fixed URI value for the IDP Single Sign On endpoint where
-the SP sends the `AuthNRequest` messages.
 * `credentials` - A list of credentials, private keys and x509 certificates, used for
 message signing, verification, encryption and decryption.
 This list can contain redundant credentials to allow for easy rotation of credentials.
@@ -170,6 +165,12 @@ Encryption is always done using the first `ENCRYPTION` key in the list.
 ** [2] - PrivateKey/X509Certificate{SIGNING,DECRYPTION} - The SP's first signing and decryption credential.
 ** [3] - PrivateKey/X509Certificate{SIGNING,DECRYPTION} - The SP's second decryption credential.
 Signing is always done using the first `SIGNING` key in the list.
+* `ProviderDetails#entityId` - (required) the entity ID of the Identity Provider. Always a fixed URI value or string,
+no patterns allowed.
+* `ProviderDetails#webSsoUrl`  - (required) a fixed URI value for the IDP Single Sign On endpoint where
+the SP sends the `AuthNRequest` messages.
+* `ProviderDetails#signAuthNRequest` - A boolean indicating whether or not to sign the `AuthNRequest` with the SP's private key, defaults to `true`
+* `ProviderDetails#binding` - A `Saml2MessageBinding` indicating what kind of binding to use for the `AuthNRequest`, whether that be `REDIRECT` or `POST`, defaults to `REDIRECT`
 
 When an incoming message is received, signatures are always required, the system will first attempt
 to validate the signature using the certificate at index [0] and only move to the second
@@ -216,16 +217,68 @@ credentials must be shared with the Identity Provider
 [[servlet-saml2-sp-initiated]]
 ==== Authentication Requests - SP Initiated Flow
 
-To initiate an authentication from the web application, a simple redirect to
+To initiate an authentication from the web application, you can redirect to:
 
 `+{baseUrl}/saml2/authenticate/{registrationId}+`
 
-The endpoint will generate an `AuthNRequest` by invoking the `createAuthenticationRequest` method on a
-configurable factory. Just expose the `Saml2AuthenticationRequestFactory` as a bean in your configuration.
+This endpoint will generate an `AuthNRequest` either as a Redirect or POST depending on your `RelyingPartyRegistration`.
+
+[[servlet-saml2-sp-initiated-factory]]
+==== Customizing the AuthNRequest
+
+To adjust the `AuthNRequest`, you can publish an instance of `Saml2AuthenticationRequestFactory`.
+
+For example, if you wanted to configure the `AuthNRequest` to request the IDP to send the SAML `Assertion` by REDIRECT, you could do:
+
 [source,java]
 ----
-public interface Saml2AuthenticationRequestFactory {
-    String createAuthenticationRequest(Saml2AuthenticationRequest request);
+@Bean
+public Saml2AuthenticationRequestFactory authenticationRequestFactory() {
+    OpenSamlAuthenticationRequestFactory authenticationRequestFactory =
+        new OpenSamlAuthenticationRequestFactory();
+    authenticationRequestFactory.setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect");
+    return authenticationRequestFactory;
+}
+----
+
+[[servlet-saml2-sp-initiated-factory-delegate]]
+==== Delegating to an AuthenticationRequestFactory
+
+Or, in circumstances where you need more control over what is sent as parameters to the `AuthenticationRequestFactory`, you can use delegation:
+
+[source,java]
+----
+@Component
+public class IssuerSaml2AuthenticationRequestFactory implements Saml2AuthenticationRequestFactory {
+	private OpenSamlAuthenticationRequestFactory delegate = new OpenSamlAuthenticationRequestFactory();
+
+	@Override
+	public String createAuthenticationRequest(Saml2AuthenticationRequest request) {
+		return this.delegate.createAuthenticationRequest(request);
+	}
+
+	@Override
+    public Saml2PostAuthenticationRequest createPostAuthenticationRequest
+        (Saml2AuthenticationRequestContext context) {
+
+		String issuer = // ... calculate issuer
+
+		Saml2AuthenticationRequestContext customIssuer = Saml2AuthenticationRequestContext.builder()
+                .assertionConsumerServiceUrl(context.getAssertionConsumerServiceUrl())
+                .issuer(issuer)
+                .relayState(context.getRelayState())
+                .relyingPartyRegistration(context.getRelyingPartyRegistration())
+                .build();
+
+		return this.delegate.createPostAuthenticationRequest(customIssuer);
+	}
+
+	@Override
+    public Saml2RedirectAuthenticationRequest createRedirectAuthenticationRequest
+        (Saml2AuthenticationRequestContext context) {
+
+		throw new UnsupportedOperationException("unsupported");
+	}
 }
 ----
 
