@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 	FilterComparator() {
 		Step order = new Step(INITIAL_ORDER, ORDER_STEP);
 		put(ChannelProcessingFilter.class, order.next());
-		put(ConcurrentSessionFilter.class, order.next());
+		order.next(); // gh-8105
 		put(WebAsyncManagerIntegrationFilter.class, order.next());
 		put(SecurityContextPersistenceFilter.class, order.next());
 		put(HeaderWriterFilter.class, order.next());
@@ -87,7 +87,7 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
 				"org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter",
 				order.next());
 		put(UsernamePasswordAuthenticationFilter.class, order.next());
-		put(ConcurrentSessionFilter.class, order.next());
+		order.next(); // gh-8105
 		filterToOrder.put(
 				"org.springframework.security.openid.OpenIDAuthenticationFilter", order.next());
 		put(DefaultLoginPageGeneratingFilter.class, order.next());

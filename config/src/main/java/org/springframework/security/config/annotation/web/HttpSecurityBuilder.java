@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,14 +136,12 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends
 	 *
 	 * <ul>
 	 * <li>{@link ChannelProcessingFilter}</li>
-	 * <li>{@link ConcurrentSessionFilter}</li>
 	 * <li>{@link SecurityContextPersistenceFilter}</li>
 	 * <li>{@link LogoutFilter}</li>
 	 * <li>{@link X509AuthenticationFilter}</li>
 	 * <li>{@link AbstractPreAuthenticatedProcessingFilter}</li>
 	 * <li><a href="{@docRoot}/org/springframework/security/cas/web/CasAuthenticationFilter.html">CasAuthenticationFilter</a></li>
 	 * <li>{@link UsernamePasswordAuthenticationFilter}</li>
-	 * <li>{@link ConcurrentSessionFilter}</li>
 	 * <li>{@link OpenIDAuthenticationFilter}</li>
 	 * <li>{@link org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter}</li>
 	 * <li>{@link org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter}</li>

@@ -9,7 +9,6 @@ However, there are times that it is beneficial to know the ordering
 Below is a comprehensive list of Spring Security Filter ordering:
 
 * ChannelProcessingFilter
-* ConcurrentSessionFilter
 * WebAsyncManagerIntegrationFilter
 * SecurityContextPersistenceFilter
 * HeaderWriterFilter
@@ -24,10 +23,10 @@ Below is a comprehensive list of Spring Security Filter ordering:
 * OAuth2LoginAuthenticationFilter
 * Saml2WebSsoAuthenticationFilter
 * <<servlet-authentication-usernamepasswordauthenticationfilter,`UsernamePasswordAuthenticationFilter`>>
-* ConcurrentSessionFilter
 * OpenIDAuthenticationFilter
 * DefaultLoginPageGeneratingFilter
 * DefaultLogoutPageGeneratingFilter
+* ConcurrentSessionFilter
 * <<servlet-authentication-digest,`DigestAuthenticationFilter`>>
 * BearerTokenAuthenticationFilter
 * <<servlet-authentication-basic,`BasicAuthenticationFilter`>>
