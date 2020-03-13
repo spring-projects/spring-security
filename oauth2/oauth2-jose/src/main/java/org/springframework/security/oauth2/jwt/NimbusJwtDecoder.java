@@ -16,21 +16,6 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.interfaces.RSAPublicKey;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import javax.crypto.SecretKey;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
@@ -48,13 +33,14 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -63,11 +49,23 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
+import javax.crypto.SecretKey;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 /**
  * A low-level Nimbus implementation of {@link JwtDecoder} which takes a raw Nimbus configuration.
  *
  * @author Josh Cummings
  * @author Joe Grandja
+ * @author Nick Hitchan
  * @since 5.2
  */
 public final class NimbusJwtDecoder implements JwtDecoder {
@@ -212,6 +210,19 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri.
 	 */
 	public static final class JwkSetUriJwtDecoderBuilder {
+
+		private static final Log log = LogFactory
+				.getLog(JwkSetUriJwtDecoderBuilder.class);
+
+		private static final String KEYS = "keys";
+
+		private static final String ALGORITHM = "alg";
+
+		private static final ParameterizedTypeReference<Map<String, Object>> typeReference =
+				new ParameterizedTypeReference<Map<String, Object>>() {};
+
+		private JSONParser jsonParser = new JSONParser(JSONParser.MODE_STRICTEST);
+
 		private String jwkSetUri;
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 		private RestOperations restOperations = new RestTemplate();
@@ -265,19 +276,43 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		JWSKeySelector<SecurityContext> jwsKeySelector(JWKSource<SecurityContext> jwkSource) {
+			Set<SignatureAlgorithm> jwkAlgorithms = new HashSet<>();
 			if (this.signatureAlgorithms.isEmpty()) {
-				return new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
-			} else if (this.signatureAlgorithms.size() == 1) {
-				JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(this.signatureAlgorithms.iterator().next().getName());
-				return new JWSVerificationKeySelector<>(jwsAlgorithm, jwkSource);
+				jwkAlgorithms.add(SignatureAlgorithm.RS256);
 			} else {
-				Map<JWSAlgorithm, JWSKeySelector<SecurityContext>> jwsKeySelectors = new HashMap<>();
-				for (SignatureAlgorithm signatureAlgorithm : this.signatureAlgorithms) {
-					JWSAlgorithm jwsAlg = JWSAlgorithm.parse(signatureAlgorithm.getName());
-					jwsKeySelectors.put(jwsAlg, new JWSVerificationKeySelector<>(jwsAlg, jwkSource));
-				}
-				return new JWSAlgorithmMapJWSKeySelector<>(jwsKeySelectors);
+				jwkAlgorithms.addAll(this.signatureAlgorithms);
 			}
+			jwkAlgorithms.addAll(fetchJwkAlgorithms());
+			return new JWSAlgorithmMapJWSKeySelector<>(jwkAlgorithms.stream()
+					.map(algorithm -> JWSAlgorithm.parse(algorithm.getName()))
+					.collect(Collectors.toMap(algorithm -> algorithm,
+							algorithm -> new JWSVerificationKeySelector<>(JWSAlgorithm.parse(algorithm.getName()), jwkSource))));
+		}
+
+		Set<SignatureAlgorithm> fetchJwkAlgorithms() {
+			try {
+
+				ResponseEntity<String> response = restOperations.exchange(RequestEntity.get(URI.create(jwkSetUri))
+						.build(), String.class);
+				String body = response.getBody();
+
+				if (body == null) {
+					return Collections.emptySet();
+				}
+
+				JSONObject root = (JSONObject) jsonParser.parse(body);
+				JSONArray keys = (JSONArray) root.get(KEYS);
+				return keys == null ? Collections.emptySet() : keys.stream()
+						.map(element -> {
+							JSONObject key = (JSONObject) element;
+							return SignatureAlgorithm.from(key.getAsString(ALGORITHM));
+						}).filter(Objects::nonNull)
+						.collect(Collectors.toSet());
+			} catch (Exception ex) {
+				log.warn("An error occurred while attempting to discover JWK algorithm support from the JWK Set resource.");
+			}
+
+			return Collections.emptySet();
 		}
 
 		JWTProcessor<SecurityContext> processor() {
