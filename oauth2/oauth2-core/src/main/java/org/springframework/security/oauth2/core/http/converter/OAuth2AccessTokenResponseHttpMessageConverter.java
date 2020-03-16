@@ -80,7 +80,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter extends AbstractHttpM
 					tokenResponseParameters.entrySet().stream()
 							.collect(Collectors.toMap(
 									Map.Entry::getKey,
-									entry -> entry.getValue().toString())));
+									entry -> String.valueOf(entry.getValue()))));
 		} catch (Exception ex) {
 			throw new HttpMessageNotReadableException("An error occurred reading the OAuth 2.0 Access Token Response: " +
 					ex.getMessage(), ex, inputMessage);

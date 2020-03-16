@@ -129,6 +129,30 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 				entry("custom_parameter_2", "custom-value-2"));
 	}
 
+	// gh-8108
+	@Test
+	public void readInternalWhenSuccessfulTokenResponseWithNullValueThenReadOAuth2AccessTokenResponse() {
+		String tokenResponse = "{\n" +
+				"	\"access_token\": \"access-token-1234\",\n" +
+				"   \"token_type\": \"bearer\",\n" +
+				"   \"expires_in\": 3600,\n" +
+				"   \"scope\": null,\n" +
+				"   \"refresh_token\": \"refresh-token-1234\"\n" +
+				"}\n";
+
+		MockClientHttpResponse response = new MockClientHttpResponse(
+				tokenResponse.getBytes(), HttpStatus.OK);
+
+		OAuth2AccessTokenResponse accessTokenResponse = this.messageConverter.readInternal(
+				OAuth2AccessTokenResponse.class, response);
+
+		assertThat(accessTokenResponse.getAccessToken().getTokenValue()).isEqualTo("access-token-1234");
+		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
+		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBeforeOrEqualTo(Instant.now().plusSeconds(3600));
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("null");
+		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo("refresh-token-1234");
+	}
+
 	@Test
 	public void readInternalWhenConversionFailsThenThrowHttpMessageNotReadableException() {
 		Converter tokenResponseConverter = mock(Converter.class);
