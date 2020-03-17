@@ -68,6 +68,27 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
 ----
 ====
 
+In addition to the `HttpSecurity.oauth2Client()` DSL, XML configuration is also supported.
+
+The following code shows the complete configuration options available in the <<nsa-oauth2-client, security namespace>>:
+
+.OAuth2 Client XML Configuration Options
+====
+[source,xml]
+----
+<http>
+	<oauth2-client client-registration-repository-ref="clientRegistrationRepository"
+				   authorized-client-repository-ref="authorizedClientRepository"
+				   authorized-client-service-ref="authorizedClientService">
+		<authorization-code-grant
+				authorization-request-repository-ref="authorizationRequestRepository"
+				authorization-request-resolver-ref="authorizationRequestResolver"
+				access-token-response-client-ref="accessTokenResponseClient"/>
+	</oauth2-client>
+</http>
+----
+====
+
 The `OAuth2AuthorizedClientManager` is responsible for managing the authorization (or re-authorization) of an OAuth 2.0 Client, in collaboration with one or more `OAuth2AuthorizedClientProvider`(s).
 
 The following code shows an example of how to register an `OAuth2AuthorizedClientManager` `@Bean` and associate it with an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials` and `password` authorization grant types:
@@ -655,8 +676,17 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
     }
 }
 ----
-====
 
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+	<oauth2-client>
+		<authorization-code-grant authorization-request-repository-ref="authorizationRequestRepository"/>
+	</oauth2-client>
+</http>
+----
+====
 
 ===== Requesting an Access Token
 
@@ -738,6 +768,16 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
         }
     }
 }
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+	<oauth2-client>
+		<authorization-code-grant access-token-response-client-ref="accessTokenResponseClient"/>
+	</oauth2-client>
+</http>
 ----
 ====
 
