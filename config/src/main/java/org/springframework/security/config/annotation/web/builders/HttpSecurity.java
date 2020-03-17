@@ -721,7 +721,7 @@ public final class HttpSecurity extends
 	 * }
 	 * </pre>
 	 *
-	 * @return the {@link ServletApiConfigurer} for further customizations
+	 * @return the {@link CsrfConfigurer} for further customizations
 	 * @throws Exception
 	 */
 	public CsrfConfigurer<HttpSecurity> csrf() throws Exception {
