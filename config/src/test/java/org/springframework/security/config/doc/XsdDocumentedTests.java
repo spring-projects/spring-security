@@ -15,18 +15,25 @@
  */
 package org.springframework.security.config.doc;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.config.http.SecurityFiltersAssertions;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.commons.lang.StringUtils;
+import org.junit.After;
+import org.junit.Test;
+
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.config.http.SecurityFiltersAssertions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,7 +57,7 @@ public class XsdDocumentedTests {
 	String referenceLocation = "../docs/manual/src/docs/asciidoc/_includes/servlet/appendix/namespace.adoc";
 
 	String schema31xDocumentLocation = "org/springframework/security/config/spring-security-3.1.xsd";
-	String schemaDocumentLocation = "org/springframework/security/config/spring-security-5.3.xsd";
+	String schemaDocumentLocation = "org/springframework/security/config/spring-security-5.4.xsd";
 
 	XmlSupport xml = new XmlSupport();
 
@@ -142,8 +149,8 @@ public class XsdDocumentedTests {
 
 		String[] schemas = resource.getFile().getParentFile().list((dir, name) -> name.endsWith(".xsd"));
 
-		assertThat(schemas.length).isEqualTo(15)
-			.withFailMessage("the count is equal to 15, if not then schemaDocument needs updating");
+		assertThat(schemas.length).isEqualTo(16)
+			.withFailMessage("the count is equal to 16, if not then schemaDocument needs updating");
 	}
 
 	/**

@@ -20,6 +20,7 @@ import java.net.ServerSocket;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -32,7 +33,6 @@ import org.springframework.security.ldap.server.ApacheDSContainer;
 import org.springframework.security.ldap.server.UnboundIdContainer;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
-import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
@@ -138,7 +138,12 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
 		String port = element.getAttribute(ATT_PORT);
 
-		if (!StringUtils.hasText(port)) {
+		if ("0".equals(port)) {
+			port = getRandomPort();
+			if (logger.isDebugEnabled()) {
+				logger.debug("Using default port of " + port);
+			}
+		} else if (!StringUtils.hasText(port)) {
 			port = getDefaultPort();
 			if (logger.isDebugEnabled()) {
 				logger.debug("Using default port of " + port);
@@ -213,30 +218,18 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private String getDefaultPort() {
-		ServerSocket serverSocket = null;
-		try {
-			try {
-				serverSocket = new ServerSocket(DEFAULT_PORT);
-			}
-			catch (IOException e) {
-				try {
-					serverSocket = new ServerSocket(0);
-				}
-				catch (IOException e2) {
-					return String.valueOf(DEFAULT_PORT);
-				}
-			}
+		try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
 			return String.valueOf(serverSocket.getLocalPort());
-		}
-		finally {
-			if (serverSocket != null) {
-				try {
-					serverSocket.close();
-				}
-				catch (IOException e) {
-				}
-			}
+		} catch (IOException e) {
+			return getRandomPort();
 		}
 	}
 
+	private String getRandomPort() {
+		try (ServerSocket serverSocket = new ServerSocket(0)) {
+			return String.valueOf(serverSocket.getLocalPort());
+		} catch (IOException e) {
+			return String.valueOf(DEFAULT_PORT);
+		}
+	}
 }

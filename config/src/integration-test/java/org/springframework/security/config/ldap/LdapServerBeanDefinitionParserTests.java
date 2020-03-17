@@ -15,19 +15,20 @@
  */
 package org.springframework.security.config.ldap;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 
 import org.junit.After;
 import org.junit.Test;
+
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.server.ApacheDSContainer;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Luke Taylor
@@ -47,7 +48,7 @@ public class LdapServerBeanDefinitionParserTests {
 	@Test
 	public void embeddedServerCreationContainsExpectedContextSourceAndData() {
 		appCtx = new InMemoryXmlApplicationContext(
-				"<ldap-server ldif='classpath:test-server.ldif'/>");
+				"<ldap-server ldif='classpath:test-server.ldif' port='0'/>");
 
 		DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) appCtx
 				.getBean(BeanIds.CONTEXT_SOURCE);
@@ -82,7 +83,7 @@ public class LdapServerBeanDefinitionParserTests {
 	@Test
 	public void loadingSpecificLdifFileIsSuccessful() {
 		appCtx = new InMemoryXmlApplicationContext(
-				"<ldap-server ldif='classpath*:test-server2.xldif' root='dc=monkeymachine,dc=co,dc=uk' />");
+				"<ldap-server ldif='classpath*:test-server2.xldif' root='dc=monkeymachine,dc=co,dc=uk' port='0'/>");
 		DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) appCtx
 				.getBean(BeanIds.CONTEXT_SOURCE);
 

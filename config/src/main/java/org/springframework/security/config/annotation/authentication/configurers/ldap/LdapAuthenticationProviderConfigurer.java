@@ -21,7 +21,6 @@ import java.net.ServerSocket;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
@@ -29,6 +28,7 @@ import org.springframework.security.config.annotation.web.configurers.ChannelSec
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticator;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
@@ -478,6 +478,9 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		/**
 		 * The port to connect to LDAP to (the default is 33389 or random available port
 		 * if unavailable).
+		 *
+		 * Supplying 0 as the port indicates that a random available port should be selected.
+		 * 
 		 * @param port the port to connect to
 		 * @return the {@link ContextSourceBuilder} for further customization
 		 */
@@ -550,36 +553,27 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		}
 
 		private int getPort() {
-			if (port == null) {
+			if (port != null && port == 0) {
+				port = getRandomPort();
+			} else if (port == null) {
 				port = getDefaultPort();
 			}
 			return port;
 		}
 
 		private int getDefaultPort() {
-			ServerSocket serverSocket = null;
-			try {
-				try {
-					serverSocket = new ServerSocket(DEFAULT_PORT);
-				}
-				catch (IOException e) {
-					try {
-						serverSocket = new ServerSocket(0);
-					}
-					catch (IOException e2) {
-						return DEFAULT_PORT;
-					}
-				}
+			try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
 				return serverSocket.getLocalPort();
+			} catch (IOException e) {
+				return getRandomPort();
 			}
-			finally {
-				if (serverSocket != null) {
-					try {
-						serverSocket.close();
-					}
-					catch (IOException e) {
-					}
-				}
+		}
+
+		private int getRandomPort() {
+			try (ServerSocket serverSocket = new ServerSocket(0)) {
+				return serverSocket.getLocalPort();
+			} catch (IOException e) {
+				return DEFAULT_PORT;
 			}
 		}
 
