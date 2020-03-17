@@ -505,7 +505,7 @@ One of those extended parameters is the `prompt` parameter.
 [NOTE]
 OPTIONAL. Space delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for reauthentication and consent. The defined values are: none, login, consent, select_account
 
-The following example shows how to implement an `OAuth2AuthorizationRequestResolver` that customizes the Authorization Request for `oauth2Login()`, by including the request parameter `prompt=consent`.
+The following example shows how to configure the `DefaultOAuth2AuthorizationRequestResolver` with a `Consumer<OAuth2AuthorizationRequest.Builder>` that customizes the Authorization Request for `oauth2Login()`, by including the request parameter `prompt=consent`.
 
 [source,java]
 ----
@@ -524,72 +524,32 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			.oauth2Login(oauth2 -> oauth2
 				.authorizationEndpoint(authorization -> authorization
 					.authorizationRequestResolver(
-					    new CustomAuthorizationRequestResolver(
-					            this.clientRegistrationRepository)    <1>
+						authorizationRequestResolver(this.clientRegistrationRepository)
 					)
 				)
 			);
 	}
-}
 
-public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRequestResolver {
-	private final OAuth2AuthorizationRequestResolver defaultAuthorizationRequestResolver;
-
-	public CustomAuthorizationRequestResolver(
+	private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
 			ClientRegistrationRepository clientRegistrationRepository) {
 
-		this.defaultAuthorizationRequestResolver =
+		DefaultOAuth2AuthorizationRequestResolver authorizationRequestResolver =
 				new DefaultOAuth2AuthorizationRequestResolver(
 						clientRegistrationRepository, "/oauth2/authorization");
+		authorizationRequestResolver.setAuthorizationRequestCustomizer(
+				authorizationRequestCustomizer());
+
+		return  authorizationRequestResolver;
 	}
 
-	@Override
-	public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
-		OAuth2AuthorizationRequest authorizationRequest =
-				this.defaultAuthorizationRequestResolver.resolve(request);  <2>
-
-		return authorizationRequest != null ?   <3>
-				customAuthorizationRequest(authorizationRequest) :
-				null;
-	}
-
-	@Override
-	public OAuth2AuthorizationRequest resolve(
-			HttpServletRequest request, String clientRegistrationId) {
-
-		OAuth2AuthorizationRequest authorizationRequest =
-				this.defaultAuthorizationRequestResolver.resolve(
-				    request, clientRegistrationId);    <2>
-
-		return authorizationRequest != null ?   <3>
-				customAuthorizationRequest(authorizationRequest) :
-				null;
-	}
-
-	private OAuth2AuthorizationRequest customAuthorizationRequest(
-			OAuth2AuthorizationRequest authorizationRequest) {
-
-		Map<String, Object> additionalParameters =
-				new LinkedHashMap<>(authorizationRequest.getAdditionalParameters());
-		additionalParameters.put("prompt", "consent");  <4>
-
-		return OAuth2AuthorizationRequest.from(authorizationRequest)    <5>
-				.additionalParameters(additionalParameters) <6>
-				.build();
+	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
+		return customizer -> customizer
+					.additionalParameters(params -> params.put("prompt", "consent"));
 	}
 }
 ----
-<1> Configure the custom `OAuth2AuthorizationRequestResolver`
-<2> Attempt to resolve the `OAuth2AuthorizationRequest` using the `DefaultOAuth2AuthorizationRequestResolver`
-<3> If an `OAuth2AuthorizationRequest` was resolved than return a customized version else return `null`
-<4> Add custom parameters to the existing `OAuth2AuthorizationRequest.additionalParameters`
-<5> Create a copy of the default `OAuth2AuthorizationRequest` which returns an `OAuth2AuthorizationRequest.Builder` for further modifications
-<6> Override the default `additionalParameters`
 
-[TIP]
-`OAuth2AuthorizationRequest.Builder.build()` constructs the `OAuth2AuthorizationRequest.authorizationRequestUri`, which represents the complete Authorization Request URI including all query parameters using the `application/x-www-form-urlencoded` format.
-
-For the simple use case, where the additional request parameter is always the same for a specific provider, it can be added directly in the `authorization-uri`.
+For the simple use case, where the additional request parameter is always the same for a specific provider, it may be added directly in the `authorization-uri` property.
 
 For example, if the value for the request parameter `prompt` is always `consent` for the provider `okta`, than simply configure as follows:
 
@@ -605,24 +565,19 @@ spring:
 ----
 
 The preceding example shows the common use case of adding a custom parameter on top of the standard parameters.
-Alternatively, if your requirements are more advanced, than you can take full control in building the Authorization Request URI by simply overriding the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
+Alternatively, if your requirements are more advanced, you can take full control in building the Authorization Request URI by simply overriding the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
 
-The following example shows a variation of the `customAuthorizationRequest()` method from the preceding example, and instead overrides the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
+[TIP]
+`OAuth2AuthorizationRequest.Builder.build()` constructs the `OAuth2AuthorizationRequest.authorizationRequestUri`, which represents the Authorization Request URI including all query parameters using the `application/x-www-form-urlencoded` format.
+
+The following example shows a variation of `authorizationRequestCustomizer()` from the preceding example, and instead overrides the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
 
 [source,java]
 ----
-private OAuth2AuthorizationRequest customAuthorizationRequest(
-		OAuth2AuthorizationRequest authorizationRequest) {
-
-	String customAuthorizationRequestUri = UriComponentsBuilder
-			.fromUriString(authorizationRequest.getAuthorizationRequestUri())
-			.queryParam("prompt", "consent")
-			.build(true)
-			.toUriString();
-
-	return OAuth2AuthorizationRequest.from(authorizationRequest)
-			.authorizationRequestUri(customAuthorizationRequestUri)
-			.build();
+private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
+	return customizer -> customizer
+				.authorizationRequestUri(uriBuilder -> uriBuilder
+					.queryParam("prompt", "consent").build());
 }
 ----
 
