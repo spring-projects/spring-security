@@ -40,7 +40,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
  *
  * @author Eleftheria Stein
  */
-class SessionFixationDslTest {
+class SessionFixationDslTests {
     @Rule
     @JvmField
     var spring = SpringTestRule()
