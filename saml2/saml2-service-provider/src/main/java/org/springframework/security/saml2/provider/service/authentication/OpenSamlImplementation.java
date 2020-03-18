@@ -16,6 +16,16 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
+
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
@@ -24,13 +34,14 @@ import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.io.UnmarshallerFactory;
 import org.opensaml.core.xml.io.UnmarshallingException;
-import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.encryption.EncryptedElementTypeEncryptedKeyResolver;
 import org.opensaml.security.SecurityException;
 import org.opensaml.security.credential.BasicCredential;
@@ -47,28 +58,17 @@ import org.opensaml.xmlsec.encryption.support.SimpleRetrievalMethodEncryptedKeyR
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureSupport;
-import org.springframework.security.saml2.Saml2Exception;
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
-import org.springframework.security.saml2.provider.service.authentication.Saml2Utils;
-import org.springframework.util.Assert;
-import org.springframework.web.util.UriUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.util.Assert;
+import org.springframework.web.util.UriUtils;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
-import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
@@ -76,6 +76,8 @@ import static org.springframework.util.StringUtils.hasText;
  */
 final class OpenSamlImplementation {
 	private static OpenSamlImplementation instance = new OpenSamlImplementation();
+	private static XMLObjectBuilderFactory xmlObjectBuilderFactory =
+			XMLObjectProviderRegistrySupport.getBuilderFactory();
 
 	private final BasicParserPool parserPool = new BasicParserPool();
 	private final EncryptedKeyResolver encryptedKeyResolver = new ChainingEncryptedKeyResolver(
@@ -167,35 +169,29 @@ final class OpenSamlImplementation {
 		return this.encryptedKeyResolver;
 	}
 
-	<T> T buildSAMLObject(final Class<T> clazz) {
-		try {
-			QName defaultElementName = (QName) clazz.getDeclaredField("DEFAULT_ELEMENT_NAME").get(null);
-			return (T) getBuilderFactory().getBuilder(defaultElementName).buildObject(defaultElementName);
-		}
-		catch (NoSuchFieldException | IllegalAccessException e) {
-			throw new Saml2Exception("Could not create SAML object", e);
-		}
+	<T> T buildSamlObject(QName qName) {
+		return (T) xmlObjectBuilderFactory.getBuilder(qName).buildObject(qName);
 	}
 
 	XMLObject resolve(String xml) {
 		return resolve(xml.getBytes(StandardCharsets.UTF_8));
 	}
 
-	String toXml(XMLObject object, List<Saml2X509Credential> signingCredentials, String localSpEntityId) {
-		if (object instanceof SignableSAMLObject && null != hasSigningCredential(signingCredentials)) {
-			signXmlObject(
-					(SignableSAMLObject) object,
-					signingCredentials,
-					localSpEntityId
-			);
-		}
+	String serialize(XMLObject xmlObject) {
 		final MarshallerFactory marshallerFactory = XMLObjectProviderRegistrySupport.getMarshallerFactory();
 		try {
-			Element element = marshallerFactory.getMarshaller(object).marshall(object);
+			Element element = marshallerFactory.getMarshaller(xmlObject).marshall(xmlObject);
 			return SerializeSupport.nodeToString(element);
 		} catch (MarshallingException e) {
 			throw new Saml2Exception(e);
 		}
+	}
+
+	String serialize(AuthnRequest authnRequest, List<Saml2X509Credential> signingCredentials) {
+		if (hasSigningCredential(signingCredentials) != null) {
+			signAuthnRequest(authnRequest, signingCredentials);
+		}
+		return serialize(authnRequest);
 	}
 
 	/**
@@ -306,15 +302,15 @@ final class OpenSamlImplementation {
 		return cred;
 	}
 
-	private void signXmlObject(SignableSAMLObject object, List<Saml2X509Credential> signingCredentials, String entityId) {
+	private void signAuthnRequest(AuthnRequest authnRequest, List<Saml2X509Credential> signingCredentials) {
 		SignatureSigningParameters parameters = new SignatureSigningParameters();
-		Credential credential = getSigningCredential(signingCredentials, entityId);
+		Credential credential = getSigningCredential(signingCredentials, authnRequest.getIssuer().getValue());
 		parameters.setSigningCredential(credential);
 		parameters.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
 		parameters.setSignatureReferenceDigestMethod(SignatureConstants.ALGO_ID_DIGEST_SHA256);
 		parameters.setSignatureCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 		try {
-			SignatureSupport.signObject(object, parameters);
+			SignatureSupport.signObject(authnRequest, parameters);
 		} catch (MarshallingException | SignatureException | SecurityException e) {
 			throw new Saml2Exception(e);
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.util.UUID;
+
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.opensaml.saml.common.SAMLVersion;
@@ -28,13 +30,11 @@ import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 
-import java.util.UUID;
-
 final class TestSaml2AuthenticationObjects {
 	private static OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
 
 	static Response response(String destination, String issuerEntityId) {
-		Response response = saml.buildSAMLObject(Response.class);
+		Response response = saml.buildSamlObject(Response.DEFAULT_ELEMENT_NAME);
 		response.setID("R"+UUID.randomUUID().toString());
 		response.setIssueInstant(DateTime.now());
 		response.setVersion(SAMLVersion.VERSION_20);
@@ -49,7 +49,7 @@ final class TestSaml2AuthenticationObjects {
 			String recipientEntityId,
 			String recipientUri
 	) {
-		Assertion assertion = saml.buildSAMLObject(Assertion.class);
+		Assertion assertion = saml.buildSamlObject(Assertion.DEFAULT_ELEMENT_NAME);
 		assertion.setID("A"+ UUID.randomUUID().toString());
 		assertion.setIssueInstant(DateTime.now());
 		assertion.setVersion(SAMLVersion.VERSION_20);
@@ -69,13 +69,13 @@ final class TestSaml2AuthenticationObjects {
 
 
 	static Issuer issuer(String entityId) {
-		Issuer issuer = saml.buildSAMLObject(Issuer.class);
+		Issuer issuer = saml.buildSamlObject(Issuer.DEFAULT_ELEMENT_NAME);
 		issuer.setValue(entityId);
 		return issuer;
 	}
 
 	static Subject subject(String principalName) {
-		Subject subject = saml.buildSAMLObject(Subject.class);
+		Subject subject = saml.buildSamlObject(Subject.DEFAULT_ELEMENT_NAME);
 
 		if (principalName != null) {
 			subject.setNameID(nameId(principalName));
@@ -85,17 +85,17 @@ final class TestSaml2AuthenticationObjects {
 	}
 
 	static NameID nameId(String principalName) {
-		NameID nameId = saml.buildSAMLObject(NameID.class);
+		NameID nameId = saml.buildSamlObject(NameID.DEFAULT_ELEMENT_NAME);
 		nameId.setValue(principalName);
 		return nameId;
 	}
 
 	static SubjectConfirmation subjectConfirmation() {
-		return saml.buildSAMLObject(SubjectConfirmation.class);
+		return saml.buildSamlObject(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
 	}
 
 	static SubjectConfirmationData subjectConfirmationData(String recipient) {
-		SubjectConfirmationData subject = saml.buildSAMLObject(SubjectConfirmationData.class);
+		SubjectConfirmationData subject = saml.buildSamlObject(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
 		subject.setRecipient(recipient);
 		subject.setNotBefore(DateTime.now().minus(Duration.millis(5 * 60 * 1000)));
 		subject.setNotOnOrAfter(DateTime.now().plus(Duration.millis(5 * 60 * 1000)));
@@ -103,7 +103,7 @@ final class TestSaml2AuthenticationObjects {
 	}
 
 	static Conditions conditions() {
-		Conditions conditions = saml.buildSAMLObject(Conditions.class);
+		Conditions conditions = saml.buildSamlObject(Conditions.DEFAULT_ELEMENT_NAME);
 		conditions.setNotBefore(DateTime.now().minus(Duration.millis(5 * 60 * 1000)));
 		conditions.setNotOnOrAfter(DateTime.now().plus(Duration.millis(5 * 60 * 1000)));
 		return conditions;
