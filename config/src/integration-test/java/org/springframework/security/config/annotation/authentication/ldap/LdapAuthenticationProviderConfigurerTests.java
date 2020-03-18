@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.authentication.ldap;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -61,6 +62,14 @@ public class LdapAuthenticationProviderConfigurerTests {
 				.andExpect(authenticated().withUsername("bob").withAuthorities(singleton(new SimpleGrantedAuthority("ROL_DEVELOPERS"))));
 	}
 
+	@Test
+	public void authenticationManagerWhenPortZeroThenAuthenticates() throws Exception {
+		this.spring.register(LdapWithRandomPortConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
+				.andExpect(authenticated().withUsername("bob"));
+	}
+
 	@EnableWebSecurity
 	static class MultiLdapAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
 		// @formatter:off
@@ -97,5 +106,19 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.rolePrefix("RUOLO_");
 		}
 		// @formatter:on
+	}
+
+	@EnableWebSecurity
+	static class LdapWithRandomPortConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.ldapAuthentication()
+					.groupSearchBase("ou=groups")
+					.groupSearchFilter("(member={0})")
+					.userDnPatterns("uid={0},ou=people")
+					.contextSource()
+						.port(0);
+		}
 	}
 }
