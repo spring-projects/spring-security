@@ -43,7 +43,7 @@
       </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="port">
-      <xs:attribute name="port" use="required" type="xs:positiveInteger">
+      <xs:attribute name="port" use="required" type="xs:nonNegativeInteger">
          <xs:annotation>
             <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server, for example.
                 </xs:documentation>
@@ -190,7 +190,7 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="port" type="xs:positiveInteger">
+      <xs:attribute name="port" type="xs:nonNegativeInteger">
          <xs:annotation>
             <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server, for example.
                 </xs:documentation>

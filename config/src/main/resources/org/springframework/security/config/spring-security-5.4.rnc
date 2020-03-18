@@ -16,7 +16,7 @@ request-matcher =
 	attribute request-matcher {"mvc" | "ant" | "regex" | "ciRegex"}
 port =
 	## Specifies an IP port number. Used to configure an embedded LDAP server, for example.
-	attribute port { xsd:positiveInteger }
+	attribute port { xsd:nonNegativeInteger }
 url =
 	## Specifies a URL.
 	attribute url { xsd:token }
