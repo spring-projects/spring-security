@@ -20,6 +20,9 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
@@ -45,8 +48,6 @@ import org.springframework.security.config.oauth2.client.ClientRegistrationsBean
 import org.springframework.security.config.websocket.WebSocketMessageBrokerSecurityBeanDefinitionParser;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.ClassUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /**
  * Parses elements from the "security" namespace
@@ -87,7 +88,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		if (!namespaceMatchesVersion(element)) {
 			pc.getReaderContext()
 					.fatal("You cannot use a spring-security-2.0.xsd or spring-security-3.0.xsd or spring-security-3.1.xsd schema or spring-security-3.2.xsd schema or spring-security-4.0.xsd schema "
-							+ "with Spring Security 5.3. Please update your schema declarations to the 5.3 schema.",
+							+ "with Spring Security 5.4. Please update your schema declarations to the 5.4 schema.",
 							element);
 		}
 		String name = pc.getDelegate().getLocalName(element);
@@ -223,7 +224,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 	private boolean matchesVersionInternal(Element element) {
 		String schemaLocation = element.getAttributeNS(
 				"http://www.w3.org/2001/XMLSchema-instance", "schemaLocation");
-		return schemaLocation.matches("(?m).*spring-security-5\\.3.*.xsd.*")
+		return schemaLocation.matches("(?m).*spring-security-5\\.4.*.xsd.*")
 				|| schemaLocation.matches("(?m).*spring-security.xsd.*")
 				|| !schemaLocation.matches("(?m).*spring-security.*");
 	}
