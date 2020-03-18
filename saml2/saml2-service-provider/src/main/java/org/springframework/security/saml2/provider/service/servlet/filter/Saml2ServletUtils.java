@@ -16,14 +16,14 @@
 
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.springframework.security.web.util.UrlUtils.buildFullRequestUrl;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
@@ -35,20 +35,13 @@ final class Saml2ServletUtils {
 
 	private static final char PATH_DELIMITER = '/';
 
-	static String getServiceProviderEntityId(RelyingPartyRegistration rp, HttpServletRequest request) {
-		return resolveUrlTemplate(
-				rp.getLocalEntityIdTemplate(),
-				getApplicationUri(request),
-				rp.getProviderDetails().getEntityId(),
-				rp.getRegistrationId()
-		);
-	}
-
-	static String resolveUrlTemplate(String template, String baseUrl, String entityId, String registrationId) {
+	static String resolveUrlTemplate(String template, String baseUrl, RelyingPartyRegistration relyingParty) {
 		if (!StringUtils.hasText(template)) {
 			return baseUrl;
 		}
 
+		String entityId = relyingParty.getProviderDetails().getEntityId();
+		String registrationId = relyingParty.getRegistrationId();
 		Map<String, String> uriVariables = new HashMap<>();
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(baseUrl)
 				.replaceQuery(null)

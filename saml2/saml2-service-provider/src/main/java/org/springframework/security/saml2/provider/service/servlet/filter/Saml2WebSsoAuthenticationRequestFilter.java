@@ -16,6 +16,13 @@
 
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
+import java.io.IOException;
+import java.util.function.Function;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
@@ -33,12 +40,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
@@ -137,22 +138,20 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	private Saml2AuthenticationRequestContext createRedirectAuthenticationRequestContext(
 			RelyingPartyRegistration relyingParty,
 			HttpServletRequest request) {
-		String localSpEntityId = Saml2ServletUtils.getServiceProviderEntityId(relyingParty, request);
-		return Saml2AuthenticationRequestContext
-				.builder()
+		String applicationUri = Saml2ServletUtils.getApplicationUri(request);
+		Function<String, String> resolver = templateResolver(applicationUri, relyingParty);
+		String localSpEntityId = resolver.apply(relyingParty.getLocalEntityIdTemplate());
+		String assertionConsumerServiceUrl = resolver.apply(relyingParty.getAssertionConsumerServiceUrlTemplate());
+		return Saml2AuthenticationRequestContext.builder()
 				.issuer(localSpEntityId)
 				.relyingPartyRegistration(relyingParty)
-				.assertionConsumerServiceUrl(
-						Saml2ServletUtils.resolveUrlTemplate(
-								relyingParty.getAssertionConsumerServiceUrlTemplate(),
-								Saml2ServletUtils.getApplicationUri(request),
-								relyingParty.getProviderDetails().getEntityId(),
-								relyingParty.getRegistrationId()
-						)
-				)
+				.assertionConsumerServiceUrl(assertionConsumerServiceUrl)
 				.relayState(request.getParameter("RelayState"))
-				.build()
-				;
+				.build();
+	}
+
+	private Function<String, String> templateResolver(String applicationUri, RelyingPartyRegistration relyingParty) {
+		return template -> Saml2ServletUtils.resolveUrlTemplate(template, applicationUri, relyingParty);
 	}
 
 	private String htmlEscape(String value) {
