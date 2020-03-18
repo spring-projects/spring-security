@@ -16,6 +16,9 @@
 
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -29,9 +32,6 @@ import org.springframework.security.web.authentication.session.ChangeSessionIdAu
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND;
@@ -97,7 +97,8 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 					"Relying Party Registration not found with ID: " + registrationId);
 			throw new Saml2AuthenticationException(saml2Error);
 		}
-		String localSpEntityId = Saml2ServletUtils.getServiceProviderEntityId(rp, request);
+		String applicationUri = Saml2ServletUtils.getApplicationUri(request);
+		String localSpEntityId = Saml2ServletUtils.resolveUrlTemplate(rp.getLocalEntityIdTemplate(), applicationUri, rp);
 		final Saml2AuthenticationToken authentication = new Saml2AuthenticationToken(
 				responseXml,
 				request.getRequestURL().toString(),
