@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,8 @@ public class OAuth2AuthorizationCodeAuthenticationProvider implements Authentica
 				authorizationCodeAuthentication.getClientRegistration(),
 				authorizationCodeAuthentication.getAuthorizationExchange(),
 				accessTokenResponse.getAccessToken(),
-				accessTokenResponse.getRefreshToken());
+				accessTokenResponse.getRefreshToken(),
+				accessTokenResponse.getAdditionalParameters());
 		authenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
 
 		return authenticationResult;
