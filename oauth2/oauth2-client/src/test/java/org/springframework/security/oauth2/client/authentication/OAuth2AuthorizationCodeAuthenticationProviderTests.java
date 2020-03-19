@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 package org.springframework.security.oauth2.client.authentication;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,13 +37,12 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExch
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 
-import java.util.Collections;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses.accessTokenResponse;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeAuthenticationProvider}.
@@ -129,5 +132,27 @@ public class OAuth2AuthorizationCodeAuthenticationProviderTests {
 		assertThat(authenticationResult.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
 		assertThat(authenticationResult.getAccessToken()).isEqualTo(accessToken);
 		assertThat(authenticationResult.getRefreshToken()).isEqualTo(refreshToken);
+	}
+
+	// gh-5368
+	@Test
+	public void authenticateWhenAuthorizationSuccessResponseThenAdditionalParametersIncluded() {
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("param1", "value1");
+		additionalParameters.put("param2", "value2");
+
+		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().additionalParameters(additionalParameters)
+				.build();
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(accessTokenResponse);
+
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(this.authorizationRequest,
+				this.authorizationResponse);
+
+		OAuth2AuthorizationCodeAuthenticationToken authentication = (OAuth2AuthorizationCodeAuthenticationToken) this.authenticationProvider
+				.authenticate(
+						new OAuth2AuthorizationCodeAuthenticationToken(this.clientRegistration, authorizationExchange));
+
+		assertThat(authentication.getAdditionalParameters())
+				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
 	}
 }
