@@ -396,6 +396,36 @@ private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesM
 }
 ----
 
+The `DefaultOAuth2AuthorizedClientManager` is designed to be used *_within_* the context of a `HttpServletRequest`.
+When operating *_outside_* of a `HttpServletRequest` context, use `AuthorizedClientServiceOAuth2AuthorizedClientManager` instead.
+
+A _service application_ is a common use case for when to use an `AuthorizedClientServiceOAuth2AuthorizedClientManager`.
+Service applications often run in the background, without any user interaction, and typically run under a system-level account instead of a user account.
+An OAuth 2.0 Client configured with the `client_credentials` grant type can be considered a type of service application.
+
+The following code shows an example of how to configure an `AuthorizedClientServiceOAuth2AuthorizedClientManager` that provides support for the `client_credentials` grant type:
+
+[source,java]
+----
+@Bean
+public OAuth2AuthorizedClientManager authorizedClientManager(
+		ClientRegistrationRepository clientRegistrationRepository,
+		OAuth2AuthorizedClientService authorizedClientService) {
+
+	OAuth2AuthorizedClientProvider authorizedClientProvider =
+			OAuth2AuthorizedClientProviderBuilder.builder()
+					.clientCredentials()
+					.build();
+
+	AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager =
+			new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+					clientRegistrationRepository, authorizedClientService);
+	authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+	return authorizedClientManager;
+}
+----
+
 
 [[oauth2Client-auth-grant-support]]
 === Authorization Grant Support
