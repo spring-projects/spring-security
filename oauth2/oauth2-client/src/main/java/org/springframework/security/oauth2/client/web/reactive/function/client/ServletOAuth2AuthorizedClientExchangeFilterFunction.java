@@ -216,30 +216,13 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 								authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
 										(HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
 										(HttpServletResponse) attributes.get(HttpServletResponse.class.getName())));
-		this.authorizedClientManager = createDefaultAuthorizedClientManager(
-				clientRegistrationRepository, authorizedClientRepository, authorizationFailureHandler);
+		DefaultOAuth2AuthorizedClientManager defaultAuthorizedClientManager =
+				new DefaultOAuth2AuthorizedClientManager(
+						clientRegistrationRepository, authorizedClientRepository);
+		defaultAuthorizedClientManager.setAuthorizationFailureHandler(authorizationFailureHandler);
+		this.authorizedClientManager = defaultAuthorizedClientManager;
 		this.defaultAuthorizedClientManager = true;
 		this.clientResponseHandler = new AuthorizationFailureForwarder(authorizationFailureHandler);
-	}
-
-	private static OAuth2AuthorizedClientManager createDefaultAuthorizedClientManager(
-			ClientRegistrationRepository clientRegistrationRepository,
-			OAuth2AuthorizedClientRepository authorizedClientRepository,
-			OAuth2AuthorizationFailureHandler authorizationFailureHandler) {
-
-		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.builder()
-						.authorizationCode()
-						.refreshToken()
-						.clientCredentials()
-						.password()
-						.build();
-		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
-				clientRegistrationRepository, authorizedClientRepository);
-		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
-		authorizedClientManager.setAuthorizationFailureHandler(authorizationFailureHandler);
-
-		return authorizedClientManager;
 	}
 
 	/**

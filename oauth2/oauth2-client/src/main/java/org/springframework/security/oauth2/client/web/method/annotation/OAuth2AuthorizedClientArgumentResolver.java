@@ -93,25 +93,9 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 													OAuth2AuthorizedClientRepository authorizedClientRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
-		this.authorizedClientManager = createDefaultAuthorizedClientManager(clientRegistrationRepository, authorizedClientRepository);
-		this.defaultAuthorizedClientManager = true;
-	}
-
-	private static OAuth2AuthorizedClientManager createDefaultAuthorizedClientManager(
-			ClientRegistrationRepository clientRegistrationRepository, OAuth2AuthorizedClientRepository authorizedClientRepository) {
-
-		OAuth2AuthorizedClientProvider authorizedClientProvider =
-				OAuth2AuthorizedClientProviderBuilder.builder()
-						.authorizationCode()
-						.refreshToken()
-						.clientCredentials()
-						.password()
-						.build();
-		DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
+		this.authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
 				clientRegistrationRepository, authorizedClientRepository);
-		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
-
-		return authorizedClientManager;
+		this.defaultAuthorizedClientManager = true;
 	}
 
 	@Override

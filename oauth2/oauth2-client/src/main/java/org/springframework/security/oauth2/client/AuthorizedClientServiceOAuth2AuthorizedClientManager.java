@@ -72,9 +72,13 @@ import java.util.function.Function;
  * @see OAuth2AuthorizationFailureHandler
  */
 public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
+	private static final OAuth2AuthorizedClientProvider DEFAULT_AUTHORIZED_CLIENT_PROVIDER =
+			OAuth2AuthorizedClientProviderBuilder.builder()
+					.clientCredentials()
+					.build();
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final OAuth2AuthorizedClientService authorizedClientService;
-	private OAuth2AuthorizedClientProvider authorizedClientProvider = context -> null;
+	private OAuth2AuthorizedClientProvider authorizedClientProvider;
 	private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper;
 	private OAuth2AuthorizationSuccessHandler authorizationSuccessHandler;
 	private OAuth2AuthorizationFailureHandler authorizationFailureHandler;
@@ -91,6 +95,7 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 		Assert.notNull(authorizedClientService, "authorizedClientService cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientService = authorizedClientService;
+		this.authorizedClientProvider = DEFAULT_AUTHORIZED_CLIENT_PROVIDER;
 		this.contextAttributesMapper = new DefaultContextAttributesMapper();
 		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) ->
 				authorizedClientService.saveAuthorizedClient(authorizedClient, principal);
