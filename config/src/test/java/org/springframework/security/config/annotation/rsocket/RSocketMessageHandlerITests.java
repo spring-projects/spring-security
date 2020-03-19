@@ -103,7 +103,9 @@ public class RSocketMessageHandlerITests {
 				.data(data)
 				.retrieveMono(String.class)
 				.block()
-			).isInstanceOf(ApplicationErrorException.class);
+			).isInstanceOf(ApplicationErrorException.class)
+			.hasMessageContaining("Access Denied");
+
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -116,7 +118,9 @@ public class RSocketMessageHandlerITests {
 				.data(data)
 				.retrieveMono(String.class)
 				.block()
-		).isInstanceOf(ApplicationErrorException.class);
+			).isInstanceOf(ApplicationErrorException.class)
+			.hasMessageContaining("Invalid Credentials");
+
 		assertThat(this.controller.payloads).isEmpty();
 	}
 
@@ -149,12 +153,13 @@ public class RSocketMessageHandlerITests {
 	@Test
 	public void retrieveFluxWhenDataFluxAndSecureThenDenied() throws Exception {
 		Flux<String> data = Flux.just("a", "b", "c");
-		assertThatCode(() -> this.requester.route("secure.secure.retrieve-flux")
+		assertThatCode(() -> this.requester.route("secure.retrieve-flux")
 				.data(data, String.class)
 				.retrieveFlux(String.class)
 				.collectList()
-				.block()).isInstanceOf(
-				ApplicationErrorException.class);
+				.block()
+			).isInstanceOf(ApplicationErrorException.class)
+			.hasMessageContaining("Access Denied");
 
 		assertThat(this.controller.payloads).isEmpty();
 	}
@@ -179,8 +184,9 @@ public class RSocketMessageHandlerITests {
 				.data(data)
 				.retrieveFlux(String.class)
 				.collectList()
-				.block()).isInstanceOf(
-				ApplicationErrorException.class);
+				.block()
+			).isInstanceOf(ApplicationErrorException.class)
+			.hasMessageContaining("Access Denied");
 
 		assertThat(this.controller.payloads).isEmpty();
 	}
