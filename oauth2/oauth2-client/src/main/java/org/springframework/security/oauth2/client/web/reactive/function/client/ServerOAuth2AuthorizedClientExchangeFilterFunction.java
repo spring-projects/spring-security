@@ -208,14 +208,6 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository,
 			ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler) {
 
-		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
-				ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
-						.authorizationCode()
-						.refreshToken()
-						.clientCredentials()
-						.password()
-						.build();
-
 		// gh-7544
 		if (authorizedClientRepository instanceof UnAuthenticatedServerOAuth2AuthorizedClientRepository) {
 			UnAuthenticatedReactiveOAuth2AuthorizedClientManager unauthenticatedAuthorizedClientManager =
@@ -223,13 +215,19 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 							clientRegistrationRepository,
 							(UnAuthenticatedServerOAuth2AuthorizedClientRepository) authorizedClientRepository,
 							authorizationFailureHandler);
-			unauthenticatedAuthorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+			unauthenticatedAuthorizedClientManager.setAuthorizedClientProvider(
+					ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+							.authorizationCode()
+							.refreshToken()
+							.clientCredentials()
+							.password()
+							.build());
 			return unauthenticatedAuthorizedClientManager;
 		}
 
-		DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
-				clientRegistrationRepository, authorizedClientRepository);
-		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+		DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager =
+				new DefaultReactiveOAuth2AuthorizedClientManager(
+						clientRegistrationRepository, authorizedClientRepository);
 		authorizedClientManager.setAuthorizationFailureHandler(authorizationFailureHandler);
 
 		return authorizedClientManager;

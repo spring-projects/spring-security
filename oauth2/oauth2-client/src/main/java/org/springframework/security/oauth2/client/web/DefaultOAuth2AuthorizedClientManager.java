@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.RemoveAuthorizedClientOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -83,9 +84,16 @@ import java.util.function.Function;
  * @see OAuth2AuthorizationFailureHandler
  */
 public final class DefaultOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
+	private static final OAuth2AuthorizedClientProvider DEFAULT_AUTHORIZED_CLIENT_PROVIDER =
+			OAuth2AuthorizedClientProviderBuilder.builder()
+					.authorizationCode()
+					.refreshToken()
+					.clientCredentials()
+					.password()
+					.build();
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final OAuth2AuthorizedClientRepository authorizedClientRepository;
-	private OAuth2AuthorizedClientProvider authorizedClientProvider = context -> null;
+	private OAuth2AuthorizedClientProvider authorizedClientProvider;
 	private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper;
 	private OAuth2AuthorizationSuccessHandler authorizationSuccessHandler;
 	private OAuth2AuthorizationFailureHandler authorizationFailureHandler;
@@ -102,6 +110,7 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientRepository = authorizedClientRepository;
+		this.authorizedClientProvider = DEFAULT_AUTHORIZED_CLIENT_PROVIDER;
 		this.contextAttributesMapper = new DefaultContextAttributesMapper();
 		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) ->
 				authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal,

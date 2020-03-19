@@ -69,9 +69,13 @@ import java.util.function.Function;
 public final class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 		implements ReactiveOAuth2AuthorizedClientManager {
 
+	private static final ReactiveOAuth2AuthorizedClientProvider DEFAULT_AUTHORIZED_CLIENT_PROVIDER =
+			ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+					.clientCredentials()
+					.build();
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 	private final ReactiveOAuth2AuthorizedClientService authorizedClientService;
-	private ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = context -> Mono.empty();
+	private ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = DEFAULT_AUTHORIZED_CLIENT_PROVIDER;
 	private Function<OAuth2AuthorizeRequest, Mono<Map<String, Object>>> contextAttributesMapper = new DefaultContextAttributesMapper();
 	private ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler;
 	private ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler;
