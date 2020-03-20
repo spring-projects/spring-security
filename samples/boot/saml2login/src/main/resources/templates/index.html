@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2002-2019 the original author or authors.
+  ~ Copyright 2002-2020 the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,21 +17,19 @@
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <head>
-	<title>Spring Security - SAML 2 Log In</title>
+	<title>Spring Security - SAML 2.0 Login</title>
 	<meta charset="utf-8" />
 </head>
 <body>
-    <h1>Success</h1>
-    <div>You are authenticated as <span sec:authentication="name"></span></div>
-    <ul>
-        <li>
-            <a th:href="@{/logout}">Log Out</a>
-        </li>
-        <li>
-            <a href="https://simplesaml-for-spring-saml.cfapps.io/module.php/core/authenticate.php?as=example-userpass&logout">
-                Log out of SimpleSAMLPhp
-            </a>
-        </li>
-    </ul>
+	<div>
+        <form th:action="@{/logout}" method="post">
+            <input type="submit" value="Logout" />
+        </form>
+        <a href="https://simplesaml-for-spring-saml.cfapps.io/module.php/core/authenticate.php?as=example-userpass&logout">
+            Log out of SimpleSAMLphp
+        </a>
+	</div>
+	<h1>SAML 2.0 Login with Spring Security</h1>
+	<div>You are successfully logged in as <span sec:authentication="name"></span></div>
 </body>
 </html>

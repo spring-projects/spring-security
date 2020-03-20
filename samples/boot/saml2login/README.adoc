@@ -1,26 +1,20 @@
 = OAuth 2.0 Login Sample
 
-This guide provides instructions on setting up the sample application with SAML 2.0 Login using
-Spring Security's `saml2Login()` feature.
+This guide provides instructions on setting up this SAML 2.0 Login sample application.
 
-The sample application uses Spring Boot 2.2.0.M5 and the `spring-security-saml2-service-provider`
+The sample application uses Spring Boot and the `spring-security-saml2-service-provider`
 module which is new in Spring Security 5.2.
 
 == Goals
 
-`saml2Login()` provides a very simple, basic, implementation of a Service Provider
-that can receive a SAML 2 Response XML object via the HTTP-POST and HTTP-REDIRECT bindings
-against a known SAML reference implementation by SimpleSAMLPhp.
+`saml2Login()` provides a very simple implementation of a Service Provider that can receive a SAML 2.0 Response via the HTTP-POST and HTTP-REDIRECT bindings against the SimpleSAMLphp SAML 2.0 reference implementation.
 
+The following features are implemented in the MVP:
 
-The following features are implemented in the MVP
-
-1. Receive and validate a SAML 2.0 Response object containing an assertion
-and create a valid authentication in Spring Security
-2. Send a SAML 2 AuthNRequest object to an Identity Provider
-3. Provide a framework for components used in SAML 2.0 authentication that can
-be swapped by configuration
-4. Sample working against the SimpleSAMLPhP reference implementation
+1. Receive and validate a SAML 2.0 Response containing an assertion, and create a corresponding authentication in Spring Security
+2. Send a SAML 2.0 AuthNRequest to an Identity Provider
+3. Provide a framework for components used in SAML 2.0 authentication that can be swapped by configuration
+4. Work against the SimpleSAMLphp reference implementation
 
 == Run the Sample
 
@@ -33,7 +27,7 @@ be swapped by configuration
 
 http://localhost:8080/
 
-You will be redirect to the SimpleSAMLPhp IDP
+You will be redirect to the SimpleSAMLphp IDP
 
 === Type in your credentials
 

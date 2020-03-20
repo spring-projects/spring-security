@@ -4,13 +4,11 @@ spring:
       relyingparty:
         registration:
           simplesamlphp:
-            signing:
-              credentials:
-                - private-key-location: "classpath:credentials/rp-private.key"
-                  certificate-location: "classpath:credentials/rp-certificate.crt"
+            signing.credentials:
+              - private-key-location: "classpath:credentials/rp-private.key"
+                certificate-location: "classpath:credentials/rp-certificate.crt"
             identityprovider:
-              verification:
-                credentials:
-                  - certificate-location: "classpath:credentials/idp-certificate.crt"
               entity-id: https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php
+              verification.credentials:
+                - certificate-location: "classpath:credentials/idp-certificate.crt"
               sso-url: https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php
