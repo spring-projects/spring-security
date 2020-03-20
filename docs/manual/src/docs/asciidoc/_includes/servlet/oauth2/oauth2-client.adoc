@@ -315,6 +315,8 @@ The primary responsibilities include:
 
 * Authorizing (or re-authorizing) an OAuth 2.0 Client, using an `OAuth2AuthorizedClientProvider`.
 * Delegating the persistence of an `OAuth2AuthorizedClient`, typically using an `OAuth2AuthorizedClientService` or `OAuth2AuthorizedClientRepository`.
+* Delegating to an `OAuth2AuthorizationSuccessHandler` when an OAuth 2.0 Client has been successfully authorized (or re-authorized).
+* Delegating to an `OAuth2AuthorizationFailureHandler` when an OAuth 2.0 Client fails to authorize (or re-authorize).
 
 An `OAuth2AuthorizedClientProvider` implements a strategy for authorizing (or re-authorizing) an OAuth 2.0 Client.
 Implementations will typically implement an authorization grant type, eg. `authorization_code`, `client_credentials`, etc.
@@ -347,6 +349,10 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 	return authorizedClientManager;
 }
 ----
+
+When an authorization attempt succeeds, the `DefaultOAuth2AuthorizedClientManager` will delegate to the `OAuth2AuthorizationSuccessHandler`, which (by default) will save the `OAuth2AuthorizedClient` via the `OAuth2AuthorizedClientRepository`.
+In the case of a re-authorization failure, eg. a refresh token is no longer valid, the previously saved `OAuth2AuthorizedClient` will be removed from the `OAuth2AuthorizedClientRepository` via the `RemoveAuthorizedClientOAuth2AuthorizationFailureHandler`.
+The default behaviour may be customized via `setAuthorizationSuccessHandler(OAuth2AuthorizationSuccessHandler)` and `setAuthorizationFailureHandler(OAuth2AuthorizationFailureHandler)`.
 
 The `DefaultOAuth2AuthorizedClientManager` is also associated with a `contextAttributesMapper` of type `Function<OAuth2AuthorizeRequest, Map<String, Object>>`, which is responsible for mapping attribute(s) from the `OAuth2AuthorizeRequest` to a `Map` of attributes to be associated to the `OAuth2AuthorizationContext`.
 This can be useful when you need to supply an `OAuth2AuthorizedClientProvider` with required (supported) attribute(s), eg. the `PasswordOAuth2AuthorizedClientProvider` requires the resource owner's `username` and `password` to be available in `OAuth2AuthorizationContext.getAttributes()`.
