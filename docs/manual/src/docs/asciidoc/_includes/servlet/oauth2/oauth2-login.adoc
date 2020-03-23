@@ -138,7 +138,7 @@ The following table outlines the mapping of the Spring Boot 2.x OAuth Client pro
 |`providerDetails.userInfoEndpoint.authenticationMethod`
 
 
-|`spring.security.oauth2.client.provider._[providerId]_.userNameAttribute`
+|`spring.security.oauth2.client.provider._[providerId]_.user-name-attribute`
 |`providerDetails.userInfoEndpoint.userNameAttributeName`
 |===
 
