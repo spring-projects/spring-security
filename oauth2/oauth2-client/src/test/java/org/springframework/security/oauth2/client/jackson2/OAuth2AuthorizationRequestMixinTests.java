@@ -27,7 +27,6 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2Authorization
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,8 +70,8 @@ public class OAuth2AuthorizationRequestMixinTests {
 				this.authorizationRequestBuilder
 						.scopes(null)
 						.state(null)
-						.additionalParameters(Collections.emptyMap())
-						.attributes(Collections.emptyMap())
+						.additionalParameters(Map::clear)
+						.attributes(Map::clear)
 						.build();
 		String expectedJson = asJson(authorizationRequest);
 		String json = this.mapper.writeValueAsString(authorizationRequest);
@@ -119,8 +118,8 @@ public class OAuth2AuthorizationRequestMixinTests {
 				this.authorizationRequestBuilder
 						.scopes(null)
 						.state(null)
-						.additionalParameters(Collections.emptyMap())
-						.attributes(Collections.emptyMap())
+						.additionalParameters(Map::clear)
+						.attributes(Map::clear)
 						.build();
 		String json = asJson(expectedAuthorizationRequest);
 		OAuth2AuthorizationRequest authorizationRequest = this.mapper.readValue(json, OAuth2AuthorizationRequest.class);

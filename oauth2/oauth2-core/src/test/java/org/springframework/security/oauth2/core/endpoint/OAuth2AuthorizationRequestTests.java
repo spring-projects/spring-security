@@ -121,7 +121,7 @@ public class OAuth2AuthorizationRequestTests {
 	}
 
 	@Test
-	public void buildWhenAdditionalParametersIsNullThenDoesNotThrowAnyException() {
+	public void buildWhenAdditionalParametersEmptyThenDoesNotThrowAnyException() {
 		assertThatCode(() ->
 				OAuth2AuthorizationRequest.authorizationCode()
 					.authorizationUri(AUTHORIZATION_URI)
@@ -129,7 +129,7 @@ public class OAuth2AuthorizationRequestTests {
 					.redirectUri(REDIRECT_URI)
 					.scopes(SCOPES)
 					.state(STATE)
-					.additionalParameters((Map) null)
+					.additionalParameters(Map::clear)
 					.build())
 				.doesNotThrowAnyException();
 	}
