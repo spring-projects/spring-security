@@ -437,6 +437,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
 		assertThat(authorizationRequest.getAdditionalParameters()).doesNotContainKey(OidcParameterNames.NONCE);
 		assertThat(authorizationRequest.getAttributes()).doesNotContainKey(OidcParameterNames.NONCE);
+		assertThat(authorizationRequest.getAttributes()).containsKey(OAuth2ParameterNames.REGISTRATION_ID);
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 				.matches("https://example.com/login/oauth/authorize\\?" +
 						"response_type=code&client_id=client-id&" +

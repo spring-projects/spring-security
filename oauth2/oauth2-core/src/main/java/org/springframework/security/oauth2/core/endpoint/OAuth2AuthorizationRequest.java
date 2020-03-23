@@ -229,9 +229,9 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		private String redirectUri;
 		private Set<String> scopes;
 		private String state;
-		private Consumer<Map<String, Object>> additionalParametersConsumer = params -> {};
+		private Map<String, Object> additionalParameters = new LinkedHashMap<>();
 		private Consumer<Map<String, Object>> parametersConsumer = params -> {};
-		private Consumer<Map<String, Object>> attributesConsumer = attrs -> {};
+		private Map<String, Object> attributes = new LinkedHashMap<>();
 		private String authorizationRequestUri;
 		private Function<UriBuilder, URI> authorizationRequestUriFunction = builder -> builder.build();
 		private final DefaultUriBuilderFactory uriBuilderFactory;
@@ -325,8 +325,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 * @return the {@link Builder}
 		 */
 		public Builder additionalParameters(Map<String, Object> additionalParameters) {
-			if (additionalParameters != null) {
-				return additionalParameters(params -> params.putAll(additionalParameters));
+			if (!CollectionUtils.isEmpty(additionalParameters)) {
+				this.additionalParameters.putAll(additionalParameters);
 			}
 			return this;
 		}
@@ -340,7 +340,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 */
 		public Builder additionalParameters(Consumer<Map<String, Object>> additionalParametersConsumer) {
 			if (additionalParametersConsumer != null) {
-				this.additionalParametersConsumer = additionalParametersConsumer;
+				additionalParametersConsumer.accept(this.additionalParameters);
 			}
 			return this;
 		}
@@ -367,8 +367,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 * @return the {@link Builder}
 		 */
 		public Builder attributes(Map<String, Object> attributes) {
-			if (attributes != null) {
-				return attributes(attrs -> attrs.putAll(attributes));
+			if (!CollectionUtils.isEmpty(attributes)) {
+				this.attributes.putAll(attributes);
 			}
 			return this;
 		}
@@ -382,7 +382,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 */
 		public Builder attributes(Consumer<Map<String, Object>> attributesConsumer) {
 			if (attributesConsumer != null) {
-				this.attributesConsumer = attributesConsumer;
+				attributesConsumer.accept(this.attributes);
 			}
 			return this;
 		}
@@ -439,12 +439,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			authorizationRequest.scopes = Collections.unmodifiableSet(
 				CollectionUtils.isEmpty(this.scopes) ?
 					Collections.emptySet() : new LinkedHashSet<>(this.scopes));
-			Map<String, Object> additionalParameters = new LinkedHashMap<>();
-			this.additionalParametersConsumer.accept(additionalParameters);
-			authorizationRequest.additionalParameters = Collections.unmodifiableMap(additionalParameters);
-			Map<String, Object> attributes = new LinkedHashMap<>();
-			this.attributesConsumer.accept(attributes);
-			authorizationRequest.attributes = Collections.unmodifiableMap(attributes);
+			authorizationRequest.additionalParameters = Collections.unmodifiableMap(this.additionalParameters);
+			authorizationRequest.attributes = Collections.unmodifiableMap(this.attributes);
 			authorizationRequest.authorizationRequestUri =
 					StringUtils.hasText(this.authorizationRequestUri) ?
 							this.authorizationRequestUri : this.buildAuthorizationRequestUri();
@@ -457,7 +453,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			this.parametersConsumer.accept(parameters);
 			MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
 			parameters.forEach((k, v) -> queryParams.set(
-					encodeQueryParam(k), encodeQueryParam(v.toString())));		// Encoded
+					encodeQueryParam(k), encodeQueryParam(String.valueOf(v))));		// Encoded
 			UriBuilder uriBuilder = this.uriBuilderFactory.uriString(this.authorizationUri)
 					.queryParams(queryParams);
 			return this.authorizationRequestUriFunction.apply(uriBuilder).toString();
@@ -477,9 +473,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			if (this.redirectUri != null) {
 				parameters.put(OAuth2ParameterNames.REDIRECT_URI, this.redirectUri);
 			}
-			Map<String, Object> additionalParameters = new LinkedHashMap<>();
-			this.additionalParametersConsumer.accept(additionalParameters);
-			additionalParameters.forEach((k, v) -> parameters.put(k, v.toString()));
+			parameters.putAll(this.additionalParameters);
 			return parameters;
 		}
 
