@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,25 @@ public class OAuth2ErrorHttpMessageConverterTests {
 		String errorResponse = "{\n" +
 				"	\"error\": \"unauthorized_client\",\n" +
 				"   \"error_description\": \"The client is not authorized\",\n" +
+				"   \"error_uri\": \"https://tools.ietf.org/html/rfc6749#section-5.2\"\n" +
+				"}\n";
+
+		MockClientHttpResponse response = new MockClientHttpResponse(
+				errorResponse.getBytes(), HttpStatus.BAD_REQUEST);
+
+		OAuth2Error oauth2Error = this.messageConverter.readInternal(OAuth2Error.class, response);
+		assertThat(oauth2Error.getErrorCode()).isEqualTo("unauthorized_client");
+		assertThat(oauth2Error.getDescription()).isEqualTo("The client is not authorized");
+		assertThat(oauth2Error.getUri()).isEqualTo("https://tools.ietf.org/html/rfc6749#section-5.2");
+	}
+
+	// gh-8157
+	@Test
+	public void readInternalWhenErrorResponseWithObjectThenReadOAuth2Error() throws Exception {
+		String errorResponse = "{\n" +
+				"	\"error\": \"unauthorized_client\",\n" +
+				"   \"error_description\": \"The client is not authorized\",\n" +
+				"   \"error_codes\": [65001],\n" +
 				"   \"error_uri\": \"https://tools.ietf.org/html/rfc6749#section-5.2\"\n" +
 				"}\n";
 
