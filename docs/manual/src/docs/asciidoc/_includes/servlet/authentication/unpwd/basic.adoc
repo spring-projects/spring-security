@@ -23,6 +23,7 @@ The `RequestCache` is typically a `NullRequestCache` that does not save the requ
 When a client receives the WWW-Authenticate header it knows it should retry with a username and password.
 Below is the flow for the username and password being processed.
 
+[[servlet-authentication-basicauthenticationfilter]]
 .Authenticating Username and Password
 image::{figures}/basicauthenticationfilter.png[]
 
