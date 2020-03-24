@@ -629,15 +629,19 @@ However, there are a number of circumstances where this default is insufficient.
 For example, some authorization servers don't use the `scope` attribute, but instead have their own custom attribute.
 Or, at other times, the resource server may need to adapt the attribute or a composition of attributes into internalized authorities.
 
-To this end, the DSL exposes `jwtAuthenticationConverter()`:
+To this end, the DSL exposes `jwtAuthenticationConverter()`, which is responsible for converting a `Jwt` into an `Authentication`.
 
-.Authorities Extractor Configuration
+As part of its configuration, we can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
+Let's say that that your authorization server communicates authorities in a custom claim called `authorities`.
+In that case, you can configure the claim that `JwtAuthenticationConverter` should inspect, like so:
+
+.Authorities Claim Configuration
 ====
 .Java
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
-public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
+public class CustomAuthoritiesClaimName extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
             .authorizeRequests(authorize -> authorize
@@ -645,46 +649,19 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
             )
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt
-                    .jwtAuthenticationConverter(grantedAuthoritiesExtractor())
+                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
             );
     }
 }
 
-Converter<Jwt, AbstractAuthenticationToken> grantedAuthoritiesExtractor() {
-    JwtAuthenticationConverter jwtAuthenticationConverter =
-            new JwtAuthenticationConverter();
+JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+    grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
 
-    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter
-            (new GrantedAuthoritiesExtractor());
-
+    JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
+    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
     return jwtAuthenticationConverter;
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@EnableWebSecurity
-class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
-        http {
-            authorizeRequests {
-                authorize(anyRequest, authenticated)
-            }
-            oauth2ResourceServer {
-                jwt {
-                    jwtAuthenticationConverter = grantedAuthoritiesExtractor()
-                }
-            }
-        }
-    }
-
-    private fun grantedAuthoritiesExtractor(): JwtAuthenticationConverter {
-        val jwtAuthenticationConverter = JwtAuthenticationConverter()
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(GrantedAuthoritiesExtractor())
-        return jwtAuthenticationConverter
-    }
 }
 ----
 
@@ -696,40 +673,65 @@ class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
     <intercept-uri pattern="/messages/**" access="hasAuthority('SCOPE_messages')"/>
     <oauth2-resource-server>
         <jwt jwk-set-uri="https://idp.example.org/.well-known/jwks.json"
-                jwt-authentication-converter-ref="grantedAuthoritiesExtractor"/>
+                jwt-authentication-converter-ref="jwtAuthenticationConverter"/>
     </oauth2-resource-server>
 </http>
 
-<bean id="grantedAuthoritiesExtractor"
+<bean id="jwtAuthenticationConverter"
         class="org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter">
-    <property name="jwtGrantedAuthoritiesConverter">
-        <bean class="my.custom.GrantedAuthoritiesConverter"/>
-    </property>
+    <property name="jwtGrantedAuthoritiesConverter" ref="jwtGrantedAuthoritiesConverter"/>
+</bean>
+
+<bean id="jwtGrantedAuthoritiesConverter"
+        class="org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter">
+    <property name="authoritiesClaimName" value="authorities"/>
 </bean>
 ----
 ====
 
-which is responsible for converting a `Jwt` into an `Authentication`.
-As part of its configuration, we can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
+You can also configure the authority prefix to be different as well.
+Instead of prefixing each authority with `SCOPE_`, you can change it to `ROLE_` like so:
 
-That final converter might be something like `GrantedAuthoritiesExtractor` below:
-
-[source,java]
+.Authorities Prefix Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
-static class GrantedAuthoritiesExtractor
-        implements Converter<Jwt, Collection<GrantedAuthority>> {
+JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+    grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
-    public Collection<GrantedAuthority> convert(Jwt jwt) {
-        Collection<?> authorities = (Collection<?>)
-                jwt.getClaims().getOrDefault("mycustomclaim", Collections.emptyList());
-
-        return authorities.stream()
-                .map(Object::toString)
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-    }
+    JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
+    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
+    return jwtAuthenticationConverter;
 }
 ----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+    <intercept-uri pattern="/contacts/**" access="hasAuthority('SCOPE_contacts')"/>
+    <intercept-uri pattern="/messages/**" access="hasAuthority('SCOPE_messages')"/>
+    <oauth2-resource-server>
+        <jwt jwk-set-uri="https://idp.example.org/.well-known/jwks.json"
+                jwt-authentication-converter-ref="jwtAuthenticationConverter"/>
+    </oauth2-resource-server>
+</http>
+
+<bean id="jwtAuthenticationConverter"
+        class="org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter">
+    <property name="jwtGrantedAuthoritiesConverter" ref="jwtGrantedAuthoritiesConverter"/>
+</bean>
+
+<bean id="jwtGrantedAuthoritiesConverter"
+        class="org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter">
+    <property name="authorityPrefix" value="ROLE_"/>
+</bean>
+----
+====
+
+Or, you can remove the prefix altogether by calling `JwtGrantedAuthoritiesConverter#setAuthorityPrefix("")`.
 
 For more flexibility, the DSL supports entirely replacing the converter with any class that implements `Converter<Jwt, AbstractAuthenticationToken>`:
 
