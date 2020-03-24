@@ -1,5 +1,7 @@
 [[oauth2resourceserver]]
 == OAuth 2.0 Resource Server
+:figures: images/servlet/oauth2
+:icondir: images/icons
 
 Spring Security supports protecting endpoints using two forms of OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens]:
 
@@ -9,12 +11,54 @@ Spring Security supports protecting endpoints using two forms of OAuth 2.0 https
 This is handy in circumstances where an application has delegated its authority management to an https://tools.ietf.org/html/rfc6749[authorization server] (for example, Okta or Ping Identity).
 This authorization server can be consulted by resource servers to authorize requests.
 
+This section provides details on how Spring Security provides support for OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens].
+
 [NOTE]
 ====
 Working samples for both {gh-samples-url}/boot/oauth2resourceserver[JWTs] and {gh-samples-url}/boot/oauth2resourceserver-opaque[Opaque Tokens] are available in the {gh-samples-url}[Spring Security repository].
 ====
 
-=== Dependencies
+Let's take a look at how Bearer Token Authentication works within Spring Security.
+First, we see that, like <<servlet-authentication-basic,Basic Authentication>>, the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client.
+
+.Sending WWW-Authenticate Header
+image::{figures}/bearerauthenticationentrypoint.png[]
+
+The figure above builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+
+image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
+
+image:{icondir}/number_2.png[] Spring Security's <<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
+
+image:{icondir}/number_3.png[] Since the user is not authenticated, <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>> initiates __Start Authentication__.
+The configured <<servlet-authentication-authenticationentrypoint,`AuthenticationEntryPoint`>> is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/authentication/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
+The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
+
+When a client receives the `WWW-Authenticate: Bearer` header, it knows it should retry with a bearer token.
+Below is the flow for the bearer token being processed.
+
+[[oauth2resourceserver-authentication-bearertokenauthenticationfilter]]
+.Authenticating Bearer Token
+image::{figures}/bearertokenauthenticationfilter.png[]
+
+The figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
+
+image:{icondir}/number_1.png[] When the user submits their bearer token, the `BearerTokenAuthenticationFilter` creates a `BearerTokenAuthenticationToken` which is a type of <<servlet-authentication-authentication,`Authentication`>> by extracting the token from the `HttpServletRequest`.
+
+image:{icondir}/number_2.png[] Next, the `HttpServletRequest` is passed to the `AuthenticationManagerResolver`, which selects the `AuthenticationManager`. The `BearerTokenAuthenticationToken` is passed into the `AuthenticationManager` to be authenticated.
+The details of what `AuthenticationManager` looks like depends on whether you're configured for <<oauth2resourceserver-jwt-minimalconfiguration,JWT>> or <<oauth2resourceserver-opaque-minimalconfiguration,opaque token>>.
+
+image:{icondir}/number_3.png[] If authentication fails, then __Failure__
+
+* The <<servlet-authentication-securitycontextholder>> is cleared out.
+* The `AuthenticationEntryPoint` is invoked to trigger the WWW-Authenticate header to be sent again.
+
+image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
+
+* The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
+* The `BearerTokenAuthenticationFilter` invokes `FilterChain.doFilter(request,response)` to continue with the rest of the application logic.
+
+=== Dependencies for JWT
 
 Most Resource Server support is collected into `spring-security-oauth2-resource-server`.
 However, the support for decoding and verifying JWTs is in `spring-security-oauth2-jose`, meaning that both are necessary in order to have a working resource server that supports JWT-encoded Bearer Tokens.
@@ -86,11 +130,36 @@ As the authorization server makes available new keys, Spring Security will autom
 
 The resulting `Authentication#getPrincipal`, by default, is a Spring Security `Jwt` object, and `Authentication#getName` maps to the JWT's `sub` property, if one is present.
 
+[[oauth2resourceserver-jwt-architecture]]
+==== How JWT Authentication Works
+
+Next, let's see the architectural components that Spring Security uses to support https://tools.ietf.org/html/rfc7519[JWT] Authentication in servlet-based applications, like the one we just saw.
+
+{security-api-url}org/springframework/security/oauth2/server/resource/authentication/JwtAuthenticationProvider.html[`JwtAuthenticationProvider`] is an <<servlet-authentication-authenticationprovider,`AuthenticationProvider`>> implementation that leverages a <<oauth2resourceserver-jwt-decoder,`JwtDecoder`>> and <<oauth2resourceserver-jwt-authorization-extraction,`JwtAuthenticationConverter`>> to authenticate a JWT.
+
+Let's take a look at how `JwtAuthenticationProvider` works within Spring Security.
+The figure explains details of how the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
+
+.`JwtAuthenticationProvider` Usage
+image::{figures}/jwtauthenticationprovider.png[]
+
+image:{icondir}/number_1.png[] The authentication `Filter` from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by <<servlet-authentication-providermanager,`ProviderManager`>>.
+
+image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an <<servlet-authentication-authenticationprovider>> of type `JwtAuthenticationProvider`.
+
+[[oauth2resourceserver-jwt-architecture-jwtdecoder]]
+image:{icondir}/number_3.png[] `JwtAuthenticationProvider` decodes, verifies, and validates the `Jwt` using a <<oauth2resourceserver-jwt-decoder,`JwtDecoder`>>.
+
+[[oauth2resourceserver-jwt-architecture-jwtauthenticationconverter]]
+image:{icondir}/number_4.png[] `JwtAuthenticationProvider` then uses the <<oauth2resourceserver-jwt-authorization-extraction,`JwtAuthenticationConverter`>> to convert the `Jwt` into a `Collection` of granted authorities.
+
+image:{icondir}/number_5.png[] When authentication is successful, the <<servlet-authentication-authentication,`Authentication`>> that is returned is of type `JwtAuthenticationToken` and has a principal that is the `Jwt` returned by the configured `JwtDecoder`.
+Ultimately, the returned `JwtAuthenticationToken` will be set on the <<servlet-authentication-securitycontextholder,`SecurityContextHolder`>> by the authentication `Filter`.
+
 From here, consider jumping to:
 
-<<oauth2resourceserver-jwt-jwkseturi,How to Configure without Tying Resource Server startup to an authorization server's availability>>
-
-<<oauth2resourceserver-jwt-sansboot,How to Configure without Spring Boot>>
+* <<oauth2resourceserver-jwt-jwkseturi,How to Configure without tying Resource Server startup to an authorization server's availability>>
+* <<oauth2resourceserver-jwt-sansboot,How to Configure without Spring Boot>>
 
 [[oauth2resourceserver-jwt-jwkseturi]]
 === Specifying the Authorization Server JWK Set Uri Directly
@@ -206,8 +275,8 @@ The above requires the scope of `message:read` for any URL that starts with `/me
 
 Methods on the `oauth2ResourceServer` DSL will also override or replace auto configuration.
 
-For example, the second `@Bean` Spring Boot creates is a `JwtDecoder`, which decodes `String` tokens into validated instances of `Jwt`:
-
+[[oauth2resourceserver-jwt-decoder]]
+For example, the second `@Bean` Spring Boot creates is a `JwtDecoder`, which <<oauth2resourceserver-jwt-architecture-jwtdecoder,decodes `String` tokens into validated instances of `Jwt`>>:
 
 .JWT Decoder
 ====
@@ -323,7 +392,7 @@ Using `jwkSetUri()` takes precedence over any configuration property.
 [[oauth2resourceserver-jwt-decoder-dsl]]
 ==== Using `decoder()`
 
-More powerful than `jwkSetUri()` is `decoder()`, which will completely replace any Boot auto configuration of `JwtDecoder`:
+More powerful than `jwkSetUri()` is `decoder()`, which will completely replace any Boot auto configuration of <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>>:
 
 .JWT Decoder Configuration
 ====
@@ -383,7 +452,7 @@ This is handy when deeper configuration, like <<oauth2resourceserver-jwt-validat
 [[oauth2resourceserver-jwt-decoder-bean]]
 ==== Exposing a `JwtDecoder` `@Bean`
 
-Or, exposing a `JwtDecoder` `@Bean` has the same effect as `decoder()`:
+Or, exposing a <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> `@Bean` has the same effect as `decoder()`:
 
 [source,java]
 ----
@@ -629,11 +698,11 @@ However, there are a number of circumstances where this default is insufficient.
 For example, some authorization servers don't use the `scope` attribute, but instead have their own custom attribute.
 Or, at other times, the resource server may need to adapt the attribute or a composition of attributes into internalized authorities.
 
-To this end, the DSL exposes `jwtAuthenticationConverter()`, which is responsible for converting a `Jwt` into an `Authentication`.
+To this end, the DSL exposes `jwtAuthenticationConverter()`, which is responsible for <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,converting a `Jwt` into an `Authentication`>>.
 
 As part of its configuration, we can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
 Let's say that that your authorization server communicates authorities in a custom claim called `authorities`.
-In that case, you can configure the claim that `JwtAuthenticationConverter` should inspect, like so:
+In that case, you can configure the claim that <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,`JwtAuthenticationConverter`>> should inspect, like so:
 
 .Authorities Claim Configuration
 ====
@@ -817,7 +886,7 @@ OAuth2TokenValidator<Jwt> audienceValidator() {
 }
 ----
 
-Then, to add into a resource server, it's a matter of specifying the `JwtDecoder` instance:
+Then, to add into a resource server, it's a matter of specifying the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> instance:
 
 [source,java]
 ----
@@ -1015,6 +1084,28 @@ Given an Opaque Token, Resource Server will
 
 The resulting `Authentication#getPrincipal`, by default, is a Spring Security `{security-api-url}org/springframework/security/oauth2/core/OAuth2AuthenticatedPrincipal.html[OAuth2AuthenticatedPrincipal]` object, and `Authentication#getName` maps to the token's `sub` property, if one is present.
 
+[[oauth2resourceserver-opaque-architecture]]
+==== How Opaque Token Authentication Works
+
+Next, let's see the architectural components that Spring Security uses to support https://tools.ietf.org/html/rfc7662[opaque token] Authentication in servlet-based applications, like the one we just saw.
+
+{security-api-url}org/springframework/security/oauth2/server/resource/authentication/OpaqueTokenAuthenticationProvider.html[`OpaqueTokenAuthenticationProvider`] is an <<servlet-authentication-authenticationprovider,`AuthenticationProvider`>> implementation that leverages a <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> to authenticate an opaque token.
+
+Let's take a look at how `OpaqueTokenAuthenticationProvider` works within Spring Security.
+The figure explains details of how the <<servlet-authentication-authenticationmanager,`AuthenticationManager`>> in figures from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> works.
+
+.`OpaqueTokenAuthenticationProvider` Usage
+image::{figures}/opaquetokenauthenticationprovider.png[]
+
+image:{icondir}/number_1.png[] The authentication `Filter` from <<oauth2resourceserver-authentication-bearertokenauthenticationfilter,Reading the Bearer Token>> passes a `BearerTokenAuthenticationToken` to the `AuthenticationManager` which is implemented by <<servlet-authentication-providermanager,`ProviderManager`>>.
+
+image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an <<servlet-authentication-authenticationprovider>> of type `OpaqueTokenAuthenticationProvider`.
+
+[[oauth2resourceserver-opaque-architecture-introspector]]
+image:{icondir}/number_3.png[] `OpaqueTokenAuthenticationProvider` introspects the opaque token and adds granted authorities using an <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>>.
+When authentication is successful, the <<servlet-authentication-authentication,`Authentication`>> that is returned is of type `BearerTokenAuthentication` and has a principal that is the `OAuth2AuthenticatedPrincipal` returned by the configured <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>>.
+Ultimately, the returned `BearerTokenAuthentication` will be set on the <<servlet-authentication-securitycontextholder,`SecurityContextHolder`>> by the authentication `Filter`.
+
 From here, you may want to jump to:
 
 * <<oauth2resourceserver-opaque-attributes,Looking Up Attributes Post-Authentication>>
@@ -1149,7 +1240,8 @@ The above requires the scope of `message:read` for any URL that starts with `/me
 
 Methods on the `oauth2ResourceServer` DSL will also override or replace auto configuration.
 
-For example, the second `@Bean` Spring Boot creates is an `OpaqueTokenIntrospector`, which decodes `String` tokens into validated instances of `OAuth2AuthenticatedPrincipal`:
+[[oauth2resourceserver-opaque-introspector]]
+For example, the second `@Bean` Spring Boot creates is an `OpaqueTokenIntrospector`, <<oauth2resourceserver-opaque-architecture-introspector,which decodes `String` tokens into validated instances of `OAuth2AuthenticatedPrincipal`>>:
 
 [source,java]
 ----
@@ -1159,11 +1251,11 @@ public OpaqueTokenIntrospector introspector() {
 }
 ----
 
-If the application doesn't expose a `OpaqueTokenIntrospector` bean, then Spring Boot will expose the above default one.
+If the application doesn't expose a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> bean, then Spring Boot will expose the above default one.
 
 And its configuration can be overridden using `introspectionUri()` and `introspectionClientCredentials()` or replaced using `introspector()`.
 
-Or, if you're not using Spring Boot at all, then both of these components - the filter chain and a `OpaqueTokenIntrospector` can be specified in XML.
+Or, if you're not using Spring Boot at all, then both of these components - the filter chain and a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> can be specified in XML.
 
 The filter chain is specified like so:
 
@@ -1181,7 +1273,7 @@ The filter chain is specified like so:
 ----
 ====
 
-And the `OpaqueTokenIntrospector` like so:
+And the <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> like so:
 
 .Opaque Token Introspector
 ====
@@ -1262,7 +1354,7 @@ Using `introspectionUri()` takes precedence over any configuration property.
 [[oauth2resourceserver-opaque-introspector-dsl]]
 ==== Using `introspector()`
 
-More powerful than `introspectionUri()` is `introspector()`, which will completely replace any Boot auto configuration of `OpaqueTokenIntrospector`:
+More powerful than `introspectionUri()` is `introspector()`, which will completely replace any Boot auto configuration of <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>>:
 
 .Introspector Configuration
 ====
@@ -1322,7 +1414,7 @@ This is handy when deeper configuration, like <<oauth2resourceserver-opaque-auth
 [[oauth2resourceserver-opaque-introspector-bean]]
 ==== Exposing a `OpaqueTokenIntrospector` `@Bean`
 
-Or, exposing a `OpaqueTokenIntrospector` `@Bean` has the same effect as `introspector()`:
+Or, exposing a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> `@Bean` has the same effect as `introspector()`:
 
 [source,java]
 ----
@@ -1399,7 +1491,7 @@ For example, if the introspection response were:
 
 Then Resource Server would generate an `Authentication` with two authorities, one for `message:read` and the other for `message:write`.
 
-This can, of course, be customized using a custom `OpaqueTokenIntrospector` that takes a look at the attribute set and converts in its own way:
+This can, of course, be customized using a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> that takes a look at the attribute set and converts in its own way:
 
 [source,java]
 ----
@@ -1483,7 +1575,7 @@ Any attributes in the corresponding `OAuth2AuthenticatedPrincipal` would be what
 But, let's say that, oddly enough, the introspection endpoint only returns whether or not the token is active.
 Now what?
 
-In this case, you can create a custom `OpaqueTokenIntrospector` that still hits the endpoint, but then updates the returned principal to have the JWTs claims as the attributes:
+In this case, you can create a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> that still hits the endpoint, but then updates the returned principal to have the JWTs claims as the attributes:
 
 [source,java]
 ----
@@ -1528,7 +1620,7 @@ Generally speaking, a Resource Server doesn't care about the underlying user, bu
 
 That said, at times it can be valuable to tie the authorization statement back to a user.
 
-If an application is also using `spring-security-oauth2-client`, having set up the appropriate `ClientRegistrationRepository`, then this is quite simple with a custom `OpaqueTokenIntrospector`.
+If an application is also using `spring-security-oauth2-client`, having set up the appropriate `ClientRegistrationRepository`, then this is quite simple with a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>>.
 This implementation below does three things:
 
 * Delegates to the introspection endpoint, to affirm the token's validity
@@ -1577,7 +1669,7 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
 }
 ----
 
-Either way, having created your `OpaqueTokenIntrospector`, you should publish it as a `@Bean` to override the defaults:
+Either way, having created your <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>>, you should publish it as a `@Bean` to override the defaults:
 
 [source,java]
 ----
@@ -1732,9 +1824,9 @@ The issuer should be one that the code can verify from a trusted source like a w
 
 ===== Parsing the Claim Only Once
 
-You may have observed that this strategy, while simple, comes with the trade-off that the JWT is parsed once by the `AuthenticationManagerResolver` and then again by the `JwtDecoder` later on in the request.
+You may have observed that this strategy, while simple, comes with the trade-off that the JWT is parsed once by the `AuthenticationManagerResolver` and then again by the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> later on in the request.
 
-This extra parsing can be alleviated by configuring the `JwtDecoder` directly with a `JWTClaimSetAwareJWSKeySelector` from Nimbus:
+This extra parsing can be alleviated by configuring the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> directly with a `JWTClaimSetAwareJWSKeySelector` from Nimbus:
 
 [source,java]
 ----
@@ -1836,7 +1928,7 @@ public class TenantJwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 }
 ----
 
-Now that we have a tenant-aware processor and a tenant-aware validator, we can proceed with creating our `JwtDecoder`:
+Now that we have a tenant-aware processor and a tenant-aware validator, we can proceed with creating our <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>>:
 
 [source,java]
 ----
