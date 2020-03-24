@@ -1604,8 +1604,7 @@ AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerReso
     OpaqueTokenAuthenticationProvider opaqueToken = opaqueToken();
 
     return request -> {
-        String token = bearerToken.resolve(request);
-        if (isAJwt(token)) {
+        if (useJwt(request)) {
             return jwt::authenticate;
         } else {
             return opaqueToken::authenticate;
@@ -1613,6 +1612,8 @@ AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerReso
     }
 }
 ----
+
+NOTE: The implementation of `useJwt(HttpServletRequest)` will likely depend on custom request material like the path.
 
 And then specify this `AuthenticationManagerResolver` in the DSL:
 
