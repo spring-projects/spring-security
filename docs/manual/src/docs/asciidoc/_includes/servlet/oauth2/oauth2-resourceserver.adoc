@@ -77,12 +77,12 @@ So long as this scheme is indicated, Resource Server will attempt to process the
 
 Given a well-formed JWT, Resource Server will:
 
-1. Validate its signature against a public key obtained from the `jwks_url` endpoint during startup and matched against the JWTs header
-2. Validate the JWTs `exp` and `nbf` timestamps and the JWTs `iss` claim, and
+1. Validate its signature against a public key obtained from the `jwks_url` endpoint during startup and matched against the JWT
+2. Validate the JWT's `exp` and `nbf` timestamps and the JWT's `iss` claim, and
 3. Map each scope to an authority with the prefix `SCOPE_`.
 
 [NOTE]
-As the authorization server makes available new keys, Spring Security will automatically rotate the keys used to validate the JWT tokens.
+As the authorization server makes available new keys, Spring Security will automatically rotate the keys used to validate JWTs.
 
 The resulting `Authentication#getPrincipal`, by default, is a Spring Security `Jwt` object, and `Authentication#getName` maps to the JWT's `sub` property, if one is present.
 
