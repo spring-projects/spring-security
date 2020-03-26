@@ -16,7 +16,8 @@ The pseudo code of `DelegatingFilterProxy` can be seen below.
 
 .`DelegatingFilterProxy` Pseudo Code
 ====
-[source,java,subs="+quotes,+macros"]
+.Java
+[source,java,role="primary",subs="+quotes,+macros"]
 ----
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
 	// Lazily get Filter that was registered as a Spring Bean
@@ -24,6 +25,18 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 	Filter delegate = getFilterBean(someBeanName);
 	// delegate work to the Spring Bean
 	delegate.doFilter(request, response);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary",subs="+quotes,+macros"]
+----
+fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+	// Lazily get Filter that was registered as a Spring Bean
+	// For the example in <<servlet-delegatingfilterproxy-figure>> `delegate` is an instance of __Bean Filter~0~__
+	val delegate: Filter = getFilterBean(someBeanName)
+	// delegate work to the Spring Bean
+	delegate.doFilter(request, response)
 }
 ----
 ====
