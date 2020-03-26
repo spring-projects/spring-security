@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1181,22 +1181,54 @@ public class ServerHttpSecurity {
 			authenticationFilter.setAuthenticationFailureHandler(getAuthenticationFailureHandler());
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 
-			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
-					MediaType.TEXT_HTML);
-			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-			Map<String, String> urlToText = http.oauth2Login.getLinks();
-			String authenticationEntryPointRedirectPath;
-			if (urlToText.size() == 1) {
-				authenticationEntryPointRedirectPath = urlToText.keySet().iterator().next();
-			} else {
-				authenticationEntryPointRedirectPath = "/login";
-			}
-			RedirectServerAuthenticationEntryPoint entryPoint = new RedirectServerAuthenticationEntryPoint(authenticationEntryPointRedirectPath);
-			entryPoint.setRequestCache(http.requestCache.requestCache);
-			http.defaultEntryPoints.add(new DelegateEntry(htmlMatcher, entryPoint));
+			setDefaultEntryPoints(http);
 
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+		}
+
+		private void setDefaultEntryPoints(ServerHttpSecurity http) {
+			String defaultLoginPage = "/login";
+			Map<String, String> urlToText = http.oauth2Login.getLinks();
+			String providerLoginPage = null;
+			if (urlToText.size() == 1) {
+				providerLoginPage = urlToText.keySet().iterator().next();
+			}
+
+			MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(
+					MediaType.APPLICATION_XHTML_XML, new MediaType("image", "*"),
+					MediaType.TEXT_HTML, MediaType.TEXT_PLAIN);
+			htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+
+			ServerWebExchangeMatcher xhrMatcher = exchange -> {
+				if (exchange.getRequest().getHeaders().getOrEmpty("X-Requested-With").contains("XMLHttpRequest")) {
+					return ServerWebExchangeMatcher.MatchResult.match();
+				}
+				return ServerWebExchangeMatcher.MatchResult.notMatch();
+			};
+			ServerWebExchangeMatcher notXhrMatcher = new NegatedServerWebExchangeMatcher(xhrMatcher);
+
+			ServerWebExchangeMatcher defaultEntryPointMatcher = new AndServerWebExchangeMatcher(
+					notXhrMatcher, htmlMatcher);
+
+			if (providerLoginPage != null) {
+				ServerWebExchangeMatcher loginPageMatcher = new PathPatternParserServerWebExchangeMatcher(defaultLoginPage);
+				ServerWebExchangeMatcher faviconMatcher = new PathPatternParserServerWebExchangeMatcher("/favicon.ico");
+				ServerWebExchangeMatcher defaultLoginPageMatcher = new AndServerWebExchangeMatcher(
+						new OrServerWebExchangeMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
+
+				ServerWebExchangeMatcher matcher = new AndServerWebExchangeMatcher(
+						notXhrMatcher, new NegatedServerWebExchangeMatcher(defaultLoginPageMatcher));
+				RedirectServerAuthenticationEntryPoint entryPoint =
+						new RedirectServerAuthenticationEntryPoint(providerLoginPage);
+				entryPoint.setRequestCache(http.requestCache.requestCache);
+				http.defaultEntryPoints.add(new DelegateEntry(matcher, entryPoint));
+			}
+
+			RedirectServerAuthenticationEntryPoint defaultEntryPoint =
+					new RedirectServerAuthenticationEntryPoint(defaultLoginPage);
+			defaultEntryPoint.setRequestCache(http.requestCache.requestCache);
+			http.defaultEntryPoints.add(new DelegateEntry(defaultEntryPointMatcher, defaultEntryPoint));
 		}
 
 		private ServerAuthenticationSuccessHandler getAuthenticationSuccessHandler(ServerHttpSecurity http) {
