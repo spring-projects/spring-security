@@ -21,11 +21,22 @@ The power of the `Filter` comes from the `FilterChain` that is passed into it.
 
 .`FilterChain` Usage Example
 ====
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
 	// do something before the rest of the application
     chain.doFilter(request, response); // invoke the rest of the application
+    // do something after the rest of the application
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+    // do something before the rest of the application
+    chain.doFilter(request, response) // invoke the rest of the application
     // do something after the rest of the application
 }
 ----
