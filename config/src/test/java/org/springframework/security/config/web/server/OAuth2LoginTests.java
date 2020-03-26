@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -184,6 +185,22 @@ public class OAuth2LoginTests {
 
 		assertThat(driver.getCurrentUrl()).startsWith("https://github.com/login/oauth/authorize");
 	}
+
+	// gh-8118
+	@Test
+	public void defaultLoginPageWithSingleClientRegistrationAndXhrRequestThenDoesNotRedirectForAuthorization() {
+		this.spring.register(OAuth2LoginWithSingleClientRegistrations.class, WebFluxConfig.class).autowire();
+
+		this.client.get()
+				.uri("/")
+				.header("X-Requested-With", "XMLHttpRequest")
+				.exchange()
+				.expectStatus().is3xxRedirection()
+				.expectHeader().valueEquals(HttpHeaders.LOCATION, "/login");
+	}
+
+	@EnableWebFlux
+	static class WebFluxConfig { }
 
 	@EnableWebFluxSecurity
 	static class OAuth2LoginWithSingleClientRegistrations {
