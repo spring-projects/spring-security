@@ -146,9 +146,12 @@ public final class ClientRegistrations {
 			RequestEntity<Void> request = RequestEntity.get(uri).build();
 			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
 			OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
-			return withProviderConfiguration(metadata, issuer.toASCIIString())
-					.jwkSetUri(metadata.getJWKSetURI().toASCIIString())
-					.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString());
+			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer.toASCIIString())
+					.jwkSetUri(metadata.getJWKSetURI().toASCIIString());
+			if (metadata.getUserInfoEndpointURI() != null) {
+				builder.userInfoUri(metadata.getUserInfoEndpointURI().toASCIIString());
+			}
+			return builder;
 		};
 	}
 

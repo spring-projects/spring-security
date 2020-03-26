@@ -195,6 +195,14 @@ public class ClientRegistrationsTest {
 		assertThat(provider.getJwkSetUri()).isNull();
 	}
 
+	// gh-8187
+	@Test
+	public void issuerWhenResponseMissingUserInfoUriThenSuccess() throws Exception {
+		this.response.remove("userinfo_endpoint");
+		ClientRegistration registration = registration("").build();
+		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getUri()).isNull();
+	}
+
 	@Test
 	public void issuerWhenContainsTrailingSlashThenSuccess() throws Exception {
 		assertThat(registration("")).isNotNull();
