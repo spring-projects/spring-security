@@ -40,10 +40,10 @@ The redirect URI is the path in the application that the end-user's user-agent i
 In the "Set a redirect URI" sub-section, ensure that the *Authorized redirect URIs* field is set to `http://localhost:8080/login/oauth2/code/google`.
 
 TIP: The default redirect URI template is `+{baseUrl}/login/oauth2/code/{registrationId}+`.
-The *_registrationId_* is a unique identifier for the <<oauth2Client-client-registration,ClientRegistration>>.
+The *_registrationId_* is a unique identifier for the <<oauth2-client.adoc#oauth2Client-client-registration,ClientRegistration>>.
 
 IMPORTANT: If the OAuth Client is running behind a proxy server, it is recommended to check <<http-proxy-server,Proxy Server Configuration>> to ensure the application is correctly configured.
-Also, see the supported <<oauth2Client-auth-code-redirect-uri, `URI` template variables>> for `redirect-uri`.
+Also, see the supported <<oauth2-client.adoc#oauth2Client-auth-code-redirect-uri, `URI` template variables>> for `redirect-uri`.
 
 
 [[oauth2login-sample-application-config]]
@@ -69,7 +69,7 @@ spring:
 .OAuth Client properties
 ====
 <1> `spring.security.oauth2.client.registration` is the base property prefix for OAuth Client properties.
-<2> Following the base property prefix is the ID for the <<oauth2Client-client-registration,ClientRegistration>>, such as google.
+<2> Following the base property prefix is the ID for the <<oauth2-client.adoc#oauth2Client-client-registration,ClientRegistration>>, such as google.
 ====
 
 . Replace the values in the `client-id` and `client-secret` property with the OAuth 2.0 credentials you created earlier.
@@ -93,7 +93,7 @@ At this point, the OAuth Client retrieves your email address and basic profile i
 [[oauth2login-boot-property-mappings]]
 === Spring Boot 2.x Property Mappings
 
-The following table outlines the mapping of the Spring Boot 2.x OAuth Client properties to the <<oauth2Client-client-registration,ClientRegistration>> properties.
+The following table outlines the mapping of the Spring Boot 2.x OAuth Client properties to the <<oauth2-client.adoc#oauth2Client-client-registration,ClientRegistration>> properties.
 
 |===
 |Spring Boot 2.x |ClientRegistration
