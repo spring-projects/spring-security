@@ -2020,7 +2020,7 @@ http
 
 === Bearer Token Propagation
 
-Now that you're in possession of a bearer token, it might be handy to pass that to downstream services.
+Now that you're resource server has validated the token, it might be handy to pass it to downstream services.
 This is quite simple with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServletBearerExchangeFilterFunction.html[ServletBearerExchangeFilterFunction]`, which you can see in the following example:
 
 [source,java]
@@ -2064,12 +2064,12 @@ this.rest.get()
 In this case, the filter will fall back and simply forward the request onto the rest of the web filter chain.
 
 [NOTE]
-Unlike the https://docs.spring.io/spring-security/site/docs/current-SNAPSHOT/api/org/springframework/security/oauth2/client/web/reactive/function/client/ServletOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
+Unlike the {security-api-url}org/springframework/security/oauth2/client/web/reactive/function/client/ServletOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
 To obtain this level of support, please use the OAuth 2.0 Client filter.
 
 ==== `RestTemplate` support
 
-There is no dedicated support for `RestTemplate` at the moment, but you can achieve propagation quite simply with your own interceptor:
+There is no `RestTemplate` equivalent for `ServletBearerExchangeFilterFunction` at the moment, but you can propagate the request's bearer token quite simply with your own interceptor:
 
 [source,java]
 ----
@@ -2093,6 +2093,11 @@ RestTemplate rest() {
 	return rest;
 }
 ----
+
+
+[NOTE]
+Unlike the {security-api-url}org/springframework/security/oauth2/client/OAuth2AuthorizedClientManager.html[OAuth 2.0 Authorized Client Manager], this filter interceptor makes no attempt to renew the token, should it be expired.
+To obtain this level of support, please create an interceptor using the <<oauth2client,OAuth 2.0 Authorized Client Manager>>.
 
 [[oauth2resourceserver-bearertoken-failure]]
 === Bearer Token Failure
