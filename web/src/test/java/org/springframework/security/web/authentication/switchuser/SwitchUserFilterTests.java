@@ -16,11 +16,16 @@
 
 package org.springframework.security.web.authentication.switchuser;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.FilterChain;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -42,8 +47,10 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
-import javax.servlet.FilterChain;
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests
@@ -75,6 +82,7 @@ public class SwitchUserFilterTests {
 		request.setScheme("http");
 		request.setServerName("localhost");
 		request.setRequestURI("/login/impersonate");
+		request.setMethod("POST");
 
 		return request;
 	}
@@ -126,6 +134,20 @@ public class SwitchUserFilterTests {
 	}
 
 	@Test
+	// gh-4183
+	public void requiresExitUserWhenGetThenDoesNotMatch() {
+		SwitchUserFilter filter = new SwitchUserFilter();
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setScheme("http");
+		request.setServerName("localhost");
+		request.setRequestURI("/login/impersonate");
+		request.setMethod("GET");
+
+		assertThat(filter.requiresExitUser(request)).isFalse();
+	}
+
+	@Test
 	public void requiresExitUserWhenMatcherThenWorks() {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setExitUserMatcher(AnyRequestMatcher.INSTANCE);
@@ -155,6 +177,20 @@ public class SwitchUserFilterTests {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("/foo/bar/j_spring_security_my_exit_user");
+
+		assertThat(filter.requiresSwitchUser(request)).isFalse();
+	}
+
+	@Test
+	// gh-4183
+	public void requiresSwitchUserWhenGetThenDoesNotMatch() {
+		SwitchUserFilter filter = new SwitchUserFilter();
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setScheme("http");
+		request.setServerName("localhost");
+		request.setRequestURI("/login/impersonate");
+		request.setMethod("GET");
 
 		assertThat(filter.requiresSwitchUser(request)).isFalse();
 	}
