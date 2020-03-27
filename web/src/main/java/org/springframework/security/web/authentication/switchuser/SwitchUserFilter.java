@@ -563,6 +563,6 @@ public class SwitchUserFilter extends GenericFilterBean
 	}
 
 	private static RequestMatcher createMatcher(String pattern) {
-		return new AntPathRequestMatcher(pattern, null, true, new UrlPathHelper());
+		return new AntPathRequestMatcher(pattern, "POST", true, new UrlPathHelper());
 	}
 }
