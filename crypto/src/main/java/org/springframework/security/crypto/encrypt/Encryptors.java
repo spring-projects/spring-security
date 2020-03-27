@@ -39,9 +39,6 @@ public class Encryptors {
 	 * not be shared
 	 * @param salt a hex-encoded, random, site-global salt value to use to generate the
 	 * key
-	 *
-	 * @see #standard(CharSequence, CharSequence) which uses the slightly weaker CBC mode
-	 * (instead of GCM)
 	 */
 	public static BytesEncryptor stronger(CharSequence password, CharSequence salt) {
 		return new AesBytesEncryptor(password.toString(), salt,
@@ -55,11 +52,19 @@ public class Encryptors {
 	 * provided salt is expected to be hex-encoded; it should be random and at least 8
 	 * bytes in length. Also applies a random 16 byte initialization vector to ensure each
 	 * encrypted message will be unique. Requires Java 6.
+	 * NOTE: This mode is not
+	 * <a href="https://en.wikipedia.org/wiki/Authenticated_encryption">authenticated</a>
+	 * and does not provide any guarantees about the authenticity of the data.
+	 * For a more secure alternative, users should prefer
+	 * {@link #stronger(CharSequence, CharSequence)}.
 	 *
 	 * @param password the password used to generate the encryptor's secret key; should
 	 * not be shared
 	 * @param salt a hex-encoded, random, site-global salt value to use to generate the
 	 * key
+	 *
+	 * @see #stronger(CharSequence, CharSequence) which uses the significatly more secure
+	 * GCM (instead of CBC)
 	 */
 	public static BytesEncryptor standard(CharSequence password, CharSequence salt) {
 		return new AesBytesEncryptor(password.toString(), salt,

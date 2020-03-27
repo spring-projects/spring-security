@@ -6671,14 +6671,17 @@ The Encryptors class provides factory methods for constructing symmetric encrypt
 
 [[spring-security-crypto-encryption-bytes]]
 ==== BytesEncryptor
-Use the Encryptors.standard factory method to construct a "standard" BytesEncryptor:
+Use the `Encryptors.stronger` factory method to construct a BytesEncryptor:
 
 [source,java]
 ----
-Encryptors.standard("password", "salt");
+Encryptors.stronger("password", "salt");
 ----
 
-The "standard" encryption method is 256-bit AES using PKCS #5's PBKDF2 (Password-Based Key Derivation Function #2). This method requires Java 6. The password used to generate the SecretKey should be kept in a secure place and not be shared. The salt is used to prevent dictionary attacks against the key in the event your encrypted data is compromised. A 16-byte random initialization vector is also applied so each encrypted message is unique.
+The "stronger" encryption method creates an encryptor using 256 bit AES encryption with
+Galois Counter Mode (GCM).
+It derives the secret key using PKCS #5's PBKDF2 (Password-Based Key Derivation Function #2).
+This method requires Java 6. The password used to generate the SecretKey should be kept in a secure place and not be shared. The salt is used to prevent dictionary attacks against the key in the event your encrypted data is compromised. A 16-byte random initialization vector is also applied so each encrypted message is unique.
 
 The provided salt should be in hex-encoded String form, be random, and be at least 8 bytes in length. Such a salt may be generated using a KeyGenerator:
 
@@ -6686,6 +6689,11 @@ The provided salt should be in hex-encoded String form, be random, and be at lea
 ----
 String salt = KeyGenerators.string().generateKey(); // generates a random 8-byte salt that is then hex-encoded
 ----
+
+Users may also use the `standard` encryption method, which is 256-bit AES in Cipher Block Chaining (CBC) Mode.
+This mode is not https://en.wikipedia.org/wiki/Authenticated_encryption[authenticated] and does not provide any
+guarantees about the authenticity of the data.
+For a more secure alternative, users should prefer `Encryptors.stronger`.
 
 [[spring-security-crypto-encryption-text]]
 ==== TextEncryptor
