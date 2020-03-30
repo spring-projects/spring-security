@@ -42,7 +42,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -82,7 +81,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 	private AuthenticationEntryPoint authenticationEntryPoint;
 	private AuthenticationManager authenticationManager;
-	private LogoutHandler logoutHandler;
+	private List<LogoutHandler> logoutHandlers;
 
 	HttpServlet3RequestFactory(String rolePrefix) {
 		this.rolePrefix = rolePrefix;
@@ -146,7 +145,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * {@link HttpServletRequest#logout()}.
 	 */
 	public void setLogoutHandlers(List<LogoutHandler> logoutHandlers) {
-		this.logoutHandler = CollectionUtils.isEmpty(logoutHandlers) ? null : new CompositeLogoutHandler(logoutHandlers);
+		this.logoutHandlers = logoutHandlers;
 	}
 
 	/**
@@ -246,8 +245,8 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 
 		@Override
 		public void logout() throws ServletException {
-			LogoutHandler handler = HttpServlet3RequestFactory.this.logoutHandler;
-			if (handler == null) {
+			List<LogoutHandler> handlers = HttpServlet3RequestFactory.this.logoutHandlers;
+			if (CollectionUtils.isEmpty(handlers)) {
 				HttpServlet3RequestFactory.this.logger.debug(
 						"logoutHandlers is null, so allowing original HttpServletRequest to handle logout");
 				super.logout();
@@ -255,7 +254,9 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 			}
 			Authentication authentication = SecurityContextHolder.getContext()
 					.getAuthentication();
-			handler.logout(this, this.response, authentication);
+			for (LogoutHandler handler : handlers) {
+				handler.logout(this, this.response, authentication);
+			}
 		}
 
 		private boolean isAuthenticated() {
