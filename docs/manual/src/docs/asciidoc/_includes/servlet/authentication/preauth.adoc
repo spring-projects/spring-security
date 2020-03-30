@@ -29,12 +29,24 @@ We just provide an outline here so you should consult the Javadoc and source whe
 This class will check the current contents of the security context and, if empty, it will attempt to extract user information from the HTTP request and submit it to the `AuthenticationManager`.
 Subclasses override the following methods to obtain this information:
 
-[source,java]
+.Override AbstractPreAuthenticatedProcessingFilter
+====
+.Java
+[source,java,role="primary"]
 ----
 protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest request);
 
 protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest request);
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+protected abstract fun getPreAuthenticatedPrincipal(request: HttpServletRequest): Any?
+
+protected abstract fun getPreAuthenticatedCredentials(request: HttpServletRequest): Any?
+----
+====
 
 
 After calling these, the filter will create a `PreAuthenticatedAuthenticationToken` containing the returned data and submit it for authentication.
