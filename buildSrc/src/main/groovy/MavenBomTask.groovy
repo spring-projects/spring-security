@@ -30,20 +30,30 @@ public class MavenBomTask extends DefaultTask {
 		}
 		project.install {
 			repositories.mavenInstaller {
-				pom.whenConfigured {
-					packaging = "pom"
-					withXml {
-						asNode().children().last() + {
-							delegate.dependencyManagement {
-								delegate.dependencies {
-									projects.sort { dep -> "$dep.group:$dep.name" }.each { p ->
+				customizePom(pom)
+			}
+		}
 
-										delegate.dependency {
-											delegate.groupId(p.group)
-											delegate.artifactId(p.name)
-											delegate.version(p.version)
-										}
-									}
+		project.uploadArchives {
+			repositories.mavenDeployer {
+				customizePom(pom)
+			}
+		}
+	}
+
+	public void customizePom(pom) {
+		pom.whenConfigured {
+			packaging = "pom"
+			withXml {
+				asNode().children().last() + {
+					delegate.dependencyManagement {
+						delegate.dependencies {
+							projects.sort { dep -> "$dep.group:$dep.name" }.each { p ->
+
+								delegate.dependency {
+									delegate.groupId(p.group)
+									delegate.artifactId(p.name)
+									delegate.version(p.version)
 								}
 							}
 						}
