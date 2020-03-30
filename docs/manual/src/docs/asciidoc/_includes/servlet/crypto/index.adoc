@@ -19,10 +19,20 @@ Encryptors are thread-safe.
 === BytesEncryptor
 Use the `Encryptors.stronger` factory method to construct a BytesEncryptor:
 
-[source,java]
+.BytesEncryptor
+====
+.Java
+[source,java,role="primary"]
 ----
 Encryptors.stronger("password", "salt");
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+Encryptors.stronger("password", "salt")
+----
+====
 
 The "stronger" encryption method creates an encryptor using 256 bit AES encryption with
 Galois Counter Mode (GCM).
@@ -35,10 +45,20 @@ A 16-byte random initialization vector is also applied so each encrypted message
 The provided salt should be in hex-encoded String form, be random, and be at least 8 bytes in length.
 Such a salt may be generated using a KeyGenerator:
 
-[source,java]
+.Generating a key
+====
+.Java
+[source,java,role="primary"]
 ----
 String salt = KeyGenerators.string().generateKey(); // generates a random 8-byte salt that is then hex-encoded
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val salt = KeyGenerators.string().generateKey() // generates a random 8-byte salt that is then hex-encoded
+----
+====
 
 Users may also use the `standard` encryption method, which is 256-bit AES in Cipher Block Chaining (CBC) Mode.
 This mode is not https://en.wikipedia.org/wiki/Authenticated_encryption[authenticated] and does not provide any
@@ -49,21 +69,40 @@ For a more secure alternative, users should prefer `Encryptors.stronger`.
 === TextEncryptor
 Use the Encryptors.text factory method to construct a standard TextEncryptor:
 
-[source,java]
+.TextEncryptor
+====
+.Java
+[source,java,role="primary"]
 ----
-
 Encryptors.text("password", "salt");
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+Encryptors.text("password", "salt")
+----
+====
 
 A TextEncryptor uses a standard BytesEncryptor to encrypt text data.
 Encrypted results are returned as hex-encoded strings for easy storage on the filesystem or in the database.
 
 Use the Encryptors.queryableText factory method to construct a "queryable" TextEncryptor:
 
-[source,java]
+.Queryable TextEncryptor
+====
+.Java
+[source,java,role="primary"]
 ----
 Encryptors.queryableText("password", "salt");
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+Encryptors.queryableText("password", "salt")
+----
+====
 
 The difference between a queryable TextEncryptor and a standard TextEncryptor has to do with initialization vector (iv) handling.
 The iv used in a queryable TextEncryptor#encrypt operation is shared, or constant, and is not randomly generated.
@@ -81,34 +120,75 @@ KeyGenerators are thread-safe.
 === BytesKeyGenerator
 Use the KeyGenerators.secureRandom factory methods to generate a BytesKeyGenerator backed by a SecureRandom instance:
 
-[source,java]
+.BytesKeyGenerator
+====
+.Java
+[source,java,role="primary"]
 ----
 BytesKeyGenerator generator = KeyGenerators.secureRandom();
 byte[] key = generator.generateKey();
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val generator = KeyGenerators.secureRandom()
+val key = generator.generateKey()
+----
+====
+
 The default key length is 8 bytes.
 There is also a KeyGenerators.secureRandom variant that provides control over the key length:
 
-[source,java]
+.KeyGenerators.secureRandom
+====
+.Java
+[source,java,role="primary"]
 ----
 KeyGenerators.secureRandom(16);
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+KeyGenerators.secureRandom(16)
+----
+====
+
 Use the KeyGenerators.shared factory method to construct a BytesKeyGenerator that always returns the same key on every invocation:
 
-[source,java]
+.KeyGenerators.shared
+====
+.Java
+[source,java,role="primary"]
 ----
 KeyGenerators.shared(16);
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+KeyGenerators.shared(16)
+----
+====
+
 === StringKeyGenerator
 Use the KeyGenerators.string factory method to construct a 8-byte, SecureRandom KeyGenerator that hex-encodes each key as a String:
 
-[source,java]
+.StringKeyGenerator
+====
+.Java
+[source,java,role="primary"]
 ----
 KeyGenerators.string();
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+KeyGenerators.string()
+----
+====
 
 [[spring-security-crypto-passwordencoders]]
 == Password Encoding
@@ -135,7 +215,10 @@ The higher the value, the more work has to be done to calculate the hash.
 The default value is 10.
 You can change this value in your deployed system without affecting existing passwords, as the value is also stored in the encoded hash.
 
-[source,java]
+.BCryptPasswordEncoder
+====
+.Java
+[source,java,role="primary"]
 ----
 
 // Create an encoder with strength 16
@@ -144,15 +227,38 @@ String result = encoder.encode("myPassword");
 assertTrue(encoder.matches("myPassword", result));
 ----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+
+// Create an encoder with strength 16
+val encoder = BCryptPasswordEncoder(16)
+val result: String = encoder.encode("myPassword")
+assertTrue(encoder.matches("myPassword", result))
+----
+====
+
 The `Pbkdf2PasswordEncoder` implementation uses PBKDF2 algorithm to hash the passwords.
 In order to defeat password cracking PBKDF2 is a deliberately slow algorithm and should be tuned to take about .5 seconds to verify a password on your system.
 
 
-[source,java]
+.Pbkdf2PasswordEncoder
+====
+.Java
+[source,java,role="primary"]
 ----
-
 // Create an encoder with all the defaults
 Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder();
 String result = encoder.encode("myPassword");
 assertTrue(encoder.matches("myPassword", result));
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+// Create an encoder with all the defaults
+val encoder = Pbkdf2PasswordEncoder()
+val result: String = encoder.encode("myPassword")
+assertTrue(encoder.matches("myPassword", result))
+----
+====
