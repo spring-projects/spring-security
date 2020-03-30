@@ -22,6 +22,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -44,10 +45,14 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 import javax.servlet.Filter;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -60,6 +65,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -326,6 +332,39 @@ public class ServletApiConfigurerTests {
 				.servletApi().and()
 				.logout();
 			// @formatter:on
+		}
+	}
+
+	@Test
+	public void logoutServletApiWhenCsrfDisabled() throws Exception {
+		ConfigurableWebApplicationContext context = this.spring.register(CsrfDisabledConfig.class).getContext();
+		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context)
+				.apply(springSecurity())
+				.build();
+		MvcResult mvcResult = mockMvc.perform(get("/"))
+				.andReturn();
+		assertThat(mvcResult.getRequest().getSession(false)).isNull();
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CsrfDisabledConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf().disable();
+			// @formatter:on
+		}
+
+		@RestController
+		static class LogoutController {
+			@GetMapping("/")
+			String logout(HttpServletRequest request) throws ServletException {
+				request.getSession().setAttribute("foo", "bar");
+				request.logout();
+				return "logout";
+			}
 		}
 	}
 
