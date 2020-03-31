@@ -22,6 +22,7 @@ import java.io.ObjectOutputStream;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.Before;
@@ -48,6 +49,12 @@ import static org.springframework.security.saml2.provider.service.authentication
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static org.springframework.util.StringUtils.hasText;
 
+/**
+ * Tests for {@link OpenSamlAuthenticationProvider}
+ *
+ * @author Filip Hanik
+ * @author Josh Cummings
+ */
 public class OpenSamlAuthenticationProviderTests {
 
 	private static String username = "test@saml.user";
@@ -64,9 +71,9 @@ public class OpenSamlAuthenticationProviderTests {
 
 	@Before
 	public void setup() {
-		saml = OpenSamlImplementation.getInstance();
-		provider = new OpenSamlAuthenticationProvider();
-		token = new Saml2AuthenticationToken(
+		this.saml = OpenSamlImplementation.getInstance();
+		this.provider = new OpenSamlAuthenticationProvider();
+		this.token = new Saml2AuthenticationToken(
 				"responseXml",
 				recipientUri,
 				idpEntityId,
@@ -79,8 +86,8 @@ public class OpenSamlAuthenticationProviderTests {
 	public void supportsWhenSaml2AuthenticationTokenThenReturnTrue() {
 
 		assertTrue(
-				OpenSamlAuthenticationProvider.class + "should support " + token.getClass(),
-				provider.supports(token.getClass())
+				OpenSamlAuthenticationProvider.class + "should support " + this.token.getClass(),
+				this.provider.supports(this.token.getClass())
 		);
 	}
 
@@ -88,50 +95,47 @@ public class OpenSamlAuthenticationProviderTests {
 	public void supportsWhenNotSaml2AuthenticationTokenThenReturnFalse() {
 		assertTrue(
 				OpenSamlAuthenticationProvider.class + "should not support " + Authentication.class,
-				!provider.supports(Authentication.class)
+				!this.provider.supports(Authentication.class)
 		);
 	}
 
 	@Test
 	public void authenticateWhenUnknownDataClassThenThrowAuthenticationException() {
 		Assertion assertion = defaultAssertion();
-		token = responseXml(assertion);
-		exception.expect(authenticationMatcher(Saml2ErrorCodes.UNKNOWN_RESPONSE_CLASS));
-		provider.authenticate(token);
+		this.token = responseXml(assertion);
+		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.UNKNOWN_RESPONSE_CLASS));
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
 	public void authenticateWhenXmlErrorThenThrowAuthenticationException() {
-		token = new Saml2AuthenticationToken(
+		this.token = new Saml2AuthenticationToken(
 				"invalid xml string",
 				recipientUri,
 				idpEntityId,
 				recipientEntityId,
 				relyingPartyCredentials()
 		);
-		exception.expect(authenticationMatcher(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA));
-		provider.authenticate(token);
+		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA));
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
 	public void authenticateWhenInvalidDestinationThenThrowAuthenticationException() {
 		Response response = response(recipientUri + "invalid", idpEntityId);
-		token = responseXml(response);
-		exception.expect(authenticationMatcher(Saml2ErrorCodes.INVALID_DESTINATION));
-		provider.authenticate(token);
+		this.token = responseXml(response);
+		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.INVALID_DESTINATION));
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
 	public void authenticateWhenNoAssertionsPresentThenThrowAuthenticationException() {
 		Response response = response(recipientUri, idpEntityId);
-		token = responseXml(response);
-		exception.expect(
-				authenticationMatcher(
-						Saml2ErrorCodes.MALFORMED_RESPONSE_DATA,
-						"No assertions found in response."
-				)
+		this.token = responseXml(response);
+		this.exception.expect(
+				authenticationMatcher(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, "No assertions found in response.")
 		);
-		provider.authenticate(token);
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
@@ -139,13 +143,9 @@ public class OpenSamlAuthenticationProviderTests {
 		Response response = response(recipientUri, idpEntityId);
 		Assertion assertion = defaultAssertion();
 		response.getAssertions().add(assertion);
-		token = responseXml(response);
-		exception.expect(
-				authenticationMatcher(
-						Saml2ErrorCodes.INVALID_SIGNATURE
-				)
-		);
-		provider.authenticate(token);
+		this.token = responseXml(response);
+		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.INVALID_SIGNATURE));
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
@@ -164,14 +164,10 @@ public class OpenSamlAuthenticationProviderTests {
 				recipientEntityId
 		);
 		response.getAssertions().add(assertion);
-		token = responseXml(response);
+		this.token = responseXml(response);
 
-		exception.expect(
-				authenticationMatcher(
-						Saml2ErrorCodes.INVALID_ASSERTION
-				)
-		);
-		provider.authenticate(token);
+		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.INVALID_ASSERTION));
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
@@ -185,14 +181,10 @@ public class OpenSamlAuthenticationProviderTests {
 				recipientEntityId
 		);
 		response.getAssertions().add(assertion);
-		token = responseXml(response);
+		this.token = responseXml(response);
 
-		exception.expect(
-				authenticationMatcher(
-						Saml2ErrorCodes.SUBJECT_NOT_FOUND
-				)
-		);
-		provider.authenticate(token);
+		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.SUBJECT_NOT_FOUND));
+		this.provider.authenticate(token);
 	}
 
 	@Test
@@ -209,14 +201,10 @@ public class OpenSamlAuthenticationProviderTests {
 				recipientEntityId
 		);
 		response.getAssertions().add(assertion);
-		token = responseXml(response);
+		this.token = responseXml(response);
 
-		exception.expect(
-				authenticationMatcher(
-						Saml2ErrorCodes.USERNAME_NOT_FOUND
-				)
-		);
-		provider.authenticate(token);
+		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.USERNAME_NOT_FOUND));
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
@@ -232,8 +220,8 @@ public class OpenSamlAuthenticationProviderTests {
 				recipientEntityId
 		);
 		response.getAssertions().add(assertion);
-		token = responseXml(response);
-		provider.authenticate(token);
+		this.token = responseXml(response);
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
@@ -242,13 +230,9 @@ public class OpenSamlAuthenticationProviderTests {
 		Assertion assertion = defaultAssertion();
 		EncryptedAssertion encryptedAssertion = encryptAssertion(assertion, assertingPartyCredentials());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		token = responseXml(response);
-		exception.expect(
-				authenticationMatcher(
-						Saml2ErrorCodes.INVALID_SIGNATURE
-				)
-		);
-		provider.authenticate(token);
+		this.token = responseXml(response);
+		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.INVALID_SIGNATURE));
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
@@ -262,8 +246,8 @@ public class OpenSamlAuthenticationProviderTests {
 		);
 		EncryptedAssertion encryptedAssertion = encryptAssertion(assertion, assertingPartyCredentials());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		token = responseXml(response);
-		provider.authenticate(token);
+		this.token = responseXml(response);
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
@@ -277,8 +261,8 @@ public class OpenSamlAuthenticationProviderTests {
 				assertingPartyCredentials(),
 				recipientEntityId
 		);
-		token = responseXml(response);
-		provider.authenticate(token);
+		this.token = responseXml(response);
+		provider.authenticate(this.token);
 	}
 
 	@Test
@@ -295,8 +279,8 @@ public class OpenSamlAuthenticationProviderTests {
 				recipientEntityId
 		);
 		response.getAssertions().add(assertion);
-		token = responseXml(response);
-		provider.authenticate(token);
+		this.token = responseXml(response);
+		this.provider.authenticate(this.token);
 	}
 
 
@@ -306,23 +290,20 @@ public class OpenSamlAuthenticationProviderTests {
 		Assertion assertion = defaultAssertion();
 		EncryptedAssertion encryptedAssertion = encryptAssertion(assertion, assertingPartyCredentials());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		token = responseXml(response);
+		this.token = responseXml(response);
 
-		token = new Saml2AuthenticationToken(
-				token.getSaml2Response(),
+		this.token = new Saml2AuthenticationToken(
+				this.token.getSaml2Response(),
 				recipientUri,
 				idpEntityId,
 				recipientEntityId,
 				emptyList()
 		);
 
-		exception.expect(
-				authenticationMatcher(
-						Saml2ErrorCodes.DECRYPTION_ERROR,
-						"No valid decryption credentials found."
-				)
+		this.exception.expect(
+				authenticationMatcher(Saml2ErrorCodes.DECRYPTION_ERROR, "No valid decryption credentials found.")
 		);
-		provider.authenticate(token);
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
@@ -331,23 +312,20 @@ public class OpenSamlAuthenticationProviderTests {
 		Assertion assertion = defaultAssertion();
 		EncryptedAssertion encryptedAssertion = encryptAssertion(assertion, assertingPartyCredentials());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		token = responseXml(response);
+		this.token = responseXml(response);
 
-		token = new Saml2AuthenticationToken(
-				token.getSaml2Response(),
+		this.token = new Saml2AuthenticationToken(
+				this.token.getSaml2Response(),
 				recipientUri,
 				idpEntityId,
 				recipientEntityId,
 				assertingPartyCredentials()
 		);
 
-		exception.expect(
-				authenticationMatcher(
-						Saml2ErrorCodes.DECRYPTION_ERROR,
-						"Failed to decrypt EncryptedData"
-				)
+		this.exception.expect(
+				authenticationMatcher(Saml2ErrorCodes.DECRYPTION_ERROR, "Failed to decrypt EncryptedData")
 		);
-		provider.authenticate(token);
+		this.provider.authenticate(this.token);
 	}
 
 	@Test
@@ -361,9 +339,9 @@ public class OpenSamlAuthenticationProviderTests {
 		);
 		EncryptedAssertion encryptedAssertion = encryptAssertion(assertion, assertingPartyCredentials());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		token = responseXml(response);
+		this.token = responseXml(response);
 
-		Saml2Authentication authentication = (Saml2Authentication) provider.authenticate(token);
+		Saml2Authentication authentication = (Saml2Authentication) this.provider.authenticate(this.token);
 
 		// the following code will throw an exception if authentication isn't serializable
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream(1024);
@@ -382,7 +360,7 @@ public class OpenSamlAuthenticationProviderTests {
 	}
 
 	private Saml2AuthenticationToken responseXml(XMLObject assertion) {
-		String xml = saml.serialize(assertion);
+		String xml = this.saml.serialize(assertion);
 		return new Saml2AuthenticationToken(
 				xml,
 				recipientUri,
@@ -393,28 +371,23 @@ public class OpenSamlAuthenticationProviderTests {
 
 	}
 
-	private BaseMatcher<Saml2AuthenticationException> authenticationMatcher(String code) {
+	private Matcher<Saml2AuthenticationException> authenticationMatcher(String code) {
 		return authenticationMatcher(code, null);
 	}
 
-	private BaseMatcher<Saml2AuthenticationException> authenticationMatcher(String code, String description) {
+	private Matcher<Saml2AuthenticationException> authenticationMatcher(String code, String description) {
 		return new BaseMatcher<Saml2AuthenticationException>() {
-			private Object value = null;
-
 			@Override
 			public boolean matches(Object item) {
 				if (!(item instanceof Saml2AuthenticationException)) {
-					value = item;
 					return false;
 				}
 				Saml2AuthenticationException ex = (Saml2AuthenticationException) item;
 				if (!code.equals(ex.getError().getErrorCode())) {
-					value = item;
 					return false;
 				}
 				if (hasText(description)) {
 					if (!description.equals(ex.getError().getDescription())) {
-						value = item;
 						return false;
 					}
 				}
