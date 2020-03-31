@@ -16,24 +16,22 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.util.Arrays;
+import java.util.Map;
+
 import org.junit.Test;
-import org.opensaml.security.credential.BasicCredential;
-import org.opensaml.security.credential.Credential;
-import org.opensaml.security.credential.CredentialSupport;
-import org.opensaml.security.credential.UsageType;
 import org.opensaml.xmlsec.crypto.XMLSigningUtil;
+
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 import org.springframework.web.util.UriUtils;
-
-import java.util.List;
-import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256;
-import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.assertingPartyCredentials;
-import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.relyingPartyCredentials;
+import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.getSigningCredential;
+import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.assertingPartySigningCredential;
+import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
 
 public class OpenSamlImplementationTests {
 
@@ -45,12 +43,12 @@ public class OpenSamlImplementationTests {
 	@Test
 	public void signQueryParametersWhenDataSuppliedReturnsValidSignature() throws Exception {
 		OpenSamlImplementation impl = OpenSamlImplementation.getInstance();
-		List<Saml2X509Credential> signCredentials = relyingPartyCredentials();
-		List<Saml2X509Credential> verifyCredentials = assertingPartyCredentials();
+		Saml2X509Credential signingCredential = assertingPartySigningCredential();
+		Saml2X509Credential verifyingCredential = relyingPartyVerifyingCredential();
 		String samlRequest = "saml-request-example";
 		String encoded = Saml2Utils.samlEncode(samlRequest.getBytes(UTF_8));
 		String relayState = "test relay state";
-		Map<String, String> parameters = impl.signQueryParameters(signCredentials, encoded, relayState);
+		Map<String, String> parameters = impl.signQueryParameters(Arrays.asList(signingCredential), encoded, relayState);
 
 		String queryString = "SAMLRequest=" +
 				UriUtils.encode(encoded, ISO_8859_1) +
@@ -62,21 +60,11 @@ public class OpenSamlImplementationTests {
 
 		byte[] signature = Saml2Utils.samlDecode(parameters.get("Signature"));
 		boolean result = XMLSigningUtil.verifyWithURI(
-				getOpenSamlCredential(verifyCredentials.get(1), "local-sp-entity-id", UsageType.SIGNING),
+				getSigningCredential(verifyingCredential, "local-sp-entity-id"),
 				ALGO_ID_SIGNATURE_RSA_SHA256,
 				signature,
 				queryString.getBytes(UTF_8)
 		);
 		assertThat(result).isTrue();
-	}
-
-	private Credential getOpenSamlCredential(Saml2X509Credential credential, String localSpEntityId, UsageType usageType) {
-		BasicCredential cred = CredentialSupport.getSimpleCredential(
-				credential.getCertificate(),
-				credential.getPrivateKey()
-		);
-		cred.setEntityId(localSpEntityId);
-		cred.setUsageType(usageType);
-		return cred;
 	}
 }

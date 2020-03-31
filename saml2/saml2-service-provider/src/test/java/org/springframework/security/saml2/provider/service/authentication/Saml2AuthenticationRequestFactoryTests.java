@@ -16,15 +16,16 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
-import org.junit.Test;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
-
 import java.util.UUID;
+
+import org.junit.Test;
+
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDecode;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlInflate;
-import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.relyingPartyCredentials;
+import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.relyingPartySigningCredential;
 
 /**
  * Tests for {@link Saml2AuthenticationRequestFactory} default interface methods
@@ -36,7 +37,7 @@ public class Saml2AuthenticationRequestFactoryTests {
 			.providerDetails(c -> c.webSsoUrl("https://example.com/destination"))
 			.providerDetails(c -> c.entityId("remote-entity-id"))
 			.localEntityIdTemplate("local-entity-id")
-			.credentials(c -> c.addAll(relyingPartyCredentials()))
+			.credentials(c -> c.add(relyingPartySigningCredential()))
 			.build();
 
 	@Test
