@@ -28,7 +28,7 @@ public class BasicAuthenticationTests extends AbstractWebServerIntegrationTests 
 	@Test
 	public void httpBasicWhenAuthenticationRequiredAndNotAuthenticatedThen401() throws Exception {
 		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml", "classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
-		mockMvc.perform(get("secure/index"))
+		mockMvc.perform(get("/secure/index"))
 			.andExpect(status().isUnauthorized());
 	}
 
