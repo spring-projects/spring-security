@@ -18,7 +18,7 @@ dependencies {
 			"org.springframework:spring-core:$springVersion",
 			"org.springframework:spring-aspects:$springVersion",
 			"org.thymeleaf:thymeleaf-spring4:$thymeleafVersion",
-			"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.0.4",
+			"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:2.0.5",
 			"org.eclipse.persistence:javax.persistence:$javaPersistenceVersion"
 	compile("org.hibernate:hibernate-entitymanager:$hibernateVersion") {
 			exclude group:'javassist', module: 'javassist'
