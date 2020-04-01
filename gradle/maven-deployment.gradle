@@ -77,19 +77,6 @@ def customizePom(pom, gradleProject) {
 			}
 		}
 		// Exclude spring-framework-bom for sample Boot projects since spring-boot-starter-parent imports spring-framework-bom
-		if(!gradleProject.name.endsWith('-bom') && !sampleBootProjects.contains(gradleProject)) {
-			dependencyManagement {
-				dependencies {
-					dependency {
-						groupId 'org.springframework'
-						artifactId 'spring-framework-bom'
-						version project.springVersion
-						type 'pom'
-						scope 'import'
-					}
-				}
-			}
-		}
 		if(isWar) {
 			properties {
 				'm2eclipse.wtp.contextRoot' '/' + project.war.baseName

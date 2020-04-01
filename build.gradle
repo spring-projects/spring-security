@@ -122,6 +122,9 @@ configure(coreModuleProjects) {
 	}
 
 	dependencyManagement {
+		imports {
+			mavenBom("org.springframework:spring-framework-bom:${springVersion}")
+		}
 		springIoTestRuntime {
 			imports {
 				mavenBom("io.spring.platform:platform-bom:${springIoVersion}") {
