@@ -10,7 +10,7 @@ buildscript {
 apply plugin: 'com.bmuschko.tomcat'
 
 dependencies {
-	def tomcatVersion = '7.0.90'
+	def tomcatVersion = '7.0.103'
 	tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
 			"org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
 			"org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatVersion}",
