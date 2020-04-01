@@ -23,5 +23,5 @@ dependencies {
 	runtime "opensymphony:sitemesh:2.4.2",
 			"cglib:cglib-nodep:$cglibVersion",
 			'ch.qos.logback:logback-classic:0.9.30',
-			"net.sourceforge.nekohtml:nekohtml:1.9.10"
+			"net.sourceforge.nekohtml:nekohtml:1.9.22"
 }

@@ -20,5 +20,5 @@ dependencies {
 	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 
 	runtime 'org.apache.httpcomponents:httpclient:4.2.5',
-			'net.sourceforge.nekohtml:nekohtml:1.9.20'
+			'net.sourceforge.nekohtml:nekohtml:1.9.22'
 }
