@@ -2,14 +2,14 @@ apply plugin: 'war'
 apply plugin: 'jetty'
 apply plugin: 'appengine'
 
-def gaeVersion="1.9.23"
+def gaeVersion="1.9.79"
 
 buildscript {
 	repositories {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'com.google.appengine:gradle-appengine-plugin:1.9.23'
+		classpath 'com.google.appengine:gradle-appengine-plugin:1.9.59'
 	}
 }
 
