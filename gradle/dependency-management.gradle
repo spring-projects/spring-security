@@ -138,7 +138,7 @@ dependencyManagement {
 		dependency 'org.apache.directory.shared:shared-cursor:0.9.15'
 		dependency 'org.apache.directory.shared:shared-ldap-constants:0.9.15'
 		dependency 'org.apache.directory.shared:shared-ldap:0.9.15'
-		dependency 'org.apache.httpcomponents:httpclient:4.5.11'
+		dependency 'org.apache.httpcomponents:httpclient:4.5.12'
 		dependency 'org.apache.httpcomponents:httpcore:4.4.8'
 		dependency 'org.apache.httpcomponents:httpmime:4.5.3'
 		dependency 'org.apache.mina:mina-core:2.0.0-M6'
