@@ -77,7 +77,7 @@ ext.springCoreDependency = [
 
 ext.jstlDependencies = [
 		"javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion",
-		"org.apache.taglibs:taglibs-standard-jstlel:1.2.1"
+		"org.apache.taglibs:taglibs-standard-jstlel:1.2.5"
 ]
 
 ext.apachedsDependencies = [
