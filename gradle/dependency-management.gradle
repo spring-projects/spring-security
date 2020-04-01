@@ -48,7 +48,7 @@ dependencyManagement {
 		dependency 'com.squareup.okio:okio:1.13.0'
 		dependency 'com.sun.xml.bind:jaxb-core:2.3.0.1'
 		dependency 'com.sun.xml.bind:jaxb-impl:2.3.0.1'
-		dependency 'com.unboundid:unboundid-ldapsdk:4.0.11'
+		dependency 'com.unboundid:unboundid-ldapsdk:4.0.14'
 		dependency 'com.vaadin.external.google:android-json:0.0.20131108.vaadin1'
 		dependency 'commons-cli:commons-cli:1.4'
 		dependency 'commons-codec:commons-codec:1.12'
