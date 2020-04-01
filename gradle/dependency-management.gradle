@@ -183,7 +183,7 @@ dependencyManagement {
 		dependency 'org.objenesis:objenesis:2.6'
 		dependency 'org.openid4java:openid4java-nodeps:0.9.6'
 		dependency 'org.ow2.asm:asm:6.2.1'
-		dependency 'org.reactivestreams:reactive-streams:1.0.1'
+		dependency 'org.reactivestreams:reactive-streams:1.0.3'
 		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.33.3'
 		dependency 'org.seleniumhq.selenium:selenium-api:3.141.59'
 		dependency 'org.seleniumhq.selenium:selenium-java:3.141.59'
