@@ -197,7 +197,7 @@ dependencyManagement {
 		dependency 'org.opensaml:opensaml-saml-api:3.4.3'
 		dependency 'org.opensaml:opensaml-saml-impl:3.4.3'
 		dependency 'org.ow2.asm:asm:6.2.1'
-		dependency 'org.reactivestreams:reactive-streams:1.0.1'
+		dependency 'org.reactivestreams:reactive-streams:1.0.3'
 		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.36.0'
 		dependency 'org.seleniumhq.selenium:selenium-java:3.141.59'
 		dependency 'org.seleniumhq.selenium:selenium-support:3.141.59'
