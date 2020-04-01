@@ -58,7 +58,7 @@ dependencyManagement {
 		dependency 'com.nimbusds:lang-tag:1.4.3'
 		dependency 'com.nimbusds:nimbus-jose-jwt:7.8.1'
 		dependency 'com.nimbusds:oauth2-oidc-sdk:6.14'
-		dependency 'com.squareup.okhttp3:okhttp:3.14.6'
+		dependency 'com.squareup.okhttp3:okhttp:3.14.7'
 		dependency 'com.squareup.okio:okio:1.13.0'
 		dependency 'com.sun.xml.bind:jaxb-core:2.3.0.1'
 		dependency 'com.sun.xml.bind:jaxb-impl:2.3.2'
