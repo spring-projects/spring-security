@@ -5,7 +5,7 @@ apply plugin: 'jetty'
 apply plugin: 'groovy'
 
 def excludeModules = ['spring-security-acl', 'jsr250-api', 'spring-jdbc', 'spring-tx']
-def jettyVersion = '8.1.9.v20130131'
+def jettyVersion = '8.1.22.v20160922'
 def keystore = "$rootDir/samples/certificates/server.jks"
 def password = 'password'
 
