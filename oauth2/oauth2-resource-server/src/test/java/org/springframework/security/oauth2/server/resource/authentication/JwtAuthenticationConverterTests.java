@@ -35,6 +35,7 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  * Tests for {@link JwtAuthenticationConverter}
  *
  * @author Josh Cummings
+ * @author Evgeniy Cheban
  */
 public class JwtAuthenticationConverterTests {
 	JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
@@ -72,5 +73,36 @@ public class JwtAuthenticationConverterTests {
 
 		assertThat(authorities).containsExactly(
 				new SimpleGrantedAuthority("blah"));
+	}
+
+	@Test
+	public void whenSettingNullPrincipalClaimName() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(null))
+				.withMessage("principalClaimName cannot be empty");
+	}
+
+	@Test
+	public void whenSettingEmptyPrincipalClaimName() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(""))
+				.withMessage("principalClaimName cannot be empty");
+	}
+
+	@Test
+	public void whenSettingBlankPrincipalClaimName() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(" "))
+				.withMessage("principalClaimName cannot be empty");
+	}
+
+	@Test
+	public void convertWhenPrincipalClaimNameSet() {
+		this.jwtAuthenticationConverter.setPrincipalClaimName("user_id");
+
+		Jwt jwt = jwt().claim("user_id", "100").build();
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
+
+		assertThat(authentication.getName()).isEqualTo("100");
 	}
 }
