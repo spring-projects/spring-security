@@ -1105,6 +1105,7 @@ public final class HttpSecurity extends
 
 	/**
 	 * Allows restricting access based upon the {@link HttpServletRequest} using
+	 * {@link RequestMatcher} implementations (i.e. via URL patterns).
 	 *
 	 * <h2>Example Configurations</h2>
 	 *
