@@ -239,4 +239,56 @@ class HttpSecurityDslTests {
 
         class CustomFilter : UsernamePasswordAuthenticationFilter()
     }
+
+    @Test
+    fun `HTTP security when custom filter configured then custom filter added after specific filter to filter chain`() {
+        this.spring.register(CustomFilterAfterConfig::class.java).autowire()
+
+        val filterChain = spring.context.getBean(FilterChainProxy::class.java)
+        val filters: List<Class<out Filter>> = filterChain.getFilters("/").map { it.javaClass }
+
+        assertThat(filters).containsSubsequence(
+            UsernamePasswordAuthenticationFilter::class.java,
+            CustomFilterAfterConfig.CustomFilter::class.java
+        )
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class CustomFilterAfterConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                addFilterAfter(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
+                formLogin {}
+            }
+        }
+
+        class CustomFilter : UsernamePasswordAuthenticationFilter()
+    }
+
+    @Test
+    fun `HTTP security when custom filter configured then custom filter added before specific filter to filter chain`() {
+        this.spring.register(CustomFilterBeforeConfig::class.java).autowire()
+
+        val filterChain = spring.context.getBean(FilterChainProxy::class.java)
+        val filters: List<Class<out Filter>> = filterChain.getFilters("/").map { it.javaClass }
+
+        assertThat(filters).containsSubsequence(
+            CustomFilterBeforeConfig.CustomFilter::class.java,
+            UsernamePasswordAuthenticationFilter::class.java
+        )
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class CustomFilterBeforeConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                addFilterBefore(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
+                formLogin {}
+            }
+        }
+
+        class CustomFilter : UsernamePasswordAuthenticationFilter()
+    }
 }
