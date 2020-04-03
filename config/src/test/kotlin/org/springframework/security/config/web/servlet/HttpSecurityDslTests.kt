@@ -225,7 +225,7 @@ class HttpSecurityDslTests {
         val filters: List<Filter> = filterChain.getFilters("/")
 
         assertThat(filters).hasSize(1)
-        assertThat(filters[0]).isExactlyInstanceOf(CustomFilterConfig.CustomFilter::class.java)
+        assertThat(filters[0]).isExactlyInstanceOf(CustomFilter::class.java)
     }
 
     @EnableWebSecurity
@@ -236,8 +236,6 @@ class HttpSecurityDslTests {
                 addFilterAt(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
             }
         }
-
-        class CustomFilter : UsernamePasswordAuthenticationFilter()
     }
 
     @Test
@@ -249,7 +247,7 @@ class HttpSecurityDslTests {
 
         assertThat(filters).containsSubsequence(
             UsernamePasswordAuthenticationFilter::class.java,
-            CustomFilterAfterConfig.CustomFilter::class.java
+            CustomFilter::class.java
         )
     }
 
@@ -262,8 +260,6 @@ class HttpSecurityDslTests {
                 formLogin {}
             }
         }
-
-        class CustomFilter : UsernamePasswordAuthenticationFilter()
     }
 
     @Test
@@ -274,7 +270,7 @@ class HttpSecurityDslTests {
         val filters: List<Class<out Filter>> = filterChain.getFilters("/").map { it.javaClass }
 
         assertThat(filters).containsSubsequence(
-            CustomFilterBeforeConfig.CustomFilter::class.java,
+            CustomFilter::class.java,
             UsernamePasswordAuthenticationFilter::class.java
         )
     }
@@ -288,7 +284,7 @@ class HttpSecurityDslTests {
                 formLogin {}
             }
         }
-
-        class CustomFilter : UsernamePasswordAuthenticationFilter()
     }
+
+    class CustomFilter : UsernamePasswordAuthenticationFilter()
 }
