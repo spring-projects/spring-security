@@ -65,6 +65,10 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	public String encode(CharSequence rawPassword) {
+		if (rawPassword == null) {
+			throw new IllegalArgumentException("rawPassword cannot be null");
+		}
+
 		String salt;
 		if (strength > 0) {
 			if (random != null) {
@@ -81,6 +85,10 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+		if (rawPassword == null) {
+			throw new IllegalArgumentException("rawPassword cannot be null");
+		}
+
 		if (encodedPassword == null || encodedPassword.length() == 0) {
 			logger.warn("Empty encoded password");
 			return false;
