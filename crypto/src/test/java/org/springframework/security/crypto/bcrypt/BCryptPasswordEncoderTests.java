@@ -200,4 +200,16 @@ public class BCryptPasswordEncoderTests {
 		encoder.upgradeEncoding("not-a-bcrypt-password");
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void encodeNullRawPassword() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		encoder.encode(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void matchNullRawPassword() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		encoder.matches(null, "does-not-matter");
+	}
+
 }
