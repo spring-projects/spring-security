@@ -92,4 +92,15 @@ public class BCryptPasswordEncoderTests {
 		assertThat(encoder.matches("password", "012345678901234567890123456789")).isFalse();
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void encodeNullRawPassword() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		encoder.encode(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void matchNullRawPassword() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		encoder.matches(null, "does-not-matter");
+	}
 }
