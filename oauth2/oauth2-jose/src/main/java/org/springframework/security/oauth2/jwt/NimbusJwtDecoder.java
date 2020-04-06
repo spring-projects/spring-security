@@ -34,6 +34,8 @@ import javax.crypto.SecretKey;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.source.JWKSetCache;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -49,6 +51,7 @@ import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
 
+import org.springframework.cache.Cache;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -68,6 +71,7 @@ import org.springframework.web.client.RestTemplate;
  *
  * @author Josh Cummings
  * @author Joe Grandja
+ * @author Mykyta Bezverkhyi
  * @since 5.2
  */
 public final class NimbusJwtDecoder implements JwtDecoder {
@@ -215,6 +219,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		private String jwkSetUri;
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 		private RestOperations restOperations = new RestTemplate();
+		private Cache cache;
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
@@ -264,6 +269,20 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return this;
 		}
 
+		/**
+		 * Use the given {@link Cache} to store
+		 * <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a>.
+		 *
+		 * @param cache the {@link Cache} to be used to store JWK Set
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
+		 * @since 5.4
+		 */
+		public JwkSetUriJwtDecoderBuilder cache(Cache cache) {
+			Assert.notNull(cache, "cache cannot be null");
+			this.cache = cache;
+			return this;
+		}
+
 		JWSKeySelector<SecurityContext> jwsKeySelector(JWKSource<SecurityContext> jwkSource) {
 			if (this.signatureAlgorithms.isEmpty()) {
 				return new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
@@ -280,9 +299,17 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			}
 		}
 
+		JWKSource<SecurityContext> jwkSource(ResourceRetriever jwkSetRetriever) {
+			if (this.cache == null) {
+				return new RemoteJWKSet<>(toURL(this.jwkSetUri), jwkSetRetriever);
+			}
+			ResourceRetriever cachingJwkSetRetriever = new CachingResourceRetriever(this.cache, jwkSetRetriever);
+			return new RemoteJWKSet<>(toURL(this.jwkSetUri), cachingJwkSetRetriever, new NoOpJwkSetCache());
+		}
+
 		JWTProcessor<SecurityContext> processor() {
 			ResourceRetriever jwkSetRetriever = new RestOperationsResourceRetriever(this.restOperations);
-			JWKSource<SecurityContext> jwkSource = new RemoteJWKSet<>(toURL(this.jwkSetUri), jwkSetRetriever);
+			JWKSource<SecurityContext> jwkSource = jwkSource(jwkSetRetriever);
 			ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSKeySelector(jwsKeySelector(jwkSource));
 
@@ -306,6 +333,44 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 				return new URL(url);
 			} catch (MalformedURLException ex) {
 				throw new IllegalArgumentException("Invalid JWK Set URL \"" + url + "\" : " + ex.getMessage(), ex);
+			}
+		}
+
+		private static class NoOpJwkSetCache implements JWKSetCache {
+			@Override
+			public void put(JWKSet jwkSet) {
+			}
+
+			@Override
+			public JWKSet get() {
+				return null;
+			}
+
+			@Override
+			public boolean requiresRefresh() {
+				return true;
+			}
+		}
+
+		private static class CachingResourceRetriever implements ResourceRetriever {
+			private final Cache cache;
+			private final ResourceRetriever resourceRetriever;
+
+			CachingResourceRetriever(Cache cache, ResourceRetriever resourceRetriever) {
+				this.cache = cache;
+				this.resourceRetriever = resourceRetriever;
+			}
+
+			@Override
+			public Resource retrieveResource(URL url) throws IOException {
+				String jwkSet;
+				try {
+					jwkSet = cache.get(url.toString(), () -> resourceRetriever.retrieveResource(url).getContent());
+				} catch (Exception ex) {
+					throw new IOException(ex);
+				}
+
+				return new Resource(jwkSet, "UTF-8");
 			}
 		}
 
