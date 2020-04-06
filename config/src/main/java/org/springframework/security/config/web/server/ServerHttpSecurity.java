@@ -2646,7 +2646,7 @@ public class ServerHttpSecurity {
 
 			/**
 			 * Require a specific authority.
-			 * @param authority the authority to require (i.e. "USER" woudl require authority of "USER").
+			 * @param authority the authority to require (i.e. "USER" would require authority of "USER").
 			 * @return the {@link AuthorizeExchangeSpec} to configure
 			 */
 			public AuthorizeExchangeSpec hasAuthority(String authority) {
