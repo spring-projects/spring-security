@@ -304,7 +304,7 @@ To access the return value from a method, use the built-in name `returnObject` i
 --
 
 ===== Filtering using @PreFilter and @PostFilter
-As you may already be aware, Spring Security supports filtering of collections and arrays and this can now be achieved using expressions.
+Spring Security supports filtering of collections, arrays, maps and streams using expressions.
 This is most commonly performed on the return value of a method.
 For example:
 
@@ -315,8 +315,10 @@ For example:
 public List<Contact> getAll();
 ----
 
-When using the `@PostFilter` annotation, Spring Security iterates through the returned collection and removes any elements for which the supplied expression is false.
+When using the `@PostFilter` annotation, Spring Security iterates through the returned collection or map and removes any elements for which the supplied expression is false.
+For an array, a new array instance will be returned containing filtered elements.
 The name `filterObject` refers to the current object in the collection.
+In case when a map is used it will refer to the current `Map.Entry` object which allows one to use `filterObject.key` or `filterObject.value` in the expresion.
 You can also filter before the method call, using `@PreFilter`, though this is a less common requirement.
 The syntax is just the same, but if there is more than one argument which is a collection type then you have to select one by name using the `filterTarget` property of this annotation.
 
