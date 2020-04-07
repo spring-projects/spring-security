@@ -45,6 +45,8 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
 	private boolean allowUriQueryParameter = false;
 
+	private String bearerTokenHeaderName = HttpHeaders.AUTHORIZATION;
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -85,8 +87,21 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		this.allowUriQueryParameter = allowUriQueryParameter;
 	}
 
-	private static String resolveFromAuthorizationHeader(HttpServletRequest request) {
-		String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+	/**
+	 * Set this value to configure what header is checked when resolving a Bearer Token.
+	 * This value is defaulted to {@link HttpHeaders#AUTHORIZATION}.
+	 *
+	 * This allows other headers to be used as the Bearer Token source such as {@link HttpHeaders#PROXY_AUTHORIZATION}
+	 *
+	 * @param bearerTokenHeaderName the header to check when retrieving the Bearer Token.
+	 * @since 5.4
+	 */
+	public void setBearerTokenHeaderName(String bearerTokenHeaderName) {
+		this.bearerTokenHeaderName = bearerTokenHeaderName;
+	}
+
+	private String resolveFromAuthorizationHeader(HttpServletRequest request) {
+		String authorization = request.getHeader(this.bearerTokenHeaderName);
 		if (StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
 			Matcher matcher = authorizationPattern.matcher(authorization);
 

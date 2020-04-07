@@ -50,6 +50,7 @@ public class ServerBearerTokenAuthenticationConverter
 		Pattern.CASE_INSENSITIVE);
 
 	private boolean allowUriQueryParameter = false;
+	private String bearerTokenHeaderName = HttpHeaders.AUTHORIZATION;
 
 	public Mono<Authentication> convert(ServerWebExchange exchange) {
 		return Mono.justOrEmpty(token(exchange.getRequest()))
@@ -90,8 +91,21 @@ public class ServerBearerTokenAuthenticationConverter
 		this.allowUriQueryParameter = allowUriQueryParameter;
 	}
 
-	private static String resolveFromAuthorizationHeader(HttpHeaders headers) {
-		String authorization = headers.getFirst(HttpHeaders.AUTHORIZATION);
+	/**
+	 * Set this value to configure what header is checked when resolving a Bearer Token.
+	 * This value is defaulted to {@link HttpHeaders#AUTHORIZATION}.
+	 *
+	 * This allows other headers to be used as the Bearer Token source such as {@link HttpHeaders#PROXY_AUTHORIZATION}
+	 *
+	 * @param bearerTokenHeaderName the header to check when retrieving the Bearer Token.
+	 * @since 5.4
+	 */
+	public void setBearerTokenHeaderName(String bearerTokenHeaderName) {
+		this.bearerTokenHeaderName = bearerTokenHeaderName;
+	}
+
+	private String resolveFromAuthorizationHeader(HttpHeaders headers) {
+		String authorization = headers.getFirst(this.bearerTokenHeaderName);
 		if (StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
 			Matcher matcher = authorizationPattern.matcher(authorization);
 
