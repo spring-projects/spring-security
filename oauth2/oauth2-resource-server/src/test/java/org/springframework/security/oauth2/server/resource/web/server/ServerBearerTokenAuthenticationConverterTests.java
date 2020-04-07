@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
  * @since 5.1
  */
 public class ServerBearerTokenAuthenticationConverterTests {
+	private static final String CUSTOM_HEADER = "custom-header";
 	private static final String TEST_TOKEN = "test-token";
 
 	private ServerBearerTokenAuthenticationConverter converter;
@@ -52,6 +53,16 @@ public class ServerBearerTokenAuthenticationConverterTests {
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest
 				.get("/")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + TEST_TOKEN);
+
+		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
+	}
+
+	@Test
+	public void resolveWhenCustomDefinedHeaderIsValidAndPresentThenTokenIsResolved() {
+		this.converter.setBearerTokenHeaderName(CUSTOM_HEADER);
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest
+				.get("/")
+				.header(CUSTOM_HEADER, "Bearer " + TEST_TOKEN);
 
 		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
 	}
