@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'trang'
 apply plugin: 'kotlin'
@@ -85,11 +87,11 @@ rncToXsd {
 	xslFile = new File(rncDir, 'spring-security.xsl')
 }
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs = ["-Xjsr305=strict"]
-    }
+tasks.withType(KotlinCompile).configureEach {
+	kotlinOptions {
+		jvmTarget = "1.8"
+		freeCompilerArgs = ["-Xjsr305=strict"]
+	}
 }
 
 build.dependsOn rncToXsd
