@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.MediaType;
-import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
@@ -71,24 +70,43 @@ import static org.springframework.util.StringUtils.hasText;
 public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter {
 
 	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
+	private Saml2AuthenticationRequestFactory authenticationRequestFactory;
+
 	private RequestMatcher redirectMatcher = new AntPathRequestMatcher("/saml2/authenticate/{registrationId}");
-	private Saml2AuthenticationRequestFactory authenticationRequestFactory = new OpenSamlAuthenticationRequestFactory();
 
 	/**
 	 * Construct a {@link Saml2WebSsoAuthenticationRequestFilter} with the provided parameters
 	 *
 	 * @param relyingPartyRegistrationRepository a repository for relying party configurations
+	 * @deprecated use the constructor that takes a {@link Saml2AuthenticationRequestFactory}
 	 */
+	@Deprecated
 	public Saml2WebSsoAuthenticationRequestFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
+		this(relyingPartyRegistrationRepository,
+				new org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory());
+	}
+
+	/**
+	 * Construct a {@link Saml2WebSsoAuthenticationRequestFilter} with the provided parameters
+	 *
+	 * @param relyingPartyRegistrationRepository a repository for relying party configurations
+	 * @since 5.4
+	 */
+	public Saml2WebSsoAuthenticationRequestFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
+			Saml2AuthenticationRequestFactory authenticationRequestFactory) {
 		Assert.notNull(relyingPartyRegistrationRepository, "relyingPartyRegistrationRepository cannot be null");
+		Assert.notNull(authenticationRequestFactory, "authenticationRequestFactory cannot be null");
 		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
+		this.authenticationRequestFactory = authenticationRequestFactory;
 	}
 
 	/**
 	 * Use the given {@link Saml2AuthenticationRequestFactory} for formulating the SAML 2.0 AuthnRequest
 	 *
 	 * @param authenticationRequestFactory the {@link Saml2AuthenticationRequestFactory} to use
+	 * @deprecated use the constructor instead
 	 */
+	@Deprecated
 	public void setAuthenticationRequestFactory(Saml2AuthenticationRequestFactory authenticationRequestFactory) {
 		Assert.notNull(authenticationRequestFactory, "authenticationRequestFactory cannot be null");
 		this.authenticationRequestFactory = authenticationRequestFactory;

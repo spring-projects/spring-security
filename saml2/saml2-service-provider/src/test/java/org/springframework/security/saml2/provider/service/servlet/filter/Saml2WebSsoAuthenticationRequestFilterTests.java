@@ -180,6 +180,29 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenCustomAuthenticationRequestFactoryThenUses() throws Exception {
+		RelyingPartyRegistration relyingParty = this.rpBuilder
+				.providerDetails(c -> c.binding(POST))
+				.build();
+		Saml2PostAuthenticationRequest authenticationRequest = mock(Saml2PostAuthenticationRequest.class);
+		when(authenticationRequest.getAuthenticationRequestUri()).thenReturn("uri");
+		when(authenticationRequest.getRelayState()).thenReturn("relay");
+		when(authenticationRequest.getSamlRequest()).thenReturn("saml");
+		when(this.repository.findByRegistrationId("registration-id")).thenReturn(relyingParty);
+		when(this.factory.createPostAuthenticationRequest(any()))
+				.thenReturn(authenticationRequest);
+
+		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter
+				(this.repository, this.factory);
+		filter.doFilterInternal(this.request, this.response, this.filterChain);
+		assertThat(this.response.getContentAsString())
+				.contains("<form action=\"uri\" method=\"post\">")
+				.contains("<input type=\"hidden\" name=\"SAMLRequest\" value=\"saml\"")
+				.contains("<input type=\"hidden\" name=\"RelayState\" value=\"relay\"");
+		verify(this.factory).createPostAuthenticationRequest(any());
+	}
+
+	@Test
 	public void setRequestMatcherWhenNullThenException() {
 		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter
 				(this.repository);
