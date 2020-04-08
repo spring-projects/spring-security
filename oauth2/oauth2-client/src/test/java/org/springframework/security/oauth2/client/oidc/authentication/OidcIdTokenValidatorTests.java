@@ -93,6 +93,35 @@ public class OidcIdTokenValidatorTests {
 	}
 
 	@Test
+	public void validateWhenMetadataIssuerMismatchThenHasErrors() {
+		/*
+		 * When the issuer is set in the provider metadata, and it does not match the issuer in the ID Token,
+		 * the validation must fail
+		 */
+		Map<String, Object> configurationMetadata = new HashMap<>();
+		configurationMetadata.put("issuer", "https://issuer.somethingelse.com");
+		this.registration = this.registration.providerConfigurationMetadata(configurationMetadata);
+
+		assertThat(this.validateIdToken())
+				.hasSize(1)
+				.extracting(OAuth2Error::getDescription)
+				.allMatch(msg -> msg.contains(IdTokenClaimNames.ISS));
+	}
+
+	@Test
+	public void validateWhenMetadataIssuerMatchThenNoErrors() {
+		/*
+		 * When the issuer is set in the provider metadata, and it does match the issuer in the ID Token,
+		 * the validation must succeed
+		 */
+		Map<String, Object> configurationMetadata = new HashMap<>();
+		configurationMetadata.put("issuer", "https://issuer.example.com");
+		this.registration = this.registration.providerConfigurationMetadata(configurationMetadata);
+
+		assertThat(this.validateIdToken()).isEmpty();
+	}
+
+	@Test
 	public void validateWhenSubNullThenHasErrors() {
 		this.claims.remove(IdTokenClaimNames.SUB);
 		assertThat(this.validateIdToken())

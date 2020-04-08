@@ -33,6 +33,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * An {@link OAuth2TokenValidator} responsible for
@@ -68,7 +69,12 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 
 		// 2. The Issuer Identifier for the OpenID Provider (which is typically obtained during Discovery)
 		// MUST exactly match the value of the iss (issuer) Claim.
-		// TODO Depends on gh-4413
+		String metadataIssuer = (String) this.clientRegistration.getProviderDetails().getConfigurationMetadata()
+				.get("issuer");
+
+		if (metadataIssuer != null && !Objects.equals(metadataIssuer, idToken.getIssuer().toExternalForm())) {
+			invalidClaims.put(IdTokenClaimNames.ISS, idToken.getIssuer());
+		}
 
 		// 3. The Client MUST validate that the aud (audience) Claim contains its client_id value
 		// registered at the Issuer identified by the iss (issuer) Claim as an audience.
