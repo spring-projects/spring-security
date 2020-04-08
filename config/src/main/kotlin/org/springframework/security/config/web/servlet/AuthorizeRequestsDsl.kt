@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.servlet
 
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
@@ -81,6 +82,29 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * If the current request will not be processed by Spring MVC, a reasonable default
      * using the pattern as an ant pattern will be used.
      *
+     * @param method the HTTP method to match the income requests against.
+     * @param pattern the pattern to match incoming requests against.
+     * @param access the SpEL expression to secure the matching request
+     * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
+     */
+    fun authorize(method: HttpMethod, pattern: String, access: String = "authenticated") {
+        authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
+                                                        patternType = PATTERN_TYPE,
+                                                        httpMethod = method,
+                                                        rule = access))
+    }
+
+    /**
+     * Adds a request authorization rule for an endpoint matching the provided
+     * pattern.
+     * If Spring MVC is on the classpath, it will use an MVC matcher.
+     * If Spring MVC is not an the classpath, it will use an ant matcher.
+     * The MVC will use the same rules that Spring MVC uses for matching.
+     * For example, often times a mapping of the path "/path" will match on
+     * "/path", "/path/", "/path.html", etc.
+     * If the current request will not be processed by Spring MVC, a reasonable default
+     * using the pattern as an ant pattern will be used.
+     *
      * @param pattern the pattern to match incoming requests against.
      * @param servletPath the servlet path to match incoming requests against. This
      * only applies when using an MVC pattern matcher.
@@ -91,6 +115,32 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
         authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
                                                         patternType = PATTERN_TYPE,
                                                         servletPath = servletPath,
+                                                        rule = access))
+    }
+
+    /**
+     * Adds a request authorization rule for an endpoint matching the provided
+     * pattern.
+     * If Spring MVC is on the classpath, it will use an MVC matcher.
+     * If Spring MVC is not an the classpath, it will use an ant matcher.
+     * The MVC will use the same rules that Spring MVC uses for matching.
+     * For example, often times a mapping of the path "/path" will match on
+     * "/path", "/path/", "/path.html", etc.
+     * If the current request will not be processed by Spring MVC, a reasonable default
+     * using the pattern as an ant pattern will be used.
+     *
+     * @param method the HTTP method to match the income requests against.
+     * @param pattern the pattern to match incoming requests against.
+     * @param servletPath the servlet path to match incoming requests against. This
+     * only applies when using an MVC pattern matcher.
+     * @param access the SpEL expression to secure the matching request
+     * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
+     */
+    fun authorize(method: HttpMethod, pattern: String, servletPath: String, access: String = "authenticated") {
+        authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
+                                                        patternType = PATTERN_TYPE,
+                                                        servletPath = servletPath,
+                                                        httpMethod = method,
                                                         rule = access))
     }
 
@@ -150,12 +200,10 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
                     is MatcherAuthorizationRule -> requests.requestMatchers(rule.matcher).access(rule.rule)
                     is PatternAuthorizationRule -> {
                         when (rule.patternType) {
-                            PatternType.ANT -> requests.antMatchers(rule.pattern).access(rule.rule)
-                            PatternType.MVC -> {
-                                val mvcMatchersAuthorizeUrl = requests.mvcMatchers(rule.pattern)
-                                rule.servletPath?.also { mvcMatchersAuthorizeUrl.servletPath(rule.servletPath) }
-                                mvcMatchersAuthorizeUrl.access(rule.rule)
-                            }
+                            PatternType.ANT -> requests.antMatchers(rule.httpMethod, rule.pattern).access(rule.rule)
+                            PatternType.MVC -> requests.mvcMatchers(rule.httpMethod, rule.pattern)
+                                .apply { if(rule.servletPath != null) servletPath(rule.servletPath) }
+                                .access(rule.rule)
                         }
                     }
                 }

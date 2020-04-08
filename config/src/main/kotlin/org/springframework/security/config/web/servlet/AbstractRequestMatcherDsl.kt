@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.servlet
 
+import org.springframework.http.HttpMethod
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
 
@@ -38,6 +39,7 @@ abstract class AbstractRequestMatcherDsl {
     protected data class PatternAuthorizationRule(val pattern: String,
                                                   val patternType: PatternType,
                                                   val servletPath: String? = null,
+                                                  val httpMethod: HttpMethod? = null,
                                                   override val rule: String) : AuthorizationRule(rule)
 
     protected abstract class AuthorizationRule(open val rule: String)
