@@ -20,7 +20,7 @@
 
 Spring Security provides you with a very flexible framework for your authentication and authorization requirements, but there are many other considerations for building a secure application that are outside its scope.
 Web applications are vulnerable to all kinds of attacks which you should be familiar with, preferably before you start development so you can design and code with them in mind from the beginning.
-Check out thehttp://www.owasp.org/[OWASP web site] for information on the major issues facing web application developers and the countermeasures you can use against them.
+Check out the https://www.owasp.org/[OWASP web site] for information on the major issues facing web application developers and the countermeasures you can use against them.
 
 
 [[appendix-faq-web-xml]]
@@ -378,7 +378,7 @@ For third-party jars the situation isn't always quite so obvious.
 A good starting point is to copy those from one of the pre-built sample applications WEB-INF/lib directories.
 For a basic application, you can start with the tutorial sample.
 If you want to use LDAP, with an embedded test server, then use the LDAP sample as a starting point.
-The reference manual also includeshttp://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#appendix-dependencies[an appendix] listing the first-level dependencies for each Spring Security module with some information on whether they are optional and what they are required for.
+The reference manual also includes https://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#appendix-dependencies[an appendix] listing the first-level dependencies for each Spring Security module with some information on whether they are optional and what they are required for.
 
 If you are building your project with maven, then adding the appropriate Spring Security modules as dependencies to your pom.xml will automatically pull in the core jars that the framework requires.
 Any which are marked as "optional" in the Spring Security POM files will have to be added to your own pom.xml file if you need them.
