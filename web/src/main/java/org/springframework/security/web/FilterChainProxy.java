@@ -60,7 +60,7 @@ import java.util.*;
  * requests which match the pattern. An example configuration might look like this:
  *
  * <pre>
- *  &lt;bean id="myfilterChainProxy" class="org.springframework.security.util.FilterChainProxy"&gt;
+ *  &lt;bean id="myfilterChainProxy" class="org.springframework.security.web.FilterChainProxy"&gt;
  *      &lt;constructor-arg&gt;
  *          &lt;util:list&gt;
  *              &lt;security:filter-chain pattern="/do/not/filter*" filters="none"/&gt;
