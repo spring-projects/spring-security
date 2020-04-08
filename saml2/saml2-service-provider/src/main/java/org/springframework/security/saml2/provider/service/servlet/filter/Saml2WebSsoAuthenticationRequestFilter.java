@@ -46,7 +46,27 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
+ * This {@code Filter} formulates a
+ * <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf">SAML 2.0 AuthnRequest</a> (line 1968)
+ * and redirects to a configured asserting party.
+ *
+ * <p>
+ * It supports the
+ * <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf">HTTP-Redirect</a> (line 520)
+ * and
+ * <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf">HTTP-POST</a> (line 753)
+ * bindings.
+ *
+ * <p>
+ * By default, this {@code Filter} responds to authentication requests
+ * at the {@code URI} {@code /oauth2/authorization/{registrationId}}.
+ * The {@code URI} template variable {@code {registrationId}} represents the
+ * {@link RelyingPartyRegistration#getRegistrationId() registration identifier} of the relying party
+ * that is used for initiating the authentication request.
+ *
  * @since 5.2
+ * @author Filip Hanik
+ * @author Josh Cummings
  */
 public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter {
 
@@ -54,21 +74,39 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	private RequestMatcher redirectMatcher = new AntPathRequestMatcher("/saml2/authenticate/{registrationId}");
 	private Saml2AuthenticationRequestFactory authenticationRequestFactory = new OpenSamlAuthenticationRequestFactory();
 
+	/**
+	 * Construct a {@link Saml2WebSsoAuthenticationRequestFilter} with the provided parameters
+	 *
+	 * @param relyingPartyRegistrationRepository a repository for relying party configurations
+	 */
 	public Saml2WebSsoAuthenticationRequestFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
 		Assert.notNull(relyingPartyRegistrationRepository, "relyingPartyRegistrationRepository cannot be null");
 		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
 	}
 
+	/**
+	 * Use the given {@link Saml2AuthenticationRequestFactory} for formulating the SAML 2.0 AuthnRequest
+	 *
+	 * @param authenticationRequestFactory the {@link Saml2AuthenticationRequestFactory} to use
+	 */
 	public void setAuthenticationRequestFactory(Saml2AuthenticationRequestFactory authenticationRequestFactory) {
 		Assert.notNull(authenticationRequestFactory, "authenticationRequestFactory cannot be null");
 		this.authenticationRequestFactory = authenticationRequestFactory;
 	}
 
+	/**
+	 * Use the given {@link RequestMatcher} that activates this filter for a given request
+	 *
+	 * @param redirectMatcher the {@link RequestMatcher} to use
+	 */
 	public void setRedirectMatcher(RequestMatcher redirectMatcher) {
 		Assert.notNull(redirectMatcher, "redirectMatcher cannot be null");
 		this.redirectMatcher = redirectMatcher;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
