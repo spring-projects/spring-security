@@ -35,6 +35,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
     private val MVC_PRESENT = ClassUtils.isPresent(
             HANDLER_MAPPING_INTROSPECTOR,
             AuthorizeRequestsDsl::class.java.classLoader)
+    private val PATTERN_TYPE = if (MVC_PRESENT) PatternType.MVC else PatternType.ANT
 
     /**
      * Adds a request authorization rule.
@@ -64,11 +65,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
     fun authorize(pattern: String, access: String = "authenticated") {
-        if (MVC_PRESENT) {
-            authorizationRules.add(PatternAuthorizationRule(pattern, PatternType.MVC, null, access))
-        } else {
-            authorizationRules.add(PatternAuthorizationRule(pattern, PatternType.ANT, null, access))
-        }
+        authorizationRules.add(PatternAuthorizationRule(pattern, PATTERN_TYPE, null, access))
     }
 
     /**
@@ -89,11 +86,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
     fun authorize(pattern: String, servletPath: String, access: String = "authenticated") {
-        if (MVC_PRESENT) {
-            authorizationRules.add(PatternAuthorizationRule(pattern, PatternType.MVC, servletPath, access))
-        } else {
-            authorizationRules.add(PatternAuthorizationRule(pattern, PatternType.ANT, servletPath, access))
-        }
+        authorizationRules.add(PatternAuthorizationRule(pattern, PATTERN_TYPE, servletPath, access))
     }
 
     /**
