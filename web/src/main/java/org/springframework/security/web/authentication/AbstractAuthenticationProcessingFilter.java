@@ -156,6 +156,43 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		this.requiresAuthenticationRequestMatcher = requiresAuthenticationRequestMatcher;
 	}
 
+	/**
+	 * Creates a new instance with an {@link AuthenticationManager}
+	 *
+	 * @param authenticationManager the {@link AuthenticationManager} used to authenticate an {@link Authentication} object.
+	 *                              Cannot be null.
+	 */
+	protected AbstractAuthenticationProcessingFilter(AuthenticationManager authenticationManager) {
+		setAuthenticationManager(authenticationManager);
+	}
+
+	/**
+	 * Creates a new instance with a default filterProcessesUrl and an {@link AuthenticationManager}
+	 *
+	 * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
+	 * @param authenticationManager the {@link AuthenticationManager} used to authenticate an {@link Authentication} object.
+	 *                              Cannot be null.
+	 */
+	protected AbstractAuthenticationProcessingFilter(String defaultFilterProcessesUrl,
+			AuthenticationManager authenticationManager) {
+		setFilterProcessesUrl(defaultFilterProcessesUrl);
+		setAuthenticationManager(authenticationManager);
+	}
+
+	/**
+	 * Creates a new instance with a {@link RequestMatcher} and an {@link AuthenticationManager}
+	 *
+	 * @param requiresAuthenticationRequestMatcher the {@link RequestMatcher} used to determine
+	 *                                             if authentication is required. Cannot be null.
+	 * @param authenticationManager the {@link AuthenticationManager} used to authenticate an {@link Authentication} object.
+	 *                              Cannot be null.
+	 */
+	protected AbstractAuthenticationProcessingFilter(RequestMatcher requiresAuthenticationRequestMatcher,
+			AuthenticationManager authenticationManager) {
+		setRequiresAuthenticationRequestMatcher(requiresAuthenticationRequestMatcher);
+		setAuthenticationManager(authenticationManager);
+	}
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -357,6 +394,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	}
 
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
 		this.authenticationManager = authenticationManager;
 	}
 

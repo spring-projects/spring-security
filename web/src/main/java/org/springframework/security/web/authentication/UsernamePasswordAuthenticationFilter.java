@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication;
 
 import org.springframework.lang.Nullable;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -61,6 +62,10 @@ public class UsernamePasswordAuthenticationFilter extends
 
 	public UsernamePasswordAuthenticationFilter() {
 		super(new AntPathRequestMatcher("/login", "POST"));
+	}
+
+	public UsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
+		super(new AntPathRequestMatcher("/login", "POST"), authenticationManager);
 	}
 
 	// ~ Methods

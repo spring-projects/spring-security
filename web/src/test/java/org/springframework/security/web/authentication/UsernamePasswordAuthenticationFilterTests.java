@@ -58,6 +58,23 @@ public class UsernamePasswordAuthenticationFilterTests {
 	}
 
 	@Test
+	public void testConstructorInjectionOfAuthenticationManager() {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.addParameter(
+				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY,
+				"rod");
+		request.addParameter(
+				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY,
+				"dokdo");
+
+		UsernamePasswordAuthenticationFilter filter =
+				new UsernamePasswordAuthenticationFilter(createAuthenticationManager());
+
+		Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
+		assertThat(result).isNotNull();
+	}
+
+	@Test
 	public void testNullPasswordHandledGracefully() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
 		request.addParameter(
