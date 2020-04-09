@@ -72,7 +72,9 @@ class RequiresChannelDsl : AbstractRequestMatcherDsl() {
      * (i.e. "REQUIRES_SECURE_CHANNEL")
      */
     fun secure(pattern: String, attribute: String = "REQUIRES_SECURE_CHANNEL") {
-        channelSecurityRules.add(PatternAuthorizationRule(pattern, PATTERN_TYPE, null, attribute))
+        channelSecurityRules.add(PatternAuthorizationRule(pattern = pattern,
+                                                          patternType = PATTERN_TYPE,
+                                                          rule = attribute))
     }
 
     /**
@@ -93,7 +95,10 @@ class RequiresChannelDsl : AbstractRequestMatcherDsl() {
      * (i.e. "REQUIRES_SECURE_CHANNEL")
      */
     fun secure(pattern: String, servletPath: String, attribute: String = "REQUIRES_SECURE_CHANNEL") {
-        channelSecurityRules.add(PatternAuthorizationRule(pattern, PATTERN_TYPE, servletPath, attribute))
+        channelSecurityRules.add(PatternAuthorizationRule(pattern = pattern,
+                                                          patternType = PATTERN_TYPE,
+                                                          servletPath = servletPath,
+                                                          rule = attribute))
     }
 
     /**
