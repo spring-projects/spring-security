@@ -65,7 +65,9 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
     fun authorize(pattern: String, access: String = "authenticated") {
-        authorizationRules.add(PatternAuthorizationRule(pattern, PATTERN_TYPE, null, access))
+        authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
+                                                        patternType = PATTERN_TYPE,
+                                                        rule = access))
     }
 
     /**
@@ -86,7 +88,10 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
     fun authorize(pattern: String, servletPath: String, access: String = "authenticated") {
-        authorizationRules.add(PatternAuthorizationRule(pattern, PATTERN_TYPE, servletPath, access))
+        authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
+                                                        patternType = PATTERN_TYPE,
+                                                        servletPath = servletPath,
+                                                        rule = access))
     }
 
     /**

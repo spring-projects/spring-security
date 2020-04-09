@@ -37,7 +37,7 @@ abstract class AbstractRequestMatcherDsl {
 
     protected data class PatternAuthorizationRule(val pattern: String,
                                                   val patternType: PatternType,
-                                                  val servletPath: String?,
+                                                  val servletPath: String? = null,
                                                   override val rule: String) : AuthorizationRule(rule)
 
     protected abstract class AuthorizationRule(open val rule: String)
