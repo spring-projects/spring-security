@@ -1955,22 +1955,24 @@ However, if you resolve it by a claim in the bearer token, read on to learn abou
 === Bearer Token Resolution
 
 By default, Resource Server looks for a bearer token in the `Authorization` header.
-This, however, can be customized in a couple of ways.
+This, however, can be customized in a handful of ways.
 
 ==== Reading the Bearer Token from a Custom Header
 
 For example, you may have a need to read the bearer token from a custom header.
-To achieve this, you can wire a `HeaderBearerTokenResolver` instance into the DSL, as you can see in the following example:
+To achieve this, you can expose a `DefaultBearerTokenResolver` as a bean, or wire an instance into the DSL, as you can see in the following example:
 
 .Custom Bearer Token Header
 ====
 .Java
 [source,java,role="primary"]
 ----
-http
-    .oauth2ResourceServer(oauth2 -> oauth2
-        .bearerTokenResolver(new HeaderBearerTokenResolver("x-goog-iap-jwt-assertion"))
-    );
+@Bean
+BearerTokenResolver bearerTokenResolver() {
+    DefaultBearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
+    bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.PROXY_AUTHORIZATION);
+    return bearerTokenResolver;
+}
 ----
 
 .Xml
@@ -1981,11 +1983,13 @@ http
 </http>
 
 <bean id="bearerTokenResolver"
-        class="org.springframework.security.oauth2.server.resource.web.HeaderBearerTokenResolver">
-    <constructor-arg value="x-goog-iap-jwt-assertion"/>
+        class="org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver">
+    <property name="bearerTokenHeaderName" value="Proxy-Authorization"/>
 </bean>
 ----
 ====
+
+Or, in circumstances where a provider is using both a custom header and value, you can use `HeaderBearerTokenResolver` instead.
 
 ==== Reading the Bearer Token from a Form Parameter
 

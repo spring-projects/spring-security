@@ -1077,6 +1077,29 @@ This approach allows us to add and remove elements from the repository (shown as
 NOTE: It would be unsafe to simply take any issuer and construct an `ReactiveAuthenticationManager` from it.
 The issuer should be one that the code can verify from a trusted source like a whitelist.
 
+[[webflux-oauth2resourceserver-bearertoken-resolver]]
+== Bearer Token Resolution
+
+By default, Resource Server looks for a bearer token in the `Authorization` header.
+This, however, can be customized.
+
+For example, you may have a need to read the bearer token from a custom header.
+To achieve this, you can wire an instance of `ServerBearerTokenAuthenticationConverter` into the DSL, as you can see in the following example:
+
+.Custom Bearer Token Header
+====
+.Java
+[source,java,role="primary"]
+----
+ServerBearerTokenAuthenticationConverter converter = new ServerBearerTokenAuthenticationConverter();
+converter.setBearerTokenHeaderName(HttpHeaders.PROXY_AUTHORIZATION);
+http
+    .oauth2ResourceServer(oauth2 -> oauth2
+        .bearerTokenConverter(converter)
+    );
+----
+====
+
 == Bearer Token Propagation
 
 Now that you're in possession of a bearer token, it might be handy to pass that to downstream services.
