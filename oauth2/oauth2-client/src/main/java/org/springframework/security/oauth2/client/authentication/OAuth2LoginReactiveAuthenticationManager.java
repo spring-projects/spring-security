@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,6 +93,18 @@ public class OAuth2LoginReactiveAuthenticationManager implements
 					.cast(OAuth2AuthorizationCodeAuthenticationToken.class)
 					.flatMap(this::onSuccess);
 		});
+	}
+
+	/**
+	 * Sets the {@link GrantedAuthoritiesMapper} used for mapping {@link OAuth2User#getAuthorities()}
+	 * to a new set of authorities which will be associated to the {@link OAuth2LoginAuthenticationToken}.
+	 *
+	 * @since 5.4
+	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} used for mapping the user's authorities
+	 */
+	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
+		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");
+		this.authoritiesMapper = authoritiesMapper;
 	}
 
 	private Mono<OAuth2LoginAuthenticationToken> onSuccess(OAuth2AuthorizationCodeAuthenticationToken authentication) {

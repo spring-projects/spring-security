@@ -160,3 +160,21 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	return http.build();
 }
 ----
+
+You may register a `GrantedAuthoritiesMapper` `@Bean` to have it automatically applied to the default configuration, as shown in the following example:
+
+[source,java]
+----
+@Bean
+public GrantedAuthoritiesMapper userAuthoritiesMapper() {
+    ...
+}
+
+@Bean
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	http
+		// ...
+		.oauth2Login(withDefaults());
+	return http.build();
+}
+----

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -29,6 +30,10 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -63,6 +68,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeReactiveAuthenticationManager.createHash;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
@@ -120,6 +127,12 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void setJwtDecoderFactoryWhenNullThenIllegalArgumentException() {
 		assertThatThrownBy(() -> this.manager.setJwtDecoderFactory(null))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setAuthoritiesMapperWhenAuthoritiesMapperIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.manager.setAuthoritiesMapper(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -314,6 +327,42 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 
 		assertThat(userRequestArgCaptor.getValue().getAdditionalParameters())
 				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
+	}
+
+	@Test
+	public void authenticateWhenAuthoritiesMapperSetThenReturnMappedAuthorities() {
+		ClientRegistration clientRegistration = this.registration.build();
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, this.idToken.getTokenValue()))
+				.build();
+
+		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication = loginToken();
+
+		Map<String, Object> claims = new HashMap<>();
+		claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
+		claims.put(IdTokenClaimNames.SUB, "rob");
+		claims.put(IdTokenClaimNames.AUD, Collections.singletonList(clientRegistration.getClientId()));
+		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
+		Jwt idToken = jwt().claims(c -> c.putAll(claims)).build();
+
+
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		DefaultOidcUser user = new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), this.idToken);
+		ArgumentCaptor<OidcUserRequest> userRequestArgCaptor = ArgumentCaptor.forClass(OidcUserRequest.class);
+		when(this.userService.loadUser(userRequestArgCaptor.capture())).thenReturn(Mono.just(user));
+
+		List<GrantedAuthority> mappedAuthorities = AuthorityUtils.createAuthorityList("ROLE_OIDC_USER");
+		GrantedAuthoritiesMapper authoritiesMapper = mock(GrantedAuthoritiesMapper.class);
+		when(authoritiesMapper.mapAuthorities(anyCollection())).thenAnswer(
+				(Answer<List<GrantedAuthority>>) invocation -> mappedAuthorities);
+		when(this.jwtDecoder.decode(any())).thenReturn(Mono.just(idToken));
+		this.manager.setJwtDecoderFactory(c -> this.jwtDecoder);
+		this.manager.setAuthoritiesMapper(authoritiesMapper);
+
+		Authentication result = this.manager.authenticate(authorizationCodeAuthentication).block();
+
+		assertThat(result.getAuthorities()).isEqualTo(mappedAuthorities);
 	}
 
 	private OAuth2AuthorizationCodeAuthenticationToken loginToken() {
