@@ -31,6 +31,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -1056,8 +1057,11 @@ public class ServerHttpSecurity {
 
 		private ReactiveAuthenticationManager createDefault() {
 			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> client = getAccessTokenResponseClient();
-			ReactiveAuthenticationManager result = new OAuth2LoginReactiveAuthenticationManager(client, getOauth2UserService());
-
+			OAuth2LoginReactiveAuthenticationManager oauth2Manager = new OAuth2LoginReactiveAuthenticationManager(client, getOauth2UserService());
+			GrantedAuthoritiesMapper authoritiesMapper = getBeanOrNull(GrantedAuthoritiesMapper.class);
+			if (authoritiesMapper != null) {
+				oauth2Manager.setAuthoritiesMapper(authoritiesMapper);
+			}
 			boolean oidcAuthenticationProviderEnabled = ClassUtils.isPresent(
 					"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 			if (oidcAuthenticationProviderEnabled) {
@@ -1069,9 +1073,12 @@ public class ServerHttpSecurity {
 				if (jwtDecoderFactory != null) {
 					oidc.setJwtDecoderFactory(jwtDecoderFactory);
 				}
-				result = new DelegatingReactiveAuthenticationManager(oidc, result);
+				if (authoritiesMapper != null) {
+					oidc.setAuthoritiesMapper(authoritiesMapper);
+				}
+				return new DelegatingReactiveAuthenticationManager(oidc, oauth2Manager);
 			}
-			return result;
+			return oauth2Manager;
 		}
 
 		/**
