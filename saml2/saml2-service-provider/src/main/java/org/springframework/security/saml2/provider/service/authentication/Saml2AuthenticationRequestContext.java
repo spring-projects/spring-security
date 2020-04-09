@@ -29,13 +29,13 @@ import org.springframework.util.Assert;
  * @see Saml2AuthenticationRequestFactory#createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext)
  * @since 5.3
  */
-public final class Saml2AuthenticationRequestContext {
+public class Saml2AuthenticationRequestContext {
 	private final RelyingPartyRegistration relyingPartyRegistration;
 	private final String issuer;
 	private final String assertionConsumerServiceUrl;
 	private final String relayState;
 
-	private Saml2AuthenticationRequestContext(
+	protected Saml2AuthenticationRequestContext(
 			RelyingPartyRegistration relyingPartyRegistration,
 			String issuer,
 			String assertionConsumerServiceUrl,
