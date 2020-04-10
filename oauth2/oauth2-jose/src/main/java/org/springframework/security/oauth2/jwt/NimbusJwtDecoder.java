@@ -365,7 +365,14 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			public Resource retrieveResource(URL url) throws IOException {
 				String jwkSet;
 				try {
-					jwkSet = cache.get(url.toString(), () -> resourceRetriever.retrieveResource(url).getContent());
+					jwkSet = this.cache.get(url.toString(),
+							() -> this.resourceRetriever.retrieveResource(url).getContent());
+				} catch (Cache.ValueRetrievalException ex) {
+					Throwable thrownByValueLoader = ex.getCause();
+					if (thrownByValueLoader instanceof IOException) {
+						throw (IOException) thrownByValueLoader;
+					}
+					throw new IOException(thrownByValueLoader);
 				} catch (Exception ex) {
 					throw new IOException(ex);
 				}

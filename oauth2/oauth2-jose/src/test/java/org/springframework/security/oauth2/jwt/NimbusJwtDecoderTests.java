@@ -255,7 +255,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
-	public void shouldThrowJwtExceptionWhenJwkSetEndpointHasNotRespondedAndCacheIsConfigured() throws Exception {
+	public void decodeWhenJwkEndpointIsUnresponsiveAndCacheIsConfiguredThenReturnsJwtException() throws Exception {
 		try ( MockWebServer server = new MockWebServer() ) {
 			Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
@@ -287,7 +287,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
-	public void shouldThrowIllegalArgumentExceptionWhenJwkSetCacheIsNull() {
+	public void cacheWhenNullThenThrowsException() {
 		NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = withJwkSetUri(JWK_SET_URI);
 		Assertions.assertThatCode(() -> builder.cache(null)).isInstanceOf(IllegalArgumentException.class);
 	}
@@ -465,7 +465,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
-	public void shouldStoreRetrievedJwkSetToCache() {
+	public void decodeWhenCacheThenStoreRetrievedJwkSetToCache() {
 		// given
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
@@ -487,7 +487,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
-	public void shouldDecodeJwtUsingJwkSetCache() {
+	public void decodeWhenCacheThenRetrieveFromCache() {
 		// given
 		RestOperations restOperations = mock(RestOperations.class);
 		Cache cache = mock(Cache.class);
@@ -505,7 +505,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
-	public void shouldThrowJwtExceptionWhenExceptionOccurredWhileRetrievingJwkSetInsideCachingRetriever() {
+	public void decodeWhenCacheIsConfiguredAndValueLoaderErrorsThenThrowsJwtException() {
 		// given
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
