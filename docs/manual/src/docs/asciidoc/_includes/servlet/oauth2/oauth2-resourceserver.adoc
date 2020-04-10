@@ -1025,6 +1025,27 @@ public JwtDecoder jwtDecoder(RestTemplateBuilder builder) {
 }
 ```
 
+Also by default, Resource Server caches in-memory the authorization server's JWK set for 5 minutes, which you may want to adjust.
+Further, it doesn't take into account more sophisticated caching patterns like eviction or using a shared cache.
+
+To adjust the way in which Resource Server caches the JWK set, `NimbusJwtDecoder` accepts an instance of `Cache`:
+
+```java
+@Bean
+public JwtDecoder jwtDecoder(CacheManager cacheManager) {
+    return NimbusJwtDecoder.withJwtSetUri(jwkSetUri)
+            .cache(cacheManager.getCache("jwks"))
+            .build();
+}
+```
+
+When given a `Cache`, Resource Server will use the JWK Set Uri as the key and the JWK Set JSON as the value.
+
+NOTE: Spring isn't a cache provider, so you'll need to make sure to include the appropriate dependencies, like `spring-boot-starter-cache` and your favorite caching provider.
+
+NOTE: Whether it's socket or cache timeouts, you may instead want to work with Nimbus directly.
+To do so, remember that `NimbusJwtDecoder` ships with a constructor that takes Nimbus's `JWTProcessor`.
+
 [[oauth2resourceserver-opaque-minimalconfiguration]]
 === Minimal Configuration for Introspection
 
