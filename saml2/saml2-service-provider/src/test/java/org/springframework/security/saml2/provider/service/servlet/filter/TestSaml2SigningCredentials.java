@@ -31,9 +31,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION;
 import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING;
 
-final class TestSaml2SigningCredentials {
+public final class TestSaml2SigningCredentials {
 
-	static Saml2X509Credential signingCredential() {
+	public static Saml2X509Credential signingCredential() {
 		return new Saml2X509Credential(idpPrivateKey(), idpCertificate(), SIGNING, DECRYPTION);
 	}
 
