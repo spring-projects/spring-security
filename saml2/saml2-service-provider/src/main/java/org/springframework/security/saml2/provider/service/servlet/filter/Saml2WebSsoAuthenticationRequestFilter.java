@@ -16,13 +16,6 @@
 
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
-import java.io.IOException;
-import java.util.function.Function;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.http.MediaType;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
@@ -31,6 +24,8 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2R
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.security.saml2.provider.service.web.DefaultSaml2AuthenticationRequestContextResolver;
+import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher.MatchResult;
@@ -40,6 +35,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
@@ -70,6 +71,7 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 
 	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 	private Saml2AuthenticationRequestFactory authenticationRequestFactory;
+	private Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver = new DefaultSaml2AuthenticationRequestContextResolver();
 
 	private RequestMatcher redirectMatcher = new AntPathRequestMatcher("/saml2/authenticate/{registrationId}");
 
@@ -122,6 +124,17 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	}
 
 	/**
+	 * Use the given {@link Saml2AuthenticationRequestContextResolver} that creates a {@link Saml2AuthenticationRequestContext}
+	 *
+	 * @param authenticationRequestContextResolver the {@link Saml2AuthenticationRequestContextResolver} to use
+	 * @since 5.4
+	 */
+	public void setAuthenticationRequestContextResolver(Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver) {
+		Assert.notNull(authenticationRequestContextResolver, "authenticationRequestContextResolver cannot be null");
+		this.authenticationRequestContextResolver = authenticationRequestContextResolver;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -141,36 +154,12 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Creating SAML 2.0 Authentication Request for Asserting Party [" +
-					relyingParty.getRegistrationId() + "]");
-		}
-		Saml2AuthenticationRequestContext context = createRedirectAuthenticationRequestContext(request, relyingParty);
+		Saml2AuthenticationRequestContext context = authenticationRequestContextResolver.resolve(request, relyingParty);
 		if (relyingParty.getProviderDetails().getBinding() == Saml2MessageBinding.REDIRECT) {
 			sendRedirect(response, context);
-		}
-		else {
+		} else {
 			sendPost(response, context);
 		}
-	}
-
-	private Saml2AuthenticationRequestContext createRedirectAuthenticationRequestContext(
-			HttpServletRequest request, RelyingPartyRegistration relyingParty) {
-
-		String applicationUri = Saml2ServletUtils.getApplicationUri(request);
-		Function<String, String> resolver = templateResolver(applicationUri, relyingParty);
-		String localSpEntityId = resolver.apply(relyingParty.getLocalEntityIdTemplate());
-		String assertionConsumerServiceUrl = resolver.apply(relyingParty.getAssertionConsumerServiceUrlTemplate());
-		return Saml2AuthenticationRequestContext.builder()
-				.issuer(localSpEntityId)
-				.relyingPartyRegistration(relyingParty)
-				.assertionConsumerServiceUrl(assertionConsumerServiceUrl)
-				.relayState(request.getParameter("RelayState"))
-				.build();
-	}
-
-	private Function<String, String> templateResolver(String applicationUri, RelyingPartyRegistration relyingParty) {
-		return template -> Saml2ServletUtils.resolveUrlTemplate(template, applicationUri, relyingParty);
 	}
 
 	private void sendRedirect(HttpServletResponse response, Saml2AuthenticationRequestContext context)
