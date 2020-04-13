@@ -699,9 +699,11 @@ However, there are a number of circumstances where this default is insufficient.
 For example, some authorization servers don't use the `scope` attribute, but instead have their own custom attribute.
 Or, at other times, the resource server may need to adapt the attribute or a composition of attributes into internalized authorities.
 
-To this end, the DSL exposes `jwtAuthenticationConverter()`, which is responsible for <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,converting a `Jwt` into an `Authentication`>>.
+To this end, Spring Security ships with `JwtAuthenticationConverter`, which is responsible for <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,converting a `Jwt` into an `Authentication`>>.
+By default, Spring Security will wire the `JwtAuthenticationProvider` with a default instance of `JwtAuthenticationConverter`.
 
-As part of its configuration, we can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
+As part of configuring a `JwtAuthenticationConverter`, you can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
+
 Let's say that that your authorization server communicates authorities in a custom claim called `authorities`.
 In that case, you can configure the claim that <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,`JwtAuthenticationConverter`>> should inspect, like so:
 
@@ -710,22 +712,8 @@ In that case, you can configure the claim that <<oauth2resourceserver-jwt-archit
 .Java
 [source,java,role="primary"]
 ----
-@EnableWebSecurity
-public class CustomAuthoritiesClaimName extends WebSecurityConfigurerAdapter {
-    protected void configure(HttpSecurity http) {
-        http
-            .authorizeRequests(authorize -> authorize
-                .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
-                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                )
-            );
-    }
-}
-
-JwtAuthenticationConverter jwtAuthenticationConverter() {
+@Bean
+public JwtAuthenticationConverter jwtAuthenticationConverter() {
     JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
     grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
 
@@ -767,7 +755,8 @@ Instead of prefixing each authority with `SCOPE_`, you can change it to `ROLE_` 
 .Java
 [source,java,role="primary"]
 ----
-JwtAuthenticationConverter jwtAuthenticationConverter() {
+@Bean
+public JwtAuthenticationConverter jwtAuthenticationConverter() {
     JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
     grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
@@ -810,6 +799,23 @@ For more flexibility, the DSL supports entirely replacing the converter with any
 static class CustomAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
     public AbstractAuthenticationToken convert(Jwt jwt) {
         return new CustomAuthenticationToken(jwt);
+    }
+}
+
+// ...
+
+@EnableWebSecurity
+public class CustomAuthenticationConverterConfig extends WebSecurityConfigurerAdapter {
+    protected void configure(HttpSecurity http) {
+        http
+            .authorizeRequests(authorize -> authorize
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                    .jwtAuthenticationConverter(new CustomAuthenticationConverter())
+                )
+            );
     }
 }
 ----
