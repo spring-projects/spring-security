@@ -21,6 +21,7 @@ import org.openqa.selenium.WebDriver;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
@@ -116,5 +117,46 @@ public class LogoutSpecTests {
 		FormLoginTests.DefaultLoginPage.create(driver)
 			.assertAt()
 			.assertLogout();
+	}
+
+	@Test
+	public void logoutWhenCustomSecurityContextRepositoryThenLogsOut() {
+		WebSessionServerSecurityContextRepository repository = new WebSessionServerSecurityContextRepository();
+		repository.setSpringSecurityContextAttrName("CUSTOM_CONTEXT_ATTR");
+		SecurityWebFilterChain securityWebFilter = this.http
+						.securityContextRepository(repository)
+						.authorizeExchange()
+							.anyExchange().authenticated()
+							.and()
+						.formLogin()
+							.and()
+						.logout()
+							.and()
+						.build();
+
+				WebTestClient webTestClient = WebTestClientBuilder
+						.bindToWebFilters(securityWebFilter)
+						.build();
+
+				WebDriver driver = WebTestClientHtmlUnitDriverBuilder
+						.webTestClientSetup(webTestClient)
+						.build();
+
+				FormLoginTests.DefaultLoginPage loginPage = FormLoginTests.HomePage.to(driver, FormLoginTests.DefaultLoginPage.class)
+						.assertAt();
+
+				FormLoginTests.HomePage homePage = loginPage.loginForm()
+						.username("user")
+						.password("password")
+						.submit(FormLoginTests.HomePage.class);
+
+				homePage.assertAt();
+
+				FormLoginTests.DefaultLogoutPage.to(driver)
+						.assertAt()
+						.logout();
+
+				FormLoginTests.HomePage.to(driver, FormLoginTests.DefaultLoginPage.class)
+						.assertAt();
 	}
 }

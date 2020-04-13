@@ -2412,7 +2412,9 @@ public class ServerHttpSecurity {
 	 */
 	public final class LogoutSpec {
 		private LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
-		private List<ServerLogoutHandler> logoutHandlers = new ArrayList<>(Arrays.asList(new SecurityContextServerLogoutHandler()));
+		private final SecurityContextServerLogoutHandler DEFAULT_LOGOUT_HANDLER = new SecurityContextServerLogoutHandler();
+		private List<ServerLogoutHandler> logoutHandlers = new ArrayList<>(Arrays.asList(this.DEFAULT_LOGOUT_HANDLER));
+
 
 		/**
 		 * Configures the logout handler. Default is {@code SecurityContextServerLogoutHandler}
@@ -2476,6 +2478,10 @@ public class ServerHttpSecurity {
 		}
 
 		private Optional<ServerLogoutHandler> createLogoutHandler() {
+			ServerSecurityContextRepository securityContextRepository = ServerHttpSecurity.this.securityContextRepository;
+			if (securityContextRepository != null) {
+				this.DEFAULT_LOGOUT_HANDLER.setSecurityContextRepository(securityContextRepository);
+			}
 			if (this.logoutHandlers.isEmpty()) {
 				return Optional.empty();
 			}
