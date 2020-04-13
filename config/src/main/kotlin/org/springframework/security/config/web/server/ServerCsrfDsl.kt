@@ -32,6 +32,7 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
  * @property requireCsrfProtectionMatcher the [ServerWebExchangeMatcher] used to determine when CSRF protection
  * is enabled.
  */
+@ServerSecurityMarker
 class ServerCsrfDsl {
     var accessDeniedHandler: ServerAccessDeniedHandler? = null
     var csrfTokenRepository: ServerCsrfTokenRepository? = null

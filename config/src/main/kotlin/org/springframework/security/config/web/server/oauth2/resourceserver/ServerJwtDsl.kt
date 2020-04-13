@@ -20,6 +20,7 @@ import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.web.server.ServerHttpSecurity
+import org.springframework.security.config.web.server.ServerSecurityMarker
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder
@@ -40,6 +41,7 @@ import java.security.interfaces.RSAPublicKey
  * @property jwkSetUri configures a [ReactiveJwtDecoder] using a
  * <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key (JWK)</a> URL
  */
+@ServerSecurityMarker
 class ServerJwtDsl {
     private var _jwtDecoder: ReactiveJwtDecoder? = null
     private var _publicKey: RSAPublicKey? = null

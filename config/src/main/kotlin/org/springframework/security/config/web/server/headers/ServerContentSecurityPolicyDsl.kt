@@ -17,6 +17,7 @@
 package org.springframework.security.config.web.server.headers
 
 import org.springframework.security.config.web.server.ServerHttpSecurity
+import org.springframework.security.config.web.server.ServerSecurityMarker
 
 /**
  * A Kotlin DSL to configure the [ServerHttpSecurity] Content-Security-Policy header using
@@ -25,6 +26,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity
  * @author Eleftheria Stein
  * @since 5.4
  */
+@ServerSecurityMarker
 class ServerContentSecurityPolicyDsl {
     var policyDirectives: String? = null
     var reportOnly: Boolean? = null

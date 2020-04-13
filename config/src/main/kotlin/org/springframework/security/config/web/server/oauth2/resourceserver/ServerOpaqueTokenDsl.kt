@@ -17,6 +17,7 @@
 package org.springframework.security.config.web.server.oauth2.resourceserver
 
 import org.springframework.security.config.web.server.ServerHttpSecurity
+import org.springframework.security.config.web.server.ServerSecurityMarker
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector
 
 /**
@@ -27,6 +28,7 @@ import org.springframework.security.oauth2.server.resource.introspection.Reactiv
  * @property introspectionUri the URI of the Introspection endpoint.
  * @property introspector the [ReactiveOpaqueTokenIntrospector] to use.
  */
+@ServerSecurityMarker
 class ServerOpaqueTokenDsl {
     private var _introspectionUri: String? = null
     private var _introspector: ReactiveOpaqueTokenIntrospector? = null

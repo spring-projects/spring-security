@@ -38,6 +38,7 @@ import org.springframework.web.server.ServerWebExchange
  * @property authorizedClientRepository the repository for authorized client(s).
  * @property authorizationRequestRepository the repository to use for storing [OAuth2AuthorizationRequest]s.
  */
+@ServerSecurityMarker
 class ServerOAuth2ClientDsl {
     var authenticationManager: ReactiveAuthenticationManager? = null
     var authenticationConverter: ServerAuthenticationConverter? = null

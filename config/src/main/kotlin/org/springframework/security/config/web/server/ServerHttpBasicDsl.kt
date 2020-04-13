@@ -38,6 +38,7 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
  * @property authenticationEntryPoint the [ServerAuthenticationEntryPoint] to be
  * populated on [BasicAuthenticationFilter] in the event that authentication fails.
  */
+@ServerSecurityMarker
 class ServerHttpBasicDsl {
     var authenticationManager: ReactiveAuthenticationManager? = null
     var securityContextRepository: ServerSecurityContextRepository? = null

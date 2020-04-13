@@ -26,6 +26,7 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource
  * @since 5.4
  * @property configurationSource the [CorsConfigurationSource] to use.
  */
+@ServerSecurityMarker
 class ServerCorsDsl {
     var configurationSource: CorsConfigurationSource? = null
 

@@ -25,6 +25,7 @@ import org.springframework.security.web.server.savedrequest.ServerRequestCache
  * @since 5.4
  * @property requestCache allows explicit configuration of the [ServerRequestCache] to be used.
  */
+@ServerSecurityMarker
 class ServerRequestCacheDsl {
     var requestCache: ServerRequestCache? = null
 

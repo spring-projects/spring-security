@@ -52,6 +52,7 @@ import org.springframework.web.server.ServerWebExchange
  * @property authenticationMatcher the [ServerWebExchangeMatcher] used for determining if the request is an
  * authentication request.
  */
+@ServerSecurityMarker
 class ServerOAuth2LoginDsl {
     var authenticationManager: ReactiveAuthenticationManager? = null
     var securityContextRepository: ServerSecurityContextRepository? = null
