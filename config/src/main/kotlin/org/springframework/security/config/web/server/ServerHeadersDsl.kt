@@ -25,6 +25,7 @@ import org.springframework.security.web.server.header.*
  * @author Eleftheria Stein
  * @since 5.4
  */
+@ServerSecurityMarker
 class ServerHeadersDsl {
     private var contentTypeOptions: ((ServerHttpSecurity.HeaderSpec.ContentTypeOptionsSpec) -> Unit)? = null
     private var xssProtection: ((ServerHttpSecurity.HeaderSpec.XssProtectionSpec) -> Unit)? = null

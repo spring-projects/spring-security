@@ -28,6 +28,7 @@ import org.springframework.web.server.ServerWebExchange
  * @since 5.4
  * @property portMapper the [PortMapper] that specifies a custom HTTPS port to redirect to.
  */
+@ServerSecurityMarker
 class ServerHttpsRedirectDsl {
     var portMapper: PortMapper? = null
 

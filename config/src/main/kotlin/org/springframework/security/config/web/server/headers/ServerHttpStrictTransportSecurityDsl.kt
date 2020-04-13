@@ -17,6 +17,7 @@
 package org.springframework.security.config.web.server.headers
 
 import org.springframework.security.config.web.server.ServerHttpSecurity
+import org.springframework.security.config.web.server.ServerSecurityMarker
 import java.time.Duration
 
 /**
@@ -30,6 +31,7 @@ import java.time.Duration
  * @property includeSubdomains if true, subdomains should be considered HSTS Hosts too.
  * @property preload if true, preload will be included in HSTS Header.
  */
+@ServerSecurityMarker
 class ServerHttpStrictTransportSecurityDsl {
     var maxAge: Duration? = null
     var includeSubdomains: Boolean? = null

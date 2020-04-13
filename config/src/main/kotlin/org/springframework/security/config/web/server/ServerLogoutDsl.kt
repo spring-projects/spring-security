@@ -32,6 +32,7 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
  * @property logoutSuccessHandler the [ServerLogoutSuccessHandler] to use after logout has
  * occurred.
  */
+@ServerSecurityMarker
 class ServerLogoutDsl {
     var logoutHandler: ServerLogoutHandler? = null
     var logoutUrl: String? = null

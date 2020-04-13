@@ -30,6 +30,7 @@ import org.springframework.security.web.server.authorization.ServerAccessDeniedH
  * @property accessDeniedHandler the [ServerAccessDeniedHandler] to use when an
  * authenticated user does not hold a required authority
  */
+@ServerSecurityMarker
 class ServerExceptionHandlingDsl {
     var authenticationEntryPoint: ServerAuthenticationEntryPoint? = null
     var accessDeniedHandler: ServerAccessDeniedHandler? = null

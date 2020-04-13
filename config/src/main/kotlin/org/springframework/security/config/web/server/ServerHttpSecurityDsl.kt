@@ -57,6 +57,7 @@ operator fun ServerHttpSecurity.invoke(httpConfiguration: ServerHttpSecurityDsl.
  * @since 5.4
  * @param init the configurations to apply to the provided [ServerHttpSecurity]
  */
+@ServerSecurityMarker
 class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val init: ServerHttpSecurityDsl.() -> Unit) {
 
     /**

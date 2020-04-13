@@ -34,6 +34,7 @@ import reactor.core.publisher.Mono
  * @author Eleftheria Stein
  * @since 5.4
  */
+@ServerSecurityMarker
 class AuthorizeExchangeDsl {
     private val authorizationRules = mutableListOf<ExchangeAuthorizationRule>()
 

@@ -37,6 +37,7 @@ import org.springframework.web.server.ServerWebExchange
  * Bearer Tokens.
  * @property authenticationManagerResolver the [ReactiveAuthenticationManagerResolver] to use.
  */
+@ServerSecurityMarker
 class ServerOAuth2ResourceServerDsl {
     var accessDeniedHandler: ServerAccessDeniedHandler? = null
     var authenticationEntryPoint: ServerAuthenticationEntryPoint? = null
