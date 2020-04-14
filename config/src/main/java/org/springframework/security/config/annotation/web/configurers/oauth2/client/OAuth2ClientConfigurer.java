@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * @author Joe Grandja
+ * @author Parikshit Dutta
  * @since 5.1
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see OAuth2AuthorizationCodeGrantFilter
@@ -255,6 +256,11 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 
 			if (this.authorizationRequestRepository != null) {
 				authorizationCodeGrantFilter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
+			}
+
+			RequestCache requestCache = builder.getSharedObject(RequestCache.class);
+			if (requestCache != null) {
+				authorizationCodeGrantFilter.setRequestCache(requestCache);
 			}
 			return authorizationCodeGrantFilter;
 		}

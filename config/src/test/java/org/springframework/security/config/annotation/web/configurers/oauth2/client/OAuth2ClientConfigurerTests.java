@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Tests for {@link OAuth2ClientConfigurer}.
  *
  * @author Joe Grandja
+ * @author Parikshit Dutta
  */
 public class OAuth2ClientConfigurerTests {
 	private static ClientRegistrationRepository clientRegistrationRepository;
@@ -206,6 +207,43 @@ public class OAuth2ClientConfigurerTests {
 				"redirect_uri=http://localhost/client-1");
 
 		verify(requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
+	@Test
+	public void configureWhenRequestCacheProvidedAndClientAuthorizationSucceedsThenRequestCacheUsed() throws Exception {
+		this.spring.register(OAuth2ClientConfig.class).autowire();
+
+		// Setup the Authorization Request in the session
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, this.registration1.getRegistrationId());
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(this.registration1.getProviderDetails().getAuthorizationUri())
+				.clientId(this.registration1.getClientId())
+				.redirectUri("http://localhost/client-1")
+				.state("state")
+				.attributes(attributes)
+				.build();
+
+		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
+				new HttpSessionOAuth2AuthorizationRequestRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+
+		MockHttpSession session = (MockHttpSession) request.getSession();
+
+		String principalName = "user1";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
+
+		this.mockMvc.perform(get("/client-1")
+				.param(OAuth2ParameterNames.CODE, "code")
+				.param(OAuth2ParameterNames.STATE, "state")
+				.with(authentication(authentication))
+				.session(session))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/client-1"));
+
+		verify(requestCache).getRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	// gh-5521

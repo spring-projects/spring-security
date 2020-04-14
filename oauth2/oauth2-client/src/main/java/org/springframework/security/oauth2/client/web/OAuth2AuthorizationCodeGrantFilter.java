@@ -83,6 +83,7 @@ import java.util.Set;
  * </ul>
  *
  * @author Joe Grandja
+ * @author Parikshit Dutta
  * @since 5.1
  * @see OAuth2AuthorizationCodeAuthenticationToken
  * @see OAuth2AuthorizationCodeAuthenticationProvider
@@ -104,7 +105,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		new HttpSessionOAuth2AuthorizationRequestRepository();
 	private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
-	private final RequestCache requestCache = new HttpSessionRequestCache();
+	private RequestCache requestCache = new HttpSessionRequestCache();
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationCodeGrantFilter} using the provided parameters.
@@ -132,6 +133,17 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	public final void setAuthorizationRequestRepository(AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 		Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 		this.authorizationRequestRepository = authorizationRequestRepository;
+	}
+
+	/**
+	 * Sets the {@link RequestCache} to load the saved request
+	 * for replaying the saved OAuth 2.0 Authorization Request flow.
+	 *
+	 * @param requestCache the cache to use for loading the saved request
+	 */
+	public final void setRequestCache(RequestCache requestCache) {
+		Assert.notNull(requestCache, "requestCache cannot be null");
+		this.requestCache = requestCache;
 	}
 
 	@Override
