@@ -61,6 +61,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		extends SecurityConfigurerAdapter<AuthenticationManager, B> {
 	private String groupRoleAttribute = "cn";
 	private String groupSearchBase = "";
+	private boolean groupSearchSubtree = false;
 	private String groupSearchFilter = "(uniqueMember={0})";
 	private String rolePrefix = "ROLE_";
 	private String userSearchBase = ""; // only for search
@@ -130,6 +131,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 				contextSource, groupSearchBase);
 		defaultAuthoritiesPopulator.setGroupRoleAttribute(groupRoleAttribute);
 		defaultAuthoritiesPopulator.setGroupSearchFilter(groupSearchFilter);
+		defaultAuthoritiesPopulator.setSearchSubtree(groupSearchSubtree);
 		defaultAuthoritiesPopulator.setRolePrefix(this.rolePrefix);
 
 		this.ldapAuthoritiesPopulator = defaultAuthoritiesPopulator;
@@ -317,6 +319,19 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 */
 	public LdapAuthenticationProviderConfigurer<B> groupSearchBase(String groupSearchBase) {
 		this.groupSearchBase = groupSearchBase;
+		return this;
+	}
+
+	/**
+	 * If set to true, a subtree scope search will be performed for group membership. If false a
+	 * single-level search is used.
+	 *
+	 * @param searchSubtree set to true to enable searching of the entire tree below the
+	 *                      <tt>groupSearchBase</tt>.
+	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
+	 */
+	public LdapAuthenticationProviderConfigurer<B> groupSearchSubtree(boolean groupSearchSubtree) {
+		this.groupSearchSubtree = groupSearchSubtree;
 		return this;
 	}
 
