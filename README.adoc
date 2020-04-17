@@ -58,7 +58,7 @@ Check out the https://stackoverflow.com/questions/tagged/spring-security[Spring 
 https://spring.io/services[Commercial support] is available too.
 
 == Contributing
-https://help.github.com/articles/creating-a-pull-request[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.md[contributor guidelines] for details.
+https://help.github.com/articles/creating-a-pull-request[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.adoc[contributor guidelines] for details.
 
 == License
 Spring Security is Open Source software released under the
