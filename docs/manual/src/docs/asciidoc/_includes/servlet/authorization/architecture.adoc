@@ -41,7 +41,7 @@ A pre-invocation decision on whether the invocation is allowed to proceed is mad
 [[authz-access-decision-manager]]
 ==== The AccessDecisionManager
 The `AccessDecisionManager` is called by the `AbstractSecurityInterceptor` and is responsible for making final access control decisions.
-the `AccessDecisionManager` interface contains three methods:
+The `AccessDecisionManager` interface contains three methods:
 
 [source,java]
 ----
