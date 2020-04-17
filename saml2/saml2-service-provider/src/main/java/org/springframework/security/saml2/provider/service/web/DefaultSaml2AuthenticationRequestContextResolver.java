@@ -16,19 +16,20 @@
 
 package org.springframework.security.saml2.provider.service.web;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 import static org.springframework.security.web.util.UrlUtils.buildFullRequestUrl;
 import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
@@ -81,10 +82,6 @@ public final class DefaultSaml2AuthenticationRequestContextResolver implements S
 	}
 
 	private static String resolveUrlTemplate(String template, String baseUrl, RelyingPartyRegistration relyingParty) {
-		if (!StringUtils.hasText(template)) {
-			return baseUrl;
-		}
-
 		String entityId = relyingParty.getProviderDetails().getEntityId();
 		String registrationId = relyingParty.getRegistrationId();
 		Map<String, String> uriVariables = new HashMap<>();
