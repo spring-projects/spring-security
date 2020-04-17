@@ -14,7 +14,8 @@ This authorization server can be consulted by resource servers to authorize requ
 A complete working example for {gh-samples-url}/boot/oauth2resourceserver-webflux[*JWTs*]  is available in the {gh-samples-url}[Spring Security repository].
 ====
 
-== Dependencies
+[[webflux-oauth2resourceserver-jwt-minimaldependencies]]
+== Minimal Dependencies for JWT
 
 Most Resource Server support is collected into `spring-security-oauth2-resource-server`.
 However, the support for decoding and verifying JWTs is in `spring-security-oauth2-jose`, meaning that both are necessary in order to have a working resource server that supports JWT-encoded Bearer Tokens.
@@ -549,6 +550,12 @@ ReactiveJwtDecoder jwtDecoder() {
     return jwtDecoder;
 }
 ----
+[[webflux-oauth2resourceserver-opaque-minimaldependencies]]
+=== Minimal Dependencies for Introspection
+As described in <<oauth2resourceserver-jwt-minimaldependencies,Minimal Dependencies for JWT>> most of Resource Server support is collected in `spring-security-oauth2-resource-server`. 
+However unless a custom <<webflux-oauth2resourceserver-opaque-introspector-bean,`ReactiveOpaqueTokenIntrospector`>> is provided, the Resource Server will fallback to ReactiveOpaqueTokenIntrospector. 
+Meaning that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary in order to have a working minimal Resource Server that supports opaque Bearer Tokens. 
+Please refer to `spring-security-oauth2-resource-server` in order to determin the correct version for `oauth2-oidc-sdk`.
 
 [[webflux-oauth2resourceserver-opaque-minimalconfiguration]]
 === Minimal Configuration for Introspection

@@ -58,7 +58,8 @@ image:{icondir}/number_4.png[] If authentication is successful, then __Success__
 * The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
 * The `BearerTokenAuthenticationFilter` invokes `FilterChain.doFilter(request,response)` to continue with the rest of the application logic.
 
-=== Dependencies for JWT
+[[oauth2resourceserver-jwt-minimaldependencies]]
+=== Minimal Dependencies for JWT
 
 Most Resource Server support is collected into `spring-security-oauth2-resource-server`.
 However, the support for decoding and verifying JWTs is in `spring-security-oauth2-jose`, meaning that both are necessary in order to have a working resource server that supports JWT-encoded Bearer Tokens.
@@ -1051,6 +1052,13 @@ NOTE: Spring isn't a cache provider, so you'll need to make sure to include the 
 
 NOTE: Whether it's socket or cache timeouts, you may instead want to work with Nimbus directly.
 To do so, remember that `NimbusJwtDecoder` ships with a constructor that takes Nimbus's `JWTProcessor`.
+
+[[oauth2resourceserver-opaque-minimaldependencies]]
+=== Minimal Dependencies for Introspection
+As described in <<oauth2resourceserver-jwt-minimaldependencies,Minimal Dependencies for JWT>> most of Resource Server support is collected in `spring-security-oauth2-resource-server`. 
+However unless a custom <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> is provided, the Resource Server will fallback to NimbusOpaqueTokenIntrospector. 
+Meaning that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary in order to have a working minimal Resource Server that supports opaque Bearer Tokens. 
+Please refer to `spring-security-oauth2-resource-server` in order to determin the correct version for `oauth2-oidc-sdk`.
 
 [[oauth2resourceserver-opaque-minimalconfiguration]]
 === Minimal Configuration for Introspection
