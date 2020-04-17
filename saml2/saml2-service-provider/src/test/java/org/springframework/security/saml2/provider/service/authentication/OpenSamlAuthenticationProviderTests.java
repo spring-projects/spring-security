@@ -116,6 +116,13 @@ public class OpenSamlAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenInvalidDestinationThenThrowAuthenticationException() {
 		Response response = response(recipientUri + "invalid", idpEntityId);
+		Assertion assertion = defaultAssertion();
+		signXmlObject(
+				assertion,
+				assertingPartyCredentials(),
+				recipientEntityId
+		);
+		response.getAssertions().add(assertion);
 		token = responseXml(response, idpEntityId);
 		exception.expect(authenticationMatcher(Saml2ErrorCodes.INVALID_DESTINATION));
 		provider.authenticate(token);
