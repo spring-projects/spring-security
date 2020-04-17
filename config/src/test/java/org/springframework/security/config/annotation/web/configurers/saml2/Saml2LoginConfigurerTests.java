@@ -69,7 +69,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.config.annotation.web.configurers.saml2.TestRelyingPartyRegistrations.saml2AuthenticationConfiguration;
+import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.relyingPartyRegistration;
 
 /**
  * Tests for different Java configuration for {@link Saml2LoginConfigurer}
@@ -253,9 +253,8 @@ public class Saml2LoginConfigurerTests {
 		@Bean
 		RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
 			RelyingPartyRegistrationRepository repository = mock(RelyingPartyRegistrationRepository.class);
-			when(repository.findByRegistrationId(anyString())).thenReturn(
-					saml2AuthenticationConfiguration()
-			);
+			when(repository.findByRegistrationId(anyString()))
+					.thenReturn(relyingPartyRegistration().build());
 			return repository;
 		}
 	}
