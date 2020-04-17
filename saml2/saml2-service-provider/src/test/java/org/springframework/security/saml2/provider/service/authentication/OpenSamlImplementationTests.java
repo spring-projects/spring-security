@@ -30,8 +30,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.getSigningCredential;
-import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.assertingPartySigningCredential;
-import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartySigningCredential;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
 
 public class OpenSamlImplementationTests {
 

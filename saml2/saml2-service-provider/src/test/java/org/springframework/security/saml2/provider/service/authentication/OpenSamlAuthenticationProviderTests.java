@@ -42,11 +42,11 @@ import static org.springframework.security.saml2.provider.service.authentication
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.encrypted;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.response;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.signed;
-import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.assertingPartyEncryptingCredential;
-import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.assertingPartyPrivateCredential;
-import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.assertingPartySigningCredential;
-import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.relyingPartyDecryptingCredential;
-import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyEncryptingCredential;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyPrivateCredential;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartySigningCredential;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyDecryptingCredential;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static org.springframework.util.StringUtils.hasText;
 

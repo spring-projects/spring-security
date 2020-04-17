@@ -18,13 +18,14 @@ package org.springframework.security.saml2.provider.service.web;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 
-import static org.springframework.security.saml2.provider.service.servlet.filter.TestSaml2SigningCredentials.signingCredential;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
 
 /**
  * Tests for {@link DefaultSaml2AuthenticationRequestContextResolver}
@@ -54,7 +55,7 @@ public class DefaultSaml2AuthenticationRequestContextResolverTests {
 				.providerDetails(c -> c.entityId(ASSERTING_PARTY_ENTITY_ID))
 				.providerDetails(c -> c.webSsoUrl(ASSERTING_PARTY_SSO_URL))
 				.assertionConsumerServiceUrlTemplate(RELYING_PARTY_SSO_URL)
-				.credentials(c -> c.add(signingCredential()));
+				.credentials(c -> c.add(relyingPartyVerifyingCredential()));
 	}
 
 	@Test

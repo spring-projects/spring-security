@@ -40,8 +40,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyPrivateCredential;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;
-import static org.springframework.security.saml2.provider.service.servlet.filter.TestSaml2SigningCredentials.signingCredential;
 
 public class Saml2WebSsoAuthenticationRequestFilterTests {
 
@@ -68,7 +68,7 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 				.providerDetails(c -> c.entityId("idp-entity-id"))
 				.providerDetails(c -> c.webSsoUrl(IDP_SSO_URL))
 				.assertionConsumerServiceUrlTemplate("template")
-				.credentials(c -> c.add(signingCredential()));
+				.credentials(c -> c.add(assertingPartyPrivateCredential()));
 	}
 
 	@Test

@@ -25,7 +25,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDecode;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlInflate;
-import static org.springframework.security.saml2.provider.service.authentication.TestSaml2X509Credentials.relyingPartySigningCredential;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartySigningCredential;
 
 /**
  * Tests for {@link Saml2AuthenticationRequestFactory} default interface methods
