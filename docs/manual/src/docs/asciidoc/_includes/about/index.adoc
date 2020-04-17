@@ -1,4 +1,4 @@
-= Preface
+= Introduction
 
 This section discusses the logistics of Spring Security.
 
