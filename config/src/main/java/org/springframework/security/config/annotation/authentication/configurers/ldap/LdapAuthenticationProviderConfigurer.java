@@ -442,14 +442,20 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * embedded LDAP instance.
 	 *
 	 * @author Rob Winch
+	 * @author Evgeniy Cheban
 	 * @since 3.2
 	 */
 	public final class ContextSourceBuilder {
+		private static final String APACHEDS_CLASSNAME = "org.apache.directory.server.core.DefaultDirectoryService";
+		private static final String UNBOUNDID_CLASSNAME = "com.unboundid.ldap.listener.InMemoryDirectoryServer";
+
+		private static final int DEFAULT_PORT = 33389;
+		private static final int RANDOM_PORT = 0;
+
 		private String ldif = "classpath*:*.ldif";
 		private String managerPassword;
 		private String managerDn;
 		private Integer port;
-		private static final int DEFAULT_PORT = 33389;
 		private String root = "dc=springframework,dc=org";
 		private String url;
 
@@ -540,6 +546,10 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		}
 
 		private DefaultSpringSecurityContextSource build() throws Exception {
+			if (this.url == null) {
+				startEmbeddedLdapServer();
+			}
+
 			DefaultSpringSecurityContextSource contextSource = new DefaultSpringSecurityContextSource(
 					getProviderUrl());
 			if (managerDn != null) {
@@ -551,26 +561,29 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 				contextSource.setPassword(managerPassword);
 			}
 			contextSource = postProcess(contextSource);
-			if (url != null) {
-				return contextSource;
-			}
-			if (ClassUtils.isPresent("org.apache.directory.server.core.DefaultDirectoryService", getClass().getClassLoader())) {
-				ApacheDSContainer apacheDsContainer = new ApacheDSContainer(root, ldif);
-				apacheDsContainer.setPort(getPort());
-				postProcess(apacheDsContainer);
-			}
-			else if (ClassUtils.isPresent("com.unboundid.ldap.listener.InMemoryDirectoryServer", getClass().getClassLoader())) {
-				UnboundIdContainer unboundIdContainer = new UnboundIdContainer(root, ldif);
-				unboundIdContainer.setPort(getPort());
-				postProcess(unboundIdContainer);
-			}
 			return contextSource;
 		}
 
+		private void startEmbeddedLdapServer() throws Exception {
+			if (ClassUtils.isPresent(APACHEDS_CLASSNAME, getClass().getClassLoader())) {
+				ApacheDSContainer apacheDsContainer = new ApacheDSContainer(this.root, this.ldif);
+				apacheDsContainer.setPort(getPort());
+				postProcess(apacheDsContainer);
+				this.port = apacheDsContainer.getLocalPort();
+			}
+			else if (ClassUtils.isPresent(UNBOUNDID_CLASSNAME, getClass().getClassLoader())) {
+				UnboundIdContainer unboundIdContainer = new UnboundIdContainer(this.root, this.ldif);
+				unboundIdContainer.setPort(getPort());
+				postProcess(unboundIdContainer);
+				this.port = unboundIdContainer.getPort();
+			}
+			else {
+				throw new IllegalStateException("Embedded LDAP server is not provided");
+			}
+		}
+
 		private int getPort() {
-			if (port != null && port == 0) {
-				port = getRandomPort();
-			} else if (port == null) {
+			if (port == null) {
 				port = getDefaultPort();
 			}
 			return port;
@@ -580,15 +593,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 			try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
 				return serverSocket.getLocalPort();
 			} catch (IOException e) {
-				return getRandomPort();
-			}
-		}
-
-		private int getRandomPort() {
-			try (ServerSocket serverSocket = new ServerSocket(0)) {
-				return serverSocket.getLocalPort();
-			} catch (IOException e) {
-				return DEFAULT_PORT;
+				return RANDOM_PORT;
 			}
 		}
 
