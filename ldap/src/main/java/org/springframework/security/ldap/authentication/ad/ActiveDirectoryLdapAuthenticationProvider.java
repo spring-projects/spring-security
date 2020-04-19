@@ -16,6 +16,7 @@
 package org.springframework.security.ldap.authentication.ad;
 
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.ldap.CommunicationException;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
@@ -24,6 +25,7 @@ import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -313,6 +315,12 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 		return (BadCredentialsException) badCredentials().initCause(cause);
 	}
 
+	private InternalAuthenticationServiceException badLdapConnection(Throwable cause) {
+		return new InternalAuthenticationServiceException(messages.getMessage(
+				"LdapAuthenticationProvider.badLdapConnection", // TODO: where translations should go?
+				"Connection to LDAP server failed."), cause);
+	}
+
 	private DirContextOperations searchForUser(DirContext context, String username)
 			throws NamingException {
 		SearchControls searchControls = new SearchControls();
@@ -326,6 +334,9 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 			return SpringSecurityLdapTemplate.searchForSingleEntryInternal(context,
 					searchControls, searchRoot, searchFilter,
 					new Object[] { bindPrincipal, username });
+		}
+		catch (CommunicationException ldapCommunicationException) {
+			throw badLdapConnection(ldapCommunicationException);
 		}
 		catch (IncorrectResultSizeDataAccessException incorrectResults) {
 			// Search should never return multiple results if properly configured - just
