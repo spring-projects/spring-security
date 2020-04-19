@@ -144,11 +144,14 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 			UsernamePasswordAuthenticationToken auth) {
 		String username = auth.getName();
 		String password = (String) auth.getCredentials();
-
-		DirContext ctx = bindAsUser(username, password);
+		DirContext ctx = null;
 
 		try {
+			ctx = bindAsUser(username, password);
 			return searchForUser(ctx, username);
+		}
+		catch (CommunicationException e) {
+			throw badLdapConnection(e);
 		}
 		catch (NamingException e) {
 			logger.error("Failed to locate directory entry for authenticated user: "
@@ -212,8 +215,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 					|| (e instanceof OperationNotSupportedException)) {
 				handleBindException(bindPrincipal, e);
 				throw badCredentials(e);
-			}
-			else {
+			} else {
 				throw LdapUtils.convertLdapException(e);
 			}
 		}
@@ -317,7 +319,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends
 
 	private InternalAuthenticationServiceException badLdapConnection(Throwable cause) {
 		return new InternalAuthenticationServiceException(messages.getMessage(
-				"LdapAuthenticationProvider.badLdapConnection", // TODO: where translations should go?
+				"LdapAuthenticationProvider.badLdapConnection",
 				"Connection to LDAP server failed."), cause);
 	}
 
