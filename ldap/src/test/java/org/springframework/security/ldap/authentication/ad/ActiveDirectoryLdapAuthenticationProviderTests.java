@@ -32,6 +32,7 @@ import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -58,6 +59,9 @@ import static org.springframework.security.ldap.authentication.ad.ActiveDirector
  * @author Rob Winch
  */
 public class ActiveDirectoryLdapAuthenticationProviderTests {
+	public static final String EXISTING_LDAP_PROVIDER = "ldap://192.168.1.200/";
+	public static final String NON_EXISTING_LDAP_PROVIDER = "ldap://192.168.1.201/";
+
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
@@ -378,17 +382,29 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	}
 
 	@Test(expected = org.springframework.ldap.CommunicationException.class)
-	public void nonAuthenticationExceptionIsConvertedToSpringLdapException()
-			throws Exception {
-		provider.contextFactory = createContextFactoryThrowing(new CommunicationException(
-				msg));
-		provider.authenticate(joe);
+	public void nonAuthenticationExceptionIsConvertedToSpringLdapException() throws Throwable {
+		try {
+			provider.contextFactory = createContextFactoryThrowing(new CommunicationException(
+					msg));
+			provider.authenticate(joe);
+		} catch (InternalAuthenticationServiceException e) {
+			// Since GH-8418 ldap communication exception is wrapped into InternalAuthenticationServiceException.
+			// This test is about the wrapped exception, so we throw it.
+			throw e.getCause();
+		}
+	}
+
+	@Test(expected = org.springframework.security.authentication.InternalAuthenticationServiceException.class )
+	public void connectionExceptionIsWrappedInInternalException() throws Exception {
+		ActiveDirectoryLdapAuthenticationProvider noneReachableProvider = new ActiveDirectoryLdapAuthenticationProvider(
+				"mydomain.eu", NON_EXISTING_LDAP_PROVIDER, "dc=ad,dc=eu,dc=mydomain");
+		noneReachableProvider.doAuthentication(joe);
 	}
 
 	@Test
 	public void rootDnProvidedSeparatelyFromDomainAlsoWorks() throws Exception {
 		ActiveDirectoryLdapAuthenticationProvider provider = new ActiveDirectoryLdapAuthenticationProvider(
-				"mydomain.eu", "ldap://192.168.1.200/", "dc=ad,dc=eu,dc=mydomain");
+				"mydomain.eu", EXISTING_LDAP_PROVIDER, "dc=ad,dc=eu,dc=mydomain");
 		checkAuthentication("dc=ad,dc=eu,dc=mydomain", provider);
 
 	}
