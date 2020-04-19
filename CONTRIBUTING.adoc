@@ -66,7 +66,7 @@ Please carefully follow the whitespace and formatting conventions already presen
 . Aim to wrap code at 120 characters, but favor readability over wrapping
 . Preserve existing formatting; i.e. do not reformat code for its own sake
 . Search the codebase using git grep and other tools to discover common naming conventions, etc.
-. Latin-1 (ISO-8859-1) encoding for Java sources; use native2ascii to convert if necessary
+. UTF-8 encoding for Java sources and XML files
 
 Whitespace management tips
 
