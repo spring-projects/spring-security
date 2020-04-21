@@ -68,7 +68,7 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	 * @since 5.2
 	 */
 	public void setAuthorityPrefix(String authorityPrefix) {
-		Assert.hasText(authorityPrefix, "authorityPrefix cannot be empty");
+		Assert.notNull(authorityPrefix, "authorityPrefix cannot be null");
 		this.authorityPrefix = authorityPrefix;
 	}
 
