@@ -37,6 +37,12 @@ import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
  */
 public class JwtGrantedAuthoritiesConverterTests {
 
+	@Test(expected = IllegalArgumentException.class)
+	public void setAuthorityPrefixWithNullThenException() {
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		jwtGrantedAuthoritiesConverter.setAuthorityPrefix(null);
+	}
+
 	@Test
 	public void convertWhenTokenHasScopeAttributeThenTranslatedToAuthorities() {
 		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
@@ -60,6 +66,19 @@ public class JwtGrantedAuthoritiesConverterTests {
 		assertThat(authorities).containsExactly(
 				new SimpleGrantedAuthority("ROLE_message:read"),
 				new SimpleGrantedAuthority("ROLE_message:write"));
+	}
+
+	@Test
+	public void convertWithBlankAsCustomAuthorityPrefixWhenTokenHasScopeAttributeThenTranslatedToAuthorities() {
+		Jwt jwt = jwt().claim("scope", "message:read message:write").build();
+
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
+
+		assertThat(authorities).containsExactly(
+				new SimpleGrantedAuthority("message:read"),
+				new SimpleGrantedAuthority("message:write"));
 	}
 
 	@Test
@@ -95,6 +114,19 @@ public class JwtGrantedAuthoritiesConverterTests {
 		assertThat(authorities).containsExactly(
 				new SimpleGrantedAuthority("ROLE_message:read"),
 				new SimpleGrantedAuthority("ROLE_message:write"));
+	}
+
+	@Test
+	public void convertWithBlankAsCustomAuthorityPrefixWhenTokenHasScpAttributeThenTranslatedToAuthorities() {
+		Jwt jwt = jwt().claim("scp", "message:read message:write").build();
+
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
+
+		assertThat(authorities).containsExactly(
+				new SimpleGrantedAuthority("message:read"),
+				new SimpleGrantedAuthority("message:write"));
 	}
 
 	@Test
