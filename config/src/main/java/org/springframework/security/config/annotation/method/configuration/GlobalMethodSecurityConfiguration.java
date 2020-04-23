@@ -29,6 +29,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.*;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -80,6 +81,7 @@ import org.springframework.util.Assert;
  * @see EnableGlobalMethodSecurity
  */
 @Configuration(proxyBeanMethods = false)
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class GlobalMethodSecurityConfiguration
 		implements ImportAware, SmartInitializingSingleton, BeanFactoryAware {
 	private static final Log logger = LogFactory
