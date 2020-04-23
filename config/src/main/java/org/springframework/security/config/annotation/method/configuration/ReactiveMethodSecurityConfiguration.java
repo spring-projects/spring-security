@@ -54,6 +54,7 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	}
 
 	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public DelegatingMethodSecurityMetadataSource methodMetadataSource(MethodSecurityExpressionHandler methodSecurityExpressionHandler) {
 		ExpressionBasedAnnotationAttributeFactory attributeFactory = new ExpressionBasedAnnotationAttributeFactory(
 				methodSecurityExpressionHandler);
@@ -74,6 +75,7 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	}
 
 	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
 		if (this.grantedAuthorityDefaults != null) {
