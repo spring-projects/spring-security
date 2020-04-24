@@ -19,7 +19,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -64,6 +63,7 @@ import static org.mockito.Mockito.when;
  * Tests for {@link JdbcOAuth2AuthorizedClientService}.
  *
  * @author Joe Grandja
+ * @author Stav Shamir
  */
 public class JdbcOAuth2AuthorizedClientServiceTests {
 	private static final String OAUTH2_CLIENT_SCHEMA_SQL_RESOURCE = "org/springframework/security/oauth2/client/oauth2-client-schema.sql";
@@ -236,14 +236,30 @@ public class JdbcOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
-	public void saveAuthorizedClientWhenSaveDuplicateThenThrowDuplicateKeyException() {
+	public void saveAuthorizedClientWhenSaveClientWithExistingPrimaryKeyThenUpdate() {
+		// Given a saved authorized client
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient authorizedClient = createAuthorizedClient(principal, this.clientRegistration);
-
 		this.authorizedClientService.saveAuthorizedClient(authorizedClient, principal);
 
-		assertThatThrownBy(() -> this.authorizedClientService.saveAuthorizedClient(authorizedClient, principal))
-				.isInstanceOf(DuplicateKeyException.class);
+		// When a client with the same principal and registration id is saved
+		OAuth2AuthorizedClient updatedClient = createAuthorizedClient(principal, this.clientRegistration);
+		this.authorizedClientService.saveAuthorizedClient(updatedClient, principal);
+
+		// Then the saved client is updated
+		OAuth2AuthorizedClient savedClient = this.authorizedClientService.loadAuthorizedClient(
+				this.clientRegistration.getRegistrationId(), principal.getName());
+
+		assertThat(savedClient).isNotNull();
+		assertThat(savedClient.getClientRegistration()).isEqualTo(updatedClient.getClientRegistration());
+		assertThat(savedClient.getPrincipalName()).isEqualTo(updatedClient.getPrincipalName());
+		assertThat(savedClient.getAccessToken().getTokenType()).isEqualTo(updatedClient.getAccessToken().getTokenType());
+		assertThat(savedClient.getAccessToken().getTokenValue()).isEqualTo(updatedClient.getAccessToken().getTokenValue());
+		assertThat(savedClient.getAccessToken().getIssuedAt()).isEqualTo(updatedClient.getAccessToken().getIssuedAt());
+		assertThat(savedClient.getAccessToken().getExpiresAt()).isEqualTo(updatedClient.getAccessToken().getExpiresAt());
+		assertThat(savedClient.getAccessToken().getScopes()).isEqualTo(updatedClient.getAccessToken().getScopes());
+		assertThat(savedClient.getRefreshToken().getTokenValue()).isEqualTo(updatedClient.getRefreshToken().getTokenValue());
+		assertThat(savedClient.getRefreshToken().getIssuedAt()).isEqualTo(updatedClient.getRefreshToken().getIssuedAt());
 	}
 
 	@Test
