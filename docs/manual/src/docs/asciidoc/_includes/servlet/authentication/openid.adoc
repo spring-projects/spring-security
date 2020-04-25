@@ -1,5 +1,9 @@
 [[servlet-openid]]
 == OpenID Support
+
+[NOTE]
+The OpenID 1.0 and 2.0 protocols have been deprecated and users are encouraged to migrate to OpenID Connect, which is supported by spring-security-oauth2.
+
 The namespace supports https://openid.net/[OpenID] login either instead of, or in addition to normal form-based login, with a simple change:
 
 [source,xml]

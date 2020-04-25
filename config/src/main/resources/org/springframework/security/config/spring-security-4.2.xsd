@@ -131,7 +131,7 @@
       </xs:annotation>
       <xs:complexType/>
    </xs:element>
-  
+
   <xs:attributeGroup name="password-encoder.attlist">
       <xs:attribute name="ref" type="xs:token">
          <xs:annotation>
@@ -164,7 +164,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="user-property">
       <xs:attribute name="user-property" use="required" type="xs:token">
          <xs:annotation>
@@ -433,7 +433,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="ldap-ap.attlist">
       <xs:attribute name="server-ref" type="xs:token">
          <xs:annotation>
@@ -513,7 +513,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="password-compare.attlist">
       <xs:attribute name="password-attribute" type="xs:token">
          <xs:annotation>
@@ -573,7 +573,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="protect.attlist">
       <xs:attribute name="method" use="required" type="xs:token">
          <xs:annotation>
@@ -817,13 +817,13 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
   <xs:attributeGroup name="protect-pointcut.attlist">
       <xs:attribute name="expression" use="required" type="xs:string">
          <xs:annotation>
@@ -1265,7 +1265,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="access-denied-handler.attlist">
       <xs:attribute name="ref" type="xs:token">
          <xs:annotation>
@@ -1290,7 +1290,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="intercept-url.attlist">
       <xs:attribute name="pattern" type="xs:token">
          <xs:annotation>
@@ -1361,7 +1361,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="logout.attlist">
       <xs:attribute name="logout-url" type="xs:token">
          <xs:annotation>
@@ -1408,7 +1408,7 @@
          <xs:attributeGroup ref="security:ref"/>
       </xs:complexType>
    </xs:element>
-  
+
   <xs:attributeGroup name="form-login.attlist">
       <xs:attribute name="login-processing-url" type="xs:token">
          <xs:annotation>
@@ -1496,7 +1496,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:element name="attribute-exchange">
       <xs:annotation>
          <xs:documentation>Sets up an attribute exchange configuration to request specified attributes from the
@@ -1695,7 +1695,7 @@
          </xs:simpleType>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="http-basic.attlist">
       <xs:attribute name="entry-point-ref" type="xs:token">
          <xs:annotation>
@@ -1711,7 +1711,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="session-management.attlist">
       <xs:attribute name="session-fixation-protection">
          <xs:annotation>
@@ -1767,7 +1767,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="concurrency-control.attlist">
       <xs:attribute name="max-sessions" type="xs:integer">
          <xs:annotation>
@@ -1814,7 +1814,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="remember-me.attlist">
       <xs:attribute name="key" type="xs:token">
          <xs:annotation>
@@ -1912,7 +1912,7 @@
   <xs:attributeGroup name="remember-me-data-source-ref">
       <xs:attributeGroup ref="security:data-source-ref"/>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="anonymous.attlist">
       <xs:attribute name="key" type="xs:token">
          <xs:annotation>
@@ -1945,8 +1945,8 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
-  
+
+
   <xs:attributeGroup name="http-port">
       <xs:attribute name="http" use="required" type="xs:token">
          <xs:annotation>
@@ -1963,7 +1963,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="x509.attlist">
       <xs:attribute name="subject-principal-regex" type="xs:token">
          <xs:annotation>
@@ -2160,7 +2160,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="ap.attlist">
       <xs:attribute name="ref" type="xs:token">
          <xs:annotation>
@@ -2212,7 +2212,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  
+
   <xs:attributeGroup name="user.attlist">
       <xs:attribute name="name" use="required" type="xs:token">
          <xs:annotation>

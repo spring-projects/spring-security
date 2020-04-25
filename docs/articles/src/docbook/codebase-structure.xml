@@ -146,7 +146,7 @@
 								<entry valign="middle">spring-security-openid</entry>
 								<entry>OpenID web authentication support.</entry>
 								<entry>If you need to authenticate users against an external OpenID
-									server.</entry>
+									server. (Deprecated)</entry>
 								<entry><literal>org.springframework.security.openid</literal></entry>
 							</row>
 						</tbody>

@@ -33,6 +33,7 @@ This also gives a good idea of the high level flow of authentication and how pie
 * <<servlet-rememberme, Remember Me>> - How to remember a user past session expiration
 * <<servlet-jaas, JAAS Authentication>> - Authenticate with JAAS
 * <<servlet-openid,OpenID>> - OpenID Authentication (not to be confused with OpenID Connect)
+// FIXME: The one above is deprecated. Should it be removed from here as well?
 * <<servlet-preauth>> - Authenticate with an external mechanism such as https://www.siteminder.com/[SiteMinder] or Java EE security but still use Spring Security for authorization and protection against common exploits.
 * <<servlet-x509,X509 Authentication>> - X509 Authentication
 
