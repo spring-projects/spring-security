@@ -15,6 +15,15 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -29,8 +38,8 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.Set;
+import java.security.KeyPair;
+import java.util.*;
 
 import static org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors.oauth2AccessTokenResponse;
 
@@ -53,6 +62,11 @@ import static org.springframework.security.oauth2.core.web.reactive.function.OAu
  */
 abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements ReactiveOAuth2AccessTokenResponseClient<T> {
+
+	private static final Log logger = LogFactory
+			.getLog(AbstractWebClientReactiveOAuth2AccessTokenResponseClient.class);
+
+	public static String CLIENT_ASSERTION_TYPE_JWT_BEARER = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
 
 	private WebClient webClient = WebClient.builder().build();
 
@@ -107,6 +121,89 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 	}
 
 	/**
+	 * <p>Creates a {@link JWTClaimsSet} to be used
+	 * when signing for client authentication methods {@link ClientAuthenticationMethod#JWT} or
+	 * {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+	 *
+	 * @param clientRegistration for claim information
+	 * @return the claims to be signed
+	 */
+	private JWTClaimsSet jwtClaimsSet(ClientRegistration clientRegistration) {
+
+		// TODO: should we include `iat` even though it's optional?
+		// iss - [REQUIRED] Issuer. This must contain the client_id of the OAuth Client.
+		// sub - [REQUIRED] Subject. This must contain the client_id of the OAuth Client.
+		// aud - [REQUIRED] Audience. The aud (audience) Claim. A value that identifies the Authorization Server as an intended audience. The Authorization Server must verify that it is an intended audience for the token. The Audience should be the URL of the Authorization Server's Token Endpoint.
+		// jti - [REQUIRED] JWT ID. A unique identifier for the token, which can be used to prevent reuse of the token. These tokens must only be used once unless conditions for reuse were negotiated between the parties; any such negotiation is beyond the scope of this specification.
+		// exp - [REQUIRED] Expiration time on or after which the JWT must not be accepted for processing.
+		// iat - [OPTIONAL] Time at which the JWT was issued.
+
+		String clientId = clientRegistration.getClientId();
+		String tokenUri = clientRegistration.getProviderDetails().getTokenUri();
+		String jwtId = UUID.randomUUID().toString();
+
+		// TODO: make this default to 5 minutes, unless configured otherwise;
+		long expiresIn = 300000L; // 5 minutes
+		Date expiresAt = new Date(System.currentTimeMillis() + expiresIn);
+
+		List<String> aud = new ArrayList<>();
+		aud.add(tokenUri);
+		return new JWTClaimsSet.Builder()
+				.issuer(clientId)
+				.subject(clientId)
+				.audience(aud)
+				.jwtID(jwtId)
+				.expirationTime(expiresAt)
+				.build();
+	}
+
+	/**
+	 * <p>Creates a signed JWT to be used
+	 * when signing for client authentication methods {@link ClientAuthenticationMethod#JWT}.
+	 *
+	 * @param clientRegistration for client secret and claim information
+	 * @return the signed client secret JWT
+	 */
+	private String signClientSecretJwt(ClientRegistration clientRegistration) {
+		try {
+			String clientSecret = clientRegistration.getClientSecret();
+			JWTClaimsSet claimsSet = jwtClaimsSet(clientRegistration);
+			JWSSigner signer = new MACSigner(clientSecret);
+			SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+			signedJWT.sign(signer);
+			return signedJWT.serialize();
+		} catch (Exception e) {
+			// an empty JWT will cause an error downstream, so we will log an error, but continue the flow
+			logger.error("Failed to sign client secret JWT.", e);
+		}
+		return "";
+	}
+
+	/**
+	 * <p>Creates a signed JWT to be used
+	 * when signing for client authentication methods {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+	 *
+	 * @param clientRegistration for private key and claim information
+	 * @return the signed private key JWT
+	 */
+	private String signPrivateKeyJwt(ClientRegistration clientRegistration) {
+		try {
+			if (clientRegistration.getClientAuthenticationKeyPair() != null) {
+				KeyPair keyPair = clientRegistration.getClientAuthenticationKeyPair();
+				JWTClaimsSet claimsSet = jwtClaimsSet(clientRegistration);
+				JWSSigner signer = new RSASSASigner(keyPair.getPrivate());
+				SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+				signedJWT.sign(signer);
+				return signedJWT.serialize();
+			}
+		} catch (Exception e) {
+			// an empty JWT will cause an error downstream, so we will log an error, but continue the flow
+			logger.error("Failed to sign private key JWT.", e);
+		}
+		return "";
+	}
+
+	/**
 	 * Populates the body of the token request.
 	 *
 	 * <p>By default, populates properties that are common to all grant types.
@@ -123,6 +220,41 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 		}
 		if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
 			body.with(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
+		}
+		if (ClientAuthenticationMethod.JWT.equals(clientRegistration.getClientAuthenticationMethod())) {
+
+			// TODO: mention thes comments in documentation?
+			// ** Client Secret JWT **
+			// The JWT must be signed using an HMAC SHA algorithm,
+			// such as HMAC SHA-256. The HMAC (Hash-based Message Authentication Code)
+			// is calculated using the octets of the UTF-8 representation of the client-secret as the shared key.
+
+			body.with(OAuth2ParameterNames.CLIENT_ASSERTION, signClientSecretJwt(clientRegistration));
+			body.with(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE, CLIENT_ASSERTION_TYPE_JWT_BEARER);
+		}
+		if (ClientAuthenticationMethod.PRIVATE_KEY_JWT.equals(clientRegistration.getClientAuthenticationMethod())) {
+
+			// TODO: mention thes comments in documentation?
+			// ** Private Key JWT **
+			// The JWT must be signed using an HMAC SHA algorithm, such as SHA-256.
+			// A public key used for signature verification must be registered at the authorization server.
+
+			// NOTES:
+			// The main benefit of this method is you can generate the private key on your own servers and never have
+			// it leave there for any reason
+
+			// creating a JKS
+			// ./keytool -genkeypair -keyalg RSA \
+			// -keystore ${KEY_STORE} \
+			// -storepass ${KEY_STORE_PASSWORD} \
+			// -alias ${KEY_ALIAS} \
+			// -keypass ${KEY_PASS}
+
+			// extracting the public key from the JKS
+			// keytool -list -rfc --keystore ${KEY_STORE} | openssl x509 -inform pem -pubkey
+
+			body.with(OAuth2ParameterNames.CLIENT_ASSERTION, signPrivateKeyJwt(clientRegistration));
+			body.with(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE, CLIENT_ASSERTION_TYPE_JWT_BEARER);
 		}
 		Set<String> scopes = scopes(grantRequest);
 		if (!CollectionUtils.isEmpty(scopes)) {

@@ -31,6 +31,8 @@ public final class ClientAuthenticationMethod implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 	public static final ClientAuthenticationMethod BASIC = new ClientAuthenticationMethod("basic");
 	public static final ClientAuthenticationMethod POST = new ClientAuthenticationMethod("post");
+	public static final ClientAuthenticationMethod JWT = new ClientAuthenticationMethod("jwt");
+	public static final ClientAuthenticationMethod PRIVATE_KEY_JWT = new ClientAuthenticationMethod("private_key_jwt");
 
 	/**
 	 * @since 5.2

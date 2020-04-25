@@ -15,23 +15,18 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import java.io.FileInputStream;
+import java.io.Serializable;
+import java.security.*;
+import java.security.cert.Certificate;
+import java.util.*;
 
 import static java.util.Collections.EMPTY_MAP;
 
@@ -48,6 +43,12 @@ public final class ClientRegistration implements Serializable {
 	private String clientId;
 	private String clientSecret;
 	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
+	private String clientAuthenticationKeyStore;
+	private String clientAuthenticationKeyStoreType;
+	private String clientAuthenticationKeyStorePassword;
+	private String clientAuthenticationKeyAlias;
+	private String clientAuthenticationKeyPassword;
+	private KeyPair clientAuthenticationKeyPair;
 	private AuthorizationGrantType authorizationGrantType;
 	private String redirectUriTemplate;
 	private Set<String> scopes = Collections.emptySet();
@@ -93,6 +94,64 @@ public final class ClientRegistration implements Serializable {
 	public ClientAuthenticationMethod getClientAuthenticationMethod() {
 		return this.clientAuthenticationMethod;
 	}
+
+	/**
+	 * Returns the client authentication key store path used
+	 * when authenticating with method {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+	 *
+	 * @return the client authentication key store path
+	 */
+	public String getClientAuthenticationKeyStore() {
+		return this.clientAuthenticationKeyStore;
+	}
+
+	/**
+	 * Returns the client authentication key store type used
+	 * when authenticating with method {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+	 *
+	 * @return the client authentication key store type
+	 */
+	public String getClientAuthenticationKeyStoreType() {
+		return this.clientAuthenticationKeyStoreType;
+	}
+
+	/**
+	 * Returns the client authentication key store password used
+	 * when authenticating with method {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+	 *
+	 * @return the client authentication key store password
+	 */
+	public String getClientAuthenticationKeyStorePassword() {
+		return this.clientAuthenticationKeyStorePassword;
+	}
+
+	/**
+	 * Returns the client authentication key store key alias used
+	 * when authenticating with method {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+	 *
+	 * @return the client authentication key store key alias
+	 */
+	public String getClientAuthenticationKeyAlias() {
+		return this.clientAuthenticationKeyAlias;
+	}
+
+	/**
+	 * Returns the client authentication key store key password used
+	 * when authenticating with method {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+	 *
+	 * @return the client authentication key store key password
+	 */
+	public String getClientAuthenticationKeyPassword() {
+		return this.clientAuthenticationKeyPassword;
+	}
+
+	/**
+	 * Returns the client authentication key pair used
+	 * when authenticating with method {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+	 *
+	 * @return the client authentication key pair
+	 */
+	public KeyPair getClientAuthenticationKeyPair() { return this.clientAuthenticationKeyPair; }
 
 	/**
 	 * Returns the {@link AuthorizationGrantType authorization grant type} used for the client.
@@ -146,6 +205,11 @@ public final class ClientRegistration implements Serializable {
 			+ ", clientId='" + this.clientId + '\''
 			+ ", clientSecret='" + this.clientSecret + '\''
 			+ ", clientAuthenticationMethod=" + this.clientAuthenticationMethod
+			+ ", clientAuthenticationKeyStore=" + this.clientAuthenticationKeyStore
+			+ ", clientAuthenticationKeyStoreType=" + this.clientAuthenticationKeyStoreType
+			+ ", clientAuthenticationKeyStorePassword=" + this.clientAuthenticationKeyStorePassword
+			+ ", clientAuthenticationKeyAlias=" + this.clientAuthenticationKeyAlias
+			+ ", clientAuthenticationKeyPassword=" + this.clientAuthenticationKeyPassword
 			+ ", authorizationGrantType=" + this.authorizationGrantType
 			+ ", redirectUriTemplate='" + this.redirectUriTemplate + '\''
 			+ ", scopes=" + this.scopes
@@ -287,6 +351,12 @@ public final class ClientRegistration implements Serializable {
 		private String clientId;
 		private String clientSecret;
 		private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
+		private String clientAuthenticationKeyStore;
+		private String clientAuthenticationKeyStoreType;
+		private String clientAuthenticationKeyStorePassword;
+		private String clientAuthenticationKeyAlias;
+		private String clientAuthenticationKeyPassword;
+		private KeyPair clientAuthenticationKeyPair;
 		private AuthorizationGrantType authorizationGrantType;
 		private String redirectUriTemplate;
 		private Set<String> scopes;
@@ -308,6 +378,12 @@ public final class ClientRegistration implements Serializable {
 			this.clientId = clientRegistration.clientId;
 			this.clientSecret = clientRegistration.clientSecret;
 			this.clientAuthenticationMethod = clientRegistration.clientAuthenticationMethod;
+			this.clientAuthenticationKeyStore = clientRegistration.clientAuthenticationKeyStore;
+			this.clientAuthenticationKeyStoreType = clientRegistration.clientAuthenticationKeyStoreType;
+			this.clientAuthenticationKeyStorePassword = clientRegistration.clientAuthenticationKeyStorePassword;
+			this.clientAuthenticationKeyAlias = clientRegistration.clientAuthenticationKeyAlias;
+			this.clientAuthenticationKeyPassword = clientRegistration.clientAuthenticationKeyPassword;
+			this.clientAuthenticationKeyPair = clientRegistration.clientAuthenticationKeyPair;
 			this.authorizationGrantType = clientRegistration.authorizationGrantType;
 			this.redirectUriTemplate = clientRegistration.redirectUriTemplate;
 			this.scopes = clientRegistration.scopes == null ? null : new HashSet<>(clientRegistration.scopes);
@@ -366,6 +442,66 @@ public final class ClientRegistration implements Serializable {
 		 */
 		public Builder clientAuthenticationMethod(ClientAuthenticationMethod clientAuthenticationMethod) {
 			this.clientAuthenticationMethod = clientAuthenticationMethod;
+			return this;
+		}
+
+		/**
+		 * Sets the client authentication key store path used
+		 * when authenticating with method {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+		 *
+		 * @return the client authentication key store path
+		 */
+		public Builder clientAuthenticationKeyStore(String clientAuthenticationKeyStore) {
+			this.clientAuthenticationKeyStore = clientAuthenticationKeyStore;
+			return this;
+		}
+
+		/**
+		 * Sets the client authentication key store type used
+		 * when authenticating with method {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+		 *
+		 * @return the client authentication key store type
+		 */
+		public Builder clientAuthenticationKeyStoreType(String clientAuthenticationKeyStoreType) {
+			this.clientAuthenticationKeyStore = clientAuthenticationKeyStoreType;
+			return this;
+		}
+
+		/**
+		 * Sets the client authentication key store password used
+		 * when authenticating with method {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+		 *
+		 * @return the client authentication key store password
+		 */
+		public Builder clientAuthenticationKeyStorePassword(String clientAuthenticationKeyStorePassword) {
+			this.clientAuthenticationKeyStorePassword = clientAuthenticationKeyStorePassword;
+			return this;
+		}
+
+		/**
+		 * Sets the client authentication key store key alias used
+		 * when authenticating with method {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+		 *
+		 * @return the client authentication key store key alias
+		 */
+		public Builder clientAuthenticationKeyAlias(String clientAuthenticationKeyAlias) {
+			this.clientAuthenticationKeyAlias = clientAuthenticationKeyAlias;
+			return this;
+		}
+
+		/**
+		 * Sets the client authentication key store key password used
+		 * when authenticating with method {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT}.
+		 *
+		 * @return the client authentication key store key password
+		 */
+		public Builder clientAuthenticationKeyPassword(String clientAuthenticationKeyPassword) {
+			this.clientAuthenticationKeyPassword = clientAuthenticationKeyPassword;
+			return this;
+		}
+
+		public Builder clientAuthenticationKeyPair(KeyPair clientAuthenticationKeyPair) {
+			this.clientAuthenticationKeyPair = clientAuthenticationKeyPair;
 			return this;
 		}
 
@@ -527,6 +663,13 @@ public final class ClientRegistration implements Serializable {
 			} else if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)) {
 				this.validateAuthorizationCodeGrantType();
 			}
+
+			if (ClientAuthenticationMethod.JWT.equals(this.clientAuthenticationMethod)) {
+				this.validateClientSecretJwtAuthenticationMethod();
+			} else if (ClientAuthenticationMethod.PRIVATE_KEY_JWT.equals(this.clientAuthenticationMethod)) {
+				this.validatePrivateKeyJwtAuthenticationMethod();
+			}
+
 			this.validateScopes();
 			return this.create();
 		}
@@ -539,8 +682,27 @@ public final class ClientRegistration implements Serializable {
 			clientRegistration.clientSecret = StringUtils.hasText(this.clientSecret) ? this.clientSecret : "";
 			clientRegistration.clientAuthenticationMethod = this.clientAuthenticationMethod;
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType) &&
+					!ClientAuthenticationMethod.PRIVATE_KEY_JWT.equals(this.clientAuthenticationMethod) &&
 					!StringUtils.hasText(this.clientSecret)) {
 				clientRegistration.clientAuthenticationMethod = ClientAuthenticationMethod.NONE;
+			}
+
+			clientRegistration.clientAuthenticationKeyStore = this.clientAuthenticationKeyStore;
+			clientRegistration.clientAuthenticationKeyStoreType = this.clientAuthenticationKeyStoreType;
+			clientRegistration.clientAuthenticationKeyStorePassword = this.clientAuthenticationKeyStorePassword;
+			clientRegistration.clientAuthenticationKeyAlias = this.clientAuthenticationKeyAlias;
+			clientRegistration.clientAuthenticationKeyPassword = this.clientAuthenticationKeyPassword;
+
+			if (ClientAuthenticationMethod.PRIVATE_KEY_JWT.equals(this.clientAuthenticationMethod) &&
+					this.clientAuthenticationKeyPair == null
+			) {
+				clientRegistration.clientAuthenticationKeyPair = keyPair(
+						clientRegistration.clientAuthenticationKeyStore,
+						clientRegistration.clientAuthenticationKeyStorePassword,
+						clientRegistration.clientAuthenticationKeyAlias,
+						clientRegistration.clientAuthenticationKeyPassword,
+						clientRegistration.clientAuthenticationKeyStoreType
+				);
 			}
 
 			clientRegistration.authorizationGrantType = this.authorizationGrantType;
@@ -598,6 +760,23 @@ public final class ClientRegistration implements Serializable {
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
 		}
 
+		private void validateClientSecretJwtAuthenticationMethod() {
+			Assert.isTrue(ClientAuthenticationMethod.JWT.equals(this.clientAuthenticationMethod),
+					() -> "clientAuthenticationMethod must be " + ClientAuthenticationMethod.JWT.getValue());
+			Assert.hasText(this.clientSecret, "clientSecret cannot be empty");
+		}
+
+		private void validatePrivateKeyJwtAuthenticationMethod() {
+			Assert.isTrue(ClientAuthenticationMethod.PRIVATE_KEY_JWT.equals(this.clientAuthenticationMethod),
+					() -> "clientAuthenticationMethod must be " + ClientAuthenticationMethod.PRIVATE_KEY_JWT.getValue());
+			if(this.clientAuthenticationKeyPair == null) {
+				Assert.hasText(this.clientAuthenticationKeyStore, "clientAuthenticationKeyStore cannot be empty");
+				Assert.hasText(this.clientAuthenticationKeyAlias, "clientAuthenticationKeyAlias cannot be empty");
+				Assert.isTrue((this.clientAuthenticationKeyStorePassword != null) ||
+						(this.clientAuthenticationKeyPassword != null), "clientAuthenticationKeyStorePassword and clientAuthenticationKeyPassword cannot both be null");
+			}
+		}
+
 		private void validateScopes() {
 			if (this.scopes == null) {
 				return;
@@ -618,6 +797,35 @@ public final class ClientRegistration implements Serializable {
 
 		private static boolean withinTheRangeOf(int c, int min, int max) {
 			return c >= min && c <= max;
+		}
+
+		private static KeyPair keyPair(String keyStorePath, String keyStorePassword, String keyAlias, String keyPassword, String keyStoreType) {
+			KeyPair keyPair = null;
+			try {
+				String type = KeyStore.getDefaultType();
+				if (keyStoreType != null) {
+					type = keyStoreType;
+				}
+				KeyStore keyStore = KeyStore.getInstance(type);
+
+				FileInputStream keyStoreStream = new FileInputStream(keyStorePath);
+				keyStore.load(keyStoreStream, keyStorePassword.toCharArray());
+
+				char[] password = null;
+				if (keyPassword != null) {
+					password = keyPassword.toCharArray();
+				}
+				Key key = keyStore.getKey(keyAlias, password);
+
+				if (key instanceof PrivateKey) {
+					Certificate certificate = keyStore.getCertificate(keyAlias);
+					PublicKey publicKey = certificate.getPublicKey();
+					keyPair =  new KeyPair(publicKey, (PrivateKey) key);
+				}
+			} catch (Exception e) {
+				return null;
+			}
+			return keyPair;
 		}
 	}
 }

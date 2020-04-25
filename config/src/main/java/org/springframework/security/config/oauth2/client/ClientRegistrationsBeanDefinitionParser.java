@@ -50,6 +50,11 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 	private static final String ATT_CLIENT_ID = "client-id";
 	private static final String ATT_CLIENT_SECRET = "client-secret";
 	private static final String ATT_CLIENT_AUTHENTICATION_METHOD = "client-authentication-method";
+	private static final String ATT_CLIENT_AUTHENTICATION_KEY_STORE = "client-authentication-key-store";
+	private static final String ATT_CLIENT_AUTHENTICATION_KEY_STORE_TYPE = "client-authentication-key-store-type";
+	private static final String ATT_CLIENT_AUTHENTICATION_KEY_STORE_PASSWORD = "client-authentication-key-store-password";
+	private static final String ATT_CLIENT_AUTHENTICATION_KEY_ALIAS = "client-authentication-key-alias";
+	private static final String ATT_CLIENT_AUTHENTICATION_KEY_PASSWORD = "client-authentication-key-password";
 	private static final String ATT_AUTHORIZATION_GRANT_TYPE = "authorization-grant-type";
 	private static final String ATT_REDIRECT_URI = "redirect-uri";
 	private static final String ATT_SCOPE = "scope";
@@ -110,6 +115,16 @@ public final class ClientRegistrationsBeanDefinitionParser implements BeanDefini
 			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_AUTHENTICATION_METHOD))
 					.map(ClientAuthenticationMethod::new)
 					.ifPresent(builder::clientAuthenticationMethod);
+			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_AUTHENTICATION_KEY_STORE))
+					.map(builder::clientAuthenticationKeyStore);
+			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_AUTHENTICATION_KEY_STORE_TYPE))
+					.map(builder::clientAuthenticationKeyStoreType);
+			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_AUTHENTICATION_KEY_STORE_PASSWORD))
+					.map(builder::clientAuthenticationKeyStorePassword);
+			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_AUTHENTICATION_KEY_ALIAS))
+					.map(builder::clientAuthenticationKeyAlias);
+			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_CLIENT_AUTHENTICATION_KEY_PASSWORD))
+					.map(builder::clientAuthenticationKeyPassword);
 			getOptionalIfNotEmpty(clientRegistrationElt.getAttribute(ATT_AUTHORIZATION_GRANT_TYPE))
 					.map(AuthorizationGrantType::new)
 					.ifPresent(builder::authorizationGrantType);
