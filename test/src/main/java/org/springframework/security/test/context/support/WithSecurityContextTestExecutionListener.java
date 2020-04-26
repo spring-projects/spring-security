@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.SpringSecurityTestExecutionListenerOrder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.TestContext;
@@ -175,7 +176,7 @@ public class WithSecurityContextTestExecutionListener
 	 */
 	@Override
 	public int getOrder() {
-		return 10000;
+		return SpringSecurityTestExecutionListenerOrder.WITH_SECURITY_CONTEXT.getValue();
 	}
 
 	static class TestSecurityContext {

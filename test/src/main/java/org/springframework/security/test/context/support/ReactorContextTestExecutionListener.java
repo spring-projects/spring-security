@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,21 @@
 package org.springframework.security.test.context.support;
 
 import org.reactivestreams.Subscription;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.test.context.TestSecurityContextHolder;
-import org.springframework.test.context.TestContext;
-import org.springframework.test.context.TestExecutionListener;
-import org.springframework.test.context.support.AbstractTestExecutionListener;
-import org.springframework.util.ClassUtils;
 import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Operators;
 import reactor.util.context.Context;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.test.context.SpringSecurityTestExecutionListenerOrder;
+import org.springframework.security.test.context.TestSecurityContextHolder;
+import org.springframework.test.context.TestContext;
+import org.springframework.test.context.TestExecutionListener;
+import org.springframework.test.context.support.AbstractTestExecutionListener;
+import org.springframework.util.ClassUtils;
 
 /**
  * Sets up the Reactor Context with the Authentication from the TestSecurityContextHolder
@@ -122,6 +124,6 @@ public class ReactorContextTestExecutionListener
 	 */
 	@Override
 	public int getOrder() {
-		return 11000;
+		return SpringSecurityTestExecutionListenerOrder.REACTOR_CONTEXT.getValue();
 	}
 }
