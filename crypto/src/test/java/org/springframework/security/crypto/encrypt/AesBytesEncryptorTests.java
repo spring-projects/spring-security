@@ -22,10 +22,15 @@ import org.junit.Test;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.PBEKeySpec;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm.GCM;
+import static org.springframework.security.crypto.encrypt.CipherUtils.newSecretKey;
+import static org.springframework.security.crypto.password.Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1;
 
 /**
  * Tests for {@link AesBytesEncryptor}
@@ -69,6 +74,23 @@ public class AesBytesEncryptorTests {
 	public void roundtripWhenUsingGcmThenEncryptsAndDecrypts() {
 		CryptoAssumptions.assumeGCMJCE();
 		AesBytesEncryptor encryptor = new AesBytesEncryptor(this.password, this.hexSalt, this.generator, GCM);
+
+		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
+		assertThat(new String(Hex.encode(encryption)))
+				.isEqualTo("4b0febebd439db7ca77153cb254520c3e4d61ae38207b4e42b820d311dc3d4e0e2f37ed5ee");
+
+		byte[] decryption = encryptor.decrypt(encryption);
+		assertThat(new String(decryption)).isEqualTo(this.secret);
+	}
+
+	@Test
+	public void roundtripWhenUsingSecretKeyThenEncryptsAndDecrypts() {
+		CryptoAssumptions.assumeGCMJCE();
+		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), Hex.decode(this.hexSalt),
+				1024, 256);
+		SecretKey secretKey = newSecretKey(PBKDF2WithHmacSHA1.name(), keySpec);
+		AesBytesEncryptor encryptor = new AesBytesEncryptor(secretKey, this.generator, GCM);
+
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
 		assertThat(new String(Hex.encode(encryption)))
 				.isEqualTo("4b0febebd439db7ca77153cb254520c3e4d61ae38207b4e42b820d311dc3d4e0e2f37ed5ee");
