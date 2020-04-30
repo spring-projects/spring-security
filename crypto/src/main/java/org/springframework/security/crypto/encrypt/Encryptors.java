@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 the original author or authors.
+ * Copyright 2011-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class Encryptors {
 	 * (Password-Based Key Derivation Function #2). Salts the password to prevent
 	 * dictionary attacks against the key. The provided salt is expected to be
 	 * hex-encoded; it should be random and at least 8 bytes in length. Also applies a
-	 * random 16 byte initialization vector to ensure each encrypted message will be
+	 * random 16-byte initialization vector to ensure each encrypted message will be
 	 * unique. Requires Java 6.
 	 *
 	 * @param password the password used to generate the encryptor's secret key; should
@@ -50,7 +50,7 @@ public class Encryptors {
 	 * Derives the secret key using PKCS #5's PBKDF2 (Password-Based Key Derivation
 	 * Function #2). Salts the password to prevent dictionary attacks against the key. The
 	 * provided salt is expected to be hex-encoded; it should be random and at least 8
-	 * bytes in length. Also applies a random 16 byte initialization vector to ensure each
+	 * bytes in length. Also applies a random 16-byte initialization vector to ensure each
 	 * encrypted message will be unique. Requires Java 6.
 	 * NOTE: This mode is not
 	 * <a href="https://en.wikipedia.org/wiki/Authenticated_encryption">authenticated</a>
@@ -63,7 +63,7 @@ public class Encryptors {
 	 * @param salt a hex-encoded, random, site-global salt value to use to generate the
 	 * key
 	 *
-	 * @see #stronger(CharSequence, CharSequence) which uses the significatly more secure
+	 * @see #stronger(CharSequence, CharSequence), which uses the significatly more secure
 	 * GCM (instead of CBC)
 	 */
 	public static BytesEncryptor standard(CharSequence password, CharSequence salt) {
@@ -105,7 +105,10 @@ public class Encryptors {
 	 * not be shared
 	 * @param salt a hex-encoded, random, site-global salt value to use to generate the
 	 * secret key
+	 * @deprecated This encryptor is not secure. Instead, look to your data store for a
+	 * mechanism to query encrypted data.
 	 */
+	@Deprecated
 	public static TextEncryptor queryableText(CharSequence password, CharSequence salt) {
 		return new HexEncodingTextEncryptor(new AesBytesEncryptor(password.toString(),
 				salt));
