@@ -118,38 +118,44 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 		}
 
 		Filter getDelegate() {
-			return this.delegate;
+			Filter result = this.delegate;
+			if (result == null) {
+				throw new IllegalStateException("delegate cannot be null. Ensure a Bean with the name "
+						+ BeanIds.SPRING_SECURITY_FILTER_CHAIN
+						+ " implementing Filter is present or inject the Filter to be used.");
+			}
+			return result;
 		}
 
 		@Override
 		public void init(FilterConfig filterConfig) throws ServletException {
-			this.delegate.init(filterConfig);
+			getDelegate().init(filterConfig);
 		}
 
 		@Override
 		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 				throws IOException, ServletException {
-			this.delegate.doFilter(request, response, chain);
+			getDelegate().doFilter(request, response, chain);
 		}
 
 		@Override
 		public void destroy() {
-			this.delegate.destroy();
+			getDelegate().destroy();
 		}
 
 		@Override
 		public int hashCode() {
-			return this.delegate.hashCode();
+			return getDelegate().hashCode();
 		}
 
 		@Override
 		public boolean equals(Object obj) {
-			return this.delegate.equals(obj);
+			return getDelegate().equals(obj);
 		}
 
 		@Override
 		public String toString() {
-			return this.delegate.toString();
+			return getDelegate().toString();
 		}
 	}
 }
