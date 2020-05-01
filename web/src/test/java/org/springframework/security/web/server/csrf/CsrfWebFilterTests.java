@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -40,11 +42,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.spy;
 import static org.springframework.mock.web.server.MockServerWebExchange.from;
 import static org.springframework.web.reactive.function.BodyInserters.fromMultipartData;
 
 /**
  * @author Rob Winch
+ * @author Parikshit Dutta
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -181,6 +186,18 @@ public class CsrfWebFilterTests {
 			.verifyComplete();
 
 		chainResult.assertWasSubscribed();
+	}
+
+	@Test
+	public void matchesRequireCSRFProtectionWhenNonStandardHTTPMethodIsUsed() {
+		final String NON_STANDARD_HTTP_METHOD = "non-standard-http-method";
+		MockServerWebExchange nonStandardHttpRequest = from(MockServerHttpRequest.method(HttpMethod.resolve(NON_STANDARD_HTTP_METHOD), "/"));
+
+		ServerWebExchangeMatcher serverWebExchangeMatcher = spy(CsrfWebFilter.DEFAULT_CSRF_MATCHER);
+		serverWebExchangeMatcher.matches(nonStandardHttpRequest);
+
+		verify(serverWebExchangeMatcher).matches(nonStandardHttpRequest);
+		assertThat(serverWebExchangeMatcher.matches(nonStandardHttpRequest).block().isMatch()).isTrue();
 	}
 
 	@Test
