@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server.savedrequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -42,12 +44,15 @@ import java.util.Collections;
  * requested URI in a cookie.
  *
  * @author Eleftheria Stein
+ * @author Mathieu Ouellet
  * @since 5.4
  */
 public class CookieServerRequestCache implements ServerRequestCache {
 	private static final String REDIRECT_URI_COOKIE_NAME = "REDIRECT_URI";
 
 	private static final Duration COOKIE_MAX_AGE = Duration.ofSeconds(-1);
+
+	private static final Log logger = LogFactory.getLog(CookieServerRequestCache.class);
 
 	private ServerWebExchangeMatcher saveRequestMatcher = createDefaultRequestMatcher();
 
@@ -69,7 +74,13 @@ public class CookieServerRequestCache implements ServerRequestCache {
 				.filter(m -> m.isMatch())
 				.map(m -> exchange.getResponse())
 				.map(ServerHttpResponse::getCookies)
-				.doOnNext(cookies -> cookies.add(REDIRECT_URI_COOKIE_NAME, createRedirectUriCookie(exchange.getRequest())))
+				.doOnNext(cookies -> {
+					ResponseCookie redirectUriCookie = createRedirectUriCookie(exchange.getRequest());
+					cookies.add(REDIRECT_URI_COOKIE_NAME, redirectUriCookie);
+					if (logger.isDebugEnabled()) {
+						logger.debug("Request added to Cookie: " + redirectUriCookie);
+					}
+				})
 				.then();
 	}
 

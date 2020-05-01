@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.security.web.server.util.matcher.AndServerWebExchange
 import org.springframework.security.web.server.util.matcher.MediaTypeServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
@@ -41,12 +42,13 @@ import java.util.Collections;
  * The current implementation only saves the URL that was requested.
  *
  * @author Rob Winch
+ * @author Mathieu Ouellet
  * @since 5.0
  */
 public class WebSessionServerRequestCache implements ServerRequestCache {
 	private static final String DEFAULT_SAVED_REQUEST_ATTR = "SPRING_SECURITY_SAVED_REQUEST";
 
-	protected final Log logger = LogFactory.getLog(this.getClass());
+	private static final Log logger = LogFactory.getLog(WebSessionServerRequestCache.class);
 
 	private String sessionAttrName = DEFAULT_SAVED_REQUEST_ATTR;
 
@@ -66,10 +68,16 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	@Override
 	public Mono<Void> saveRequest(ServerWebExchange exchange) {
 		return this.saveRequestMatcher.matches(exchange)
-			.filter(m -> m.isMatch())
+			.filter(MatchResult::isMatch)
 			.flatMap(m -> exchange.getSession())
 			.map(WebSession::getAttributes)
-			.doOnNext(attrs -> attrs.put(this.sessionAttrName, pathInApplication(exchange.getRequest())))
+			.doOnNext(attrs -> {
+				String requestPath = pathInApplication(exchange.getRequest());
+				attrs.put(this.sessionAttrName, requestPath);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Request added to WebSession: '" + requestPath + "'");
+				}
+			})
 			.then();
 	}
 
@@ -85,7 +93,16 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 		ServerWebExchange exchange) {
 		return exchange.getSession()
 			.map(WebSession::getAttributes)
-			.filter(attributes -> attributes.remove(this.sessionAttrName, pathInApplication(exchange.getRequest())))
+			.filter(attributes -> {
+				String requestPath = pathInApplication(exchange.getRequest());
+				boolean removed = attributes.remove(this.sessionAttrName, requestPath);
+				if (removed) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Request removed from WebSession: '" + requestPath + "'");
+					}
+				}
+				return removed;
+			})
 			.map(attributes -> exchange.getRequest());
 	}
 

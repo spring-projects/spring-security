@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.springframework.security.web.server.util.matcher;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -23,9 +25,11 @@ import reactor.core.publisher.Mono;
  * Negates the provided matcher. If the provided matcher returns true, then the result will be false. If the provided
  * matcher returns false, then the result will be true.
  * @author Tao Qian
+ * @author Mathieu Ouellet
  * @since 5.1
  */
 public class NegatedServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+	private static final Log logger = LogFactory.getLog(NegatedServerWebExchangeMatcher.class);
 	private final ServerWebExchangeMatcher matcher;
 
 	public NegatedServerWebExchangeMatcher(ServerWebExchangeMatcher matcher) {
@@ -39,7 +43,12 @@ public class NegatedServerWebExchangeMatcher implements ServerWebExchangeMatcher
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
 		return matcher.matches(exchange)
-			.flatMap(m -> m.isMatch() ? MatchResult.notMatch() : MatchResult.match());
+			.flatMap(m -> m.isMatch() ? MatchResult.notMatch() : MatchResult.match())
+			.doOnNext(it -> {
+				if (logger.isDebugEnabled()) {
+					logger.debug("matches = " + it.isMatch());
+				}
+			});
 	}
 
 	@Override

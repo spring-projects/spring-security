@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpMethod;
@@ -36,9 +38,12 @@ import org.springframework.web.server.WebFilterChain;
  * {@link ServerLogoutHandler}.
  *
  * @author Rob Winch
+ * @author Mathieu Ouellet
  * @since 5.0
  */
 public class LogoutWebFilter implements WebFilter {
+	private static final Log logger = LogFactory.getLog(LogoutWebFilter.class);
+
 	private AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken("key", "anonymous",
 		AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
@@ -69,6 +74,10 @@ public class LogoutWebFilter implements WebFilter {
 	}
 
 	private Mono<Void> logout(WebFilterExchange webFilterExchange, Authentication authentication) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Logging out user '" + authentication
+					+ "' and transferring to logout destination");
+		}
 		return this.logoutHandler.logout(webFilterExchange, authentication)
 			.then(this.logoutSuccessHandler
 				.onLogoutSuccess(webFilterExchange, authentication))
