@@ -284,7 +284,7 @@ The code is invoked in the following order:
 * Code in `MyCustomDsl`s init method is invoked
 * Code in `MyCustomDsl`s configure method is invoked
 
-If you want, you can have `WebSecurityConfiguerAdapter` add `MyCustomDsl` by default by using `SpringFactories`.
+If you want, you can have `WebSecurityConfigurerAdapter` add `MyCustomDsl` by default by using `SpringFactories`.
 For example, you would create a resource on the classpath named `META-INF/spring.factories` with the following contents:
 
 .META-INF/spring.factories
