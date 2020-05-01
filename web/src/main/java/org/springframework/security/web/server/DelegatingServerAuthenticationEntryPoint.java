@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
@@ -33,10 +35,13 @@ import java.util.List;
  * on a {@link ServerWebExchangeMatcher}
  *
  * @author Rob Winch
+ * @author Mathieu Ouellet
  * @since 5.0
  */
 public class DelegatingServerAuthenticationEntryPoint
 	implements ServerAuthenticationEntryPoint {
+	private static final Log logger = LogFactory.getLog(DelegatingServerAuthenticationEntryPoint.class);
+
 	private final List<DelegateEntry> entryPoints;
 
 	private ServerAuthenticationEntryPoint defaultEntryPoint = (exchange, e) -> {
@@ -61,12 +66,26 @@ public class DelegatingServerAuthenticationEntryPoint
 				.filterWhen( entry -> isMatch(exchange, entry))
 				.next()
 				.map( entry -> entry.getEntryPoint())
-				.defaultIfEmpty(this.defaultEntryPoint)
+				.doOnNext(it -> {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Match found! Executing " + it);
+					}
+				})
+				.switchIfEmpty(Mono.just(this.defaultEntryPoint)
+					.doOnNext(it -> {
+						if (logger.isDebugEnabled()) {
+							logger.debug("No match found. Using default entry point " + defaultEntryPoint);
+						}
+					})
+				)
 				.flatMap( entryPoint -> entryPoint.commence(exchange, e));
 	}
 
 	private Mono<Boolean> isMatch(ServerWebExchange exchange, DelegateEntry entry) {
 		ServerWebExchangeMatcher matcher = entry.getMatcher();
+		if (logger.isDebugEnabled()) {
+			logger.debug("Trying to match using " + matcher);
+		}
 		return matcher.matches(exchange)
 			.map( result -> result.isMatch());
 	}

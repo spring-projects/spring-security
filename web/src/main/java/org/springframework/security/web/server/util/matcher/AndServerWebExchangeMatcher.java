@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.springframework.security.web.server.util.matcher;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -28,10 +30,12 @@ import java.util.Map;
 /**
  * Matches if all the provided {@link ServerWebExchangeMatcher} match
  * @author Rob Winch
+ * @author Mathieu Ouellet
  * @since 5.0
  * @see OrServerWebExchangeMatcher
  */
 public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+	private static final Log logger = LogFactory.getLog(AndServerWebExchangeMatcher.class);
 	private final List<ServerWebExchangeMatcher> matchers;
 
 	public AndServerWebExchangeMatcher(List<ServerWebExchangeMatcher> matchers) {
@@ -51,10 +55,20 @@ public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 		return Mono.defer(() -> {
 			Map<String, Object> variables = new HashMap<>();
 			return Flux.fromIterable(matchers)
+				.doOnNext(it -> {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Trying to match using " + it);
+					}
+				})
 				.flatMap(matcher -> matcher.matches(exchange))
 				.doOnNext(matchResult -> variables.putAll(matchResult.getVariables()))
 				.all(MatchResult::isMatch)
-				.flatMap(allMatch -> allMatch ? MatchResult.match(variables) : MatchResult.notMatch());
+				.flatMap(allMatch -> allMatch ? MatchResult.match(variables) : MatchResult.notMatch())
+				.doOnNext(it -> {
+					if (logger.isDebugEnabled()) {
+						logger.debug(it.isMatch() ? "All requestMatchers returned true" : "Did not match");
+					}
+				});
 		});
 	}
 
