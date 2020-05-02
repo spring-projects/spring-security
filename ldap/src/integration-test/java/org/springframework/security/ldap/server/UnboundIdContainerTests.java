@@ -47,6 +47,7 @@ public class UnboundIdContainerTests {
 		}
 	}
 
+
 	@Test
 	public void afterPropertiesSetWhenPortIsZeroThenRandomPortIsSelected() throws Exception {
 		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org", null);
@@ -76,5 +77,18 @@ public class UnboundIdContainerTests {
 			}
 		}
 	}
+
+	@Test
+	public void testInvalidLdapFile(){
+		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org", "classpath:missing-file.ldif");
+		server.setPort(0);
+		try {
+			server.start();
+
+		}catch (I){} finally {
+			server.destroy();
+		}
+	}
+
 
 }

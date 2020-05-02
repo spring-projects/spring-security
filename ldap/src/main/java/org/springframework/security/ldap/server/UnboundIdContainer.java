@@ -15,6 +15,7 @@
  */
 package org.springframework.security.ldap.server;
 
+import java.io.File;
 import java.io.InputStream;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
@@ -25,6 +26,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldif.LDIFReader;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -54,7 +56,29 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 
 	public UnboundIdContainer(String defaultPartitionSuffix, String ldif) {
 		this.defaultPartitionSuffix = defaultPartitionSuffix;
+		setLdif(ldif);
+	}
+
+	public String getLdif() {
+		return ldif;
+	}
+
+	public void setLdif(String ldif) {
+		if(!StringUtils.hasText(ldif)){
+			throw new IllegalArgumentException("ldif file value is missing");
+		}
+		checkFilePath(ldif);
 		this.ldif = ldif;
+	}
+
+	private void checkFilePath(String ldif) {
+		File ldifFile = new File(ldif);
+		if( ldifFile.exists()){
+			throw new IllegalArgumentException("the requested file not found within given path");
+		}
+		if(ldifFile.isFile()){
+			throw new IllegalArgumentException("the given path is not a file");
+		}
 	}
 
 	public int getPort() {
@@ -113,9 +137,10 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 	}
 
 	private void importLdif(InMemoryDirectoryServer directoryServer) {
+		//TODO - would like to remove this check I think set and get are the best place to handle these
 		if (StringUtils.hasText(this.ldif)) {
 			try {
-				Resource[] resources = this.context.getResources(this.ldif);
+				Resource[] resources = this.context.getResources(getLdif());
 				if (resources.length > 0 && resources[0].exists()) {
 					try (InputStream inputStream = resources[0].getInputStream()) {
 						directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
