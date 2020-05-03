@@ -30,7 +30,7 @@ This content will only be visible to users who have the "supervisor" authority i
 </sec:authorize>
 ----
 
-When used in conjuction with Spring Security's PermissionEvaluator, the tag can also be used to check permissions.
+When used in conjunction with Spring Security's PermissionEvaluator, the tag can also be used to check permissions.
 For example:
 
 [source,xml]

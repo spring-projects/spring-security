@@ -77,9 +77,9 @@ It should also be compatible with applications using Spring 2.5.x.
 ==== I'm new to Spring Security and I need to build an application that supports CAS single sign-on over HTTPS, while allowing Basic authentication locally for certain URLs, authenticating against multiple back end user information sources (LDAP and JDBC). I've copied some configuration files I found but it doesn't work.
 What could be wrong?
 
-Or subsititute an alternative complex scenario...
+Or substitute an alternative complex scenario...
 
-Realistically, you need an understanding of the technolgies you are intending to use before you can successfully build applications with them.
+Realistically, you need an understanding of the technologies you are intending to use before you can successfully build applications with them.
 Security is complicated.
 Setting up a simple configuration using a login form and some hard-coded users using Spring Security's namespace is reasonably straightforward.
 Moving to using a backed JDBC database is also easy enough.
@@ -131,7 +131,7 @@ If you are using hashed passwords, make sure the value stored in your database i
 [[appendix-faq-login-loop]]
 ==== My application goes into an "endless loop" when I try to login, what's going on?
 
-A common user problem with infinite loop and redirecting to the login page is caused by accidently configuring the login page as a "secured" resource.
+A common user problem with infinite loop and redirecting to the login page is caused by accidentally configuring the login page as a "secured" resource.
 Make sure your configuration allows anonymous access to the login page, either by excluding it from the security filter chain or marking it as requiring ROLE_ANONYMOUS.
 
 If your AccessDecisionManager includes an AuthenticatedVoter, you can use the attribute "IS_AUTHENTICATED_ANONYMOUSLY". This is automatically available if you are using the standard namespace configuration setup.
@@ -387,7 +387,7 @@ Any which are marked as "optional" in the Spring Security POM files will have to
 [[appendix-faq-apacheds-deps]]
 ==== What dependencies are needed to run an embedded ApacheDS LDAP server?
 
-If you are using Maven, you need to add the folowing to your pom dependencies:
+If you are using Maven, you need to add the following to your pom dependencies:
 
 [source]
 ----
