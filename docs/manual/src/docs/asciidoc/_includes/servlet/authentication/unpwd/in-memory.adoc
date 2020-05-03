@@ -82,7 +82,7 @@ public UserDetailsService users() {
 		.password("password")
 		.roles("USER")
 		.build();
-	UserDetails user = users
+	UserDetails admin = users
 		.username("admin")
 		.password("password")
 		.roles("USER", "ADMIN")

@@ -96,7 +96,7 @@ Typically this would involve a redirect to the welcome page.
 
 [[servletapi-start-runnable]]
 ==== AsyncContext.start(Runnable)
-The https://docs.oracle.com/javaee/6/api/javax/servlet/AsyncContext.html#start%28java.lang.Runnable%29[AsynchContext.start(Runnable)] method that ensures your credentials will be propagated to the new Thread.
+The https://docs.oracle.com/javaee/6/api/javax/servlet/AsyncContext.html#start%28java.lang.Runnable%29[AsyncContext.start(Runnable)] method that ensures your credentials will be propagated to the new Thread.
 Using Spring Security's concurrency support, Spring Security overrides the AsyncContext.start(Runnable) to ensure that the current SecurityContext is used when processing the Runnable.
 For example, the following would output the current user's Authentication:
 
@@ -182,10 +182,10 @@ new Thread("AsyncThread") {
 ----
 
 The issue is that this Thread is not known to Spring Security, so the SecurityContext is not propagated to it.
-This means when we commit the HttpServletResponse there is no SecuriytContext.
+This means when we commit the HttpServletResponse there is no SecurityContext.
 When Spring Security automatically saved the SecurityContext on committing the HttpServletResponse it would lose our logged in user.
 
-Since version 3.2, Spring Security is smart enough to no longer automatically save the SecurityContext on commiting the HttpServletResponse as soon as HttpServletRequest.startAsync() is invoked.
+Since version 3.2, Spring Security is smart enough to no longer automatically save the SecurityContext on committing the HttpServletResponse as soon as HttpServletRequest.startAsync() is invoked.
 
 [[servletapi-31]]
 === Servlet 3.1+ Integration

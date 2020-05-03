@@ -76,7 +76,7 @@ protected void configure(HttpSecurity http) throws Exception {
 
 <b:bean id="digestEntryPoint"
         class="org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint"
-    p:realmName="My App Relam"
+    p:realmName="My App Realm"
 	p:key="3028472b-da34-4501-bfd8-a355c42bdf92"
 />
 
