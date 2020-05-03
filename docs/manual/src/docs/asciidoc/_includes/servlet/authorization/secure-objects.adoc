@@ -16,7 +16,7 @@ The interceptor uses a `MethodSecurityMetadataSource` instance to obtain the con
 Other implementations will be used to handle annotation-based configuration.
 
 ==== Explicit MethodSecurityInterceptor Configuration
-You can of course configure a `MethodSecurityIterceptor` directly in your application context for use with one of Spring AOP's proxying mechanisms:
+You can of course configure a `MethodSecurityInterceptor` directly in your application context for use with one of Spring AOP's proxying mechanisms:
 
 [source,xml]
 ----

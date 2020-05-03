@@ -94,7 +94,7 @@
 						<tbody>
 							<row>
 								<entry valign="middle">spring-security-core</entry>
-								<entry>Core authentication and access-contol classes and interfaces.
+								<entry>Core authentication and access-control classes and interfaces.
 									Remoting support and basic provisioning APIs.</entry>
 								<entry>Required by any application which uses Spring Security.
 									Supports standalone applications, remote clients, method
@@ -174,7 +174,7 @@
 				The <filename>core</filename> package and sub packages contain the basic classes and
 				interfaces which are used throughout the framework and the other two main packages
 				within the core jar are <filename>authentication</filename> and
-					<filename>access</filename>. The <filename>access</filename> package containst
+					<filename>access</filename>. The <filename>access</filename> package contains
 				access-control/authorization code such as the
 					<interfacename>AccessDecisionManager</interfacename> and related voter-based
 				implementations, the interception and method security infrastructure, annotation

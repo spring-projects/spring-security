@@ -221,7 +221,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 @RequestMapping("/messages/inbox")
 public ModelAndView findMessagesForUser(@AuthenticationPrincipal(expression = "customUser") CustomUser customUser) {
 
-	// .. find messags for this user and return them ...
+	// .. find messages for this user and return them ...
 }
 ----
 
@@ -356,7 +356,7 @@ Will output HTML that is similar to the following:
 
 Spring Security provides `CsrfTokenArgumentResolver` which can automatically resolve the current `CsrfToken` for Spring MVC arguments.
 By using <<jc-hello-wsca,@EnableWebSecurity>> you will automatically have this added to your Spring MVC configuration.
-If you use XML based configuraiton, you must add this yourself.
+If you use XML based configuration, you must add this yourself.
 
 Once `CsrfTokenArgumentResolver` is properly configured, you can expose the `CsrfToken` to your static HTML based application.
 

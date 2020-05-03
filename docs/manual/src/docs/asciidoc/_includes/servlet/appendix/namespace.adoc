@@ -517,11 +517,11 @@ Select the `AllowFromStrategy` to use when using the ALLOW-FROM policy.
 
 ** `static` Use a single static ALLOW-FROM value.
 The value can be set through the <<nsa-frame-options-value,value>> attribute.
-** `regexp` Use a regelur expression to validate incoming requests and if they are allowed.
+** `regexp` Use a regular expression to validate incoming requests and if they are allowed.
 The regular expression can be set through the <<nsa-frame-options-value,value>> attribute.
 The request parameter used to retrieve the value to validate can be specified using the <<nsa-frame-options-from-parameter,from-parameter>>.
-** `whitelist` A comma-seperated list containing the allowed domains.
-The comma-seperated list can be set through the <<nsa-frame-options-value,value>> attribute.
+** `whitelist` A comma-separated list containing the allowed domains.
+The comma-separated list can be set through the <<nsa-frame-options-value,value>> attribute.
 The request parameter used to retrieve the value to validate can be specified using the <<nsa-frame-options-from-parameter,from-parameter>>.
 
 
