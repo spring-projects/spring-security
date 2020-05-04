@@ -3,7 +3,7 @@ buildscript {
 		classpath 'io.spring.gradle:spring-build-conventions:0.0.31.RELEASE'
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
 		classpath 'io.spring.nohttp:nohttp-gradle:0.0.2.RELEASE'
-		classpath "io.freefair.gradle:aspectj-plugin:4.1.6"
+		classpath "io.freefair.gradle:aspectj-plugin:5.0.1"
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 	}
 	repositories {
