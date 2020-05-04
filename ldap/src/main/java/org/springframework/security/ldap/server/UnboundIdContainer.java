@@ -25,8 +25,6 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldif.LDIFReader;
-
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -64,7 +62,7 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 	}
 
 	public void setLdif(String ldif) {
-		if(!StringUtils.hasText(ldif)){
+		if (!StringUtils.hasText(ldif)) {
 			throw new IllegalArgumentException("ldif file value is missing");
 		}
 		checkFilePath(ldif);
@@ -73,10 +71,10 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 
 	private void checkFilePath(String ldif) {
 		File ldifFile = new File(ldif);
-		if( ldifFile.exists()){
+		if (ldifFile.exists()) {
 			throw new IllegalArgumentException("the requested file not found within given path");
 		}
-		if(ldifFile.isFile()){
+		if (ldifFile.isFile()) {
 			throw new IllegalArgumentException("the given path is not a file");
 		}
 	}
@@ -137,7 +135,7 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 	}
 
 	private void importLdif(InMemoryDirectoryServer directoryServer) {
-		//TODO - would like to remove this check I think set and get are the best place to handle these
+		//TODO - would like to remove this check I think set and get are the best place to handle these*
 		if (StringUtils.hasText(this.ldif)) {
 			try {
 				Resource[] resources = this.context.getResources(getLdif());

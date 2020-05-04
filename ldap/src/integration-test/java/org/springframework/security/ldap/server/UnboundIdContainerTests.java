@@ -31,10 +31,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class UnboundIdContainerTests {
 
+	private final String validLdifClassPath =  "classpath:test-server.ldif";
+	private final String validRootDn =  "dc=springframework,dc=org";
+
 	@Test
 	public void startLdapServer() throws Exception {
-		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org",
-				"classpath:test-server.ldif");
+		UnboundIdContainer server = new UnboundIdContainer(validLdifClassPath,
+				validRootDn);
 		server.setApplicationContext(new GenericApplicationContext());
 		List<Integer> ports = getDefaultPorts(1);
 		server.setPort(ports.get(0));
@@ -50,7 +53,7 @@ public class UnboundIdContainerTests {
 
 	@Test
 	public void afterPropertiesSetWhenPortIsZeroThenRandomPortIsSelected() throws Exception {
-		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org", null);
+		UnboundIdContainer server = new UnboundIdContainer(validLdifClassPath, validRootDn);
 		server.setPort(0);
 
 		try {
@@ -78,17 +81,38 @@ public class UnboundIdContainerTests {
 		}
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void testInvalidLdapFile(){
-		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org", "classpath:missing-file.ldif");
+		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "classpath:missing-file.ldif");
 		server.setPort(0);
 		try {
 			server.start();
 
-		}catch (I){} finally {
+		}catch (Exception e){} finally {
 			server.destroy();
 		}
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidNullLdapFile(){
+		new UnboundIdContainer(validRootDn, null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidEmptyPathLdapFile(){
+		new UnboundIdContainer(validRootDn, "");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidRootDnLdapFile(){
+		UnboundIdContainer server = new UnboundIdContainer("dc=fake,dc=org", validLdifClassPath);
+		server.setPort(0);
+		try {
+			server.start();
+
+		}catch (Exception e){} finally {
+			server.destroy();
+		}
+	}
 
 }
