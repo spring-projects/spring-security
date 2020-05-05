@@ -19,11 +19,15 @@ package org.springframework.security.web;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.firewall.DefaultRequestRejectedHandler;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.RequestRejectedException;
+import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -60,7 +64,7 @@ import java.util.*;
  * requests which match the pattern. An example configuration might look like this:
  *
  * <pre>
- *  &lt;bean id="myfilterChainProxy" class="org.springframework.security.util.FilterChainProxy"&gt;
+ *  &lt;bean id="myfilterChainProxy" class="org.springframework.security.web.FilterChainProxy"&gt;
  *      &lt;constructor-arg&gt;
  *          &lt;util:list&gt;
  *              &lt;security:filter-chain pattern="/do/not/filter*" filters="none"/&gt;
@@ -149,6 +153,8 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	private HttpFirewall firewall = new StrictHttpFirewall();
 
+	private RequestRejectedHandler requestRejectedHandler = new DefaultRequestRejectedHandler();
+
 	// ~ Methods
 	// ========================================================================================================
 
@@ -176,6 +182,8 @@ public class FilterChainProxy extends GenericFilterBean {
 			try {
 				request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 				doFilterInternal(request, response, chain);
+			} catch (RequestRejectedException e) {
+				this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, e);
 			}
 			finally {
 				SecurityContextHolder.clearContext();
@@ -270,6 +278,17 @@ public class FilterChainProxy extends GenericFilterBean {
 	 */
 	public void setFirewall(HttpFirewall firewall) {
 		this.firewall = firewall;
+	}
+
+	/**
+	 * Sets the {@link RequestRejectedHandler} to be used for requests rejected by the firewall.
+	 *
+	 * @since 5.2
+	 * @param requestRejectedHandler the {@link RequestRejectedHandler}
+	 */
+	public void setRequestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
+		Assert.notNull(requestRejectedHandler, "requestRejectedHandler may not be null");
+		this.requestRejectedHandler = requestRejectedHandler;
 	}
 
 	@Override

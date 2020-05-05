@@ -21,9 +21,11 @@ import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.ldap.LdapAuthenticationProviderBuilderSecurityBuilderTests.BaseLdapProviderConfig;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -68,6 +70,15 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
 				.andExpect(authenticated().withUsername("bob"));
+	}
+
+	@Test
+	public void authenticationManagerWhenSearchSubtreeThenNestedGroupFound() throws Exception {
+		this.spring.register(GroupSubtreeSearchConfig.class).autowire();
+
+		this.mockMvc.perform(formLogin().user("ben").password("benspassword"))
+				.andExpect(authenticated().withUsername("ben").withAuthorities(
+						AuthorityUtils.createAuthorityList("ROLE_SUBMANAGERS", "ROLE_MANAGERS", "ROLE_DEVELOPERS")));
 	}
 
 	@EnableWebSecurity
@@ -120,5 +131,19 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.contextSource()
 						.port(0);
 		}
+	}
+
+	@EnableWebSecurity
+	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
+		// @formatter:off
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.ldapAuthentication()
+					.groupSearchBase("ou=groups")
+					.groupSearchFilter("(member={0})")
+					.groupSearchSubtree(true)
+					.userDnPatterns("uid={0},ou=people");
+		}
+		// @formatter:on
 	}
 }

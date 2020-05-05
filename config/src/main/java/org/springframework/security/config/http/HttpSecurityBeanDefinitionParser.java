@@ -24,14 +24,19 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.ListFactoryBean;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
@@ -393,7 +398,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	static void registerFilterChainProxyIfNecessary(ParserContext pc, Object source) {
-		if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
+		BeanDefinitionRegistry registry = pc.getRegistry();
+		if (registry.containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
 			return;
 		}
 		// Not already registered, so register the list of filter chains and the
@@ -412,10 +418,46 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		BeanDefinition fcpBean = fcpBldr.getBeanDefinition();
 		pc.registerBeanComponent(new BeanComponentDefinition(fcpBean,
 				BeanIds.FILTER_CHAIN_PROXY));
-		pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY,
+		registry.registerAlias(BeanIds.FILTER_CHAIN_PROXY,
 				BeanIds.SPRING_SECURITY_FILTER_CHAIN);
+
+		BeanDefinitionBuilder requestRejected = BeanDefinitionBuilder.rootBeanDefinition(RequestRejectedHandlerPostProcessor.class);
+		requestRejected.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		requestRejected.addConstructorArgValue("requestRejectedHandler");
+		requestRejected.addConstructorArgValue(BeanIds.FILTER_CHAIN_PROXY);
+		requestRejected.addConstructorArgValue("requestRejectedHandler");
+		AbstractBeanDefinition requestRejectedBean = requestRejected.getBeanDefinition();
+		String requestRejectedPostProcessorName = pc.getReaderContext().generateBeanName(requestRejectedBean);
+		registry.registerBeanDefinition(requestRejectedPostProcessorName, requestRejectedBean);
 	}
 
+}
+
+class RequestRejectedHandlerPostProcessor implements BeanDefinitionRegistryPostProcessor {
+	private final String beanName;
+
+	private final String targetBeanName;
+
+	private final String targetPropertyName;
+
+	RequestRejectedHandlerPostProcessor(String beanName, String targetBeanName, String targetPropertyName) {
+		this.beanName = beanName;
+		this.targetBeanName = targetBeanName;
+		this.targetPropertyName = targetPropertyName;
+	}
+
+	@Override
+	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+		if (registry.containsBeanDefinition(this.beanName)) {
+			BeanDefinition beanDefinition = registry.getBeanDefinition(this.targetBeanName);
+			beanDefinition.getPropertyValues().add(this.targetPropertyName, new RuntimeBeanReference(this.beanName));
+		}
+	}
+
+	@Override
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+
+	}
 }
 
 class OrderDecorator implements Ordered {

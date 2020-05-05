@@ -10,8 +10,7 @@ a minimum and also requires Java 8.
 For a detailed list of features and access to the latest release, please visit https://spring.io/projects[Spring projects].
 
 == Code of Conduct
-This project adheres to the Contributor Covenant link:CODE_OF_CONDUCT.adoc[code of conduct].
-By participating, you  are expected to uphold this code. Please report unacceptable behavior to spring-code-of-conduct@pivotal.io.
+Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct]
 
 == Downloading Artifacts
 See https://github.com/spring-projects/spring-framework/wiki/Downloading-Spring-artifacts[downloading Spring artifacts] for Maven repository information.
@@ -59,7 +58,7 @@ Check out the https://stackoverflow.com/questions/tagged/spring-security[Spring 
 https://spring.io/services[Commercial support] is available too.
 
 == Contributing
-https://help.github.com/articles/creating-a-pull-request[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.md[contributor guidelines] for details.
+https://help.github.com/articles/creating-a-pull-request[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.adoc[contributor guidelines] for details.
 
 == License
 Spring Security is Open Source software released under the

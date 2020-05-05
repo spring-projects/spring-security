@@ -58,7 +58,8 @@ image:{icondir}/number_4.png[] If authentication is successful, then __Success__
 * The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
 * The `BearerTokenAuthenticationFilter` invokes `FilterChain.doFilter(request,response)` to continue with the rest of the application logic.
 
-=== Dependencies for JWT
+[[oauth2resourceserver-jwt-minimaldependencies]]
+=== Minimal Dependencies for JWT
 
 Most Resource Server support is collected into `spring-security-oauth2-resource-server`.
 However, the support for decoding and verifying JWTs is in `spring-security-oauth2-jose`, meaning that both are necessary in order to have a working resource server that supports JWT-encoded Bearer Tokens.
@@ -699,9 +700,11 @@ However, there are a number of circumstances where this default is insufficient.
 For example, some authorization servers don't use the `scope` attribute, but instead have their own custom attribute.
 Or, at other times, the resource server may need to adapt the attribute or a composition of attributes into internalized authorities.
 
-To this end, the DSL exposes `jwtAuthenticationConverter()`, which is responsible for <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,converting a `Jwt` into an `Authentication`>>.
+To this end, Spring Security ships with `JwtAuthenticationConverter`, which is responsible for <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,converting a `Jwt` into an `Authentication`>>.
+By default, Spring Security will wire the `JwtAuthenticationProvider` with a default instance of `JwtAuthenticationConverter`.
 
-As part of its configuration, we can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
+As part of configuring a `JwtAuthenticationConverter`, you can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
+
 Let's say that that your authorization server communicates authorities in a custom claim called `authorities`.
 In that case, you can configure the claim that <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,`JwtAuthenticationConverter`>> should inspect, like so:
 
@@ -710,22 +713,8 @@ In that case, you can configure the claim that <<oauth2resourceserver-jwt-archit
 .Java
 [source,java,role="primary"]
 ----
-@EnableWebSecurity
-public class CustomAuthoritiesClaimName extends WebSecurityConfigurerAdapter {
-    protected void configure(HttpSecurity http) {
-        http
-            .authorizeRequests(authorize -> authorize
-                .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
-                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                )
-            );
-    }
-}
-
-JwtAuthenticationConverter jwtAuthenticationConverter() {
+@Bean
+public JwtAuthenticationConverter jwtAuthenticationConverter() {
     JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
     grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
 
@@ -767,7 +756,8 @@ Instead of prefixing each authority with `SCOPE_`, you can change it to `ROLE_` 
 .Java
 [source,java,role="primary"]
 ----
-JwtAuthenticationConverter jwtAuthenticationConverter() {
+@Bean
+public JwtAuthenticationConverter jwtAuthenticationConverter() {
     JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
     grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
@@ -810,6 +800,23 @@ For more flexibility, the DSL supports entirely replacing the converter with any
 static class CustomAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
     public AbstractAuthenticationToken convert(Jwt jwt) {
         return new CustomAuthenticationToken(jwt);
+    }
+}
+
+// ...
+
+@EnableWebSecurity
+public class CustomAuthenticationConverterConfig extends WebSecurityConfigurerAdapter {
+    protected void configure(HttpSecurity http) {
+        http
+            .authorizeRequests(authorize -> authorize
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                    .jwtAuthenticationConverter(new CustomAuthenticationConverter())
+                )
+            );
     }
 }
 ----
@@ -1024,6 +1031,34 @@ public JwtDecoder jwtDecoder(RestTemplateBuilder builder) {
     return jwtDecoder;
 }
 ```
+
+Also by default, Resource Server caches in-memory the authorization server's JWK set for 5 minutes, which you may want to adjust.
+Further, it doesn't take into account more sophisticated caching patterns like eviction or using a shared cache.
+
+To adjust the way in which Resource Server caches the JWK set, `NimbusJwtDecoder` accepts an instance of `Cache`:
+
+```java
+@Bean
+public JwtDecoder jwtDecoder(CacheManager cacheManager) {
+    return NimbusJwtDecoder.withJwtSetUri(jwkSetUri)
+            .cache(cacheManager.getCache("jwks"))
+            .build();
+}
+```
+
+When given a `Cache`, Resource Server will use the JWK Set Uri as the key and the JWK Set JSON as the value.
+
+NOTE: Spring isn't a cache provider, so you'll need to make sure to include the appropriate dependencies, like `spring-boot-starter-cache` and your favorite caching provider.
+
+NOTE: Whether it's socket or cache timeouts, you may instead want to work with Nimbus directly.
+To do so, remember that `NimbusJwtDecoder` ships with a constructor that takes Nimbus's `JWTProcessor`.
+
+[[oauth2resourceserver-opaque-minimaldependencies]]
+=== Minimal Dependencies for Introspection
+As described in <<oauth2resourceserver-jwt-minimaldependencies,Minimal Dependencies for JWT>> most of Resource Server support is collected in `spring-security-oauth2-resource-server`. 
+However unless a custom <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> is provided, the Resource Server will fallback to NimbusOpaqueTokenIntrospector. 
+Meaning that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary in order to have a working minimal Resource Server that supports opaque Bearer Tokens. 
+Please refer to `spring-security-oauth2-resource-server` in order to determin the correct version for `oauth2-oidc-sdk`.
 
 [[oauth2resourceserver-opaque-minimalconfiguration]]
 === Minimal Configuration for Introspection
@@ -1955,22 +1990,24 @@ However, if you resolve it by a claim in the bearer token, read on to learn abou
 === Bearer Token Resolution
 
 By default, Resource Server looks for a bearer token in the `Authorization` header.
-This, however, can be customized in a couple of ways.
+This, however, can be customized in a handful of ways.
 
 ==== Reading the Bearer Token from a Custom Header
 
 For example, you may have a need to read the bearer token from a custom header.
-To achieve this, you can wire a `HeaderBearerTokenResolver` instance into the DSL, as you can see in the following example:
+To achieve this, you can expose a `DefaultBearerTokenResolver` as a bean, or wire an instance into the DSL, as you can see in the following example:
 
 .Custom Bearer Token Header
 ====
 .Java
 [source,java,role="primary"]
 ----
-http
-    .oauth2ResourceServer(oauth2 -> oauth2
-        .bearerTokenResolver(new HeaderBearerTokenResolver("x-goog-iap-jwt-assertion"))
-    );
+@Bean
+BearerTokenResolver bearerTokenResolver() {
+    DefaultBearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
+    bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.PROXY_AUTHORIZATION);
+    return bearerTokenResolver;
+}
 ----
 
 .Xml
@@ -1981,11 +2018,13 @@ http
 </http>
 
 <bean id="bearerTokenResolver"
-        class="org.springframework.security.oauth2.server.resource.web.HeaderBearerTokenResolver">
-    <constructor-arg value="x-goog-iap-jwt-assertion"/>
+        class="org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver">
+    <property name="bearerTokenHeaderName" value="Proxy-Authorization"/>
 </bean>
 ----
 ====
+
+Or, in circumstances where a provider is using both a custom header and value, you can use `HeaderBearerTokenResolver` instead.
 
 ==== Reading the Bearer Token from a Form Parameter
 

@@ -15,7 +15,9 @@
  */
 package org.springframework.security.access.expression.method;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -76,6 +78,72 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		expression.getValue(context, Boolean.class);
 
 		verify(trustResolver).isAnonymous(authentication);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void filterByKeyWhenUsingMapThenFiltersMap() {
+		final Map<String, String> map = new HashMap<>();
+		map.put("key1", "value1");
+		map.put("key2", "value2");
+		map.put("key3", "value3");
+
+		Expression expression = handler.getExpressionParser().parseExpression("filterObject.key eq 'key2'");
+
+		EvaluationContext context = handler.createEvaluationContext(authentication,
+				methodInvocation);
+
+		Object filtered = handler.filter(map, expression, context);
+
+		assertThat(filtered == map);
+		Map<String, String> result = ((Map<String, String>) filtered);
+		assertThat(result.size() == 1);
+		assertThat(result).containsKey("key2");
+		assertThat(result).containsValue("value2");
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void filterByValueWhenUsingMapThenFiltersMap() {
+		final Map<String, String> map = new HashMap<>();
+		map.put("key1", "value1");
+		map.put("key2", "value2");
+		map.put("key3", "value3");
+
+		Expression expression = handler.getExpressionParser().parseExpression("filterObject.value eq 'value3'");
+
+		EvaluationContext context = handler.createEvaluationContext(authentication,
+				methodInvocation);
+
+		Object filtered = handler.filter(map, expression, context);
+
+		assertThat(filtered == map);
+		Map<String, String> result = ((Map<String, String>) filtered);
+		assertThat(result.size() == 1);
+		assertThat(result).containsKey("key3");
+		assertThat(result).containsValue("value3");
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void filterByKeyAndValueWhenUsingMapThenFiltersMap() {
+		final Map<String, String> map = new HashMap<>();
+		map.put("key1", "value1");
+		map.put("key2", "value2");
+		map.put("key3", "value3");
+
+		Expression expression = handler.getExpressionParser().parseExpression("(filterObject.key eq 'key1') or (filterObject.value eq 'value2')");
+
+		EvaluationContext context = handler.createEvaluationContext(authentication,
+				methodInvocation);
+
+		Object filtered = handler.filter(map, expression, context);
+
+		assertThat(filtered == map);
+		Map<String, String> result = ((Map<String, String>) filtered);
+		assertThat(result.size() == 2);
+		assertThat(result).containsKeys("key1", "key2");
+		assertThat(result).containsValues("value1", "value2");
 	}
 
 	@Test

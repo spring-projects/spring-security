@@ -13,7 +13,10 @@ You can find a few sample applications that demonstrate the code below:
 
 You can find a minimal WebFlux Security configuration below:
 
-[source,java]
+.Minimal WebFlux Security Configuration
+====
+.Java
+[source,java,role="primary"]
 -----
 
 @EnableWebFluxSecurity
@@ -31,13 +34,35 @@ public class HelloWebfluxSecurityConfig {
 }
 -----
 
+.Kotlin
+[source,kotlin,role="secondary"]
+-----
+@EnableWebFluxSecurity
+class HelloWebfluxSecurityConfig {
+
+    @Bean
+    fun userDetailsService(): ReactiveUserDetailsService {
+        val userDetails = User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("user")
+                .roles("USER")
+                .build()
+        return MapReactiveUserDetailsService(userDetails)
+    }
+}
+-----
+====
+
 This configuration provides form and http basic authentication, sets up authorization to require an authenticated user for accessing any page, sets up a default log in page and a default log out page, sets up security related HTTP headers, CSRF protection, and more.
 
 == Explicit WebFlux Security Configuration
 
 You can find an explicit version of the minimal WebFlux Security configuration below:
 
-[source,java]
+.Explicit WebFlux Security Configuration
+====
+.Java
+[source,java,role="primary"]
 -----
 @Configuration
 @EnableWebFluxSecurity
@@ -65,6 +90,37 @@ public class HelloWebfluxSecurityConfig {
 	}
 }
 -----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+-----
+@Configuration
+@EnableWebFluxSecurity
+class HelloWebfluxSecurityConfig {
+
+    @Bean
+    fun userDetailsService(): ReactiveUserDetailsService {
+        val userDetails = User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("user")
+                .roles("USER")
+                .build()
+        return MapReactiveUserDetailsService(userDetails)
+    }
+
+    @Bean
+    fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+        return http {
+            authorizeExchange {
+                authorize(anyExchange, authenticated)
+            }
+            formLogin { }
+            httpBasic { }
+        }
+    }
+}
+-----
+====
 
 This configuration explicitly sets up all the same things as our minimal configuration.
 From here you can easily make the changes to the defaults.

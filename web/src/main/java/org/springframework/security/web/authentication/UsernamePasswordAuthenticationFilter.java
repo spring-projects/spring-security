@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication;
 
 import org.springframework.lang.Nullable;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -51,6 +52,8 @@ public class UsernamePasswordAuthenticationFilter extends
 
 	public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "username";
 	public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
+	private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER =
+			new AntPathRequestMatcher("/login", "POST");
 
 	private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
 	private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
@@ -60,7 +63,11 @@ public class UsernamePasswordAuthenticationFilter extends
 	// ===================================================================================================
 
 	public UsernamePasswordAuthenticationFilter() {
-		super(new AntPathRequestMatcher("/login", "POST"));
+		super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
+	}
+
+	public UsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
+		super(DEFAULT_ANT_PATH_REQUEST_MATCHER, authenticationManager);
 	}
 
 	// ~ Methods

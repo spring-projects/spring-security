@@ -1,0 +1,170 @@
+_Have something you'd like to contribute to the framework? We welcome pull requests, but ask that you carefully read this document first to understand how best to submit them; what kind of changes are likely to be accepted; and what to expect from the Spring Security team when evaluating your submission._
+
+_Please refer back to this document as a checklist before issuing any pull request; this will save time for everyone!_
+
+= Code of Conduct
+
+Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct]
+
+= Similar but different
+
+Each Spring module is slightly different than another in terms of team size, number of issues, etc. Therefore each project is managed slightly different. You will notice that this document is very similar to the https://github.com/spring-projects/spring-framework/wiki/Contributor-guidelines[Spring Framework Contributor guidelines]. However, there are some subtle differences between the two documents, so please be sure to read this document thoroughly.
+
+= Importing into IDE
+
+The following provides information on setting up a development environment that can run the sample in https://www.springsource.org/sts[Spring Tool Suite 3.6.0+]. Other IDE's should work using Gradle's IDE support, but have not been tested.
+
+* IDE Setup
+* Install Spring Tool Suite 3.6.0+
+* You will need the following plugins installed (can be found on the Extensions Page)
+ * Gradle Eclipse
+ * Groovy Eclipse
+* Importing the project into Spring Tool Suite
+* File-&gt;Import…-&gt;Gradle Project
+
+As of new versions of Spring Tool Suite, you might need to install Groovy Eclipse pointing directly to the updates plugin location. To install Groovy Eclipse on Spring Tool Suite based on Eclipse Oxigen you must do the following steps:
+
+Help-&gt;Install New Software…-&gt;Add the following URL into _Work with_ field:
+https://dist.springsource.org/snapshot/GRECLIPSE/e4.7/[https://dist.springsource.org/snapshot/GRECLIPSE/e4.7/]
+
+= Understand the basics
+
+Not sure what a pull request is, or how to submit one? Take a look at GitHub's excellent https://help.github.com/articles/using-pull-requests[help documentation first].
+
+= Search GitHub issues; create an issue if necessary
+
+Is there already an issue that addresses your concern? Do a bit of searching in our https://github.com/spring-projects/spring-security/issues[GitHub issues ] to see if you can find something similar. If not, please create a new issue before submitting a pull request unless the change is not a user facing issue.
+
+= Discuss non-trivial contribution ideas with committers
+
+If you're considering anything more than correcting a typo or fixing a minor bug, please discuss it on the https://gitter.im/spring-projects/spring-security[Spring Security Gitter] before submitting a pull request. We're happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
+
+= Sign the Contributor License Agreement
+
+If you have not previously done so, please fill out and
+submit the https://cla.pivotal.io/sign/spring[Contributor License Agreement].
+
+= Create your branch from master
+
+Create your topic branch to be submitted as a pull request from master. The Spring team will consider your pull request for backporting on a case-by-case basis; you don't need to worry about submitting anything for backporting.
+
+= Use short branch names
+
+Branches used when submitting pull requests should preferably be named according to GitHub issues, e.g. 'gh-1234' or 'gh-1234-fix-npe'. Otherwise, use succinct, lower-case, dash (-) delimited names, such as 'fix-warnings', 'fix-typo', etc. This is important, because branch names show up in the merge commits that result from accepting pull requests, and should be as expressive and concise as possible.
+
+= Keep commits focused
+
+Remember each ticket should be focused on a single item of interest since the tickets are used to produce the changelog. Since each commit should be tied to a single GitHub issue, ensure that your commits are focused. For example, do not include an update to a transitive library in your commit unless the GitHub is to update the library. Reviewing your commits is essential before sending a pull request.
+
+= Mind the whitespace
+
+Please carefully follow the whitespace and formatting conventions already present in the framework. 
+
+. Tabs, not spaces
+. Unix (LF), not dos (CRLF) line endings
+. Eliminate all trailing whitespace
+. Aim to wrap code at 120 characters, but favor readability over wrapping
+. Preserve existing formatting; i.e. do not reformat code for its own sake
+. Search the codebase using git grep and other tools to discover common naming conventions, etc.
+. UTF-8 encoding for Java sources and XML files
+
+Whitespace management tips
+
+. You can use the https://marketplace.eclipse.org/content/anyedit-tools[AnyEdit Eclipse plugin] to ensure spaces are used and to clean up trailing whitespaces.
+. Use git's pre-commit.sample hook to prevent invalid whitespace from being pushed out. You can enable it by moving ~/spring-security/.git/hooks/pre-commit.sample to ~/spring-security/.git/hooks/pre-commit and ensuring it is executable. For more information on hooks refer to https://git-scm.com/book/cs/ch7-3.html[Pro Git's Pre-Commit Hook's section]
+
+= Add Apache license header to all new classes
+
+= Update Apache license header to modified files as necessary
+
+Always check the date range in the license header. For example, if you've modified a file in 2012 whose header still reads
+<pre>
+ * Copyright 2002-2011 the original author or authors.
+</pre>
+then be sure to update it to 2012 appropriately
+<pre>
+ * Copyright 2002-2012 the original author or authors.
+</pre>
+
+= Use @since tags for newly-added public API types and methods
+
+e.g.
+<pre>
+/**
+ * …
+ *
+ * @author First Last
+ * @since 3.2
+ * @see …
+ */
+</pre>
+
+= Submit JUnit test cases for all behavior changes
+
+Search the codebase to find related unit tests and add additional `@Test` methods within. 
+
+. Any new tests should end in the name Tests (note this is plural). For example, a valid name would be `FilterChainProxyTests`. An invalid name would be `FilterChainProxyTest`.
+. New test methods should not start with test. This is an old JUnit3 convention and is not necessary since the method is annotated with @Test.
+
+= Update spring-security-x.y.rnc for schema changes
+
+Update the https://www.relaxng.org[RELAX NG] schema `spring-security-x.y.rnc` instead of `spring-security-x.y.xsd` if you contribute changes to supported XML configuration. The XML schema file can be generated the following Gradle task:
+
+Changes to the XML schema will be overwritten by the Gradle build task.
+
+= Squash commits
+
+Use git rebase –interactive, git add –patch and other tools to "squash" multiple commits into atomic changes. In addition to the man pages for git, there are many resources online to help you understand how these tools work. Here is one: https://book.git-scm.com/4_interactive_rebasing.html[https://book.git-scm.com/4_interactive_rebasing.html].
+
+= Use real name in git commits
+
+Please configure git to use your real first and last name for any commits you intend to submit as pull requests. For example, this is not acceptable:
+
+Rather, please include your first and last name, properly capitalized, as submitted against the SpringSource contributor license agreement:
+<pre>
+Author: First Last &lt;link:mailto:&#x75;&#115;&#101;&#114;&#64;&#109;&#x61;&#x69;&#108;&#46;&#99;&#111;&#x6d;&#38;&#103;&#116;[&#x75;&#115;&#101;&#114;&#64;&#109;&#x61;&#x69;&#108;&#46;&#99;&#111;&#x6d;&#38;&#103;&#116;];
+</pre>
+This helps ensure traceability against the CLA, and also goes a long way to ensuring useful output from tools like git shortlog and others.
+
+You can configure this globally via the account admin area GitHub (useful for fork-and-edit cases); globally with
+
+or locally for the spring-security repository only by omitting the '–global' flag:
+<pre>
+cd spring-security
+git config user.name "First Last"
+git config user.email link:mailto:&#x75;&#115;&#101;&#x72;&#64;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#109;[&#x75;&#115;&#101;&#x72;&#64;&#x6d;&#x61;&#x69;&#x6c;&#46;&#x63;&#111;&#109;]
+</pre>
+
+= Format commit messages
+
+. Keep the subject line to 50 characters or less if possible
+. Do not end the subject line with a period
+. In the body of the commit message, explain how things worked before this commit, what has changed, and how things work now
+. Include Fixes gh-<issue-number> at the end if this fixes a GitHub issue
+. Avoid markdown, including back-ticks identifying code
+
+= Run all tests prior to submission
+
+= Submit your pull request
+
+Subject line:
+
+Follow the same conventions for pull request subject lines as mentioned above for commit message subject lines.
+
+In the body:
+
+. Explain your use case. What led you to submit this change? Why were existing mechanisms in the framework insufficient? Make a case that this is a general-purpose problem and that yours is a general-purpose solution, etc
+. Add any additional information and ask questions; start a conversation, or continue one from GitHub Issues
+. Mention any GitHub Issues
+. Also mention that you have submitted the CLA as described above
+Note that for pull requests containing a single commit, GitHub will default the subject line and body of the pull request to match the subject line and body of the commit message. This is fine, but please also include the items above in the body of the request.
+
+= Mention your pull request on the associated GitHub issue
+
+Add a comment to the associated GitHub issue(s) linking to your new pull request.
+
+= Expect discussion and rework
+
+The Spring team takes a very conservative approach to accepting contributions to the framework. This is to keep code quality and stability as high as possible, and to keep complexity at a minimum. Your changes, if accepted, may be heavily modified prior to merging. You will retain "Author:" attribution for your Git commits granted that the bulk of your changes remain intact. You may be asked to rework the submission for style (as explained above) and/or substance. Again, we strongly recommend discussing any serious submissions with the Spring Framework team prior to engaging in serious development work.
+
+Note that you can always force push (git push -f) reworked / rebased commits against the branch used to submit your pull request. i.e. you do not need to issue a new pull request when asked to make changes.

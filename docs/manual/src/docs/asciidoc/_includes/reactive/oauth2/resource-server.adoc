@@ -14,7 +14,8 @@ This authorization server can be consulted by resource servers to authorize requ
 A complete working example for {gh-samples-url}/boot/oauth2resourceserver-webflux[*JWTs*]  is available in the {gh-samples-url}[Spring Security repository].
 ====
 
-== Dependencies
+[[webflux-oauth2resourceserver-jwt-minimaldependencies]]
+== Minimal Dependencies for JWT
 
 Most Resource Server support is collected into `spring-security-oauth2-resource-server`.
 However, the support for decoding and verifying JWTs is in `spring-security-oauth2-jose`, meaning that both are necessary in order to have a working resource server that supports JWT-encoded Bearer Tokens.
@@ -549,6 +550,12 @@ ReactiveJwtDecoder jwtDecoder() {
     return jwtDecoder;
 }
 ----
+[[webflux-oauth2resourceserver-opaque-minimaldependencies]]
+=== Minimal Dependencies for Introspection
+As described in <<oauth2resourceserver-jwt-minimaldependencies,Minimal Dependencies for JWT>> most of Resource Server support is collected in `spring-security-oauth2-resource-server`. 
+However unless a custom <<webflux-oauth2resourceserver-opaque-introspector-bean,`ReactiveOpaqueTokenIntrospector`>> is provided, the Resource Server will fallback to ReactiveOpaqueTokenIntrospector. 
+Meaning that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary in order to have a working minimal Resource Server that supports opaque Bearer Tokens. 
+Please refer to `spring-security-oauth2-resource-server` in order to determin the correct version for `oauth2-oidc-sdk`.
 
 [[webflux-oauth2resourceserver-opaque-minimalconfiguration]]
 === Minimal Configuration for Introspection
@@ -1076,6 +1083,29 @@ This approach allows us to add and remove elements from the repository (shown as
 
 NOTE: It would be unsafe to simply take any issuer and construct an `ReactiveAuthenticationManager` from it.
 The issuer should be one that the code can verify from a trusted source like a whitelist.
+
+[[webflux-oauth2resourceserver-bearertoken-resolver]]
+== Bearer Token Resolution
+
+By default, Resource Server looks for a bearer token in the `Authorization` header.
+This, however, can be customized.
+
+For example, you may have a need to read the bearer token from a custom header.
+To achieve this, you can wire an instance of `ServerBearerTokenAuthenticationConverter` into the DSL, as you can see in the following example:
+
+.Custom Bearer Token Header
+====
+.Java
+[source,java,role="primary"]
+----
+ServerBearerTokenAuthenticationConverter converter = new ServerBearerTokenAuthenticationConverter();
+converter.setBearerTokenHeaderName(HttpHeaders.PROXY_AUTHORIZATION);
+http
+    .oauth2ResourceServer(oauth2 -> oauth2
+        .bearerTokenConverter(converter)
+    );
+----
+====
 
 == Bearer Token Propagation
 

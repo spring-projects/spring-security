@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.*;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -87,10 +89,10 @@ public class DefaultMethodSecurityExpressionHandler extends
 	}
 
 	/**
-	 * Filters the {@code filterTarget} object (which must be either a collection, array,
+	 * Filters the {@code filterTarget} object (which must be either a collection, array, map
 	 * or stream), by evaluating the supplied expression.
 	 * <p>
-	 * If a {@code Collection} is used, the original instance will be modified to contain
+	 * If a {@code Collection} or {@code Map} is used, the original instance will be modified to contain
 	 * the elements for which the permission expression evaluates to {@code true}. For an
 	 * array, a new array instance will be returned.
 	 */
@@ -173,6 +175,32 @@ public class DefaultMethodSecurityExpressionHandler extends
 			return filtered;
 		}
 
+		if (filterTarget instanceof Map) {
+			final Map<?, ?> map = (Map<?, ?>) filterTarget;
+			final Map retainMap = new LinkedHashMap(map.size());
+
+			if (debug) {
+				logger.debug("Filtering map with " + map.size() + " elements");
+			}
+
+			for (Map.Entry<?, ?> filterObject : map.entrySet()) {
+				rootObject.setFilterObject(filterObject);
+
+				if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
+					retainMap.put(filterObject.getKey(), filterObject.getValue());
+				}
+			}
+
+			if (debug) {
+				logger.debug("Retaining elements: " + retainMap);
+			}
+
+			map.clear();
+			map.putAll(retainMap);
+
+			return filterTarget;
+		}
+
 		if (filterTarget instanceof Stream) {
 			final Stream<?> original = (Stream<?>) filterTarget;
 
@@ -184,7 +212,7 @@ public class DefaultMethodSecurityExpressionHandler extends
 		}
 
 		throw new IllegalArgumentException(
-				"Filter target must be a collection, array, or stream type, but was "
+				"Filter target must be a collection, array, map or stream type, but was "
 						+ filterTarget);
 	}
 

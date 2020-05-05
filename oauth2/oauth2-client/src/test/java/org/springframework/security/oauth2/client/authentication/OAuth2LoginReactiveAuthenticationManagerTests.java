@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -33,8 +36,11 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
@@ -93,6 +99,12 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 	public void constructorWhenNullUserServiceThenIllegalArgumentException() {
 		this.userService = null;
 		assertThatThrownBy(() -> new OAuth2LoginReactiveAuthenticationManager(this.accessTokenResponseClient, this.userService))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setAuthoritiesMapperWhenAuthoritiesMapperIsNullThenThrowIllegalArgumentException() {
+		assertThatThrownBy(() -> this.manager.setAuthoritiesMapper(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -176,6 +188,24 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 
 		assertThat(userRequestArgCaptor.getValue().getAdditionalParameters())
 				.containsAllEntriesOf(accessTokenResponse.getAdditionalParameters());
+	}
+
+	@Test
+	public void authenticateWhenAuthoritiesMapperSetThenReturnMappedAuthorities() {
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("foo")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.build();
+		when(this.accessTokenResponseClient.getTokenResponse(any())).thenReturn(Mono.just(accessTokenResponse));
+		DefaultOAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"), Collections.singletonMap("user", "rob"), "user");
+		when(this.userService.loadUser(any())).thenReturn(Mono.just(user));
+		List<GrantedAuthority> mappedAuthorities = AuthorityUtils.createAuthorityList("ROLE_OAUTH_USER");
+		GrantedAuthoritiesMapper authoritiesMapper = mock(GrantedAuthoritiesMapper.class);
+		when(authoritiesMapper.mapAuthorities(anyCollection())).thenAnswer((Answer<List<GrantedAuthority>>) invocation -> mappedAuthorities);
+		manager.setAuthoritiesMapper(authoritiesMapper);
+
+		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken()).block();
+
+		assertThat(result.getAuthorities()).isEqualTo(mappedAuthorities);
 	}
 
 	private OAuth2AuthorizationCodeAuthenticationToken loginToken() {

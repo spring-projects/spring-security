@@ -31,6 +31,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -1056,8 +1057,11 @@ public class ServerHttpSecurity {
 
 		private ReactiveAuthenticationManager createDefault() {
 			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> client = getAccessTokenResponseClient();
-			ReactiveAuthenticationManager result = new OAuth2LoginReactiveAuthenticationManager(client, getOauth2UserService());
-
+			OAuth2LoginReactiveAuthenticationManager oauth2Manager = new OAuth2LoginReactiveAuthenticationManager(client, getOauth2UserService());
+			GrantedAuthoritiesMapper authoritiesMapper = getBeanOrNull(GrantedAuthoritiesMapper.class);
+			if (authoritiesMapper != null) {
+				oauth2Manager.setAuthoritiesMapper(authoritiesMapper);
+			}
 			boolean oidcAuthenticationProviderEnabled = ClassUtils.isPresent(
 					"org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 			if (oidcAuthenticationProviderEnabled) {
@@ -1069,9 +1073,12 @@ public class ServerHttpSecurity {
 				if (jwtDecoderFactory != null) {
 					oidc.setJwtDecoderFactory(jwtDecoderFactory);
 				}
-				result = new DelegatingReactiveAuthenticationManager(oidc, result);
+				if (authoritiesMapper != null) {
+					oidc.setAuthoritiesMapper(authoritiesMapper);
+				}
+				return new DelegatingReactiveAuthenticationManager(oidc, oauth2Manager);
 			}
-			return result;
+			return oauth2Manager;
 		}
 
 		/**
@@ -2646,7 +2653,7 @@ public class ServerHttpSecurity {
 
 			/**
 			 * Require a specific authority.
-			 * @param authority the authority to require (i.e. "USER" woudl require authority of "USER").
+			 * @param authority the authority to require (i.e. "USER" would require authority of "USER").
 			 * @return the {@link AuthorizeExchangeSpec} to configure
 			 */
 			public AuthorizeExchangeSpec hasAuthority(String authority) {
@@ -3738,7 +3745,8 @@ public class ServerHttpSecurity {
 	 */
 	public final class LogoutSpec {
 		private LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
-		private List<ServerLogoutHandler> logoutHandlers = new ArrayList<>(Arrays.asList(new SecurityContextServerLogoutHandler()));
+		private final SecurityContextServerLogoutHandler DEFAULT_LOGOUT_HANDLER = new SecurityContextServerLogoutHandler();
+		private List<ServerLogoutHandler> logoutHandlers = new ArrayList<>(Arrays.asList(this.DEFAULT_LOGOUT_HANDLER));
 
 		/**
 		 * Configures the logout handler. Default is {@code SecurityContextServerLogoutHandler}
@@ -3802,6 +3810,10 @@ public class ServerHttpSecurity {
 		}
 
 		private ServerLogoutHandler createLogoutHandler() {
+			ServerSecurityContextRepository securityContextRepository = ServerHttpSecurity.this.securityContextRepository;
+			if (securityContextRepository != null) {
+				this.DEFAULT_LOGOUT_HANDLER.setSecurityContextRepository(securityContextRepository);
+			}
 			if (this.logoutHandlers.isEmpty()) {
 				return null;
 			} else if (this.logoutHandlers.size() == 1) {

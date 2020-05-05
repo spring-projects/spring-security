@@ -16,6 +16,7 @@
 package org.springframework.security.oauth2.client;
 
 import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -52,6 +53,7 @@ import java.util.function.Function;
  * and therefore MUST be defined in the database schema.
  *
  * @author Joe Grandja
+ * @author Stav Shamir
  * @since 5.3
  * @see OAuth2AuthorizedClientService
  * @see OAuth2AuthorizedClient
@@ -76,6 +78,11 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 	private static final String SAVE_AUTHORIZED_CLIENT_SQL = "INSERT INTO " + TABLE_NAME +
 			" (" + COLUMN_NAMES + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	private static final String REMOVE_AUTHORIZED_CLIENT_SQL = "DELETE FROM " + TABLE_NAME +
+			" WHERE " + PK_FILTER;
+	private static final String UPDATE_AUTHORIZED_CLIENT_SQL = "UPDATE " + TABLE_NAME +
+			" SET access_token_type = ?, access_token_value = ?, access_token_issued_at = ?," +
+			" access_token_expires_at = ?, access_token_scopes = ?," +
+			" refresh_token_value = ?, refresh_token_issued_at = ?" +
 			" WHERE " + PK_FILTER;
 	protected final JdbcOperations jdbcOperations;
 	protected RowMapper<OAuth2AuthorizedClient> authorizedClientRowMapper;
@@ -120,6 +127,35 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
 
+		boolean existsAuthorizedClient = null != this.loadAuthorizedClient(
+				authorizedClient.getClientRegistration().getRegistrationId(), principal.getName());
+
+		if (existsAuthorizedClient) {
+			updateAuthorizedClient(authorizedClient, principal);
+		} else {
+			try {
+				insertAuthorizedClient(authorizedClient, principal);
+			} catch (DuplicateKeyException e) {
+				updateAuthorizedClient(authorizedClient, principal);
+			}
+		}
+	}
+
+	private void updateAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
+		List<SqlParameterValue> parameters = this.authorizedClientParametersMapper.apply(
+				new OAuth2AuthorizedClientHolder(authorizedClient, principal));
+
+		SqlParameterValue clientRegistrationIdParameter = parameters.remove(0);
+		SqlParameterValue principalNameParameter = parameters.remove(0);
+		parameters.add(clientRegistrationIdParameter);
+		parameters.add(principalNameParameter);
+
+		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
+
+		this.jdbcOperations.update(UPDATE_AUTHORIZED_CLIENT_SQL, pss);
+	}
+
+	private void insertAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		List<SqlParameterValue> parameters = this.authorizedClientParametersMapper.apply(
 				new OAuth2AuthorizedClientHolder(authorizedClient, principal));
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());

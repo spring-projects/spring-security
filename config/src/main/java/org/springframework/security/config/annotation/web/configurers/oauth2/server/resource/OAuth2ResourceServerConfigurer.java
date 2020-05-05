@@ -123,6 +123,7 @@ import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSe
  * </ul>
  *
  * @author Josh Cummings
+ * @author Evgeniy Cheban
  * @since 5.1
  * @see BearerTokenAuthenticationFilter
  * @see JwtAuthenticationProvider
@@ -280,8 +281,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		private AuthenticationManager authenticationManager;
 		private JwtDecoder decoder;
 
-		private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter =
-				new JwtAuthenticationConverter();
+		private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter;
 
 		JwtConfigurer(ApplicationContext context) {
 			this.context = context;
@@ -315,6 +315,14 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 
 		Converter<Jwt, ? extends AbstractAuthenticationToken> getJwtAuthenticationConverter() {
+			if (this.jwtAuthenticationConverter == null) {
+				if (this.context.getBeanNamesForType(JwtAuthenticationConverter.class).length > 0) {
+					this.jwtAuthenticationConverter = this.context.getBean(JwtAuthenticationConverter.class);
+				} else {
+					this.jwtAuthenticationConverter = new JwtAuthenticationConverter();
+				}
+			}
+
 			return this.jwtAuthenticationConverter;
 		}
 

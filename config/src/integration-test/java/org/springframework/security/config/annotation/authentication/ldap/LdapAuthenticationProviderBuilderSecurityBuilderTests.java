@@ -42,7 +42,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.List;
-
+import javax.naming.directory.SearchControls;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -67,6 +67,8 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		assertThat(authoritiesPopulator).hasFieldOrPropertyWithValue("groupRoleAttribute", "cn");
 		assertThat(authoritiesPopulator).hasFieldOrPropertyWithValue("groupSearchBase", "");
 		assertThat(authoritiesPopulator).hasFieldOrPropertyWithValue("groupSearchFilter", "(uniqueMember={0})");
+		assertThat(authoritiesPopulator).extracting("searchControls").hasFieldOrPropertyWithValue("searchScope",
+				SearchControls.ONELEVEL_SCOPE);
 		assertThat(ReflectionTestUtils.getField(getAuthoritiesMapper(provider), "prefix")).isEqualTo("ROLE_");
 	}
 
@@ -120,6 +122,29 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 					.contextSource(contextSource())
 					.userDnPatterns("uid={0},ou=people")
 					.groupSearchFilter("ou=groupName");
+		}
+		// @formatter:on
+	}
+
+	@Test
+	public void groupSubtreeSearchCustom() {
+		this.spring.register(GroupSubtreeSearchConfig.class).autowire();
+		LdapAuthenticationProvider provider = ldapProvider();
+
+		assertThat(ReflectionTestUtils.getField(getAuthoritiesPopulator(provider), "searchControls"))
+				.extracting("searchScope").isEqualTo(SearchControls.SUBTREE_SCOPE);
+	}
+
+	@EnableWebSecurity
+	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
+		// @formatter:off
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.ldapAuthentication()
+					.contextSource(contextSource())
+					.userDnPatterns("uid={0},ou=people")
+					.groupSearchFilter("ou=groupName")
+					.groupSearchSubtree(true);
 		}
 		// @formatter:on
 	}

@@ -16,6 +16,10 @@
 
 package org.springframework.security.config.annotation.web.configurers.saml2;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import javax.servlet.Filter;
+
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,10 +40,6 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import javax.servlet.Filter;
 
 import static org.springframework.util.StringUtils.hasText;
 
@@ -323,10 +323,9 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 		private Filter build(B http) {
 			Saml2AuthenticationRequestFactory authenticationRequestResolver = getResolver(http);
 
-			Saml2WebSsoAuthenticationRequestFilter authenticationRequestFilter =
-					new Saml2WebSsoAuthenticationRequestFilter(Saml2LoginConfigurer.this.relyingPartyRegistrationRepository);
-			authenticationRequestFilter.setAuthenticationRequestFactory(authenticationRequestResolver);
-			return authenticationRequestFilter;
+			return new Saml2WebSsoAuthenticationRequestFilter(
+							Saml2LoginConfigurer.this.relyingPartyRegistrationRepository,
+							authenticationRequestResolver);
 		}
 
 		private Saml2AuthenticationRequestFactory getResolver(B http) {

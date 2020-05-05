@@ -49,8 +49,9 @@ import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.debug.DebugFilter;
-import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.RequestRejectedHandler;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -90,6 +91,8 @@ public final class WebSecurity extends
 	private FilterSecurityInterceptor filterSecurityInterceptor;
 
 	private HttpFirewall httpFirewall;
+
+	private RequestRejectedHandler requestRejectedHandler;
 
 	private boolean debugEnabled;
 
@@ -295,6 +298,9 @@ public final class WebSecurity extends
 		if (httpFirewall != null) {
 			filterChainProxy.setFirewall(httpFirewall);
 		}
+		if (requestRejectedHandler != null) {
+			filterChainProxy.setRequestRejectedHandler(requestRejectedHandler);
+		}
 		filterChainProxy.afterPropertiesSet();
 
 		Filter result = filterChainProxy;
@@ -391,6 +397,9 @@ public final class WebSecurity extends
 		this.ignoredRequestRegistry = new IgnoredRequestConfigurer(applicationContext);
 		try {
 			this.httpFirewall = applicationContext.getBean(HttpFirewall.class);
+		} catch(NoSuchBeanDefinitionException e) {}
+		try {
+			this.requestRejectedHandler = applicationContext.getBean(RequestRejectedHandler.class);
 		} catch(NoSuchBeanDefinitionException e) {}
 	}
 }

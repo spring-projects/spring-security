@@ -83,6 +83,7 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -716,6 +717,8 @@ public class OAuth2LoginTests {
 			http
 				.csrf().disable()
 				.logout()
+					// avoid using mock ServerSecurityContextRepository for logout
+					.logoutHandler(new SecurityContextServerLogoutHandler())
 					.logoutSuccessHandler(
 							new OidcClientInitiatedServerLogoutSuccessHandler(
 									new InMemoryReactiveClientRegistrationRepository(this.withLogout)))

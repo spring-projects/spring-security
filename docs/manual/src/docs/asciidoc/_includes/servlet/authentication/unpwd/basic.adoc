@@ -30,7 +30,7 @@ image::{figures}/basicauthenticationfilter.png[]
 The figure builds off our <<servlet-securityfilterchain,`SecurityFilterChain`>> diagram.
 
 
-image:{icondir}/number_1.png[] When the user submits their username and password, the `UsernamePasswordAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` which is a type of <<servlet-authentication-authentication,`Authentication`>> by extracting the username and password from the `HttpServletRequest`.
+image:{icondir}/number_1.png[] When the user submits their username and password, the `BasicAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` which is a type of <<servlet-authentication-authentication,`Authentication`>> by extracting the username and password from the `HttpServletRequest`.
 
 image:{icondir}/number_2.png[] Next, the `UsernamePasswordAuthenticationToken` is passed into the `AuthenticationManager` to be authenticated.
 The details of what `AuthenticationManager` look like depend on how the <<servlet-authentication-unpwd-storage,user information is stored>>.

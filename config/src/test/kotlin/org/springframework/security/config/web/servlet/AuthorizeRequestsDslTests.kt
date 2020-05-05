@@ -20,6 +20,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -27,10 +28,13 @@ import org.springframework.security.config.test.SpringTestRule
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
 import org.springframework.security.web.util.matcher.RegexRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.put
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.bind.annotation.GetMapping
@@ -72,12 +76,29 @@ class AuthorizeRequestsDslTests {
                 }
     }
 
+    @Test
+    fun `request when allowed by regex matcher with http method then responds based on method`() {
+        this.spring.register(AuthorizeRequestsByRegexConfig::class.java).autowire()
+
+        this.mockMvc.post("/onlyPostPermitted") { with(csrf()) }
+            .andExpect {
+                status { isOk }
+            }
+
+        this.mockMvc.get("/onlyPostPermitted")
+            .andExpect {
+                status { isForbidden }
+            }
+    }
+
     @EnableWebSecurity
     open class AuthorizeRequestsByRegexConfig : WebSecurityConfigurerAdapter() {
         override fun configure(http: HttpSecurity) {
             http {
                 authorizeRequests {
                     authorize(RegexRequestMatcher("/path", null), permitAll)
+                    authorize(RegexRequestMatcher("/onlyPostPermitted", "POST"), permitAll)
+                    authorize(RegexRequestMatcher("/onlyPostPermitted", "GET"), denyAll)
                     authorize(RegexRequestMatcher(".*", null), authenticated)
                 }
             }
@@ -87,6 +108,10 @@ class AuthorizeRequestsDslTests {
         internal class PathController {
             @RequestMapping("/path")
             fun path() {
+            }
+
+            @RequestMapping("/onlyPostPermitted")
+            fun onlyPostPermitted() {
             }
         }
     }
@@ -270,5 +295,92 @@ class AuthorizeRequestsDslTests {
             fun path() {
             }
         }
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class AuthorizeRequestsByMvcConfigWithHttpMethod : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(HttpMethod.GET, "/path", permitAll)
+                    authorize(HttpMethod.PUT, "/path", denyAll)
+                }
+            }
+        }
+
+        @RestController
+        internal class PathController {
+            @RequestMapping("/path")
+            fun path() {
+            }
+        }
+    }
+
+    @Test
+    fun `request when secured by mvc with http method then responds based on http method`() {
+        this.spring.register(AuthorizeRequestsByMvcConfigWithHttpMethod::class.java).autowire()
+
+        this.mockMvc.get("/path")
+            .andExpect {
+                status { isOk }
+            }
+
+        this.mockMvc.put("/path") { with(csrf()) }
+            .andExpect {
+                status { isForbidden }
+            }
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class MvcMatcherServletPathHttpMethodConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                authorizeRequests {
+                    authorize(HttpMethod.GET, "/path", "/spring", denyAll)
+                    authorize(HttpMethod.PUT, "/path", "/spring", denyAll)
+                }
+            }
+        }
+
+        @RestController
+        internal class PathController {
+            @RequestMapping("/path")
+            fun path() {
+            }
+        }
+    }
+
+
+
+    @Test
+    fun `request when secured by mvc with servlet path and http method then responds based on path and method`() {
+        this.spring.register(MvcMatcherServletPathConfig::class.java).autowire()
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/spring/path")
+            .with { request ->
+                request.apply {
+                    servletPath = "/spring"
+                }
+            })
+            .andExpect(status().isForbidden)
+
+        this.mockMvc.perform(MockMvcRequestBuilders.put("/spring/path")
+            .with { request ->
+                request.apply {
+                    servletPath = "/spring"
+                    csrf()
+                }
+            })
+            .andExpect(status().isForbidden)
+
+        this.mockMvc.perform(MockMvcRequestBuilders.get("/other/path")
+            .with { request ->
+                request.apply {
+                    servletPath = "/other"
+                }
+            })
+            .andExpect(status().isOk)
     }
 }

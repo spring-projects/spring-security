@@ -117,5 +117,4 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 			return new String(b, UTF_8);
 		}
 	}
-
 }

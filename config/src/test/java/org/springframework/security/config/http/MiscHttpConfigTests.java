@@ -94,6 +94,8 @@ import org.springframework.security.web.context.request.async.WebAsyncManagerInt
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.RequestRejectedException;
+import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
@@ -752,6 +754,21 @@ public class MiscHttpConfigTests {
 
 		verify(firewall).getFirewalledRequest(any(HttpServletRequest.class));
 		verify(firewall).getFirewalledResponse(any(HttpServletResponse.class));
+	}
+
+	@Test
+	public void getWhenUsingCustomRequestRejectedHandlerThenRequestRejectedHandlerIsInvoked() throws Exception {
+		this.spring.configLocations(xml("RequestRejectedHandler")).autowire();
+
+		HttpServletResponse response = new MockHttpServletResponse();
+
+		RequestRejectedException rejected = new RequestRejectedException("failed");
+		HttpFirewall firewall = this.spring.getContext().getBean(HttpFirewall.class);
+		RequestRejectedHandler requestRejectedHandler = this.spring.getContext().getBean(RequestRejectedHandler.class);
+		when(firewall.getFirewalledRequest(any(HttpServletRequest.class))).thenThrow(rejected);
+		this.mvc.perform(get("/unprotected"));
+
+		verify(requestRejectedHandler).handle(any(), any(), any());
 	}
 
 	@Test

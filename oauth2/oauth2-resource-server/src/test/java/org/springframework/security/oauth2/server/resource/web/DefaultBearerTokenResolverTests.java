@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * @author Vedran Pavic
  */
 public class DefaultBearerTokenResolverTests {
-
+	private static final String CUSTOM_HEADER = "custom-header";
 	private static final String TEST_TOKEN = "test-token";
 
 	private DefaultBearerTokenResolver resolver;
@@ -47,6 +47,15 @@ public class DefaultBearerTokenResolverTests {
 	public void resolveWhenValidHeaderIsPresentThenTokenIsResolved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + TEST_TOKEN);
+
+		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
+	}
+
+	@Test
+	public void resolveWhenCustomDefinedHeaderIsValidAndPresentThenTokenIsResolved() {
+		this.resolver.setBearerTokenHeaderName(CUSTOM_HEADER);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader(CUSTOM_HEADER, "Bearer " + TEST_TOKEN);
 
 		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
 	}

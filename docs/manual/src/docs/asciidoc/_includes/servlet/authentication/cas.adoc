@@ -235,7 +235,7 @@ With the configuration above, the flow of logout would be:
 * The logout success page, `/cas-logout.jsp`, should instruct the user to click a link pointing to `/logout/cas` in order to logout out of all applications.
 * When the user clicks the link, the user is redirected to the CAS single logout URL (https://localhost:9443/cas/logout).
 * On the CAS Server side, the CAS single logout URL then submits single logout requests to all the CAS Services.
-On the CAS Service side, JASIG's `SingleSignOutFilter` processes the logout request by invaliditing the original session.
+On the CAS Service side, JASIG's `SingleSignOutFilter` processes the logout request by invalidating the original session.
 
 
 

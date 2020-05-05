@@ -40,6 +40,7 @@ class RequiresChannelDsl : AbstractRequestMatcherDsl() {
     private val MVC_PRESENT = ClassUtils.isPresent(
             HANDLER_MAPPING_INTROSPECTOR,
             RequiresChannelDsl::class.java.classLoader)
+    private val PATTERN_TYPE = if (MVC_PRESENT) PatternType.MVC else PatternType.ANT
 
     var channelProcessors: List<ChannelProcessor>? = null
 
@@ -71,11 +72,9 @@ class RequiresChannelDsl : AbstractRequestMatcherDsl() {
      * (i.e. "REQUIRES_SECURE_CHANNEL")
      */
     fun secure(pattern: String, attribute: String = "REQUIRES_SECURE_CHANNEL") {
-        if (MVC_PRESENT) {
-            channelSecurityRules.add(PatternAuthorizationRule(pattern, PatternType.MVC, null, attribute))
-        } else {
-            channelSecurityRules.add(PatternAuthorizationRule(pattern, PatternType.ANT, null, attribute))
-        }
+        channelSecurityRules.add(PatternAuthorizationRule(pattern = pattern,
+                                                          patternType = PATTERN_TYPE,
+                                                          rule = attribute))
     }
 
     /**
@@ -96,11 +95,10 @@ class RequiresChannelDsl : AbstractRequestMatcherDsl() {
      * (i.e. "REQUIRES_SECURE_CHANNEL")
      */
     fun secure(pattern: String, servletPath: String, attribute: String = "REQUIRES_SECURE_CHANNEL") {
-        if (MVC_PRESENT) {
-            channelSecurityRules.add(PatternAuthorizationRule(pattern, PatternType.MVC, servletPath, attribute))
-        } else {
-            channelSecurityRules.add(PatternAuthorizationRule(pattern, PatternType.ANT, servletPath, attribute))
-        }
+        channelSecurityRules.add(PatternAuthorizationRule(pattern = pattern,
+                                                          patternType = PATTERN_TYPE,
+                                                          servletPath = servletPath,
+                                                          rule = attribute))
     }
 
     /**
