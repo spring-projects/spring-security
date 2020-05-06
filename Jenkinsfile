@@ -56,7 +56,7 @@ try {
 				sh "git clean -dfx"
 				try {
 					withEnv(["JAVA_HOME=${ tool 'jdk8' }"]) {
-						sh "./gradlew clean test -PforceMavenRepositories=snapshot -PspringVersion='5.+' -PreactorVersion=Dysprosium-BUILD-SNAPSHOT -PspringDataVersion=Lovelace-BUILD-SNAPSHOT --refresh-dependencies --no-daemon --stacktrace"
+						sh "./gradlew clean test -PforceMavenRepositories=snapshot -PspringVersion='5.2.+' -PreactorVersion=Dysprosium-BUILD-SNAPSHOT -PspringDataVersion=Lovelace-BUILD-SNAPSHOT --refresh-dependencies --no-daemon --stacktrace"
 					}
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: snapshots'
