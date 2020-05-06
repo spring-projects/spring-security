@@ -1023,8 +1023,8 @@ To adjust the way in which Resource Server connects to the authorization server,
 @Bean
 public JwtDecoder jwtDecoder(RestTemplateBuilder builder) {
     RestOperations rest = builder
-            .setConnectionTimeout(60000)
-            .setReadTimeout(60000)
+            .setConnectTimeout(Duration.ofSeconds(60))
+            .setReadTimeout(60Duration.ofSeconds(60))
             .build();
 
     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).restOperations(rest).build();
@@ -1576,8 +1576,8 @@ To adjust the way in which Resource Server connects to the authorization server,
 public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder) {
     RestOperations rest = builder
             .basicAuthentication(clientId, clientSecret)
-            .setConnectionTimeout(60000)
-            .setReadTimeout(60000)
+            .setConnectTimeout(Duration.ofSeconds(60))
+            .setReadTimeout(Duration.ofSeconds(60))
             .build();
 
     return new NimbusOpaqueTokenIntrospector(introspectionUri, rest);
