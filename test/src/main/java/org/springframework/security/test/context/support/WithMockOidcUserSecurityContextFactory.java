@@ -77,7 +77,6 @@ final class WithMockOidcUserSecurityContextFactory implements
 			claims.put("iat", issuedAt.getEpochSecond());
 			claims.put("exp", expiredAt.getEpochSecond());
 			claims.put(userIdClaimName, userId);
-			claims.put("email", userId + "@test.org");
 		}
 
 		public OidcIdToken build() {

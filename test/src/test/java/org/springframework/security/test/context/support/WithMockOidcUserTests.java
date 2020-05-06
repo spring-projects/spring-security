@@ -19,8 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.security.test.context.support.TestExecutionEvent;
-import org.springframework.security.test.context.support.WithSecurityContext;
 
 public class WithMockOidcUserTests {
 
@@ -32,6 +30,7 @@ public class WithMockOidcUserTests {
 		assertThat(mockUser.name()).isEmpty();
 		assertThat(mockUser.authorities()).containsOnly("openid");
 		assertThat(mockUser.clientId()).isEqualTo("clientId");
+		assertThat(mockUser.nameTokenClaim()).isEqualTo("sub");
 		assertThat(mockUser.setupBefore()).isEqualByComparingTo(TestExecutionEvent.TEST_METHOD);
 
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(Annotated.class,
