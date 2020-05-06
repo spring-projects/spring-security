@@ -20,7 +20,7 @@ public class MavenBomTask extends DefaultTask {
 
 	@TaskAction
 	public void configureBom() {
-		project.configurations.archives.artifacts.clear()
+//		project.configurations.archives.artifacts.clear()
 
 		bomFile.parentFile.mkdirs()
 		bomFile.write("Maven Build of Materials (BOM). See https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies")
