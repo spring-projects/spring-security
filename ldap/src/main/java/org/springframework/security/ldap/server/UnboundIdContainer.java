@@ -15,9 +15,8 @@
  */
 package org.springframework.security.ldap.server;
 
-import java.io.File;
-import java.io.InputStream;
 
+import java.io.InputStream;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
@@ -36,6 +35,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * @author Eddú Meléndez
+ * @author Shay Dratler
  */
 public class UnboundIdContainer implements InitializingBean, DisposableBean, Lifecycle,
 		ApplicationContextAware {
@@ -54,28 +54,15 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 
 	public UnboundIdContainer(String defaultPartitionSuffix, String ldif) {
 		this.defaultPartitionSuffix = defaultPartitionSuffix;
-		setLdif(ldif);
-	}
-
-	public String getLdif() {
-		return ldif;
-	}
-
-	public void setLdif(String ldif) {
-		if (!StringUtils.hasText(ldif)) {
-			throw new IllegalArgumentException("ldif file value is missing");
-		}
-		checkFilePath(ldif);
 		this.ldif = ldif;
 	}
 
 	private void checkFilePath(String ldif) {
-		File ldifFile = new File(ldif);
-		if (ldifFile.exists()) {
-			throw new IllegalArgumentException("the requested file not found within given path");
+		if (!StringUtils.hasText(ldif)) {
+			throw new IllegalArgumentException("Unable to load LDIF "+ldif);
 		}
-		if (ldifFile.isFile()) {
-			throw new IllegalArgumentException("the given path is not a file");
+		if (!ldif.endsWith(".ldif")) {
+			throw new IllegalArgumentException("Unable to load LDIF "+ldif);
 		}
 	}
 
@@ -135,19 +122,21 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 	}
 
 	private void importLdif(InMemoryDirectoryServer directoryServer) {
-		//TODO - would like to remove this check I think set and get are the best place to handle these*
-		if (StringUtils.hasText(this.ldif)) {
-			try {
-				Resource[] resources = this.context.getResources(getLdif());
-				if (resources.length > 0 && resources[0].exists()) {
-					try (InputStream inputStream = resources[0].getInputStream()) {
-						directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
-					}
+		checkFilePath(this.ldif);
+		try {
+			Resource[] resources = this.context.getResources(this.ldif);
+			if (resources.length > 0
+					&& resources[0].exists()
+					&& resources[0].isFile()
+					&& resources[0].isReadable()) {
+				try (InputStream inputStream = resources[0].getInputStream()) {
+					directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
 				}
-			} catch (Exception ex) {
-				throw new IllegalStateException("Unable to load LDIF " + this.ldif, ex);
 			}
+		} catch (Exception ex) {
+			throw new IllegalStateException("Unable to load LDIF " + this.ldif, ex);
 		}
+
 	}
 
 	@Override

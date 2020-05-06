@@ -28,11 +28,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Eddú Meléndez
+ * @author Shay Dratler
  */
 public class UnboundIdContainerTests {
 
-	private final String validLdifClassPath =  "classpath:test-server.ldif";
-	private final String validRootDn =  "dc=springframework,dc=org";
+	private final String validLdifClassPath = "classpath:test-server.ldif";
+	private final String validRootDn = "dc=springframework,dc=org";
 
 	@Test
 	public void startLdapServer() throws Exception {
@@ -81,37 +82,75 @@ public class UnboundIdContainerTests {
 		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testInvalidLdapFile(){
+	@Test
+	public void testInvalidLdapFile() {
 		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "classpath:missing-file.ldif");
 		server.setPort(0);
 		try {
 			server.start();
-
-		}catch (Exception e){} finally {
-			server.destroy();
+		}  catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
 		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testInvalidNullLdapFile(){
-		new UnboundIdContainer(validRootDn, null);
+	@Test
+	public void testInvalidNullLdapFile() {
+		UnboundIdContainer server = new UnboundIdContainer(validRootDn, null);
+		try {
+			server.start();
+		}  catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
+		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testInvalidEmptyPathLdapFile(){
-		new UnboundIdContainer(validRootDn, "");
+	@Test
+	public void testInvalidEmptyPathLdapFile() {
+		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "");
+		try {
+			server.start();
+		}  catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
+		}
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testInvalidRootDnLdapFile(){
+	@Test
+	public void testInvalidDirectoryAsLdapFile() {
+		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "classpath:/");
+		server.setPort(0);
+		try {
+			server.start();
+		}  catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
+		}
+	}
+
+	@Test
+	public void testInvalidFileTextFileAsLdapFile() {
+		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "classpath:test-server-malformed.txt");
+		server.setPort(0);
+		try {
+			server.start();
+
+		}  catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
+		}
+	}
+
+	@Test
+	public void testInvalidRootDnLdapFile() {
 		UnboundIdContainer server = new UnboundIdContainer("dc=fake,dc=org", validLdifClassPath);
 		server.setPort(0);
 		try {
 			server.start();
 
-		}catch (Exception e){} finally {
-			server.destroy();
+		}  catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
 		}
 	}
 
