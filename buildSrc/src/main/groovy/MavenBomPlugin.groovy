@@ -15,6 +15,5 @@ public class MavenBomPlugin implements Plugin<Project> {
 		project.plugins.apply(MavenPlugin)
 		project.task(MAVEN_BOM_TASK_NAME, type: MavenBomTask, group: 'Generate', description: 'Configures the pom as a Maven Build of Materials (BOM)')
 		project.install.dependsOn project.mavenBom
-		project.uploadArchives.dependsOn project.mavenBom
 	}
 }
