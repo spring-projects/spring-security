@@ -77,7 +77,6 @@ import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.startsWith;
 import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.buildConditions;
@@ -242,8 +241,8 @@ public class Saml2LoginIntegrationTests {
 		sendResponse(response, "/login?error")
 				.andExpect(
 						saml2AuthenticationExceptionMatcher(
-								"invalid_signature",
-								equalTo("Assertion doesn't have a valid signature.")
+								"invalid_assertion",
+								containsString("Invalid assertion [assertion] for SAML response")
 						)
 				);
 	}
@@ -258,7 +257,7 @@ public class Saml2LoginIntegrationTests {
 				.andExpect(
 						saml2AuthenticationExceptionMatcher(
 								"invalid_assertion",
-								containsString("Assertion 'assertion' with NotOnOrAfter condition of")
+								containsString("Invalid assertion [assertion] for SAML response")
 						)
 				);
 	}
@@ -273,7 +272,7 @@ public class Saml2LoginIntegrationTests {
 				.andExpect(
 						saml2AuthenticationExceptionMatcher(
 								"invalid_assertion",
-								containsString("Assertion 'assertion' with NotBefore condition of")
+								containsString("Invalid assertion [assertion] for SAML response")
 						)
 				);
 	}
@@ -290,8 +289,7 @@ public class Saml2LoginIntegrationTests {
 						saml2AuthenticationExceptionMatcher(
 								"invalid_issuer",
 								containsString(
-										"Response issuer 'invalid issuer' doesn't match "+
-												"'https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php'"
+										"Invalid issuer [invalid issuer] for SAML response"
 								)
 						)
 				);
