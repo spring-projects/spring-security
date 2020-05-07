@@ -165,6 +165,7 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 				.isEqualTo(AuthenticationMethod.HEADER);
 		assertThat(googleProviderDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo("sub");
 		assertThat(googleProviderDetails.getJwkSetUri()).isEqualTo("https://example.com/oauth2/v3/certs");
+		assertThat(googleProviderDetails.getIssuerUri()).isEqualTo(serverUrl);
 	}
 
 	@Test
@@ -195,6 +196,7 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 				.isEqualTo(AuthenticationMethod.HEADER);
 		assertThat(googleProviderDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo("sub");
 		assertThat(googleProviderDetails.getJwkSetUri()).isEqualTo("https://www.googleapis.com/oauth2/v3/certs");
+		assertThat(googleProviderDetails.getIssuerUri()).isEqualTo("https://accounts.google.com");
 
 		ClientRegistration githubRegistration = clientRegistrationRepository.findByRegistrationId("github-login");
 		assertThat(githubRegistration).isNotNull();

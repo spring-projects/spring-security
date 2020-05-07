@@ -139,6 +139,8 @@ public class OAuth2AuthorizedClientMixinTests {
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName());
 		assertThat(clientRegistration.getProviderDetails().getJwkSetUri())
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getJwkSetUri());
+		assertThat(clientRegistration.getProviderDetails().getIssuerUri())
+				.isEqualTo(expectedClientRegistration.getProviderDetails().getIssuerUri());
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata())
 				.containsExactlyEntriesOf(clientRegistration.getProviderDetails().getConfigurationMetadata());
 		assertThat(clientRegistration.getClientName())
@@ -203,6 +205,7 @@ public class OAuth2AuthorizedClientMixinTests {
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod());
 		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName()).isNull();
 		assertThat(clientRegistration.getProviderDetails().getJwkSetUri()).isNull();
+		assertThat(clientRegistration.getProviderDetails().getIssuerUri()).isNull();
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).isEmpty();
 		assertThat(clientRegistration.getClientName())
 				.isEqualTo(clientRegistration.getRegistrationId());
@@ -276,6 +279,7 @@ public class OAuth2AuthorizedClientMixinTests {
 				"        \"userNameAttributeName\": " + (userInfoEndpoint.getUserNameAttributeName() != null ? "\"" + userInfoEndpoint.getUserNameAttributeName() + "\"" : null) + "\n" +
 				"      },\n" +
 				"      \"jwkSetUri\": " + (providerDetails.getJwkSetUri() != null ? "\"" + providerDetails.getJwkSetUri() + "\"" : null) + ",\n" +
+				"      \"issuerUri\": " + (providerDetails.getIssuerUri() != null ? "\"" + providerDetails.getIssuerUri() + "\"" : null) + ",\n" +
 				"      \"configurationMetadata\": {\n" +
 				"        " + configurationMetadata + "\n" +
 				"      }\n" +

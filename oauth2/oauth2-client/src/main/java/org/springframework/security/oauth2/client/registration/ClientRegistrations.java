@@ -248,6 +248,7 @@ public final class ClientRegistrations {
 				.authorizationUri(metadata.getAuthorizationEndpointURI().toASCIIString())
 				.providerConfigurationMetadata(configurationMetadata)
 				.tokenUri(metadata.getTokenEndpointURI().toASCIIString())
+				.issuerUri(issuer)
 				.clientName(issuer);
 	}
 
