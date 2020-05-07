@@ -98,9 +98,7 @@ public class OidcIdTokenValidatorTests {
 		 * When the issuer is set in the provider metadata, and it does not match the issuer in the ID Token,
 		 * the validation must fail
 		 */
-		Map<String, Object> configurationMetadata = new HashMap<>();
-		configurationMetadata.put("issuer", "https://issuer.somethingelse.com");
-		this.registration = this.registration.providerConfigurationMetadata(configurationMetadata);
+		this.registration = this.registration.issuerUri("https://issuer.somethingelse.com");
 
 		assertThat(this.validateIdToken())
 				.hasSize(1)
@@ -114,9 +112,7 @@ public class OidcIdTokenValidatorTests {
 		 * When the issuer is set in the provider metadata, and it does match the issuer in the ID Token,
 		 * the validation must succeed
 		 */
-		Map<String, Object> configurationMetadata = new HashMap<>();
-		configurationMetadata.put("issuer", "https://issuer.example.com");
-		this.registration = this.registration.providerConfigurationMetadata(configurationMetadata);
+		this.registration = this.registration.issuerUri("https://issuer.example.com");
 
 		assertThat(this.validateIdToken()).isEmpty();
 	}

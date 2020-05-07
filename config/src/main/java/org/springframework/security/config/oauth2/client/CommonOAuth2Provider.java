@@ -42,6 +42,7 @@ public enum CommonOAuth2Provider {
 			builder.tokenUri("https://www.googleapis.com/oauth2/v4/token");
 			builder.jwkSetUri("https://www.googleapis.com/oauth2/v3/certs");
 			builder.userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo");
+			builder.issuerUri("https://accounts.google.com");
 			builder.userNameAttributeName(IdTokenClaimNames.SUB);
 			builder.clientName("Google");
 			return builder;

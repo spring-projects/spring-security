@@ -162,6 +162,7 @@ public class ClientRegistrationsTest {
 		assertThat(provider.getAuthorizationUri()).isEqualTo("https://example.com/o/oauth2/v2/auth");
 		assertThat(provider.getTokenUri()).isEqualTo("https://example.com/oauth2/v4/token");
 		assertThat(provider.getJwkSetUri()).isEqualTo("https://example.com/oauth2/v3/certs");
+		assertThat(provider.getIssuerUri()).isEqualTo(this.issuer);
 		assertThat(provider.getConfigurationMetadata()).containsKeys("authorization_endpoint", "claims_supported",
 				"code_challenge_methods_supported", "id_token_signing_alg_values_supported", "issuer", "jwks_uri",
 				"response_types_supported", "revocation_endpoint", "scopes_supported", "subject_types_supported",

@@ -163,6 +163,7 @@ public final class ClientRegistration implements Serializable {
 		private String tokenUri;
 		private UserInfoEndpoint userInfoEndpoint = new UserInfoEndpoint();
 		private String jwkSetUri;
+		private String issuerUri;
 		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 
 		private ProviderDetails() {
@@ -202,6 +203,16 @@ public final class ClientRegistration implements Serializable {
 		 */
 		public String getJwkSetUri() {
 			return this.jwkSetUri;
+		}
+
+		/**
+		 * Returns the uri for the OpenID Provider Issuer.
+		 *
+		 * @since 5.4
+		 * @return the uri for the OpenID Provider Issuer
+		 */
+		public String getIssuerUri() {
+			return this.issuerUri;
 		}
 
 		/**
@@ -296,6 +307,7 @@ public final class ClientRegistration implements Serializable {
 		private AuthenticationMethod userInfoAuthenticationMethod = AuthenticationMethod.HEADER;
 		private String userNameAttributeName;
 		private String jwkSetUri;
+		private String issuerUri;
 		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 		private String clientName;
 
@@ -317,6 +329,7 @@ public final class ClientRegistration implements Serializable {
 			this.userInfoAuthenticationMethod = clientRegistration.providerDetails.userInfoEndpoint.authenticationMethod;
 			this.userNameAttributeName = clientRegistration.providerDetails.userInfoEndpoint.userNameAttributeName;
 			this.jwkSetUri = clientRegistration.providerDetails.jwkSetUri;
+			this.issuerUri = clientRegistration.providerDetails.issuerUri;
 			Map<String, Object> configurationMetadata = clientRegistration.providerDetails.configurationMetadata;
 			if (configurationMetadata != EMPTY_MAP) {
 				this.configurationMetadata = new HashMap<>(configurationMetadata);
@@ -487,6 +500,17 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		/**
+		 * Sets the uri for the OpenID Provider Issuer.
+		 *
+		 * @param issuerUri the uri for the OpenID Provider Issuer
+		 * @return the {@link Builder}
+		 */
+		public Builder issuerUri(String issuerUri) {
+			this.issuerUri = issuerUri;
+			return this;
+		}
+
+		/**
 		 * Sets the metadata describing the provider's configuration.
 		 *
 		 * @since 5.1
@@ -554,6 +578,7 @@ public final class ClientRegistration implements Serializable {
 			providerDetails.userInfoEndpoint.authenticationMethod = this.userInfoAuthenticationMethod;
 			providerDetails.userInfoEndpoint.userNameAttributeName = this.userNameAttributeName;
 			providerDetails.jwkSetUri = this.jwkSetUri;
+			providerDetails.issuerUri = this.issuerUri;
 			providerDetails.configurationMetadata = Collections.unmodifiableMap(this.configurationMetadata);
 			clientRegistration.providerDetails = providerDetails;
 
