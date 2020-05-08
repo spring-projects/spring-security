@@ -1024,7 +1024,7 @@ To adjust the way in which Resource Server connects to the authorization server,
 public JwtDecoder jwtDecoder(RestTemplateBuilder builder) {
     RestOperations rest = builder
             .setConnectTimeout(Duration.ofSeconds(60))
-            .setReadTimeout(60Duration.ofSeconds(60))
+            .setReadTimeout(Duration.ofSeconds(60))
             .build();
 
     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).restOperations(rest).build();
