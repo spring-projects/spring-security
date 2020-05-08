@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  */
 public class DefaultBearerTokenResolverTests {
 	private static final String CUSTOM_HEADER = "custom-header";
-	private static final String TEST_TOKEN = "lCPmYpr4RZbfBgFn5BhBK1GrfXw=";
+	private static final String TEST_TOKEN = "lCPmYpr4RZbfBgFn5BhBK1GrfXw";
 
 	private DefaultBearerTokenResolver resolver;
 
@@ -49,6 +49,24 @@ public class DefaultBearerTokenResolverTests {
 		request.addHeader("Authorization", "Bearer " + TEST_TOKEN);
 
 		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
+	}
+
+	@Test
+	public void resolveWhenTokenHasOneBytePaddingIndicator() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		String token = TEST_TOKEN + "=";
+		request.addHeader("Authorization", "Bearer " + token);
+
+		assertThat(this.resolver.resolve(request)).isEqualTo(token);
+	}
+
+	@Test
+	public void resolveWhenTokenHasTwoBytesPaddingIndicator() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		String token = TEST_TOKEN + "==";
+		request.addHeader("Authorization", "Bearer " + token);
+
+		assertThat(this.resolver.resolve(request)).isEqualTo(token);
 	}
 
 	@Test

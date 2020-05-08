@@ -38,7 +38,7 @@ import static org.springframework.security.oauth2.server.resource.BearerTokenErr
 public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
 	private static final Pattern authorizationPattern = Pattern.compile(
-		"^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
+		"^Bearer (?<token>[a-zA-Z0-9-._~+/]+)(?<padding>=*)$",
 		Pattern.CASE_INSENSITIVE);
 
 	private boolean allowFormEncodedBodyParameter = false;
@@ -111,7 +111,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 				throw new OAuth2AuthenticationException(error);
 			}
 
-			return matcher.group("token") + "=";
+			return matcher.group("token") + matcher.group("padding");
 		}
 		return null;
 	}
