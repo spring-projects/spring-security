@@ -1573,10 +1573,10 @@ To adjust the way in which Resource Server connects to the authorization server,
 
 ```java
 @Bean
-public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder) {
+public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder, OAuth2ResourceServerProperties properties) {
     RestOperations rest = builder
-            .basicAuthentication(clientId, clientSecret)
-            .setConnectTimeout(Duration.ofSeconds(60))
+            .basicAuthentication(properties.getOpaquetoken().getClientId(), properties.getOpaquetoken().getClientSecret())
+            .setConnectionTimeout(Duration.ofSeconds(60))
             .setReadTimeout(Duration.ofSeconds(60))
             .build();
 
