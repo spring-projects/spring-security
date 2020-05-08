@@ -47,7 +47,7 @@ final class WithMockOidcUserSecurityContextFactory implements
 				.name() : withUser.value();
 		if (userId == null) {
 			throw new IllegalArgumentException(withUser
-					+ " cannot have null user name/id on both name and value properties");
+					+ " cannot have null userId on both userId and value properties");
 		}
 
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();

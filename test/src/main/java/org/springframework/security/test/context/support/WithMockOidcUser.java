@@ -47,10 +47,11 @@ import java.lang.annotation.*;
 @Documented
 @WithSecurityContext(factory = WithMockOidcUserSecurityContextFactory.class)
 public @interface WithMockOidcUser {
+	String DEFAULT_SCOPE = "SCOPE_openid";
+
 	/**
 	 * Convenience mechanism for specifying the username. The default is "user". If
 	 * {@link #name()} is specified it will be used instead of {@link #value()}
-	 *
 	 * @return
 	 */
 	String value() default "user";
@@ -59,32 +60,29 @@ public @interface WithMockOidcUser {
 	 * The user name oder user id (subject) to be used. Note that {@link #value()} is a synonym for
 	 * {@link #name()}, but if {@link #name()} is specified it will take
 	 * precedence.
-	 *
 	 * @return
 	 */
 	String name() default "";
 
 	/**
 	 * <p>
-	 * The authorities to use. The default is "openid". A {@link GrantedAuthority} will be created for each value.
+	 * The authorities, that should be mapped to {@code GrantedAuthority}.
+	 * The default is "SCOPE_openid". A {@link GrantedAuthority} will be created for each value.
 	 * </p>
-	 * *
-	 *
+	 **
 	 * @return
 	 */
-	String[] authorities() default { "openid" };
+	String[] authorities() default { "SCOPE_openid" };
 
 	/**
 	 * The name of the OIDC token claim that contains the subject identifier that identifies the End-User.
 	 * The default is "sub".
-	 *
 	 * @return
 	 */
 	String nameTokenClaim() default "sub";
 
 	/**
 	 * The password to be used. The default is "clientId".
-	 *
 	 * @return
 	 */
 	String clientId() default "clientId";
@@ -93,7 +91,6 @@ public @interface WithMockOidcUser {
 	 * Determines when the {@link SecurityContext} is setup. The default is before
 	 * {@link TestExecutionEvent#TEST_METHOD} which occurs during
 	 * {@link org.springframework.test.context.TestExecutionListener#beforeTestMethod(TestContext)}
-	 *
 	 * @return the {@link TestExecutionEvent} to initialize before
 	 * @since 5.1
 	 */
