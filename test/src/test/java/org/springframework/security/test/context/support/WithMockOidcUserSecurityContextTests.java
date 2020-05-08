@@ -81,14 +81,15 @@ public class WithMockOidcUserSecurityContextTests {
 				"USER", "CUSTOM");
 	}
 
+	@SuppressWarnings("checkstyle:WhitespaceAfter")
 	@Test
 	public void overwriteNameTokenClaim() {
 		when(withUser.nameTokenClaim()).thenReturn("userNameClaim");
 
 		Object authn = factory.createSecurityContext(withUser).getAuthentication().getPrincipal();
 		assertThat(authn).isInstanceOf(OidcUser.class);
-		assertThat(((OidcUser)authn).getClaims()).containsKey("userNameClaim");
-		assertThat(((OidcUser)authn).getClaims()).doesNotContainKey("sub");
+		assertThat(((OidcUser) authn).getClaims()).containsKey("userNameClaim");
+		assertThat(((OidcUser) authn).getClaims()).doesNotContainKey("sub");
 		assertThat(((OidcUser) authn).getName()).isEqualTo("valueUser");
 	}
 
