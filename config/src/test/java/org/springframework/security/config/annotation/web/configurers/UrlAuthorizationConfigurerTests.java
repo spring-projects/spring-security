@@ -36,6 +36,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,7 +73,7 @@ public class UrlAuthorizationConfigurerTests {
 
 	@Test
 	public void mvcMatcher() throws Exception {
-		loadConfig(MvcMatcherConfig.class);
+		loadConfig(MvcMatcherConfig.class, LegacyMvcMatchingConfig.class);
 
 		this.request.setRequestURI("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
@@ -129,7 +131,7 @@ public class UrlAuthorizationConfigurerTests {
 
 	@Test
 	public void mvcMatcherServletPath() throws Exception {
-		loadConfig(MvcMatcherServletPathConfig.class);
+		loadConfig(MvcMatcherServletPathConfig.class, LegacyMvcMatchingConfig.class);
 
 		this.request.setServletPath("/spring");
 		this.request.setRequestURI("/spring/path");
@@ -219,6 +221,14 @@ public class UrlAuthorizationConfigurerTests {
 				.apply(new UrlAuthorizationConfigurer<>(null)).getRegistry()
 					.anyRequest().anonymous();
 			// @formatter:on
+		}
+	}
+
+	@Configuration
+	static class LegacyMvcMatchingConfig implements WebMvcConfigurer {
+		@Override
+		public void configurePathMatch(PathMatchConfigurer configurer) {
+			configurer.setUseSuffixPatternMatch(true);
 		}
 	}
 

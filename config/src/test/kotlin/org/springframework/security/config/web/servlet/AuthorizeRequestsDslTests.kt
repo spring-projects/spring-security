@@ -20,6 +20,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -42,6 +43,8 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 /**
  * Tests for [AuthorizeRequestsDsl]
@@ -128,7 +131,7 @@ class AuthorizeRequestsDslTests {
 
     @Test
     fun `request when allowed by mvc then responds with OK`() {
-        this.spring.register(AuthorizeRequestsByMvcConfig::class.java).autowire()
+        this.spring.register(AuthorizeRequestsByMvcConfig::class.java, LegacyMvcMatchingConfig::class.java).autowire()
 
         this.mockMvc.get("/path")
                 .andExpect {
@@ -163,6 +166,13 @@ class AuthorizeRequestsDslTests {
             @RequestMapping("/path")
             fun path() {
             }
+        }
+    }
+
+    @Configuration
+    open class LegacyMvcMatchingConfig : WebMvcConfigurer {
+        override fun configurePathMatch(configurer: PathMatchConfigurer) {
+            configurer.setUseSuffixPatternMatch(true)
         }
     }
 
