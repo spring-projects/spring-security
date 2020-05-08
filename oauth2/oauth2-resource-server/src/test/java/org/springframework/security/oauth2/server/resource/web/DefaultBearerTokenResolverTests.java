@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  */
 public class DefaultBearerTokenResolverTests {
 	private static final String CUSTOM_HEADER = "custom-header";
-	private static final String TEST_TOKEN = "test-token";
+	private static final String TEST_TOKEN = "lCPmYpr4RZbfBgFn5BhBK1GrfXw=";
 
 	private DefaultBearerTokenResolver resolver;
 

@@ -67,6 +67,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		return null;
 	}
 
+
 	/**
 	 * Set if transport of access token using form-encoded body parameter is supported. Defaults to {@code false}.
 	 * @param allowFormEncodedBodyParameter if the form-encoded body parameter is supported
@@ -110,7 +111,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 				throw new OAuth2AuthenticationException(error);
 			}
 
-			return matcher.group("token");
+			return matcher.group("token") + "=";
 		}
 		return null;
 	}
