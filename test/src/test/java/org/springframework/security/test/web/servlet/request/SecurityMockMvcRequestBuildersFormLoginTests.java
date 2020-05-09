@@ -18,11 +18,23 @@ package org.springframework.security.test.web.servlet.request;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.beans.Mergeable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.CsrfRequestPostProcessor;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.SmartRequestBuilder;
+import org.springframework.test.web.servlet.request.ConfigurableSmartRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder;
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
+import org.springframework.util.Assert;
+import org.springframework.web.context.support.GenericWebApplicationContext;
+
+import javax.servlet.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -82,6 +94,46 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 		assertThat(request.getRequestURI()).isEqualTo("/uri-login/val1/val2");
 	}
 
+	@Test
+	public void postProcessorsAreMergedDuringMockMvcPerform() throws Exception {
+
+		RequestBuilder requestBuilder = formLogin()
+				.user("my-user")
+				.password("my-password")
+				.loginProcessingUrl("/my-path");
+
+		// spring-restdocs project creates request postprocessors using this hook:
+		// 		org.springframework.test.web.servlet.setup.MockMvcConfigurer.beforeMockMvcCreated
+		// The postprocessors are bound to the defaultRequestBuilder instance (with urlTemplate "/") here:
+		//		org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder.build
+		// The bind happens only if the default builder implements the ConfigurableSmartRequestBuilder interface.
+
+		RequestBuilder defaultRequestBuilder = MockMvcRequestBuilders.get("/");
+		if (defaultRequestBuilder instanceof ConfigurableSmartRequestBuilder) {
+			((ConfigurableSmartRequestBuilder) defaultRequestBuilder).with(new MockPostProcessor());
+		}
+
+		// In the following method:
+		// 		org.springframework.test.web.servlet.MockMvc.perform
+		// the RequestBuilder is normally merged with the defaultRequestBuilder, so the spring-restdocs postprocessor
+		// can be executed and it can generate nice documentations.
+		// The problem is, that this merge happens only if the RequestBuilder implements Mergeable interface.
+
+		if (defaultRequestBuilder != null && requestBuilder instanceof Mergeable ) {
+			requestBuilder = (RequestBuilder) ((Mergeable) requestBuilder).merge(defaultRequestBuilder);
+		}
+
+		// Currently, none of SecurityMockMvcRequestBuilders implements this interface.
+		// They should implement ConfigurableSmartRequestBuilder interface also to be able to take over
+		// the postprocessors (and execute them).
+
+		MockHttpServletRequest request = requestBuilder.buildRequest(this.servletContext);
+
+		Assert.isInstanceOf(ConfigurableSmartRequestBuilder.class, requestBuilder);
+		Assert.isTrue(request.equals(((SmartRequestBuilder) requestBuilder).postProcessRequest(request)),
+				"Postprocessing failed.");
+	}
+
 	// gh-3920
 	@Test
 	public void usesAcceptMediaForContentNegotiation() {
@@ -90,5 +142,13 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 
 		assertThat(request.getHeader("Accept"))
 				.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+	}
+
+	private class MockPostProcessor implements RequestPostProcessor {
+
+		@Override
+		public MockHttpServletRequest postProcessRequest( MockHttpServletRequest request ) {
+			return request;
+		}
 	}
 }

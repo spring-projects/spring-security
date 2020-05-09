@@ -15,15 +15,20 @@
  */
 package org.springframework.security.test.web.servlet.request;
 
-import javax.servlet.ServletContext;
-
+import org.springframework.beans.Mergeable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.ConfigurableSmartRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.servlet.ServletContext;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -132,7 +137,8 @@ public final class SecurityMockMvcRequestBuilders {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	public static final class FormLoginRequestBuilder implements RequestBuilder {
+	public static final class FormLoginRequestBuilder implements RequestBuilder,
+			ConfigurableSmartRequestBuilder<FormLoginRequestBuilder>, Mergeable {
 		private String usernameParam = "username";
 		private String passwordParam = "password";
 		private String username = "user";
@@ -140,7 +146,7 @@ public final class SecurityMockMvcRequestBuilders {
 		private String loginProcessingUrl = "/login";
 		private MediaType acceptMediaType = MediaType.APPLICATION_FORM_URLENCODED;
 
-		private RequestPostProcessor postProcessor = csrf();
+		private List<RequestPostProcessor> postProcessors = new ArrayList<>(Collections.singletonList(csrf()));
 
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
@@ -148,7 +154,8 @@ public final class SecurityMockMvcRequestBuilders {
 					.accept(this.acceptMediaType).param(this.usernameParam, this.username)
 					.param(this.passwordParam, this.password)
 					.buildRequest(servletContext);
-			return this.postProcessor.postProcessRequest(request);
+
+			return postProcessRequest(request);
 		}
 
 		/**
@@ -259,6 +266,34 @@ public final class SecurityMockMvcRequestBuilders {
 		}
 
 		private FormLoginRequestBuilder() {
+		}
+
+		@Override public boolean isMergeEnabled() {
+			return false;
+		}
+
+		@Override
+		public Object merge( Object parent ) {
+			// Step 1: Get parent's postprocessors
+			if (parent instanceof ConfigurableSmartRequestBuilder) {
+				// We cannot do that because on ConfigurableSmartRequestBuilder interface there is no getter method
+				// for the postprocessors.
+			}
+			// Step 2: add parent's postprocessors to this instance.
+			return this;
+		}
+
+		@Override
+		public FormLoginRequestBuilder with( RequestPostProcessor requestPostProcessor ) {
+			this.postProcessors.add(requestPostProcessor);
+			return this;
+		}
+
+		@Override public MockHttpServletRequest postProcessRequest( MockHttpServletRequest request ) {
+			for(RequestPostProcessor postProcessor: postProcessors) {
+				request = postProcessor.postProcessRequest(request);
+			}
+			return request;
 		}
 	}
 
