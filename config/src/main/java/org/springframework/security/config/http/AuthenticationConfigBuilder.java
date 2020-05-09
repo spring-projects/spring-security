@@ -350,51 +350,7 @@ final class AuthenticationConfigBuilder {
 		RootBeanDefinition openIDFilter = null;
 
 		if (openIDLoginElt != null) {
-			FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser(
-					"/login/openid", null,
-					OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache,
-					sessionStrategy, allowSessionCreation, portMapper, portResolver);
-
-			parser.parse(openIDLoginElt, pc);
-			openIDFilter = parser.getFilterBean();
-			openIDEntryPoint = parser.getEntryPointBean();
-			openidLoginProcessingUrl = parser.getLoginProcessingUrl();
-			openIDLoginPage = parser.getLoginPage();
-
-			List<Element> attrExElts = DomUtils.getChildElementsByTagName(openIDLoginElt,
-					Elements.OPENID_ATTRIBUTE_EXCHANGE);
-
-			if (!attrExElts.isEmpty()) {
-				// Set up the consumer with the required attribute list
-				BeanDefinitionBuilder consumerBldr = BeanDefinitionBuilder
-						.rootBeanDefinition(OPEN_ID_CONSUMER_CLASS);
-				BeanDefinitionBuilder axFactory = BeanDefinitionBuilder
-						.rootBeanDefinition(OPEN_ID_ATTRIBUTE_FACTORY_CLASS);
-				ManagedMap<String, ManagedList<BeanDefinition>> axMap = new ManagedMap<>();
-
-				for (Element attrExElt : attrExElts) {
-					String identifierMatch = attrExElt.getAttribute("identifier-match");
-
-					if (!StringUtils.hasText(identifierMatch)) {
-						if (attrExElts.size() > 1) {
-							pc.getReaderContext().error(
-									"You must supply an identifier-match attribute if using more"
-											+ " than one "
-											+ Elements.OPENID_ATTRIBUTE_EXCHANGE
-											+ " element", attrExElt);
-						}
-						// Match anything
-						identifierMatch = ".*";
-					}
-
-					axMap.put(identifierMatch, parseOpenIDAttributes(attrExElt));
-				}
-				axFactory.addConstructorArgValue(axMap);
-
-				consumerBldr.addConstructorArgValue(axFactory.getBeanDefinition());
-				openIDFilter.getPropertyValues().addPropertyValue("consumer",
-						consumerBldr.getBeanDefinition());
-			}
+			openIDFilter = parseOpenIDFilter(sessionStrategy, openIDLoginElt);
 		}
 
 		if (openIDFilter != null) {
@@ -410,6 +366,65 @@ final class AuthenticationConfigBuilder {
 
 			createOpenIDProvider();
 		}
+	}
+
+	/**
+	 * Parses OpenID 1.0 and 2.0 - related parts of configuration xmls
+	 * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+	 * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
+	 * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+	 * @param sessionStrategy sessionStrategy
+	 * @param openIDLoginElt the element from the xml file
+	 * @return the parsed filter as rootBeanDefinition
+	 */
+	private RootBeanDefinition parseOpenIDFilter( BeanReference sessionStrategy, Element openIDLoginElt ) {
+		RootBeanDefinition openIDFilter;
+		FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser(
+				"/login/openid", null,
+				OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache,
+				sessionStrategy, allowSessionCreation, portMapper, portResolver);
+
+		parser.parse(openIDLoginElt, pc);
+		openIDFilter = parser.getFilterBean();
+		openIDEntryPoint = parser.getEntryPointBean();
+		openidLoginProcessingUrl = parser.getLoginProcessingUrl();
+		openIDLoginPage = parser.getLoginPage();
+
+		List<Element> attrExElts = DomUtils.getChildElementsByTagName(openIDLoginElt,
+				Elements.OPENID_ATTRIBUTE_EXCHANGE);
+
+		if (!attrExElts.isEmpty()) {
+			// Set up the consumer with the required attribute list
+			BeanDefinitionBuilder consumerBldr = BeanDefinitionBuilder
+					.rootBeanDefinition(OPEN_ID_CONSUMER_CLASS);
+			BeanDefinitionBuilder axFactory = BeanDefinitionBuilder
+					.rootBeanDefinition(OPEN_ID_ATTRIBUTE_FACTORY_CLASS);
+			ManagedMap<String, ManagedList<BeanDefinition>> axMap = new ManagedMap<>();
+
+			for (Element attrExElt : attrExElts) {
+				String identifierMatch = attrExElt.getAttribute("identifier-match");
+
+				if (!StringUtils.hasText(identifierMatch)) {
+					if (attrExElts.size() > 1) {
+						pc.getReaderContext().error(
+								"You must supply an identifier-match attribute if using more"
+										+ " than one "
+										+ Elements.OPENID_ATTRIBUTE_EXCHANGE
+										+ " element", attrExElt);
+					}
+					// Match anything
+					identifierMatch = ".*";
+				}
+
+				axMap.put(identifierMatch, parseOpenIDAttributes(attrExElt));
+			}
+			axFactory.addConstructorArgValue(axMap);
+
+			consumerBldr.addConstructorArgValue(axFactory.getBeanDefinition());
+			openIDFilter.getPropertyValues().addPropertyValue("consumer",
+					consumerBldr.getBeanDefinition());
+		}
+		return openIDFilter;
 	}
 
 	private ManagedList<BeanDefinition> parseOpenIDAttributes(Element attrExElt) {
