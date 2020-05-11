@@ -67,7 +67,7 @@ public final class AntPathRequestMatcher
 
 	/**
 	 * Creates a matcher with the specific pattern which will match all HTTP methods in a
-	 * case insensitive manner.
+	 * case sensitive manner.
 	 *
 	 * @param pattern the ant pattern to use for matching
 	 */
@@ -76,7 +76,7 @@ public final class AntPathRequestMatcher
 	}
 
 	/**
-	 * Creates a matcher with the supplied pattern and HTTP method in a case insensitive
+	 * Creates a matcher with the supplied pattern and HTTP method in a case sensitive
 	 * manner.
 	 *
 	 * @param pattern the ant pattern to use for matching
