@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
@@ -33,9 +37,11 @@ import reactor.test.publisher.PublisherProbe;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.mock.web.server.MockServerWebExchange.from;
 
 /**
  * @author Rob Winch
+ * @author Parikshit Dutta
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -49,10 +55,10 @@ public class CsrfWebFilterTests {
 
 	private CsrfWebFilter csrfFilter = new CsrfWebFilter();
 
-	private MockServerWebExchange get = MockServerWebExchange.from(
+	private MockServerWebExchange get = from(
 		MockServerHttpRequest.get("/"));
 
-	private MockServerWebExchange post = MockServerWebExchange.from(
+	private MockServerWebExchange post = from(
 		MockServerHttpRequest.post("/"));
 
 	@Test
@@ -104,7 +110,7 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
 			.thenReturn(Mono.just(this.token));
-		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
+		this.post = from(MockServerHttpRequest.post("/")
 			.body(this.token.getParameterName() + "="+this.token.getToken()+"INVALID"));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
@@ -125,7 +131,7 @@ public class CsrfWebFilterTests {
 			.thenReturn(Mono.just(this.token));
 		when(this.repository.generateToken(any()))
 			.thenReturn(Mono.just(this.token));
-		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
+		this.post = from(MockServerHttpRequest.post("/")
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 			.body(this.token.getParameterName() + "="+this.token.getToken()));
 
@@ -142,7 +148,7 @@ public class CsrfWebFilterTests {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		when(this.repository.loadToken(any()))
 			.thenReturn(Mono.just(this.token));
-		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
+		this.post = from(MockServerHttpRequest.post("/")
 			.header(this.token.getHeaderName(), this.token.getToken()+"INVALID"));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
@@ -163,7 +169,7 @@ public class CsrfWebFilterTests {
 			.thenReturn(Mono.just(this.token));
 		when(this.repository.generateToken(any()))
 			.thenReturn(Mono.just(this.token));
-		this.post = MockServerWebExchange.from(MockServerHttpRequest.post("/")
+		this.post = from(MockServerHttpRequest.post("/")
 			.header(this.token.getHeaderName(), this.token.getToken()));
 
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
@@ -172,5 +178,15 @@ public class CsrfWebFilterTests {
 			.verifyComplete();
 
 		chainResult.assertWasSubscribed();
+	}
+
+	@Test
+	// gh-8452
+	public void matchesRequireCsrfProtectionWhenNonStandardHTTPMethodIsUsed() {
+		HttpMethod customHttpMethod = HttpMethod.resolve("non-standard-http-method");
+		MockServerWebExchange nonStandardHttpRequest = from(MockServerHttpRequest.method(customHttpMethod, "/"));
+
+		ServerWebExchangeMatcher serverWebExchangeMatcher = CsrfWebFilter.DEFAULT_CSRF_MATCHER;
+		assertThat(serverWebExchangeMatcher.matches(nonStandardHttpRequest).map(MatchResult::isMatch).block()).isTrue();
 	}
 }

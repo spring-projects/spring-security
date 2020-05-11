@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ import org.springframework.web.server.WebFilterChain;
  * </p>
  *
  * @author Rob Winch
+ * @author Parikshit Dutta
  * @since 5.0
  */
 public class CsrfWebFilter implements WebFilter {
@@ -136,7 +137,7 @@ public class CsrfWebFilter implements WebFilter {
 		@Override
 		public Mono<MatchResult> matches(ServerWebExchange exchange) {
 			return Mono.just(exchange.getRequest())
-				.map(r -> r.getMethod())
+				.flatMap(r -> Mono.justOrEmpty(r.getMethod()))
 				.filter(m -> ALLOWED_METHODS.contains(m))
 				.flatMap(m -> MatchResult.notMatch())
 				.switchIfEmpty(MatchResult.match());
