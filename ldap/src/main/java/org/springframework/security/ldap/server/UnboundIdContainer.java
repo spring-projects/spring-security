@@ -59,10 +59,10 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 
 	private void checkFilePath(String ldif) {
 		if (!StringUtils.hasText(ldif)) {
-			throw new IllegalArgumentException("Unable to load LDIF "+ldif);
+			throw new IllegalArgumentException("Unable to load LDIF " + ldif);
 		}
 		if (!ldif.endsWith(".ldif")) {
-			throw new IllegalArgumentException("Unable to load LDIF "+ldif);
+			throw new IllegalArgumentException("Unable to load LDIF " + ldif);
 		}
 	}
 
@@ -76,7 +76,9 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 
 	@Override
 	public void destroy() {
-		stop();
+		if (null != directoryServer) {
+			stop();
+		}
 	}
 
 	@Override
@@ -124,6 +126,7 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 	private void importLdif(InMemoryDirectoryServer directoryServer) {
 		checkFilePath(this.ldif);
 		try {
+
 			Resource[] resources = this.context.getResources(this.ldif);
 			if (resources.length > 0
 					&& resources[0].exists()

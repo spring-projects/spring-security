@@ -15,6 +15,7 @@
  */
 package org.springframework.security.ldap.server;
 
+import com.unboundid.ldap.sdk.LDAPException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import org.mockito.internal.matchers.Null;
 import org.springframework.context.support.GenericApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,8 +39,8 @@ public class UnboundIdContainerTests {
 
 	@Test
 	public void startLdapServer() throws Exception {
-		UnboundIdContainer server = new UnboundIdContainer(validLdifClassPath,
-				validRootDn);
+		UnboundIdContainer server = new UnboundIdContainer(
+				validRootDn, validLdifClassPath);
 		server.setApplicationContext(new GenericApplicationContext());
 		List<Integer> ports = getDefaultPorts(1);
 		server.setPort(ports.get(0));
@@ -54,9 +56,9 @@ public class UnboundIdContainerTests {
 
 	@Test
 	public void afterPropertiesSetWhenPortIsZeroThenRandomPortIsSelected() throws Exception {
-		UnboundIdContainer server = new UnboundIdContainer(validLdifClassPath, validRootDn);
+		UnboundIdContainer server = new UnboundIdContainer(validRootDn, validLdifClassPath);
+		server.setApplicationContext(new GenericApplicationContext());
 		server.setPort(0);
-
 		try {
 			server.afterPropertiesSet();
 			assertThat(server.getPort()).isNotEqualTo(0);
@@ -83,74 +85,95 @@ public class UnboundIdContainerTests {
 	}
 
 	@Test
-	public void testInvalidLdapFile() {
-		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "classpath:missing-file.ldif");
+	public void missingContextInInit() throws Exception {
+		UnboundIdContainer server = new UnboundIdContainer(validRootDn, validLdifClassPath);
 		server.setPort(0);
 		try {
-			server.start();
-		}  catch (Exception e) {
+			server.afterPropertiesSet();
+			assertThat(server.getPort()).isNotEqualTo(0);
+		} catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(NullPointerException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF test-server-malformed.txt");
+		} finally {
+			server.destroy();
+		}
+	}
+
+	@Test
+	public void testInvalidLdapFile() {
+		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "missing-file.ldif");
+		server.setApplicationContext(new GenericApplicationContext());
+		server.setPort(0);
+		try {
+			server.afterPropertiesSet();
+		} catch (Exception e) {
 			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
+			assertThat(e.getMessage()).contains("Unable to load LDIF test-server-malformed.txt");
+		} finally {
+			server.destroy();
 		}
 	}
 
 	@Test
 	public void testInvalidNullLdapFile() {
 		UnboundIdContainer server = new UnboundIdContainer(validRootDn, null);
-		try {
-			server.start();
-		}  catch (Exception e) {
-			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
-		}
+		BuildInvalidServer(server);
 	}
 
 	@Test
 	public void testInvalidEmptyPathLdapFile() {
 		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "");
-		try {
-			server.start();
-		}  catch (Exception e) {
-			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
-		}
+		BuildInvalidServer(server);
 	}
 
 	@Test
 	public void testInvalidDirectoryAsLdapFile() {
 		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "classpath:/");
+		server.setApplicationContext(new GenericApplicationContext());
 		server.setPort(0);
 		try {
-			server.start();
-		}  catch (Exception e) {
+			server.afterPropertiesSet();
+		} catch (Exception e) {
 			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
+			assertThat(e.getMessage()).contains("Unable to load LDIF /");
+		} finally {
+			server.destroy();
 		}
 	}
 
 	@Test
 	public void testInvalidFileTextFileAsLdapFile() {
 		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "classpath:test-server-malformed.txt");
-		server.setPort(0);
-		try {
-			server.start();
-
-		}  catch (Exception e) {
-			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
-		}
+		BuildInvalidServer(server);
 	}
 
 	@Test
 	public void testInvalidRootDnLdapFile() {
 		UnboundIdContainer server = new UnboundIdContainer("dc=fake,dc=org", validLdifClassPath);
+		server.setApplicationContext(new GenericApplicationContext());
 		server.setPort(0);
 		try {
-			server.start();
+			server.afterPropertiesSet();
 
-		}  catch (Exception e) {
+		} catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(LDAPException.class);
+			assertThat(e.getMessage()).contains("Unable to add entry 'ou=groups,dc=springframework,dc=org' because it is not within any of the base DNs configured in the server.");
+		} finally {
+			server.destroy();
+		}
+	}
+
+	private void BuildInvalidServer(UnboundIdContainer server) {
+		server.setApplicationContext(new GenericApplicationContext());
+		server.setPort(0);
+		try {
+			server.afterPropertiesSet();
+
+		} catch (Exception e) {
 			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
+			assertThat(e.getMessage()).contains("Unable to load LDIF test-server-malformed.txt");
+		} finally {
+			server.destroy();
 		}
 	}
 
