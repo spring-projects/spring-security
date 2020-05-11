@@ -52,6 +52,24 @@ public class DefaultBearerTokenResolverTests {
 	}
 
 	@Test
+	public void resolveWhenValidHeaderIsPresentWithSingleBytePaddingIndicatorThenTokenIsResolved() {
+		String token = TEST_TOKEN + "=";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Bearer " + token);
+
+		assertThat(this.resolver.resolve(request)).isEqualTo(token);
+	}
+
+	@Test
+	public void resolveWhenValidHeaderIsPresentWithTwoBytesPaddingIndicatorThenTokenIsResolved() {
+		String token = TEST_TOKEN + "==";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Bearer " + token);
+
+		assertThat(this.resolver.resolve(request)).isEqualTo(token);
+	}
+
+	@Test
 	public void resolveWhenNoHeaderIsPresentThenTokenIsNotResolved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 

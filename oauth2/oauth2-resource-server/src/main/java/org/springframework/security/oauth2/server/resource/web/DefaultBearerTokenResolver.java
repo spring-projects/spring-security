@@ -98,7 +98,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 				throw new OAuth2AuthenticationException(error);
 			}
 
-			return matcher.group("token");
+			return authorization.substring(7);
 		}
 		return null;
 	}
