@@ -36,6 +36,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -71,7 +73,7 @@ public class HttpSecurityRequestMatchersTests {
 
 	@Test
 	public void mvcMatcher() throws Exception {
-		loadConfig(MvcMatcherConfig.class);
+		loadConfig(MvcMatcherConfig.class, LegacyMvcMatchingConfig.class);
 
 		this.request.setServletPath("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
@@ -137,7 +139,7 @@ public class HttpSecurityRequestMatchersTests {
 
 	@Test
 	public void requestMatchersMvcMatcher() throws Exception {
-		loadConfig(RequestMatchersMvcMatcherConfig.class);
+		loadConfig(RequestMatchersMvcMatcherConfig.class, LegacyMvcMatchingConfig.class);
 
 		this.request.setServletPath("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
@@ -198,7 +200,7 @@ public class HttpSecurityRequestMatchersTests {
 
 	@Test
 	public void requestMatchersWhenMvcMatcherInLambdaThenPathIsSecured() throws Exception {
-		loadConfig(RequestMatchersMvcMatcherInLambdaConfig.class);
+		loadConfig(RequestMatchersMvcMatcherInLambdaConfig.class, LegacyMvcMatchingConfig.class);
 
 		this.request.setServletPath("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
@@ -374,6 +376,14 @@ public class HttpSecurityRequestMatchersTests {
 			public String path() {
 				return "path";
 			}
+		}
+	}
+
+	@Configuration
+	static class LegacyMvcMatchingConfig implements WebMvcConfigurer {
+		@Override
+		public void configurePathMatch(PathMatchConfigurer configurer) {
+			configurer.setUseSuffixPatternMatch(true);
 		}
 	}
 

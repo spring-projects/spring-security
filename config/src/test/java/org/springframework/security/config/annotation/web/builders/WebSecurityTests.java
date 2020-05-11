@@ -36,6 +36,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,7 +71,7 @@ public class WebSecurityTests {
 
 	@Test
 	public void ignoringMvcMatcher() throws Exception {
-		loadConfig(MvcMatcherConfig.class);
+		loadConfig(MvcMatcherConfig.class, LegacyMvcMatchingConfig.class);
 
 		this.request.setRequestURI("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
@@ -141,7 +143,7 @@ public class WebSecurityTests {
 
 	@Test
 	public void ignoringMvcMatcherServletPath() throws Exception {
-		loadConfig(MvcMatcherServletPathConfig.class);
+		loadConfig(MvcMatcherServletPathConfig.class, LegacyMvcMatchingConfig.class);
 
 		this.request.setServletPath("/spring");
 		this.request.setRequestURI("/spring/path");
@@ -213,6 +215,14 @@ public class WebSecurityTests {
 			public String path() {
 				return "path";
 			}
+		}
+	}
+
+	@Configuration
+	static class LegacyMvcMatchingConfig implements WebMvcConfigurer {
+		@Override
+		public void configurePathMatch(PathMatchConfigurer configurer) {
+			configurer.setUseSuffixPatternMatch(true);
 		}
 	}
 
