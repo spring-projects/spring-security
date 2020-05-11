@@ -698,7 +698,7 @@ public class OAuth2ResourceServerSpecTests {
 			// @formatter:off
 			http
 				.authorizeExchange()
-					.pathMatchers("/**/message/**").hasAnyAuthority("SCOPE_message:read")
+					.pathMatchers("/*/message/**").hasAnyAuthority("SCOPE_message:read")
 					.and()
 				.oauth2ResourceServer()
 					.authenticationManagerResolver(authenticationManagerResolver());
