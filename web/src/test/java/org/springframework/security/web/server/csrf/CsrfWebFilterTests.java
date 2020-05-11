@@ -27,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,8 +43,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.spy;
 import static org.springframework.mock.web.server.MockServerWebExchange.from;
 import static org.springframework.web.reactive.function.BodyInserters.fromMultipartData;
 
@@ -189,15 +188,13 @@ public class CsrfWebFilterTests {
 	}
 
 	@Test
-	public void matchesRequireCSRFProtectionWhenNonStandardHTTPMethodIsUsed() {
-		final String NON_STANDARD_HTTP_METHOD = "non-standard-http-method";
-		MockServerWebExchange nonStandardHttpRequest = from(MockServerHttpRequest.method(HttpMethod.resolve(NON_STANDARD_HTTP_METHOD), "/"));
+	// gh-8452
+	public void matchesRequireCsrfProtectionWhenNonStandardHTTPMethodIsUsed() {
+		HttpMethod customHttpMethod = HttpMethod.resolve("non-standard-http-method");
+		MockServerWebExchange nonStandardHttpRequest = from(MockServerHttpRequest.method(customHttpMethod, "/"));
 
-		ServerWebExchangeMatcher serverWebExchangeMatcher = spy(CsrfWebFilter.DEFAULT_CSRF_MATCHER);
-		serverWebExchangeMatcher.matches(nonStandardHttpRequest);
-
-		verify(serverWebExchangeMatcher).matches(nonStandardHttpRequest);
-		assertThat(serverWebExchangeMatcher.matches(nonStandardHttpRequest).block().isMatch()).isTrue();
+		ServerWebExchangeMatcher serverWebExchangeMatcher = CsrfWebFilter.DEFAULT_CSRF_MATCHER;
+		assertThat(serverWebExchangeMatcher.matches(nonStandardHttpRequest).map(MatchResult::isMatch).block()).isTrue();
 	}
 
 	@Test
