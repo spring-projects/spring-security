@@ -22,6 +22,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.ConfigurableSmartRequestBuilder;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -91,14 +92,21 @@ public final class SecurityMockMvcRequestBuilders {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	public static final class LogoutRequestBuilder implements RequestBuilder {
+	public static final class LogoutRequestBuilder implements RequestBuilder, Mergeable {
 		private String logoutUrl = "/logout";
 		private RequestPostProcessor postProcessor = csrf();
+		private Mergeable mergeable;
 
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-			MockHttpServletRequest request = post(this.logoutUrl)
-					.accept(MediaType.TEXT_HTML, MediaType.ALL)
+			RequestBuilder builder = post(this.logoutUrl)
+					.accept(MediaType.TEXT_HTML, MediaType.ALL);
+
+			if (this.mergeable != null) {
+				builder = (RequestBuilder) this.mergeable.merge(builder);
+			}
+
+			MockHttpServletRequest request = builder
 					.buildRequest(servletContext);
 			return this.postProcessor.postProcessRequest(request);
 		}
@@ -129,6 +137,22 @@ public final class SecurityMockMvcRequestBuilders {
 
 		private LogoutRequestBuilder() {
 		}
+
+		@Override public boolean isMergeEnabled() {
+			return true;
+		}
+
+		@Override public Object merge( Object parent ) {
+			if (parent == null) {
+				return this;
+			}
+			if (parent instanceof MockHttpServletRequestBuilder) {
+				this.mergeable = (Mergeable) parent;
+				return this.mergeable;
+			} else {
+				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
+			}
+		}
 	}
 
 	/**
@@ -137,25 +161,32 @@ public final class SecurityMockMvcRequestBuilders {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	public static final class FormLoginRequestBuilder implements RequestBuilder,
-			ConfigurableSmartRequestBuilder<FormLoginRequestBuilder>, Mergeable {
+	public static final class FormLoginRequestBuilder implements RequestBuilder, Mergeable {
 		private String usernameParam = "username";
 		private String passwordParam = "password";
 		private String username = "user";
 		private String password = "password";
 		private String loginProcessingUrl = "/login";
 		private MediaType acceptMediaType = MediaType.APPLICATION_FORM_URLENCODED;
+		private Mergeable mergeable;
 
-		private List<RequestPostProcessor> postProcessors = new ArrayList<>(Collections.singletonList(csrf()));
+		private RequestPostProcessor postProcessor = csrf();
 
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-			MockHttpServletRequest request = post(this.loginProcessingUrl)
-					.accept(this.acceptMediaType).param(this.usernameParam, this.username)
-					.param(this.passwordParam, this.password)
+			RequestBuilder builder = post(this.loginProcessingUrl)
+					.accept(this.acceptMediaType)
+					.param(this.usernameParam, this.username)
+					.param(this.passwordParam, this.password);
+
+			if (this.mergeable != null) {
+				builder = (RequestBuilder) this.mergeable.merge(builder);
+			}
+
+			MockHttpServletRequest request = builder
 					.buildRequest(servletContext);
 
-			return postProcessRequest(request);
+			return this.postProcessor.postProcessRequest(request);
 		}
 
 		/**
@@ -268,32 +299,23 @@ public final class SecurityMockMvcRequestBuilders {
 		private FormLoginRequestBuilder() {
 		}
 
-		@Override public boolean isMergeEnabled() {
-			return false;
+
+		@Override
+		public boolean isMergeEnabled() {
+			return true;
 		}
 
 		@Override
 		public Object merge( Object parent ) {
-			// Step 1: Get parent's postprocessors
-			if (parent instanceof ConfigurableSmartRequestBuilder) {
-				// We cannot do that because on ConfigurableSmartRequestBuilder interface there is no getter method
-				// for the postprocessors.
+			if (parent == null) {
+				return this;
 			}
-			// Step 2: add parent's postprocessors to this instance.
-			return this;
-		}
-
-		@Override
-		public FormLoginRequestBuilder with( RequestPostProcessor requestPostProcessor ) {
-			this.postProcessors.add(requestPostProcessor);
-			return this;
-		}
-
-		@Override public MockHttpServletRequest postProcessRequest( MockHttpServletRequest request ) {
-			for(RequestPostProcessor postProcessor: postProcessors) {
-				request = postProcessor.postProcessRequest(request);
+			if (parent instanceof MockHttpServletRequestBuilder) {
+				this.mergeable = (Mergeable) parent;
+				return this.mergeable;
+			} else {
+				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
 			}
-			return request;
 		}
 	}
 
