@@ -29,6 +29,12 @@
 
 <body>
 
+<p><strong>
+NOTE: The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+<a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
+to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+</strong></p>
+
 <c:if test="${not empty param.login_error}">
   <font color="red">
     Your login attempt was not successful, try again.<br/><br/>

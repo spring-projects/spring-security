@@ -960,7 +960,11 @@
             <xs:element ref="security:oauth2-resource-server"/>
             <xs:element name="openid-login">
                <xs:annotation>
-                  <xs:documentation>Sets up form login for authentication with an Open ID identity
+                  <xs:documentation>Sets up form login for authentication with an Open ID identity. NOTE: The OpenID 1.0 and
+                2.0 protocols have been deprecated and users are &lt;a
+                href="https://openid.net/specs/openid-connect-migration-1_0.html"&gt;encouraged to
+                migrate&lt;/a&gt; to &lt;a href="https://openid.net/connect/"&gt;OpenID Connect&lt;/a&gt;, which is
+                supported by &lt;code&gt;spring-security-oauth2&lt;/code&gt;.
                 </xs:documentation>
                </xs:annotation>
                <xs:complexType>
@@ -1905,7 +1909,11 @@
   </xs:attributeGroup>
   <xs:element name="openid-attribute">
       <xs:annotation>
-         <xs:documentation>Attributes used when making an OpenID AX Fetch Request
+         <xs:documentation>Attributes used when making an OpenID AX Fetch Request. NOTE: The OpenID 1.0 and 2.0
+                protocols have been deprecated and users are &lt;a
+                href="https://openid.net/specs/openid-connect-migration-1_0.html"&gt;encouraged to
+                migrate&lt;/a&gt; to &lt;a href="https://openid.net/connect/"&gt;OpenID Connect&lt;/a&gt;, which is
+                supported by &lt;code&gt;spring-security-oauth2&lt;/code&gt;.
                 </xs:documentation>
       </xs:annotation>
       <xs:complexType>
