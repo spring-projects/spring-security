@@ -27,6 +27,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.SmartRequestBuilder;
 import org.springframework.test.web.servlet.request.ConfigurableSmartRequestBuilder;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder;
@@ -107,20 +108,17 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 				.password("my-password")
 				.loginProcessingUrl("/my-path");
 
-		RequestBuilder defaultRequestBuilder = MockMvcRequestBuilders.get("/");
-		if (defaultRequestBuilder instanceof ConfigurableSmartRequestBuilder) {
-			((ConfigurableSmartRequestBuilder) defaultRequestBuilder).with(new MockPostProcessor());
-		}
+		MockHttpServletRequestBuilder defaultRequestBuilder = MockMvcRequestBuilders.get("/");
+		defaultRequestBuilder.with(new MockPostProcessor());
 
-		if (defaultRequestBuilder != null && requestBuilder instanceof Mergeable ) {
+		if (requestBuilder instanceof Mergeable) {
 			requestBuilder = (RequestBuilder) ((Mergeable) requestBuilder).merge(defaultRequestBuilder);
 		}
 
 		MockHttpServletRequest request = requestBuilder.buildRequest(this.servletContext);
 
-		Assert.isInstanceOf(ConfigurableSmartRequestBuilder.class, requestBuilder);
-		Assert.isTrue(request.equals(((SmartRequestBuilder) requestBuilder).postProcessRequest(request)),
-				"Postprocessing failed.");
+		assertThat(requestBuilder).isInstanceOf(ConfigurableSmartRequestBuilder.class);
+		assertThat(request).isEqualTo(((SmartRequestBuilder) requestBuilder).postProcessRequest(request));
 	}
 
 	// gh-3920

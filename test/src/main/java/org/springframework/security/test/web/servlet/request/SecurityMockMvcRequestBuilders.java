@@ -138,15 +138,17 @@ public final class SecurityMockMvcRequestBuilders {
 		private LogoutRequestBuilder() {
 		}
 
-		@Override public boolean isMergeEnabled() {
+		@Override
+		public boolean isMergeEnabled() {
 			return true;
 		}
 
-		@Override public Object merge( Object parent ) {
+		@Override
+		public Object merge(Object parent) {
 			if (parent == null) {
 				return this;
 			}
-			if (parent instanceof MockHttpServletRequestBuilder) {
+			if (parent instanceof Mergeable) {
 				this.mergeable = (Mergeable) parent;
 				return this.mergeable;
 			} else {
@@ -306,11 +308,11 @@ public final class SecurityMockMvcRequestBuilders {
 		}
 
 		@Override
-		public Object merge( Object parent ) {
+		public Object merge(Object parent) {
 			if (parent == null) {
 				return this;
 			}
-			if (parent instanceof MockHttpServletRequestBuilder) {
+			if (parent instanceof Mergeable) {
 				this.mergeable = (Mergeable) parent;
 				return this.mergeable;
 			} else {
