@@ -21,6 +21,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.GenericApplicationListenerAdapter;
@@ -679,6 +680,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private SessionRegistry getSessionRegistry(H http) {
 		if (this.sessionRegistry == null) {
+			this.sessionRegistry = getBeanOrNull(SessionRegistry.class);
+		}
+		if (this.sessionRegistry == null) {
 			SessionRegistryImpl sessionRegistry = new SessionRegistryImpl();
 			registerDelegateApplicationListener(http, sessionRegistry);
 			this.sessionRegistry = sessionRegistry;
@@ -716,5 +720,18 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private static SessionAuthenticationStrategy createDefaultSessionFixationProtectionStrategy() {
 			return new ChangeSessionIdAuthenticationStrategy();
+	}
+
+	private <T> T getBeanOrNull(Class<T> type) {
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		if (context == null) {
+			return null;
+		}
+		try {
+			return context.getBean(type);
+		}
+		catch (NoSuchBeanDefinitionException e) {
+			return null;
+		}
 	}
 }
