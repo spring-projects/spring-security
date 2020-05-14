@@ -166,12 +166,13 @@ public final class ClientRegistration {
 		private String tokenUri;	<10>
 		private UserInfoEndpoint userInfoEndpoint;
 		private String jwkSetUri;	<11>
-        private Map<String, Object> configurationMetadata;  <12>
+		private String issuerUri;	<12>
+        private Map<String, Object> configurationMetadata;  <13>
 
 		public class UserInfoEndpoint {
-			private String uri;	<13>
-            private AuthenticationMethod authenticationMethod;  <14>
-			private String userNameAttributeName;	<15>
+			private String uri;	<14>
+            private AuthenticationMethod authenticationMethod;  <15>
+			private String userNameAttributeName;	<16>
 
 		}
 	}
@@ -193,12 +194,13 @@ The name may be used in certain scenarios, such as when displaying the name of t
 <10> `tokenUri`: The Token Endpoint URI for the Authorization Server.
 <11> `jwkSetUri`: The URI used to retrieve the https://tools.ietf.org/html/rfc7517[JSON Web Key (JWK)] Set from the Authorization Server,
  which contains the cryptographic key(s) used to verify the https://tools.ietf.org/html/rfc7515[JSON Web Signature (JWS)] of the ID Token and optionally the UserInfo Response.
-<12> `configurationMetadata`: The https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[OpenID Provider Configuration Information].
+<12> `issuerUri`: Returns the issuer identifier uri for the OpenID Connect 1.0 provider or the OAuth 2.0 Authorization Server.
+<13> `configurationMetadata`: The https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[OpenID Provider Configuration Information].
  This information will only be available if the Spring Boot 2.x property `spring.security.oauth2.client.provider.[providerId].issuerUri` is configured.
-<13> `(userInfoEndpoint)uri`: The UserInfo Endpoint URI used to access the claims/attributes of the authenticated end-user.
-<14> `(userInfoEndpoint)authenticationMethod`: The authentication method used when sending the access token to the UserInfo Endpoint.
+<14> `(userInfoEndpoint)uri`: The UserInfo Endpoint URI used to access the claims/attributes of the authenticated end-user.
+<15> `(userInfoEndpoint)authenticationMethod`: The authentication method used when sending the access token to the UserInfo Endpoint.
 The supported values are *header*, *form* and *query*.
-<15> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
+<16> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
 
 A `ClientRegistration` can be initially configured using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint].
 

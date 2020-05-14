@@ -51,7 +51,7 @@ public class OidcIdTokenValidatorTests {
 	@Before
 	public void setup() {
 		this.headers.put("alg", JwsAlgorithms.RS256);
-		this.claims.put(IdTokenClaimNames.ISS, "https://issuer.example.com");
+		this.claims.put(IdTokenClaimNames.ISS, "https://example.com");
 		this.claims.put(IdTokenClaimNames.SUB, "rob");
 		this.claims.put(IdTokenClaimNames.AUD, Collections.singletonList("client-id"));
 	}
@@ -98,7 +98,7 @@ public class OidcIdTokenValidatorTests {
 		 * When the issuer is set in the provider metadata, and it does not match the issuer in the ID Token,
 		 * the validation must fail
 		 */
-		this.registration = this.registration.issuerUri("https://issuer.somethingelse.com");
+		this.registration = this.registration.issuerUri("https://somethingelse.com");
 
 		assertThat(this.validateIdToken())
 				.hasSize(1)
@@ -112,7 +112,7 @@ public class OidcIdTokenValidatorTests {
 		 * When the issuer is set in the provider metadata, and it does match the issuer in the ID Token,
 		 * the validation must succeed
 		 */
-		this.registration = this.registration.issuerUri("https://issuer.example.com");
+		this.registration = this.registration.issuerUri("https://example.com");
 
 		assertThat(this.validateIdToken()).isEmpty();
 	}

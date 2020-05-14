@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -206,10 +206,11 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		/**
-		 * Returns the uri for the OpenID Provider Issuer.
+		 * Returns the issuer identifier uri for the OpenID Connect 1.0 provider
+		 * or the OAuth 2.0 Authorization Server.
 		 *
 		 * @since 5.4
-		 * @return the uri for the OpenID Provider Issuer
+		 * @return the issuer identifier uri for the OpenID Connect 1.0 provider or the OAuth 2.0 Authorization Server
 		 */
 		public String getIssuerUri() {
 			return this.issuerUri;
@@ -500,9 +501,11 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		/**
-		 * Sets the uri for the OpenID Provider Issuer.
+		 * Sets the issuer identifier uri for the OpenID Connect 1.0 provider
+		 * or the OAuth 2.0 Authorization Server.
 		 *
-		 * @param issuerUri the uri for the OpenID Provider Issuer
+		 * @since 5.4
+		 * @param issuerUri the issuer identifier uri for the OpenID Connect 1.0 provider or the OAuth 2.0 Authorization Server
 		 * @return the {@link Builder}
 		 */
 		public Builder issuerUri(String issuerUri) {

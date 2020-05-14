@@ -86,6 +86,7 @@ public class OAuth2AuthorizedClientMixinTests {
 						.userInfoUri(null)
 						.userNameAttributeName(null)
 						.jwkSetUri(null)
+						.issuerUri(null)
 						.build();
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 				clientRegistration, this.principalName, TestOAuth2AccessTokens.noScopes());
@@ -176,6 +177,7 @@ public class OAuth2AuthorizedClientMixinTests {
 						.userInfoUri(null)
 						.userNameAttributeName(null)
 						.jwkSetUri(null)
+						.issuerUri(null)
 						.build();
 		OAuth2AccessToken expectedAccessToken = TestOAuth2AccessTokens.noScopes();
 		OAuth2AuthorizedClient expectedAuthorizedClient = new OAuth2AuthorizedClient(

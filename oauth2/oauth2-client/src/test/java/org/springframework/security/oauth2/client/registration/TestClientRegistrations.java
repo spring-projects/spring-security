@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ public class TestClientRegistrations {
 			.authorizationUri("https://example.com/login/oauth/authorize")
 			.tokenUri("https://example.com/login/oauth/access_token")
 			.jwkSetUri("https://example.com/oauth2/jwk")
+			.issuerUri("https://example.com")
 			.userInfoUri("https://api.example.com/user")
 			.userNameAttributeName("id")
 			.clientName("Client Name")

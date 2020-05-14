@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ public class ClientRegistrationTests {
 	private static final String AUTHORIZATION_URI = "https://provider.com/oauth2/authorization";
 	private static final String TOKEN_URI = "https://provider.com/oauth2/token";
 	private static final String JWK_SET_URI = "https://provider.com/oauth2/keys";
+	private static final String ISSUER_URI = "https://provider.com";
 	private static final String CLIENT_NAME = "Client 1";
 	private static final Map<String, Object> PROVIDER_CONFIGURATION_METADATA =
 			Collections.unmodifiableMap(createProviderConfigurationMetadata());
@@ -89,6 +90,7 @@ public class ClientRegistrationTests {
 			.tokenUri(TOKEN_URI)
 			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
+			.issuerUri(ISSUER_URI)
 			.providerConfigurationMetadata(PROVIDER_CONFIGURATION_METADATA)
 			.clientName(CLIENT_NAME)
 			.build();
@@ -104,6 +106,7 @@ public class ClientRegistrationTests {
 		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
 		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod()).isEqualTo(AuthenticationMethod.FORM);
 		assertThat(registration.getProviderDetails().getJwkSetUri()).isEqualTo(JWK_SET_URI);
+		assertThat(registration.getProviderDetails().getIssuerUri()).isEqualTo(ISSUER_URI);
 		assertThat(registration.getProviderDetails().getConfigurationMetadata()).isEqualTo(PROVIDER_CONFIGURATION_METADATA);
 		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
 	}
@@ -743,6 +746,7 @@ public class ClientRegistrationTests {
 				.isEqualTo(updatedUserInfoEndpoint.getUserNameAttributeName());
 
 		assertThat(providerDetails.getJwkSetUri()).isEqualTo(updatedProviderDetails.getJwkSetUri());
+		assertThat(providerDetails.getIssuerUri()).isEqualTo(updatedProviderDetails.getIssuerUri());
 		assertThat(providerDetails.getConfigurationMetadata())
 				.isEqualTo(updatedProviderDetails.getConfigurationMetadata());
 

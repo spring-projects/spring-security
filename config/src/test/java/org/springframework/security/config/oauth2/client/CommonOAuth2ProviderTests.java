@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,8 @@ public class CommonOAuth2ProviderTests {
 			.isEqualTo(IdTokenClaimNames.SUB);
 		assertThat(providerDetails.getJwkSetUri())
 			.isEqualTo("https://www.googleapis.com/oauth2/v3/certs");
+		assertThat(providerDetails.getIssuerUri())
+				.isEqualTo("https://accounts.google.com");
 		assertThat(registration.getClientAuthenticationMethod())
 			.isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(registration.getAuthorizationGrantType())
