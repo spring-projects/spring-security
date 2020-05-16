@@ -118,7 +118,7 @@ class AclClassIdUtils {
 	 */
 	private Long convertToLong(Serializable identifier) {
 		Long idAsLong;
-		if (canConvertFromStringTo(Long.class)) {
+		if (conversionService.canConvert(identifier.getClass(), Long.class)) {
 			idAsLong = conversionService.convert(identifier, Long.class);
 		} else {
 			idAsLong = Long.valueOf(identifier.toString());
