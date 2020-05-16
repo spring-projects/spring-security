@@ -16,6 +16,10 @@
 package org.springframework.security.test.web.servlet.request;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
 
@@ -26,12 +30,14 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.CsrfRequestPostProcessor;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.SmartRequestBuilder;
 import org.springframework.test.web.servlet.request.ConfigurableSmartRequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.Assert;
 
 public class SecurityMockMvcRequestBuildersFormLogoutTests {
@@ -87,27 +93,15 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	 */
 	@Test
 	public void postProcessorsAreMergedDuringMockMvcPerform() throws Exception {
+		RequestPostProcessor postProcessor = mock(RequestPostProcessor.class);
+		when(postProcessor.postProcessRequest(any())).thenAnswer(i -> i.getArgument(0));
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object())
+				.defaultRequest(MockMvcRequestBuilders.get("/").with(postProcessor))
+				.build();
 
-		RequestBuilder requestBuilder = logout();
+		mockMvc.perform(logout());
 
-		MockHttpServletRequestBuilder defaultRequestBuilder = MockMvcRequestBuilders.get("/");
-		defaultRequestBuilder.with(new MockPostProcessor());
-
-		if (requestBuilder instanceof Mergeable ) {
-			requestBuilder = (RequestBuilder) ((Mergeable) requestBuilder).merge(defaultRequestBuilder);
-		}
-
-		MockHttpServletRequest request = requestBuilder.buildRequest(this.servletContext);
-
-		assertThat(requestBuilder).isInstanceOf(ConfigurableSmartRequestBuilder.class);
-		assertThat(request).isEqualTo(((SmartRequestBuilder) requestBuilder).postProcessRequest(request));
-	}
-
-	private class MockPostProcessor implements RequestPostProcessor {
-		@Override
-		public MockHttpServletRequest postProcessRequest( MockHttpServletRequest request ) {
-			return request;
-		}
+		verify(postProcessor).postProcessRequest(any());
 	}
 
 }

@@ -135,9 +135,6 @@ public final class SecurityMockMvcRequestBuilders {
 			return this;
 		}
 
-		private LogoutRequestBuilder() {
-		}
-
 		@Override
 		public boolean isMergeEnabled() {
 			return true;
@@ -154,6 +151,9 @@ public final class SecurityMockMvcRequestBuilders {
 			} else {
 				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
 			}
+		}
+
+		private LogoutRequestBuilder() {
 		}
 	}
 
@@ -298,10 +298,6 @@ public final class SecurityMockMvcRequestBuilders {
 			return this;
 		}
 
-		private FormLoginRequestBuilder() {
-		}
-
-
 		@Override
 		public boolean isMergeEnabled() {
 			return true;
@@ -318,6 +314,9 @@ public final class SecurityMockMvcRequestBuilders {
 			} else {
 				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
 			}
+		}
+
+		private FormLoginRequestBuilder() {
 		}
 	}
 
