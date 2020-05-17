@@ -61,9 +61,6 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 		if (!StringUtils.hasText(ldif)) {
 			throw new IllegalArgumentException("Unable to load LDIF " + ldif);
 		}
-		if (!ldif.endsWith(".ldif")) {
-			throw new IllegalArgumentException("Unable to load LDIF " + ldif);
-		}
 	}
 
 	public int getPort() {
@@ -119,6 +116,8 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 			this.running = true;
 		} catch (LDAPException ex) {
 			throw new RuntimeException("Server startup failed", ex);
+		} catch (IllegalArgumentException ex){
+			throw ex;
 		}
 
 	}
@@ -130,10 +129,13 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 			Resource[] resources = this.context.getResources(this.ldif);
 			if (resources.length > 0
 					&& resources[0].exists()
-					&& resources[0].isFile()
-					&& resources[0].isReadable()) {
-				try (InputStream inputStream = resources[0].getInputStream()) {
-					directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
+			) {
+				if (resources[0].isFile() && resources[0].isReadable()) {
+					try (InputStream inputStream = resources[0].getInputStream()) {
+						directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
+					}
+				} else {
+					throw new IllegalStateException("Unable to load LDIF " + this.ldif);
 				}
 			}
 		} catch (Exception ex) {

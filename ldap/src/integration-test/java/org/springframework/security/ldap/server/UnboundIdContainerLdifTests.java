@@ -120,7 +120,7 @@ public class UnboundIdContainerLdifTests {
 			appCtx = new AnnotationConfigApplicationContext(MalformedLdifConfig.class);
 			failBecauseExceptionWasNotThrown(IllegalStateException.class);
 		} catch (Exception e) {
-			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
+			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
 			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
 		}
 	}
