@@ -692,15 +692,10 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private void registerDelegateApplicationListener(H http,
 			ApplicationListener<?> delegate) {
-		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
-		if (context == null) {
+		DelegatingApplicationListener delegating = getBeanOrNull(DelegatingApplicationListener.class);
+		if (delegating == null) {
 			return;
 		}
-		if (context.getBeansOfType(DelegatingApplicationListener.class).isEmpty()) {
-			return;
-		}
-		DelegatingApplicationListener delegating = context
-				.getBean(DelegatingApplicationListener.class);
 		SmartApplicationListener smartListener = new GenericApplicationListenerAdapter(
 				delegate);
 		delegating.addListener(smartListener);
