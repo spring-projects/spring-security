@@ -133,6 +133,8 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 				if (resources[0].isFile() && resources[0].isReadable()) {
 					try (InputStream inputStream = resources[0].getInputStream()) {
 						directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
+					} catch (Exception e){
+						throw new IllegalStateException("Unable to load LDIF " + this.ldif, e);
 					}
 				} else {
 					throw new IllegalStateException("Unable to load LDIF " + this.ldif);

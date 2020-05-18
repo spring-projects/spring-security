@@ -89,7 +89,7 @@ public class UnboundIdContainerTests {
 		try {
 			server.afterPropertiesSet();
 			assertThat(server.getPort()).isNotEqualTo(0);
-			failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
+			failBecauseExceptionWasNotThrown(NullPointerException.class);
 		} catch (Exception e) {
 			assertThat(e.getCause()).isInstanceOf(NullPointerException.class);
 		} finally {
@@ -98,19 +98,34 @@ public class UnboundIdContainerTests {
 	}
 
 	@Test
-	public void testInvalidLdapFile() {
-		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "missing-file.ldif");
+	public void testMissingLdapFile() {
+		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "classpath:missing-file.ldif");
 		server.setApplicationContext(new GenericApplicationContext());
 		server.setPort(0);
 		try {
 			server.afterPropertiesSet();
-			failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
 		} catch (Exception e) {
 			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF test-server-malformed.txt");
+			assertThat(e.getMessage()).contains("Unable to load LDIF missing-file.ldif");
 		} finally {
 			server.destroy();
 		}
 	}
 
+
+	@Test
+	public void testInvalidLdapFile() {
+		UnboundIdContainer server = new UnboundIdContainer(validRootDn, "classpath:test-server-malformed.txt");
+		server.setApplicationContext(new GenericApplicationContext());
+		server.setPort(0);
+		try {
+			server.afterPropertiesSet();
+			failBecauseExceptionWasNotThrown(IllegalStateException.class);
+		} catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
+		} finally {
+			server.destroy();
+		}
+	}
 }
