@@ -83,8 +83,6 @@ public class Md4PasswordEncoder implements PasswordEncoder {
 	private StringKeyGenerator saltGenerator = new Base64StringKeyGenerator();
 	private boolean encodeHashAsBase64;
 
-	private Digester digester;
-
 
 	public void setEncodeHashAsBase64(boolean encodeHashAsBase64) {
 		this.encodeHashAsBase64 = encodeHashAsBase64;
