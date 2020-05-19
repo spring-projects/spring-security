@@ -16,7 +16,7 @@
 		<intercept-url pattern="/css/*" access="permitAll"/>
 		<intercept-url pattern="/js/*" access="permitAll"/>
 		<intercept-url pattern="/**" access="authenticated"/>
-		<logout/>
+		<logout logout-success-url="/"/>
 		<openid-login login-page="/openidlogin.jsp" user-service-ref="registeringUserService"
 				authentication-failure-url="/openidlogin.jsp?login_error=true">
 			<attribute-exchange identifier-match="https://www.google.com/.*">
