@@ -16,6 +16,10 @@
 
 package org.springframework.security.web;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -231,7 +235,43 @@ class DummyRequest extends HttpServletRequestWrapper {
 }
 
 final class UnsupportedOperationExceptionInvocationHandler implements InvocationHandler {
-	public Object invoke(Object proxy, Method method, Object[] args) {
+	private static final float JAVA_VERSION = Float.parseFloat(System.getProperty("java.class.version", "52"));
+
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		if (method.isDefault()) {
+			return invokeDefaultMethod(proxy, method, args);
+		}
 		throw new UnsupportedOperationException(method + " is not supported");
+	}
+
+	private Object invokeDefaultMethod(Object proxy, Method method, Object[] args) throws Throwable {
+		if (isJdk8OrEarlier()) {
+			return invokeDefaultMethodForJdk8(proxy, method, args);
+		}
+		return MethodHandles.lookup()
+				.findSpecial(
+					method.getDeclaringClass(),
+					method.getName(),
+					MethodType.methodType(method.getReturnType(), new Class[0]),
+					method.getDeclaringClass()
+				)
+				.bindTo(proxy)
+				.invokeWithArguments(args);
+	}
+
+	private Object invokeDefaultMethodForJdk8(Object proxy, Method method, Object[] args) throws Throwable {
+		Constructor<Lookup> constructor = Lookup.class.getDeclaredConstructor(Class.class);
+		constructor.setAccessible(true);
+
+		Class<?> clazz = method.getDeclaringClass();
+		return constructor.newInstance(clazz)
+				.in(clazz)
+				.unreflectSpecial(method, clazz)
+				.bindTo(proxy)
+				.invokeWithArguments(args);
+	}
+
+	private boolean isJdk8OrEarlier() {
+		return JAVA_VERSION <= 52;
 	}
 }
