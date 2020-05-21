@@ -18,7 +18,6 @@ package org.springframework.security.config.web.servlet.oauth2.resourceserver
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
-import org.springframework.security.config.web.servlet.SecurityMarker
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
 
 /**
@@ -29,7 +28,7 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
  * @property introspectionUri the URI of the Introspection endpoint.
  * @property introspector the [OpaqueTokenIntrospector] to use.
  */
-@SecurityMarker
+@OAuth2ResourceServerSecurityMarker
 class OpaqueTokenDsl {
     private var _introspectionUri: String? = null
     private var _introspector: OpaqueTokenIntrospector? = null
