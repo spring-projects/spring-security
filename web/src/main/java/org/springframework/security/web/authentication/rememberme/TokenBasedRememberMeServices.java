@@ -55,7 +55,7 @@ import java.util.Date;
  *
  * <pre>
  * username + &quot;:&quot; + expiryTime + &quot;:&quot;
- * 		+ Md5Hex(username + &quot;:&quot; + expiryTime + &quot;:&quot; + password + &quot;:&quot; + key)
+ * 		+ SHA-256Hex(username + &quot;:&quot; + expiryTime + &quot;:&quot; + password + &quot;:&quot; + key)
  * </pre>
  *
  * <p>
@@ -147,7 +147,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	}
 
 	/**
-	 * Calculates the digital signature to be put in the cookie. Default value is MD5
+	 * Calculates the digital signature to be put in the cookie. Default value is SHA-256
 	 * ("username:tokenExpiryTime:password:key")
 	 */
 	protected String makeTokenSignature(long tokenExpiryTime, String username,
@@ -155,10 +155,10 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
 		MessageDigest digest;
 		try {
-			digest = MessageDigest.getInstance("MD5");
+			digest = MessageDigest.getInstance("SHA-256");
 		}
 		catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException("No MD5 algorithm available!");
+			throw new IllegalStateException("No SHA-256 algorithm available!");
 		}
 
 		return new String(Hex.encode(digest.digest(data.getBytes())));
