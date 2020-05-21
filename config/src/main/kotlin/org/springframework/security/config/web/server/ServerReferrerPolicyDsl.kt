@@ -14,33 +14,26 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.web.server.headers
+package org.springframework.security.config.web.server
 
-import org.springframework.security.config.web.server.ServerHttpSecurity
-import org.springframework.security.config.web.server.ServerSecurityMarker
+import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter
 
 /**
- * A Kotlin DSL to configure the [ServerHttpSecurity] XSS protection header using
+ * A Kotlin DSL to configure the [ServerHttpSecurity] referrer policy header using
  * idiomatic Kotlin code.
  *
  * @author Eleftheria Stein
  * @since 5.4
+ * @property policy the policy to be used in the response header.
  */
 @ServerSecurityMarker
-class ServerXssProtectionDsl {
-    private var disabled = false
+class ServerReferrerPolicyDsl {
+    var policy: ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy? = null
 
-    /**
-     * Disables cache control response headers
-     */
-    fun disable() {
-        disabled = true
-    }
-
-    internal fun get(): (ServerHttpSecurity.HeaderSpec.XssProtectionSpec) -> Unit {
-        return { xss ->
-            if (disabled) {
-                xss.disable()
+    internal fun get(): (ServerHttpSecurity.HeaderSpec.ReferrerPolicySpec) -> Unit {
+        return { referrerPolicy ->
+            policy?.also {
+                referrerPolicy.policy(policy)
             }
         }
     }

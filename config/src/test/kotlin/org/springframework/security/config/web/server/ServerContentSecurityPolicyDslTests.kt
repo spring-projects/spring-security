@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.web.server.headers
+package org.springframework.security.config.web.server
 
 import org.junit.Rule
 import org.junit.Test
@@ -22,20 +22,18 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
-import org.springframework.security.config.web.server.invoke
 import org.springframework.security.config.test.SpringTestRule
-import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
-import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter
+import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
 
 /**
- * Tests for [ServerXssProtectionDsl]
+ * Tests for [ServerContentSecurityPolicyDsl]
  *
  * @author Eleftheria Stein
  */
-class ServerXssProtectionDslTests {
+class ServerContentSecurityPolicyDslTests {
     @Rule
     @JvmField
     val spring = SpringTestRule()
@@ -51,47 +49,72 @@ class ServerXssProtectionDslTests {
     }
 
     @Test
-    fun `request when xss protection configured then xss header in response`() {
-        this.spring.register(XssConfig::class.java).autowire()
+    fun `request when content security policy configured then content security policy header in response`() {
+        this.spring.register(ContentSecurityPolicyConfig::class.java).autowire()
 
         this.client.get()
-                .uri("/")
+                .uri("https://example.com")
                 .exchange()
-                .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1 ; mode=block")
+                .expectHeader().valueEquals(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY, "default-src 'self'")
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
-    open class XssConfig {
+    open class ContentSecurityPolicyConfig {
         @Bean
         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
             return http {
                 headers {
-                    xssProtection { }
+                    contentSecurityPolicy { }
                 }
             }
         }
     }
 
     @Test
-    fun `request when xss protection disabled then no xss header in response`() {
-        this.spring.register(XssDisabledConfig::class.java).autowire()
+    fun `request when custom policy directives then custom policy directive in response header`() {
+        this.spring.register(CustomPolicyDirectivesConfig::class.java).autowire()
 
         this.client.get()
-                .uri("/")
+                .uri("https://example.com")
                 .exchange()
-                .expectHeader().doesNotExist(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)
+                .expectHeader().valueEquals(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY, "default-src 'self'; script-src trustedscripts.example.com")
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
-    open class XssDisabledConfig {
+    open class CustomPolicyDirectivesConfig {
         @Bean
         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
             return http {
                 headers {
-                    xssProtection {
-                        disable()
+                    contentSecurityPolicy {
+                        policyDirectives = "default-src 'self'; script-src trustedscripts.example.com"
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `request when report only configured then content security policy report only header in response`() {
+        this.spring.register(ReportOnlyConfig::class.java).autowire()
+
+        this.client.get()
+                .uri("https://example.com")
+                .exchange()
+                .expectHeader().valueEquals(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY_REPORT_ONLY, "default-src 'self'")
+    }
+
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class ReportOnlyConfig {
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                headers {
+                    contentSecurityPolicy {
+                        reportOnly = true
                     }
                 }
             }

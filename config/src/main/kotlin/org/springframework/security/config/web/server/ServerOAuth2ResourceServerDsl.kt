@@ -17,8 +17,6 @@
 package org.springframework.security.config.web.server
 
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver
-import org.springframework.security.config.web.server.oauth2.resourceserver.ServerJwtDsl
-import org.springframework.security.config.web.server.oauth2.resourceserver.ServerOpaqueTokenDsl
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler

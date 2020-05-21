@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.web.server
 
-import org.springframework.security.config.web.server.headers.*
 import org.springframework.security.web.server.header.*
 
 /**

@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.web.server.headers
-
-import org.springframework.security.config.web.server.ServerHttpSecurity
-import org.springframework.security.config.web.server.ServerSecurityMarker
+package org.springframework.security.config.web.server
 
 /**
  * A Kotlin DSL to configure the [ServerHttpSecurity] cache control headers using
