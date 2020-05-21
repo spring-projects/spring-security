@@ -18,7 +18,6 @@ package org.springframework.security.config.web.servlet.headers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
-import org.springframework.security.config.web.servlet.SecurityMarker
 
 /**
  * A Kotlin DSL to configure the [HttpSecurity] Content-Security-Policy header using
@@ -29,7 +28,7 @@ import org.springframework.security.config.web.servlet.SecurityMarker
  * @property policyDirectives the security policy directive(s) to be used in the response header.
  * @property reportOnly includes the Content-Security-Policy-Report-Only header in the response.
  */
-@SecurityMarker
+@HeadersSecurityMarker
 class ContentSecurityPolicyDsl {
     var policyDirectives: String? = null
     var reportOnly: Boolean? = null

@@ -18,7 +18,6 @@ package org.springframework.security.config.web.servlet.session
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer
-import org.springframework.security.config.web.servlet.SecurityMarker
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpSession
 
@@ -29,7 +28,7 @@ import javax.servlet.http.HttpSession
  * @author Eleftheria Stein
  * @since 5.3
  */
-@SecurityMarker
+@SessionSecurityMarker
 class SessionFixationDsl {
     private var strategy: SessionFixationStrategy? = null
 

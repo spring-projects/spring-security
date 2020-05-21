@@ -18,7 +18,6 @@ package org.springframework.security.config.web.servlet.headers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
-import org.springframework.security.config.web.servlet.SecurityMarker
 import org.springframework.security.web.util.matcher.RequestMatcher
 
 /**
@@ -35,7 +34,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher
  * @property includeSubDomains if true, subdomains should be considered HSTS Hosts too.
  * @property preload if true, preload will be included in HSTS Header.
  */
-@SecurityMarker
+@HeadersSecurityMarker
 class HttpStrictTransportSecurityDsl {
     var maxAgeInSeconds: Long? = null
     var requestMatcher: RequestMatcher? = null

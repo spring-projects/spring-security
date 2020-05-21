@@ -18,7 +18,6 @@ package org.springframework.security.config.web.servlet.headers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
-import org.springframework.security.config.web.servlet.SecurityMarker
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] X-Content-Type-Options header using idiomatic
@@ -27,7 +26,7 @@ import org.springframework.security.config.web.servlet.SecurityMarker
  * @author Eleftheria Stein
  * @since 5.3
  */
-@SecurityMarker
+@HeadersSecurityMarker
 class ContentTypeOptionsDsl {
     private var disabled = false
 
