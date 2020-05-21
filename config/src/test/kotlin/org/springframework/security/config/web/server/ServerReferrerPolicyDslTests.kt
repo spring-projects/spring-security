@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.web.server.headers
+package org.springframework.security.config.web.server
 
 import org.junit.Rule
 import org.junit.Test
@@ -22,21 +22,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
-import org.springframework.security.config.web.server.invoke
 import org.springframework.security.config.test.SpringTestRule
-import org.springframework.security.config.web.server.ServerHttpSecurity
-import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter
 import org.springframework.security.web.server.SecurityWebFilterChain
-import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter
+import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
 
 /**
- * Tests for [ServerFrameOptionsDsl]
+ * Tests for [ServerReferrerPolicyDsl]
  *
  * @author Eleftheria Stein
  */
-class ServerFrameOptionsDslTests {
+class ServerReferrerPolicyDslTests {
     @Rule
     @JvmField
     val spring = SpringTestRule()
@@ -52,72 +50,47 @@ class ServerFrameOptionsDslTests {
     }
 
     @Test
-    fun `request when frame options configured then header in response`() {
-        this.spring.register(FrameOptionsConfig::class.java).autowire()
+    fun `request when referrer policy configured then referrer policy header in response`() {
+        this.spring.register(ReferrerPolicyConfig::class.java).autowire()
 
         this.client.get()
                 .uri("/")
                 .exchange()
-                .expectHeader().valueEquals(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, XFrameOptionsHeaderWriter.XFrameOptionsMode.DENY.name)
+                .expectHeader().valueEquals("Referrer-Policy", ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER.policy)
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
-    open class FrameOptionsConfig {
+    open class ReferrerPolicyConfig {
         @Bean
         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
             return http {
                 headers {
-                    frameOptions { }
+                    referrerPolicy { }
                 }
             }
         }
     }
 
     @Test
-    fun `request when frame options disabled then no frame options header in response`() {
-        this.spring.register(FrameOptionsDisabledConfig::class.java).autowire()
+    fun `request when custom policy configured then custom policy in response header`() {
+        this.spring.register(CustomPolicyConfig::class.java).autowire()
 
         this.client.get()
                 .uri("/")
                 .exchange()
-                .expectHeader().doesNotExist(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS)
+                .expectHeader().valueEquals("Referrer-Policy", ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy.SAME_ORIGIN.policy)
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
-    open class FrameOptionsDisabledConfig {
+    open class CustomPolicyConfig {
         @Bean
         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
             return http {
                 headers {
-                    frameOptions {
-                        disable()
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
-    fun `request when frame options mode set then frame options response header has mode value`() {
-        this.spring.register(CustomModeConfig::class.java).autowire()
-
-        this.client.get()
-                .uri("/")
-                .exchange()
-                .expectHeader().valueEquals(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN.name)
-    }
-
-    @EnableWebFluxSecurity
-    @EnableWebFlux
-    open class CustomModeConfig {
-        @Bean
-        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-            return http {
-                headers {
-                    frameOptions {
-                        mode = XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN
+                    referrerPolicy {
+                        policy = ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy.SAME_ORIGIN
                     }
                 }
             }

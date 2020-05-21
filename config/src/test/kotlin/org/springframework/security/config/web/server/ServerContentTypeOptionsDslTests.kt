@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.web.server.headers
+package org.springframework.security.config.web.server
 
 import org.junit.Rule
 import org.junit.Test
@@ -22,9 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
-import org.springframework.security.config.web.server.invoke
 import org.springframework.security.config.test.SpringTestRule
-import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter
 import org.springframework.test.web.reactive.server.WebTestClient

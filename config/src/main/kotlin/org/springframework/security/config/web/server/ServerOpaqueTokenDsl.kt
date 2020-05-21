@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.web.server.oauth2.resourceserver
+package org.springframework.security.config.web.server
 
-import org.springframework.security.config.web.server.ServerHttpSecurity
-import org.springframework.security.config.web.server.ServerSecurityMarker
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector
 
 /**
