@@ -1,4 +1,4 @@
-= OAuth 2.0 Login Sample
+= SAML 2.0 Login Sample
 
 This guide provides instructions on setting up this SAML 2.0 Login sample application.
 
