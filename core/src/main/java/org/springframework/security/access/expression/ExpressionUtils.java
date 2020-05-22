@@ -18,12 +18,23 @@ package org.springframework.security.access.expression;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
+import reactor.core.publisher.Mono;
 
 public final class ExpressionUtils {
 
 	public static boolean evaluateAsBoolean(Expression expr, EvaluationContext ctx) {
 		try {
 			return expr.getValue(ctx, Boolean.class);
+		}
+		catch (EvaluationException e) {
+			throw new IllegalArgumentException("Failed to evaluate expression '"
+					+ expr.getExpressionString() + "'", e);
+		}
+	}
+
+	public static Mono<Boolean> evaluateAsMonoBoolean(Expression expr, EvaluationContext ctx) {
+		try {
+			return (Mono<Boolean>) expr.getValue(ctx, Mono.class);
 		}
 		catch (EvaluationException e) {
 			throw new IllegalArgumentException("Failed to evaluate expression '"

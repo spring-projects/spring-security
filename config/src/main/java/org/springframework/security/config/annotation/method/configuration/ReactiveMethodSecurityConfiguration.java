@@ -68,7 +68,7 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 
 		ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(
 				handler);
-		ExpressionBasedPreInvocationAdvice preAdvice = new ExpressionBasedPreInvocationAdvice();
+		ExpressionBasedPreInvocationReactiveAdvice preAdvice = new ExpressionBasedPreInvocationReactiveAdvice();
 		preAdvice.setExpressionHandler(handler);
 
 		return new PrePostAdviceReactiveMethodInterceptor(source, preAdvice, postAdvice);

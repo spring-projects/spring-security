@@ -48,7 +48,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 
 	private final MethodSecurityMetadataSource attributeSource;
 
-	private final PreInvocationAuthorizationAdvice preInvocationAdvice;
+	private final PreInvocationAuthorizationReactiveAdvice preInvocationAdvice;
 
 	private final PostInvocationAuthorizationAdvice postAdvice;
 
@@ -58,7 +58,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 	 * @param preInvocationAdvice the {@link PreInvocationAuthorizationAdvice} to use
 	 * @param postInvocationAdvice the {@link PostInvocationAuthorizationAdvice} to use
 	 */
-	public PrePostAdviceReactiveMethodInterceptor(MethodSecurityMetadataSource attributeSource, PreInvocationAuthorizationAdvice preInvocationAdvice, PostInvocationAuthorizationAdvice postInvocationAdvice) {
+	public PrePostAdviceReactiveMethodInterceptor(MethodSecurityMetadataSource attributeSource, PreInvocationAuthorizationReactiveAdvice preInvocationAdvice, PostInvocationAuthorizationAdvice postInvocationAdvice) {
 		Assert.notNull(attributeSource, "attributeSource cannot be null");
 		Assert.notNull(preInvocationAdvice, "preInvocationAdvice cannot be null");
 		Assert.notNull(postInvocationAdvice, "postInvocationAdvice cannot be null");
@@ -81,11 +81,15 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 
 		PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
 		Mono<Authentication> toInvoke = ReactiveSecurityContextHolder.getContext()
-			.map(SecurityContext::getAuthentication)
-			.defaultIfEmpty(this.anonymous)
-			.filter( auth -> this.preInvocationAdvice.before(auth, invocation, preAttr))
-			.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Denied"))));
-
+				.map(SecurityContext::getAuthentication)
+				.defaultIfEmpty(this.anonymous)
+				.flatMap(auth -> this.preInvocationAdvice.before(auth, invocation, preAttr)
+						.flatMap(aBoolean -> {
+							if (aBoolean) {
+								return Mono.just(auth);
+							}
+							return Mono.defer(() -> Mono.error(new AccessDeniedException("Denied")));
+						}));
 
 		PostInvocationAttribute attr = findPostInvocationAttribute(attributes);
 
