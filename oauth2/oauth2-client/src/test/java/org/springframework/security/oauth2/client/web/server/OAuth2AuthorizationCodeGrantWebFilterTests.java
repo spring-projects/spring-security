@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -31,25 +32,31 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
 
 /**
  * @author Rob Winch
+ * @author Parikshit Dutta
  * @since 5.1
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -96,6 +103,12 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 		assertThatCode(() -> new OAuth2AuthorizationCodeGrantWebFilter(
 				this.authenticationManager, this.clientRegistrationRepository,
 				this.authorizedClientRepository))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void setRequestCacheWhenRequestCacheIsNullThenThrowIllegalArgumentException() {
+		assertThatCode(() -> this.filter.setRequestCache(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -231,6 +244,40 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 
 		this.filter.filter(exchange, chain).block();
 		verifyNoInteractions(this.authenticationManager);
+	}
+
+	@Test
+	public void filterWhenAuthorizationSucceedsAndRequestCacheConfiguredThenRequestCacheUsed() {
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		when(this.clientRegistrationRepository.findByRegistrationId(any()))
+				.thenReturn(Mono.just(clientRegistration));
+		when(this.authorizedClientRepository.saveAuthorizedClient(any(), any(), any()))
+				.thenReturn(Mono.empty());
+		when(this.authenticationManager.authenticate(any()))
+				.thenReturn(Mono.just(TestOAuth2AuthorizationCodeAuthenticationTokens.authenticated()));
+
+		MockServerHttpRequest authorizationRequest = createAuthorizationRequest("/authorization/callback");
+		OAuth2AuthorizationRequest oauth2AuthorizationRequest =
+				createOAuth2AuthorizationRequest(authorizationRequest, clientRegistration);
+		when(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
+				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+		when(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
+				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+
+		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
+		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
+		DefaultWebFilterChain chain = new DefaultWebFilterChain(
+				e -> e.getResponse().setComplete(), Collections.emptyList());
+
+		ServerRequestCache requestCache = mock(ServerRequestCache.class);
+		when(requestCache.getRedirectUri(any(ServerWebExchange.class))).thenReturn(Mono.just(URI.create("/saved-request")));
+
+		this.filter.setRequestCache(requestCache);
+
+		this.filter.filter(exchange, chain).block();
+
+		verify(requestCache).getRedirectUri(exchange);
+		assertThat(exchange.getResponse().getHeaders().getLocation().toString()).isEqualTo("/saved-request");
 	}
 
 	private static OAuth2AuthorizationRequest createOAuth2AuthorizationRequest(
