@@ -35,6 +35,8 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.savedrequest.ServerRequestCache;
+import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
@@ -80,6 +82,7 @@ import java.util.Set;
  *
  * @author Rob Winch
  * @author Joe Grandja
+ * @author Parikshit Dutta
  * @since 5.1
  * @see OAuth2AuthorizationCodeAuthenticationToken
  * @see org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeReactiveAuthenticationManager
@@ -111,6 +114,8 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 
 	private ServerWebExchangeMatcher requiresAuthenticationMatcher;
 
+	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
+
 	private AnonymousAuthenticationToken anonymousToken = new AnonymousAuthenticationToken("key", "anonymous",
 					AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
@@ -129,7 +134,10 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 		authenticationConverter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 		this.authenticationConverter = authenticationConverter;
 		this.defaultAuthenticationConverter = true;
-		this.authenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler();
+		RedirectServerAuthenticationSuccessHandler authenticationSuccessHandler =
+				new RedirectServerAuthenticationSuccessHandler();
+		authenticationSuccessHandler.setRequestCache(this.requestCache);
+		this.authenticationSuccessHandler = authenticationSuccessHandler;
 		this.authenticationFailureHandler = (webFilterExchange, exception) -> Mono.error(exception);
 	}
 
@@ -144,7 +152,10 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 		this.authorizedClientRepository = authorizedClientRepository;
 		this.requiresAuthenticationMatcher = this::matchesAuthorizationResponse;
 		this.authenticationConverter = authenticationConverter;
-		this.authenticationSuccessHandler = new RedirectServerAuthenticationSuccessHandler();
+		RedirectServerAuthenticationSuccessHandler authenticationSuccessHandler =
+				new RedirectServerAuthenticationSuccessHandler();
+		authenticationSuccessHandler.setRequestCache(this.requestCache);
+		this.authenticationSuccessHandler = authenticationSuccessHandler;
 		this.authenticationFailureHandler = (webFilterExchange, exception) -> Mono.error(exception);
 	}
 
@@ -167,6 +178,23 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 			((ServerOAuth2AuthorizationCodeAuthenticationTokenConverter) this.authenticationConverter)
 					.setAuthorizationRequestRepository(this.authorizationRequestRepository);
 		}
+	}
+
+	/**
+	 * Sets the {@link ServerRequestCache} used for loading a previously saved request (if available)
+	 * and replaying it after completing the processing of the OAuth 2.0 Authorization Response.
+	 *
+	 * @since 5.4
+	 * @param requestCache the cache used for loading a previously saved request (if available)
+	 */
+	public final void setRequestCache(ServerRequestCache requestCache) {
+		Assert.notNull(requestCache, "requestCache cannot be null");
+		this.requestCache = requestCache;
+		updateDefaultAuthenticationSuccessHandler();
+	}
+
+	private void updateDefaultAuthenticationSuccessHandler() {
+		((RedirectServerAuthenticationSuccessHandler) this.authenticationSuccessHandler).setRequestCache(this.requestCache);
 	}
 
 	@Override
