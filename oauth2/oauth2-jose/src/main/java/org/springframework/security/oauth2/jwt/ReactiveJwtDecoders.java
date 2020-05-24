@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
 import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withJwkSetUri;
 
@@ -33,6 +34,7 @@ import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.w
  */
 public final class ReactiveJwtDecoders {
 
+	private static final JwtDecoderProviderConfiguration JWT_DECODER_PROVIDER_CONFIGURATION =  new JwtDecoderProviderConfiguration();
 	/**
 	 * Creates a {@link ReactiveJwtDecoder} using the provided
 	 * <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> by making an
@@ -46,7 +48,7 @@ public final class ReactiveJwtDecoders {
 	 */
 	public static ReactiveJwtDecoder fromOidcIssuerLocation(String oidcIssuerLocation) {
 		Assert.hasText(oidcIssuerLocation, "oidcIssuerLocation cannot be empty");
-		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
+		Map<String, Object> configuration = JWT_DECODER_PROVIDER_CONFIGURATION.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
 		return withProviderConfiguration(configuration, oidcIssuerLocation);
 	}
 
@@ -84,7 +86,13 @@ public final class ReactiveJwtDecoders {
 	 */
 	public static ReactiveJwtDecoder fromIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
-		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForIssuerLocation(issuer);
+		Map<String, Object> configuration = JWT_DECODER_PROVIDER_CONFIGURATION.getConfigurationForIssuerLocation(issuer);
+		return withProviderConfiguration(configuration, issuer);
+	}
+
+	public static ReactiveJwtDecoder fromIssuerLocation(String issuer, RestTemplate rest) {
+		Assert.hasText(issuer, "issuer cannot be empty");
+		Map<String, Object> configuration = JWT_DECODER_PROVIDER_CONFIGURATION.getConfigurationForIssuerLocation(issuer);
 		return withProviderConfiguration(configuration, issuer);
 	}
 
@@ -99,7 +107,7 @@ public final class ReactiveJwtDecoders {
 	 * @return {@link ReactiveJwtDecoder}
 	 */
 	private static ReactiveJwtDecoder withProviderConfiguration(Map<String, Object> configuration, String issuer) {
-		JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
+		JWT_DECODER_PROVIDER_CONFIGURATION.validateIssuer(configuration, issuer);
 		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
 		NimbusReactiveJwtDecoder jwtDecoder = withJwkSetUri(configuration.get("jwks_uri").toString()).build();
 		jwtDecoder.setJwtValidator(jwtValidator);

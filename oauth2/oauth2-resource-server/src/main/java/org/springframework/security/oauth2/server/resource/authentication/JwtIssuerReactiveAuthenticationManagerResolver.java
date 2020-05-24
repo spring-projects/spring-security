@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import com.nimbusds.jwt.JWTParser;
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -62,6 +63,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 	private final ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
 	private final Converter<ServerWebExchange, Mono<String>> issuerConverter = new JwtClaimIssuerConverter();
+	private RestTemplate rest = new RestTemplate();
 
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the provided parameters
@@ -70,6 +72,10 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 */
 	public JwtIssuerReactiveAuthenticationManagerResolver(String... trustedIssuers) {
 		this(Arrays.asList(trustedIssuers));
+	}
+
+	public void setRest(RestTemplate rest) {
+		this.rest = rest;
 	}
 
 	/**
@@ -167,7 +173,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 			}
 			return this.authenticationManagers.computeIfAbsent(issuer, k ->
 					Mono.<ReactiveAuthenticationManager>fromCallable(() ->
-							new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k))
+							new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k, rest))
 					)
 					.subscribeOn(Schedulers.boundedElastic())
 					.cache());

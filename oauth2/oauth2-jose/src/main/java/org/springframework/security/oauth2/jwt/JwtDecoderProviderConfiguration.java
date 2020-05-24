@@ -36,23 +36,32 @@ import java.util.Map;
  * @author Rafiullah Hamedy
  * @since 5.2
  */
-class JwtDecoderProviderConfigurationUtils {
+public class JwtDecoderProviderConfiguration {
 	private static final String OIDC_METADATA_PATH = "/.well-known/openid-configuration";
 	private static final String OAUTH_METADATA_PATH = "/.well-known/oauth-authorization-server";
-	private static final RestTemplate rest = new RestTemplate();
-	private static final ParameterizedTypeReference<Map<String, Object>> typeReference =
+	private final RestTemplate rest = new RestTemplate();
+	private final ParameterizedTypeReference<Map<String, Object>> typeReference =
 			new ParameterizedTypeReference<Map<String, Object>>() {};
 
-	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation) {
-		return getConfiguration(oidcIssuerLocation, oidc(URI.create(oidcIssuerLocation)));
+	Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation) {
+		return getConfiguration(rest, oidcIssuerLocation, oidc(URI.create(oidcIssuerLocation)));
+	}
+	Map<String, Object> getConfigurationForOidcIssuerLocationWithRestTemplate(RestTemplate rest, String oidcIssuerLocation) {
+		return getConfiguration(rest, oidcIssuerLocation, oidc(URI.create(oidcIssuerLocation)));
 	}
 
-	static Map<String, Object> getConfigurationForIssuerLocation(String issuer) {
+	Map<String, Object> getConfigurationForIssuerLocation(String issuer) {
 		URI uri = URI.create(issuer);
-		return getConfiguration(issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
+		return getConfiguration(rest, issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
 	}
 
-	static void validateIssuer(Map<String, Object> configuration, String issuer) {
+	Map<String, Object> getConfigurationForIssuerLocationWithRestTemplate(String issuer, RestTemplate rest)
+	{
+		URI uri = URI.create(issuer);
+		return getConfiguration(rest, issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
+	}
+
+	void validateIssuer(Map<String, Object> configuration, String issuer) {
 		String metadataIssuer = "(unavailable)";
 		if (configuration.containsKey("issuer")) {
 			metadataIssuer = configuration.get("issuer").toString();
@@ -63,7 +72,7 @@ class JwtDecoderProviderConfigurationUtils {
 		}
 	}
 
-	private static Map<String, Object> getConfiguration(String issuer, URI... uris) {
+	private Map<String, Object> getConfiguration(RestTemplate rest, String issuer, URI... uris) {
 		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " +
 				"\"" + issuer + "\"";
 		for (URI uri : uris) {
@@ -90,19 +99,19 @@ class JwtDecoderProviderConfigurationUtils {
 		throw new IllegalArgumentException(errorMessage);
 	}
 
-	private static URI oidc(URI issuer) {
+	private URI oidc(URI issuer) {
 		return UriComponentsBuilder.fromUri(issuer)
 				.replacePath(issuer.getPath() + OIDC_METADATA_PATH)
 				.build(Collections.emptyMap());
 	}
 
-	private static URI oidcRfc8414(URI issuer) {
+	private URI oidcRfc8414(URI issuer) {
 		return UriComponentsBuilder.fromUri(issuer)
 				.replacePath(OIDC_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
 	}
 
-	private static URI oauth(URI issuer) {
+	private URI oauth(URI issuer) {
 		return UriComponentsBuilder.fromUri(issuer)
 				.replacePath(OAUTH_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());

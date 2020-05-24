@@ -34,6 +34,8 @@ import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSe
  */
 public final class JwtDecoders {
 
+	private final static JwtDecoderProviderConfiguration JWT_DECODER_PROVIDER_CONFIGURATION = new JwtDecoderProviderConfiguration();
+
 	/**
 	 * Creates a {@link JwtDecoder} using the provided
 	 * <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> by making an
@@ -47,7 +49,7 @@ public final class JwtDecoders {
 	 */
 	public static JwtDecoder fromOidcIssuerLocation(String oidcIssuerLocation) {
 		Assert.hasText(oidcIssuerLocation, "oidcIssuerLocation cannot be empty");
-		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
+		Map<String, Object> configuration = new JwtDecoderProviderConfiguration().getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
 		return withProviderConfiguration(configuration, oidcIssuerLocation);
 	}
 
@@ -85,7 +87,7 @@ public final class JwtDecoders {
 	 */
 	public static JwtDecoder fromIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
-		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForIssuerLocation(issuer);
+		Map<String, Object> configuration = JWT_DECODER_PROVIDER_CONFIGURATION.getConfigurationForIssuerLocation(issuer);
 		return withProviderConfiguration(configuration, issuer);
 	}
 
@@ -100,7 +102,7 @@ public final class JwtDecoders {
 	 * @return {@link JwtDecoder}
 	 */
 	private static JwtDecoder withProviderConfiguration(Map<String, Object> configuration, String issuer) {
-		JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
+		JWT_DECODER_PROVIDER_CONFIGURATION.validateIssuer(configuration, issuer);
 		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
 		NimbusJwtDecoder jwtDecoder = withJwkSetUri(configuration.get("jwks_uri").toString()).build();
 		jwtDecoder.setJwtValidator(jwtValidator);
