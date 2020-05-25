@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import java.util.Map;
+
 /**
  * Implementations of this interface are responsible for &quot;encoding&quot;
  * a JSON Web Token (JWT) from a {@link Jwt} to it's compact claims representation format.
@@ -37,16 +39,16 @@ package org.springframework.security.oauth2.jwt;
 @FunctionalInterface
 public interface JwtEncoder {
 
-	// TODO: decide what the argument should be
+	// TODO: should the claims be a new type, or is a Map OK?
 
 	/**
-	 * Encodes the JWT from a {@link Jwt} to it's compact claims representation format.
+	 * Encodes the JWT from a set of claims to it's compact claims representation format.
 	 *
-	 * @param token the JWT value
-	 * @return a {@link Jwt} encoded to it's compact claims representation format
+	 * @param claims the JWT claims
+	 * @return a {@link Jwt}, its {@code tokenValue} containing its compact claims representation format
 	 * @throws JwtException if an error occurs while attempting to encode the JWT
 	 */
-	String encode(Jwt token) throws JwtException;
+	Jwt encode(Map<String, Object> claims) throws JwtException;
 }
 
 // TODO: JwtEncoders a' la JwtDecoders?
