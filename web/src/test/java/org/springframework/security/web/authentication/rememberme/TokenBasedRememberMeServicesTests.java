@@ -92,9 +92,9 @@ public class TokenBasedRememberMeServicesTests {
 	private String generateCorrectCookieContentForToken(long expiryTime, String username,
 			String password, String key) {
 		// format is:
-		// username + ":" + expiryTime + ":" + Md5Hex(username + ":" + expiryTime + ":" +
+		// username + ":" + expiryTime + ":" + sha256Hex(username + ":" + expiryTime + ":" +
 		// password + ":" + key)
-		String signatureValue = DigestUtils.md5Hex(username + ":" + expiryTime + ":"
+		String signatureValue = DigestUtils.sha256Hex(username + ":" + expiryTime + ":"
 				+ password + ":" + key);
 		String tokenValue = username + ":" + expiryTime + ":" + signatureValue;
 
