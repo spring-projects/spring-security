@@ -55,7 +55,7 @@ import java.util.Date;
  *
  * <pre>
  * username + &quot;:&quot; + expiryTime + &quot;:&quot;
- * 		+ Md5Hex(username + &quot;:&quot; + expiryTime + &quot;:&quot; + password + &quot;:&quot; + key)
+ * 		+ sha256Hex(username + &quot;:&quot; + expiryTime + &quot;:&quot; + password + &quot;:&quot; + key)
  * </pre>
  *
  * <p>
@@ -103,7 +103,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		long tokenExpiryTime;
 
 		try {
-			tokenExpiryTime = new Long(cookieTokens[1]);
+			tokenExpiryTime = Long.parseLong(cookieTokens[1]);
 		}
 		catch (NumberFormatException nfe) {
 			throw new InvalidCookieException(
@@ -147,21 +147,21 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	}
 
 	/**
-	 * Calculates the digital signature to be put in the cookie. Default value is MD5
+	 * Calculates the digital signature to be put in the cookie. Default value is SHA-256
 	 * ("username:tokenExpiryTime:password:key")
 	 */
 	protected String makeTokenSignature(long tokenExpiryTime, String username,
 			String password) {
 		String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
-		MessageDigest digest;
+		MessageDigest md;
 		try {
-			digest = MessageDigest.getInstance("MD5");
+			md = MessageDigest.getInstance("SHA-256");
 		}
 		catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException("No MD5 algorithm available!");
+			throw new IllegalStateException("No SHA-256 algorithm available!");
 		}
 
-		return new String(Hex.encode(digest.digest(data.getBytes())));
+		return String.valueOf(Hex.encode(md.digest(data.getBytes())));
 	}
 
 	protected boolean isTokenExpired(long tokenExpiryTime) {
@@ -267,7 +267,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
 	private static byte[] bytesUtf8(String s) {
 		if (s == null) {
-			return null;
+			return new byte[0];
 		}
 		return Utf8.encode(s);
 	}
