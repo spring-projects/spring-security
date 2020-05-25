@@ -21,7 +21,7 @@ In essence a cookie is sent to the browser upon successful interactive authentic
 [source,txt]
 ----
 base64(username + ":" + expirationTime + ":" +
-md5Hex(username + ":" + expirationTime + ":" password + ":" + key))
+sha256Hex(username + ":" + expirationTime + ":" password + ":" + key))
 
 username:          As identifiable to the UserDetailsService
 password:          That matches the one in the retrieved UserDetails
