@@ -145,9 +145,13 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			throw new IllegalArgumentException(
 					"A parent AuthenticationManager or a list "
 							+ "of AuthenticationProviders is required");
-		} else if (providers.contains(null)) {
-			throw new IllegalArgumentException(
-					"providers list cannot contain null values");
+		} else {
+			for (AuthenticationProvider provider : providers) {
+				if (provider == null) {
+					throw new IllegalArgumentException(
+							"providers list cannot contain null values");
+				}
+			}
 		}
 	}
 
