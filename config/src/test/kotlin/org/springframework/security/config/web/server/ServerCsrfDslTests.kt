@@ -20,20 +20,26 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
+import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.http.MediaType
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestRule
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler
+import org.springframework.security.web.server.csrf.CsrfToken
+import org.springframework.security.web.server.csrf.DefaultCsrfToken
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.config.EnableWebFlux
+import org.springframework.web.reactive.function.BodyInserters.fromMultipartData
+import reactor.core.publisher.Mono
 
 /**
  * Tests for [ServerCsrfDsl]
@@ -44,6 +50,8 @@ class ServerCsrfDslTests {
     @Rule
     @JvmField
     val spring = SpringTestRule()
+
+    private val token: CsrfToken = DefaultCsrfToken("csrf", "CSRF", "a")
 
     private lateinit var client: WebTestClient
 
@@ -158,7 +166,7 @@ class ServerCsrfDslTests {
                 .uri("/")
                 .exchange()
 
-        Mockito.verify<ServerAccessDeniedHandler>(CustomAccessDeniedHandlerConfig.ACCESS_DENIED_HANDLER)
+        Mockito.verify(CustomAccessDeniedHandlerConfig.ACCESS_DENIED_HANDLER)
                 .handle(any(), any())
     }
 
@@ -181,13 +189,15 @@ class ServerCsrfDslTests {
 
     @Test
     fun `csrf when custom token repository then repository used`() {
+        `when`(CustomCsrfTokenRepositoryConfig.TOKEN_REPOSITORY.loadToken(any()))
+                .thenReturn(Mono.just(this.token))
         this.spring.register(CustomCsrfTokenRepositoryConfig::class.java).autowire()
 
         this.client.post()
                 .uri("/")
                 .exchange()
 
-        Mockito.verify<ServerCsrfTokenRepository>(CustomCsrfTokenRepositoryConfig.TOKEN_REPOSITORY)
+        Mockito.verify(CustomCsrfTokenRepositoryConfig.TOKEN_REPOSITORY)
                 .loadToken(any())
     }
 
