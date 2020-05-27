@@ -11,6 +11,7 @@ dependencies {
 	optional project(':spring-security-oauth2-jose')
 	optional project(':spring-security-oauth2-resource-server')
 	optional 'io.projectreactor:reactor-core'
+	optional 'org.springframework:spring-webmvc'
 	optional 'org.springframework:spring-webflux'
 
 	provided 'javax.servlet:javax.servlet-api'
