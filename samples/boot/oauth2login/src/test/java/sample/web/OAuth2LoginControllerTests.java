@@ -23,9 +23,7 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,9 +43,6 @@ public class OAuth2LoginControllerTests {
 
 	@Autowired
 	MockMvc mvc;
-
-	@MockBean
-	ClientRegistrationRepository clientRegistrationRepository;
 
 	@Test
 	public void rootWhenAuthenticatedReturnsUserAndClient() throws Exception {
