@@ -28,7 +28,6 @@ import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -55,13 +54,13 @@ public class OAuth2LoginControllerTests {
 		@Mock
 		ReactiveClientRegistrationRepository clientRegistrationRepository;
 
+		@Mock
+		ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
+
 		WebTestClient rest;
 
 		@Before
 		public void setup() {
-			ServerOAuth2AuthorizedClientRepository authorizedClientRepository =
-					new WebSessionServerOAuth2AuthorizedClientRepository();
-
 			this.rest = WebTestClient
 					.bindToController(this.controller)
 					.apply(springSecurity())
@@ -69,7 +68,7 @@ public class OAuth2LoginControllerTests {
 					.argumentResolvers(c -> {
 						c.addCustomResolver(new AuthenticationPrincipalArgumentResolver(new ReactiveAdapterRegistry()));
 						c.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver
-								(this.clientRegistrationRepository, authorizedClientRepository));
+								(this.clientRegistrationRepository, this.authorizedClientRepository));
 					})
 					.viewResolvers(c -> c.viewResolver(this.viewResolver))
 					.build();
