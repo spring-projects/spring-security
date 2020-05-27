@@ -217,4 +217,78 @@ class ServerCsrfDslTests {
             }
         }
     }
+
+    @Test
+    fun `csrf when multipart form data and not enabled then denied`() {
+        `when`(MultipartFormDataNotEnabledConfig.TOKEN_REPOSITORY.loadToken(any()))
+                .thenReturn(Mono.just(this.token))
+        `when`(MultipartFormDataNotEnabledConfig.TOKEN_REPOSITORY.generateToken(any()))
+                .thenReturn(Mono.just(this.token))
+        this.spring.register(MultipartFormDataNotEnabledConfig::class.java).autowire()
+
+        this.client.post()
+                .uri("/")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(fromMultipartData(this.token.parameterName, this.token.token))
+                .exchange()
+                .expectStatus().isForbidden
+    }
+
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class MultipartFormDataNotEnabledConfig {
+        companion object {
+            var TOKEN_REPOSITORY: ServerCsrfTokenRepository = mock(ServerCsrfTokenRepository::class.java)
+        }
+
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                csrf {
+                    csrfTokenRepository = TOKEN_REPOSITORY
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `csrf when multipart form data and enabled then granted`() {
+        `when`(MultipartFormDataEnabledConfig.TOKEN_REPOSITORY.loadToken(any()))
+                .thenReturn(Mono.just(this.token))
+        `when`(MultipartFormDataEnabledConfig.TOKEN_REPOSITORY.generateToken(any()))
+                .thenReturn(Mono.just(this.token))
+        this.spring.register(MultipartFormDataEnabledConfig::class.java).autowire()
+
+        this.client.post()
+                .uri("/")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(fromMultipartData(this.token.parameterName, this.token.token))
+                .exchange()
+                .expectStatus().isOk
+    }
+
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class MultipartFormDataEnabledConfig {
+        companion object {
+            var TOKEN_REPOSITORY: ServerCsrfTokenRepository = mock(ServerCsrfTokenRepository::class.java)
+        }
+
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                csrf {
+                    csrfTokenRepository = TOKEN_REPOSITORY
+                    tokenFromMultipartDataEnabled = true
+                }
+            }
+        }
+
+        @RestController
+        internal class TestController {
+            @PostMapping("/")
+            fun home() {
+            }
+        }
+    }
 }
