@@ -91,19 +91,20 @@ public final class SecurityMockMvcRequestBuilders {
 	public static final class LogoutRequestBuilder implements RequestBuilder, Mergeable {
 		private String logoutUrl = "/logout";
 		private RequestPostProcessor postProcessor = csrf();
-		private MockHttpServletRequestBuilder mergeable;
+		private Mergeable parent;
 
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-			RequestBuilder builder = post(this.logoutUrl)
+			MockHttpServletRequestBuilder logoutRequest = post(this.logoutUrl)
 					.accept(MediaType.TEXT_HTML, MediaType.ALL);
 
-			if (this.mergeable != null) {
-				builder = (RequestBuilder) this.mergeable.merge(builder);
+			if (this.parent != null) {
+				logoutRequest = (MockHttpServletRequestBuilder) this.parent.merge(logoutRequest);
 			}
 
-			MockHttpServletRequest request = builder
-					.buildRequest(servletContext);
+			MockHttpServletRequest request = logoutRequest.buildRequest(servletContext);
+			logoutRequest.postProcessRequest(request);
+
 			return this.postProcessor.postProcessRequest(request);
 		}
 
@@ -142,8 +143,8 @@ public final class SecurityMockMvcRequestBuilders {
 				return this;
 			}
 			if (parent instanceof MockHttpServletRequestBuilder) {
-				this.mergeable = (MockHttpServletRequestBuilder) parent;
-				return this.mergeable;
+				this.parent = (Mergeable) parent;
+				return this.parent;
 			} else {
 				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
 			}
