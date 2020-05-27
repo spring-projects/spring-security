@@ -83,7 +83,23 @@ public class UnboundIdContainerTests {
 	}
 
 	@Test
-	public void missingContextInInit() throws Exception {
+	public void startLdapServerWithoutLdif() throws Exception {
+		UnboundIdContainer server = new UnboundIdContainer(
+				validRootDn, null);
+		server.setApplicationContext(new GenericApplicationContext());
+		List<Integer> ports = getDefaultPorts(1);
+		server.setPort(ports.get(0));
+
+		try {
+			server.afterPropertiesSet();
+			assertThat(server.getPort()).isEqualTo(ports.get(0));
+		} finally {
+			server.destroy();
+		}
+	}
+
+	@Test
+	public void missingContextInInit() {
 		UnboundIdContainer server = new UnboundIdContainer(validRootDn, validLdifClassPath);
 		server.setPort(0);
 		try {
@@ -104,6 +120,7 @@ public class UnboundIdContainerTests {
 		server.setPort(0);
 		try {
 			server.afterPropertiesSet();
+			failBecauseExceptionWasNotThrown(IllegalStateException.class);
 		} catch (Exception e) {
 			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
 			assertThat(e.getMessage()).contains("Unable to load LDIF missing-file.ldif");

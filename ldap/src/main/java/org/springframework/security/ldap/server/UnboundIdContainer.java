@@ -24,6 +24,7 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldif.LDIFReader;
+import java.util.Arrays;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -57,11 +58,6 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 		this.ldif = ldif;
 	}
 
-	private void checkFilePath(String ldif) {
-		if (!StringUtils.hasText(ldif)) {
-			throw new IllegalArgumentException("Unable to load LDIF " + ldif);
-		}
-	}
 
 	public int getPort() {
 		return this.port;
@@ -116,34 +112,39 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 			this.running = true;
 		} catch (LDAPException ex) {
 			throw new RuntimeException("Server startup failed", ex);
-		} catch (IllegalArgumentException ex){
+		} catch (IllegalArgumentException ex) {
 			throw ex;
 		}
 
 	}
 
 	private void importLdif(InMemoryDirectoryServer directoryServer) {
-		checkFilePath(this.ldif);
-		try {
+		if (!StringUtils.hasText(this.ldif)) {
+			try {
 
-			Resource[] resources = this.context.getResources(this.ldif);
-			if (resources.length > 0
-					&& resources[0].exists()
-			) {
-				if (resources[0].isFile() && resources[0].isReadable()) {
-					try (InputStream inputStream = resources[0].getInputStream()) {
-						directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
-					} catch (Exception e){
-						throw new IllegalStateException("Unable to load LDIF " + this.ldif, e);
-					}
-				} else {
-					throw new IllegalStateException("Unable to load LDIF " + this.ldif);
+				Resource[] resources = this.context.getResources("*.ldif");
+				Resource resource = locateResource(resources);
+				try (InputStream inputStream = resource.getInputStream()) {
+					directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
 				}
+			} catch (Exception ex) {
+				throw new IllegalStateException("Unable to load LDIF " + this.ldif, ex);
 			}
-		} catch (Exception ex) {
-			throw new IllegalStateException("Unable to load LDIF " + this.ldif, ex);
 		}
 
+	}
+
+	private Resource locateResource(Resource[] resources) {
+		if (null == resources || 0 == resources.length) {
+			throw new IllegalArgumentException("requested resource is not found");
+		}
+		return Arrays.asList(resources).stream().filter(resource ->
+				resource.getFilename().equalsIgnoreCase(this.ldif)
+						&& resource.isFile()
+						&& resource.exists()
+						&& resource.isReadable()
+		)
+				.findFirst().orElseThrow(IllegalArgumentException::new);
 	}
 
 	@Override
