@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.web.server
 
-import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
