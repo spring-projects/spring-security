@@ -21,16 +21,13 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import sample.config.SecurityConfig;
-import sample.web.RegisteredOAuth2AuthorizedClientController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,7 +39,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
-@Import({ SecurityConfig.class, RegisteredOAuth2AuthorizedClientController.class })
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 public class RegisteredOAuth2AuthorizedClientControllerTests {
@@ -92,7 +88,7 @@ public class RegisteredOAuth2AuthorizedClientControllerTests {
 				.andExpect(status().isOk());
 	}
 
-	@Configuration
+	@TestConfiguration
 	static class WebClientConfig {
 		@Bean
 		WebClient web() {

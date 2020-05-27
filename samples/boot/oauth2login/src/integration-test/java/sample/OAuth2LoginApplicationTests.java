@@ -41,6 +41,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -83,7 +84,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @since 5.0
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes={ OAuth2LoginApplication.class, OAuth2LoginApplicationTests.SecurityTestConfig.class })
+@SpringBootTest
 @AutoConfigureMockMvc
 public class OAuth2LoginApplicationTests {
 	private static final String AUTHORIZATION_BASE_URI = "/oauth2/authorization";
@@ -326,6 +327,7 @@ public class OAuth2LoginApplicationTests {
 	}
 
 	@EnableWebSecurity
+	@TestConfiguration
 	public static class SecurityTestConfig extends WebSecurityConfigurerAdapter {
 
 		// @formatter:off

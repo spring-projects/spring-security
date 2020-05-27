@@ -22,14 +22,13 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import sample.config.SecurityConfig;
-import sample.web.RegisteredOAuth2AuthorizedClientController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -40,7 +39,7 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockOAuth2Login;
 
 @WebFluxTest
-@Import({ SecurityConfig.class, RegisteredOAuth2AuthorizedClientController.class })
+@Import(SecurityConfig.class)
 @AutoConfigureWebTestClient
 @RunWith(SpringRunner.class)
 public class RegisteredOAuth2AuthorizedClientControllerTests {
@@ -94,7 +93,7 @@ public class RegisteredOAuth2AuthorizedClientControllerTests {
 				.expectStatus().isOk();
 	}
 
-	@Configuration
+	@TestConfiguration
 	static class WebClientConfig {
 		@Bean
 		WebClient web() {
