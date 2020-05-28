@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -57,18 +56,18 @@ public class SecurityMockServerConfigurersOidcLoginTests extends AbstractMockSer
 	@Mock
 	private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
+	@Mock
+	private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
+
 	private WebTestClient client;
 
 	@Before
 	public void setup() {
-		ServerOAuth2AuthorizedClientRepository authorizedClientRepository =
-				new WebSessionServerOAuth2AuthorizedClientRepository();
-
 		this.client = WebTestClient
 				.bindToController(this.controller)
 				.argumentResolvers(c -> c.addCustomResolver(
 						new OAuth2AuthorizedClientArgumentResolver
-								(this.clientRegistrationRepository, authorizedClientRepository)))
+								(this.clientRegistrationRepository, this.authorizedClientRepository)))
 				.webFilter(new SecurityContextServerWebExchangeWebFilter())
 				.apply(springSecurity())
 				.configureClient()

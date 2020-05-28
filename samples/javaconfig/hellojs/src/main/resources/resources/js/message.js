@@ -40,8 +40,7 @@ function MessageListViewModel() {
         $.ajax("./", {
             data: ko.toJSON(self.compose),
             type: "post", contentType: "application/json",
-            success: function(result) {
-                $.map(result, function(item) { return new Message(item) });
+            success: function() {
                 self.goToInbox();
             }
         });

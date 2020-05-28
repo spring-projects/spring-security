@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.web.server.headers
+package org.springframework.security.config.web.server
 
 import org.junit.Rule
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
-import org.springframework.http.HttpHeaders
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
-import org.springframework.security.config.web.server.invoke
 import org.springframework.security.config.test.SpringTestRule
-import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
 
 /**
- * Tests for [ServerCacheControlDsl]
+ * Tests for [ServerXssProtectionDsl]
  *
  * @author Eleftheria Stein
  */
-class ServerCacheControlDslTests {
+class ServerXssProtectionDslTests {
     @Rule
     @JvmField
     val spring = SpringTestRule()
@@ -51,50 +49,46 @@ class ServerCacheControlDslTests {
     }
 
     @Test
-    fun `request when cache control configured then cache headers in response`() {
-        this.spring.register(CacheControlConfig::class.java).autowire()
+    fun `request when xss protection configured then xss header in response`() {
+        this.spring.register(XssConfig::class.java).autowire()
 
         this.client.get()
                 .uri("/")
                 .exchange()
-                .expectHeader().valueEquals(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate")
-                .expectHeader().valueEquals(HttpHeaders.EXPIRES, "0")
-                .expectHeader().valueEquals(HttpHeaders.PRAGMA, "no-cache")
+                .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1 ; mode=block")
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
-    open class CacheControlConfig {
+    open class XssConfig {
         @Bean
         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
             return http {
                 headers {
-                    cache { }
+                    xssProtection { }
                 }
             }
         }
     }
 
     @Test
-    fun `request when cache control disabled then no cache headers in response`() {
-        this.spring.register(CacheControlDisabledConfig::class.java).autowire()
+    fun `request when xss protection disabled then no xss header in response`() {
+        this.spring.register(XssDisabledConfig::class.java).autowire()
 
         this.client.get()
                 .uri("/")
                 .exchange()
-                .expectHeader().doesNotExist(HttpHeaders.CACHE_CONTROL)
-                .expectHeader().doesNotExist(HttpHeaders.EXPIRES)
-                .expectHeader().doesNotExist(HttpHeaders.PRAGMA)
+                .expectHeader().doesNotExist(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)
     }
 
     @EnableWebFluxSecurity
     @EnableWebFlux
-    open class CacheControlDisabledConfig {
+    open class XssDisabledConfig {
         @Bean
         open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
             return http {
                 headers {
-                    cache {
+                    xssProtection {
                         disable()
                     }
                 }

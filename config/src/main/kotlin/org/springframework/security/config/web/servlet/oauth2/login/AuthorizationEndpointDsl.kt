@@ -18,7 +18,6 @@ package org.springframework.security.config.web.servlet.oauth2.login
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer
-import org.springframework.security.config.web.servlet.SecurityMarker
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
@@ -33,7 +32,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
  * @property authorizationRequestResolver the resolver used for resolving [OAuth2AuthorizationRequest]'s.
  * @property authorizationRequestRepository the repository used for storing [OAuth2AuthorizationRequest]'s.
  */
-@SecurityMarker
+@OAuth2LoginSecurityMarker
 class AuthorizationEndpointDsl {
     var baseUri: String? = null
     var authorizationRequestResolver: OAuth2AuthorizationRequestResolver? = null

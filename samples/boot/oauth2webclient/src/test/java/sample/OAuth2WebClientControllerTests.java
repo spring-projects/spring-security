@@ -21,19 +21,12 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import sample.config.SecurityConfig;
-import sample.web.OAuth2WebClientController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -44,7 +37,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
-@Import({ SecurityConfig.class, OAuth2WebClientController.class })
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 public class OAuth2WebClientControllerTests {
@@ -52,9 +44,6 @@ public class OAuth2WebClientControllerTests {
 
 	@Autowired
 	private MockMvc mockMvc;
-
-	@MockBean
-	ClientRegistrationRepository clientRegistrationRepository;
 
 	@AfterClass
 	public static void shutdown() throws Exception {
@@ -94,16 +83,11 @@ public class OAuth2WebClientControllerTests {
 				.andExpect(status().isOk());
 	}
 
-	@Configuration
+	@TestConfiguration
 	static class WebClientConfig {
 		@Bean
 		WebClient web() {
 			return WebClient.create(web.url("/").toString());
-		}
-
-		@Bean
-		OAuth2AuthorizedClientRepository authorizedClientRepository() {
-			return new HttpSessionOAuth2AuthorizedClientRepository();
 		}
 	}
 }

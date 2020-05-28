@@ -74,7 +74,7 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 		}
 
 		if (!url.contains(contextPath)) {
-			return "";
+			throw new IllegalArgumentException("The fully qualified URL does not include context path.");
 		}
 
 		// Calculate the relative URL from the fully qualified URL, minus the last

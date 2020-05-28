@@ -86,6 +86,7 @@ public class OAuth2AuthorizedClientMixinTests {
 						.userInfoUri(null)
 						.userNameAttributeName(null)
 						.jwkSetUri(null)
+						.issuerUri(null)
 						.build();
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 				clientRegistration, this.principalName, TestOAuth2AccessTokens.noScopes());
@@ -139,6 +140,8 @@ public class OAuth2AuthorizedClientMixinTests {
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName());
 		assertThat(clientRegistration.getProviderDetails().getJwkSetUri())
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getJwkSetUri());
+		assertThat(clientRegistration.getProviderDetails().getIssuerUri())
+				.isEqualTo(expectedClientRegistration.getProviderDetails().getIssuerUri());
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata())
 				.containsExactlyEntriesOf(clientRegistration.getProviderDetails().getConfigurationMetadata());
 		assertThat(clientRegistration.getClientName())
@@ -174,6 +177,7 @@ public class OAuth2AuthorizedClientMixinTests {
 						.userInfoUri(null)
 						.userNameAttributeName(null)
 						.jwkSetUri(null)
+						.issuerUri(null)
 						.build();
 		OAuth2AccessToken expectedAccessToken = TestOAuth2AccessTokens.noScopes();
 		OAuth2AuthorizedClient expectedAuthorizedClient = new OAuth2AuthorizedClient(
@@ -203,6 +207,7 @@ public class OAuth2AuthorizedClientMixinTests {
 				.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod());
 		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName()).isNull();
 		assertThat(clientRegistration.getProviderDetails().getJwkSetUri()).isNull();
+		assertThat(clientRegistration.getProviderDetails().getIssuerUri()).isNull();
 		assertThat(clientRegistration.getProviderDetails().getConfigurationMetadata()).isEmpty();
 		assertThat(clientRegistration.getClientName())
 				.isEqualTo(clientRegistration.getRegistrationId());
@@ -276,6 +281,7 @@ public class OAuth2AuthorizedClientMixinTests {
 				"        \"userNameAttributeName\": " + (userInfoEndpoint.getUserNameAttributeName() != null ? "\"" + userInfoEndpoint.getUserNameAttributeName() + "\"" : null) + "\n" +
 				"      },\n" +
 				"      \"jwkSetUri\": " + (providerDetails.getJwkSetUri() != null ? "\"" + providerDetails.getJwkSetUri() + "\"" : null) + ",\n" +
+				"      \"issuerUri\": " + (providerDetails.getIssuerUri() != null ? "\"" + providerDetails.getIssuerUri() + "\"" : null) + ",\n" +
 				"      \"configurationMetadata\": {\n" +
 				"        " + configurationMetadata + "\n" +
 				"      }\n" +

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.Assert;
@@ -28,9 +30,11 @@ import java.net.URI;
  * The default {@link ServerRedirectStrategy} to use.
  *
  * @author Rob Winch
+ * @author Mathieu Ouellet
  * @since 5.0
  */
 public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
+	private static final Log logger = LogFactory.getLog(DefaultServerRedirectStrategy.class);
 	private HttpStatus httpStatus = HttpStatus.FOUND;
 
 	private boolean contextRelative = true;
@@ -41,7 +45,11 @@ public class DefaultServerRedirectStrategy implements ServerRedirectStrategy {
 		return Mono.fromRunnable(() -> {
 			ServerHttpResponse response = exchange.getResponse();
 			response.setStatusCode(this.httpStatus);
-			response.getHeaders().setLocation(createLocation(exchange, location));
+			URI newLocation = createLocation(exchange, location);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Redirecting to '" + newLocation + "'");
+			}
+			response.getHeaders().setLocation(newLocation);
 		});
 	}
 

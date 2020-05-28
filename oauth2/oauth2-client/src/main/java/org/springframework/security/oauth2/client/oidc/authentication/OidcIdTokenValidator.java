@@ -69,8 +69,7 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 
 		// 2. The Issuer Identifier for the OpenID Provider (which is typically obtained during Discovery)
 		// MUST exactly match the value of the iss (issuer) Claim.
-		String metadataIssuer = (String) this.clientRegistration.getProviderDetails().getConfigurationMetadata()
-				.get("issuer");
+		String metadataIssuer = this.clientRegistration.getProviderDetails().getIssuerUri();
 
 		if (metadataIssuer != null && !Objects.equals(metadataIssuer, idToken.getIssuer().toExternalForm())) {
 			invalidClaims.put(IdTokenClaimNames.ISS, idToken.getIssuer());

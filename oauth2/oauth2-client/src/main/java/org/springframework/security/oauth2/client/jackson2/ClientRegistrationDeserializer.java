@@ -78,6 +78,7 @@ final class ClientRegistrationDeserializer extends JsonDeserializer<ClientRegist
 								findObjectNode(userInfoEndpointNode, "authenticationMethod")))
 				.userNameAttributeName(findStringValue(userInfoEndpointNode, "userNameAttributeName"))
 				.jwkSetUri(findStringValue(providerDetailsNode, "jwkSetUri"))
+				.issuerUri(findStringValue(providerDetailsNode, "issuerUri"))
 				.providerConfigurationMetadata(findValue(providerDetailsNode, "configurationMetadata", MAP_TYPE_REFERENCE, mapper))
 				.build();
 	}

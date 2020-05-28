@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,13 @@
  */
 package org.springframework.security.web.server.authorization;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcherEntry;
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.web.server.ServerWebExchange;
 
 import reactor.core.publisher.Flux;
@@ -30,9 +32,11 @@ import java.util.List;
 
 /**
  * @author Rob Winch
+ * @author Mathieu Ouellet
  * @since 5.0
  */
 public class DelegatingReactiveAuthorizationManager implements ReactiveAuthorizationManager<ServerWebExchange> {
+	private static final Log logger = LogFactory.getLog(DelegatingReactiveAuthorizationManager.class);
 	private final List<ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>>> mappings;
 
 	private DelegatingReactiveAuthorizationManager(List<ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>>> mappings) {
@@ -43,11 +47,17 @@ public class DelegatingReactiveAuthorizationManager implements ReactiveAuthoriza
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, ServerWebExchange exchange) {
 		return Flux.fromIterable(mappings)
 			.concatMap(mapping -> mapping.getMatcher().matches(exchange)
-				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.map(r -> r.getVariables())
-				.flatMap(variables -> mapping.getEntry()
-					.check(authentication, new AuthorizationContext(exchange, variables))
-				)
+				.filter(MatchResult::isMatch)
+				.map(MatchResult::getVariables)
+				.flatMap(variables -> {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Checking authorization on '"
+							+ exchange.getRequest().getPath().pathWithinApplication()
+							+ "' using " + mapping.getEntry());
+					}
+					return mapping.getEntry()
+						.check(authentication, new AuthorizationContext(exchange, variables));
+				})
 			)
 			.next()
 			.defaultIfEmpty(new AuthorizationDecision(false));

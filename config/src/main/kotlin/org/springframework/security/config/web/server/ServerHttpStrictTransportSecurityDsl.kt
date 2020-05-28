@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.web.server.headers
+package org.springframework.security.config.web.server
 
-import org.springframework.security.config.web.server.ServerHttpSecurity
-import org.springframework.security.config.web.server.ServerSecurityMarker
 import java.time.Duration
 
 /**

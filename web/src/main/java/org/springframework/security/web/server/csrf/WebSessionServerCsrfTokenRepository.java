@@ -18,6 +18,7 @@ package org.springframework.security.web.server.csrf;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -48,7 +49,9 @@ public class WebSessionServerCsrfTokenRepository
 
 	@Override
 	public Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
-		return Mono.fromCallable(() -> createCsrfToken());
+		return Mono.just(exchange)
+			.publishOn(Schedulers.boundedElastic())
+			.fromCallable(() -> createCsrfToken());
 	}
 
 	@Override

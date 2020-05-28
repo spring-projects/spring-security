@@ -615,7 +615,7 @@ opaque-token.attlist &=
     attribute introspector-ref {xsd:token}?
 
 openid-login =
-	## Sets up form login for authentication with an Open ID identity
+	## Sets up form login for authentication with an Open ID identity. NOTE: The OpenID 1.0 and 2.0 protocols have been deprecated and users are <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
 	element openid-login {form-login.attlist, user-service-ref?, attribute-exchange*}
 
 attribute-exchange =
@@ -627,7 +627,7 @@ attribute-exchange.attlist &=
 	attribute identifier-match {xsd:token}?
 
 openid-attribute =
-	## Attributes used when making an OpenID AX Fetch Request
+	## Attributes used when making an OpenID AX Fetch Request. NOTE: The OpenID 1.0 and 2.0 protocols have been deprecated and users are <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
 	element openid-attribute {openid-attribute.attlist}
 
 openid-attribute.attlist &=

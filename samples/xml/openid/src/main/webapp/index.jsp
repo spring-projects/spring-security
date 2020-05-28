@@ -1,3 +1,4 @@
+<%@ page import="org.springframework.security.web.csrf.CsrfToken" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
@@ -5,6 +6,12 @@
 <body>
 
 <h1>OpenID Sample Home Page</h1>
+
+<p><strong>
+NOTE: The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+<a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
+to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+</strong></p>
 
 <sec:authentication property='principal.newUser' var='isNew' />
 <p>
@@ -21,6 +28,11 @@ by the application and will be recognized if you return.
 <p>
 Your principal object is....: <%= request.getUserPrincipal() %>
 </p>
-<p><a href="logout">Logout</a>
+<% CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName()); %>
+<form id="logout" method="post" action="logout">
+    <input type="hidden" name="<%= token.getParameterName() %>"
+           value="<%= token.getToken() %>"/>
+</form>
+<p><a href="#" onclick="document.forms[0].submit()">Logout</a></p>
 </body>
 </html>

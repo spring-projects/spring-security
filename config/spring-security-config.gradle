@@ -41,6 +41,7 @@ dependencies {
 	testCompile project(path : ':spring-security-core', configuration : 'tests')
 	testCompile project(path : ':spring-security-oauth2-client', configuration : 'tests')
 	testCompile project(path : ':spring-security-oauth2-resource-server', configuration : 'tests')
+	testCompile project(path : ':spring-security-saml2-service-provider', configuration : 'tests')
 	testCompile project(path : ':spring-security-web', configuration : 'tests')
 	testCompile apachedsDependencies
 	testCompile powerMock2Dependencies

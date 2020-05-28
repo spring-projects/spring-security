@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 package org.springframework.security.web.server.context;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
-import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 /**
@@ -27,10 +28,13 @@ import reactor.core.publisher.Mono;
  * {@link org.springframework.web.server.WebSession}. When a {@link SecurityContext} is
  * saved, the session id is changed to prevent session fixation attacks.
  * @author Rob Winch
+ * @author Mathieu Ouellet
  * @since 5.0
  */
 public class WebSessionServerSecurityContextRepository
 	implements ServerSecurityContextRepository {
+
+	private static final Log logger = LogFactory.getLog(WebSessionServerSecurityContextRepository.class);
 
 	/**
 	 * The default session attribute name to save and load the {@link SecurityContext}
@@ -54,8 +58,14 @@ public class WebSessionServerSecurityContextRepository
 			.doOnNext(session -> {
 				if (context == null) {
 					session.getAttributes().remove(this.springSecurityContextAttrName);
+					if (logger.isDebugEnabled()) {
+						logger.debug("Removed SecurityContext stored in WebSession: '" + session + "'");
+					}
 				} else {
 					session.getAttributes().put(this.springSecurityContextAttrName, context);
+					if (logger.isDebugEnabled()) {
+						logger.debug("Saved SecurityContext '" + context + "' in WebSession: '" + session + "'");
+					}
 				}
 			})
 			.flatMap(session -> session.changeSessionId());
@@ -63,9 +73,16 @@ public class WebSessionServerSecurityContextRepository
 
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {
 		return exchange.getSession()
-			.map(WebSession::getAttributes)
-			.flatMap( attrs -> {
-				SecurityContext context = (SecurityContext) attrs.get(this.springSecurityContextAttrName);
+			.flatMap(session -> {
+				SecurityContext context = (SecurityContext) session.getAttribute(this.springSecurityContextAttrName);
+				if (logger.isDebugEnabled()) {
+					if (context == null) {
+						logger.debug("No SecurityContext found in WebSession: '" + session + "'");
+					}
+					else {
+						logger.debug("Found SecurityContext '" + context + "' in WebSession: '" + session + "'");
+					}
+				}
 				return Mono.justOrEmpty(context);
 			});
 	}

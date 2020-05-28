@@ -309,7 +309,7 @@ assertThat(user.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SC
 
 Spring Security does the necessary work to make sure that the `OidcUser` instance is available for <<mvc-authentication-principal,the `@AuthenticationPrincipal` annotation>>.
 
-Further, it also links that `OidcUser` to a simple instance of `OAuth2AuthorizedClient` that it deposits into an `HttpSessionOAuth2AuthorizedClientRepository`.
+Further, it also links that `OidcUser` to a simple instance of `OAuth2AuthorizedClient` that it deposits into an mock `OAuth2AuthorizedClientRepository`.
 This can be handy if your tests <<testing-oauth2-client,use the `@RegisteredOAuth2AuthorizedClient` annotation>>..
 
 [[testing-oidc-login-authorities]]
@@ -432,7 +432,7 @@ assertThat(user.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SC
 
 Spring Security does the necessary work to make sure that the `OAuth2User` instance is available for <<mvc-authentication-principal,the `@AuthenticationPrincipal` annotation>>.
 
-Further, it also links that `OAuth2User` to a simple instance of `OAuth2AuthorizedClient` that it deposits in an `HttpSessionOAuth2AuthorizedClientRepository`.
+Further, it also links that `OAuth2User` to a simple instance of `OAuth2AuthorizedClient` that it deposits in a mock `OAuth2AuthorizedClientRepository`.
 This can be handy if your tests <<testing-oauth2-client,use the `@RegisteredOAuth2AuthorizedClient` annotation>>.
 
 [[testing-oauth2-login-authorities]]
@@ -528,25 +528,12 @@ public String foo(@RegisteredOAuth2AuthorizedClient("my-app") OAuth2AuthorizedCl
 ----
 
 Simulating this handshake with the authorization server could be cumbersome.
-Instead, you can use `SecurityMockMvcRequestPostProcessor#oauth2Client` to add a `OAuth2AuthorizedClient` into an `HttpSessionOAuth2AuthorizedClientRepository`:
+Instead, you can use `SecurityMockMvcRequestPostProcessor#oauth2Client` to add a `OAuth2AuthorizedClient` into a mock `OAuth2AuthorizedClientRepository`:
 
 [source,java]
 ----
 mvc
     .perform(get("/endpoint").with(oauth2Client("my-app")));
-----
-
-If your application isn't already using an `HttpSessionOAuth2AuthorizedClientRepository`, then you can supply one as a `@TestConfiguration`:
-
-[source,java]
-----
-@TestConfiguration
-static class AuthorizedClientConfig {
-    @Bean
-    OAuth2AuthorizedClientRepository authorizedClientRepository() {
-        return new HttpSessionOAuth2AuthorizedClientRepository();
-    }
-}
 ----
 
 What this will do is create an `OAuth2AuthorizedClient` that has a simple `ClientRegistration`, `OAuth2AccessToken`, and resource owner name.
@@ -574,8 +561,7 @@ assertThat(authorizedClient.getAccessToken().getScopes()).hasSize(1);
 assertThat(authorizedClient.getAccessToken().getScopes()).containsExactly("read");
 ----
 
-Spring Security does the necessary work to make sure that the `OAuth2AuthorizedClient` instance is available in the associated `HttpSession`.
-That means that it can be retrieved from an `HttpSessionOAuth2AuthorizedClientRepository`.
+The client can then be retrieved as normal using `@RegisteredOAuth2AuthorizedClient` in a controller method.
 
 [[testing-oauth2-client-scopes]]
 ===== Configuring Scopes

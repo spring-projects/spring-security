@@ -30,6 +30,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
@@ -53,6 +54,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -481,6 +483,76 @@ public class SessionManagementConfigurerTests {
 			http
 				.setSharedObject(AuthenticationTrustResolver.class, TR);
 			// @formatter:on
+		}
+	}
+
+	@Test
+	public void whenOneSessionRegistryBeanThenUseIt() throws Exception {
+		SessionRegistryOneBeanConfig.SESSION_REGISTRY = mock(SessionRegistry.class);
+		this.spring.register(SessionRegistryOneBeanConfig.class).autowire();
+
+		MockHttpSession session = new MockHttpSession(this.spring.getContext().getServletContext());
+		this.mvc.perform(get("/").session(session));
+
+		verify(SessionRegistryOneBeanConfig.SESSION_REGISTRY)
+				.getSessionInformation(session.getId());
+	}
+
+	@Test
+	public void whenTwoSessionRegistryBeansThenUseNeither() throws Exception {
+		SessionRegistryTwoBeansConfig.SESSION_REGISTRY_ONE = mock(SessionRegistry.class);
+		SessionRegistryTwoBeansConfig.SESSION_REGISTRY_TWO = mock(SessionRegistry.class);
+		this.spring.register(SessionRegistryTwoBeansConfig.class).autowire();
+
+		MockHttpSession session = new MockHttpSession(this.spring.getContext().getServletContext());
+		this.mvc.perform(get("/").session(session));
+
+		verifyNoInteractions(SessionRegistryTwoBeansConfig.SESSION_REGISTRY_ONE);
+		verifyNoInteractions(SessionRegistryTwoBeansConfig.SESSION_REGISTRY_TWO);
+	}
+
+	@EnableWebSecurity
+	static class SessionRegistryOneBeanConfig extends WebSecurityConfigurerAdapter {
+		private static SessionRegistry SESSION_REGISTRY;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.sessionManagement()
+				.maximumSessions(1);
+			// @formatter:on
+		}
+
+		@Bean
+		public SessionRegistry sessionRegistry() {
+			return SESSION_REGISTRY;
+		}
+	}
+
+	@EnableWebSecurity
+	static class SessionRegistryTwoBeansConfig extends WebSecurityConfigurerAdapter {
+		private static SessionRegistry SESSION_REGISTRY_ONE;
+
+		private static SessionRegistry SESSION_REGISTRY_TWO;
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.sessionManagement()
+				.maximumSessions(1);
+			// @formatter:on
+		}
+
+		@Bean
+		public SessionRegistry sessionRegistryOne() {
+			return SESSION_REGISTRY_ONE;
+		}
+
+		@Bean
+		public SessionRegistry sessionRegistryTwo() {
+			return SESSION_REGISTRY_TWO;
 		}
 	}
 }

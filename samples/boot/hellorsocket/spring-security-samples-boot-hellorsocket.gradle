@@ -1,7 +1,5 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
-ext['rsocket.version'] = '1.0.0-RC6'
-
 dependencies {
 	compile project(':spring-security-core')
 	compile project(':spring-security-config')

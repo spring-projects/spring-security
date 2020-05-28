@@ -7,6 +7,11 @@
   <body th:include="layout :: body" th:with="content=~{::content}">
      <div th:fragment="content">
         <form name="f" th:action="@{/login/openid}" method="post" id="openid_form">
+            <p><strong>
+                NOTE: The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+                <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
+                to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+            </strong></p>
             <input type="hidden" name="action" value="verify" />
 	        <fieldset>
                 <legend>Sign-in or Create New Account</legend>

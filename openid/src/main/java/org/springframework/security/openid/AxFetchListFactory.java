@@ -24,6 +24,9 @@ import java.util.List;
  * This allows the list of attributes for a fetch request to be tailored for different
  * OpenID providers, since they do not all support the same attributes.
  *
+ * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a>
+ * to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
  * @author Luke Taylor
  * @since 3.1
  */

@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,11 +57,14 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -89,10 +93,16 @@ import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 import static java.lang.Boolean.TRUE;
 import static org.springframework.security.oauth2.jwt.JwtClaimNames.SUB;
@@ -1657,9 +1667,16 @@ public final class SecurityMockMvcRequestPostProcessors {
 			}
 			OAuth2AuthorizedClient client = new OAuth2AuthorizedClient
 					(this.clientRegistration, this.principalName, this.accessToken);
-			OAuth2AuthorizedClientRepository authorizedClientRepository =
-					new HttpSessionOAuth2AuthorizedClientRepository();
-			authorizedClientRepository.saveAuthorizedClient(client, null, request, new MockHttpServletResponse());
+
+			OAuth2AuthorizedClientManager authorizationClientManager = OAuth2ClientServletTestUtils
+					.getOAuth2AuthorizedClientManager(request);
+			if (!(authorizationClientManager instanceof TestOAuth2AuthorizedClientManager)) {
+				authorizationClientManager =
+						new TestOAuth2AuthorizedClientManager(authorizationClientManager);
+				OAuth2ClientServletTestUtils.setOAuth2AuthorizedClientManager(request, authorizationClientManager);
+			}
+			TestOAuth2AuthorizedClientManager.enable(request);
+			request.setAttribute(TestOAuth2AuthorizedClientManager.TOKEN_ATTR_NAME, client);
 			return request;
 		}
 
@@ -1669,6 +1686,133 @@ public final class SecurityMockMvcRequestPostProcessors {
 					.clientId("test-client")
 					.clientSecret("test-secret")
 					.tokenUri("https://idp.example.org/oauth/token");
+		}
+
+		/**
+		 * Used to wrap the {@link OAuth2AuthorizedClientManager} to provide support for testing when the
+		 * request is wrapped
+		 */
+		private static class TestOAuth2AuthorizedClientManager
+				implements OAuth2AuthorizedClientManager {
+
+			final static String TOKEN_ATTR_NAME = TestOAuth2AuthorizedClientManager.class.getName()
+					.concat(".TOKEN");
+
+			final static String ENABLED_ATTR_NAME = TestOAuth2AuthorizedClientManager.class
+					.getName().concat(".ENABLED");
+
+			private final OAuth2AuthorizedClientManager delegate;
+
+			private TestOAuth2AuthorizedClientManager(OAuth2AuthorizedClientManager delegate) {
+				this.delegate = delegate;
+			}
+
+			@Override
+			public OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
+				HttpServletRequest request =
+						authorizeRequest.getAttribute(HttpServletRequest.class.getName());
+				if (isEnabled(request)) {
+					return (OAuth2AuthorizedClient) request.getAttribute(TOKEN_ATTR_NAME);
+				} else {
+					return this.delegate.authorize(authorizeRequest);
+				}
+			}
+
+			public static void enable(HttpServletRequest request) {
+				request.setAttribute(ENABLED_ATTR_NAME, TRUE);
+			}
+
+			public boolean isEnabled(HttpServletRequest request) {
+				return TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
+			}
+		}
+
+		private static class OAuth2ClientServletTestUtils {
+			private static final OAuth2AuthorizedClientRepository DEFAULT_CLIENT_REPO =
+					new HttpSessionOAuth2AuthorizedClientRepository();
+
+			/**
+			 * Gets the {@link OAuth2AuthorizedClientManager} for the specified {@link HttpServletRequest}.
+			 * If one is not found, one based off of {@link HttpSessionOAuth2AuthorizedClientRepository} is used.
+			 *
+			 * @param request the {@link HttpServletRequest} to obtain the
+			 * {@link OAuth2AuthorizedClientManager}
+			 * @return the {@link OAuth2AuthorizedClientManager} for the specified
+			 * {@link HttpServletRequest}
+			 */
+			public static OAuth2AuthorizedClientManager getOAuth2AuthorizedClientManager(HttpServletRequest request) {
+				OAuth2AuthorizedClientArgumentResolver resolver =
+						findResolver(request, OAuth2AuthorizedClientArgumentResolver.class);
+				if (resolver == null) {
+					return authorizeRequest -> DEFAULT_CLIENT_REPO.loadAuthorizedClient
+							(authorizeRequest.getClientRegistrationId(), authorizeRequest.getPrincipal(), request);
+				}
+				return (OAuth2AuthorizedClientManager)
+						ReflectionTestUtils.getField(resolver, "authorizedClientManager");
+			}
+
+			/**
+			 * Sets the {@link OAuth2AuthorizedClientManager} for the specified {@link HttpServletRequest}.
+			 *
+			 * @param request the {@link HttpServletRequest} to obtain the
+			 * {@link OAuth2AuthorizedClientManager}
+			 * @param manager the {@link OAuth2AuthorizedClientManager} to set
+			 */
+			public static void setOAuth2AuthorizedClientManager(HttpServletRequest request,
+					OAuth2AuthorizedClientManager manager) {
+				OAuth2AuthorizedClientArgumentResolver resolver =
+						findResolver(request, OAuth2AuthorizedClientArgumentResolver.class);
+				if (resolver == null) {
+					return;
+				}
+				ReflectionTestUtils.setField(resolver, "authorizedClientManager", manager);
+			}
+
+			@SuppressWarnings("unchecked")
+			static <T extends HandlerMethodArgumentResolver> T findResolver(HttpServletRequest request,
+					Class<T> resolverClass) {
+				if (!ClassUtils.isPresent
+						("org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter", null)) {
+					return null;
+				}
+				return WebMvcClasspathGuard.findResolver(request, resolverClass);
+			}
+
+			private static class WebMvcClasspathGuard {
+				static <T extends HandlerMethodArgumentResolver> T findResolver(HttpServletRequest request,
+						Class<T> resolverClass) {
+					ServletContext servletContext = request.getServletContext();
+					RequestMappingHandlerAdapter mapping = getRequestMappingHandlerAdapter(servletContext);
+					if (mapping == null) {
+						return null;
+					}
+					List<HandlerMethodArgumentResolver> resolvers = mapping.getCustomArgumentResolvers();
+					if (resolvers == null) {
+						return null;
+					}
+					for (HandlerMethodArgumentResolver resolver : resolvers) {
+						if (resolverClass.isAssignableFrom(resolver.getClass())) {
+							return (T) resolver;
+						}
+					}
+					return null;
+				}
+
+				private static RequestMappingHandlerAdapter getRequestMappingHandlerAdapter(ServletContext servletContext) {
+					WebApplicationContext context = WebApplicationContextUtils
+							.getWebApplicationContext(servletContext);
+					if (context != null) {
+						String[] names = context.getBeanNamesForType(RequestMappingHandlerAdapter.class);
+						if (names.length > 0) {
+							return (RequestMappingHandlerAdapter) context.getBean(names[0]);
+						}
+					}
+					return null;
+				}
+			}
+
+			private OAuth2ClientServletTestUtils() {
+			}
 		}
 	}
 

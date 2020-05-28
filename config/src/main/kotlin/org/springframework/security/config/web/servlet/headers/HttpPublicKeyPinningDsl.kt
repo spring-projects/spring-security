@@ -18,7 +18,6 @@ package org.springframework.security.config.web.servlet.headers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
-import org.springframework.security.config.web.servlet.SecurityMarker
 
 /**
  * A Kotlin DSL to configure the [HttpSecurity] HTTP Public Key Pinning header using
@@ -35,7 +34,7 @@ import org.springframework.security.config.web.servlet.SecurityMarker
  * the server.
  * @property reportUri the URI to which the browser should report pin validation failures.
  */
-@SecurityMarker
+@HeadersSecurityMarker
 class HttpPublicKeyPinningDsl {
     var pins: Map<String, String>? = null
     var maxAgeInSeconds: Long? = null

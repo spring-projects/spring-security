@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.web.server.oauth2.resourceserver
+package org.springframework.security.config.web.server
 
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -31,8 +31,6 @@ import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestRule
-import org.springframework.security.config.web.server.ServerHttpSecurity
-import org.springframework.security.config.web.server.invoke
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder
