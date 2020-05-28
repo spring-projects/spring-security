@@ -64,12 +64,13 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	}
 
 	@Bean
-	public PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source, MethodSecurityExpressionHandler handler) {
+	public PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source, MethodSecurityExpressionHandler handler,
+			MethodSecurityExpressionReactiveHandler reactiveHandler) {
 
 		ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(
 				handler);
 		ExpressionBasedPreInvocationReactiveAdvice preAdvice = new ExpressionBasedPreInvocationReactiveAdvice();
-		preAdvice.setExpressionHandler(handler);
+		preAdvice.setExpressionHandler(reactiveHandler);
 
 		return new PrePostAdviceReactiveMethodInterceptor(source, preAdvice, postAdvice);
 	}
@@ -78,6 +79,16 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+		if (this.grantedAuthorityDefaults != null) {
+			handler.setDefaultRolePrefix(this.grantedAuthorityDefaults.getRolePrefix());
+		}
+		return handler;
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	public DefaultMethodSecurityExpressionReactiveHandler methodSecurityExpressionReactiveHandler() {
+		DefaultMethodSecurityExpressionReactiveHandler handler = new DefaultMethodSecurityExpressionReactiveHandler();
 		if (this.grantedAuthorityDefaults != null) {
 			handler.setDefaultRolePrefix(this.grantedAuthorityDefaults.getRolePrefix());
 		}

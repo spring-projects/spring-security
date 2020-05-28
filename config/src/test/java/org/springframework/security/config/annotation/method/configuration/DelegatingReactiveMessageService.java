@@ -61,6 +61,13 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 	}
 
 	@Override
+	@PreAuthorize("@authz.checkReactive(#id)")
+	public Mono<String> monoReactivePreAuthorizeBeanFindById(
+			long id) {
+		return delegate.monoReactivePreAuthorizeBeanFindById(id);
+	}
+
+	@Override
 	@PostAuthorize("@authz.check(authentication, returnObject)")
 	public Mono<String> monoPostAuthorizeBeanFindById(
 			long id) {
@@ -94,6 +101,13 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 	}
 
 	@Override
+	@PreAuthorize("@authz.checkReactive(#id)")
+	public Flux<String> fluxReactivePreAuthorizeBeanFindById(
+			long id) {
+		return delegate.fluxReactivePreAuthorizeBeanFindById(id);
+	}
+
+	@Override
 	@PostAuthorize("@authz.check(authentication, returnObject)")
 	public Flux<String> fluxPostAuthorizeBeanFindById(
 			long id) {
@@ -124,6 +138,13 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 	public Publisher<String> publisherPreAuthorizeBeanFindById(
 			long id) {
 		return delegate.publisherPreAuthorizeBeanFindById(id);
+	}
+
+	@Override
+	@PreAuthorize("@authz.checkReactive(#id)")
+	public Publisher<String> publisherReactivePreAuthorizeBeanFindById(
+			long id) {
+		return delegate.publisherReactivePreAuthorizeBeanFindById(id);
 	}
 
 	@Override

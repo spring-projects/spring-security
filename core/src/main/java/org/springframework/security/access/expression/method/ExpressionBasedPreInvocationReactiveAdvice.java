@@ -19,6 +19,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.access.expression.ReactiveExpressionUtils;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationReactiveAdvice;
 import org.springframework.security.core.Authentication;
@@ -29,14 +30,16 @@ import java.util.Collection;
 /**
  * Method pre-invocation handling based on expressions.
  *
- * @author sheiy
- * @since 5.4
+ * @author Luke Taylor
+ * @author Sheiy
+ * @since 3.0
  */
 public class ExpressionBasedPreInvocationReactiveAdvice implements
 		PreInvocationAuthorizationReactiveAdvice {
-	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+	private MethodSecurityExpressionReactiveHandler expressionHandler = new DefaultMethodSecurityExpressionReactiveHandler();
 
-	public Mono<Boolean> before(Authentication authentication, MethodInvocation mi,
+	@Override
+	public Mono<Boolean> before(Mono<Authentication> authentication, MethodInvocation mi,
 			PreInvocationAttribute attr) {
 		PreInvocationExpressionAttribute preAttr = (PreInvocationExpressionAttribute) attr;
 		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication,
@@ -56,7 +59,7 @@ public class ExpressionBasedPreInvocationReactiveAdvice implements
 		try {
 			return Mono.just(ExpressionUtils.evaluateAsBoolean(preAuthorize, ctx));
 		} catch (IllegalArgumentException e) {
-			return ExpressionUtils.evaluateAsMonoBoolean(preAuthorize, ctx);
+			return ReactiveExpressionUtils.evaluateAsMonoBoolean(preAuthorize, ctx);
 		}
 	}
 
@@ -95,7 +98,7 @@ public class ExpressionBasedPreInvocationReactiveAdvice implements
 		return filterTarget;
 	}
 
-	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
+	public void setExpressionHandler(MethodSecurityExpressionReactiveHandler expressionHandler) {
 		this.expressionHandler = expressionHandler;
 	}
 }

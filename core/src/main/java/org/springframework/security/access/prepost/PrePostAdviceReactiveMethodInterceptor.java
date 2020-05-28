@@ -43,12 +43,14 @@ import java.util.Collection;
  * @since 5.0
  */
 public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor {
-	private Authentication anonymous = new AnonymousAuthenticationToken("key", "anonymous",
-		AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+	private final Authentication anonymous = new AnonymousAuthenticationToken("key", "anonymous",
+			AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 	private final MethodSecurityMetadataSource attributeSource;
 
-	private final PreInvocationAuthorizationReactiveAdvice preInvocationAdvice;
+	private PreInvocationAuthorizationAdvice preInvocationAdvice;
+
+	private PreInvocationAuthorizationReactiveAdvice preInvocationReactiveAdvice;
 
 	private final PostInvocationAuthorizationAdvice postAdvice;
 
@@ -58,13 +60,29 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 	 * @param preInvocationAdvice the {@link PreInvocationAuthorizationAdvice} to use
 	 * @param postInvocationAdvice the {@link PostInvocationAuthorizationAdvice} to use
 	 */
-	public PrePostAdviceReactiveMethodInterceptor(MethodSecurityMetadataSource attributeSource, PreInvocationAuthorizationReactiveAdvice preInvocationAdvice, PostInvocationAuthorizationAdvice postInvocationAdvice) {
+	public PrePostAdviceReactiveMethodInterceptor(MethodSecurityMetadataSource attributeSource, PreInvocationAuthorizationAdvice preInvocationAdvice, PostInvocationAuthorizationAdvice postInvocationAdvice) {
 		Assert.notNull(attributeSource, "attributeSource cannot be null");
 		Assert.notNull(preInvocationAdvice, "preInvocationAdvice cannot be null");
 		Assert.notNull(postInvocationAdvice, "postInvocationAdvice cannot be null");
 
 		this.attributeSource = attributeSource;
 		this.preInvocationAdvice = preInvocationAdvice;
+		this.postAdvice = postInvocationAdvice;
+	}
+
+	/**
+	 * Creates a new instance
+	 * @param attributeSource             the {@link MethodSecurityMetadataSource} to use
+	 * @param preInvocationReactiveAdvice the {@link PreInvocationAuthorizationReactiveAdvice} to use
+	 * @param postInvocationAdvice        the {@link PostInvocationAuthorizationAdvice} to use
+	 */
+	public PrePostAdviceReactiveMethodInterceptor(MethodSecurityMetadataSource attributeSource, PreInvocationAuthorizationReactiveAdvice preInvocationReactiveAdvice, PostInvocationAuthorizationAdvice postInvocationAdvice) {
+		Assert.notNull(attributeSource, "attributeSource cannot be null");
+		Assert.notNull(preInvocationReactiveAdvice, "preInvocationAdvice cannot be null");
+		Assert.notNull(postInvocationAdvice, "postInvocationAdvice cannot be null");
+
+		this.attributeSource = attributeSource;
+		this.preInvocationReactiveAdvice = preInvocationReactiveAdvice;
 		this.postAdvice = postInvocationAdvice;
 	}
 
@@ -80,16 +98,25 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 			.getAttributes(method, targetClass);
 
 		PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
-		Mono<Authentication> toInvoke = ReactiveSecurityContextHolder.getContext()
-				.map(SecurityContext::getAuthentication)
-				.defaultIfEmpty(this.anonymous)
-				.flatMap(auth -> this.preInvocationAdvice.before(auth, invocation, preAttr)
-						.flatMap(aBoolean -> {
-							if (aBoolean) {
-								return Mono.just(auth);
-							}
-							return Mono.defer(() -> Mono.error(new AccessDeniedException("Denied")));
-						}));
+		Mono<Authentication> toInvoke;
+		if (this.preInvocationReactiveAdvice != null) {
+			final Mono<Authentication> authenticationMono = ReactiveSecurityContextHolder.getContext()
+					.map(SecurityContext::getAuthentication)
+					.defaultIfEmpty(this.anonymous);
+			toInvoke = this.preInvocationReactiveAdvice.before(authenticationMono, invocation, preAttr)
+					.flatMap(aBoolean -> {
+						if (aBoolean) {
+							return authenticationMono;
+						}
+						return Mono.defer(() -> Mono.error(new AccessDeniedException("Denied")));
+					});
+		} else {
+			toInvoke = ReactiveSecurityContextHolder.getContext()
+					.map(SecurityContext::getAuthentication)
+					.defaultIfEmpty(this.anonymous)
+					.filter(auth -> this.preInvocationAdvice.before(auth, invocation, preAttr))
+					.switchIfEmpty(Mono.defer(() -> Mono.error(new AccessDeniedException("Denied"))));
+		}
 
 		PostInvocationAttribute attr = findPostInvocationAttribute(attributes);
 

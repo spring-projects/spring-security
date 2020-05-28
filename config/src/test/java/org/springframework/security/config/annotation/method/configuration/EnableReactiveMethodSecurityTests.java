@@ -39,6 +39,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * @author Rob Winch
+ * @author Sheiy
  * @since 5.0
  */
 @RunWith(SpringRunner.class)
@@ -167,6 +168,56 @@ public class EnableReactiveMethodSecurityTests {
 		when(this.delegate.monoPreAuthorizeBeanFindById(1L)).thenReturn(Mono.from(result));
 
 		Mono<String> findById = this.messageService.monoPreAuthorizeBeanFindById(1L)
+				.subscriberContext(withUser);
+		StepVerifier
+				.create(findById)
+				.expectError(AccessDeniedException.class)
+				.verify();
+
+		result.assertNoSubscribers();
+	}
+
+	@Test
+	public void monoReactivePreAuthorizeBeanWhenGrantedThenSuccess() {
+		when(this.delegate.monoReactivePreAuthorizeBeanFindById(2L)).thenReturn(Mono.just("result"));
+
+		Mono<String> findById = this.messageService.monoReactivePreAuthorizeBeanFindById(2L)
+				.subscriberContext(withAdmin);
+		StepVerifier
+				.create(findById)
+				.expectNext("result")
+				.verifyComplete();
+	}
+
+	@Test
+	public void monoReactivePreAuthorizeBeanWhenNotAuthenticatedAndGrantedThenSuccess() {
+		when(this.delegate.monoReactivePreAuthorizeBeanFindById(2L)).thenReturn(Mono.just("result"));
+
+		Mono<String> findById = this.messageService.monoReactivePreAuthorizeBeanFindById(2L);
+		StepVerifier
+				.create(findById)
+				.expectNext("result")
+				.verifyComplete();
+	}
+
+	@Test
+	public void monoReactivePreAuthorizeBeanWhenNoAuthenticationThenDenied() {
+		when(this.delegate.monoReactivePreAuthorizeBeanFindById(1L)).thenReturn(Mono.from(result));
+
+		Mono<String> findById = this.messageService.monoReactivePreAuthorizeBeanFindById(1L);
+		StepVerifier
+				.create(findById)
+				.expectError(AccessDeniedException.class)
+				.verify();
+
+		result.assertNoSubscribers();
+	}
+
+	@Test
+	public void monoReactivePreAuthorizeBeanWhenNotAuthorizedThenDenied() {
+		when(this.delegate.monoReactivePreAuthorizeBeanFindById(1L)).thenReturn(Mono.from(result));
+
+		Mono<String> findById = this.messageService.monoReactivePreAuthorizeBeanFindById(1L)
 				.subscriberContext(withUser);
 		StepVerifier
 				.create(findById)
@@ -345,6 +396,56 @@ public class EnableReactiveMethodSecurityTests {
 	}
 
 	@Test
+	public void fluxReactivePreAuthorizeBeanWhenGrantedThenSuccess() {
+		when(this.delegate.fluxReactivePreAuthorizeBeanFindById(2L)).thenReturn(Flux.just("result"));
+
+		Flux<String> findById = this.messageService.fluxReactivePreAuthorizeBeanFindById(2L)
+				.subscriberContext(withAdmin);
+		StepVerifier
+				.create(findById)
+				.expectNext("result")
+				.verifyComplete();
+	}
+
+	@Test
+	public void fluxPreReactiveAuthorizeBeanWhenNotAuthenticatedAndGrantedThenSuccess() {
+		when(this.delegate.fluxReactivePreAuthorizeBeanFindById(2L)).thenReturn(Flux.just("result"));
+
+		Flux<String> findById = this.messageService.fluxReactivePreAuthorizeBeanFindById(2L);
+		StepVerifier
+				.create(findById)
+				.expectNext("result")
+				.verifyComplete();
+	}
+
+	@Test
+	public void fluxReactivePreAuthorizeBeanWhenNoAuthenticationThenDenied() {
+		when(this.delegate.fluxReactivePreAuthorizeBeanFindById(1L)).thenReturn(Flux.from(result));
+
+		Flux<String> findById = this.messageService.fluxReactivePreAuthorizeBeanFindById(1L);
+		StepVerifier
+				.create(findById)
+				.expectError(AccessDeniedException.class)
+				.verify();
+
+		result.assertNoSubscribers();
+	}
+
+	@Test
+	public void fluxReactivePreAuthorizeBeanWhenNotAuthorizedThenDenied() {
+		when(this.delegate.fluxReactivePreAuthorizeBeanFindById(1L)).thenReturn(Flux.from(result));
+
+		Flux<String> findById = this.messageService.fluxReactivePreAuthorizeBeanFindById(1L)
+				.subscriberContext(withUser);
+		StepVerifier
+				.create(findById)
+				.expectError(AccessDeniedException.class)
+				.verify();
+
+		result.assertNoSubscribers();
+	}
+
+	@Test
 	public void fluxPostAuthorizeWhenAuthorizedThenSuccess() {
 		when(this.delegate.fluxPostAuthorizeFindById(1L)).thenReturn(Flux.just("user"));
 
@@ -503,6 +604,56 @@ public class EnableReactiveMethodSecurityTests {
 		when(this.delegate.publisherPreAuthorizeBeanFindById(1L)).thenReturn(result);
 
 		Publisher<String> findById = Flux.from(this.messageService.publisherPreAuthorizeBeanFindById(1L))
+				.subscriberContext(withUser);
+		StepVerifier
+				.create(findById)
+				.expectError(AccessDeniedException.class)
+				.verify();
+
+		result.assertNoSubscribers();
+	}
+
+	@Test
+	public void publisherReactivePreAuthorizeBeanWhenGrantedThenSuccess() {
+		when(this.delegate.publisherReactivePreAuthorizeBeanFindById(2L)).thenReturn(publisherJust("result"));
+
+		Publisher<String> findById = Flux.from(this.messageService.publisherReactivePreAuthorizeBeanFindById(2L))
+				.subscriberContext(withAdmin);
+		StepVerifier
+				.create(findById)
+				.expectNext("result")
+				.verifyComplete();
+	}
+
+	@Test
+	public void publisherReactivePreAuthorizeBeanWhenNotAuthenticatedAndGrantedThenSuccess() {
+		when(this.delegate.publisherReactivePreAuthorizeBeanFindById(2L)).thenReturn(publisherJust("result"));
+
+		Publisher<String> findById = this.messageService.publisherReactivePreAuthorizeBeanFindById(2L);
+		StepVerifier
+				.create(findById)
+				.expectNext("result")
+				.verifyComplete();
+	}
+
+	@Test
+	public void publisherReactivePreAuthorizeBeanWhenNoAuthenticationThenDenied() {
+		when(this.delegate.publisherReactivePreAuthorizeBeanFindById(1L)).thenReturn(result);
+
+		Publisher<String> findById = this.messageService.publisherReactivePreAuthorizeBeanFindById(1L);
+		StepVerifier
+				.create(findById)
+				.expectError(AccessDeniedException.class)
+				.verify();
+
+		result.assertNoSubscribers();
+	}
+
+	@Test
+	public void publisherReactivePreAuthorizeBeanWhenNotAuthorizedThenDenied() {
+		when(this.delegate.publisherReactivePreAuthorizeBeanFindById(1L)).thenReturn(result);
+
+		Publisher<String> findById = Flux.from(this.messageService.publisherReactivePreAuthorizeBeanFindById(1L))
 				.subscriberContext(withUser);
 		StepVerifier
 				.create(findById)

@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Rob Winch
@@ -32,6 +33,10 @@ public class Authz {
 
 	public boolean check(long id) {
 		return id % 2 == 0;
+	}
+
+	public Mono<Boolean> checkReactive(long id) {
+		return Mono.just(id % 2 == 0);
 	}
 
 	public boolean check(Authentication authentication, String message) {

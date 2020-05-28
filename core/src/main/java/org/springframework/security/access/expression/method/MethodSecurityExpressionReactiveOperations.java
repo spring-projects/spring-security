@@ -13,21 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.access.expression;
+package org.springframework.security.access.expression.method;
 
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.EvaluationException;
-import org.springframework.expression.Expression;
+import org.springframework.security.access.expression.SecurityExpressionReactiveOperations;
 
-public final class ExpressionUtils {
+/**
+ * Interface which must be implemented if you want to use filtering in method security
+ * expressions.
+ *
+ * @author Luke Taylor
+ * @author Sheiy
+ * @since 5.4
+ */
+public interface MethodSecurityExpressionReactiveOperations extends SecurityExpressionReactiveOperations {
+	void setFilterObject(Object filterObject);
 
-	public static boolean evaluateAsBoolean(Expression expr, EvaluationContext ctx) {
-		try {
-			return expr.getValue(ctx, Boolean.class);
-		}
-		catch (EvaluationException e) {
-			throw new IllegalArgumentException("Failed to evaluate expression '"
-					+ expr.getExpressionString() + "'", e);
-		}
-	}
+	Object getFilterObject();
+
+	void setReturnObject(Object returnObject);
+
+	Object getReturnObject();
+
+	Object getThis();
 }

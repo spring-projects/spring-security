@@ -39,6 +39,6 @@ public interface PreInvocationAuthorizationReactiveAdvice extends AopInfrastruct
 	 *                               annotations.
 	 * @return Mono<true> if authorised, Mono<false> otherwise
 	 */
-	Mono<Boolean> before(Authentication authentication, MethodInvocation mi,
+	Mono<Boolean> before(Mono<Authentication> authentication, MethodInvocation mi,
 			PreInvocationAttribute preInvocationAttribute);
 }
