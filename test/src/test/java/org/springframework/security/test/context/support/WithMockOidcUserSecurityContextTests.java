@@ -29,6 +29,7 @@ import java.time.Instant;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WithMockOidcUserSecurityContextTests {
+	private final static String USER_VALUE = "valueUser";
 
 	@Mock
 	private WithMockOidcUser withUser;
@@ -38,68 +39,71 @@ public class WithMockOidcUserSecurityContextTests {
 	@Before
 	public void setup() {
 		factory = new WithMockOidcUserSecurityContextFactory();
-		when(withUser.value()).thenReturn("valueUser");
-		when(withUser.clientId()).thenReturn("clientId");
-		when(withUser.authorities()).thenReturn(new String[] { WithMockOidcUser.DEFAULT_SCOPE });
-		when(withUser.nameTokenClaim()).thenReturn("sub");
+		when(withUser.value()).thenReturn(USER_VALUE);
+		when(withUser.authorities()).thenReturn(new String[]{});
+		when(withUser.scopes()).thenReturn(new String[]{"openid"});
 		when(withUser.name()).thenReturn("");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void userNameValueNullRaiseException() {
+	public void createSecurityContextWhenValueIsNullThenRaiseException() {
 		when(withUser.value()).thenReturn(null);
 		factory.createSecurityContext(withUser);
 	}
 
-	public void valueDefaultsUserIdWhenUserNameIsNull() {
+	@Test
+	public void createSecurityContextWhenUserNameIsNullThenUseDefaultValue() {
 		when(withUser.name()).thenReturn(null);
 		assertThat(factory.createSecurityContext(withUser).getAuthentication().getName())
-				.isEqualTo("valueUser");
+				.isEqualTo(USER_VALUE);
 	}
 
 	@Test
-	public void valueDefaultsUserIdWhenUserNameIsNotSet() {
+	public void createSecurityContextWhenUserNameIsEmptyThenUseDefaultValue() {
 		assertThat(factory.createSecurityContext(withUser).getAuthentication().getName())
-				.isEqualTo("valueUser");
+				.isEqualTo(USER_VALUE);
 	}
 
 	@Test
-	public void userNamePrioritizedOverValue() {
-		when(withUser.name()).thenReturn("customUser");
+	public void createSecurityContextWhenUserNameIsSetThenUseUserName() {
+		when(withUser.name()).thenReturn(USER_VALUE);
 
 		assertThat(factory.createSecurityContext(withUser).getAuthentication().getName())
-				.isEqualTo("customUser");
+				.isEqualTo(USER_VALUE);
 	}
 
 	@Test
-	public void overwriteAuthorities() {
-		when(withUser.authorities()).thenReturn(new String[] { "USER", "CUSTOM" });
+	public void createSecurityContextWhenAuthoritiesSetThenUseAuthorities() {
+		when(withUser.authorities()).thenReturn(new String[]{"USER", "CUSTOM", "ROLE_USER"});
 
 		assertThat(
 				factory.createSecurityContext(withUser).getAuthentication()
-						.getAuthorities()).extracting("authority").containsOnly(
-				"USER", "CUSTOM");
-	}
-
-	@SuppressWarnings("checkstyle:WhitespaceAfter")
-	@Test
-	public void overwriteNameTokenClaim() {
-		when(withUser.nameTokenClaim()).thenReturn("userNameClaim");
-
-		Object authn = factory.createSecurityContext(withUser).getAuthentication().getPrincipal();
-		assertThat(authn).isInstanceOf(OidcUser.class);
-		assertThat(((OidcUser) authn).getClaims()).containsKey("userNameClaim");
-		assertThat(((OidcUser) authn).getClaims()).doesNotContainKey("sub");
-		assertThat(((OidcUser) authn).getName()).isEqualTo("valueUser");
+						.getAuthorities()).extracting("authority").containsExactlyInAnyOrder(
+				"USER", "CUSTOM", "ROLE_USER");
 	}
 
 	@Test
-	public void claimNotExpired() {
-		when(withUser.nameTokenClaim()).thenReturn("userNameClaim");
+	public void createSecurityContextWhenNoScopesAndAuthoritiesSetThenUseDefaultScope() {
+		assertThat(
+				factory.createSecurityContext(withUser).getAuthentication()
+						.getAuthorities()).extracting("authority").containsExactlyInAnyOrder(
+				"SCOPE_openid", "ROLE_USER");
+	}
 
+	@Test
+	public void createSecurityContextWhenScopesSetThenUseScopes() {
+		when(withUser.scopes()).thenReturn(new String[]{"DISPLAY", "ADMIN"});
+
+		assertThat(
+				factory.createSecurityContext(withUser).getAuthentication()
+						.getAuthorities()).extracting("authority").containsExactlyInAnyOrder(
+				"SCOPE_DISPLAY", "SCOPE_ADMIN", "ROLE_USER");
+	}
+
+	@Test
+	public void createSecurityContextThenOidcNotYetExpired() {
 		OidcUser oidcUser = (OidcUser) factory.createSecurityContext(withUser).getAuthentication().getPrincipal();
 		assertThat(oidcUser.getIssuedAt().compareTo(Instant.now())).isNegative();
 		assertThat(oidcUser.getExpiresAt().compareTo(Instant.now())).isPositive();
 	}
-
 }

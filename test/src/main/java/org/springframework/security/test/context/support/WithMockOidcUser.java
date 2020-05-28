@@ -33,13 +33,14 @@ import java.lang.annotation.*;
  * <ul>
  * <li>The Authentication that is populated in the {@link SecurityContext} is of type {@link OAuth2AuthenticationToken}.</li>
  * <li>The principal on the Authentication is Spring Security’s User object of type {@code OidcUser}.</li>
- * <li>The default User has the username of "user", {@link #value()} or {@link #name()} and does not have to exist.</li>
- * <li>The default User has and a single GrantedAuthority {@link GrantedAuthority} or those that are specified by {@link #authorities()}.</li>
+ * <li>The default User has the user name "user". You can overwrite it the name with {@link #value()} or {@link #name()}.</li>
+ * <li>The default User has "ROLE_USER" and "SCOPE_openid" as {@link GrantedAuthority}.
+ * You can overwrite them with {@link #scopes()} or {@link #authorities()}. </li>
  * </ul>
  *
  * @author Nena Raab
  * @see WithUserDetails
- * @since 5.3
+ * @since 5.4
  */
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
@@ -47,7 +48,6 @@ import java.lang.annotation.*;
 @Documented
 @WithSecurityContext(factory = WithMockOidcUserSecurityContextFactory.class)
 public @interface WithMockOidcUser {
-	String DEFAULT_SCOPE = "SCOPE_openid";
 
 	/**
 	 * Convenience mechanism for specifying the username. The default is "user". If
@@ -57,7 +57,7 @@ public @interface WithMockOidcUser {
 	String value() default "user";
 
 	/**
-	 * The user name oder user id (subject) to be used. Note that {@link #value()} is a synonym for
+	 * The user name or user id (subject) to be used. Note that {@link #value()} is a synonym for
 	 * {@link #name()}, but if {@link #name()} is specified it will take
 	 * precedence.
 	 * @return
@@ -66,33 +66,36 @@ public @interface WithMockOidcUser {
 
 	/**
 	 * <p>
-	 * The authorities, that should be mapped to {@code GrantedAuthority}.
-	 * The default is "SCOPE_openid". A {@link GrantedAuthority} will be created for each value.
+	 * The scopes that should be mapped to {@code GrantedAuthority}.
+	 * The default is "openid". Each value in scopes gets prefixed with "SCOPE_"
+	 * and added to the list of {@link GrantedAuthority}.
 	 * </p>
-	 **
+	 * <p>
+	 * If {@link #authorities()} is specified this property cannot be changed from the default.
+	 * </p>
+	 *
 	 * @return
 	 */
-	String[] authorities() default { "SCOPE_openid" };
+	String[] scopes() default { "openid" };
 
 	/**
-	 * The name of the OIDC token claim that contains the subject identifier that identifies the End-User.
-	 * The default is "sub".
+	 * <p>
+	 * The authorities that should be mapped to {@code GrantedAuthority}.
+	 * </p>
+	 *
+	 * <p>
+	 * If this property is specified then {@link #scopes()} is not used. This differs from
+	 * {@link #scopes()} in that it does not prefix the values passed in automatically.
+	 * </p>
 	 * @return
 	 */
-	String nameTokenClaim() default "sub";
-
-	/**
-	 * The password to be used. The default is "clientId".
-	 * @return
-	 */
-	String clientId() default "clientId";
+	String[] authorities() default { };
 
 	/**
 	 * Determines when the {@link SecurityContext} is setup. The default is before
 	 * {@link TestExecutionEvent#TEST_METHOD} which occurs during
 	 * {@link org.springframework.test.context.TestExecutionListener#beforeTestMethod(TestContext)}
 	 * @return the {@link TestExecutionEvent} to initialize before
-	 * @since 5.1
 	 */
 	@AliasFor(annotation = WithSecurityContext.class)
 	TestExecutionEvent setupBefore() default TestExecutionEvent.TEST_METHOD;

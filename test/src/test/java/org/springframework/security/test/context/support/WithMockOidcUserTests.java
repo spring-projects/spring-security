@@ -28,9 +28,8 @@ public class WithMockOidcUserTests {
 				WithMockOidcUser.class);
 		assertThat(mockUser.value()).isEqualTo("user");
 		assertThat(mockUser.name()).isEmpty();
-		assertThat(mockUser.authorities()).containsOnly(WithMockOidcUser.DEFAULT_SCOPE);
-		assertThat(mockUser.clientId()).isEqualTo("clientId");
-		assertThat(mockUser.nameTokenClaim()).isEqualTo("sub");
+		assertThat(mockUser.scopes()).containsOnly("openid");
+		assertThat(mockUser.authorities()).isEmpty();
 		assertThat(mockUser.setupBefore()).isEqualByComparingTo(TestExecutionEvent.TEST_METHOD);
 
 		WithSecurityContext context = AnnotatedElementUtils.findMergedAnnotation(Annotated.class,

@@ -24,20 +24,20 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
 
+import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.*;
+
 /**
- * A {@link WithMockOidcUserSecurityContextFactory} that works with {@link WithMockOidcUser}.
- * <p>
- * Initializes the Spring Security Context with a OAuth2AuthenticationToken instance, which comes with
- * an encoded oidc token with some default claims but without header and signature.
+ * Initializes the Spring Security Context with a OAuth2AuthenticationToken instance.
  *
  * @author Nena Raab
  * @see WithMockOidcUser
- * @since 5.3
  */
 final class WithMockOidcUserSecurityContextFactory implements
 		WithSecurityContextFactory<WithMockOidcUser> {
@@ -46,46 +46,42 @@ final class WithMockOidcUserSecurityContextFactory implements
 		String userId = StringUtils.hasLength(withUser.name()) ? withUser
 				.name() : withUser.value();
 		if (userId == null) {
-			throw new IllegalArgumentException(withUser
-					+ " cannot have null userId on both userId and value properties");
+			Assert.notNull(userId, "@WithMockOidcUser cannot have null name on both name and value properties");
 		}
 
-		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+		Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 		for (String authority : withUser.authorities()) {
 			grantedAuthorities.add(new SimpleGrantedAuthority(authority));
 		}
 
-		OidcUser principal = new DefaultOidcUser(grantedAuthorities,
-				new OidcIdTokenFactory(userId, withUser.clientId(), withUser.nameTokenClaim()).build(),
-				withUser.nameTokenClaim());
+		if (grantedAuthorities.isEmpty()) {
+			for (String scope : withUser.scopes()) {
+				Assert.isTrue(!scope.startsWith("SCOPE_"), "scopes cannot start with SCOPE_ got " + scope);
+				grantedAuthorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
+			}
+		}
+		// To align this with the OidcUser that OidcUserService creates, this adds a ROLE_USER
+		grantedAuthorities.add(new OidcUserAuthority(getOidcTokenForUser(userId)));
+
+		OidcUser principal = new DefaultOidcUser(grantedAuthorities, getOidcTokenForUser(userId));
 
 		Authentication authentication = new OAuth2AuthenticationToken(
-				principal, principal.getAuthorities(), withUser.clientId());
+				principal, principal.getAuthorities(), "client-id");
 
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authentication);
 		return context;
 	}
 
-	private class OidcIdTokenFactory {
-		private Map<String, Object> claims = new HashMap<>();
-		final Instant expiredAt = new GregorianCalendar().toInstant().plusSeconds(600);
-		final Instant issuedAt = new GregorianCalendar().toInstant().minusSeconds(3);
+	private static OidcIdToken getOidcTokenForUser(String userId) {
+		Map<String, Object> claims = new HashMap<>();
+		final Instant issuedAt = Instant.now().minusSeconds(3);
+		final Instant expiredAt = Instant.now().plusSeconds(600);
 
-		OidcIdTokenFactory(String userId, String clientId, String userIdClaimName) {
-			claims.put("client_id", clientId); // mandatory
-			claims.put("iat", issuedAt.getEpochSecond());
-			claims.put("exp", expiredAt.getEpochSecond());
-			claims.put(userIdClaimName, userId);
-		}
+		claims.put(IAT, issuedAt.getEpochSecond());
+		claims.put(EXP, expiredAt.getEpochSecond());
+		claims.put(SUB, userId);
 
-		public OidcIdToken build() {
-			return new OidcIdToken(emptyTokenBase64Encode(), issuedAt, expiredAt, claims);
-		}
-
-		private String emptyTokenBase64Encode() {
-			byte[] emptyToken = "{}".getBytes();
-			return Base64.getUrlEncoder().withoutPadding().encodeToString(emptyToken);
-		}
+		return new OidcIdToken("id-token", issuedAt, expiredAt, claims);
 	}
 }
