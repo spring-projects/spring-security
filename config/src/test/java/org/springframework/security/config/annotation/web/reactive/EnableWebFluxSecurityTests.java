@@ -47,6 +47,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
+import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
@@ -59,6 +60,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.result.view.AbstractView;
@@ -433,5 +435,24 @@ public class EnableWebFluxSecurityTests {
 	static class Child {
 		Child() {
 		}
+	}
+
+	@Test
+	// gh-8596
+	public void resolveAuthenticationPrincipalArgumentResolverFirstDoesNotCauseBeanCurrentlyInCreationException() {
+		this.spring.register(EnableWebFluxSecurityConfiguration.class,
+				ReactiveAuthenticationTestConfiguration.class,
+				DelegatingWebFluxConfiguration.class).autowire();
+	}
+
+	@EnableWebFluxSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class EnableWebFluxSecurityConfiguration {
+		/**
+		 * It is necessary to Autowire AuthenticationPrincipalArgumentResolver because it triggers eager loading of
+		 * AuthenticationPrincipalArgumentResolver bean which causes BeanCurrentlyInCreationException
+		 */
+		@Autowired
+		AuthenticationPrincipalArgumentResolver resolver;
 	}
 }

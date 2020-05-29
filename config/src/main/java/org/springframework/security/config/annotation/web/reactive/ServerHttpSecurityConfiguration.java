@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.reactive;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -87,11 +88,11 @@ class ServerHttpSecurityConfiguration {
 
 	@Bean
 	public WebFluxConfigurer authenticationPrincipalArgumentResolverConfigurer(
-			AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver) {
+			ObjectProvider<AuthenticationPrincipalArgumentResolver> authenticationPrincipalArgumentResolver) {
 		return new WebFluxConfigurer() {
 			@Override
 			public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
-				configurer.addCustomResolver(authenticationPrincipalArgumentResolver);
+				configurer.addCustomResolver(authenticationPrincipalArgumentResolver.getObject());
 			}
 		};
 	}
