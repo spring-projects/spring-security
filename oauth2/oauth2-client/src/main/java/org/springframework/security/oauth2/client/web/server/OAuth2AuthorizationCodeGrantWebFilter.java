@@ -23,6 +23,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
@@ -184,6 +186,8 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 		return this.authenticationManager.authenticate(token)
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
 				.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
+				.onErrorResume(OAuth2AuthorizationException.class, e -> this.authenticationFailureHandler
+						.onAuthenticationFailure(webFilterExchange, new OAuth2AuthenticationException(e.getError())))
 				.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
 						.onAuthenticationFailure(webFilterExchange, e));
 	}
