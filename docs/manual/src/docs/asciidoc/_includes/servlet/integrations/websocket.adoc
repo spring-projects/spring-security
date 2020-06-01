@@ -4,7 +4,7 @@
 Spring Security 4 added support for securing https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html[Spring's WebSocket support].
 This section describes how to use Spring Security's WebSocket support.
 
-NOTE: You can find a complete working sample of WebSocket security at https://github.com/spring-projects/spring-session/tree/master/samples/boot/websocket.
+NOTE: You can find a complete working sample of WebSocket security at https://github.com/spring-projects/spring-session/tree/master/spring-session-samples/spring-session-sample-boot-websocket.
 
 .Direct JSR-356 Support
 ****
