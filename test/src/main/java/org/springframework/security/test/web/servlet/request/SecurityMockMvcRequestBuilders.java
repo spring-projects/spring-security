@@ -99,7 +99,7 @@ public final class SecurityMockMvcRequestBuilders {
 					.accept(MediaType.TEXT_HTML, MediaType.ALL);
 
 			if (this.parent != null) {
-				logoutRequest = (MockHttpServletRequestBuilder) this.parent.merge(logoutRequest);
+				logoutRequest = (MockHttpServletRequestBuilder) logoutRequest.merge(this.parent);
 			}
 
 			MockHttpServletRequest request = logoutRequest.buildRequest(servletContext);
@@ -142,9 +142,9 @@ public final class SecurityMockMvcRequestBuilders {
 			if (parent == null) {
 				return this;
 			}
-			if (parent instanceof MockHttpServletRequestBuilder) {
+			if (parent instanceof Mergeable) {
 				this.parent = (Mergeable) parent;
-				return this.parent;
+				return this;
 			} else {
 				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
 			}
@@ -178,10 +178,8 @@ public final class SecurityMockMvcRequestBuilders {
 					.param(this.usernameParam, this.username)
 					.param(this.passwordParam, this.password);
 
-
 			if (this.parent != null) {
 				loginRequest = (MockHttpServletRequestBuilder) loginRequest.merge(this.parent);
-
 			}
 
 			MockHttpServletRequest request = loginRequest.buildRequest(servletContext);
