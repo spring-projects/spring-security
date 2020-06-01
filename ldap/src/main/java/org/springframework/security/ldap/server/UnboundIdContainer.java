@@ -16,6 +16,8 @@
 package org.springframework.security.ldap.server;
 
 
+import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
+
 import java.io.InputStream;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
@@ -25,6 +27,7 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldif.LDIFReader;
 import java.util.Arrays;
+import java.util.Objects;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -118,11 +121,10 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 
 	}
 
-	private void importLdif(InMemoryDirectoryServer directoryServer) {
-		if (!StringUtils.hasText(this.ldif)) {
+	private void importLdif(InMemoryDirectoryServer directoryServer) throws LDAPException {
+		if (StringUtils.hasText(this.ldif)) {
 			try {
-
-				Resource[] resources = this.context.getResources("*.ldif");
+				Resource[] resources = this.context.getResources(CLASSPATH_ALL_URL_PREFIX);
 				Resource resource = locateResource(resources);
 				try (InputStream inputStream = resource.getInputStream()) {
 					directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
@@ -138,13 +140,14 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 		if (null == resources || 0 == resources.length) {
 			throw new IllegalArgumentException("requested resource is not found");
 		}
-		return Arrays.asList(resources).stream().filter(resource ->
-				resource.getFilename().equalsIgnoreCase(this.ldif)
+		return Arrays.stream(resources).filter(resource ->
+				Objects.requireNonNull(resource.getFilename()).equalsIgnoreCase(this.ldif)
 						&& resource.isFile()
 						&& resource.exists()
 						&& resource.isReadable()
 		)
-				.findFirst().orElseThrow(IllegalArgumentException::new);
+				.findFirst()
+				.orElseThrow(()->new IllegalArgumentException("Unable to load LDIF :"+this.ldif));
 	}
 
 	@Override

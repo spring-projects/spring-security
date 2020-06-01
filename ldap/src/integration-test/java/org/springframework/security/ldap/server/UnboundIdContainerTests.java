@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,16 +40,7 @@ public class UnboundIdContainerTests {
 	public void startLdapServer() throws Exception {
 		UnboundIdContainer server = new UnboundIdContainer(
 				validRootDn, validLdifClassPath);
-		server.setApplicationContext(new GenericApplicationContext());
-		List<Integer> ports = getDefaultPorts(1);
-		server.setPort(ports.get(0));
-
-		try {
-			server.afterPropertiesSet();
-			assertThat(server.getPort()).isEqualTo(ports.get(0));
-		} finally {
-			server.destroy();
-		}
+		createAndRunServer(server);
 	}
 
 
@@ -86,6 +78,10 @@ public class UnboundIdContainerTests {
 	public void startLdapServerWithoutLdif() throws Exception {
 		UnboundIdContainer server = new UnboundIdContainer(
 				validRootDn, null);
+		createAndRunServer(server);
+	}
+
+	private void createAndRunServer(UnboundIdContainer server) throws IOException {
 		server.setApplicationContext(new GenericApplicationContext());
 		List<Integer> ports = getDefaultPorts(1);
 		server.setPort(ports.get(0));
@@ -105,9 +101,6 @@ public class UnboundIdContainerTests {
 		try {
 			server.afterPropertiesSet();
 			assertThat(server.getPort()).isNotEqualTo(0);
-			failBecauseExceptionWasNotThrown(NullPointerException.class);
-		} catch (Exception e) {
-			assertThat(e.getCause()).isInstanceOf(NullPointerException.class);
 		} finally {
 			server.destroy();
 		}
@@ -144,5 +137,19 @@ public class UnboundIdContainerTests {
 		} finally {
 			server.destroy();
 		}
+	}
+
+	@Test
+	public void loadContextFromXmlApacheDSContainer() {
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext-security.xml");
+		String[] beanNames = context.getBeanNamesForType(ApacheDSContainer.class);
+		assertThat(beanNames).hasSize(2);
+	}
+
+	@Test
+	public void loadContextFromXmlUnboundIdContainer() {
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext-security.xml");
+		String[] beanNames = context.getBeanNamesForType(UnboundIdContainer.class);
+		assertThat(beanNames).hasSize(1);
 	}
 }
