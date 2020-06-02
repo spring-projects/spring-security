@@ -10,7 +10,7 @@ if (!project.hasProperty('springDataVersion')) {
 	ext.springDataVersion = 'Moore-SR7'
 }
 
-ext.rsocketVersion = '1.0.0-RC7'
+ext.rsocketVersion = '1.0.0'
 
 dependencyManagement {
 	imports {
