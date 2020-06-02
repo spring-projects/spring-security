@@ -448,6 +448,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 						this.jwsAlgorithm + ". Please indicate one of RS256, RS384, or RS512.");
 			}
 
+			// TODO: support EC? others?
+
 			JWSKeySelector<SecurityContext> jwsKeySelector =
 					new SingleKeyJWSKeySelector<>(this.jwsAlgorithm, this.key);
 			DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
