@@ -415,8 +415,8 @@ public class NimbusJwtDecoderTests {
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<?> jwsVerificationKeySelector =
 				(JWSVerificationKeySelector<?>) jwsKeySelector;
-		assertThat(jwsVerificationKeySelector.getExpectedJWSAlgorithm())
-				.isEqualTo(JWSAlgorithm.RS256);
+		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS256))
+				.isTrue();
 	}
 
 	@Test
@@ -428,8 +428,8 @@ public class NimbusJwtDecoderTests {
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<?> jwsVerificationKeySelector =
 				(JWSVerificationKeySelector<?>) jwsKeySelector;
-		assertThat(jwsVerificationKeySelector.getExpectedJWSAlgorithm())
-				.isEqualTo(JWSAlgorithm.RS512);
+		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS512))
+				.isTrue();
 	}
 
 	@Test
@@ -440,11 +440,13 @@ public class NimbusJwtDecoderTests {
 						.jwsAlgorithm(SignatureAlgorithm.RS256)
 						.jwsAlgorithm(SignatureAlgorithm.RS512)
 						.jwsKeySelector(jwkSource);
-		assertThat(jwsKeySelector instanceof JWSAlgorithmMapJWSKeySelector);
-		JWSAlgorithmMapJWSKeySelector<?> jwsAlgorithmMapKeySelector =
-				(JWSAlgorithmMapJWSKeySelector<?>) jwsKeySelector;
-		assertThat(jwsAlgorithmMapKeySelector.getExpectedJWSAlgorithms())
-				.containsExactlyInAnyOrder(JWSAlgorithm.RS256, JWSAlgorithm.RS512);
+		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
+		JWSVerificationKeySelector<?> jwsAlgorithmMapKeySelector =
+				(JWSVerificationKeySelector<?>) jwsKeySelector;
+		assertThat(jwsAlgorithmMapKeySelector.isAllowed(JWSAlgorithm.RS256))
+				.isTrue();
+		assertThat(jwsAlgorithmMapKeySelector.isAllowed(JWSAlgorithm.RS512))
+				.isTrue();
 	}
 
 	// gh-7290
