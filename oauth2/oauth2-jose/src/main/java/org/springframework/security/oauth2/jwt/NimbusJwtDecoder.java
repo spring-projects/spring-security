@@ -216,9 +216,10 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri.
 	 */
 	public static final class JwkSetUriJwtDecoderBuilder {
+		private static final RestTemplate DEFAULT_REST = new RestTemplate();
 		private String jwkSetUri;
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
-		private RestOperations restOperations = new RestTemplate();
+		private RestOperations restOperations = DEFAULT_REST;
 		private Cache cache;
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {

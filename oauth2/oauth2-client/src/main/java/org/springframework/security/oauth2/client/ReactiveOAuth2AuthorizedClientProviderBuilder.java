@@ -110,20 +110,21 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link ReactiveOAuth2AuthorizedClientProviderBuilder}
 	 */
 	public ReactiveOAuth2AuthorizedClientProviderBuilder refreshToken() {
-		this.builders.computeIfAbsent(RefreshTokenReactiveOAuth2AuthorizedClientProvider.class, k -> new RefreshTokenGrantBuilder());
-		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
+		return refreshToken(null);
 	}
 
 	/**
 	 * Configures support for the {@code refresh_token} grant.
 	 *
-	 * @param builderConsumer a {@code Consumer} of {@link RefreshTokenGrantBuilder} used for further configuration
+	 * @param customizer of {@link RefreshTokenGrantBuilder} used for further configuration
 	 * @return the {@link ReactiveOAuth2AuthorizedClientProviderBuilder}
 	 */
-	public ReactiveOAuth2AuthorizedClientProviderBuilder refreshToken(Consumer<RefreshTokenGrantBuilder> builderConsumer) {
+	public ReactiveOAuth2AuthorizedClientProviderBuilder refreshToken(RefreshTokenGrantBuilderCustomizer customizer) {
 		RefreshTokenGrantBuilder builder = (RefreshTokenGrantBuilder) this.builders.computeIfAbsent(
 				RefreshTokenReactiveOAuth2AuthorizedClientProvider.class, k -> new RefreshTokenGrantBuilder());
-		builderConsumer.accept(builder);
+		if (customizer != null) {
+			customizer.accept(builder);
+		}
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -199,20 +200,21 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link ReactiveOAuth2AuthorizedClientProviderBuilder}
 	 */
 	public ReactiveOAuth2AuthorizedClientProviderBuilder clientCredentials() {
-		this.builders.computeIfAbsent(ClientCredentialsReactiveOAuth2AuthorizedClientProvider.class, k -> new ClientCredentialsGrantBuilder());
-		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
+		return clientCredentials(null);
 	}
 
 	/**
 	 * Configures support for the {@code client_credentials} grant.
 	 *
-	 * @param builderConsumer a {@code Consumer} of {@link ClientCredentialsGrantBuilder} used for further configuration
+	 * @param customizer of {@link ClientCredentialsGrantBuilder} used for further configuration
 	 * @return the {@link ReactiveOAuth2AuthorizedClientProviderBuilder}
 	 */
-	public ReactiveOAuth2AuthorizedClientProviderBuilder clientCredentials(Consumer<ClientCredentialsGrantBuilder> builderConsumer) {
+	public ReactiveOAuth2AuthorizedClientProviderBuilder clientCredentials(ClientCredentialsGrantBuilderCustomizer customizer) {
 		ClientCredentialsGrantBuilder builder = (ClientCredentialsGrantBuilder) this.builders.computeIfAbsent(
 				ClientCredentialsReactiveOAuth2AuthorizedClientProvider.class, k -> new ClientCredentialsGrantBuilder());
-		builderConsumer.accept(builder);
+		if (customizer != null) {
+			customizer.accept(builder);
+		}
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -288,20 +290,21 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link ReactiveOAuth2AuthorizedClientProviderBuilder}
 	 */
 	public ReactiveOAuth2AuthorizedClientProviderBuilder password() {
-		this.builders.computeIfAbsent(PasswordReactiveOAuth2AuthorizedClientProvider.class, k -> new PasswordGrantBuilder());
-		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
+		return password(null);
 	}
 
 	/**
 	 * Configures support for the {@code password} grant.
 	 *
-	 * @param builderConsumer a {@code Consumer} of {@link PasswordGrantBuilder} used for further configuration
+	 * @param customizer of {@link PasswordGrantBuilder} used for further configuration
 	 * @return the {@link ReactiveOAuth2AuthorizedClientProviderBuilder}
 	 */
-	public ReactiveOAuth2AuthorizedClientProviderBuilder password(Consumer<PasswordGrantBuilder> builderConsumer) {
+	public ReactiveOAuth2AuthorizedClientProviderBuilder password(PasswordGrantBuilderCustomizer customizer) {
 		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders.computeIfAbsent(
 				PasswordReactiveOAuth2AuthorizedClientProvider.class, k -> new PasswordGrantBuilder());
-		builderConsumer.accept(builder);
+		if (customizer != null) {
+			customizer.accept(builder);
+		}
 		return ReactiveOAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -387,5 +390,14 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 
 	interface Builder {
 		ReactiveOAuth2AuthorizedClientProvider build();
+	}
+
+	public interface RefreshTokenGrantBuilderCustomizer extends Consumer<RefreshTokenGrantBuilder> {
+	}
+
+	public interface ClientCredentialsGrantBuilderCustomizer extends Consumer<ClientCredentialsGrantBuilder> {
+	}
+
+	public interface PasswordGrantBuilderCustomizer extends Consumer<PasswordGrantBuilder> {
 	}
 }

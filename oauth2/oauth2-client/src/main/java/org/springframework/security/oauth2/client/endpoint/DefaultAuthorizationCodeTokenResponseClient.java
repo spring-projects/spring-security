@@ -31,9 +31,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Arrays;
 
 /**
  * The default implementation of an {@link OAuth2AccessTokenResponseClient}
@@ -57,11 +54,13 @@ public final class DefaultAuthorizationCodeTokenResponseClient implements OAuth2
 
 	private RestOperations restOperations;
 
+	public DefaultAuthorizationCodeTokenResponseClient(OAuth2RestTemplateFactory restTemplateFactory) {
+		Assert.notNull(restTemplateFactory, "restTemplateFactory cannot be null");
+		this.restOperations = restTemplateFactory.create();
+	}
+
 	public DefaultAuthorizationCodeTokenResponseClient() {
-		RestTemplate restTemplate = new RestTemplate(Arrays.asList(
-				new FormHttpMessageConverter(), new OAuth2AccessTokenResponseHttpMessageConverter()));
-		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
-		this.restOperations = restTemplate;
+		this(OAuth2RestTemplateFactory.DEFAULT);
 	}
 
 	@Override

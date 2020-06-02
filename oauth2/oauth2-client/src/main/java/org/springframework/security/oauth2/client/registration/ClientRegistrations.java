@@ -38,6 +38,7 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -55,7 +56,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public final class ClientRegistrations {
 	private static final String OIDC_METADATA_PATH = "/.well-known/openid-configuration";
 	private static final String OAUTH_METADATA_PATH = "/.well-known/oauth-authorization-server";
-	private static final RestTemplate rest = new RestTemplate();
+	private static final RestTemplate DEFAULT_REST = new RestTemplate();
 	private static final ParameterizedTypeReference<Map<String, Object>> typeReference =
 			new ParameterizedTypeReference<Map<String, Object>>() {};
 
@@ -86,8 +87,18 @@ public final class ClientRegistrations {
 	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID Provider Configuration.
 	 */
 	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {
+		return fromOidcIssuerLocation(issuer, DEFAULT_REST);
+	}
+
+	/**
+	 * Variant of {@link #fromOidcIssuerLocation(String)} with customizable {@link RestOperations}.
+	 *
+	 * @since 5.3
+	 */
+	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer, RestOperations restOperations) {
 		Assert.hasText(issuer, "issuer cannot be empty");
-		return getBuilder(issuer, oidc(URI.create(issuer)));
+		Assert.notNull(restOperations, "restOperations cannot be null");
+		return getBuilder(issuer, oidc(URI.create(issuer), restOperations));
 	}
 
 	/**
@@ -133,18 +144,31 @@ public final class ClientRegistrations {
 	 * @return a {@link ClientRegistration.Builder} that was initialized by one of the described endpoints
 	 */
 	public static ClientRegistration.Builder fromIssuerLocation(String issuer) {
-		Assert.hasText(issuer, "issuer cannot be empty");
-		URI uri = URI.create(issuer);
-		return getBuilder(issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
+		return fromIssuerLocation(issuer, DEFAULT_REST);
 	}
 
-	private static Supplier<ClientRegistration.Builder> oidc(URI issuer) {
+	/**
+	 * Variant of {@link #fromIssuerLocation(String)} with customizable {@link RestOperations}.
+	 *
+	 * @since 5.3
+	 */
+	public static ClientRegistration.Builder fromIssuerLocation(String issuer, RestOperations restOperations) {
+		Assert.hasText(issuer, "issuer cannot be empty");
+		Assert.notNull(restOperations, "restOperations cannot be null");
+		URI uri = URI.create(issuer);
+		return getBuilder(issuer,
+				oidc(uri, restOperations),
+				oidcRfc8414(uri, restOperations),
+				oauth(uri, restOperations));
+	}
+
+	private static Supplier<ClientRegistration.Builder> oidc(URI issuer, RestOperations restOperations) {
 		URI uri = UriComponentsBuilder.fromUri(issuer)
 				.replacePath(issuer.getPath() + OIDC_METADATA_PATH).build(Collections.emptyMap());
 
 		return () -> {
 			RequestEntity<Void> request = RequestEntity.get(uri).build();
-			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
+			Map<String, Object> configuration = restOperations.exchange(request, typeReference).getBody();
 			OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
 			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer.toASCIIString())
 					.jwkSetUri(metadata.getJWKSetURI().toASCIIString());
@@ -155,22 +179,22 @@ public final class ClientRegistrations {
 		};
 	}
 
-	private static Supplier<ClientRegistration.Builder> oidcRfc8414(URI issuer) {
+	private static Supplier<ClientRegistration.Builder> oidcRfc8414(URI issuer, RestOperations restOperations) {
 		URI uri = UriComponentsBuilder.fromUri(issuer)
 				.replacePath(OIDC_METADATA_PATH + issuer.getPath()).build(Collections.emptyMap());
-		return getRfc8414Builder(issuer, uri);
+		return getRfc8414Builder(issuer, uri, restOperations);
 	}
 
-	private static Supplier<ClientRegistration.Builder> oauth(URI issuer) {
+	private static Supplier<ClientRegistration.Builder> oauth(URI issuer, RestOperations restOperations) {
 		URI uri = UriComponentsBuilder.fromUri(issuer)
 				.replacePath(OAUTH_METADATA_PATH + issuer.getPath()).build(Collections.emptyMap());
-		return getRfc8414Builder(issuer, uri);
+		return getRfc8414Builder(issuer, uri, restOperations);
 	}
 
-	private static Supplier<ClientRegistration.Builder> getRfc8414Builder(URI issuer, URI uri) {
+	private static Supplier<ClientRegistration.Builder> getRfc8414Builder(URI issuer, URI uri, RestOperations restOperations) {
 		return () -> {
 			RequestEntity<Void> request = RequestEntity.get(uri).build();
-			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
+			Map<String, Object> configuration = restOperations.exchange(request, typeReference).getBody();
 			AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
 			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer.toASCIIString());
 

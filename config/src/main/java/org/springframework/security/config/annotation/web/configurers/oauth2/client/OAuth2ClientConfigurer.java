@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authoriza
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.OAuth2RestTemplateFactory;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
@@ -156,6 +157,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 		private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 		private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
+		private OAuth2RestTemplateFactory restTemplateFactory;
 
 		private AuthorizationCodeGrantConfigurer() {
 		}
@@ -200,6 +202,12 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 			return this;
 		}
 
+		public AuthorizationCodeGrantConfigurer restTemplateFactory(OAuth2RestTemplateFactory restTemplateFactory) {
+			Assert.notNull(restTemplateFactory, "restTemplateFactory cannot be null");
+			this.restTemplateFactory = restTemplateFactory;
+			return this;
+		}
+
 		/**
 		 * Returns the {@link OAuth2ClientConfigurer} for further configuration.
 		 *
@@ -211,7 +219,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 
 		private void init(B builder) {
 			OAuth2AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider =
-					new OAuth2AuthorizationCodeAuthenticationProvider(getAccessTokenResponseClient());
+					new OAuth2AuthorizationCodeAuthenticationProvider(getOrCreateAccessTokenResponseClient());
 			builder.authenticationProvider(postProcess(authorizationCodeAuthenticationProvider));
 		}
 
@@ -264,11 +272,14 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 			return authorizationCodeGrantFilter;
 		}
 
-		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getAccessTokenResponseClient() {
-			if (this.accessTokenResponseClient != null) {
+		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getOrCreateAccessTokenResponseClient() {
+			if (this.accessTokenResponseClient == null) {
+				return restTemplateFactory == null
+						? new DefaultAuthorizationCodeTokenResponseClient()
+						: new DefaultAuthorizationCodeTokenResponseClient(restTemplateFactory);
+			} else {
 				return this.accessTokenResponseClient;
 			}
-			return new DefaultAuthorizationCodeTokenResponseClient();
 		}
 	}
 

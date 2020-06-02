@@ -32,6 +32,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -1081,6 +1082,15 @@ public class ServerHttpSecurity {
 			return oauth2Manager;
 		}
 
+		private ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getAccessTokenResponseClient() {
+			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2AccessTokenResponseClient.class, OAuth2AuthorizationCodeGrantRequest.class);
+			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(type);
+			if (bean == null) {
+				return new WebClientReactiveAuthorizationCodeTokenResponseClient();
+			}
+			return bean;
+		}
+
 		/**
 		 * Sets the converter to use
 		 * @param authenticationConverter the converter to use
@@ -1287,15 +1297,6 @@ public class ServerHttpSecurity {
 			return result;
 		}
 
-		private ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getAccessTokenResponseClient() {
-			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2AccessTokenResponseClient.class, OAuth2AuthorizationCodeGrantRequest.class);
-			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(type);
-			if (bean == null) {
-				return new WebClientReactiveAuthorizationCodeTokenResponseClient();
-			}
-			return bean;
-		}
-
 		private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
 			if (this.clientRegistrationRepository == null) {
 				this.clientRegistrationRepository = getBeanOrNull(ReactiveClientRegistrationRepository.class);
@@ -1450,9 +1451,18 @@ public class ServerHttpSecurity {
 		 */
 		private ReactiveAuthenticationManager getAuthenticationManager() {
 			if (this.authenticationManager == null) {
-				this.authenticationManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(new WebClientReactiveAuthorizationCodeTokenResponseClient());
+				this.authenticationManager = new OAuth2AuthorizationCodeReactiveAuthenticationManager(getAccessTokenResponseClient());
 			}
 			return this.authenticationManager;
+		}
+
+		private ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getAccessTokenResponseClient() {
+			ResolvableType type = ResolvableType.forClassWithGenerics(ReactiveOAuth2AccessTokenResponseClient.class, OAuth2AuthorizationCodeGrantRequest.class);
+			ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(type);
+			if (bean == null) {
+				return new WebClientReactiveAuthorizationCodeTokenResponseClient();
+			}
+			return bean;
 		}
 
 		/**
@@ -1971,6 +1981,16 @@ public class ServerHttpSecurity {
 			private String clientId;
 			private String clientSecret;
 			private Supplier<ReactiveOpaqueTokenIntrospector> introspector;
+			private WebClient webClient;
+
+			public OpaqueTokenSpec webClient(WebClient webClient) {
+				Assert.notNull(webClient, "webClient cannot be null");
+				this.webClient = webClient;
+				this.introspector = () ->
+						new NimbusReactiveOpaqueTokenIntrospector(
+								this.introspectionUri, this.clientId, this.clientSecret, webClient);
+				return this;
+			}
 
 			/**
 			 * Configures the URI of the Introspection endpoint
@@ -1982,7 +2002,7 @@ public class ServerHttpSecurity {
 				this.introspectionUri = introspectionUri;
 				this.introspector = () ->
 						new NimbusReactiveOpaqueTokenIntrospector(
-								this.introspectionUri, this.clientId, this.clientSecret);
+								this.introspectionUri, this.clientId, this.clientSecret, webClient);
 				return this;
 			}
 
@@ -1999,7 +2019,7 @@ public class ServerHttpSecurity {
 				this.clientSecret = clientSecret;
 				this.introspector = () ->
 						new NimbusReactiveOpaqueTokenIntrospector(
-								this.introspectionUri, this.clientId, this.clientSecret);
+								this.introspectionUri, this.clientId, this.clientSecret, webClient);
 				return this;
 			}
 

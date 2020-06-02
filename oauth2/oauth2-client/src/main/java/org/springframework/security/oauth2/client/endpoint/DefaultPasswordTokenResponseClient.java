@@ -31,9 +31,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Arrays;
 
 /**
  * The default implementation of an {@link OAuth2AccessTokenResponseClient}
@@ -57,11 +54,13 @@ public final class DefaultPasswordTokenResponseClient implements OAuth2AccessTok
 
 	private RestOperations restOperations;
 
+	public DefaultPasswordTokenResponseClient(OAuth2RestTemplateFactory restTemplateFactory) {
+		Assert.notNull(restTemplateFactory, "restTemplateFactory cannot be null");
+		this.restOperations = restTemplateFactory.create();
+	}
+
 	public DefaultPasswordTokenResponseClient() {
-		RestTemplate restTemplate = new RestTemplate(Arrays.asList(
-				new FormHttpMessageConverter(), new OAuth2AccessTokenResponseHttpMessageConverter()));
-		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
-		this.restOperations = restTemplate;
+		this(OAuth2RestTemplateFactory.DEFAULT);
 	}
 
 	@Override

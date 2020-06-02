@@ -27,7 +27,6 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -62,11 +61,21 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 	 * @param customUserTypes a {@code Map} of {@link OAuth2User} type(s) keyed by {@link ClientRegistration#getRegistrationId() Registration Id}
 	 */
 	public CustomUserTypesOAuth2UserService(Map<String, Class<? extends OAuth2User>> customUserTypes) {
+		this(customUserTypes, DefaultOAuth2UserServiceRestTemplateFactory.DEFAULT);
+	}
+
+	/**
+	 * Variant of {@link #CustomUserTypesOAuth2UserService(Map)} with customizable {@link OAuth2UserServiceRestTemplateFactory}.
+	 *
+	 * @param restTemplateFactory for creating {@link org.springframework.web.client.RestTemplate}
+	 * @since 5.3
+	 */
+	public CustomUserTypesOAuth2UserService(Map<String, Class<? extends OAuth2User>> customUserTypes,
+			OAuth2UserServiceRestTemplateFactory restTemplateFactory) {
 		Assert.notEmpty(customUserTypes, "customUserTypes cannot be empty");
+		Assert.notNull(restTemplateFactory, "restTemplateFactory cannot be null");
 		this.customUserTypes = Collections.unmodifiableMap(new LinkedHashMap<>(customUserTypes));
-		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
-		this.restOperations = restTemplate;
+		this.restOperations = restTemplateFactory.create();
 	}
 
 	@Override

@@ -67,6 +67,9 @@ final class OAuth2ClientConfiguration {
 		private ClientRegistrationRepository clientRegistrationRepository;
 		private OAuth2AuthorizedClientRepository authorizedClientRepository;
 		private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
+		private OAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer refreshTokenGrantBuilderCustomizer;
+		private OAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer clientCredentialsGrantBuilderCustomizer;
+		private OAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer passwordGrantBuilderCustomizer;
 
 		@Override
 		public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
@@ -74,17 +77,22 @@ final class OAuth2ClientConfiguration {
 				OAuth2AuthorizedClientProviderBuilder authorizedClientProviderBuilder =
 						OAuth2AuthorizedClientProviderBuilder.builder()
 								.authorizationCode()
-								.refreshToken()
-								.password();
+								.refreshToken(refreshTokenGrantBuilderCustomizer)
+								.password(passwordGrantBuilderCustomizer);
 				if (this.accessTokenResponseClient != null) {
+					authorizedClientProviderBuilder.clientCredentials(clientCredentialsGrantBuilderCustomizer);
 					authorizedClientProviderBuilder.clientCredentials(configurer ->
-									configurer.accessTokenResponseClient(this.accessTokenResponseClient));
+							configurer.accessTokenResponseClient(this.accessTokenResponseClient));
 				} else {
-					authorizedClientProviderBuilder.clientCredentials();
+					authorizedClientProviderBuilder.clientCredentials(clientCredentialsGrantBuilderCustomizer);
 				}
 				OAuth2AuthorizedClientProvider authorizedClientProvider = authorizedClientProviderBuilder.build();
 				DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
-						this.clientRegistrationRepository, this.authorizedClientRepository);
+						this.clientRegistrationRepository,
+						this.authorizedClientRepository,
+						this.refreshTokenGrantBuilderCustomizer,
+						this.clientCredentialsGrantBuilderCustomizer,
+						this.passwordGrantBuilderCustomizer);
 				authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 				argumentResolvers.add(new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager));
 			}
@@ -101,6 +109,30 @@ final class OAuth2ClientConfiguration {
 		public void setAuthorizedClientRepository(List<OAuth2AuthorizedClientRepository> authorizedClientRepositories) {
 			if (authorizedClientRepositories.size() == 1) {
 				this.authorizedClientRepository = authorizedClientRepositories.get(0);
+			}
+		}
+
+		@Autowired(required = false)
+		public void setRefreshTokenGrantBuilderCustomizer(
+				List<OAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer> beans) {
+			if (beans.size() == 1) {
+				this.refreshTokenGrantBuilderCustomizer = beans.get(0);
+			}
+		}
+
+		@Autowired(required = false)
+		public void setClientCredentialsGrantBuilderCustomizer(
+				List<OAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer> beans) {
+			if (beans.size() == 1) {
+				this.clientCredentialsGrantBuilderCustomizer = beans.get(0);
+			}
+		}
+
+		@Autowired(required = false)
+		public void setPasswordGrantBuilderCustomizer(
+				List<OAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer> beans) {
+			if (beans.size() == 1) {
+				this.passwordGrantBuilderCustomizer = beans.get(0);
 			}
 		}
 

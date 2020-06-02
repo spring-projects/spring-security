@@ -16,7 +16,9 @@
 
 package org.springframework.security.config.web.server
 
+import org.springframework.security.config.web.servlet.oauth2.resourceserver.OAuth2ResourceServerSecurityMarker
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector
+import org.springframework.web.reactive.function.client.WebClient
 
 /**
  * A Kotlin DSL to configure [ServerHttpSecurity] Opaque Token Resource Server support using idiomatic Kotlin code.
@@ -30,6 +32,7 @@ import org.springframework.security.oauth2.server.resource.introspection.Reactiv
 class ServerOpaqueTokenDsl {
     private var _introspectionUri: String? = null
     private var _introspector: ReactiveOpaqueTokenIntrospector? = null
+    private var _webClient: WebClient? = null
     private var clientCredentials: Pair<String, String>? = null
 
     var introspectionUri: String?
@@ -38,12 +41,19 @@ class ServerOpaqueTokenDsl {
             _introspectionUri = value
             _introspector = null
         }
+
     var introspector: ReactiveOpaqueTokenIntrospector?
         get() = _introspector
         set(value) {
             _introspector = value
             _introspectionUri = null
             clientCredentials = null
+        }
+
+    var webClient: WebClient?
+        get() = _webClient
+        set(value) {
+            _webClient = value
         }
 
     /**
@@ -59,6 +69,7 @@ class ServerOpaqueTokenDsl {
 
     internal fun get(): (ServerHttpSecurity.OAuth2ResourceServerSpec.OpaqueTokenSpec) -> Unit {
         return { opaqueToken ->
+            webClient?.also { opaqueToken.webClient(webClient) }
             introspectionUri?.also { opaqueToken.introspectionUri(introspectionUri) }
             clientCredentials?.also { opaqueToken.introspectionClientCredentials(clientCredentials!!.first, clientCredentials!!.second) }
             introspector?.also { opaqueToken.introspector(introspector) }

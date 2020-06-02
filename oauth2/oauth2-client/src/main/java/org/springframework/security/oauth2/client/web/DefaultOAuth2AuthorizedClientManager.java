@@ -84,13 +84,6 @@ import java.util.function.Function;
  * @see OAuth2AuthorizationFailureHandler
  */
 public final class DefaultOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
-	private static final OAuth2AuthorizedClientProvider DEFAULT_AUTHORIZED_CLIENT_PROVIDER =
-			OAuth2AuthorizedClientProviderBuilder.builder()
-					.authorizationCode()
-					.refreshToken()
-					.clientCredentials()
-					.password()
-					.build();
 	private final ClientRegistrationRepository clientRegistrationRepository;
 	private final OAuth2AuthorizedClientRepository authorizedClientRepository;
 	private OAuth2AuthorizedClientProvider authorizedClientProvider;
@@ -104,13 +97,27 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientRepository the repository of authorized clients
 	 */
-	public DefaultOAuth2AuthorizedClientManager(ClientRegistrationRepository clientRegistrationRepository,
-												OAuth2AuthorizedClientRepository authorizedClientRepository) {
+	public DefaultOAuth2AuthorizedClientManager(
+			ClientRegistrationRepository clientRegistrationRepository,
+			OAuth2AuthorizedClientRepository authorizedClientRepository) {
+		this(clientRegistrationRepository, authorizedClientRepository, null, null, null);
+	}
+
+	public DefaultOAuth2AuthorizedClientManager(
+			ClientRegistrationRepository clientRegistrationRepository,
+			OAuth2AuthorizedClientRepository authorizedClientRepository,
+			OAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer refreshTokenGrantBuilderCustomizer,
+			OAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer clientCredentialsGrantBuilderCustomizer,
+			OAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer passwordGrantBuilderCustomizer) {
+
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientRepository = authorizedClientRepository;
-		this.authorizedClientProvider = DEFAULT_AUTHORIZED_CLIENT_PROVIDER;
+		this.authorizedClientProvider = createDefaultAuthorizedClientProvider(
+				refreshTokenGrantBuilderCustomizer,
+				clientCredentialsGrantBuilderCustomizer,
+				passwordGrantBuilderCustomizer);
 		this.contextAttributesMapper = new DefaultContextAttributesMapper();
 		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) ->
 				authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal,
@@ -280,5 +287,17 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 			}
 			return contextAttributes;
 		}
+	}
+
+	private static OAuth2AuthorizedClientProvider createDefaultAuthorizedClientProvider(
+			OAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer refreshTokenGrantBuilderCustomizer,
+			OAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer clientCredentialsGrantBuilderCustomizer,
+			OAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer passwordGrantBuilderCustomizer) {
+		return OAuth2AuthorizedClientProviderBuilder.builder()
+				.authorizationCode()
+				.refreshToken(refreshTokenGrantBuilderCustomizer)
+				.clientCredentials(clientCredentialsGrantBuilderCustomizer)
+				.password(passwordGrantBuilderCustomizer)
+				.build();
 	}
 }

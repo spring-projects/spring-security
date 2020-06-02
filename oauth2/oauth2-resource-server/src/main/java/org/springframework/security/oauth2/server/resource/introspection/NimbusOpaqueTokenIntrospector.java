@@ -36,7 +36,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
@@ -45,7 +44,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
 
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.AUDIENCE;
 import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.CLIENT_ID;
@@ -68,7 +66,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	private Converter<String, RequestEntity<?>> requestEntityConverter;
 	private RestOperations restOperations;
 
-	private final String authorityPrefix = "SCOPE_";
+	private String authorityPrefix = "SCOPE_";
 
 	/**
 	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
@@ -78,14 +76,24 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	 * @param clientSecret The client's secret
 	 */
 	public NimbusOpaqueTokenIntrospector(String introspectionUri, String clientId, String clientSecret) {
+		this(introspectionUri, clientId, clientSecret, DefaultOpaqueTokenIntrospectorRestTemplateFactory.DEFAULT);
+	}
+
+	/**
+	 * Variant of {@link #NimbusOpaqueTokenIntrospector(String, String, String)} with customizable
+	 * {@link OpaqueTokenIntrospectorRestTemplateFactory}.
+	 *
+	 * @since 5.3
+	 */
+	public NimbusOpaqueTokenIntrospector(String introspectionUri, String clientId, String clientSecret,
+			OpaqueTokenIntrospectorRestTemplateFactory restTemplateFactory) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(clientId, "clientId cannot be null");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
+		Assert.notNull(restTemplateFactory, "restTemplateFactory cannot be null");
 
 		this.requestEntityConverter = this.defaultRequestEntityConverter(URI.create(introspectionUri));
-		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(clientId, clientSecret));
-		this.restOperations = restTemplate;
+		this.restOperations = restTemplateFactory.create(clientId, clientSecret);
 	}
 
 	/**
@@ -159,6 +167,11 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
 
 		this.requestEntityConverter = requestEntityConverter;
+	}
+
+	public void setAuthorityPrefix(String authorityPrefix) {
+		Assert.notNull(authorityPrefix, "authorityPrefix cannot be null");
+		this.authorityPrefix = authorityPrefix;
 	}
 
 	private ResponseEntity<String> makeRequest(RequestEntity<?> requestEntity) {

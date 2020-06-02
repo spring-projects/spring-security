@@ -74,12 +74,19 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	 * @param clientSecret The client secret for the authorized client
 	 */
 	public NimbusReactiveOpaqueTokenIntrospector(String introspectionUri, String clientId, String clientSecret) {
+		this(introspectionUri, clientId, clientSecret, null);
+	}
+
+	public NimbusReactiveOpaqueTokenIntrospector(String introspectionUri,
+			String clientId,
+			String clientSecret,
+			WebClient webClient) {
 		Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
 		Assert.hasText(clientId, "clientId cannot be empty");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
 
 		this.introspectionUri = URI.create(introspectionUri);
-		this.webClient = WebClient.builder()
+		this.webClient = (webClient == null ? WebClient.builder() : webClient.mutate())
 				.defaultHeaders(h -> h.setBasicAuth(clientId, clientSecret))
 				.build();
 	}
@@ -111,6 +118,11 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 				.doOnNext(response -> validate(token, response))
 				.map(this::convertClaimsSet)
 				.onErrorMap(e -> !(e instanceof OAuth2IntrospectionException), this::onError);
+	}
+
+	public void setAuthorityPrefix(String authorityPrefix) {
+		Assert.notNull(authorityPrefix, "authorityPrefix cannot be null");
+		this.authorityPrefix = authorityPrefix;
 	}
 
 	private Mono<ClientResponse> makeRequest(String token) {

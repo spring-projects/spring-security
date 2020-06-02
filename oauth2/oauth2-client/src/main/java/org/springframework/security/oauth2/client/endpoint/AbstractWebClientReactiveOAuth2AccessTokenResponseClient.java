@@ -54,7 +54,7 @@ import static org.springframework.security.oauth2.core.web.reactive.function.OAu
 abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements ReactiveOAuth2AccessTokenResponseClient<T> {
 
-	private WebClient webClient = WebClient.builder().build();
+	private WebClient webClient = WebClient.create();
 
 	@Override
 	public Mono<OAuth2AccessTokenResponse> getTokenResponse(T grantRequest) {

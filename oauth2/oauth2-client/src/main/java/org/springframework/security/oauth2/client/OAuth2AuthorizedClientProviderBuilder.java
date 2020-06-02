@@ -110,20 +110,22 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder refreshToken() {
-		this.builders.computeIfAbsent(RefreshTokenOAuth2AuthorizedClientProvider.class, k -> new RefreshTokenGrantBuilder());
+		refreshToken(null);
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
 	/**
 	 * Configures support for the {@code refresh_token} grant.
 	 *
-	 * @param builderConsumer a {@code Consumer} of {@link RefreshTokenGrantBuilder} used for further configuration
+	 * @param customizer of {@link RefreshTokenGrantBuilder} used for further configuration
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
-	public OAuth2AuthorizedClientProviderBuilder refreshToken(Consumer<RefreshTokenGrantBuilder> builderConsumer) {
+	public OAuth2AuthorizedClientProviderBuilder refreshToken(RefreshTokenGrantBuilderCustomizer customizer) {
 		RefreshTokenGrantBuilder builder = (RefreshTokenGrantBuilder) this.builders.computeIfAbsent(
 				RefreshTokenOAuth2AuthorizedClientProvider.class, k -> new RefreshTokenGrantBuilder());
-		builderConsumer.accept(builder);
+		if (customizer != null) {
+			customizer.accept(builder);
+		}
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -199,20 +201,22 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder clientCredentials() {
-		this.builders.computeIfAbsent(ClientCredentialsOAuth2AuthorizedClientProvider.class, k -> new ClientCredentialsGrantBuilder());
+		clientCredentials(null);
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
 	/**
 	 * Configures support for the {@code client_credentials} grant.
 	 *
-	 * @param builderConsumer a {@code Consumer} of {@link ClientCredentialsGrantBuilder} used for further configuration
+	 * @param customizer of {@link ClientCredentialsGrantBuilder} used for further configuration
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
-	public OAuth2AuthorizedClientProviderBuilder clientCredentials(Consumer<ClientCredentialsGrantBuilder> builderConsumer) {
+	public OAuth2AuthorizedClientProviderBuilder clientCredentials(ClientCredentialsGrantBuilderCustomizer customizer) {
 		ClientCredentialsGrantBuilder builder = (ClientCredentialsGrantBuilder) this.builders.computeIfAbsent(
 				ClientCredentialsOAuth2AuthorizedClientProvider.class, k -> new ClientCredentialsGrantBuilder());
-		builderConsumer.accept(builder);
+		if (customizer != null) {
+			customizer.accept(builder);
+		}
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -288,20 +292,22 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
 	public OAuth2AuthorizedClientProviderBuilder password() {
-		this.builders.computeIfAbsent(PasswordOAuth2AuthorizedClientProvider.class, k -> new PasswordGrantBuilder());
+		password(null);
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
 	/**
 	 * Configures support for the {@code password} grant.
 	 *
-	 * @param builderConsumer a {@code Consumer} of {@link PasswordGrantBuilder} used for further configuration
+	 * @param customizer of {@link PasswordGrantBuilder} used for further configuration
 	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
 	 */
-	public OAuth2AuthorizedClientProviderBuilder password(Consumer<PasswordGrantBuilder> builderConsumer) {
+	public OAuth2AuthorizedClientProviderBuilder password(PasswordGrantBuilderCustomizer customizer) {
 		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders.computeIfAbsent(
 				PasswordOAuth2AuthorizedClientProvider.class, k -> new PasswordGrantBuilder());
-		builderConsumer.accept(builder);
+		if (customizer != null) {
+			customizer.accept(builder);
+		}
 		return OAuth2AuthorizedClientProviderBuilder.this;
 	}
 
@@ -387,5 +393,14 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 	interface Builder {
 		OAuth2AuthorizedClientProvider build();
+	}
+
+	public interface RefreshTokenGrantBuilderCustomizer extends Consumer<RefreshTokenGrantBuilder> {
+	}
+
+	public interface ClientCredentialsGrantBuilderCustomizer extends Consumer<ClientCredentialsGrantBuilder> {
+	}
+
+	public interface PasswordGrantBuilderCustomizer extends Consumer<PasswordGrantBuilder> {
 	}
 }

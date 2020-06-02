@@ -24,9 +24,9 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
@@ -63,15 +63,19 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 
 		private ReactiveOAuth2AuthorizedClientService authorizedClientService;
 
+		private ReactiveOAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer refreshTokenGrantBuilderCustomizer;
+		private ReactiveOAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer clientCredentialsGrantBuilderCustomizer;
+		private ReactiveOAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer passwordGrantBuilderCustomizer;
+
 		@Override
 		public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
 			if (this.authorizedClientRepository != null && this.clientRegistrationRepository != null) {
 				ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 						ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
 								.authorizationCode()
-								.refreshToken()
-								.clientCredentials()
-								.password()
+								.refreshToken(refreshTokenGrantBuilderCustomizer)
+								.clientCredentials(clientCredentialsGrantBuilderCustomizer)
+								.password(passwordGrantBuilderCustomizer)
 								.build();
 				DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
 						this.clientRegistrationRepository, getAuthorizedClientRepository());
@@ -95,6 +99,27 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 		public void setAuthorizedClientService(List<ReactiveOAuth2AuthorizedClientService> authorizedClientService) {
 			if (authorizedClientService.size() == 1) {
 				this.authorizedClientService = authorizedClientService.get(0);
+			}
+		}
+
+		@Autowired(required = false)
+		public void setRefreshTokenGrantBuilderCustomizer(List<ReactiveOAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer> beans) {
+			if (beans.size() == 1) {
+				this.refreshTokenGrantBuilderCustomizer = beans.get(0);
+			}
+		}
+
+		@Autowired(required = false)
+		public void setClientCredentialsGrantBuilderCustomizer(List<ReactiveOAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer> beans) {
+			if (beans.size() == 1) {
+				this.clientCredentialsGrantBuilderCustomizer = beans.get(0);
+			}
+		}
+
+		@Autowired(required = false)
+		public void setPasswordGrantBuilderCustomizer(List<ReactiveOAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer> beans) {
+			if (beans.size() == 1) {
+				this.passwordGrantBuilderCustomizer = beans.get(0);
 			}
 		}
 

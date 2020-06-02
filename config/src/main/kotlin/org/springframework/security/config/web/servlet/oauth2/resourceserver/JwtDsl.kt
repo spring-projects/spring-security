@@ -22,6 +22,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.web.client.RestOperations
 
 /**
  * A Kotlin DSL to configure JWT Resource Server Support using idiomatic Kotlin code.
@@ -38,6 +39,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
 class JwtDsl {
     private var _jwtDecoder: JwtDecoder? = null
     private var _jwkSetUri: String? = null
+    private var _restOperations: RestOperations? = null
 
     var jwtAuthenticationConverter: Converter<Jwt, out AbstractAuthenticationToken>? = null
     var jwtDecoder: JwtDecoder?
@@ -53,10 +55,17 @@ class JwtDsl {
             _jwtDecoder = null
         }
 
+    var restOperations: RestOperations?
+        get() = _restOperations
+        set(value) {
+            _restOperations = value
+        }
+
     internal fun get(): (OAuth2ResourceServerConfigurer<HttpSecurity>.JwtConfigurer) -> Unit {
         return { jwt ->
             jwtAuthenticationConverter?.also { jwt.jwtAuthenticationConverter(jwtAuthenticationConverter) }
             jwtDecoder?.also { jwt.decoder(jwtDecoder) }
+            restOperations?.also { jwt.restOperations(restOperations) }
             jwkSetUri?.also { jwt.jwkSetUri(jwkSetUri) }
         }
     }

@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest
 import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserServiceRestTemplateFactory
 import org.springframework.security.oauth2.core.oidc.user.OidcUser
 import org.springframework.security.oauth2.core.user.OAuth2User
 
@@ -37,12 +38,14 @@ import org.springframework.security.oauth2.core.user.OAuth2User
  * @property oidcUserService the OpenID Connect 1.0 service used for obtaining the user attributes of the
  * End-User from the UserInfo Endpoint.
  * @property userAuthoritiesMapper the [GrantedAuthoritiesMapper] used for mapping [OAuth2User.getAuthorities]
+ * @property oAuth2UserServiceRestTemplateFactory the [OAuth2UserServiceRestTemplateFactory] used for creating RestTemplate
  */
 @OAuth2LoginSecurityMarker
 class UserInfoEndpointDsl {
     var userService: OAuth2UserService<OAuth2UserRequest, OAuth2User>? = null
     var oidcUserService: OAuth2UserService<OidcUserRequest, OidcUser>? = null
     var userAuthoritiesMapper: GrantedAuthoritiesMapper? = null
+    var oAuth2UserServiceRestTemplateFactory: OAuth2UserServiceRestTemplateFactory? = null
 
     private var customUserTypePair: Pair<Class<out OAuth2User>, String>? = null
 
@@ -62,6 +65,7 @@ class UserInfoEndpointDsl {
             userService?.also { userInfoEndpoint.userService(userService) }
             oidcUserService?.also { userInfoEndpoint.oidcUserService(oidcUserService) }
             userAuthoritiesMapper?.also { userInfoEndpoint.userAuthoritiesMapper(userAuthoritiesMapper) }
+            oAuth2UserServiceRestTemplateFactory?.also { userInfoEndpoint.restTemplateFactory(oAuth2UserServiceRestTemplateFactory) }
             customUserTypePair?.also { userInfoEndpoint.customUserType(customUserTypePair!!.first, customUserTypePair!!.second) }
         }
     }

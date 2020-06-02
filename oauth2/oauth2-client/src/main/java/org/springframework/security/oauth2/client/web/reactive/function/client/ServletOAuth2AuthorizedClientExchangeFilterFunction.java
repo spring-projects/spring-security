@@ -209,6 +209,15 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction(
 			ClientRegistrationRepository clientRegistrationRepository,
 			OAuth2AuthorizedClientRepository authorizedClientRepository) {
+		this(clientRegistrationRepository, authorizedClientRepository, null, null, null);
+	}
+
+	public ServletOAuth2AuthorizedClientExchangeFilterFunction(
+			ClientRegistrationRepository clientRegistrationRepository,
+			OAuth2AuthorizedClientRepository authorizedClientRepository,
+			OAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer refreshTokenGrantBuilderCustomizer,
+			OAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer clientCredentialsGrantBuilderCustomizer,
+			OAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer passwordGrantBuilderCustomizer) {
 
 		OAuth2AuthorizationFailureHandler authorizationFailureHandler =
 				new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(
@@ -218,7 +227,11 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 										(HttpServletResponse) attributes.get(HttpServletResponse.class.getName())));
 		DefaultOAuth2AuthorizedClientManager defaultAuthorizedClientManager =
 				new DefaultOAuth2AuthorizedClientManager(
-						clientRegistrationRepository, authorizedClientRepository);
+						clientRegistrationRepository,
+						authorizedClientRepository,
+						refreshTokenGrantBuilderCustomizer,
+						clientCredentialsGrantBuilderCustomizer,
+						passwordGrantBuilderCustomizer);
 		defaultAuthorizedClientManager.setAuthorizationFailureHandler(authorizationFailureHandler);
 		this.authorizedClientManager = defaultAuthorizedClientManager;
 		this.defaultAuthorizedClientManager = true;
@@ -296,6 +309,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	 * {@link RequestContextHolder}. It also provides defaults for the {@link Authentication} using
 	 * {@link SecurityContextHolder}. It also can default the {@link OAuth2AuthorizedClient} using the
 	 * {@link #clientRegistrationId(String)} or the {@link #authentication(Authentication)}.
+	 *
 	 * @return the {@link Consumer} to populate the attributes
 	 */
 	public Consumer<WebClient.RequestHeadersSpec<?>> defaultRequest() {

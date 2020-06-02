@@ -30,8 +30,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServiceRestTemplateFactory;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserServiceRestTemplateFactory;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -66,7 +68,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			new ClaimTypeConverter(createDefaultClaimTypeConverters());
 	private Set<String> accessibleScopes = new HashSet<>(Arrays.asList(
 			OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
-	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = new DefaultOAuth2UserService();
+	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService;
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory =
 			clientRegistration -> DEFAULT_CLAIM_TYPE_CONVERTER;
 
@@ -90,6 +92,15 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
 		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
 		return source -> ClaimConversionService.getSharedInstance().convert(source, sourceDescriptor, targetDescriptor);
+	}
+
+	public OidcUserService() {
+		this(DefaultOAuth2UserServiceRestTemplateFactory.DEFAULT);
+	}
+
+	public OidcUserService(OAuth2UserServiceRestTemplateFactory restTemplateFactory) {
+		Assert.notNull(restTemplateFactory, "restTemplateFactory cannot be null");
+		this.oauth2UserService = new DefaultOAuth2UserService(restTemplateFactory);
 	}
 
 	@Override

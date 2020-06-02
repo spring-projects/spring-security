@@ -41,6 +41,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuth
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.OAuth2RestTemplateFactory;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
@@ -48,9 +49,11 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.CustomUserTypesOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServiceRestTemplateFactory;
 import org.springframework.security.oauth2.client.userinfo.DelegatingOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserServiceRestTemplateFactory;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
@@ -299,6 +302,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 	 */
 	public class TokenEndpointConfig {
 		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
+		private OAuth2RestTemplateFactory restTemplateFactory;
 
 		private TokenEndpointConfig() {
 		}
@@ -317,6 +321,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return this;
 		}
 
+		public TokenEndpointConfig restTemplateFactory(OAuth2RestTemplateFactory restTemplateFactory) {
+			Assert.notNull(restTemplateFactory, "restTemplateFactory cannot be null");
+			this.restTemplateFactory = restTemplateFactory;
+			return this;
+		}
+
 		/**
 		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
 		 *
@@ -324,6 +334,16 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		 */
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
+		}
+
+		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getOrCreateAccessTokenResponseClient() {
+			if (accessTokenResponseClient == null) {
+				return restTemplateFactory == null
+						? new DefaultAuthorizationCodeTokenResponseClient()
+						: new DefaultAuthorizationCodeTokenResponseClient(restTemplateFactory);
+			} else {
+				return accessTokenResponseClient;
+			}
 		}
 	}
 
@@ -407,8 +427,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		private OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
 		private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService;
 		private Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
+		private OAuth2UserServiceRestTemplateFactory restTemplateFactory;
 
 		private UserInfoEndpointConfig() {
+			this.restTemplateFactory = DefaultOAuth2UserServiceRestTemplateFactory.DEFAULT;
 		}
 
 		/**
@@ -462,6 +484,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 			return this;
 		}
 
+		public UserInfoEndpointConfig restTemplateFactory(OAuth2UserServiceRestTemplateFactory restTemplateFactory) {
+			Assert.notNull(restTemplateFactory, "restTemplateFactory cannot be null");
+			this.restTemplateFactory = restTemplateFactory;
+			return this;
+		}
+
 		/**
 		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
 		 *
@@ -501,10 +529,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		}
 
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient =
-			this.tokenEndpointConfig.accessTokenResponseClient;
-		if (accessTokenResponseClient == null) {
-			accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
-		}
+				this.tokenEndpointConfig.getOrCreateAccessTokenResponseClient();
 
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = getOAuth2UserService();
 		OAuth2LoginAuthenticationProvider oauth2LoginAuthenticationProvider =
@@ -619,7 +644,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		ResolvableType type = ResolvableType.forClassWithGenerics(OAuth2UserService.class, OidcUserRequest.class, OidcUser.class);
 		OAuth2UserService<OidcUserRequest, OidcUser> bean = getBeanOrNull(type);
 		if (bean == null) {
-			return new OidcUserService();
+			return new OidcUserService(userInfoEndpointConfig.restTemplateFactory);
 		}
 
 		return bean;
@@ -634,11 +659,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		if (bean == null) {
 			if (!this.userInfoEndpointConfig.customUserTypes.isEmpty()) {
 				List<OAuth2UserService<OAuth2UserRequest, OAuth2User>> userServices = new ArrayList<>();
-				userServices.add(new CustomUserTypesOAuth2UserService(this.userInfoEndpointConfig.customUserTypes));
-				userServices.add(new DefaultOAuth2UserService());
+				userServices.add(new CustomUserTypesOAuth2UserService(
+						this.userInfoEndpointConfig.customUserTypes,
+						this.userInfoEndpointConfig.restTemplateFactory));
+				userServices.add(new DefaultOAuth2UserService(this.userInfoEndpointConfig.restTemplateFactory));
 				return new DelegatingOAuth2UserService<>(userServices);
 			} else {
-				return new DefaultOAuth2UserService();
+				return new DefaultOAuth2UserService(this.userInfoEndpointConfig.restTemplateFactory);
 			}
 		}
 

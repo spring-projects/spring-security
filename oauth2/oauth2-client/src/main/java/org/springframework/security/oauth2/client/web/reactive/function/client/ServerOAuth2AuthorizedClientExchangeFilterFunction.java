@@ -186,8 +186,18 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientRepository the repository of authorized clients
 	 */
-	public ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveClientRegistrationRepository clientRegistrationRepository,
-																ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+	public ServerOAuth2AuthorizedClientExchangeFilterFunction(
+			ReactiveClientRegistrationRepository clientRegistrationRepository,
+			ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+		this(clientRegistrationRepository, authorizedClientRepository, null, null, null);
+	}
+
+	public ServerOAuth2AuthorizedClientExchangeFilterFunction(
+			ReactiveClientRegistrationRepository clientRegistrationRepository,
+			ServerOAuth2AuthorizedClientRepository authorizedClientRepository,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer refreshTokenGrantBuilderCustomizer,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer clientCredentialsGrantBuilderCustomizer,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer passwordGrantBuilderCustomizer) {
 
 		ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler =
 				new RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler(
@@ -198,7 +208,10 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		this.authorizedClientManager = createDefaultAuthorizedClientManager(
 				clientRegistrationRepository,
 				authorizedClientRepository,
-				authorizationFailureHandler);
+				authorizationFailureHandler,
+				refreshTokenGrantBuilderCustomizer,
+				clientCredentialsGrantBuilderCustomizer,
+				passwordGrantBuilderCustomizer);
 		this.clientResponseHandler = new AuthorizationFailureForwarder(authorizationFailureHandler);
 		this.defaultAuthorizedClientManager = true;
 	}
@@ -206,7 +219,10 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	private static ReactiveOAuth2AuthorizedClientManager createDefaultAuthorizedClientManager(
 			ReactiveClientRegistrationRepository clientRegistrationRepository,
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository,
-			ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler) {
+			ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer refreshTokenGrantBuilderCustomizer,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer clientCredentialsGrantBuilderCustomizer,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer passwordGrantBuilderCustomizer) {
 
 		// gh-7544
 		if (authorizedClientRepository instanceof UnAuthenticatedServerOAuth2AuthorizedClientRepository) {
@@ -218,16 +234,20 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			unauthenticatedAuthorizedClientManager.setAuthorizedClientProvider(
 					ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
 							.authorizationCode()
-							.refreshToken()
-							.clientCredentials()
-							.password()
+							.refreshToken(refreshTokenGrantBuilderCustomizer)
+							.clientCredentials(clientCredentialsGrantBuilderCustomizer)
+							.password(passwordGrantBuilderCustomizer)
 							.build());
 			return unauthenticatedAuthorizedClientManager;
 		}
 
 		DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager =
 				new DefaultReactiveOAuth2AuthorizedClientManager(
-						clientRegistrationRepository, authorizedClientRepository);
+						clientRegistrationRepository,
+						authorizedClientRepository,
+						refreshTokenGrantBuilderCustomizer,
+						clientCredentialsGrantBuilderCustomizer,
+						passwordGrantBuilderCustomizer);
 		authorizedClientManager.setAuthorizationFailureHandler(authorizationFailureHandler);
 
 		return authorizedClientManager;

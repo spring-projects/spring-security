@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestOperations;
 
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 
@@ -46,9 +47,18 @@ public final class JwtDecoders {
 	 * @return a {@link JwtDecoder} that was initialized by the OpenID Provider Configuration.
 	 */
 	public static JwtDecoder fromOidcIssuerLocation(String oidcIssuerLocation) {
+		return fromOidcIssuerLocation(oidcIssuerLocation, null);
+	}
+
+	/**
+	 * Variant of {@link #fromOidcIssuerLocation(String)} with customizable {@link RestOperations}.
+	 *
+	 * @since 5.3
+	 */
+	public static JwtDecoder fromOidcIssuerLocation(String oidcIssuerLocation, RestOperations restOperations) {
 		Assert.hasText(oidcIssuerLocation, "oidcIssuerLocation cannot be empty");
-		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
-		return withProviderConfiguration(configuration, oidcIssuerLocation);
+		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForOidcIssuerLocation(oidcIssuerLocation, restOperations);
+		return withProviderConfiguration(configuration, oidcIssuerLocation, restOperations);
 	}
 
 	/**
@@ -84,9 +94,18 @@ public final class JwtDecoders {
 	 * @return a {@link JwtDecoder} that was initialized by one of the described endpoints
 	 */
 	public static JwtDecoder fromIssuerLocation(String issuer) {
+		return fromIssuerLocation(issuer, null);
+	}
+
+	/**
+	 * Variant of {@link #fromIssuerLocation(String)} with customizable {@link RestOperations}.
+	 *
+	 * @since 5.3
+	 */
+	public static JwtDecoder fromIssuerLocation(String issuer, RestOperations restOperations) {
 		Assert.hasText(issuer, "issuer cannot be empty");
-		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForIssuerLocation(issuer);
-		return withProviderConfiguration(configuration, issuer);
+		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils.getConfigurationForIssuerLocation(issuer, restOperations);
+		return withProviderConfiguration(configuration, issuer, restOperations);
 	}
 
 	/**
@@ -95,14 +114,22 @@ public final class JwtDecoders {
 	 * Configuration Response</a> and <a href="https://tools.ietf.org/html/rfc8414#section-3.2">Authorization Server Metadata
 	 * Response</a>.
 	 *
-	 * @param configuration the configuration values
-	 * @param issuer the <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @param configuration  the configuration values
+	 * @param issuer         the <a href="https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @param restOperations
 	 * @return {@link JwtDecoder}
 	 */
-	private static JwtDecoder withProviderConfiguration(Map<String, Object> configuration, String issuer) {
+	private static JwtDecoder withProviderConfiguration(
+			Map<String, Object> configuration,
+			String issuer,
+			RestOperations restOperations) {
 		JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
 		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
-		NimbusJwtDecoder jwtDecoder = withJwkSetUri(configuration.get("jwks_uri").toString()).build();
+		final NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = withJwkSetUri(configuration.get("jwks_uri").toString());
+		if (restOperations != null) {
+			builder.restOperations(restOperations);
+		}
+		NimbusJwtDecoder jwtDecoder = builder.build();
 		jwtDecoder.setJwtValidator(jwtValidator);
 
 		return jwtDecoder;

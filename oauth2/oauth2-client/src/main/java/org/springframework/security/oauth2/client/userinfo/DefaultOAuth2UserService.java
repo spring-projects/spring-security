@@ -39,7 +39,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * An implementation of an {@link OAuth2UserService} that supports standard OAuth 2.0 Provider's.
@@ -73,9 +72,12 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 	private RestOperations restOperations;
 
 	public DefaultOAuth2UserService() {
-		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
-		this.restOperations = restTemplate;
+		this(DefaultOAuth2UserServiceRestTemplateFactory.DEFAULT);
+	}
+
+	public DefaultOAuth2UserService(OAuth2UserServiceRestTemplateFactory restTemplateFactory) {
+		Assert.notNull(restTemplateFactory, "restTemplateFactory cannot be null");
+		this.restOperations = restTemplateFactory.create();
 	}
 
 	@Override

@@ -79,21 +79,13 @@ import java.util.function.Function;
  * @see ReactiveOAuth2AuthorizationFailureHandler
  */
 public final class DefaultReactiveOAuth2AuthorizedClientManager implements ReactiveOAuth2AuthorizedClientManager {
-	private static final ReactiveOAuth2AuthorizedClientProvider DEFAULT_AUTHORIZED_CLIENT_PROVIDER =
-			ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
-					.authorizationCode()
-					.refreshToken()
-					.clientCredentials()
-					.password()
-					.build();
-
 	private static final Mono<ServerWebExchange> currentServerWebExchangeMono = Mono.subscriberContext()
 			.filter(c -> c.hasKey(ServerWebExchange.class))
 			.map(c -> c.get(ServerWebExchange.class));
 
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 	private final ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
-	private ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = DEFAULT_AUTHORIZED_CLIENT_PROVIDER;
+	private ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider;
 	private Function<OAuth2AuthorizeRequest, Mono<Map<String, Object>>> contextAttributesMapper = new DefaultContextAttributesMapper();
 	private ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler;
 	private ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler;
@@ -104,8 +96,18 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientRepository the repository of authorized clients
 	 */
-	public DefaultReactiveOAuth2AuthorizedClientManager(ReactiveClientRegistrationRepository clientRegistrationRepository,
-														ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+	public DefaultReactiveOAuth2AuthorizedClientManager(
+			ReactiveClientRegistrationRepository clientRegistrationRepository,
+			ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+		this(clientRegistrationRepository, authorizedClientRepository, null, null, null);
+	}
+
+	public DefaultReactiveOAuth2AuthorizedClientManager(
+			ReactiveClientRegistrationRepository clientRegistrationRepository,
+			ServerOAuth2AuthorizedClientRepository authorizedClientRepository,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer refreshTokenGrantBuilderCustomizer,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer clientCredentialsGrantBuilderCustomizer,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer passwordGrantBuilderCustomizer) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
@@ -117,6 +119,10 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 				(clientRegistrationId, principal, attributes) ->
 						authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
 								(ServerWebExchange) attributes.get(ServerWebExchange.class.getName())));
+		this.authorizedClientProvider = createDefaultAuthorizedClientProvider(
+				refreshTokenGrantBuilderCustomizer,
+				clientCredentialsGrantBuilderCustomizer,
+				passwordGrantBuilderCustomizer);
 	}
 
 	@Override
@@ -291,5 +297,17 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 					})
 					.defaultIfEmpty(Collections.emptyMap());
 		}
+	}
+
+	private static ReactiveOAuth2AuthorizedClientProvider createDefaultAuthorizedClientProvider(
+			ReactiveOAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer refreshTokenGrantBuilderCustomizer,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer clientCredentialsGrantBuilderCustomizer,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer passwordGrantBuilderCustomizer) {
+		return ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+				.authorizationCode()
+				.refreshToken(refreshTokenGrantBuilderCustomizer)
+				.clientCredentials(clientCredentialsGrantBuilderCustomizer)
+				.password(passwordGrantBuilderCustomizer)
+				.build();
 	}
 }

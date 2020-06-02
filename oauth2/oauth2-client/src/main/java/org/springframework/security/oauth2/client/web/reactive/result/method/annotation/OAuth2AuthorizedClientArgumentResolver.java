@@ -26,6 +26,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
@@ -81,12 +82,34 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientRepository the repository of authorized clients
 	 */
-	public OAuth2AuthorizedClientArgumentResolver(ReactiveClientRegistrationRepository clientRegistrationRepository,
-													ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+	public OAuth2AuthorizedClientArgumentResolver(
+			ReactiveClientRegistrationRepository clientRegistrationRepository,
+			ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+		this(clientRegistrationRepository, authorizedClientRepository, null, null, null);
+	}
+
+	/**
+	 * Variant of {@link #OAuth2AuthorizedClientArgumentResolver(ReactiveClientRegistrationRepository, ServerOAuth2AuthorizedClientRepository)}
+	 * with {@literal refresh-token}, {@literal client-credentials}, and {@literal password} grant builder customizers.
+	 *
+	 * @param refreshTokenGrantBuilderCustomizer
+	 * @param clientCredentialsGrantBuilderCustomizer
+	 * @param passwordGrantBuilderCustomizer
+	 */
+	public OAuth2AuthorizedClientArgumentResolver(
+			ReactiveClientRegistrationRepository clientRegistrationRepository,
+			ServerOAuth2AuthorizedClientRepository authorizedClientRepository,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.RefreshTokenGrantBuilderCustomizer refreshTokenGrantBuilderCustomizer,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilderCustomizer clientCredentialsGrantBuilderCustomizer,
+			ReactiveOAuth2AuthorizedClientProviderBuilder.PasswordGrantBuilderCustomizer passwordGrantBuilderCustomizer) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
-				clientRegistrationRepository, authorizedClientRepository);
+				clientRegistrationRepository,
+				authorizedClientRepository,
+				refreshTokenGrantBuilderCustomizer,
+				clientCredentialsGrantBuilderCustomizer,
+				passwordGrantBuilderCustomizer);
 	}
 
 	@Override

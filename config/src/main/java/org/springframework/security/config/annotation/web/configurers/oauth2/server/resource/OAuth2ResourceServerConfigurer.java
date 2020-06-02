@@ -40,6 +40,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospectorRestTemplateFactory;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -49,6 +50,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestOperations;
 
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 
@@ -283,6 +285,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter;
 
+		private RestOperations restOperations;
+
 		JwtConfigurer(ApplicationContext context) {
 			this.context = context;
 		}
@@ -299,7 +303,15 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 
 		public JwtConfigurer jwkSetUri(String uri) {
-			this.decoder = withJwkSetUri(uri).build();
+			final NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = withJwkSetUri(uri);
+			this.decoder = restOperations == null
+					? builder.build()
+					: builder.restOperations(restOperations).build();
+			return this;
+		}
+
+		public JwtConfigurer restOperations(RestOperations restOperations) {
+			this.restOperations = restOperations;
 			return this;
 		}
 
@@ -366,6 +378,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		private String clientId;
 		private String clientSecret;
 		private Supplier<OpaqueTokenIntrospector> introspector;
+		private OpaqueTokenIntrospectorRestTemplateFactory restTemplateFactory;
 
 		OpaqueTokenConfigurer(ApplicationContext context) {
 			this.context = context;
@@ -380,8 +393,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		public OpaqueTokenConfigurer introspectionUri(String introspectionUri) {
 			Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 			this.introspectionUri = introspectionUri;
-			this.introspector = () ->
-					new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId, this.clientSecret);
+			this.introspector = createIntrospectorSupplier();
 			return this;
 		}
 
@@ -390,9 +402,21 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			Assert.notNull(clientSecret, "clientSecret cannot be null");
 			this.clientId = clientId;
 			this.clientSecret = clientSecret;
-			this.introspector = () ->
-					new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId, this.clientSecret);
+			this.introspector = createIntrospectorSupplier();
 			return this;
+		}
+
+		public OpaqueTokenConfigurer restTemplateFactory(OpaqueTokenIntrospectorRestTemplateFactory restTemplateFactory) {
+			Assert.notNull(restTemplateFactory, "restTemplateFactory cannot be null");
+			this.restTemplateFactory = restTemplateFactory;
+			this.introspector = createIntrospectorSupplier();
+			return this;
+		}
+
+		private Supplier<OpaqueTokenIntrospector> createIntrospectorSupplier() {
+			return () -> restTemplateFactory == null
+					? new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId, this.clientSecret)
+					: new NimbusOpaqueTokenIntrospector(this.introspectionUri, this.clientId, this.clientSecret, restTemplateFactory);
 		}
 
 		public OpaqueTokenConfigurer introspector(OpaqueTokenIntrospector introspector) {

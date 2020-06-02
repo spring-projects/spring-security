@@ -24,6 +24,7 @@ import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -50,6 +51,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
+import org.springframework.web.client.RestOperations;
 
 /**
  * A {@link BeanDefinitionParser} for &lt;http&gt;'s &lt;oauth2-resource-server&gt; element.
@@ -322,6 +324,7 @@ final class StaticAuthenticationManagerResolver implements
 
 final class NimbusJwtDecoderJwkSetUriFactoryBean implements FactoryBean<JwtDecoder> {
 	private final String jwkSetUri;
+	private RestOperations restOperations;
 
 	NimbusJwtDecoderJwkSetUriFactoryBean(String jwkSetUri) {
 		this.jwkSetUri = jwkSetUri;
@@ -329,12 +332,20 @@ final class NimbusJwtDecoderJwkSetUriFactoryBean implements FactoryBean<JwtDecod
 
 	@Override
 	public JwtDecoder getObject() {
-		return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
+		final NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri);
+		return restOperations == null
+				? builder.build()
+				: builder.restOperations(restOperations).build();
 	}
 
 	@Override
 	public Class<?> getObjectType() {
 		return JwtDecoder.class;
+	}
+
+	@Autowired(required = false)
+	public void setRestOperations(RestOperations restOperations) {
+		this.restOperations = restOperations;
 	}
 }
 
