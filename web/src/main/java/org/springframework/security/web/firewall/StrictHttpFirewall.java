@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,9 @@ import org.springframework.http.HttpMethod;
  * Rejects URLs that contain a backslash. See {@link #setAllowBackSlash(boolean)}
  * </li>
  * <li>
+ * Rejects URLs that contain a null character. See {@link #setAllowNull(boolean)}
+ * </li>
+ * <li>
  * Rejects URLs that contain a URL encoded percent. See
  * {@link #setAllowUrlEncodedPercent(boolean)}
  * </li>
@@ -98,6 +101,8 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final List<String> FORBIDDEN_BACKSLASH = Collections.unmodifiableList(Arrays.asList("\\", "%5c", "%5C"));
 
+	private static final List<String> FORBIDDEN_NULL = Collections.unmodifiableList(Arrays.asList("\0", "%00"));
+
 	private Set<String> encodedUrlBlocklist = new HashSet<>();
 
 	private Set<String> decodedUrlBlocklist = new HashSet<>();
@@ -111,6 +116,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		urlBlocklistsAddAll(FORBIDDEN_FORWARDSLASH);
 		urlBlocklistsAddAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
 		urlBlocklistsAddAll(FORBIDDEN_BACKSLASH);
+		urlBlocklistsAddAll(FORBIDDEN_NULL);
 
 		this.encodedUrlBlocklist.add(ENCODED_PERCENT);
 		this.encodedUrlBlocklist.addAll(FORBIDDEN_ENCODED_PERIOD);
@@ -278,6 +284,25 @@ public class StrictHttpFirewall implements HttpFirewall {
 			urlBlocklistsRemoveAll(FORBIDDEN_BACKSLASH);
 		} else {
 			urlBlocklistsAddAll(FORBIDDEN_BACKSLASH);
+		}
+	}
+
+	/**
+	 * <p>
+	 * Determines if a null "\0" or a URL encoded nul "%00" should be allowed in
+	 * the path or not. The default is not to allow this behavior because it is a frequent
+	 * source of security exploits.
+	 * </p>
+	 *
+	 * @param allowNull a null "\0" or a URL encoded null "%00" be allowed
+	 * in the path or not. Default is false
+	 * @since 5.4
+	 */
+	public void setAllowNull(boolean allowNull) {
+		if (allowNull) {
+			urlBlocklistsRemoveAll(FORBIDDEN_NULL);
+		} else {
+			urlBlocklistsAddAll(FORBIDDEN_NULL);
 		}
 	}
 
