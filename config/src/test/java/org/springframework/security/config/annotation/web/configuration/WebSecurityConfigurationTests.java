@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -68,6 +70,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Rob Winch
  * @author Joe Grandja
+ * @author Evgeniy Cheban
  */
 public class WebSecurityConfigurationTests {
 	@Rule
@@ -267,6 +270,31 @@ public class WebSecurityConfigurationTests {
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated();
+		}
+	}
+
+	@Test
+	public void securityExpressionHandlerWhenRoleHierarchyBeanThenRoleHierarchyUsed() {
+		this.spring.register(WebSecurityExpressionHandlerRoleHierarchyBeanConfig.class).autowire();
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "notused", "ROLE_ADMIN");
+		FilterInvocation invocation = new FilterInvocation(new MockHttpServletRequest("GET", ""),
+				new MockHttpServletResponse(), new MockFilterChain());
+
+		AbstractSecurityExpressionHandler handler = this.spring.getContext().getBean(AbstractSecurityExpressionHandler.class);
+		EvaluationContext evaluationContext = handler.createEvaluationContext(authentication, invocation);
+		Expression expression = handler.getExpressionParser()
+				.parseExpression("hasRole('ROLE_USER')");
+		boolean granted = expression.getValue(evaluationContext, Boolean.class);
+		assertThat(granted).isTrue();
+	}
+
+	@EnableWebSecurity
+	static class WebSecurityExpressionHandlerRoleHierarchyBeanConfig extends WebSecurityConfigurerAdapter {
+		@Bean
+		RoleHierarchy roleHierarchy() {
+			RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+			roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
+			return roleHierarchy;
 		}
 	}
 
