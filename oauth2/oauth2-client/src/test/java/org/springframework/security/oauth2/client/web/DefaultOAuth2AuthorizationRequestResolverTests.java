@@ -15,8 +15,12 @@
  */
 package org.springframework.security.oauth2.client.web;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -97,6 +101,24 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 
 		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
 		assertThat(authorizationRequest).isNull();
+	}
+
+	@Test
+	public void resolveWhenNotAuthorizationRequestThenRequestBodyNotConsumed() throws IOException {
+		String requestUri = "/path";
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", requestUri);
+		request.setContent("foo".getBytes(StandardCharsets.UTF_8));
+		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
+		HttpServletRequest spyRequest = Mockito.spy(request);
+
+		this.resolver.resolve(spyRequest);
+
+		Mockito.verify(spyRequest, Mockito.never()).getReader();
+		Mockito.verify(spyRequest, Mockito.never()).getInputStream();
+		Mockito.verify(spyRequest, Mockito.never()).getParameter(Mockito.anyString());
+		Mockito.verify(spyRequest, Mockito.never()).getParameterMap();
+		Mockito.verify(spyRequest, Mockito.never()).getParameterNames();
+		Mockito.verify(spyRequest, Mockito.never()).getParameterValues(Mockito.anyString());
 	}
 
 	@Test
