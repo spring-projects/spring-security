@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityBuilder;
@@ -75,6 +76,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * @see WebSecurityConfiguration
  *
  * @author Rob Winch
+ * @author Evgeniy Cheban
  * @since 3.2
  */
 public final class WebSecurity extends
@@ -389,6 +391,11 @@ public final class WebSecurity extends
 			throws BeansException {
 		this.defaultWebSecurityExpressionHandler
 				.setApplicationContext(applicationContext);
+
+		try {
+			this.defaultWebSecurityExpressionHandler.setRoleHierarchy(applicationContext.getBean(RoleHierarchy.class));
+		} catch (NoSuchBeanDefinitionException e) {}
+
 		try {
 			this.defaultWebSecurityExpressionHandler.setPermissionEvaluator(applicationContext.getBean(
 					PermissionEvaluator.class));
