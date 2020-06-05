@@ -103,6 +103,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		assertThat(authorizationRequest).isNull();
 	}
 
+	// gh-8650
 	@Test
 	public void resolveWhenNotAuthorizationRequestThenRequestBodyNotConsumed() throws IOException {
 		String requestUri = "/path";
