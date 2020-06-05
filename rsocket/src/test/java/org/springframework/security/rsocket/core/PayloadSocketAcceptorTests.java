@@ -16,6 +16,10 @@
 
 package org.springframework.security.rsocket.core;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import io.rsocket.ConnectionSetupPayload;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
@@ -27,16 +31,16 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
+
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
-import org.springframework.security.rsocket.core.PayloadInterceptorRSocket;
-import org.springframework.security.rsocket.core.PayloadSocketAcceptor;
-import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -142,6 +146,27 @@ public class PayloadSocketAcceptorTests {
 
 		assertThat(exchange.getMetadataMimeType()).isEqualTo(MediaType.TEXT_PLAIN);
 		assertThat(exchange.getDataMimeType()).isEqualTo(MediaType.APPLICATION_JSON);
+	}
+
+
+	@Test
+	// gh-8654
+	public void acceptWhenDelegateAcceptRequiresReactiveSecurityContext() {
+		when(this.setupPayload.metadataMimeType()).thenReturn(MediaType.TEXT_PLAIN_VALUE);
+		when(this.setupPayload.dataMimeType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
+		SecurityContext expectedSecurityContext = new SecurityContextImpl(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		CaptureSecurityContextSocketAcceptor captureSecurityContext = new CaptureSecurityContextSocketAcceptor(this.rSocket);
+		PayloadInterceptor authenticateInterceptor = (exchange, chain) -> {
+			Context withSecurityContext = ReactiveSecurityContextHolder.withSecurityContext(Mono.just(expectedSecurityContext));
+			return chain.next(exchange)
+				.subscriberContext(withSecurityContext);
+		};
+		List<PayloadInterceptor> interceptors = Arrays.asList(authenticateInterceptor);
+		this.acceptor = new PayloadSocketAcceptor(captureSecurityContext, interceptors);
+
+		this.acceptor.accept(this.setupPayload, this.rSocket).block();
+
+		assertThat(captureSecurityContext.getSecurityContext()).isEqualTo(expectedSecurityContext);
 	}
 
 	private PayloadExchange captureExchange() {
