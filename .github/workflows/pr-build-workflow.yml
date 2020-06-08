@@ -1,0 +1,21 @@
+name: PR Build
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@1
+        with:
+          java-version: '8'
+          java-package: jdk
+      - name: Build with Gradle
+        run: ./gradlew clean build --continue
