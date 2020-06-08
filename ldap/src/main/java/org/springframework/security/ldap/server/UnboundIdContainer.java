@@ -15,9 +15,7 @@
  */
 package org.springframework.security.ldap.server;
 
-
-import static org.springframework.core.io.support.ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX;
-
+import java.io.IOException;
 import java.io.InputStream;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
@@ -124,8 +122,8 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 	private void importLdif(InMemoryDirectoryServer directoryServer) throws LDAPException {
 		if (StringUtils.hasText(this.ldif)) {
 			try {
-				Resource[] resources = this.context.getResources(CLASSPATH_ALL_URL_PREFIX);
-				Resource resource = locateResource(resources);
+
+				Resource resource = locateResource();
 				try (InputStream inputStream = resource.getInputStream()) {
 					directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
 				}
@@ -136,7 +134,8 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 
 	}
 
-	private Resource locateResource(Resource[] resources) {
+	private Resource locateResource() throws IOException , NullPointerException {
+		Resource[] resources = this.context.getResources(this.ldif);
 		if (null == resources || 0 == resources.length) {
 			throw new IllegalArgumentException("requested resource is not found");
 		}
