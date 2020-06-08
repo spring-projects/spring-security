@@ -15,7 +15,6 @@
  */
 package sample;
 
-import org.junit.Ignore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.rsocket.context.LocalRSocketServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,7 +40,6 @@ import static org.springframework.security.rsocket.metadata.UsernamePasswordMeta
 @RunWith(SpringRunner.class)
 @TestPropertySource(properties = "spring.rsocket.server.port=0")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Ignore
 public class HelloRSocketApplicationITests {
 
 	@Autowired

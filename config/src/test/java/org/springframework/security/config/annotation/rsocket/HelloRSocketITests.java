@@ -22,7 +22,6 @@ import io.rsocket.transport.netty.server.CloseableChannel;
 import io.rsocket.transport.netty.server.TcpServerTransport;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +52,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  */
 @ContextConfiguration
 @RunWith(SpringRunner.class)
-@Ignore
 public class HelloRSocketITests {
 	@Autowired
 	RSocketMessageHandler handler;
