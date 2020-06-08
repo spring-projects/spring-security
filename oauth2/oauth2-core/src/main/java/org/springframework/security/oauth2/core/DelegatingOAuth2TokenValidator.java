@@ -16,17 +16,19 @@
 
 package org.springframework.security.oauth2.core;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-
-import org.springframework.util.Assert;
+import java.util.stream.Collectors;
 
 /**
  * A composite validator
  *
  * @param <T> the type of {@link AbstractOAuth2Token} this validator validates
- *
  * @author Josh Cummings
  * @since 5.1
  */
@@ -63,10 +65,9 @@ public final class DelegatingOAuth2TokenValidator<T extends AbstractOAuth2Token>
 	public OAuth2TokenValidatorResult validate(T token) {
 		Collection<OAuth2Error> errors = new ArrayList<>();
 
-		for ( OAuth2TokenValidator<T> validator : this.tokenValidators) {
+		for (OAuth2TokenValidator<T> validator : this.tokenValidators) {
 			errors.addAll(validator.validate(token).getErrors());
 		}
-
 		return OAuth2TokenValidatorResult.failure(errors);
 	}
 }

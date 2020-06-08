@@ -15,6 +15,8 @@
  */
 package org.springframework.security.oauth2.jwt;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -31,6 +33,8 @@ import java.util.function.Predicate;
  */
 public final class JwtClaimValidator<T> implements OAuth2TokenValidator<Jwt> {
 
+	private static final Log logger = LogFactory.getLog(JwtClaimValidator.class);
+
 	private final String claim;
 	private final Predicate<T> test;
 	private final OAuth2Error error;
@@ -39,7 +43,7 @@ public final class JwtClaimValidator<T> implements OAuth2TokenValidator<Jwt> {
 	 * Constructs a {@link JwtClaimValidator} using the provided parameters
 	 *
 	 * @param claim - is the name of the claim in {@link Jwt} to validate.
-	 * @param test - is the predicate function for the claim to test against.
+	 * @param test  - is the predicate function for the claim to test against.
 	 */
 	public JwtClaimValidator(String claim, Predicate<T> test) {
 		Assert.notNull(claim, "claim can not be null");
@@ -61,6 +65,9 @@ public final class JwtClaimValidator<T> implements OAuth2TokenValidator<Jwt> {
 		if (test.test(claimValue)) {
 			return OAuth2TokenValidatorResult.success();
 		} else {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Failed to validate OAuth2 token claim " + claim);
+			}
 			return OAuth2TokenValidatorResult.failure(error);
 		}
 	}

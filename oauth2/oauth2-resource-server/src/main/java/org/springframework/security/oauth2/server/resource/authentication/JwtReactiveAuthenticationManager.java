@@ -16,6 +16,9 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
@@ -39,6 +42,7 @@ import org.springframework.util.Assert;
  * @since 5.1
  */
 public final class JwtReactiveAuthenticationManager implements ReactiveAuthenticationManager {
+	private static final Log logger = LogFactory.getLog(JwtReactiveAuthenticationManager.class);
 	private final ReactiveJwtDecoder jwtDecoder;
 
 	private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter
@@ -74,6 +78,9 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 	}
 
 	private AuthenticationException onError(JwtException e) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Authentication error for Jwt Token: " + e.getMessage());
+		}
 		if (e instanceof BadJwtException) {
 			return new InvalidBearerTokenException(e.getMessage(), e);
 		} else {

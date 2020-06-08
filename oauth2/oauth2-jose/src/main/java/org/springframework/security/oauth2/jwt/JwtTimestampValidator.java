@@ -15,16 +15,20 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.util.Assert;
+
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.time.temporal.ChronoUnit;
 
 /**
  * An implementation of {@link OAuth2TokenValidator} for verifying claims in a Jwt-based access token
@@ -43,9 +47,12 @@ import org.springframework.util.Assert;
 public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 	private static final Duration DEFAULT_MAX_CLOCK_SKEW = Duration.of(60, ChronoUnit.SECONDS);
 
+	private static final Log logger = LogFactory.getLog(JwtTimestampValidator.class);
 	private final Duration clockSkew;
 
 	private Clock clock = Clock.systemUTC();
+	private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME
+			.withZone( clock.getZone() );
 
 	/**
 	 * A basic instance with no custom verification and the default max clock skew
@@ -56,7 +63,6 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 	public JwtTimestampValidator(Duration clockSkew) {
 		Assert.notNull(clockSkew, "clockSkew cannot be null");
-
 		this.clockSkew = clockSkew;
 	}
 
@@ -71,6 +77,9 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 		if (expiry != null) {
 			if (Instant.now(this.clock).minus(clockSkew).isAfter(expiry)) {
+				if (logger.isDebugEnabled()){
+					logger.debug("Failed to validate OAuth2 token claim. Token has expired");
+				}
 				OAuth2Error error = new OAuth2Error(
 						OAuth2ErrorCodes.INVALID_REQUEST,
 						String.format("Jwt expired at %s", jwt.getExpiresAt()),
@@ -83,6 +92,9 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 		if (notBefore != null) {
 			if (Instant.now(this.clock).plus(clockSkew).isBefore(notBefore)) {
+				if (logger.isDebugEnabled()){
+					logger.debug("Failed to validate OAuth2 token claim. Token should not be used before: " + isoDateTime(notBefore));
+				}
 				OAuth2Error error = new OAuth2Error(
 						OAuth2ErrorCodes.INVALID_REQUEST,
 						String.format("Jwt used before %s", jwt.getNotBefore()),
@@ -92,6 +104,10 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 		}
 
 		return OAuth2TokenValidatorResult.success();
+	}
+
+	private String isoDateTime(Instant instant) {
+		return dateTimeFormatter.format(instant);
 	}
 
 	/**
