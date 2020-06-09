@@ -16,6 +16,6 @@ jobs:
         uses: actions/setup-java@1
         with:
           java-version: '8'
-          java-package: jdk
+          architecture: x64
       - name: Build with Gradle
         run: ./gradlew clean build --continue
