@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,13 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import java.security.cert.X509Certificate;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +33,19 @@ import javax.annotation.Nonnull;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
 import org.opensaml.core.criterion.EntityIdCriterion;
+import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.core.xml.io.Marshaller;
+
+import org.opensaml.core.xml.schema.XSAny;
+import org.opensaml.core.xml.schema.XSBoolean;
+import org.opensaml.core.xml.schema.XSBooleanValue;
+import org.opensaml.core.xml.schema.XSDateTime;
+import org.opensaml.core.xml.schema.XSInteger;
+import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.core.xml.schema.XSURI;
 import org.opensaml.saml.common.assertion.ValidationContext;
 import org.opensaml.saml.common.assertion.ValidationResult;
 import org.opensaml.saml.common.xml.SAMLConstants;
@@ -45,6 +59,8 @@ import org.opensaml.saml.saml2.assertion.SubjectConfirmationValidator;
 import org.opensaml.saml.saml2.assertion.impl.AudienceRestrictionConditionValidator;
 import org.opensaml.saml.saml2.assertion.impl.BearerSubjectConfirmationValidator;
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
@@ -205,8 +221,9 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			List<Assertion> validAssertions = validateResponse(token, response);
 			Assertion assertion = validAssertions.get(0);
 			String username = getUsername(token, assertion);
+			Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
 			return new Saml2Authentication(
-					new SimpleSaml2AuthenticatedPrincipal(username), token.getSaml2Response(),
+					new SimpleSaml2AuthenticatedPrincipal(username, attributes), token.getSaml2Response(),
 					this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion)));
 		} catch (Saml2AuthenticationException e) {
 			throw e;
@@ -492,6 +509,60 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			}
 		}
 		throw last;
+	}
+
+	private Map<String, List<Object>> getAssertionAttributes(Assertion assertion) {
+		Map<String, List<Object>> attributeMap = new LinkedHashMap<>();
+		for (AttributeStatement attributeStatement : assertion.getAttributeStatements()) {
+			for (Attribute attribute : attributeStatement.getAttributes()) {
+
+				List<Object> attributeValues = new ArrayList<>();
+				for (XMLObject xmlObject : attribute.getAttributeValues()) {
+					Object attributeValue = getXmlObjectValue(xmlObject);
+					if (attributeValue != null) {
+						attributeValues.add(attributeValue);
+					}
+				}
+				attributeMap.put(attribute.getName(), attributeValues);
+
+			}
+		}
+		return attributeMap;
+	}
+
+	private Object getXmlObjectValue(XMLObject xmlObject) {
+		if (xmlObject == null) {
+			return null;
+		}
+		if (xmlObject instanceof XSAny) {
+			return getXSAnyObjectValue((XSAny) xmlObject);
+		}
+		if (xmlObject instanceof XSString) {
+			return ((XSString) xmlObject).getValue();
+		}
+		if (xmlObject instanceof XSInteger) {
+			return ((XSInteger) xmlObject).getValue();
+		}
+		if (xmlObject instanceof XSURI) {
+			return ((XSURI) xmlObject).getValue();
+		}
+		if (xmlObject instanceof XSBoolean) {
+			XSBooleanValue xsBooleanValue = ((XSBoolean) xmlObject).getValue();
+			return xsBooleanValue != null ? xsBooleanValue.getValue() : null;
+		}
+		if (xmlObject instanceof XSDateTime) {
+			DateTime dateTime = ((XSDateTime) xmlObject).getValue();
+			return dateTime != null ? Instant.ofEpochMilli(dateTime.getMillis()) : null;
+		}
+		return null;
+	}
+
+	private Object getXSAnyObjectValue(XSAny xsAny) {
+		Marshaller marshaller = XMLObjectProviderRegistrySupport.getMarshallerFactory().getMarshaller(xsAny);
+		if (marshaller != null) {
+			return this.saml.serialize(xsAny);
+		}
+		return xsAny.getTextContent();
 	}
 
 	private Saml2Error validationError(String code, String description) {

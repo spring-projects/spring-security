@@ -19,7 +19,11 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -39,6 +43,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.assertion;
+import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.attributeStatements;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.encrypted;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.response;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.signed;
@@ -47,6 +52,7 @@ import static org.springframework.security.saml2.credentials.TestSaml2X509Creden
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartySigningCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyDecryptingCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -191,6 +197,30 @@ public class OpenSamlAuthenticationProviderTests {
 		response.getAssertions().add(assertion);
 		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
 		this.provider.authenticate(token);
+	}
+
+	@Test
+	public void authenticateWhenAssertionContainsAttributesThenItSucceeds() {
+		Response response = response();
+		Assertion assertion = assertion();
+		attributeStatements().forEach(as -> assertion.getAttributeStatements().add(as));
+		signed(assertion, assertingPartySigningCredential(), RELYING_PARTY_ENTITY_ID);
+		response.getAssertions().add(assertion);
+		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
+		Authentication authentication = this.provider.authenticate(token);
+		Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
+
+		Map<String, Object> attributes = new LinkedHashMap<>();
+		attributes.put("email", Arrays.asList("john.doe@example.com", "doe.john@example.com"));
+		attributes.put("name", Collections.singletonList("John Doe"));
+		attributes.put("age", Collections.singletonList(21));
+		attributes.put("website", Collections.singletonList("https://johndoe.com/"));
+		attributes.put("registered", Collections.singletonList(true));
+		Instant registeredDate = Instant.ofEpochMilli(DateTime.parse("1970-01-01T00:00:00Z").getMillis());
+		attributes.put("registeredDate", Collections.singletonList(registeredDate));
+
+		assertEquals("Values should be equal", "John Doe", principal.getFirstAttribute("name"));
+		assertTrue("Attributes should be equal", attributes.equals(principal.getAttributes()));
 	}
 
 	@Test
