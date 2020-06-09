@@ -19,6 +19,8 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -26,9 +28,26 @@ import org.apache.xml.security.encryption.XMLCipherParameters;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.opensaml.core.xml.io.MarshallingException;
+
+import org.opensaml.core.xml.schema.XSAny;
+import org.opensaml.core.xml.schema.XSBoolean;
+import org.opensaml.core.xml.schema.XSBooleanValue;
+import org.opensaml.core.xml.schema.XSDateTime;
+import org.opensaml.core.xml.schema.XSInteger;
+import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.core.xml.schema.XSURI;
+import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
+import org.opensaml.core.xml.schema.impl.XSBooleanBuilder;
+import org.opensaml.core.xml.schema.impl.XSDateTimeBuilder;
+import org.opensaml.core.xml.schema.impl.XSIntegerBuilder;
+import org.opensaml.core.xml.schema.impl.XSStringBuilder;
+import org.opensaml.core.xml.schema.impl.XSURIBuilder;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AttributeValue;
 import org.opensaml.saml.saml2.core.Conditions;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedID;
@@ -38,6 +57,8 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
+import org.opensaml.saml.saml2.core.impl.AttributeBuilder;
+import org.opensaml.saml.saml2.core.impl.AttributeStatementBuilder;
 import org.opensaml.saml.saml2.encryption.Encrypter;
 import org.opensaml.security.SecurityException;
 import org.opensaml.security.credential.BasicCredential;
@@ -221,5 +242,67 @@ final class TestOpenSamlObjects {
 		encrypter.setKeyPlacement(keyPlacement);
 
 		return encrypter;
+	}
+
+	static List<AttributeStatement> attributeStatements() {
+		List<AttributeStatement> attributeStatements = new ArrayList<>();
+
+		AttributeStatementBuilder attributeStatementBuilder = new AttributeStatementBuilder();
+		AttributeBuilder attributeBuilder = new AttributeBuilder();
+
+		AttributeStatement attrStmt1 = attributeStatementBuilder.buildObject();
+
+		Attribute emailAttr = attributeBuilder.buildObject();
+		emailAttr.setName("email");
+		XSAny email1 = new XSAnyBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME);
+		email1.setTextContent("john.doe@example.com");
+		emailAttr.getAttributeValues().add(email1);
+		XSAny email2 = new XSAnyBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME);
+		email2.setTextContent("doe.john@example.com");
+		emailAttr.getAttributeValues().add(email2);
+		attrStmt1.getAttributes().add(emailAttr);
+
+		Attribute nameAttr = attributeBuilder.buildObject();
+		nameAttr.setName("name");
+		XSString name = new XSStringBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
+		name.setValue("John Doe");
+		nameAttr.getAttributeValues().add(name);
+		attrStmt1.getAttributes().add(nameAttr);
+
+		Attribute ageAttr = attributeBuilder.buildObject();
+		ageAttr.setName("age");
+		XSInteger age = new XSIntegerBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSInteger.TYPE_NAME);
+		age.setValue(21);
+		ageAttr.getAttributeValues().add(age);
+		attrStmt1.getAttributes().add(ageAttr);
+
+		attributeStatements.add(attrStmt1);
+
+		AttributeStatement attrStmt2 = attributeStatementBuilder.buildObject();
+
+		Attribute websiteAttr = attributeBuilder.buildObject();
+		websiteAttr.setName("website");
+		XSURI uri = new XSURIBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSURI.TYPE_NAME);
+		uri.setValue("https://johndoe.com/");
+		websiteAttr.getAttributeValues().add(uri);
+		attrStmt2.getAttributes().add(websiteAttr);
+
+		Attribute registeredAttr = attributeBuilder.buildObject();
+		registeredAttr.setName("registered");
+		XSBoolean registered = new XSBooleanBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSBoolean.TYPE_NAME);
+		registered.setValue(new XSBooleanValue(true, false));
+		registeredAttr.getAttributeValues().add(registered);
+		attrStmt2.getAttributes().add(registeredAttr);
+
+		Attribute registeredDateAttr = attributeBuilder.buildObject();
+		registeredDateAttr.setName("registeredDate");
+		XSDateTime registeredDate = new XSDateTimeBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSDateTime.TYPE_NAME);
+		registeredDate.setValue(DateTime.parse("1970-01-01T00:00:00Z"));
+		registeredDateAttr.getAttributeValues().add(registeredDate);
+		attrStmt2.getAttributes().add(registeredDateAttr);
+
+		attributeStatements.add(attrStmt2);
+
+		return attributeStatements;
 	}
 }
