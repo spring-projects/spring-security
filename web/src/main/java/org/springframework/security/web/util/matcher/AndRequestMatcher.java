@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
 /**
@@ -61,19 +60,16 @@ public final class AndRequestMatcher implements RequestMatcher {
 	@Override
 	public boolean matches(HttpServletRequest request) {
 		for (RequestMatcher matcher : this.requestMatchers) {
-			this.logger.debug(LogMessage.format("Trying to match using %s", matcher));
 			if (!matcher.matches(request)) {
-				this.logger.debug("Did not match");
 				return false;
 			}
 		}
-		this.logger.debug("All requestMatchers returned true");
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "AndRequestMatcher [requestMatchers=" + this.requestMatchers + "]";
+		return "And " + this.requestMatchers;
 	}
 
 }

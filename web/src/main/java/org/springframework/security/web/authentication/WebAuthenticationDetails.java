@@ -121,9 +121,9 @@ public class WebAuthenticationDetails implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(super.toString()).append(": ");
-		sb.append("RemoteIpAddress: ").append(this.getRemoteAddress()).append("; ");
-		sb.append("SessionId: ").append(this.getSessionId());
+		sb.append(getClass().getSimpleName()).append(" [");
+		sb.append("RemoteIpAddress=").append(this.getRemoteAddress()).append(", ");
+		sb.append("SessionId=").append(this.getSessionId()).append("]");
 		return sb.toString();
 	}
 

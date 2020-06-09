@@ -133,7 +133,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 				user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
 			}
 			catch (UsernameNotFoundException ex) {
-				this.logger.debug("User '" + username + "' not found");
+				this.logger.debug("Failed to find user '" + username + "'");
 				if (!this.hideUserNotFoundExceptions) {
 					throw ex;
 				}
@@ -196,6 +196,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(principal,
 				authentication.getCredentials(), this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
 		result.setDetails(authentication.getDetails());
+		this.logger.debug("Authenticated user");
 		return result;
 	}
 
@@ -318,17 +319,20 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		@Override
 		public void check(UserDetails user) {
 			if (!user.isAccountNonLocked()) {
-				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account is locked");
+				AbstractUserDetailsAuthenticationProvider.this.logger
+						.debug("Failed to authenticate since user account is locked");
 				throw new LockedException(AbstractUserDetailsAuthenticationProvider.this.messages
 						.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"));
 			}
 			if (!user.isEnabled()) {
-				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account is disabled");
+				AbstractUserDetailsAuthenticationProvider.this.logger
+						.debug("Failed to authenticate since user account is disabled");
 				throw new DisabledException(AbstractUserDetailsAuthenticationProvider.this.messages
 						.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
 			}
 			if (!user.isAccountNonExpired()) {
-				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account is expired");
+				AbstractUserDetailsAuthenticationProvider.this.logger
+						.debug("Failed to authenticate since user account has expired");
 				throw new AccountExpiredException(AbstractUserDetailsAuthenticationProvider.this.messages
 						.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
 			}
@@ -341,7 +345,8 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		@Override
 		public void check(UserDetails user) {
 			if (!user.isCredentialsNonExpired()) {
-				AbstractUserDetailsAuthenticationProvider.this.logger.debug("User account credentials have expired");
+				AbstractUserDetailsAuthenticationProvider.this.logger
+						.debug("Failed to authenticate since user account credentials have expired");
 				throw new CredentialsExpiredException(AbstractUserDetailsAuthenticationProvider.this.messages
 						.getMessage("AbstractUserDetailsAuthenticationProvider.credentialsExpired",
 								"User credentials have expired"));

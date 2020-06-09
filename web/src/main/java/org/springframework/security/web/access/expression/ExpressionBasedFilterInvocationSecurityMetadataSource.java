@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
 import org.springframework.security.access.ConfigAttribute;
@@ -67,7 +68,9 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource
 	private static void process(ExpressionParser parser, RequestMatcher request, Collection<ConfigAttribute> value,
 			BiConsumer<RequestMatcher, Collection<ConfigAttribute>> consumer) {
 		String expression = getExpression(request, value);
-		logger.debug("Adding web access control expression '" + expression + "', for " + request);
+		if (logger.isDebugEnabled()) {
+			logger.debug(LogMessage.format("Adding web access control expression [%s] for %s", expression, request));
+		}
 		AbstractVariableEvaluationContextPostProcessor postProcessor = createPostProcessor(request);
 		ArrayList<ConfigAttribute> processed = new ArrayList<>(1);
 		try {

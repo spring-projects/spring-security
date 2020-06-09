@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -78,9 +79,16 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 	@Override
 	public Collection<ConfigAttribute> getAttributes(Object object) {
 		final HttpServletRequest request = ((FilterInvocation) object).getRequest();
+		int count = 0;
 		for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : this.requestMap.entrySet()) {
 			if (entry.getKey().matches(request)) {
 				return entry.getValue();
+			}
+			else {
+				if (this.logger.isTraceEnabled()) {
+					this.logger.trace(LogMessage.format("Did not match request to %s - %s (%d/%d)", entry.getKey(),
+							entry.getValue(), ++count, this.requestMap.size()));
+				}
 			}
 		}
 		return null;

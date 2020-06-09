@@ -138,6 +138,9 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		if (!this.requestMatcher.matches(request)) {
+			if (logger.isTraceEnabled()) {
+				logger.trace("Did not match request to " + this.requestMatcher);
+			}
 			filterChain.doFilter(request, response);
 			return;
 		}

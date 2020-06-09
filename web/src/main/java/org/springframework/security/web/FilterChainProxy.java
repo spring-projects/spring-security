@@ -197,11 +197,15 @@ public class FilterChainProxy extends GenericFilterBean {
 		HttpServletResponse firewallResponse = this.firewall.getFirewalledResponse((HttpServletResponse) response);
 		List<Filter> filters = getFilters(firewallRequest);
 		if (filters == null || filters.size() == 0) {
-			logger.debug(LogMessage.of(() -> UrlUtils.buildRequestUrl(firewallRequest)
-					+ ((filters != null) ? " has an empty filter list" : " has no matching filters")));
+			if (logger.isTraceEnabled()) {
+				logger.trace(LogMessage.of(() -> "No security for " + requestLine(firewallRequest)));
+			}
 			firewallRequest.reset();
 			chain.doFilter(firewallRequest, firewallResponse);
 			return;
+		}
+		if (logger.isDebugEnabled()) {
+			logger.debug(LogMessage.of(() -> "Securing " + requestLine(firewallRequest)));
 		}
 		VirtualFilterChain virtualFilterChain = new VirtualFilterChain(firewallRequest, chain, filters);
 		virtualFilterChain.doFilter(firewallRequest, firewallResponse);
@@ -213,7 +217,12 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * @return an ordered array of Filters defining the filter chain
 	 */
 	private List<Filter> getFilters(HttpServletRequest request) {
+		int count = 0;
 		for (SecurityFilterChain chain : this.filterChains) {
+			if (logger.isTraceEnabled()) {
+				logger.trace(LogMessage.format("Trying to match request against %s (%d/%d)", chain, ++count,
+						this.filterChains.size()));
+			}
 			if (chain.matches(request)) {
 				return chain.getFilters();
 			}
@@ -279,6 +288,10 @@ public class FilterChainProxy extends GenericFilterBean {
 		return sb.toString();
 	}
 
+	private static String requestLine(HttpServletRequest request) {
+		return request.getMethod() + " " + UrlUtils.buildRequestUrl(request);
+	}
+
 	/**
 	 * Internal {@code FilterChain} implementation that is used to pass a request through
 	 * the additional internal list of filters which match the request.
@@ -306,8 +319,9 @@ public class FilterChainProxy extends GenericFilterBean {
 		@Override
 		public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
 			if (this.currentPosition == this.size) {
-				logger.debug(LogMessage.of(() -> UrlUtils.buildRequestUrl(this.firewalledRequest)
-						+ " reached end of additional filter chain; proceeding with original chain"));
+				if (logger.isDebugEnabled()) {
+					logger.debug(LogMessage.of(() -> "Secured " + requestLine(this.firewalledRequest)));
+				}
 				// Deactivate path stripping as we exit the security filter chain
 				this.firewalledRequest.reset();
 				this.originalChain.doFilter(request, response);
@@ -315,9 +329,10 @@ public class FilterChainProxy extends GenericFilterBean {
 			}
 			this.currentPosition++;
 			Filter nextFilter = this.additionalFilters.get(this.currentPosition - 1);
-			logger.debug(LogMessage.of(() -> UrlUtils.buildRequestUrl(this.firewalledRequest) + " at position "
-					+ this.currentPosition + " of " + this.size + " in additional filter chain; firing Filter: '"
-					+ nextFilter.getClass().getSimpleName() + "'"));
+			if (logger.isTraceEnabled()) {
+				logger.trace(LogMessage.format("Invoking %s (%d/%d)", nextFilter.getClass().getSimpleName(),
+						this.currentPosition, this.size));
+			}
 			nextFilter.doFilter(request, response, this);
 		}
 

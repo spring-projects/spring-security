@@ -73,13 +73,14 @@ public class SecurityContextImpl implements SecurityContext {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(super.toString());
+		sb.append(getClass().getSimpleName()).append(" [");
 		if (this.authentication == null) {
-			sb.append(": Null authentication");
+			sb.append("Null authentication");
 		}
 		else {
-			sb.append(": Authentication: ").append(this.authentication);
+			sb.append("Authentication=").append(this.authentication);
 		}
+		sb.append("]");
 		return sb.toString();
 	}
 

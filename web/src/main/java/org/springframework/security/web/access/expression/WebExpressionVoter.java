@@ -18,6 +18,9 @@ package org.springframework.security.web.access.expression;
 
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
@@ -35,6 +38,8 @@ import org.springframework.util.Assert;
  */
 public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation> {
 
+	private final Log logger = LogFactory.getLog(getClass());
+
 	private SecurityExpressionHandler<FilterInvocation> expressionHandler = new DefaultWebSecurityExpressionHandler();
 
 	@Override
@@ -45,12 +50,18 @@ public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation>
 		Assert.notNull(attributes, "attributes must not be null");
 		WebExpressionConfigAttribute webExpressionConfigAttribute = findConfigAttribute(attributes);
 		if (webExpressionConfigAttribute == null) {
+			this.logger
+					.trace("Abstained since did not find a config attribute of instance WebExpressionConfigAttribute");
 			return ACCESS_ABSTAIN;
 		}
 		EvaluationContext ctx = webExpressionConfigAttribute.postProcess(
 				this.expressionHandler.createEvaluationContext(authentication, filterInvocation), filterInvocation);
-		return ExpressionUtils.evaluateAsBoolean(webExpressionConfigAttribute.getAuthorizeExpression(), ctx)
-				? ACCESS_GRANTED : ACCESS_DENIED;
+		boolean granted = ExpressionUtils.evaluateAsBoolean(webExpressionConfigAttribute.getAuthorizeExpression(), ctx);
+		if (granted) {
+			return ACCESS_GRANTED;
+		}
+		this.logger.trace("Voted to deny authorization");
+		return ACCESS_DENIED;
 	}
 
 	private WebExpressionConfigAttribute findConfigAttribute(Collection<ConfigAttribute> attributes) {

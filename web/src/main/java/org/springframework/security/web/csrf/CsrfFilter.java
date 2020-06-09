@@ -108,6 +108,10 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		request.setAttribute(CsrfToken.class.getName(), csrfToken);
 		request.setAttribute(csrfToken.getParameterName(), csrfToken);
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace("Did not protect against CSRF since request did not match "
+						+ this.requireCsrfProtectionMatcher);
+			}
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -168,6 +172,11 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			return !this.allowedMethods.contains(request.getMethod());
+		}
+
+		@Override
+		public String toString() {
+			return "CsrfNotRequired " + this.allowedMethods;
 		}
 
 	}

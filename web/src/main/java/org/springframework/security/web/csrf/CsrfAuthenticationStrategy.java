@@ -19,6 +19,9 @@ package org.springframework.security.web.csrf;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -33,6 +36,8 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class CsrfAuthenticationStrategy implements SessionAuthenticationStrategy {
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private final CsrfTokenRepository csrfTokenRepository;
 
@@ -55,6 +60,7 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 			this.csrfTokenRepository.saveToken(newToken, request, response);
 			request.setAttribute(CsrfToken.class.getName(), newToken);
 			request.setAttribute(newToken.getParameterName(), newToken);
+			this.logger.debug("Replaced CSRF Token");
 		}
 	}
 

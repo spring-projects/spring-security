@@ -218,7 +218,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 			chain.doFilter(request, response);
 			return;
 		}
-		this.logger.debug("Request is to process authentication");
 		try {
 			Authentication authenticationResult = attemptAuthentication(request, response);
 			if (authenticationResult == null) {
@@ -255,7 +254,14 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * <code>false</code> otherwise.
 	 */
 	protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-		return this.requiresAuthenticationRequestMatcher.matches(request);
+		if (this.requiresAuthenticationRequestMatcher.matches(request)) {
+			return true;
+		}
+		if (this.logger.isTraceEnabled()) {
+			this.logger
+					.trace(LogMessage.format("Did not match request to %s", this.requiresAuthenticationRequestMatcher));
+		}
+		return false;
 	}
 
 	/**
@@ -304,9 +310,10 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 */
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authResult) throws IOException, ServletException {
-		this.logger.debug(
-				LogMessage.format("Authentication success. Updating SecurityContextHolder to contain: %s", authResult));
 		SecurityContextHolder.getContext().setAuthentication(authResult);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
+		}
 		this.rememberMeServices.loginSuccess(request, response, authResult);
 		if (this.eventPublisher != null) {
 			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
@@ -328,11 +335,9 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException failed) throws IOException, ServletException {
 		SecurityContextHolder.clearContext();
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Authentication request failed: " + failed.toString(), failed);
-			this.logger.debug("Updated SecurityContextHolder to contain null Authentication");
-			this.logger.debug("Delegating to authentication failure handler " + this.failureHandler);
-		}
+		this.logger.trace("Failed to process authentication request", failed);
+		this.logger.trace("Cleared SecurityContextHolder");
+		this.logger.trace("Handling authentication failure");
 		this.rememberMeServices.loginFail(request, response);
 		this.failureHandler.onAuthenticationFailure(request, response, failed);
 	}

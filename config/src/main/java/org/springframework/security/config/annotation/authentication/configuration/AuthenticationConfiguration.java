@@ -212,7 +212,9 @@ public class AuthenticationConfiguration {
 		public void init(AuthenticationManagerBuilder auth) {
 			Map<String, Object> beansWithAnnotation = this.context
 					.getBeansWithAnnotation(EnableGlobalAuthentication.class);
-			logger.debug(LogMessage.format("Eagerly initializing %s", beansWithAnnotation));
+			if (logger.isTraceEnabled()) {
+				logger.trace(LogMessage.format("Eagerly initializing %s", beansWithAnnotation));
+			}
 		}
 
 	}

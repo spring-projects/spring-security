@@ -179,7 +179,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 				this.successHandler.onAuthenticationSuccess(request, response, targetUser);
 			}
 			catch (AuthenticationException ex) {
-				this.logger.debug("Switch User failed", ex);
+				this.logger.debug("Failed to switch user", ex);
 				this.failureHandler.onAuthenticationFailure(request, response, ex);
 			}
 			return;

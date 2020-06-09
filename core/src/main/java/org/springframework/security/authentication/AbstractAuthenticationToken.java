@@ -174,24 +174,13 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(super.toString()).append(": ");
-		sb.append("Principal: ").append(this.getPrincipal()).append("; ");
-		sb.append("Credentials: [PROTECTED]; ");
-		sb.append("Authenticated: ").append(this.isAuthenticated()).append("; ");
-		sb.append("Details: ").append(this.getDetails()).append("; ");
-		if (!this.authorities.isEmpty()) {
-			sb.append("Granted Authorities: ");
-			int i = 0;
-			for (GrantedAuthority authority : this.authorities) {
-				if (i++ > 0) {
-					sb.append(", ");
-				}
-				sb.append(authority);
-			}
-		}
-		else {
-			sb.append("Not granted any authorities");
-		}
+		sb.append(getClass().getSimpleName()).append(" [");
+		sb.append("Principal=").append(getPrincipal()).append(", ");
+		sb.append("Credentials=[PROTECTED], ");
+		sb.append("Authenticated=").append(isAuthenticated()).append(", ");
+		sb.append("Details=").append(getDetails()).append(", ");
+		sb.append("Granted Authorities=").append(this.authorities);
+		sb.append("]");
 		return sb.toString();
 	}
 

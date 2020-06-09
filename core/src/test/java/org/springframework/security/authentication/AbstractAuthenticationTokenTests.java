@@ -111,7 +111,7 @@ public class AbstractAuthenticationTokenTests {
 	@Test
 	public void testToStringWithNullAuthorities() {
 		MockAuthenticationImpl token = new MockAuthenticationImpl("Test", "Password", null);
-		assertThat(token.toString().lastIndexOf("Not granted any authorities") != -1).isTrue();
+		assertThat(token.toString().lastIndexOf("Granted Authorities=[]") != -1).isTrue();
 	}
 
 	@Test

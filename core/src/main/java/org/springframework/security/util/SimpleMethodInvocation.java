@@ -68,4 +68,9 @@ public class SimpleMethodInvocation implements MethodInvocation {
 		throw new UnsupportedOperationException("mock method not implemented");
 	}
 
+	@Override
+	public String toString() {
+		return "method invocation [" + this.method + "]";
+	}
+
 }

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.WebAttributes;
@@ -53,9 +54,11 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 		if (response.isCommitted()) {
+			logger.trace("Did not write to response since already committed");
 			return;
 		}
 		if (this.errorPage == null) {
+			logger.debug("Responding with 403 status code");
 			response.sendError(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.getReasonPhrase());
 			return;
 		}
@@ -64,6 +67,9 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 		// Set the 403 status code.
 		response.setStatus(HttpStatus.FORBIDDEN.value());
 		// forward to error page.
+		if (logger.isDebugEnabled()) {
+			logger.debug(LogMessage.format("Forwarding to %s with status code 403", this.errorPage));
+		}
 		request.getRequestDispatcher(this.errorPage).forward(request, response);
 	}
 

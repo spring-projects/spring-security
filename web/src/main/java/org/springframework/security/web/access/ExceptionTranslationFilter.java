@@ -117,7 +117,6 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 			throws IOException, ServletException {
 		try {
 			chain.doFilter(request, response);
-			this.logger.debug("Chain processed normally");
 		}
 		catch (IOException ex) {
 			throw ex;
@@ -175,7 +174,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 
 	private void handleAuthenticationException(HttpServletRequest request, HttpServletResponse response,
 			FilterChain chain, AuthenticationException exception) throws ServletException, IOException {
-		this.logger.debug("Authentication exception occurred; redirecting to authentication entry point", exception);
+		this.logger.trace("Sending to authentication entry point since authentication failed", exception);
 		sendStartAuthentication(request, response, chain, exception);
 	}
 
@@ -184,17 +183,21 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		boolean isAnonymous = this.authenticationTrustResolver.isAnonymous(authentication);
 		if (isAnonymous || this.authenticationTrustResolver.isRememberMe(authentication)) {
-			this.logger.debug(LogMessage
-					.of(() -> "Access is denied (user is " + (isAnonymous ? "anonymous" : "not fully authenticated")
-							+ "); redirecting to authentication entry point"),
-					exception);
+			if (logger.isTraceEnabled()) {
+				logger.trace(LogMessage.format("Sending %s to authentication entry point since access is denied",
+						authentication), exception);
+			}
 			sendStartAuthentication(request, response, chain,
 					new InsufficientAuthenticationException(
 							this.messages.getMessage("ExceptionTranslationFilter.insufficientAuthentication",
 									"Full authentication is required to access this resource")));
 		}
 		else {
-			this.logger.debug("Access is denied (user is not anonymous); delegating to AccessDeniedHandler", exception);
+			if (logger.isTraceEnabled()) {
+				logger.trace(
+						LogMessage.format("Sending %s to access denied handler since access is denied", authentication),
+						exception);
+			}
 			this.accessDeniedHandler.handle(request, response, exception);
 		}
 	}
@@ -205,7 +208,6 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 		// existing Authentication is no longer considered valid
 		SecurityContextHolder.getContext().setAuthentication(null);
 		this.requestCache.saveRequest(request, response);
-		this.logger.debug("Calling Authentication entry point.");
 		this.authenticationEntryPoint.commence(request, response, reason);
 	}
 

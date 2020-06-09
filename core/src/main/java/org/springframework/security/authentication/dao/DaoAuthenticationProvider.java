@@ -68,13 +68,13 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	protected void additionalAuthenticationChecks(UserDetails userDetails,
 			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 		if (authentication.getCredentials() == null) {
-			this.logger.debug("Authentication failed: no credentials provided");
+			this.logger.debug("Failed to authenticate since no credentials provided");
 			throw new BadCredentialsException(this.messages
 					.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 		}
 		String presentedPassword = authentication.getCredentials().toString();
 		if (!this.passwordEncoder.matches(presentedPassword, userDetails.getPassword())) {
-			this.logger.debug("Authentication failed: password does not match stored value");
+			this.logger.debug("Failed to authenticate since password does not match stored value");
 			throw new BadCredentialsException(this.messages
 					.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
 		}

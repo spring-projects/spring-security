@@ -196,27 +196,14 @@ public class User implements UserDetails, CredentialsContainer {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(super.toString()).append(": ");
-		sb.append("Username: ").append(this.username).append("; ");
-		sb.append("Password: [PROTECTED]; ");
-		sb.append("Enabled: ").append(this.enabled).append("; ");
-		sb.append("AccountNonExpired: ").append(this.accountNonExpired).append("; ");
-		sb.append("credentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
-		sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
-		if (!this.authorities.isEmpty()) {
-			sb.append("Granted Authorities: ");
-			boolean first = true;
-			for (GrantedAuthority auth : this.authorities) {
-				if (!first) {
-					sb.append(",");
-				}
-				first = false;
-				sb.append(auth);
-			}
-		}
-		else {
-			sb.append("Not granted any authorities");
-		}
+		sb.append(getClass().getName()).append(" [");
+		sb.append("Username=").append(this.username).append(", ");
+		sb.append("Password=[PROTECTED], ");
+		sb.append("Enabled=").append(this.enabled).append(", ");
+		sb.append("AccountNonExpired=").append(this.accountNonExpired).append(", ");
+		sb.append("credentialsNonExpired=").append(this.credentialsNonExpired).append(", ");
+		sb.append("AccountNonLocked=").append(this.accountNonLocked).append(", ");
+		sb.append("Granted Authorities=").append(this.authorities).append("]");
 		return sb.toString();
 	}
 

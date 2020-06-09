@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -67,7 +66,6 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 			singleAttributeList.set(0, attribute);
 			for (AccessDecisionVoter voter : getDecisionVoters()) {
 				int result = voter.vote(authentication, object, singleAttributeList);
-				this.logger.debug(LogMessage.format("Voter: %s, returned: %s", voter, result));
 				switch (result) {
 				case AccessDecisionVoter.ACCESS_GRANTED:
 					grant++;

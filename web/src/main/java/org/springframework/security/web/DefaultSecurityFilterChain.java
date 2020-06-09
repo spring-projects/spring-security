@@ -48,7 +48,7 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 	}
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
-		logger.info(LogMessage.format("Creating filter chain: %s, %s", requestMatcher, filters));
+		logger.info(LogMessage.format("Will secure %s with %s", requestMatcher, filters));
 		this.requestMatcher = requestMatcher;
 		this.filters = new ArrayList<>(filters);
 	}
@@ -69,7 +69,8 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 
 	@Override
 	public String toString() {
-		return "[ " + this.requestMatcher + ", " + this.filters + "]";
+		return this.getClass().getSimpleName() + " [RequestMatcher=" + this.requestMatcher + ", Filters=" + this.filters
+				+ "]";
 	}
 
 }

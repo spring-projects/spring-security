@@ -130,6 +130,11 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 			return request.isSecure();
 		}
 
+		@Override
+		public String toString() {
+			return "Is Secure";
+		}
+
 	}
 
 }

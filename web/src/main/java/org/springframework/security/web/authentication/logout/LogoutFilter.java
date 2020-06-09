@@ -93,7 +93,9 @@ public class LogoutFilter extends GenericFilterBean {
 			throws IOException, ServletException {
 		if (requiresLogout(request, response)) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			this.logger.debug(LogMessage.format("Logging out user '%s' and transferring to logout destination", auth));
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Logging out [%s]", auth));
+			}
 			this.handler.logout(request, response, auth);
 			this.logoutSuccessHandler.onLogoutSuccess(request, response, auth);
 			return;
@@ -108,7 +110,13 @@ public class LogoutFilter extends GenericFilterBean {
 	 * @return <code>true</code> if logout should occur, <code>false</code> otherwise
 	 */
 	protected boolean requiresLogout(HttpServletRequest request, HttpServletResponse response) {
-		return this.logoutRequestMatcher.matches(request);
+		if (this.logoutRequestMatcher.matches(request)) {
+			return true;
+		}
+		if (this.logger.isTraceEnabled()) {
+			this.logger.trace(LogMessage.format("Did not match request to %s", this.logoutRequestMatcher));
+		}
+		return false;
 	}
 
 	public void setLogoutRequestMatcher(RequestMatcher logoutRequestMatcher) {

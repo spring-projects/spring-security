@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.core.log.LogMessage;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
@@ -204,31 +203,23 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 			httpRequestMediaTypes = this.contentNegotiationStrategy.resolveMediaTypes(new ServletWebRequest(request));
 		}
 		catch (HttpMediaTypeNotAcceptableException ex) {
-			this.logger.debug("Failed to parse MediaTypes, returning false", ex);
+			this.logger.debug("Failed to match request since failed to parse MediaTypes", ex);
 			return false;
 		}
-		this.logger.debug(LogMessage.format("httpRequestMediaTypes=%s", httpRequestMediaTypes));
 		for (MediaType httpRequestMediaType : httpRequestMediaTypes) {
-			this.logger.debug(LogMessage.format("Processing %s", httpRequestMediaType));
 			if (shouldIgnore(httpRequestMediaType)) {
-				this.logger.debug("Ignoring");
 				continue;
 			}
 			if (this.useEquals) {
-				boolean isEqualTo = this.matchingMediaTypes.contains(httpRequestMediaType);
-				this.logger.debug(LogMessage.format("isEqualTo %s", isEqualTo));
-				return isEqualTo;
+				return this.matchingMediaTypes.contains(httpRequestMediaType);
 			}
 			for (MediaType matchingMediaType : this.matchingMediaTypes) {
 				boolean isCompatibleWith = matchingMediaType.isCompatibleWith(httpRequestMediaType);
-				this.logger.debug(LogMessage.format("%s .isCompatibleWith %s = %s", matchingMediaType,
-						httpRequestMediaType, isCompatibleWith));
 				if (isCompatibleWith) {
 					return true;
 				}
 			}
 		}
-		this.logger.debug("Did not match any media types");
 		return false;
 	}
 

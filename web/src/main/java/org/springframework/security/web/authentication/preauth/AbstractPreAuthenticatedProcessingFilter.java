@@ -125,10 +125,18 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		this.logger.debug(LogMessage
-				.of(() -> "Checking secure context token: " + SecurityContextHolder.getContext().getAuthentication()));
 		if (this.requiresAuthenticationRequestMatcher.matches((HttpServletRequest) request)) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(LogMessage
+						.of(() -> "Authenticating " + SecurityContextHolder.getContext().getAuthentication()));
+			}
 			doAuthenticate((HttpServletRequest) request, (HttpServletResponse) response);
+		}
+		else {
+			if (logger.isTraceEnabled()) {
+				logger.trace(LogMessage.format("Did not authenticate since request did not match [%s]",
+						this.requiresAuthenticationRequestMatcher));
+			}
 		}
 		chain.doFilter(request, response);
 	}

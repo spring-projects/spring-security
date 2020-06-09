@@ -88,13 +88,19 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 			throws IOException, ServletException {
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
 			SecurityContextHolder.getContext().setAuthentication(createAuthentication((HttpServletRequest) req));
-			this.logger.debug(LogMessage.of(() -> "Populated SecurityContextHolder with anonymous token: '"
-					+ SecurityContextHolder.getContext().getAuthentication() + "'"));
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.of(() -> "Set SecurityContextHolder to "
+						+ SecurityContextHolder.getContext().getAuthentication()));
+			}
+			else {
+				this.logger.debug("Set SecurityContextHolder to anonymous SecurityContext");
+			}
 		}
 		else {
-			this.logger.debug(LogMessage
-					.of(() -> "SecurityContextHolder not populated with anonymous token, as it already contained: '"
-							+ SecurityContextHolder.getContext().getAuthentication() + "'"));
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.of(() -> "Did not set SecurityContextHolder since already authenticated "
+						+ SecurityContextHolder.getContext().getAuthentication()));
+			}
 		}
 		chain.doFilter(req, res);
 	}

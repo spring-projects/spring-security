@@ -33,7 +33,6 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
@@ -212,35 +211,35 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * @return true if the request is deemed to match this one.
 	 */
 	public boolean doesRequestMatch(HttpServletRequest request, PortResolver portResolver) {
-		if (!propertyEquals("pathInfo", this.pathInfo, request.getPathInfo())) {
+		if (!propertyEquals(this.pathInfo, request.getPathInfo())) {
 			return false;
 		}
-		if (!propertyEquals("queryString", this.queryString, request.getQueryString())) {
+		if (!propertyEquals(this.queryString, request.getQueryString())) {
 			return false;
 		}
-		if (!propertyEquals("requestURI", this.requestURI, request.getRequestURI())) {
+		if (!propertyEquals(this.requestURI, request.getRequestURI())) {
 			return false;
 		}
 		if (!"GET".equals(request.getMethod()) && "GET".equals(this.method)) {
 			// A save GET should not match an incoming non-GET method
 			return false;
 		}
-		if (!propertyEquals("serverPort", this.serverPort, portResolver.getServerPort(request))) {
+		if (!propertyEquals(this.serverPort, portResolver.getServerPort(request))) {
 			return false;
 		}
-		if (!propertyEquals("requestURL", this.requestURL, request.getRequestURL().toString())) {
+		if (!propertyEquals(this.requestURL, request.getRequestURL().toString())) {
 			return false;
 		}
-		if (!propertyEquals("scheme", this.scheme, request.getScheme())) {
+		if (!propertyEquals(this.scheme, request.getScheme())) {
 			return false;
 		}
-		if (!propertyEquals("serverName", this.serverName, request.getServerName())) {
+		if (!propertyEquals(this.serverName, request.getServerName())) {
 			return false;
 		}
-		if (!propertyEquals("contextPath", this.contextPath, request.getContextPath())) {
+		if (!propertyEquals(this.contextPath, request.getContextPath())) {
 			return false;
 		}
-		return propertyEquals("servletPath", this.servletPath, request.getServletPath());
+		return propertyEquals(this.servletPath, request.getServletPath());
 
 	}
 
@@ -334,26 +333,22 @@ public class DefaultSavedRequest implements SavedRequest {
 		return this.servletPath;
 	}
 
-	private boolean propertyEquals(String log, Object arg1, Object arg2) {
+	private boolean propertyEquals(Object arg1, Object arg2) {
 		if ((arg1 == null) && (arg2 == null)) {
-			logger.debug(LogMessage.format("%s: both null (property equals)", log));
 			return true;
 		}
 		if (arg1 == null || arg2 == null) {
-			logger.debug(LogMessage.format("%s: arg1=%s; arg2=%s (property not equals)", log, arg1, arg2));
 			return false;
 		}
 		if (arg1.equals(arg2)) {
-			logger.debug(LogMessage.format("%s: arg1=%s; arg2=%s (property equals)", log, arg1, arg2));
 			return true;
 		}
-		logger.debug(LogMessage.format("%s: arg1=%s; arg2=%s (property not equals)", log, arg1, arg2));
 		return false;
 	}
 
 	@Override
 	public String toString() {
-		return "DefaultSavedRequest[" + getRedirectUrl() + "]";
+		return "DefaultSavedRequest [" + getRedirectUrl() + "]";
 	}
 
 	/**

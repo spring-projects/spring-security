@@ -59,7 +59,10 @@ public class HttpSessionRequestCache implements RequestCache {
 	@Override
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
 		if (!this.requestMatcher.matches(request)) {
-			this.logger.debug("Request not saved as configured RequestMatcher did not match");
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(
+						LogMessage.format("Did not save request since it did not match [%s]", this.requestMatcher));
+			}
 			return;
 		}
 		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver);
@@ -68,7 +71,12 @@ public class HttpSessionRequestCache implements RequestCache {
 			// AbstractAuthenticationProcessingFilter
 			// for redirection after successful authentication (SEC-29)
 			request.getSession().setAttribute(this.sessionAttrName, savedRequest);
-			this.logger.debug(LogMessage.format("DefaultSavedRequest added to Session: %s", savedRequest));
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Saved request %s to session", savedRequest.getRedirectUrl()));
+			}
+		}
+		else {
+			this.logger.trace("Did not save request since there's no session and createSessionAllowed is false");
 		}
 	}
 
@@ -82,7 +90,7 @@ public class HttpSessionRequestCache implements RequestCache {
 	public void removeRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
 		if (session != null) {
-			this.logger.debug("Removing DefaultSavedRequest from session if present");
+			this.logger.trace("Removing DefaultSavedRequest from session if present");
 			session.removeAttribute(this.sessionAttrName);
 		}
 	}
@@ -90,18 +98,25 @@ public class HttpSessionRequestCache implements RequestCache {
 	@Override
 	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
 		SavedRequest saved = getRequest(request, response);
+		if (saved == null) {
+			this.logger.trace("No saved request");
+			return null;
+		}
 		if (!matchesSavedRequest(request, saved)) {
-			this.logger.debug("saved request doesn't match");
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.format("Did not match request %s to the saved one %s",
+						UrlUtils.buildRequestUrl(request), saved));
+			}
 			return null;
 		}
 		removeRequest(request, response);
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(LogMessage.format("Loaded matching saved request %s", saved.getRedirectUrl()));
+		}
 		return new SavedRequestAwareWrapper(saved, request);
 	}
 
 	private boolean matchesSavedRequest(HttpServletRequest request, SavedRequest savedRequest) {
-		if (savedRequest == null) {
-			return false;
-		}
 		if (savedRequest instanceof DefaultSavedRequest) {
 			DefaultSavedRequest defaultSavedRequest = (DefaultSavedRequest) savedRequest;
 			return defaultSavedRequest.doesRequestMatch(request, this.portResolver);

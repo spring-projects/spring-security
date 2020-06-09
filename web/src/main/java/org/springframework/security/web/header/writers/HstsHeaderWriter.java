@@ -150,8 +150,10 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (!this.requestMatcher.matches(request)) {
-			this.logger.debug(LogMessage.format(
-					"Not injecting HSTS header since it did not match the requestMatcher %s", this.requestMatcher));
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.format("Not injecting HSTS header since it did not match request to [%s]",
+						this.requestMatcher));
+			}
 			return;
 		}
 		if (!response.containsHeader(HSTS_HEADER_NAME)) {
@@ -243,6 +245,11 @@ public final class HstsHeaderWriter implements HeaderWriter {
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			return request.isSecure();
+		}
+
+		@Override
+		public String toString() {
+			return "Is Secure";
 		}
 
 	}

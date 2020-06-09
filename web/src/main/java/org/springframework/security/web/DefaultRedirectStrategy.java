@@ -53,7 +53,9 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 	public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url) throws IOException {
 		String redirectUrl = calculateRedirectUrl(request.getContextPath(), url);
 		redirectUrl = response.encodeRedirectURL(redirectUrl);
-		this.logger.debug(LogMessage.format("Redirecting to '%s'", redirectUrl));
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(LogMessage.format("Redirecting to %s", redirectUrl));
+		}
 		response.sendRedirect(redirectUrl);
 	}
 

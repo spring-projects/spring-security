@@ -72,8 +72,13 @@ public class CompositeSessionAuthenticationStrategy implements SessionAuthentica
 	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) throws SessionAuthenticationException {
+		int currentPosition = 0;
+		int size = this.delegateStrategies.size();
 		for (SessionAuthenticationStrategy delegate : this.delegateStrategies) {
-			this.logger.debug(LogMessage.format("Delegating to %s", delegate));
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.format("Preparing session with %s (%d/%d)",
+						delegate.getClass().getSimpleName(), ++currentPosition, size));
+			}
 			delegate.onAuthentication(authentication, request, response);
 		}
 	}

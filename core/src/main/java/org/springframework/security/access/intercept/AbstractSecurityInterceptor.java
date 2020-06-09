@@ -167,9 +167,13 @@ public abstract class AbstractSecurityInterceptor
 			}
 		}
 		if (unsupportedAttrs.size() != 0) {
+			this.logger
+					.trace("Did not validate configuration attributes since validateConfigurationAttributes is false");
 			throw new IllegalArgumentException("Unsupported configuration attributes: " + unsupportedAttrs);
 		}
-		this.logger.debug("Validated configuration attributes");
+		else {
+			this.logger.trace("Validated configuration attributes");
+		}
 	}
 
 	protected InterceptorStatusToken beforeInvocation(Object object) {
@@ -186,19 +190,25 @@ public abstract class AbstractSecurityInterceptor
 							+ " was denied as public invocations are not allowed via this interceptor. "
 							+ "This indicates a configuration error because the "
 							+ "rejectPublicInvocations property is set to 'true'");
-			this.logger.debug("Public object - authentication not attempted");
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Authorized public object %s", object));
+			}
 			publishEvent(new PublicInvocationEvent(object));
 			return null; // no further work post-invocation
 		}
-		this.logger.debug(LogMessage.format("Secure object: %s; Attributes: %s", object, attributes));
 		if (SecurityContextHolder.getContext().getAuthentication() == null) {
 			credentialsNotFound(this.messages.getMessage("AbstractSecurityInterceptor.authenticationNotFound",
 					"An Authentication object was not found in the SecurityContext"), object, attributes);
 		}
 		Authentication authenticated = authenticateIfRequired();
+		if (this.logger.isTraceEnabled()) {
+			this.logger.trace(LogMessage.format("Authorizing %s with attributes %s", object, attributes));
+		}
 		// Attempt authorization
 		attemptAuthorization(object, attributes, authenticated);
-		this.logger.debug("Authorization successful");
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(LogMessage.format("Authorized %s with attributes %s", object, attributes));
+		}
 		if (this.publishAuthorizationSuccess) {
 			publishEvent(new AuthorizedEvent(object, attributes, authenticated));
 		}
@@ -206,14 +216,17 @@ public abstract class AbstractSecurityInterceptor
 		// Attempt to run as a different user
 		Authentication runAs = this.runAsManager.buildRunAs(authenticated, object, attributes);
 		if (runAs != null) {
-			this.logger.debug(LogMessage.format("Switching to RunAs Authentication: %s", runAs));
 			SecurityContext origCtx = SecurityContextHolder.getContext();
 			SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
 			SecurityContextHolder.getContext().setAuthentication(runAs);
+
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Switched to RunAs authentication %s", runAs));
+			}
 			// need to revert to token.Authenticated post-invocation
 			return new InterceptorStatusToken(origCtx, true, attributes, object);
 		}
-		this.logger.debug("RunAsManager did not change Authentication object");
+		this.logger.trace("Did not switch RunAs authentication since RunAsManager returned null");
 		// no further work post-invocation
 		return new InterceptorStatusToken(SecurityContextHolder.getContext(), false, attributes, object);
 
@@ -225,6 +238,13 @@ public abstract class AbstractSecurityInterceptor
 			this.accessDecisionManager.decide(authenticated, object, attributes);
 		}
 		catch (AccessDeniedException ex) {
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.format("Failed to authorize %s with attributes %s using %s", object,
+						attributes, this.accessDecisionManager));
+			}
+			else if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Failed to authorize %s with attributes %s", object, attributes));
+			}
 			publishEvent(new AuthorizationFailureEvent(object, attributes, authenticated, ex));
 			throw ex;
 		}
@@ -239,9 +259,11 @@ public abstract class AbstractSecurityInterceptor
 	 */
 	protected void finallyInvocation(InterceptorStatusToken token) {
 		if (token != null && token.isContextHolderRefreshRequired()) {
-			this.logger.debug(LogMessage.of(
-					() -> "Reverting to original Authentication: " + token.getSecurityContext().getAuthentication()));
 			SecurityContextHolder.setContext(token.getSecurityContext());
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.of(
+						() -> "Reverted to original authentication " + token.getSecurityContext().getAuthentication()));
+			}
 		}
 	}
 
@@ -284,12 +306,16 @@ public abstract class AbstractSecurityInterceptor
 	private Authentication authenticateIfRequired() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication.isAuthenticated() && !this.alwaysReauthenticate) {
-			this.logger.debug(LogMessage.format("Previously Authenticated: %s", authentication));
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.format("Did not re-authenticate %s before authorizing", authentication));
+			}
 			return authentication;
 		}
 		authentication = this.authenticationManager.authenticate(authentication);
 		// Don't authenticated.setAuthentication(true) because each provider does that
-		this.logger.debug(LogMessage.format("Successfully Authenticated: %s", authentication));
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(LogMessage.format("Re-authenticated %s before authorizing", authentication));
+		}
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		return authentication;
 	}

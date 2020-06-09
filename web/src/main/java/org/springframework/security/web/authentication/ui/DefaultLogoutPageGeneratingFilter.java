@@ -26,6 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -50,6 +51,10 @@ public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 			renderLogout(request, response);
 		}
 		else {
+			if (logger.isTraceEnabled()) {
+				logger.trace(LogMessage.format("Did not render default logout page since request did not match [%s]",
+						this.matcher));
+			}
 			filterChain.doFilter(request, response);
 		}
 	}

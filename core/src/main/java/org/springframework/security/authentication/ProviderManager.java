@@ -168,11 +168,16 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		AuthenticationException parentException = null;
 		Authentication result = null;
 		Authentication parentResult = null;
+		int currentPosition = 0;
+		int size = this.providers.size();
 		for (AuthenticationProvider provider : getProviders()) {
 			if (!provider.supports(toTest)) {
 				continue;
 			}
-			logger.debug(LogMessage.format("Authentication attempt using %s", provider.getClass().getName()));
+			if (logger.isTraceEnabled()) {
+				logger.trace(LogMessage.format("Authenticating request with %s (%d/%d)",
+						provider.getClass().getSimpleName(), ++currentPosition, size));
+			}
 			try {
 				result = provider.authenticate(authentication);
 				if (result != null) {
@@ -220,6 +225,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			if (parentResult == null) {
 				this.eventPublisher.publishAuthenticationSuccess(result);
 			}
+
 			return result;
 		}
 

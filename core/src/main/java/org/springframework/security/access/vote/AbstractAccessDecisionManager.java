@@ -115,4 +115,10 @@ public abstract class AbstractAccessDecisionManager
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " [DecisionVoters=" + this.decisionVoters
+				+ ", AllowIfAllAbstainDecisions=" + this.allowIfAllAbstainDecisions + "]";
+	}
+
 }

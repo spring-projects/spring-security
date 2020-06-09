@@ -86,8 +86,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 			throws IOException, ServletException {
 		String targetUrl = determineTargetUrl(request, response, authentication);
 		if (response.isCommitted()) {
-			this.logger.debug(
-					LogMessage.format("Response has already been committed. Unable to redirect to %s", targetUrl));
+			this.logger.debug(LogMessage.format("Did not redirect to %s since response already committed.", targetUrl));
 			return;
 		}
 		this.redirectStrategy.sendRedirect(request, response, targetUrl);
@@ -114,17 +113,24 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		if (this.targetUrlParameter != null) {
 			targetUrl = request.getParameter(this.targetUrlParameter);
 			if (StringUtils.hasText(targetUrl)) {
-				this.logger.debug("Found targetUrlParameter in request: " + targetUrl);
+				if (this.logger.isTraceEnabled()) {
+					this.logger.trace(LogMessage.format("Using url %s from request parameter %s", targetUrl,
+							this.targetUrlParameter));
+				}
 				return targetUrl;
 			}
 		}
 		if (this.useReferer && !StringUtils.hasLength(targetUrl)) {
 			targetUrl = request.getHeader("Referer");
-			this.logger.debug("Using Referer header: " + targetUrl);
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.format("Using url %s from Referer header", targetUrl));
+			}
 		}
 		if (!StringUtils.hasText(targetUrl)) {
 			targetUrl = this.defaultTargetUrl;
-			this.logger.debug("Using default Url: " + targetUrl);
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.format("Using default url %s", targetUrl));
+			}
 		}
 		return targetUrl;
 	}

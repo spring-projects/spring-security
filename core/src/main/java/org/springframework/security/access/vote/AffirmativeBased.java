@@ -19,7 +19,6 @@ package org.springframework.security.access.vote;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -59,7 +58,6 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
 		int deny = 0;
 		for (AccessDecisionVoter voter : getDecisionVoters()) {
 			int result = voter.vote(authentication, object, configAttributes);
-			this.logger.debug(LogMessage.format("Voter: %s, returned: %s", voter, result));
 			switch (result) {
 			case AccessDecisionVoter.ACCESS_GRANTED:
 				return;

@@ -62,8 +62,10 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 		if (this.invalidateHttpSession) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
-				this.logger.debug(LogMessage.format("Invalidating session: %s", session.getId()));
 				session.invalidate();
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(LogMessage.format("Invalidated session %s", session.getId()));
+				}
 			}
 		}
 		if (this.clearAuthentication) {

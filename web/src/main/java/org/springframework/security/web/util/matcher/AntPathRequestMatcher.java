@@ -21,10 +21,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
@@ -56,8 +52,6 @@ import org.springframework.web.util.UrlPathHelper;
  * @see org.springframework.util.AntPathMatcher
  */
 public final class AntPathRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
-
-	private static final Log logger = LogFactory.getLog(AntPathRequestMatcher.class);
 
 	private static final String MATCH_ALL = "/**";
 
@@ -148,17 +142,12 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 	public boolean matches(HttpServletRequest request) {
 		if (this.httpMethod != null && StringUtils.hasText(request.getMethod())
 				&& this.httpMethod != valueOf(request.getMethod())) {
-			logger.debug(LogMessage.of(() -> "Request '" + request.getMethod() + " " + getRequestPath(request) + "'"
-					+ " doesn't match '" + this.httpMethod + " " + this.pattern + "'"));
 			return false;
 		}
 		if (this.pattern.equals(MATCH_ALL)) {
-			logger.debug(LogMessage
-					.of(() -> "Request '" + getRequestPath(request) + "' matched by universal pattern '/**'"));
 			return true;
 		}
 		String url = getRequestPath(request);
-		logger.debug(LogMessage.format("Checking match of request : '%s'; against '%s'", url, this.pattern));
 		return this.matcher.matches(url);
 	}
 

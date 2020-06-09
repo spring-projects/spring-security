@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Holds objects associated with a HTTP filter.
@@ -133,7 +134,12 @@ public class FilterInvocation {
 
 	@Override
 	public String toString() {
-		return "FilterInvocation: URL: " + getRequestUrl();
+		if (StringUtils.isEmpty(this.request.getMethod())) {
+			return "filter invocation [" + getRequestUrl() + "]";
+		}
+		else {
+			return "filter invocation [" + this.request.getMethod() + " " + getRequestUrl() + "]";
+		}
 	}
 
 	static class DummyRequest extends HttpServletRequestWrapper {

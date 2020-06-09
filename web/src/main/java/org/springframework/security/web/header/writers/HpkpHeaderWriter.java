@@ -438,6 +438,11 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 			return request.isSecure();
 		}
 
+		@Override
+		public String toString() {
+			return "Is Secure";
+		}
+
 	}
 
 }

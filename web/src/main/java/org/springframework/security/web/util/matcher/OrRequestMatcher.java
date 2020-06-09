@@ -21,10 +21,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
 /**
@@ -35,8 +31,6 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class OrRequestMatcher implements RequestMatcher {
-
-	private final Log logger = LogFactory.getLog(getClass());
 
 	private final List<RequestMatcher> requestMatchers;
 
@@ -61,19 +55,16 @@ public final class OrRequestMatcher implements RequestMatcher {
 	@Override
 	public boolean matches(HttpServletRequest request) {
 		for (RequestMatcher matcher : this.requestMatchers) {
-			this.logger.debug(LogMessage.format("Trying to match using %s", matcher));
 			if (matcher.matches(request)) {
-				this.logger.debug("matched");
 				return true;
 			}
 		}
-		this.logger.debug("No matches found");
 		return false;
 	}
 
 	@Override
 	public String toString() {
-		return "OrRequestMatcher [requestMatchers=" + this.requestMatchers + "]";
+		return "Or " + this.requestMatchers;
 	}
 
 }

@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 import org.springframework.web.util.WebUtils;
@@ -92,6 +93,11 @@ public abstract class AbstractSessionFixationProtectionStrategy
 			if (originalSessionId.equals(newSessionId)) {
 				this.logger.warn("Your servlet container did not change the session ID when a new session "
 						+ "was created. You will not be adequately protected against session-fixation attacks");
+			}
+			else {
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(LogMessage.format("Changed session id from %s", originalSessionId));
+				}
 			}
 			onSessionChange(originalSessionId, session, authentication);
 		}

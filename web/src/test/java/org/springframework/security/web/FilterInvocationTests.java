@@ -57,7 +57,7 @@ public class FilterInvocationTests {
 		assertThat(fi.getHttpResponse()).isEqualTo(response);
 		assertThat(fi.getChain()).isEqualTo(chain);
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld/some/more/segments.html");
-		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld/some/more/segments.html");
+		assertThat(fi.toString()).isEqualTo("filter invocation [/HelloWorld/some/more/segments.html]");
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld/some/more/segments.html");
 	}
 
@@ -93,7 +93,7 @@ public class FilterInvocationTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld?foo=bar");
-		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld?foo=bar");
+		assertThat(fi.toString()).isEqualTo("filter invocation [/HelloWorld?foo=bar]");
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld?foo=bar");
 	}
 
@@ -109,7 +109,7 @@ public class FilterInvocationTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld");
-		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld");
+		assertThat(fi.toString()).isEqualTo("filter invocation [/HelloWorld]");
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld");
 	}
 
