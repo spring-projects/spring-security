@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,13 +117,14 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 					.getAuthorizationExchange().getAuthorizationResponse();
 
 			if (authorizationResponse.statusError()) {
-				throw new OAuth2AuthenticationException(
-						authorizationResponse.getError(), authorizationResponse.getError().toString());
+				return Mono.error(new OAuth2AuthenticationException(
+						authorizationResponse.getError(), authorizationResponse.getError().toString()));
 			}
 
 			if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+				return Mono.error(new OAuth2AuthenticationException(
+						oauth2Error, oauth2Error.toString()));
 			}
 
 			OAuth2AuthorizationCodeGrantRequest authzRequest = new OAuth2AuthorizationCodeGrantRequest(
@@ -156,7 +157,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 					INVALID_ID_TOKEN_ERROR_CODE,
 					"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId(),
 					null);
-			throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString());
+			return Mono.error(new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString()));
 		}
 
 		return createOidcToken(clientRegistration, accessTokenResponse)

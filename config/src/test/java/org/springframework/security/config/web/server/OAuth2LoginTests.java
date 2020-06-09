@@ -16,12 +16,6 @@
 
 package org.springframework.security.config.web.server;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
@@ -67,12 +61,17 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-
 import org.springframework.web.server.WebHandler;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
@@ -299,6 +298,24 @@ public class OAuth2LoginTests {
 		public ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
 			return tokenResponseClient;
 		}
+	}
+
+	// gh-8609
+	@Test
+	public void oauth2LoginWhenAuthenticationConverterFailsThenDefaultRedirectToLogin() {
+		this.spring.register(OAuth2LoginWithMulitpleClientRegistrations.class).autowire();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(this.springSecurity)
+				.build();
+
+		webTestClient.get()
+				.uri("/login/oauth2/code/google")
+				.exchange()
+				.expectStatus()
+				.is3xxRedirection()
+				.expectHeader()
+				.valueEquals("Location", "/login?error");
 	}
 
 	static class GitHubWebFilter implements WebFilter {

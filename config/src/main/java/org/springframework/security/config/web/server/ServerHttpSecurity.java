@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -578,7 +580,12 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationConverter getAuthenticationConverter(ReactiveClientRegistrationRepository clientRegistrationRepository) {
 			if (this.authenticationConverter == null) {
-				this.authenticationConverter = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository);
+				ServerOAuth2AuthorizationCodeAuthenticationTokenConverter delegate =
+						new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository);
+				ServerAuthenticationConverter authenticationConverter = exchange ->
+						delegate.convert(exchange).onErrorMap(OAuth2AuthorizationException.class,
+								e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()));
+				this.authenticationConverter = authenticationConverter;
 			}
 			return this.authenticationConverter;
 		}
