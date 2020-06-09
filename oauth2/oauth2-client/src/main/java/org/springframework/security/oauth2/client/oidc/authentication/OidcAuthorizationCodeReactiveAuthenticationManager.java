@@ -121,13 +121,14 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 					.getAuthorizationExchange().getAuthorizationResponse();
 
 			if (authorizationResponse.statusError()) {
-				throw new OAuth2AuthenticationException(
-						authorizationResponse.getError(), authorizationResponse.getError().toString());
+				return Mono.error(new OAuth2AuthenticationException(
+						authorizationResponse.getError(), authorizationResponse.getError().toString()));
 			}
 
 			if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
-				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+				return Mono.error(new OAuth2AuthenticationException(
+						oauth2Error, oauth2Error.toString()));
 			}
 
 			OAuth2AuthorizationCodeGrantRequest authzRequest = new OAuth2AuthorizationCodeGrantRequest(
@@ -139,7 +140,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 					.onErrorMap(OAuth2AuthorizationException.class, e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()))
 					.onErrorMap(JwtException.class, e -> {
 						OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, e.getMessage(), null);
-						throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString(), e);
+						return new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString(), e);
 					});
 		});
 	}
@@ -178,7 +179,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements
 					INVALID_ID_TOKEN_ERROR_CODE,
 					"Missing (required) ID Token in Token Response for Client Registration: " + clientRegistration.getRegistrationId(),
 					null);
-			throw new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString());
+			return Mono.error(new OAuth2AuthenticationException(invalidIdTokenError, invalidIdTokenError.toString()));
 		}
 
 		return createOidcToken(clientRegistration, accessTokenResponse)

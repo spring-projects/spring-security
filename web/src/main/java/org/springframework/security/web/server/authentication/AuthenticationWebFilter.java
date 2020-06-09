@@ -109,24 +109,21 @@ public class AuthenticationWebFilter implements WebFilter {
 			.filter( matchResult -> matchResult.isMatch())
 			.flatMap( matchResult -> this.authenticationConverter.convert(exchange))
 			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-			.flatMap( token -> authenticate(exchange, chain, token));
+			.flatMap( token -> authenticate(exchange, chain, token))
+			.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
+					.onAuthenticationFailure(new WebFilterExchange(exchange, chain), e));
 	}
 
-	private Mono<Void> authenticate(ServerWebExchange exchange,
-		WebFilterChain chain, Authentication token) {
-		WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
-
+	private Mono<Void> authenticate(ServerWebExchange exchange, WebFilterChain chain, Authentication token) {
 		return this.authenticationManagerResolver.resolve(exchange)
 			.flatMap(authenticationManager -> authenticationManager.authenticate(token))
 			.switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
-			.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
+			.flatMap(authentication -> onAuthenticationSuccess(authentication, new WebFilterExchange(exchange, chain)))
 			.doOnError(AuthenticationException.class, e -> {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Authentication failed: " + e.getMessage());
 				}
-			})
-			.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
-				.onAuthenticationFailure(webFilterExchange, e));
+			});
 	}
 
 	protected Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
