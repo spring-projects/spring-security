@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,19 +106,16 @@ public class AuthenticationWebFilter implements WebFilter {
 			.filter( matchResult -> matchResult.isMatch())
 			.flatMap( matchResult -> this.authenticationConverter.convert(exchange))
 			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-			.flatMap( token -> authenticate(exchange, chain, token));
+			.flatMap( token -> authenticate(exchange, chain, token))
+			.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
+					.onAuthenticationFailure(new WebFilterExchange(exchange, chain), e));
 	}
 
-	private Mono<Void> authenticate(ServerWebExchange exchange,
-		WebFilterChain chain, Authentication token) {
-		WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
-
+	private Mono<Void> authenticate(ServerWebExchange exchange, WebFilterChain chain, Authentication token) {
 		return this.authenticationManagerResolver.resolve(exchange.getRequest())
 			.flatMap(authenticationManager -> authenticationManager.authenticate(token))
 			.switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
-			.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
-			.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
-				.onAuthenticationFailure(webFilterExchange, e));
+			.flatMap(authentication -> onAuthenticationSuccess(authentication, new WebFilterExchange(exchange, chain)));
 	}
 
 	protected Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {

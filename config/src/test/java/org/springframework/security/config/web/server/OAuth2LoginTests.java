@@ -103,7 +103,10 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
@@ -683,7 +686,6 @@ public class OAuth2LoginTests {
 		}
 	}
 
-
 	@Test
 	public void logoutWhenUsingOidcLogoutHandlerThenRedirects() {
 		this.spring.register(OAuth2LoginConfigWithOidcLogoutSuccessHandler.class).autowire();
@@ -737,6 +739,24 @@ public class OAuth2LoginTests {
 		ClientRegistration clientRegistration() {
 			return this.withLogout;
 		}
+	}
+
+	// gh-8609
+	@Test
+	public void oauth2LoginWhenAuthenticationConverterFailsThenDefaultRedirectToLogin() {
+		this.spring.register(OAuth2LoginWithMultipleClientRegistrations.class).autowire();
+
+		WebTestClient webTestClient = WebTestClientBuilder
+				.bindToWebFilters(this.springSecurity)
+				.build();
+
+		webTestClient.get()
+				.uri("/login/oauth2/code/google")
+				.exchange()
+				.expectStatus()
+				.is3xxRedirection()
+				.expectHeader()
+				.valueEquals("Location", "/login?error");
 	}
 
 	static class GitHubWebFilter implements WebFilter {
