@@ -29,6 +29,9 @@ import org.springframework.security.oauth2.client.authentication.TestOAuth2Autho
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
@@ -45,6 +48,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -277,6 +281,65 @@ public class OAuth2AuthorizationCodeGrantWebFilterTests {
 
 		verify(requestCache).getRedirectUri(exchange);
 		assertThat(exchange.getResponse().getHeaders().getLocation().toString()).isEqualTo("/saved-request");
+	}
+
+	// gh-8609
+	@Test
+	public void filterWhenAuthenticationConverterThrowsOAuth2AuthorizationExceptionThenMappedToOAuth2AuthenticationException() {
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(Mono.empty());
+
+		MockServerHttpRequest authorizationRequest =
+				createAuthorizationRequest("/authorization/callback");
+		OAuth2AuthorizationRequest oauth2AuthorizationRequest =
+				createOAuth2AuthorizationRequest(authorizationRequest, clientRegistration);
+		when(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
+				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+		when(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
+				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+
+		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
+		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
+		DefaultWebFilterChain chain = new DefaultWebFilterChain(
+				e -> e.getResponse().setComplete(), Collections.emptyList());
+
+		assertThatThrownBy(() -> this.filter.filter(exchange, chain).block())
+				.isInstanceOf(OAuth2AuthenticationException.class)
+				.extracting(ex -> ((OAuth2AuthenticationException) ex).getError())
+				.extracting("errorCode")
+				.isEqualTo("client_registration_not_found");
+		verifyNoInteractions(this.authenticationManager);
+	}
+
+	// gh-8609
+	@Test
+	public void filterWhenAuthenticationManagerThrowsOAuth2AuthorizationExceptionThenMappedToOAuth2AuthenticationException() {
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		when(this.clientRegistrationRepository.findByRegistrationId(any()))
+				.thenReturn(Mono.just(clientRegistration));
+
+		MockServerHttpRequest authorizationRequest =
+				createAuthorizationRequest("/authorization/callback");
+		OAuth2AuthorizationRequest oauth2AuthorizationRequest =
+				createOAuth2AuthorizationRequest(authorizationRequest, clientRegistration);
+		when(this.authorizationRequestRepository.loadAuthorizationRequest(any()))
+				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+		when(this.authorizationRequestRepository.removeAuthorizationRequest(any()))
+				.thenReturn(Mono.just(oauth2AuthorizationRequest));
+
+		when(this.authenticationManager.authenticate(any()))
+				.thenReturn(Mono.error(new OAuth2AuthorizationException(new OAuth2Error("authorization_error"))));
+
+		MockServerHttpRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
+		MockServerWebExchange exchange = MockServerWebExchange.from(authorizationResponse);
+		DefaultWebFilterChain chain = new DefaultWebFilterChain(
+				e -> e.getResponse().setComplete(), Collections.emptyList());
+
+		assertThatThrownBy(() -> this.filter.filter(exchange, chain).block())
+				.isInstanceOf(OAuth2AuthenticationException.class)
+				.extracting(ex -> ((OAuth2AuthenticationException) ex).getError())
+				.extracting("errorCode")
+				.isEqualTo("authorization_error");
 	}
 
 	private static OAuth2AuthorizationRequest createOAuth2AuthorizationRequest(

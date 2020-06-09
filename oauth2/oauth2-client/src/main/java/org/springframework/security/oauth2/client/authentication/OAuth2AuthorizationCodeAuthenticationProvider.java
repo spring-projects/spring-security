@@ -20,7 +20,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.util.Assert;
 
 /**
@@ -40,6 +44,7 @@ import org.springframework.util.Assert;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response</a>
  */
 public class OAuth2AuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
+	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
 	/**
@@ -59,8 +64,18 @@ public class OAuth2AuthorizationCodeAuthenticationProvider implements Authentica
 		OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
 			(OAuth2AuthorizationCodeAuthenticationToken) authentication;
 
-		OAuth2AuthorizationExchangeValidator.validate(
-			authorizationCodeAuthentication.getAuthorizationExchange());
+		OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication
+				.getAuthorizationExchange().getAuthorizationResponse();
+		if (authorizationResponse.statusError()) {
+			throw new OAuth2AuthorizationException(authorizationResponse.getError());
+		}
+
+		OAuth2AuthorizationRequest authorizationRequest = authorizationCodeAuthentication
+				.getAuthorizationExchange().getAuthorizationRequest();
+		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
+			throw new OAuth2AuthorizationException(oauth2Error);
+		}
 
 		OAuth2AccessTokenResponse accessTokenResponse =
 			this.accessTokenResponseClient.getTokenResponse(
