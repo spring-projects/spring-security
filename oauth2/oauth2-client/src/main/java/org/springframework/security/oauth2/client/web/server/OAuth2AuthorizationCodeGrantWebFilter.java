@@ -27,6 +27,8 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -146,15 +148,21 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return this.requiresAuthenticationMatcher.matches(exchange)
 				.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
-				.flatMap(matchResult -> this.authenticationConverter.convert(exchange))
+				.flatMap(matchResult ->
+						this.authenticationConverter.convert(exchange)
+								.onErrorMap(OAuth2AuthorizationException.class, e -> new OAuth2AuthenticationException(
+										e.getError(), e.getError().toString())))
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-				.flatMap(token -> authenticate(exchange, chain, token));
+				.flatMap(token -> authenticate(exchange, chain, token))
+				.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
+						.onAuthenticationFailure(new WebFilterExchange(exchange, chain), e));
 	}
 
-	private Mono<Void> authenticate(ServerWebExchange exchange,
-			WebFilterChain chain, Authentication token) {
+	private Mono<Void> authenticate(ServerWebExchange exchange, WebFilterChain chain, Authentication token) {
 		WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 		return this.authenticationManager.authenticate(token)
+				.onErrorMap(OAuth2AuthorizationException.class, e -> new OAuth2AuthenticationException(
+						e.getError(), e.getError().toString()))
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
 				.flatMap(authentication -> onAuthenticationSuccess(authentication, webFilterExchange))
 				.onErrorResume(AuthenticationException.class, e -> this.authenticationFailureHandler
