@@ -72,7 +72,7 @@ Columns include the ID, a foreign key to the ACL_CLASS table, a unique identifie
 We have a single row for every domain object instance we're storing ACL permissions for.
 
 * Finally, ACL_ENTRY stores the individual permissions assigned to each recipient.
-Columns include a foreign key to the ACL_OBJECT_IDENTITY, the recipient (ie a foreign key to ACL_SID), whether we'll be auditing or not, and the integer bit mask that represents the actual permission being granted or denied.
+Columns include a foreign key to the ACL_OBJECT_IDENTITY, the recipient (i.e. a foreign key to ACL_SID), whether we'll be auditing or not, and the integer bit mask that represents the actual permission being granted or denied.
 We have a single row for every recipient that receives a permission to work with a domain object.
 
 
@@ -113,7 +113,7 @@ The default implementation is called `ObjectIdentityImpl`.
 
 * `AclService`: Retrieves the `Acl` applicable for a given `ObjectIdentity`.
 In the included implementation (`JdbcAclService`), retrieval operations are delegated to a `LookupStrategy`.
-The `LookupStrategy` provides a highly optimized strategy for retrieving ACL information, using batched retrievals `(BasicLookupStrategy`) and supporting custom implementations that leverage materialized views, hierarchical queries and similar performance-centric, non-ANSI SQL capabilities.
+The `LookupStrategy` provides a highly optimized strategy for retrieving ACL information, using batched retrievals (`BasicLookupStrategy`) and supporting custom implementations that leverage materialized views, hierarchical queries and similar performance-centric, non-ANSI SQL capabilities.
 
 * `MutableAclService`: Allows a modified `Acl` to be presented for persistence.
 It is not essential to use this interface if you do not wish.
@@ -141,7 +141,7 @@ You'll also need to populate the database with the four ACL-specific tables list
 Once you've created the required schema and instantiated `JdbcMutableAclService`, you'll next need to ensure your domain model supports interoperability with the Spring Security ACL package.
 Hopefully `ObjectIdentityImpl` will prove sufficient, as it provides a large number of ways in which it can be used.
 Most people will have domain objects that contain a `public Serializable getId()` method.
-If the return type is long, or compatible with long (eg an int), you will find you need not give further consideration to `ObjectIdentity` issues.
+If the return type is long, or compatible with long (e.g. an int), you will find you need not give further consideration to `ObjectIdentity` issues.
 Many parts of the ACL module rely on long identifiers.
 If you're not using long (or an int, byte etc), there is a very good chance you'll need to reimplement a number of classes.
 We do not intend to support non-long identifiers in Spring Security's ACL module, as longs are already compatible with all database sequences, the most common identifier data type, and are of sufficient length to accommodate all common usage scenarios.

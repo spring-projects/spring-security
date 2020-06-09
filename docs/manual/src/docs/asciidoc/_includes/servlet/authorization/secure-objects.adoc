@@ -140,4 +140,4 @@ A bean declaration which achieves this is shown below:
 
 
 That's it!
-Now you can create your beans from anywhere within your application, using whatever means you think fit (eg `new Person();`) and they will have the security interceptor applied.
+Now you can create your beans from anywhere within your application, using whatever means you think fit (e.g. `new Person();`) and they will have the security interceptor applied.
