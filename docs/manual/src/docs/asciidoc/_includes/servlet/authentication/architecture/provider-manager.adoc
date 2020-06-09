@@ -6,7 +6,7 @@
 `ProviderManager` delegates to a `List` of <<servlet-authentication-authenticationprovider,``AuthenticationProvider``s>>.
 // FIXME: link to AuthenticationProvider
 Each `AuthenticationProvider` has an opportunity to indicate that authentication should be successful, fail, or indicate it cannot make a decision and allow a downstream `AuthenticationProvider` to decide.
-If none of the configured ``AuthenticationProvider``s can authenticate, then authentication will fail with a `ProviderNotFoundException` which is a special `AuthenticationException` that indicates the `ProviderManager` was not configured support the type of `Authentication` that was passed into it.
+If none of the configured ``AuthenticationProvider``s can authenticate, then authentication will fail with a `ProviderNotFoundException` which is a special `AuthenticationException` that indicates the `ProviderManager` was not configured to support the type of `Authentication` that was passed into it.
 
 image::{figures}/providermanager.png[]
 
