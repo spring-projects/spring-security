@@ -17,11 +17,13 @@ package org.springframework.security.test.web.servlet.request;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.CsrfRequestPostProcessor;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -92,7 +94,8 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 				.defaultRequest(MockMvcRequestBuilders.get("/").with(postProcessor))
 				.build();
 
-		mockMvc.perform(logout());
+		MvcResult mvcResult = mockMvc.perform(logout()).andReturn();
+		assertThat(mvcResult.getRequest().getMethod()).isEqualTo(HttpMethod.POST.name());
 
 		verify(postProcessor).postProcessRequest(any());
 	}
