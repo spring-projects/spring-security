@@ -1034,6 +1034,10 @@ frame-options.attlist &=
 	attribute value {xsd:string}?
 frame-options.attlist &=
 	## Specify the request parameter to use for the origin when using a 'whitelist' or 'regexp' based strategy. Default is 'from'.
+	## Deprecated ALLOW-FROM is an obsolete directive that no longer works in modern browsers. Instead use
+	## Content-Security-Policy with the
+	## <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
+	## directive.
 	attribute from-parameter {xsd:string}?
 
 

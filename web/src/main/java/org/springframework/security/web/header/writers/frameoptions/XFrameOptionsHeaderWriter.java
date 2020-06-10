@@ -68,7 +68,13 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	 *
 	 * @param allowFromStrategy the strategy for determining what the value for ALLOW_FROM
 	 * is.
+	 *
+	 * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern browsers. Instead use
+	 * Content-Security-Policy with the
+	 * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
+	 * directive.
 	 */
+	@Deprecated
 	public XFrameOptionsHeaderWriter(AllowFromStrategy allowFromStrategy) {
 		Assert.notNull(allowFromStrategy, "allowFromStrategy cannot be null");
 		this.frameOptionsMode = XFrameOptionsMode.ALLOW_FROM;
@@ -107,7 +113,15 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	 * @since 3.2
 	 */
 	public enum XFrameOptionsMode {
-		DENY("DENY"), SAMEORIGIN("SAMEORIGIN"), ALLOW_FROM("ALLOW-FROM");
+		DENY("DENY"), SAMEORIGIN("SAMEORIGIN"),
+		/**
+		 * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern browsers. Instead use
+		 * Content-Security-Policy with the
+		 * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
+		 * directive.
+		 */
+		@Deprecated
+		ALLOW_FROM("ALLOW-FROM");
 
 		private String mode;
 
