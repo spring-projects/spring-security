@@ -98,23 +98,23 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final List<String> FORBIDDEN_BACKSLASH = Collections.unmodifiableList(Arrays.asList("\\", "%5c", "%5C"));
 
-	private Set<String> encodedUrlBlacklist = new HashSet<>();
+	private Set<String> encodedUrlBlocklist = new HashSet<>();
 
-	private Set<String> decodedUrlBlacklist = new HashSet<>();
+	private Set<String> decodedUrlBlocklist = new HashSet<>();
 
 	private Set<String> allowedHttpMethods = createDefaultAllowedHttpMethods();
 
 	private Predicate<String> allowedHostnames = hostname -> true;
 
 	public StrictHttpFirewall() {
-		urlBlacklistsAddAll(FORBIDDEN_SEMICOLON);
-		urlBlacklistsAddAll(FORBIDDEN_FORWARDSLASH);
-		urlBlacklistsAddAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
-		urlBlacklistsAddAll(FORBIDDEN_BACKSLASH);
+		urlBlocklistsAddAll(FORBIDDEN_SEMICOLON);
+		urlBlocklistsAddAll(FORBIDDEN_FORWARDSLASH);
+		urlBlocklistsAddAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
+		urlBlocklistsAddAll(FORBIDDEN_BACKSLASH);
 
-		this.encodedUrlBlacklist.add(ENCODED_PERCENT);
-		this.encodedUrlBlacklist.addAll(FORBIDDEN_ENCODED_PERIOD);
-		this.decodedUrlBlacklist.add(PERCENT);
+		this.encodedUrlBlocklist.add(ENCODED_PERCENT);
+		this.encodedUrlBlocklist.addAll(FORBIDDEN_ENCODED_PERIOD);
+		this.decodedUrlBlocklist.add(PERCENT);
 	}
 
 	/**
@@ -185,9 +185,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 */
 	public void setAllowSemicolon(boolean allowSemicolon) {
 		if (allowSemicolon) {
-			urlBlacklistsRemoveAll(FORBIDDEN_SEMICOLON);
+			urlBlocklistsRemoveAll(FORBIDDEN_SEMICOLON);
 		} else {
-			urlBlacklistsAddAll(FORBIDDEN_SEMICOLON);
+			urlBlocklistsAddAll(FORBIDDEN_SEMICOLON);
 		}
 	}
 
@@ -208,9 +208,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 */
 	public void setAllowUrlEncodedSlash(boolean allowUrlEncodedSlash) {
 		if (allowUrlEncodedSlash) {
-			urlBlacklistsRemoveAll(FORBIDDEN_FORWARDSLASH);
+			urlBlocklistsRemoveAll(FORBIDDEN_FORWARDSLASH);
 		} else {
-			urlBlacklistsAddAll(FORBIDDEN_FORWARDSLASH);
+			urlBlocklistsAddAll(FORBIDDEN_FORWARDSLASH);
 		}
 	}
 
@@ -225,9 +225,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 */
 	public void setAllowUrlEncodedDoubleSlash(boolean allowUrlEncodedDoubleSlash) {
 		if (allowUrlEncodedDoubleSlash) {
-			urlBlacklistsRemoveAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
+			urlBlocklistsRemoveAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
 		} else {
-			urlBlacklistsAddAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
+			urlBlocklistsAddAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
 		}
 	}
 
@@ -250,9 +250,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 */
 	public void setAllowUrlEncodedPeriod(boolean allowUrlEncodedPeriod) {
 		if (allowUrlEncodedPeriod) {
-			this.encodedUrlBlacklist.removeAll(FORBIDDEN_ENCODED_PERIOD);
+			this.encodedUrlBlocklist.removeAll(FORBIDDEN_ENCODED_PERIOD);
 		} else {
-			this.encodedUrlBlacklist.addAll(FORBIDDEN_ENCODED_PERIOD);
+			this.encodedUrlBlocklist.addAll(FORBIDDEN_ENCODED_PERIOD);
 		}
 	}
 
@@ -275,9 +275,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 */
 	public void setAllowBackSlash(boolean allowBackSlash) {
 		if (allowBackSlash) {
-			urlBlacklistsRemoveAll(FORBIDDEN_BACKSLASH);
+			urlBlocklistsRemoveAll(FORBIDDEN_BACKSLASH);
 		} else {
-			urlBlacklistsAddAll(FORBIDDEN_BACKSLASH);
+			urlBlocklistsAddAll(FORBIDDEN_BACKSLASH);
 		}
 	}
 
@@ -297,11 +297,11 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 */
 	public void setAllowUrlEncodedPercent(boolean allowUrlEncodedPercent) {
 		if (allowUrlEncodedPercent) {
-			this.encodedUrlBlacklist.remove(ENCODED_PERCENT);
-			this.decodedUrlBlacklist.remove(PERCENT);
+			this.encodedUrlBlocklist.remove(ENCODED_PERCENT);
+			this.decodedUrlBlocklist.remove(PERCENT);
 		} else {
-			this.encodedUrlBlacklist.add(ENCODED_PERCENT);
-			this.decodedUrlBlacklist.add(PERCENT);
+			this.encodedUrlBlocklist.add(ENCODED_PERCENT);
+			this.decodedUrlBlocklist.add(PERCENT);
 		}
 	}
 
@@ -320,20 +320,20 @@ public class StrictHttpFirewall implements HttpFirewall {
 		this.allowedHostnames = allowedHostnames;
 	}
 
-	private void urlBlacklistsAddAll(Collection<String> values) {
-		this.encodedUrlBlacklist.addAll(values);
-		this.decodedUrlBlacklist.addAll(values);
+	private void urlBlocklistsAddAll(Collection<String> values) {
+		this.encodedUrlBlocklist.addAll(values);
+		this.decodedUrlBlocklist.addAll(values);
 	}
 
-	private void urlBlacklistsRemoveAll(Collection<String> values) {
-		this.encodedUrlBlacklist.removeAll(values);
-		this.decodedUrlBlacklist.removeAll(values);
+	private void urlBlocklistsRemoveAll(Collection<String> values) {
+		this.encodedUrlBlocklist.removeAll(values);
+		this.decodedUrlBlocklist.removeAll(values);
 	}
 
 	@Override
 	public FirewalledRequest getFirewalledRequest(HttpServletRequest request) throws RequestRejectedException {
 		rejectForbiddenHttpMethod(request);
-		rejectedBlacklistedUrls(request);
+		rejectedBlocklistedUrls(request);
 		rejectedUntrustedHosts(request);
 
 		if (!isNormalized(request)) {
@@ -363,13 +363,13 @@ public class StrictHttpFirewall implements HttpFirewall {
 		}
 	}
 
-	private void rejectedBlacklistedUrls(HttpServletRequest request) {
-		for (String forbidden : this.encodedUrlBlacklist) {
+	private void rejectedBlocklistedUrls(HttpServletRequest request) {
+		for (String forbidden : this.encodedUrlBlocklist) {
 			if (encodedUrlContains(request, forbidden)) {
 				throw new RequestRejectedException("The request was rejected because the URL contained a potentially malicious String \"" + forbidden + "\"");
 			}
 		}
-		for (String forbidden : this.decodedUrlBlacklist) {
+		for (String forbidden : this.decodedUrlBlocklist) {
 			if (decodedUrlContains(request, forbidden)) {
 				throw new RequestRejectedException("The request was rejected because the URL contained a potentially malicious String \"" + forbidden + "\"");
 			}
@@ -481,20 +481,41 @@ public class StrictHttpFirewall implements HttpFirewall {
 	}
 
 	/**
-	 * Provides the existing encoded url blacklist which can add/remove entries from
+	 * Provides the existing encoded url blocklist which can add/remove entries from
 	 *
-	 * @return the existing encoded url blacklist, never null
+	 * @return the existing encoded url blocklist, never null
 	 */
-	public Set<String> getEncodedUrlBlacklist() {
-		return encodedUrlBlacklist;
+	public Set<String> getEncodedUrlBlocklist() {
+		return this.encodedUrlBlocklist;
 	}
 
 	/**
-	 * Provides the existing decoded url blacklist which can add/remove entries from
+	 * Provides the existing decoded url blocklist which can add/remove entries from
 	 *
-	 * @return the existing decoded url blacklist, never null
+	 * @return the existing decoded url blocklist, never null
+	 */
+	public Set<String> getDecodedUrlBlocklist() {
+		return this.decodedUrlBlocklist;
+	}
+
+	/**
+	 * Provides the existing encoded url blocklist which can add/remove entries from
+	 *
+	 * @return the existing encoded url blocklist, never null
+	 * @deprecated Use {@link #getEncodedUrlBlocklist()} instead
+	 */
+	@Deprecated
+	public Set<String> getEncodedUrlBlacklist() {
+		return getEncodedUrlBlocklist();
+	}
+
+	/**
+	 * Provides the existing decoded url blocklist which can add/remove entries from
+	 *
+	 * @return the existing decoded url blocklist, never null
+	 *
 	 */
 	public Set<String> getDecodedUrlBlacklist() {
-		return decodedUrlBlacklist;
+		return getDecodedUrlBlocklist();
 	}
 }

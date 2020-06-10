@@ -522,6 +522,52 @@ public class StrictHttpFirewallTests {
 		assertThatCode(() -> this.firewall.getFirewalledRequest(request)).doesNotThrowAnyException();
 	}
 
+	// blocklist
+
+	@Test
+	public void getFirewalledRequestWhenRemoveFromUpperCaseEncodedUrlBlocklistThenNoException() {
+		this.firewall.setAllowUrlEncodedSlash(true);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setRequestURI("/context-root/a/b%2F%2Fc");
+		this.firewall.getEncodedUrlBlocklist().removeAll(Arrays.asList("%2F%2F"));
+		assertThatCode(() -> this.firewall.getFirewalledRequest(request)).doesNotThrowAnyException();
+	}
+
+	@Test
+	public void getFirewalledRequestWhenRemoveFromLowerCaseEncodedUrlBlocklistThenNoException() {
+		this.firewall.setAllowUrlEncodedSlash(true);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setRequestURI("/context-root/a/b%2f%2fc");
+		this.firewall.getEncodedUrlBlocklist().removeAll(Arrays.asList("%2f%2f"));
+		assertThatCode(() -> this.firewall.getFirewalledRequest(request)).doesNotThrowAnyException();
+	}
+
+	@Test
+	public void getFirewalledRequestWhenRemoveFromLowerCaseAndUpperCaseEncodedUrlBlocklistThenNoException() {
+		this.firewall.setAllowUrlEncodedSlash(true);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setRequestURI("/context-root/a/b%2f%2Fc");
+		this.firewall.getEncodedUrlBlocklist().removeAll(Arrays.asList("%2f%2F"));
+		assertThatCode(() -> this.firewall.getFirewalledRequest(request)).doesNotThrowAnyException();
+	}
+
+	@Test
+	public void getFirewalledRequestWhenRemoveFromUpperCaseAndLowerCaseEncodedUrlBlocklistThenNoException() {
+		this.firewall.setAllowUrlEncodedSlash(true);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setRequestURI("/context-root/a/b%2F%2fc");
+		this.firewall.getEncodedUrlBlocklist().removeAll(Arrays.asList("%2F%2f"));
+		assertThatCode(() -> this.firewall.getFirewalledRequest(request)).doesNotThrowAnyException();
+	}
+
+	@Test
+	public void getFirewalledRequestWhenRemoveFromDecodedUrlBlocklistThenNoException() {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		request.setPathInfo("/a/b//c");
+		this.firewall.getDecodedUrlBlocklist().removeAll(Arrays.asList("//"));
+		assertThatCode(() -> this.firewall.getFirewalledRequest(request)).doesNotThrowAnyException();
+	}
+
 	@Test
 	public void getFirewalledRequestWhenTrustedDomainThenNoException() {
 		this.request.addHeader("Host", "example.org");
