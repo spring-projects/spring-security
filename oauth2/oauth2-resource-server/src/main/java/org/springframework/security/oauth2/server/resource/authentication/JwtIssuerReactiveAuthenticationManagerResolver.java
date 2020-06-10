@@ -48,7 +48,7 @@ import org.springframework.web.server.ServerWebExchange;
  *
  * To use, this class must be able to determine whether or not the `iss` claim is trusted. Recall that
  * anyone can stand up an authorization server and issue valid tokens to a resource server. The simplest way
- * to achieve this is to supply a whitelist of trusted issuers in the constructor.
+ * to achieve this is to supply a list of trusted issuers in the constructor.
  *
  * This class derives the Issuer from the `iss` claim found in the {@link ServerWebExchange}'s
  * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>.
@@ -66,7 +66,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the provided parameters
 	 *
-	 * @param trustedIssuers a whitelist of trusted issuers
+	 * @param trustedIssuers a list of trusted issuers
 	 */
 	public JwtIssuerReactiveAuthenticationManagerResolver(String... trustedIssuers) {
 		this(Arrays.asList(trustedIssuers));
@@ -75,7 +75,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the provided parameters
 	 *
-	 * @param trustedIssuers a whitelist of trusted issuers
+	 * @param trustedIssuers a collection of trusted issuers
 	 */
 	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
@@ -87,7 +87,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the provided parameters
 	 *
 	 * Note that the {@link ReactiveAuthenticationManagerResolver} provided in this constructor will need to
-	 * verify that the issuer is trusted. This should be done via a whitelist.
+	 * verify that the issuer is trusted. This should be done via an allowed list of issuers.
 	 *
 	 * One way to achieve this is with a {@link Map} where the keys are the known issuers:
 	 * <pre>
@@ -98,7 +98,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 *     	(issuer -> Mono.justOrEmpty(authenticationManagers.get(issuer));
 	 * </pre>
 	 *
-	 * The keys in the {@link Map} are the whitelist.
+	 * The keys in the {@link Map} are the trusted issuers.
 	 *
 	 * @param issuerAuthenticationManagerResolver a strategy for resolving the {@link ReactiveAuthenticationManager}
 	 * by the issuer

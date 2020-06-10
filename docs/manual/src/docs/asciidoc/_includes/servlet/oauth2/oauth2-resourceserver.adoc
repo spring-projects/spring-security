@@ -1857,7 +1857,7 @@ In this case, you construct `JwtIssuerAuthenticationManagerResolver` with a stra
 This approach allows us to add and remove elements from the repository (shown as a `Map` in the snippet) at runtime.
 
 NOTE: It would be unsafe to simply take any issuer and construct an `AuthenticationManager` from it.
-The issuer should be one that the code can verify from a trusted source like a whitelist.
+The issuer should be one that the code can verify from a trusted source like a list of allowed issuers.
 
 ===== Parsing the Claim Only Once
 
@@ -1907,7 +1907,7 @@ public class TenantJWSKeySelector
 ----
 <1> A hypothetical source for tenant information
 <2> A cache for `JWKKeySelector`s, keyed by tenant identifier
-<3> Looking up the tenant is more secure than simply calculating the JWK Set endpoint on the fly - the lookup acts as a tenant whitelist
+<3> Looking up the tenant is more secure than simply calculating the JWK Set endpoint on the fly - the lookup acts as a list of allowed tenants
 <4> Create a `JWSKeySelector` via the types of keys that come back from the JWK Set endpoint - the lazy lookup here means that you don't need to configure all tenants at startup
 
 The above key selector is a composition of many key selectors.

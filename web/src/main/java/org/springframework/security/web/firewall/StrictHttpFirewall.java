@@ -358,7 +358,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		if (!this.allowedHttpMethods.contains(request.getMethod())) {
 			throw new RequestRejectedException("The request was rejected because the HTTP method \"" +
 					request.getMethod() +
-					"\" was not included within the whitelist " +
+					"\" was not included within the list of allowed HTTP methods " +
 					this.allowedHttpMethods);
 		}
 	}
