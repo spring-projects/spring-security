@@ -104,6 +104,7 @@ import org.springframework.security.web.authentication.preauth.x509.SubjectDnX50
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
+import org.springframework.security.web.server.ExchangeMatcherRedirectWebFilter;
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
@@ -260,6 +261,8 @@ public class ServerHttpSecurity {
 	private ExceptionHandlingSpec exceptionHandling = new ExceptionHandlingSpec();
 
 	private HttpBasicSpec httpBasic;
+
+	private PasswordManagementSpec passwordManagement;
 
 	private X509Spec x509;
 
@@ -680,6 +683,56 @@ public class ServerHttpSecurity {
 			this.httpBasic = new HttpBasicSpec();
 		}
 		httpBasicCustomizer.customize(this.httpBasic);
+		return this;
+	}
+
+	/**
+	 * Configures password management. An example configuration is provided below:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	 *      http
+	 *          // ...
+	 *          .passwordManagement();
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 * @return the {@link PasswordManagementSpec} to customize
+	 * @since 5.6
+	 */
+	public PasswordManagementSpec passwordManagement() {
+		if (this.passwordManagement == null) {
+			this.passwordManagement = new PasswordManagementSpec();
+		}
+		return this.passwordManagement;
+	}
+
+	/**
+	 * Configures password management. An example configuration is provided below:
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	 *      http
+	 *          // ...
+	 *          .passwordManagement(passwordManagement ->
+	 *          	// Custom change password page.
+	 *          	passwordManagement.changePasswordPage("/custom-change-password-page")
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 * @param passwordManagementCustomizer the {@link Customizer} to provide more options
+	 * for the {@link PasswordManagementSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @since 5.6
+	 */
+	public ServerHttpSecurity passwordManagement(Customizer<PasswordManagementSpec> passwordManagementCustomizer) {
+		if (this.passwordManagement == null) {
+			this.passwordManagement = new PasswordManagementSpec();
+		}
+		passwordManagementCustomizer.customize(this.passwordManagement);
 		return this;
 	}
 
@@ -1348,6 +1401,9 @@ public class ServerHttpSecurity {
 			}
 			this.httpBasic.configure(this);
 		}
+		if (this.passwordManagement != null) {
+			this.passwordManagement.configure(this);
+		}
 		if (this.formLogin != null) {
 			if (this.formLogin.authenticationManager == null) {
 				this.formLogin.authenticationManager(this.authenticationManager);
@@ -2014,6 +2070,53 @@ public class ServerHttpSecurity {
 			authenticationFilter.setAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
+		}
+
+	}
+
+	/**
+	 * Configures password management.
+	 *
+	 * @author Evgeniy Cheban
+	 * @since 5.6
+	 * @see #passwordManagement()
+	 */
+	public final class PasswordManagementSpec {
+
+		private static final String WELL_KNOWN_CHANGE_PASSWORD_PATTERN = "/.well-known/change-password";
+
+		private static final String DEFAULT_CHANGE_PASSWORD_PAGE = "/change-password";
+
+		private String changePasswordPage = DEFAULT_CHANGE_PASSWORD_PAGE;
+
+		/**
+		 * Sets the change password page. Defaults to
+		 * {@link PasswordManagementSpec#DEFAULT_CHANGE_PASSWORD_PAGE}.
+		 * @param changePasswordPage the change password page
+		 * @return the {@link PasswordManagementSpec} to continue configuring
+		 */
+		public PasswordManagementSpec changePasswordPage(String changePasswordPage) {
+			Assert.hasText(changePasswordPage, "changePasswordPage cannot be empty");
+			this.changePasswordPage = changePasswordPage;
+			return this;
+		}
+
+		/**
+		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}.
+		 * @return the {@link ServerHttpSecurity} to continue configuring
+		 */
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		protected void configure(ServerHttpSecurity http) {
+			ExchangeMatcherRedirectWebFilter changePasswordWebFilter = new ExchangeMatcherRedirectWebFilter(
+					new PathPatternParserServerWebExchangeMatcher(WELL_KNOWN_CHANGE_PASSWORD_PATTERN),
+					this.changePasswordPage);
+			http.addFilterBefore(changePasswordWebFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+		}
+
+		private PasswordManagementSpec() {
 		}
 
 	}

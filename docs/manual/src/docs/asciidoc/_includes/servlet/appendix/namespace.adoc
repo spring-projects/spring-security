@@ -168,6 +168,7 @@ The default value is true.
 * <<nsa-oauth2-login,oauth2-login>>
 * <<nsa-oauth2-resource-server,oauth2-resource-server>>
 * <<nsa-openid-login,openid-login>>
+* <<nsa-password-management,password-management>>
 * <<nsa-port-mappings,port-mappings>>
 * <<nsa-remember-me,remember-me>>
 * <<nsa-request-cache,request-cache>>
@@ -1593,6 +1594,21 @@ Specifies the attribute type.
 For example, https://axschema.org/contact/email.
 See your OP's documentation for valid attribute types.
 
+[[nsa-password-management]]
+==== <password-management>
+This element configures password management.
+
+[[nsa-password-management-parents]]
+===== Parent Elements of <password-management>
+
+* <<nsa-http,http>>
+
+[[nsa-password-management-attributes]]
+===== <password-management> Attributes
+
+[[nsa-password-management-change-password-page]]
+* **change-password-page**
+The change password page. Defaults to "/change-password".
 
 [[nsa-port-mappings]]
 ==== <port-mappings>

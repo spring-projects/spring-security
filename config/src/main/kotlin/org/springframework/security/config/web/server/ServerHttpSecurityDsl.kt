@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -249,6 +249,36 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
     fun httpBasic(httpBasicConfiguration: ServerHttpBasicDsl.() -> Unit) {
         val httpBasicCustomizer = ServerHttpBasicDsl().apply(httpBasicConfiguration).get()
         this.http.httpBasic(httpBasicCustomizer)
+    }
+
+    /**
+     * Enables password management.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebFluxSecurity
+     * class SecurityConfig {
+     *
+     *  @Bean
+     *  fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+     *      return http {
+     *          passwordManagement {
+     *              changePasswordPage = "/custom-change-password-page"
+     *          }
+     *       }
+     *   }
+     * }
+     * ```
+     *
+     * @param passwordManagementConfiguration custom configuration to be applied to the
+     * password management
+     * @see [ServerPasswordManagementDsl]
+     * @since 5.6
+     */
+    fun passwordManagement(passwordManagementConfiguration: ServerPasswordManagementDsl.() -> Unit) {
+        val passwordManagementCustomizer = ServerPasswordManagementDsl().apply(passwordManagementConfiguration).get()
+        this.http.passwordManagement(passwordManagementCustomizer)
     }
 
     /**
