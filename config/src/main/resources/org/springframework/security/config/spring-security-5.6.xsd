@@ -1066,6 +1066,7 @@
                   <xs:attributeGroup ref="security:logout.attlist"/>
                </xs:complexType>
             </xs:element>
+			<xs:element ref="security:password-management"/>
             <xs:element name="session-management">
                <xs:annotation>
                   <xs:documentation>Session-management related functionality is implemented by the addition of a
@@ -2161,6 +2162,23 @@
       </xs:attribute>
   </xs:attributeGroup>
   
+  <xs:element name="password-management">
+	  <xs:annotation>
+		 <xs:documentation>Adds support for the password management.
+		 		</xs:documentation>
+	  </xs:annotation>
+	  <xs:complexType>
+		 <xs:attributeGroup ref="security:password-management.attlist"/>
+	  </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="password-management.attlist">
+      <xs:attribute name="change-password-page" type="xs:string">
+         <xs:annotation>
+            <xs:documentation>The change password page. Defaults to "/change-password".
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:attributeGroup name="session-management.attlist">
       <xs:attribute name="session-fixation-protection">
          <xs:annotation>
@@ -3255,6 +3273,7 @@
          <xs:enumeration value="REMEMBER_ME_FILTER"/>
          <xs:enumeration value="ANONYMOUS_FILTER"/>
          <xs:enumeration value="OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER"/>
+         <xs:enumeration value="WELL_KNOWN_CHANGE_PASSWORD_REDIRECT_FILTER"/>
          <xs:enumeration value="SESSION_MANAGEMENT_FILTER"/>
          <xs:enumeration value="EXCEPTION_TRANSLATION_FILTER"/>
          <xs:enumeration value="FILTER_SECURITY_INTERCEPTOR"/>

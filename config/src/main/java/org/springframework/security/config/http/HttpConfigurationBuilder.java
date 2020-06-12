@@ -176,6 +176,8 @@ class HttpConfigurationBuilder {
 
 	private BeanDefinition csrfFilter;
 
+	private BeanDefinition wellKnownChangePasswordRedirectFilter;
+
 	private BeanMetadataElement csrfLogoutHandler;
 
 	private BeanMetadataElement csrfAuthStrategy;
@@ -210,6 +212,7 @@ class HttpConfigurationBuilder {
 		createFilterSecurityInterceptor(authenticationManager);
 		createAddHeadersFilter();
 		createCorsFilter();
+		createWellKnownChangePasswordRedirectFilter();
 	}
 
 	private void validateInterceptUrls(ParserContext pc) {
@@ -694,6 +697,15 @@ class HttpConfigurationBuilder {
 		this.csrfLogoutHandler = this.csrfParser.getCsrfLogoutHandler();
 	}
 
+	private void createWellKnownChangePasswordRedirectFilter() {
+		Element element = DomUtils.getChildElementByTagName(this.httpElt, Elements.PASSWORD_MANAGEMENT);
+		if (element == null) {
+			return;
+		}
+		WellKnownChangePasswordBeanDefinitionParser parser = new WellKnownChangePasswordBeanDefinitionParser();
+		this.wellKnownChangePasswordRedirectFilter = parser.parse(element, this.pc);
+	}
+
 	BeanMetadataElement getCsrfLogoutHandler() {
 		return this.csrfLogoutHandler;
 	}
@@ -743,6 +755,10 @@ class HttpConfigurationBuilder {
 		}
 		if (this.csrfFilter != null) {
 			filters.add(new OrderDecorator(this.csrfFilter, SecurityFilters.CSRF_FILTER));
+		}
+		if (this.wellKnownChangePasswordRedirectFilter != null) {
+			filters.add(new OrderDecorator(this.wellKnownChangePasswordRedirectFilter,
+					SecurityFilters.WELL_KNOWN_CHANGE_PASSWORD_REDIRECT_FILTER));
 		}
 		return filters;
 	}
