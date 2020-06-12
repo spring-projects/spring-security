@@ -223,6 +223,35 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     }
 
     /**
+     * Enables password management.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebSecurity
+     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     *
+     *  override fun configure(http: HttpSecurity) {
+     *      http {
+     *          passwordManagement {
+     *              changePasswordPage = "/custom-change-password-page"
+     *          }
+     *      }
+     *  }
+     * }
+     * ```
+     *
+     * @param passwordManagementConfiguration custom configurations to be applied to the
+     * password management
+     * @see [PasswordManagementDsl]
+     * @since 5.6
+     */
+    fun passwordManagement(passwordManagementConfiguration: PasswordManagementDsl.() -> Unit) {
+        val passwordManagementCustomizer = PasswordManagementDsl().apply(passwordManagementConfiguration).get()
+        this.http.passwordManagement(passwordManagementCustomizer)
+    }
+
+    /**
      * Allows configuring response headers.
      *
      * Example:

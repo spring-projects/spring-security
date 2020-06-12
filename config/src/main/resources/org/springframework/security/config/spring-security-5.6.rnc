@@ -312,7 +312,7 @@ http-firewall =
 
 http =
 	## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "security" attribute to "none".
-	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & oauth2-resource-server? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
+	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & oauth2-resource-server? & openid-login? & x509? & jee? & http-basic? & logout? & password-management? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
 http.attlist &=
 	## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
 	attribute pattern {xsd:token}?
@@ -702,6 +702,14 @@ http-basic.attlist &=
 http-basic.attlist &=
 	## Reference to an AuthenticationDetailsSource which will be used by the authentication filter
 	attribute authentication-details-source-ref {xsd:token}?
+
+password-management =
+    ## Adds support for the password management.
+    element password-management {password-management.attlist, empty}
+
+password-management.attlist &=
+    ## The change password page. Defaults to "/change-password".
+    attribute change-password-page {xsd:string}?
 
 session-management =
 	## Session-management related functionality is implemented by the addition of a SessionManagementFilter to the filter stack.
