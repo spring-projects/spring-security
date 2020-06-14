@@ -19,6 +19,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -39,17 +40,25 @@ import java.util.Map;
 class JwtDecoderProviderConfigurationUtils {
 	private static final String OIDC_METADATA_PATH = "/.well-known/openid-configuration";
 	private static final String OAUTH_METADATA_PATH = "/.well-known/oauth-authorization-server";
-	private static final RestTemplate rest = new RestTemplate();
+	private static final RestTemplate DEFAULT_REST = new RestTemplate();
 	private static final ParameterizedTypeReference<Map<String, Object>> typeReference =
 			new ParameterizedTypeReference<Map<String, Object>>() {};
 
-	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation) {
-		return getConfiguration(oidcIssuerLocation, oidc(URI.create(oidcIssuerLocation)));
+	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation,
+			RestOperations restOperations) {
+		return getConfiguration(oidcIssuerLocation,
+				restOperations == null ? DEFAULT_REST : restOperations,
+				oidc(URI.create(oidcIssuerLocation)));
 	}
 
-	static Map<String, Object> getConfigurationForIssuerLocation(String issuer) {
+	static Map<String, Object> getConfigurationForIssuerLocation(String issuer,
+			RestOperations restOperations) {
 		URI uri = URI.create(issuer);
-		return getConfiguration(issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
+		return getConfiguration(issuer,
+				restOperations == null ? DEFAULT_REST : restOperations,
+				oidc(uri),
+				oidcRfc8414(uri),
+				oauth(uri));
 	}
 
 	static void validateIssuer(Map<String, Object> configuration, String issuer) {
@@ -63,13 +72,13 @@ class JwtDecoderProviderConfigurationUtils {
 		}
 	}
 
-	private static Map<String, Object> getConfiguration(String issuer, URI... uris) {
+	private static Map<String, Object> getConfiguration(String issuer, RestOperations restOperations, URI... uris) {
 		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " +
 				"\"" + issuer + "\"";
 		for (URI uri : uris) {
 			try {
 				RequestEntity<Void> request = RequestEntity.get(uri).build();
-				ResponseEntity<Map<String, Object>> response = rest.exchange(request, typeReference);
+				ResponseEntity<Map<String, Object>> response = restOperations.exchange(request, typeReference);
 				Map<String, Object> configuration = response.getBody();
 
 				if (configuration.get("jwks_uri") == null) {

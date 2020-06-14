@@ -524,6 +524,23 @@ public class NimbusJwtDecoderTests {
 				.hasMessageContaining("An error occurred while attempting to decode the Jwt");
 	}
 
+	@Test
+	public void decoderBuildWithCustomRestOperations() throws Exception {
+		final RestOperations restOperations = mock(RestOperations.class);
+		when(restOperations.exchange(any(), eq(String.class))).thenThrow(new IllegalStateException("custom restOperations"));
+
+		NimbusJwtDecoder jwtDecoder = withJwkSetUri("http://foo/.well-known/jwks.json")
+				.restOperations(restOperations)
+				.build();
+
+		assertThatThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
+				.hasRootCauseInstanceOf(IllegalStateException.class)
+				.hasRootCauseMessage("custom restOperations");
+
+		verify(restOperations).exchange(any(), eq(String.class));
+		verifyNoMoreInteractions(restOperations);
+	}
+
 	private RSAPublicKey key() throws InvalidKeySpecException {
 		byte[] decoded = Base64.getDecoder().decode(VERIFY_KEY.getBytes());
 		EncodedKeySpec spec = new X509EncodedKeySpec(decoded);

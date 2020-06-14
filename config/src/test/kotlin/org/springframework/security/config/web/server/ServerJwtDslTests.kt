@@ -18,15 +18,20 @@ package org.springframework.security.config.web.server
 
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.apache.commons.lang3.exception.ExceptionUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.core.annotation.Order
 import org.springframework.core.convert.converter.Converter
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
@@ -39,6 +44,9 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.config.EnableWebFlux
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.server.ServerWebExchange
+import org.springframework.web.server.WebExceptionHandler
 import reactor.core.publisher.Mono
 import java.math.BigInteger
 import java.security.KeyFactory
@@ -203,6 +211,116 @@ class ServerJwtDslTests {
         }
     }
 
+    @Test
+    fun `jwt when using custom JWK Set URI than webClient set`() {
+        this.spring.register(CustomJwkSetUriThanWebClientConfig::class.java).autowire()
+
+        val result = this.client.get()
+                .uri("/")
+                .headers { headers: HttpHeaders -> headers.setBearerAuth(messageReadToken) }
+                .exchange()
+                .returnResult(String::class.java)
+                .responseBodyContent?.toString(Charsets.UTF_8) ?: "invalid"
+        assertThat(result)
+                .contains("method get(...) invoked")
+    }
+
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class CustomJwkSetUriThanWebClientConfig {
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                authorizeExchange {
+                    authorize(anyExchange, authenticated)
+                }
+                oauth2ResourceServer {
+                    jwt {
+                        jwkSetUri = "http://foo/.well-known/jwks.json"
+                        webClient = alwaysFailWebClient()
+                    }
+                }
+            }
+        }
+
+        @Bean
+        open fun globalErrorHandler() = GlobalErrorHandler()
+    }
+
+    @Test
+    fun `jwt when using custom webClient than JWK Set URI set`() {
+        this.spring.register(CustomWebClientThanJwkSetUriConfig::class.java).autowire()
+
+        val result = this.client.get()
+                .uri("/")
+                .headers { headers: HttpHeaders -> headers.setBearerAuth(messageReadToken) }
+                .exchange()
+                .returnResult(String::class.java)
+                .responseBodyContent?.toString(Charsets.UTF_8) ?: "invalid"
+        assertThat(result)
+                .contains("method get(...) invoked")
+    }
+
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class CustomWebClientThanJwkSetUriConfig {
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                authorizeExchange {
+                    authorize(anyExchange, authenticated)
+                }
+                oauth2ResourceServer {
+                    jwt {
+                        webClient = alwaysFailWebClient()
+                        jwkSetUri = "http://foo/.well-known/jwks.json"
+                    }
+                }
+            }
+        }
+
+        @Bean
+        open fun globalErrorHandler() = GlobalErrorHandler()
+    }
+
+    @Test
+    fun `jwt webClient and JWK Set URI replaced with jwtDecoder`() {
+        this.spring.register(CustomWebClientAndJwkSetUriReplacedWithJwtDecoderConfig::class.java).autowire()
+
+        val result = this.client.get()
+                .uri("/")
+                .headers { headers: HttpHeaders -> headers.setBearerAuth(messageReadToken) }
+                .exchange()
+                .returnResult(String::class.java)
+                .responseBodyContent?.toString(Charsets.UTF_8) ?: "invalid"
+        assertThat(result)
+                .contains("replaced jwtDecoder")
+    }
+
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class CustomWebClientAndJwkSetUriReplacedWithJwtDecoderConfig {
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                authorizeExchange {
+                    authorize(anyExchange, authenticated)
+                }
+                oauth2ResourceServer {
+                    jwt {
+                        webClient = alwaysFailWebClient()
+                        jwkSetUri = "http://foo/.well-known/jwks.json"
+                        jwtDecoder = mock(ReactiveJwtDecoder::class.java).also {
+                            `when`(it.decode(ArgumentMatchers.anyString())).thenReturn(Mono.error(java.lang.IllegalStateException("replaced jwtDecoder")))
+                        }
+                    }
+                }
+            }
+        }
+
+        @Bean
+        open fun globalErrorHandler() = GlobalErrorHandler()
+    }
 
     @Test
     fun `opaque token when custom JWT authentication converter then converter used`() {
@@ -265,6 +383,31 @@ class ServerJwtDslTests {
             val spec = RSAPublicKeySpec(BigInteger(modulus), BigInteger(exponent))
             val factory = KeyFactory.getInstance("RSA")
             return factory.generatePublic(spec) as RSAPublicKey
+        }
+
+        private fun alwaysFailWebClient(): WebClient {
+            return mock(WebClient::class.java) {
+                when (it.method.name) {
+                    "toString", "equals", "hashCode" -> {
+                        return@mock it.callRealMethod()
+                    }
+                    else -> {
+                        error("method ${it.method.name}(...) invoked")
+                    }
+                }
+            }!!
+        }
+
+        @Order(-2)
+        open class GlobalErrorHandler : WebExceptionHandler {
+            override fun handle(serverWebExchange: ServerWebExchange, throwable: Throwable): Mono<Void> {
+                val response = serverWebExchange.response
+                response.statusCode = HttpStatus.INTERNAL_SERVER_ERROR
+                response.headers.contentType = MediaType.TEXT_PLAIN
+                val dataBuffer = response.bufferFactory()
+                        .wrap(ExceptionUtils.getStackTrace(throwable).toByteArray())
+                return response.writeWith(Mono.just(dataBuffer))
+            }
         }
     }
 }

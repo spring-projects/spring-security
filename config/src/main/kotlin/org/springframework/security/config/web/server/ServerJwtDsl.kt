@@ -22,6 +22,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder
+import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.security.interfaces.RSAPublicKey
 
@@ -44,6 +45,7 @@ class ServerJwtDsl {
     private var _jwtDecoder: ReactiveJwtDecoder? = null
     private var _publicKey: RSAPublicKey? = null
     private var _jwkSetUri: String? = null
+    private var _webClient: WebClient? = null
 
     var authenticationManager: ReactiveAuthenticationManager? = null
     var jwtAuthenticationConverter: Converter<Jwt, out Mono<out AbstractAuthenticationToken>>? = null
@@ -69,14 +71,20 @@ class ServerJwtDsl {
             _jwtDecoder = null
             _publicKey = null
         }
+    var webClient: WebClient?
+        get() = _webClient
+        set(value) {
+            _webClient = value
+        }
 
     internal fun get(): (ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec) -> Unit {
         return { jwt ->
             authenticationManager?.also { jwt.authenticationManager(authenticationManager) }
             jwtAuthenticationConverter?.also { jwt.jwtAuthenticationConverter(jwtAuthenticationConverter) }
-            jwtDecoder?.also { jwt.jwtDecoder(jwtDecoder) }
             publicKey?.also { jwt.publicKey(publicKey) }
+            webClient?.also { jwt.webClient(webClient) }
             jwkSetUri?.also { jwt.jwkSetUri(jwkSetUri) }
+            jwtDecoder?.also { jwt.jwtDecoder(jwtDecoder) }
         }
     }
 }

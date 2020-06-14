@@ -16,14 +16,24 @@
 package org.springframework.security.oauth2.jwt;
 
 import java.net.URI;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionDetails;
+import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionFactory;
+import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.Subject;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -33,12 +43,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link JwtDecoders}
@@ -128,6 +148,47 @@ public class JwtDecodersTests {
 		prepareConfigurationResponse();
 		assertThat(JwtDecoders.fromOidcIssuerLocation(this.issuer)).isNotNull();
 		assertThat(this.issuer).endsWith("/");
+	}
+
+	@Test
+	public void fromOidcIssuerLocationWithRestOperations() throws JsonProcessingException, JOSEException {
+		withRestOperationsTestFromIssuerLocation(restOperations ->
+				JwtDecoders.fromOidcIssuerLocation(this.issuer, restOperations));
+	}
+
+	@Test
+	public void fromIssuerLocationWithRestOperations() throws JsonProcessingException, JOSEException {
+		withRestOperationsTestFromIssuerLocation(restOperations ->
+				JwtDecoders.fromIssuerLocation(this.issuer, restOperations));
+	}
+
+	private void withRestOperationsTestFromIssuerLocation(Function<RestOperations, JwtDecoder> invoker) throws JsonProcessingException, JOSEException {
+		final ParameterizedTypeReference<Map<String, Object>> springTypeReference =
+				new ParameterizedTypeReference<Map<String, Object>>() {
+				};
+		final TypeReference<Map<String, Object>> jacksonTypeReference = new TypeReference<Map<String, Object>>() {
+		};
+
+		final String responseStr = String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, this.issuer);
+		final ResponseEntity<Map<String, Object>> response = ResponseEntity.ok(new ObjectMapper()
+				.readValue(responseStr, jacksonTypeReference));
+		final RestOperations restOperations = mock(RestOperations.class);
+		when(restOperations.exchange(any(), eq(springTypeReference))).thenReturn(response);
+		when(restOperations.exchange(any(), eq(String.class))).thenThrow(new IllegalStateException("/.well-known/jwks.json call"));
+
+		final JwtDecoder jwtDecoder = invoker.apply(restOperations);
+
+		final RSAPrivateKey privateKey = TestKeys.privateKey();
+		final SignedJWT signedJWT = JWTAssertionFactory.create(
+				new JWTAssertionDetails(new Issuer("issuer"), new Subject("sub"), new Audience("aud")),
+				JWSAlgorithm.RS256, privateKey, "key-id", null);
+		assertThatCode(() -> jwtDecoder.decode(signedJWT.serialize()))
+				.hasRootCauseInstanceOf(IllegalStateException.class)
+				.hasRootCauseMessage("/.well-known/jwks.json call");
+
+		verify(restOperations).exchange(any(), eq(springTypeReference));
+		verify(restOperations).exchange(any(), eq(String.class));
+		verifyNoMoreInteractions(restOperations);
 	}
 
 	@Test

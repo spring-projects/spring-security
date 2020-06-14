@@ -87,6 +87,9 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 *
 	 * @param jwkSetUrl the JSON Web Key (JWK) Set {@code URL}
 	 */
+	public NimbusReactiveJwtDecoder(String jwkSetUrl, WebClient webClient) {
+		this(withJwkSetUri(jwkSetUrl).webClient(webClient).processor());
+	}
 	public NimbusReactiveJwtDecoder(String jwkSetUrl) {
 		this(withJwkSetUri(jwkSetUrl).processor());
 	}
@@ -242,9 +245,10 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 * @since 5.2
 	 */
 	public static final class JwkSetUriReactiveJwtDecoderBuilder {
+		private static final WebClient DEFAULT_WEBCLIENT = WebClient.create();
 		private final String jwkSetUri;
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
-		private WebClient webClient = WebClient.create();
+		private WebClient webClient = DEFAULT_WEBCLIENT;
 
 		private JwkSetUriReactiveJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");

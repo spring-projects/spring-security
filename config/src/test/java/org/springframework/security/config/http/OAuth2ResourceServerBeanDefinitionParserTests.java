@@ -47,7 +47,6 @@ import org.hamcrest.core.StringStartsWith;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.DisposableBean;
@@ -97,11 +96,12 @@ import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.security.config.http.JwtBeanDefinitionParser.DECODER_REF;
 import static org.springframework.security.config.http.JwtBeanDefinitionParser.JWK_SET_URI;
 import static org.springframework.security.config.http.OAuth2ResourceServerBeanDefinitionParser.AUTHENTICATION_MANAGER_RESOLVER_REF;
@@ -156,6 +156,23 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.mvc.perform(get("/")
 				.header("Authorization", "Bearer " + token))
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void jwkSetUriWithRestOperations() throws Exception {
+		spring.configLocations(xml("WebServer"), xml("JwkSetUriRestOperations")).autowire();
+
+		RestOperations restOperations = spring.getContext().getBean(RestOperations.class);
+		when(restOperations.exchange(any(), eq(String.class))).thenThrow(new IllegalStateException("custom rest-operations"));
+
+		assertThatThrownBy(() -> {
+			mvc.perform(get("/")
+					.header("Authorization", "Bearer " + token("ValidNoScopes")));
+		}).hasRootCauseInstanceOf(IllegalStateException.class)
+				.hasRootCauseMessage("custom rest-operations");
+
+		verify(restOperations).exchange(any(), eq(String.class));
+		verifyNoMoreInteractions(restOperations);
 	}
 
 	@Test
@@ -531,7 +548,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("AllowBearerTokenInQuery")).autowire();
 
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		Mockito.when(decoder.decode(anyString())).thenReturn(jwt().build());
+		when(decoder.decode(anyString())).thenReturn(jwt().build());
 
 		this.mvc.perform(get("/authenticated")
 				.header("Authorization", "Bearer token"))
@@ -616,7 +633,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("AuthenticationEntryPoint")).autowire();
 
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		Mockito.when(decoder.decode(anyString())).thenThrow(JwtException.class);
+		when(decoder.decode(anyString())).thenThrow(JwtException.class);
 
 		this.mvc.perform(get("/authenticated")
 				.header("Authorization", "Bearer invalid_token"))
@@ -631,7 +648,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("AccessDeniedHandler")).autowire();
 
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
-		Mockito.when(decoder.decode(anyString())).thenReturn(jwt().build());
+		when(decoder.decode(anyString())).thenReturn(jwt().build());
 
 		this.mvc.perform(get("/authenticated")
 				.header("Authorization", "Bearer insufficiently_scoped"))
@@ -703,7 +720,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 				.thenReturn(new JwtAuthenticationToken(jwt().build(), Collections.emptyList()));
 
 		JwtDecoder jwtDecoder = this.spring.getContext().getBean(JwtDecoder.class);
-		Mockito.when(jwtDecoder.decode(anyString())).thenReturn(jwt().build());
+		when(jwtDecoder.decode(anyString())).thenReturn(jwt().build());
 
 		this.mvc.perform(get("/")
 				.header("Authorization", "Bearer token"))
@@ -1205,7 +1222,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		ResponseEntity<String> entity = new ResponseEntity<>(response, headers, HttpStatus.OK);
-		Mockito.when(rest.exchange(any(RequestEntity.class), eq(String.class)))
+		when(rest.exchange(any(RequestEntity.class), eq(String.class)))
 				.thenReturn(entity);
 	}
 

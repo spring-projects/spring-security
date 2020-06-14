@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.server.resource.InvalidBearerTokenExc
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestOperations;
 
 /**
  * An implementation of {@link AuthenticationManagerResolver} that resolves a JWT-based {@link AuthenticationManager}
@@ -63,7 +64,17 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * @param trustedIssuers a list of trusted issuers
 	 */
 	public JwtIssuerAuthenticationManagerResolver(String... trustedIssuers) {
-		this(Arrays.asList(trustedIssuers));
+		this(null, trustedIssuers);
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided parameters
+	 *
+	 * @param restOperations used as http-client (if not specified default http-client is used)
+	 * @param trustedIssuers a whitelist of trusted issuers
+	 */
+	public JwtIssuerAuthenticationManagerResolver(RestOperations restOperations, String... trustedIssuers) {
+		this(Arrays.asList(trustedIssuers), restOperations);
 	}
 
 	/**
@@ -72,10 +83,20 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * @param trustedIssuers a list of trusted issuers
 	 */
 	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers) {
+		this(trustedIssuers, null);
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided parameters
+	 *
+	 * @param trustedIssuers a whitelist of trusted issuers
+	 * @param restOperations used as http-client (if not specified default http-client is used)
+	 */
+	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers, RestOperations restOperations) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
 		this.issuerAuthenticationManagerResolver =
 				new TrustedIssuerJwtAuthenticationManagerResolver
-						(Collections.unmodifiableCollection(trustedIssuers)::contains);
+						(Collections.unmodifiableCollection(trustedIssuers)::contains, restOperations);
 	}
 
 	/**
@@ -143,16 +164,18 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 
 		private final Map<String, AuthenticationManager> authenticationManagers = new ConcurrentHashMap<>();
 		private final Predicate<String> trustedIssuer;
+		private final RestOperations restOperations;
 
-		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer) {
+		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer, RestOperations restOperations) {
 			this.trustedIssuer = trustedIssuer;
+			this.restOperations = restOperations;
 		}
 
 		@Override
 		public AuthenticationManager resolve(String issuer) {
 			if (this.trustedIssuer.test(issuer)) {
 				return this.authenticationManagers.computeIfAbsent(issuer, k -> {
-					JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuer);
+					JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuer, restOperations);
 					return new JwtAuthenticationProvider(jwtDecoder)::authenticate;
 				});
 			}

@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
@@ -32,18 +33,26 @@ import net.minidev.json.JSONObject;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Test;
-import reactor.core.publisher.Mono;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
+import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
 
 /**
@@ -67,13 +76,11 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 					.setResponseCode(200)
 					.setHeader("Content-Type", "application/json")
 					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
-			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
-					new Payload(new JSONObject(Collections.singletonMap(ISS, issuer))));
-			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+			String jwt = jwt(issuer);
 
 			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver =
 					new JwtIssuerReactiveAuthenticationManagerResolver(issuer);
-			MockServerWebExchange exchange = withBearerToken(jws.serialize());
+			MockServerWebExchange exchange = withBearerToken(jwt);
 
 			ReactiveAuthenticationManager authenticationManager =
 					authenticationManagerResolver.resolve(exchange).block();
@@ -173,6 +180,52 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
+	@Test
+	public void resolverWithCustomRestOperations() throws Exception {
+		String jwt = jwt("issuer");
+
+		final WebClient webClient = WebClient.builder()
+				.exchangeFunction(request -> Mono.error(new IllegalStateException("custom webClient")))
+				.build();
+		final RestOperations restOperations = mock(RestOperations.class);
+		when(restOperations.exchange(any(), any(ParameterizedTypeReference.class))).thenThrow(new IllegalStateException("custom restOperations"));
+
+		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver =
+				new JwtIssuerReactiveAuthenticationManagerResolver(restOperations, webClient, "issuer");
+		MockServerWebExchange exchange = withBearerToken(jwt);
+
+		assertThatThrownBy(() -> authenticationManagerResolver.resolve(exchange).block())
+				.hasRootCauseInstanceOf(IllegalStateException.class)
+				.hasRootCauseMessage("custom restOperations");
+	}
+
+	@Test
+	public void resolverWithCustomWebClient() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String issuer = server.url("").toString();
+			server.enqueue(new MockResponse()
+					.setResponseCode(200)
+					.setHeader("Content-Type", "application/json")
+					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
+			String jwt = jwt(issuer);
+
+			final WebClient webClient = WebClient.builder()
+					.exchangeFunction(request -> Mono.error(new IllegalStateException("custom webClient")))
+					.build();
+
+			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver =
+					new JwtIssuerReactiveAuthenticationManagerResolver(new RestTemplate(), webClient, issuer);
+			MockServerWebExchange exchange = withBearerToken(jwt);
+
+			assertThatThrownBy(() ->
+					authenticationManagerResolver.resolve(exchange)
+							.flatMap(authenticationManager -> authenticationManager.authenticate(new BearerTokenAuthenticationToken(jwt)))
+							.block()
+			).hasRootCauseInstanceOf(IllegalStateException.class)
+					.hasRootCauseMessage("custom webClient");
+		}
+	}
+
 	private String jwt(String claim, String value) {
 		PlainJWT jwt = new PlainJWT(new JWTClaimsSet.Builder().claim(claim, value).build());
 		return jwt.serialize();
@@ -182,5 +235,16 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 		MockServerHttpRequest request = MockServerHttpRequest.get("/")
 				.header("Authorization", "Bearer " + token).build();
 		return MockServerWebExchange.from(request);
+	}
+
+	private static String jwt(String issuer) {
+		JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
+				new Payload(new JSONObject(Collections.singletonMap(ISS, issuer))));
+		try {
+			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+			return jws.serialize();
+		} catch (JOSEException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 }

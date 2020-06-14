@@ -429,6 +429,19 @@ public class NimbusReactiveJwtDecoderTests {
 				.isTrue();
 	}
 
+	@Test
+	public void jwtDecoderWithCustomWebClient() {
+		final WebClient webClient = WebClient.builder()
+				.exchangeFunction(request -> Mono.error(new IllegalStateException("custom webClient")))
+				.build();
+
+		NimbusReactiveJwtDecoder decoder = withJwkSetUri(this.jwkSetUri).webClient(webClient).build();
+
+		assertThatCode(() -> decoder.decode(messageReadToken).block())
+				.hasRootCauseInstanceOf(IllegalStateException.class)
+				.hasRootCauseMessage("custom webClient");
+	}
+
 	private SignedJWT signedJwt(SecretKey secretKey, MacAlgorithm jwsAlgorithm, JWTClaimsSet claimsSet) throws Exception {
 		SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.parse(jwsAlgorithm.getName())), claimsSet);
 		JWSSigner signer = new MACSigner(secretKey);

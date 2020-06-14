@@ -38,6 +38,8 @@ import org.springframework.security.oauth2.server.resource.BearerTokenAuthentica
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestOperations;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
@@ -69,7 +71,20 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 * @param trustedIssuers a list of trusted issuers
 	 */
 	public JwtIssuerReactiveAuthenticationManagerResolver(String... trustedIssuers) {
-		this(Arrays.asList(trustedIssuers));
+		this(null, null, trustedIssuers);
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the provided parameters
+	 *
+	 * @param restOperations used as http-client (if not specified default http-client is used)
+	 * @param webClient used as http-client (if not specified default http-client is used) for reactive operations
+	 * @param trustedIssuers a whitelist of trusted issuers
+	 */
+	public JwtIssuerReactiveAuthenticationManagerResolver(RestOperations restOperations,
+			WebClient webClient,
+			String... trustedIssuers) {
+		this(Arrays.asList(trustedIssuers), restOperations, webClient);
 	}
 
 	/**
@@ -78,9 +93,25 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 * @param trustedIssuers a collection of trusted issuers
 	 */
 	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers) {
+		this(trustedIssuers, null, null);
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the provided parameters
+	 *
+	 * @param trustedIssuers a whitelist of trusted issuers
+	 * @param restOperations used as http-client (if not specified default http-client is used)
+	 * @param webClient used as http-client (if not specified default http-client is used) for reactive operations
+	 */
+	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers,
+			RestOperations restOperations,
+			WebClient webClient) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
 		this.issuerAuthenticationManagerResolver =
-				new TrustedIssuerJwtAuthenticationManagerResolver(new ArrayList<>(trustedIssuers)::contains);
+				new TrustedIssuerJwtAuthenticationManagerResolver(
+						new ArrayList<>(trustedIssuers)::contains,
+						restOperations,
+						webClient);
 	}
 
 	/**
@@ -155,9 +186,15 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 		private final Map<String, Mono<ReactiveAuthenticationManager>> authenticationManagers =
 				new ConcurrentHashMap<>();
 		private final Predicate<String> trustedIssuer;
+		private final RestOperations restOperations;
+		private final WebClient webClient;
 
-		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer) {
+		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer,
+				RestOperations restOperations,
+				WebClient webClient) {
 			this.trustedIssuer = trustedIssuer;
+			this.restOperations = restOperations;
+			this.webClient = webClient;
 		}
 
 		@Override
@@ -167,7 +204,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 			}
 			return this.authenticationManagers.computeIfAbsent(issuer, k ->
 					Mono.<ReactiveAuthenticationManager>fromCallable(() ->
-							new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k))
+							new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k, restOperations, webClient))
 					)
 					.subscribeOn(Schedulers.boundedElastic())
 					.cache());

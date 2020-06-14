@@ -50,6 +50,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
+import org.springframework.web.client.RestOperations;
 
 /**
  * A {@link BeanDefinitionParser} for &lt;http&gt;'s &lt;oauth2-resource-server&gt; element.
@@ -194,6 +195,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 final class JwtBeanDefinitionParser implements BeanDefinitionParser {
 	static final String DECODER_REF = "decoder-ref";
 	static final String JWK_SET_URI = "jwk-set-uri";
+	static final String REST_OPERATIONS_REF = "rest-operations-ref";
 	static final String JWT_AUTHENTICATION_CONVERTER_REF = "jwt-authentication-converter-ref";
 	static final String JWT_AUTHENTICATION_CONVERTER = "jwtAuthenticationConverter";
 
@@ -228,6 +230,12 @@ final class JwtBeanDefinitionParser implements BeanDefinitionParser {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder
 				.rootBeanDefinition(NimbusJwtDecoderJwkSetUriFactoryBean.class);
 		builder.addConstructorArgValue(element.getAttribute(JWK_SET_URI));
+		final String restOperationsRef = element.getAttribute(REST_OPERATIONS_REF);
+		if (StringUtils.isEmpty(restOperationsRef)) {
+			builder.addConstructorArgValue(null);
+		} else {
+			builder.addConstructorArgReference(restOperationsRef);
+		}
 		return builder.getBeanDefinition();
 	}
 
@@ -322,14 +330,19 @@ final class StaticAuthenticationManagerResolver implements
 
 final class NimbusJwtDecoderJwkSetUriFactoryBean implements FactoryBean<JwtDecoder> {
 	private final String jwkSetUri;
+	private final RestOperations restOperations;
 
-	NimbusJwtDecoderJwkSetUriFactoryBean(String jwkSetUri) {
+	NimbusJwtDecoderJwkSetUriFactoryBean(String jwkSetUri, RestOperations restOperations) {
 		this.jwkSetUri = jwkSetUri;
+		this.restOperations = restOperations;
 	}
 
 	@Override
 	public JwtDecoder getObject() {
-		return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
+		final NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri);
+		return restOperations == null
+				? builder.build()
+				: builder.restOperations(restOperations).build();
 	}
 
 	@Override

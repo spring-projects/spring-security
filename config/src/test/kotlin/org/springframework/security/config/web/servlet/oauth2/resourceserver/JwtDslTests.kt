@@ -16,8 +16,17 @@
 
 package org.springframework.security.config.web.servlet.oauth2.resourceserver
 
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jwt.SignedJWT
+import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionDetails
+import com.nimbusds.oauth2.sdk.assertions.jwt.JWTAssertionFactory
+import com.nimbusds.oauth2.sdk.id.Audience
+import com.nimbusds.oauth2.sdk.id.Issuer
+import com.nimbusds.oauth2.sdk.id.Subject
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
@@ -28,12 +37,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.config.util.AlwaysRethrowAuthenticationEntryPoint
 import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames
+import org.springframework.security.oauth2.jose.TestKeys
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.web.client.RestOperations
 
 /**
  * Tests for [JwtDsl]
@@ -79,6 +91,92 @@ class JwtDslTests {
                     jwt {
                         jwkSetUri = "https://jwk-uri"
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `JWT when custom jwkSetUri than restOperations set`() {
+        spring.register(CustomJwkSetUriThanRestOperationsConfig::class.java).autowire()
+
+        assertThatThrownBy {
+            mockMvc.get("/") {
+                header("Authorization", "Bearer ${createSignetJwt().serialize()}")
+            }
+        }.hasRootCauseInstanceOf(IllegalStateException::class.java)
+                .hasRootCauseMessage("method exchange(...) invoked")
+    }
+
+    @EnableWebSecurity
+    open class CustomJwkSetUriThanRestOperationsConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                oauth2ResourceServer {
+                    jwt {
+                        jwtDecoder = mock(JwtDecoder::class.java)
+                        jwkSetUri = "https://my-jwk-uri"
+                        restOperations = alwaysFailRestOperations()
+                    }
+                    authenticationEntryPoint = AlwaysRethrowAuthenticationEntryPoint()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `JWT when custom restOperations than jwkSetUri set`() {
+        spring.register(CustomRestOperationsThanJwkSetUriConfig::class.java).autowire()
+
+        assertThatThrownBy {
+            mockMvc.get("/") {
+                header("Authorization", "Bearer ${createSignetJwt().serialize()}")
+            }
+        }.hasRootCauseInstanceOf(IllegalStateException::class.java)
+                .hasRootCauseMessage("method exchange(...) invoked")
+    }
+
+    @EnableWebSecurity
+    open class CustomRestOperationsThanJwkSetUriConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                oauth2ResourceServer {
+                    jwt {
+                        jwtDecoder = mock(JwtDecoder::class.java)
+                        restOperations = alwaysFailRestOperations()
+                        jwkSetUri = "https://my-jwk-uri"
+                    }
+                    authenticationEntryPoint = AlwaysRethrowAuthenticationEntryPoint()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `JWT when custom restOperations and jwkSetUri replaced with jwtDecoder`() {
+        spring.register(CustomRestOperationsAndJwkSetUriReplacedWithJwtDecoderConfig::class.java).autowire()
+
+        assertThatThrownBy {
+            mockMvc.get("/") {
+                header("Authorization", "Bearer ${createSignetJwt().serialize()}")
+            }
+        }.isInstanceOf(IllegalStateException::class.java)
+                .hasMessage("replaced jwtDecoder")
+    }
+
+    @EnableWebSecurity
+    open class CustomRestOperationsAndJwkSetUriReplacedWithJwtDecoderConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                oauth2ResourceServer {
+                    jwt {
+                        restOperations = alwaysFailRestOperations()
+                        jwkSetUri = "https://my-jwk-uri"
+                        jwtDecoder = mock(JwtDecoder::class.java).also {
+                            `when`(it.decode(anyString())).thenThrow(java.lang.IllegalStateException("replaced jwtDecoder"))
+                        }
+                    }
+                    authenticationEntryPoint = AlwaysRethrowAuthenticationEntryPoint()
                 }
             }
         }
@@ -161,6 +259,27 @@ class JwtDslTests {
                     }
                 }
             }
+        }
+    }
+
+    companion object {
+        private fun alwaysFailRestOperations(): RestOperations {
+            return mock(RestOperations::class.java) {
+                when (it.method.name) {
+                    "toString", "equals", "hashCode" -> {
+                        return@mock it.callRealMethod()
+                    }
+                    else -> {
+                        error("method ${it.method.name}(...) invoked")
+                    }
+                }
+            }!!
+        }
+
+        private fun createSignetJwt(): SignedJWT {
+            return JWTAssertionFactory.create(
+                    JWTAssertionDetails(Issuer("issuer"), Subject("sub"), Audience("aud")),
+                    JWSAlgorithm.RS256, TestKeys.privateKey(), "key-id", null)
         }
     }
 }

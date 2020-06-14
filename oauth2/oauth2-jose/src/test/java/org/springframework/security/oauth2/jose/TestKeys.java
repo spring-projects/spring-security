@@ -96,7 +96,7 @@ public class TestKeys {
 
 	public static final RSAPrivateKey DEFAULT_PRIVATE_KEY = privateKey();
 
-	private static RSAPrivateKey privateKey() {
+	public static RSAPrivateKey privateKey() {
 		PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(DEFAULT_RSA_PRIVATE_KEY));
 		try {
 			return (RSAPrivateKey) kf.generatePrivate(spec);

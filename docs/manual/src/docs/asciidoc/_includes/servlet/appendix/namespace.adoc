@@ -1187,6 +1187,10 @@ Reference to a `JwtDecoder`. This is a larger component that overrides `jwk-set-
 * **jwk-set-uri**
 The JWK Set Uri used to load signing verification keys from an OAuth 2.0 Authorization Server
 
+[[nsa-jwt-rest-operations-ref]]
+* **rest-operations-ref**
+The reference to bean of RestOperations used to load JWK Set from Uri from an OAuth 2.0 Authorization Server
+
 [[nsa-opaque-token]]
 ==== <opaque-token>
 Represents an OAuth 2.0 Resource Server that will authorize opaque tokens

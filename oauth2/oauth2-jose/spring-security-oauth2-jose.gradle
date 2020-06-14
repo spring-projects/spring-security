@@ -13,4 +13,5 @@ dependencies {
 	testCompile 'com.squareup.okhttp3:mockwebserver'
 	testCompile 'io.projectreactor.netty:reactor-netty'
 	testCompile 'com.fasterxml.jackson.core:jackson-databind'
+	testCompile 'com.nimbusds:oauth2-oidc-sdk'
 }

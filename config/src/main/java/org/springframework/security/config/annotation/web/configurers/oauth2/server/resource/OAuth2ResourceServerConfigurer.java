@@ -49,6 +49,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestOperations;
 
 import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 
@@ -283,6 +284,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter;
 
+		private RestOperations restOperations;
+
 		JwtConfigurer(ApplicationContext context) {
 			this.context = context;
 		}
@@ -299,7 +302,15 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 
 		public JwtConfigurer jwkSetUri(String uri) {
-			this.decoder = withJwkSetUri(uri).build();
+			final NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = withJwkSetUri(uri);
+			this.decoder = restOperations == null
+					? builder.build()
+					: builder.restOperations(restOperations).build();
+			return this;
+		}
+
+		public JwtConfigurer restOperations(RestOperations restOperations) {
+			this.restOperations = restOperations;
 			return this;
 		}
 

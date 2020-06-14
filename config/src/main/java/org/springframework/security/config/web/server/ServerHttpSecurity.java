@@ -58,6 +58,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
@@ -174,9 +175,12 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.CorsProcessor;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.DefaultCorsProcessor;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
+import reactor.util.context.Context;
 
 import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
 import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
@@ -1874,6 +1878,8 @@ public class ServerHttpSecurity {
 			private ReactiveJwtDecoder jwtDecoder;
 			private Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter
 					= new ReactiveJwtAuthenticationConverterAdapter(new JwtAuthenticationConverter());
+			private WebClient webClient;
+			private String jwkSetUri;
 
 			/**
 			 * Configures the {@link ReactiveAuthenticationManager} to use
@@ -1929,8 +1935,25 @@ public class ServerHttpSecurity {
 			 * @return the {@code JwtSpec} for additional configuration
 			 */
 			public JwtSpec jwkSetUri(String jwkSetUri) {
-				this.jwtDecoder = new NimbusReactiveJwtDecoder(jwkSetUri);
+				this.jwkSetUri = jwkSetUri;
+				this.jwtDecoder = createDecoder();
 				return this;
+			}
+
+			public JwtSpec webClient(WebClient webClient) {
+				this.webClient = webClient;
+				this.jwtDecoder = createDecoder();
+				return this;
+			}
+
+			private ReactiveJwtDecoder createDecoder() {
+				if (jwkSetUri != null) {
+					return webClient == null
+							? new NimbusReactiveJwtDecoder(jwkSetUri)
+							: new NimbusReactiveJwtDecoder(jwkSetUri, webClient);
+				} else {
+					return null;
+				}
 			}
 
 			public OAuth2ResourceServerSpec and() {

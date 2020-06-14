@@ -32,16 +32,20 @@ import net.minidev.json.JSONObject;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Test;
-
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
 
 /**
@@ -177,6 +181,26 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 	public void constructorWhenNullAuthenticationManagerResolverThenException() {
 		assertThatCode(() -> new JwtIssuerAuthenticationManagerResolver((AuthenticationManagerResolver) null))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void resolverWithCustomRestOperations() throws Exception {
+		JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
+				new Payload(new JSONObject(Collections.singletonMap(ISS, "issuer"))));
+		jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+
+		final RestOperations restOperations = mock(RestOperations.class);
+		when(restOperations.exchange(any(), any(ParameterizedTypeReference.class))).thenThrow(new IllegalStateException("custom restOperations"));
+
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
+				new JwtIssuerAuthenticationManagerResolver(restOperations, "issuer");
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Bearer " + jws.serialize());
+
+		assertThatThrownBy(() -> authenticationManagerResolver.resolve(request))
+				.hasRootCauseInstanceOf(IllegalStateException.class)
+				.hasRootCauseMessage("custom restOperations");
 	}
 
 	private String jwt(String claim, String value) {
