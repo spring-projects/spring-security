@@ -18,15 +18,21 @@ package org.springframework.security.test.web.servlet.request;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.CsrfRequestPostProcessor;
+import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -96,8 +102,23 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 
 		MvcResult mvcResult = mockMvc.perform(logout()).andReturn();
 		assertThat(mvcResult.getRequest().getMethod()).isEqualTo(HttpMethod.POST.name());
-
+		assertThat(mvcResult.getRequest().getHeader("Accept"))
+				.isEqualTo(MediaType.toString(Arrays.asList(MediaType.TEXT_HTML, MediaType.ALL)));
+		assertThat(mvcResult.getRequest().getRequestURI()).isEqualTo("/logout");
+		assertCsrfToken(mvcResult.getRequest());
 		verify(postProcessor).postProcessRequest(any());
+	}
+
+	private void assertCsrfToken(MockHttpServletRequest request) {
+		CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
+		if (!(repository instanceof CsrfRequestPostProcessor.TestCsrfTokenRepository)) {
+			repository = new CsrfRequestPostProcessor.TestCsrfTokenRepository(
+					new HttpSessionCsrfTokenRepository());
+			WebTestUtils.setCsrfTokenRepository(request, repository);
+		}
+		CsrfRequestPostProcessor.TestCsrfTokenRepository.enable(request);
+		CsrfToken token = repository.generateToken(request);
+		assertThat(request.getParameter(token.getParameterName())).isNotNull();
 	}
 
 }
