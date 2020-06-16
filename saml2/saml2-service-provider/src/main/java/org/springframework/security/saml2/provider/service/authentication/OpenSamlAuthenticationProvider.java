@@ -531,9 +531,6 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	}
 
 	private Object getXmlObjectValue(XMLObject xmlObject) {
-		if (xmlObject == null) {
-			return null;
-		}
 		if (xmlObject instanceof XSAny) {
 			return getXSAnyObjectValue((XSAny) xmlObject);
 		}
