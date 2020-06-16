@@ -102,6 +102,31 @@ public class ProviderManagerTests {
 		new ProviderManager((AuthenticationProvider) null);
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testStartupFailsIfProvidersContainNullElement() {
+		new ProviderManager(Arrays.asList(mock(AuthenticationProvider.class), null));
+	}
+
+	@Test
+	public void testUsingNullNotPermittedList() {
+		// imitated Java9 List.of(e) object, which disallows null elements and
+		// throws NPE when contains(null) called
+		List<AuthenticationProvider> providers = new ArrayList<AuthenticationProvider>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean contains(Object o) {
+				if (o == null) {
+					throw new NullPointerException();
+				}
+				return super.contains(o);
+			}
+		};
+
+		providers.add(mock(AuthenticationProvider.class));
+		new ProviderManager(providers);
+	}
+
 	@Test
 	public void detailsAreNotSetOnAuthenticationTokenIfAlreadySetByProvider() {
 		Object requestDetails = "(Request Details)";
