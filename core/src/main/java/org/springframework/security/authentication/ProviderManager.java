@@ -30,6 +30,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Iterates an {@link Authentication} request through a list of
@@ -145,7 +146,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			throw new IllegalArgumentException(
 					"A parent AuthenticationManager or a list "
 							+ "of AuthenticationProviders is required");
-		} else if (providers.contains(null)) {
+		} else if (CollectionUtils.contains(providers.iterator(), null)) {
 			throw new IllegalArgumentException(
 					"providers list cannot contain null values");
 		}
