@@ -504,43 +504,12 @@ Default false.
 ** `DENY` The page cannot be displayed in a frame, regardless of the site attempting to do so.
 This is the default when frame-options-policy is specified.
 ** `SAMEORIGIN` The page can only be displayed in a frame on the same origin as the page itself
-** `ALLOW-FROM origin` The page can only be displayed in a frame on the specified origin.
 
 +
 
 In other words, if you specify DENY, not only will attempts to load the page in a frame fail when loaded from other sites, attempts to do so will fail when loaded from the same site.
 On the other hand, if you specify SAMEORIGIN, you can still use the page in a frame as long as the site including it in a frame it is the same as the one serving the page.
 
-[[nsa-frame-options-strategy]]
-* **strategy**
-Select the `AllowFromStrategy` to use when using the ALLOW-FROM policy.
-
-** `static` Use a single static ALLOW-FROM value.
-The value can be set through the <<nsa-frame-options-value,value>> attribute.
-** `regexp` Use a regular expression to validate incoming requests and if they are allowed.
-The regular expression can be set through the <<nsa-frame-options-value,value>> attribute.
-The request parameter used to retrieve the value to validate can be specified using the <<nsa-frame-options-from-parameter,from-parameter>>.
-** `whitelist` A comma-separated list containing the allowed domains.
-The comma-separated list can be set through the <<nsa-frame-options-value,value>> attribute.
-The request parameter used to retrieve the value to validate can be specified using the <<nsa-frame-options-from-parameter,from-parameter>>.
-
-
-
-
-[[nsa-frame-options-ref]]
-* **ref**
-Instead of using one of the predefined strategies it is also possible to use a custom `AllowFromStrategy`.
-The reference to this bean can be specified through this ref attribute.
-
-
-[[nsa-frame-options-value]]
-* **value**
-The value to use when ALLOW-FROM is used a <<nsa-frame-options-strategy,strategy>>.
-
-
-[[nsa-frame-options-from-parameter]]
-* **from-parameter**
-Specify the name of the request parameter to use when using regexp or whitelist for the ALLOW-FROM strategy.
 
 
 [[nsa-frame-options-parents]]

@@ -3000,7 +3000,10 @@
       <xs:attribute name="from-parameter" type="xs:string">
          <xs:annotation>
             <xs:documentation>Specify the request parameter to use for the origin when using a 'whitelist' or 'regexp'
-                based strategy. Default is 'from'.
+                based strategy. Default is 'from'. Deprecated ALLOW-FROM is an obsolete directive that no
+                longer works in modern browsers. Instead use Content-Security-Policy with the &lt;a
+                href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors"&gt;frame-ancestors&lt;/a&gt;
+                directive.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

@@ -37,7 +37,7 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 
 	@Override
 	public void sendRedirect(String location) throws IOException {
-		// TODO: implement pluggable validation, instead of simple blacklisting.
+		// TODO: implement pluggable validation, instead of simple blocklist.
 		// SEC-1790. Prevent redirects containing CRLF
 		validateCrlf(LOCATION_HEADER, location);
 		super.sendRedirect(location);

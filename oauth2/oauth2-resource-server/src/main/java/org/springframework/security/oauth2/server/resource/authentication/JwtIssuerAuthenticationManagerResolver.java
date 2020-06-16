@@ -45,7 +45,7 @@ import org.springframework.util.Assert;
  *
  * To use, this class must be able to determine whether or not the `iss` claim is trusted. Recall that
  * anyone can stand up an authorization server and issue valid tokens to a resource server. The simplest way
- * to achieve this is to supply a whitelist of trusted issuers in the constructor.
+ * to achieve this is to supply a list of trusted issuers in the constructor.
  *
  * This class derives the Issuer from the `iss` claim found in the {@link HttpServletRequest}'s
  * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>.
@@ -60,7 +60,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	/**
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided parameters
 	 *
-	 * @param trustedIssuers a whitelist of trusted issuers
+	 * @param trustedIssuers a list of trusted issuers
 	 */
 	public JwtIssuerAuthenticationManagerResolver(String... trustedIssuers) {
 		this(Arrays.asList(trustedIssuers));
@@ -69,7 +69,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	/**
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided parameters
 	 *
-	 * @param trustedIssuers a whitelist of trusted issuers
+	 * @param trustedIssuers a list of trusted issuers
 	 */
 	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
@@ -82,7 +82,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided parameters
 	 *
 	 * Note that the {@link AuthenticationManagerResolver} provided in this constructor will need to
-	 * verify that the issuer is trusted. This should be done via a whitelist.
+	 * verify that the issuer is trusted. This should be done via an allowlist.
 	 *
 	 * One way to achieve this is with a {@link Map} where the keys are the known issuers:
 	 * <pre>
@@ -93,7 +93,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 *     	(authenticationManagers::get);
 	 * </pre>
 	 *
-	 * The keys in the {@link Map} are the whitelist.
+	 * The keys in the {@link Map} are the allowed issuers.
 	 *
 	 * @param issuerAuthenticationManagerResolver a strategy for resolving the {@link AuthenticationManager} by the issuer
 	 */

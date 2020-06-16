@@ -140,7 +140,7 @@ git config user.email link:mailto:&#x75;&#115;&#101;&#x72;&#64;&#x6d;&#x61;&#x69
 . Keep the subject line to 50 characters or less if possible
 . Do not end the subject line with a period
 . In the body of the commit message, explain how things worked before this commit, what has changed, and how things work now
-. Include Fixes gh-<issue-number> at the end if this fixes a GitHub issue
+. Include Closes gh-<issue-number> at the end if this fixes a GitHub issue
 . Avoid markdown, including back-ticks identifying code
 
 = Run all tests prior to submission

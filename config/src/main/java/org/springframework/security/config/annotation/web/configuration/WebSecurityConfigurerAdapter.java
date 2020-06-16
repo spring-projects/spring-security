@@ -187,7 +187,7 @@ public abstract class WebSecurityConfigurerAdapter implements
 	/**
 	 * Creates the {@link HttpSecurity} or returns the current instance
 	 *
-	 * ] * @return the {@link HttpSecurity}
+	 * @return the {@link HttpSecurity}
 	 * @throws Exception
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })

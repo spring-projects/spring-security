@@ -23,7 +23,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -286,16 +285,13 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		JWSKeySelector<SecurityContext> jwsKeySelector(JWKSource<SecurityContext> jwkSource) {
 			if (this.signatureAlgorithms.isEmpty()) {
 				return new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
-			} else if (this.signatureAlgorithms.size() == 1) {
-				JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(this.signatureAlgorithms.iterator().next().getName());
-				return new JWSVerificationKeySelector<>(jwsAlgorithm, jwkSource);
 			} else {
-				Map<JWSAlgorithm, JWSKeySelector<SecurityContext>> jwsKeySelectors = new HashMap<>();
+				Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
 				for (SignatureAlgorithm signatureAlgorithm : this.signatureAlgorithms) {
-					JWSAlgorithm jwsAlg = JWSAlgorithm.parse(signatureAlgorithm.getName());
-					jwsKeySelectors.put(jwsAlg, new JWSVerificationKeySelector<>(jwsAlg, jwkSource));
+					JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
+					jwsAlgorithms.add(jwsAlgorithm);
 				}
-				return new JWSAlgorithmMapJWSKeySelector<>(jwsKeySelectors);
+				return new JWSVerificationKeySelector<>(jwsAlgorithms, jwkSource);
 			}
 		}
 

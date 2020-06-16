@@ -90,7 +90,7 @@ public final class SecurityJackson2Modules {
 		if (mapper != null) {
 			TypeResolverBuilder<?> typeBuilder = mapper.getDeserializationConfig().getDefaultTyper(null);
 			if (typeBuilder == null) {
-				mapper.setDefaultTyping(createWhitelistedDefaultTyping());
+				mapper.setDefaultTyping(createAllowlistedDefaultTyping());
 			}
 		}
 	}
@@ -148,11 +148,11 @@ public final class SecurityJackson2Modules {
 	}
 
 	/**
-	 * Creates a TypeResolverBuilder that performs whitelisting.
-	 * @return a TypeResolverBuilder that performs whitelisting.
+	 * Creates a TypeResolverBuilder that restricts allowed types.
+	 * @return a TypeResolverBuilder that restricts allowed types.
 	 */
-	private static TypeResolverBuilder<? extends TypeResolverBuilder> createWhitelistedDefaultTyping() {
-		TypeResolverBuilder<? extends TypeResolverBuilder>  result = new WhitelistTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
+	private static TypeResolverBuilder<? extends TypeResolverBuilder> createAllowlistedDefaultTyping() {
+		TypeResolverBuilder<? extends TypeResolverBuilder>  result = new AllowlistTypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL);
 		result = result.init(JsonTypeInfo.Id.CLASS, null);
 		result = result.inclusion(JsonTypeInfo.As.PROPERTY);
 		return result;
@@ -164,9 +164,9 @@ public final class SecurityJackson2Modules {
 	 * and overrides the {@code TypeIdResolver}
 	 * @author Rob Winch
 	 */
-	static class WhitelistTypeResolverBuilder extends ObjectMapper.DefaultTypeResolverBuilder {
+	static class AllowlistTypeResolverBuilder extends ObjectMapper.DefaultTypeResolverBuilder {
 
-		WhitelistTypeResolverBuilder(ObjectMapper.DefaultTyping defaultTyping) {
+		AllowlistTypeResolverBuilder(ObjectMapper.DefaultTyping defaultTyping) {
 			super(
 					defaultTyping,
 					//we do explicit validation in the TypeIdResolver
@@ -182,17 +182,17 @@ public final class SecurityJackson2Modules {
 				PolymorphicTypeValidator subtypeValidator,
 				Collection<NamedType> subtypes, boolean forSer, boolean forDeser) {
 			TypeIdResolver result = super.idResolver(config, baseType, subtypeValidator, subtypes, forSer, forDeser);
-			return new WhitelistTypeIdResolver(result);
+			return new AllowlistTypeIdResolver(result);
 		}
 	}
 
 	/**
 	 * A {@link TypeIdResolver} that delegates to an existing implementation and throws an IllegalStateException if the
-	 * class being looked up is not whitelisted, does not provide an explicit mixin, and is not annotated with Jackson
+	 * class being looked up is not in the allowlist, does not provide an explicit mixin, and is not annotated with Jackson
 	 * mappings. See https://github.com/spring-projects/spring-security/issues/4370
 	 */
-	static class WhitelistTypeIdResolver implements TypeIdResolver {
-		private static final Set<String> WHITELIST_CLASS_NAMES = Collections.unmodifiableSet(new HashSet(Arrays.asList(
+	static class AllowlistTypeIdResolver implements TypeIdResolver {
+		private static final Set<String> ALLOWLIST_CLASS_NAMES = Collections.unmodifiableSet(new HashSet(Arrays.asList(
 			"java.util.ArrayList",
 			"java.util.Collections$EmptyList",
 			"java.util.Collections$EmptyMap",
@@ -209,7 +209,7 @@ public final class SecurityJackson2Modules {
 
 		private final TypeIdResolver delegate;
 
-		WhitelistTypeIdResolver(TypeIdResolver delegate) {
+		AllowlistTypeIdResolver(TypeIdResolver delegate) {
 			this.delegate = delegate;
 		}
 
@@ -238,7 +238,7 @@ public final class SecurityJackson2Modules {
 			DeserializationConfig config = (DeserializationConfig) context.getConfig();
 			JavaType result = delegate.typeFromId(context, id);
 			String className = result.getRawClass().getName();
-			if (isWhitelisted(className)) {
+			if (isInAllowlist(className)) {
 				return result;
 			}
 			boolean isExplicitMixin = config.findMixInClassFor(result.getRawClass()) != null;
@@ -249,14 +249,14 @@ public final class SecurityJackson2Modules {
 			if (jacksonAnnotation != null) {
 				return result;
 			}
-			throw new IllegalArgumentException("The class with " + id + " and name of " + className + " is not whitelisted. " +
+			throw new IllegalArgumentException("The class with " + id + " and name of " + className + " is not in the allowlist. " +
 				"If you believe this class is safe to deserialize, please provide an explicit mapping using Jackson annotations or by providing a Mixin. " +
 				"If the serialization is only done by a trusted source, you can also enable default typing. " +
 				"See https://github.com/spring-projects/spring-security/issues/4370 for details");
 		}
 
-		private boolean isWhitelisted(String id) {
-			return WHITELIST_CLASS_NAMES.contains(id);
+		private boolean isInAllowlist(String id) {
+			return ALLOWLIST_CLASS_NAMES.contains(id);
 		}
 
 		@Override

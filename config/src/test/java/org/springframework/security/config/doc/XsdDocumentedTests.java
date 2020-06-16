@@ -52,7 +52,12 @@ public class XsdDocumentedTests {
 		"nsa-websocket-security",
 		"nsa-ldap",
 		"nsa-method-security",
-		"nsa-web");
+		"nsa-web",
+		// deprecated and for removal
+		"nsa-frame-options-strategy",
+		"nsa-frame-options-ref",
+		"nsa-frame-options-value",
+		"nsa-frame-options-from-parameter");
 
 	String referenceLocation = "../docs/manual/src/docs/asciidoc/_includes/servlet/appendix/namespace.adoc";
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,13 @@ import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessT
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
@@ -55,8 +59,8 @@ import java.util.function.Function;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.3">Section 4.1.3 Access Token Request</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response</a>
  */
-public class OAuth2AuthorizationCodeReactiveAuthenticationManager implements
-		ReactiveAuthenticationManager {
+public class OAuth2AuthorizationCodeReactiveAuthenticationManager implements ReactiveAuthenticationManager {
+	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 	private final ReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
 	public OAuth2AuthorizationCodeReactiveAuthenticationManager(
@@ -70,7 +74,16 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManager implements
 		return Mono.defer(() -> {
 			OAuth2AuthorizationCodeAuthenticationToken token = (OAuth2AuthorizationCodeAuthenticationToken) authentication;
 
-			OAuth2AuthorizationExchangeValidator.validate(token.getAuthorizationExchange());
+			OAuth2AuthorizationResponse authorizationResponse = token.getAuthorizationExchange().getAuthorizationResponse();
+			if (authorizationResponse.statusError()) {
+				return Mono.error(new OAuth2AuthorizationException(authorizationResponse.getError()));
+			}
+
+			OAuth2AuthorizationRequest authorizationRequest = token.getAuthorizationExchange().getAuthorizationRequest();
+			if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
+				OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
+				return Mono.error(new OAuth2AuthorizationException(oauth2Error));
+			}
 
 			OAuth2AuthorizationCodeGrantRequest authzRequest = new OAuth2AuthorizationCodeGrantRequest(
 					token.getClientRegistration(),

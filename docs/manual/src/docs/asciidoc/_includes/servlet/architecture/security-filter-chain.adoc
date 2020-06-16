@@ -23,7 +23,7 @@ In a Servlet container, ``Filter``s are invoked based upon the URL alone.
 However, `FilterChainProxy` can determine invocation based upon anything in the `HttpServletRequest` by leveraging the `RequestMatcher` interface.
 
 In fact, `FilterChainProxy` can be used to determine which `SecurityFilterChain` should be used.
-This allows providing a totally separate configuration for different _slices_ if your application.
+This allows providing a totally separate configuration for different _slices_ of your application.
 
 .Multiple SecurityFilterChain
 [[servlet-multi-securityfilterchain-figure]]

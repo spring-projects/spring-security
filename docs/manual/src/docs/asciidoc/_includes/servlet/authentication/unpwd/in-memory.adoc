@@ -65,7 +65,7 @@ The samples above store the passwords in a secure format, but leave a lot to be 
 
 
 In the sample below we leverage <<authentication-password-storage-dep-getting-started,User.withDefaultPasswordEncoder>> to ensure that the password stored in memory is protected.
-However, it does not protect the password against obtaining the password by decompiling the source code.
+However, it does not protect against obtaining the password by decompiling the source code.
 For this reason, `User.withDefaultPasswordEncoder` should only be used for "getting started" and is not intended for production.
 
 .InMemoryUserDetailsManager with User.withDefaultPasswordEncoder

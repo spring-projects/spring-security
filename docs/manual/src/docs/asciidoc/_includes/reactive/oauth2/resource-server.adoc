@@ -1082,7 +1082,7 @@ In this case, you construct `JwtIssuerReactiveAuthenticationManagerResolver` wit
 This approach allows us to add and remove elements from the repository (shown as a `Map` in the snippet) at runtime.
 
 NOTE: It would be unsafe to simply take any issuer and construct an `ReactiveAuthenticationManager` from it.
-The issuer should be one that the code can verify from a trusted source like a whitelist.
+The issuer should be one that the code can verify from a trusted source like an allowed list of issuers.
 
 [[webflux-oauth2resourceserver-bearertoken-resolver]]
 == Bearer Token Resolution

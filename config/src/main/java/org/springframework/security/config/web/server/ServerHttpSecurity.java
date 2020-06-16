@@ -32,6 +32,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -236,6 +238,7 @@ import static org.springframework.security.web.server.util.matcher.ServerWebExch
  * @author Rafiullah Hamedy
  * @author Eddú Meléndez
  * @author Joe Grandja
+ * @author Parikshit Dutta
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -1093,9 +1096,14 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationConverter getAuthenticationConverter(ReactiveClientRegistrationRepository clientRegistrationRepository) {
 			if (this.authenticationConverter == null) {
-				ServerOAuth2AuthorizationCodeAuthenticationTokenConverter authenticationConverter = new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository);
-				authenticationConverter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+				ServerOAuth2AuthorizationCodeAuthenticationTokenConverter delegate =
+						new ServerOAuth2AuthorizationCodeAuthenticationTokenConverter(clientRegistrationRepository);
+				delegate.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+				ServerAuthenticationConverter authenticationConverter = exchange ->
+						delegate.convert(exchange).onErrorMap(OAuth2AuthorizationException.class,
+								e -> new OAuth2AuthenticationException(e.getError(), e.getError().toString()));
 				this.authenticationConverter = authenticationConverter;
+				return authenticationConverter;
 			}
 			return this.authenticationConverter;
 		}
@@ -1511,10 +1519,17 @@ public class ServerHttpSecurity {
 			OAuth2AuthorizationCodeGrantWebFilter codeGrantWebFilter = new OAuth2AuthorizationCodeGrantWebFilter(
 					authenticationManager, authenticationConverter, authorizedClientRepository);
 			codeGrantWebFilter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+			if (http.requestCache != null) {
+				codeGrantWebFilter.setRequestCache(http.requestCache.requestCache);
+			}
 
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
 					clientRegistrationRepository);
 			oauthRedirectFilter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+			if (http.requestCache != null) {
+				oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
+			}
+
 			http.addFilterAt(codeGrantWebFilter, SecurityWebFiltersOrder.OAUTH2_AUTHORIZATION_CODE);
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 		}

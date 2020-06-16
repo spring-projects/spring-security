@@ -103,7 +103,7 @@ For example:
 Here we have defined that the "admin" area of an application (defined by the URL pattern) should only be available to users who have the granted authority "admin" and whose IP address matches a local subnet.
 We've already seen the built-in `hasRole` expression in the previous section.
 The expression `hasIpAddress` is an additional built-in expression which is specific to web security.
-It is defined by the `WebSecurityExpressionRoot` class, an instance of which is used as the expression root object when evaluation web-access expressions.
+It is defined by the `WebSecurityExpressionRoot` class, an instance of which is used as the expression root object when evaluating web-access expressions.
 This object also directly exposed the `HttpServletRequest` object under the name `request` so you can invoke the request directly in an expression.
 If expressions are being used, a `WebExpressionVoter` will be added to the `AccessDecisionManager` which is used by the namespace.
 So if you aren't using the namespace and want to use expressions, you will have to add one of these to your configuration.
@@ -207,7 +207,7 @@ Their use is enabled through the `global-method-security` namespace element:
 
 ===== Access Control using @PreAuthorize and @PostAuthorize
 The most obviously useful annotation is `@PreAuthorize` which decides whether a method can actually be invoked or not.
-For example (from the"Contacts" sample application)
+For example (from the "Contacts" sample application)
 
 [source,java]
 ----
@@ -226,7 +226,7 @@ public void deletePermission(Contact contact, Sid recipient, Permission permissi
 ----
 
 Here we're actually using a method argument as part of the expression to decide whether the current user has the "admin"permission for the given contact.
-The built-in `hasPermission()` expression is linked into the Spring Security ACL module through the application context, as we'll<<el-permission-evaluator,see below>>.
+The built-in `hasPermission()` expression is linked into the Spring Security ACL module through the application context, as we'll <<el-permission-evaluator,see below>>.
 You can access any of the method arguments by name as expression variables.
 
 There are a number of ways in which Spring Security can resolve the method arguments.
@@ -251,7 +251,7 @@ public void doSomething(@P("c") Contact contact);
 
 +
 
-Behind the scenes this use implemented using `AnnotationParameterNameDiscoverer` which can be customized to support the value attribute of any specified annotation.
+Behind the scenes this is implemented using `AnnotationParameterNameDiscoverer` which can be customized to support the value attribute of any specified annotation.
 
 * If Spring Data's `@Param` annotation is present on at least one parameter for the method, the value will be used.
 This is useful for interfaces compiled with a JDK prior to JDK 8 which do not contain any information about the parameter names.
@@ -271,7 +271,7 @@ Contact findContactByName(@Param("n") String name);
 
 +
 
-Behind the scenes this use implemented using `AnnotationParameterNameDiscoverer` which can be customized to support the value attribute of any specified annotation.
+Behind the scenes this is implemented using `AnnotationParameterNameDiscoverer` which can be customized to support the value attribute of any specified annotation.
 
 * If JDK 8 was used to compile the source with the -parameters argument and Spring 4+ is being used, then the standard JDK reflection API is used to discover the parameter names.
 This works on both classes and interfaces.

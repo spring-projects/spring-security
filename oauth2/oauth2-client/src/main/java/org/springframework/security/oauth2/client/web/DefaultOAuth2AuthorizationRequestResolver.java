@@ -87,6 +87,9 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	@Override
 	public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
 		String registrationId = this.resolveRegistrationId(request);
+		if (registrationId == null) {
+			return null;
+		}
 		String redirectUriAction = getAction(request, "login");
 		return resolve(request, registrationId, redirectUriAction);
 	}
