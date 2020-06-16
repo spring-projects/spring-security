@@ -268,7 +268,11 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>> exte
 			if (this.accessTokenResponseClient != null) {
 				return this.accessTokenResponseClient;
 			}
-			return new DefaultAuthorizationCodeTokenResponseClient();
+			DefaultAuthorizationCodeTokenResponseClient authorizationCodeTokenResponseClient =
+					new DefaultAuthorizationCodeTokenResponseClient();
+			authorizationCodeTokenResponseClient.setRestOperations(
+					OAuth2ClientConfigurerUtils.getRestOperationsBean(getBuilder()));
+			return authorizationCodeTokenResponseClient;
 		}
 	}
 

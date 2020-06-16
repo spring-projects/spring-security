@@ -20,6 +20,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -27,6 +29,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.oauth2.client.OAuth2ClientBeanNames;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -55,6 +58,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,7 +67,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -263,6 +271,52 @@ public class OAuth2ClientConfigurerTests {
 		verify(authorizationRequestResolver).resolve(any());
 	}
 
+	@Test
+	public void configureWhenRestOperationsProvidedAndClientAuthorizationSucceedsThenRestOperationsUsed() throws Exception {
+		this.spring.register(OAuth2ClientRestOperationsConfig.class).autowire();
+
+		// Setup the Authorization Request in the session
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, this.registration1.getRegistrationId());
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(this.registration1.getProviderDetails().getAuthorizationUri())
+				.clientId(this.registration1.getClientId())
+				.redirectUri("http://localhost/client-1")
+				.state("state")
+				.attributes(attributes)
+				.build();
+
+		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository =
+				new HttpSessionOAuth2AuthorizationRequestRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(300)
+				.build();
+		when(OAuth2ClientRestOperationsConfig.restOperations.exchange(
+				any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class)))
+				.thenReturn(ResponseEntity.ok(accessTokenResponse));
+
+		MockHttpSession session = (MockHttpSession) request.getSession();
+
+		String principalName = "user1";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
+
+		this.mockMvc.perform(get("/client-1")
+				.param(OAuth2ParameterNames.CODE, "code")
+				.param(OAuth2ParameterNames.STATE, "state")
+				.with(authentication(authentication))
+				.session(session))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/client-1"));
+
+		verify(OAuth2ClientRestOperationsConfig.restOperations).exchange(
+				any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class));
+	}
+
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class OAuth2ClientConfig extends WebSecurityConfigurerAdapter {
@@ -323,6 +377,46 @@ public class OAuth2ClientConfigurerTests {
 		@Bean
 		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return authorizedClientRepository;
+		}
+	}
+
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class OAuth2ClientRestOperationsConfig extends WebSecurityConfigurerAdapter {
+		static RestOperations restOperations = mock(RestOperations.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.oauth2Client()
+					.authorizationCodeGrant()
+						.authorizationRequestResolver(authorizationRequestResolver);
+		}
+
+		@Bean(OAuth2ClientBeanNames.REST_OPERATIONS)
+		public RestOperations restOperations() {
+			return restOperations;
+		}
+
+		@Bean
+		public ClientRegistrationRepository clientRegistrationRepository() {
+			return clientRegistrationRepository;
+		}
+
+		@Bean
+		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return authorizedClientRepository;
+		}
+
+		@RestController
+		public class ResourceController {
+			@GetMapping("/resource1")
+			public String resource1(@RegisteredOAuth2AuthorizedClient("registration-1") OAuth2AuthorizedClient authorizedClient) {
+				return "resource1";
+			}
 		}
 	}
 }

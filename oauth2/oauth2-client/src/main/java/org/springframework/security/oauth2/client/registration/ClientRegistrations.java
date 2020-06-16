@@ -16,20 +16,12 @@
 
 package org.springframework.security.oauth2.client.registration;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import net.minidev.json.JSONObject;
-
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -38,8 +30,16 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Allows creating a {@link ClientRegistration.Builder} from an
@@ -55,7 +55,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public final class ClientRegistrations {
 	private static final String OIDC_METADATA_PATH = "/.well-known/openid-configuration";
 	private static final String OAUTH_METADATA_PATH = "/.well-known/oauth-authorization-server";
-	private static final RestTemplate rest = new RestTemplate();
+	private static RestOperations rest = new RestTemplate();
 	private static final ParameterizedTypeReference<Map<String, Object>> typeReference =
 			new ParameterizedTypeReference<Map<String, Object>>() {};
 
@@ -136,6 +136,17 @@ public final class ClientRegistrations {
 		Assert.hasText(issuer, "issuer cannot be empty");
 		URI uri = URI.create(issuer);
 		return getBuilder(issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
+	}
+
+	/**
+	 * Sets the {@link RestOperations} used when requesting the discovery endpoint.
+	 *
+	 * @since 5.4
+	 * @param restOperations the {@link RestOperations} used when requesting the discovery endpoint
+	 */
+	public static void setRestOperations(RestOperations restOperations) {
+		Assert.notNull(restOperations, "restOperations cannot be null");
+		rest = restOperations;
 	}
 
 	private static Supplier<ClientRegistration.Builder> oidc(URI issuer) {

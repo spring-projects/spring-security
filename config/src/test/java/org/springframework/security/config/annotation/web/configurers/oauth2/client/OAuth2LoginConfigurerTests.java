@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,21 @@
  */
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.http.HttpHeaders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -43,6 +38,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
+import org.springframework.security.config.oauth2.client.OAuth2ClientBeanNames;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -85,12 +81,22 @@ import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.core.oidc.TestOidcIdTokens.idToken;
 import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
@@ -585,6 +591,45 @@ public class OAuth2LoginConfigurerTests {
 				.andExpect(redirectedUrl("https://logout?id_token_hint=id-token"));
 	}
 
+	@Test
+	public void oidcLoginWithCustomRestOperationsThenUsed() throws Exception {
+		// setup application context
+		loadConfig(OAuth2LoginConfigCustomRestOperations.class, JwtDecoderFactoryConfig.class);
+
+		// setup authorization request
+		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest("openid");
+		this.authorizationRequestRepository.saveAuthorizationRequest(
+				authorizationRequest, this.request, this.response);
+
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("accessToken123")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.additionalParameters(Collections.singletonMap(OidcParameterNames.ID_TOKEN, "token123"))
+				.build();
+		when(OAuth2LoginConfigCustomRestOperations.restOperations.exchange(
+				any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class)))
+				.thenReturn(ResponseEntity.ok(accessTokenResponse));
+
+		ParameterizedTypeReference<Map<String, Object>> parameterizedType =
+				new ParameterizedTypeReference<Map<String, Object>>() {};
+		Map<String, Object> userInfoResponse = TestOidcUsers.create().getUserInfo().getClaims();
+		when(OAuth2LoginConfigCustomRestOperations.restOperations.exchange(
+				any(RequestEntity.class), eq(parameterizedType)))
+				.thenReturn(ResponseEntity.ok(userInfoResponse));
+
+		// setup authentication parameters
+		this.request.setParameter("code", "code123");
+		this.request.setParameter("state", authorizationRequest.getState());
+
+		// perform test
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+
+		// assertions
+		verify(OAuth2LoginConfigCustomRestOperations.restOperations).exchange(
+				any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class));
+		verify(OAuth2LoginConfigCustomRestOperations.restOperations).exchange(
+				any(RequestEntity.class), eq(parameterizedType));
+	}
+
 	private void loadConfig(Class<?>... configs) {
 		AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
 		applicationContext.register(configs);
@@ -853,6 +898,33 @@ public class OAuth2LoginConfigurerTests {
 			return new InMemoryClientRegistrationRepository(
 					TestClientRegistrations.clientRegistration()
 							.providerConfigurationMetadata(providerMetadata).build());
+		}
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginConfigCustomRestOperations extends CommonWebSecurityConfigurerAdapter {
+		static RestOperations restOperations = mock(RestOperations.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.securityContext()
+					.securityContextRepository(securityContextRepository())
+					.and()
+				.oauth2Login();
+		}
+
+		@Bean
+		ClientRegistrationRepository clientRegistrationRepository() {
+			return new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION);
+		}
+
+		@Bean(OAuth2ClientBeanNames.REST_OPERATIONS)
+		RestOperations restOperations() {
+			return restOperations;
 		}
 	}
 

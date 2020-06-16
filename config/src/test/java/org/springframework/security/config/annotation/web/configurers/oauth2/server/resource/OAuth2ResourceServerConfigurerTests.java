@@ -59,6 +59,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -2397,6 +2398,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	static class RestOperationsConfig {
 		RestOperations rest = mock(RestOperations.class);
 
+		@Primary
 		@Bean
 		RestOperations rest() {
 			return this.rest;

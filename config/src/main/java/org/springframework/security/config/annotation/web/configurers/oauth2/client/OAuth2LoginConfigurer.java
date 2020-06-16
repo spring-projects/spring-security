@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -503,7 +503,11 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient =
 			this.tokenEndpointConfig.accessTokenResponseClient;
 		if (accessTokenResponseClient == null) {
-			accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
+			DefaultAuthorizationCodeTokenResponseClient authorizationCodeTokenResponseClient =
+					new DefaultAuthorizationCodeTokenResponseClient();
+			authorizationCodeTokenResponseClient.setRestOperations(
+					OAuth2ClientConfigurerUtils.getRestOperationsBean(getBuilder()));
+			accessTokenResponseClient = authorizationCodeTokenResponseClient;
 		}
 
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = getOAuth2UserService();
@@ -619,7 +623,11 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		ResolvableType type = ResolvableType.forClassWithGenerics(OAuth2UserService.class, OidcUserRequest.class, OidcUser.class);
 		OAuth2UserService<OidcUserRequest, OidcUser> bean = getBeanOrNull(type);
 		if (bean == null) {
-			return new OidcUserService();
+			DefaultOAuth2UserService userService = new DefaultOAuth2UserService();
+			userService.setRestOperations(OAuth2ClientConfigurerUtils.getRestOperationsBean(getBuilder()));
+			OidcUserService oidcUserService = new OidcUserService();
+			oidcUserService.setOauth2UserService(userService);
+			return oidcUserService;
 		}
 
 		return bean;
@@ -632,13 +640,18 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>> exten
 		ResolvableType type = ResolvableType.forClassWithGenerics(OAuth2UserService.class, OAuth2UserRequest.class, OAuth2User.class);
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> bean = getBeanOrNull(type);
 		if (bean == null) {
+			DefaultOAuth2UserService userService = new DefaultOAuth2UserService();
+			userService.setRestOperations(OAuth2ClientConfigurerUtils.getRestOperationsBean(getBuilder()));
 			if (!this.userInfoEndpointConfig.customUserTypes.isEmpty()) {
 				List<OAuth2UserService<OAuth2UserRequest, OAuth2User>> userServices = new ArrayList<>();
-				userServices.add(new CustomUserTypesOAuth2UserService(this.userInfoEndpointConfig.customUserTypes));
-				userServices.add(new DefaultOAuth2UserService());
+				CustomUserTypesOAuth2UserService customUserTypesUserService =
+						new CustomUserTypesOAuth2UserService(this.userInfoEndpointConfig.customUserTypes);
+				customUserTypesUserService.setRestOperations(OAuth2ClientConfigurerUtils.getRestOperationsBean(getBuilder()));
+				userServices.add(customUserTypesUserService);
+				userServices.add(userService);
 				return new DelegatingOAuth2UserService<>(userServices);
 			} else {
-				return new DefaultOAuth2UserService();
+				return userService;
 			}
 		}
 

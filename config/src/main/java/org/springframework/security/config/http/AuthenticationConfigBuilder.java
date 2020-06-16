@@ -15,18 +15,8 @@
  */
 package org.springframework.security.config.http;
 
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Element;
-
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
@@ -41,6 +31,8 @@ import org.springframework.security.authentication.AnonymousAuthenticationProvid
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
+import org.springframework.security.config.oauth2.client.DefaultOAuth2AuthorizedClientManagerPostProcessor;
+import org.springframework.security.config.oauth2.client.OAuth2ClientRestOperationsPostProcessor;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.mapping.SimpleAttributes2GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.SimpleMappableAttributesRetriever;
@@ -65,6 +57,15 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
+import org.w3c.dom.Element;
+
+import javax.servlet.http.HttpServletRequest;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import static org.springframework.security.config.http.SecurityFilters.ANONYMOUS_FILTER;
 import static org.springframework.security.config.http.SecurityFilters.BASIC_AUTH_FILTER;
@@ -169,6 +170,7 @@ final class AuthenticationConfigBuilder {
 	private BeanDefinition authorizationRequestRedirectFilter;
 	private BeanDefinition authorizationCodeGrantFilter;
 	private BeanReference authorizationCodeAuthenticationProviderRef;
+	private boolean oauth2ClientPostProcessorsRegistered;
 
 	private final List<BeanReference> authenticationProviders = new ManagedList<>();
 	private final Map<BeanDefinition, BeanMetadataElement> defaultDeniedHandlerMappings = new ManagedMap<>();
@@ -312,6 +314,8 @@ final class AuthenticationConfigBuilder {
 		pc.registerBeanComponent(new BeanComponentDefinition(
 				oauth2LoginOidcAuthProvider, oauth2LoginOidcAuthProviderId));
 		oauth2LoginOidcAuthenticationProviderRef = new RuntimeBeanReference(oauth2LoginOidcAuthProviderId);
+
+		registerOAuth2ClientPostProcessors();
 	}
 
 	void createOAuth2ClientFilter(BeanReference requestCache, BeanReference authenticationManager) {
@@ -342,6 +346,18 @@ final class AuthenticationConfigBuilder {
 		this.pc.registerBeanComponent(new BeanComponentDefinition(
 				authorizationCodeAuthenticationProvider, authorizationCodeAuthenticationProviderId));
 		this.authorizationCodeAuthenticationProviderRef = new RuntimeBeanReference(authorizationCodeAuthenticationProviderId);
+
+		registerOAuth2ClientPostProcessors();
+	}
+
+	private void registerOAuth2ClientPostProcessors() {
+		if (!this.oauth2ClientPostProcessorsRegistered) {
+			this.pc.getReaderContext().registerWithGeneratedName(
+					new RootBeanDefinition(OAuth2ClientRestOperationsPostProcessor.class));
+			this.pc.getReaderContext().registerWithGeneratedName(
+					new RootBeanDefinition(DefaultOAuth2AuthorizedClientManagerPostProcessor.class));
+			oauth2ClientPostProcessorsRegistered = true;
+		}
 	}
 
 	void createOpenIDLoginFilter(BeanReference sessionStrategy, BeanReference authManager) {

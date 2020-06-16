@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,14 @@ import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.oauth2.client.OAuth2ClientBeanNames;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestOperations;
 
 import java.util.Map;
 
@@ -95,5 +97,10 @@ final class OAuth2ClientConfigurerUtils {
 					authorizedClientServiceMap.size() + ": " + StringUtils.collectionToCommaDelimitedString(authorizedClientServiceMap.keySet()));
 		}
 		return (!authorizedClientServiceMap.isEmpty() ? authorizedClientServiceMap.values().iterator().next() : null);
+	}
+
+	static <B extends HttpSecurityBuilder<B>> RestOperations getRestOperationsBean(B builder) {
+		return builder.getSharedObject(ApplicationContext.class).getBean(
+				OAuth2ClientBeanNames.REST_OPERATIONS, RestOperations.class);
 	}
 }

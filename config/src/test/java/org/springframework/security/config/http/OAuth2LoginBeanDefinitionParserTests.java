@@ -20,7 +20,10 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
@@ -57,9 +60,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestOperations;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -68,10 +77,6 @@ import static org.springframework.security.oauth2.core.endpoint.TestOAuth2Access
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Tests for {@link OAuth2LoginBeanDefinitionParser}.
@@ -107,6 +112,9 @@ public class OAuth2LoginBeanDefinitionParserTests {
 
 	@Autowired(required = false)
 	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService;
+
+	@Autowired(required = false)
+	private RestOperations restOperations;
 
 	@Autowired(required = false)
 	private JwtDecoderFactory<ClientRegistration> jwtDecoderFactory;
@@ -487,6 +495,39 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.mvc.perform(get("/login/oauth2/code/" + clientRegistration.getRegistrationId()).params(params));
 
 		verify(authorizedClientService).saveAuthorizedClient(any(), any());
+	}
+
+	@Test
+	public void requestWhenCustomRestOperationsThenCalled() throws Exception {
+		this.spring.configLocations(this.xml("WithCustomRestOperations")).autowire();
+
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().userNameAttributeName("username").build();
+		when(this.clientRegistrationRepository.findByRegistrationId(any())).thenReturn(clientRegistration);
+
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
+				.attributes(attributes).build();
+		when(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any())).thenReturn(authorizationRequest);
+
+		OAuth2AccessTokenResponse accessTokenResponse = accessTokenResponse().build();
+		when(this.restOperations.exchange(any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class)))
+				.thenReturn(ResponseEntity.ok(accessTokenResponse));
+
+		ParameterizedTypeReference<Map<String, Object>> parameterizedType =
+				new ParameterizedTypeReference<Map<String, Object>>() {};
+		Map<String, Object> userInfoResponse = TestOAuth2Users.create().getAttributes();
+		when(this.restOperations.exchange(
+				any(RequestEntity.class), eq(parameterizedType)))
+				.thenReturn(ResponseEntity.ok(userInfoResponse));
+
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("code", "code123");
+		params.add("state", authorizationRequest.getState());
+		this.mvc.perform(get("/login/oauth2/code/" + clientRegistration.getRegistrationId()).params(params));
+
+		verify(this.restOperations).exchange(any(RequestEntity.class), eq(OAuth2AccessTokenResponse.class));
+		verify(this.restOperations).exchange(any(RequestEntity.class), eq(parameterizedType));
 	}
 
 	private String xml(String configName) {

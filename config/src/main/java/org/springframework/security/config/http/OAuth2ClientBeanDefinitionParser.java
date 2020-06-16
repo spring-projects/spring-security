@@ -22,6 +22,7 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.config.oauth2.client.OAuth2ClientBeanNames;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter;
@@ -153,6 +154,7 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 		} else {
 			accessTokenResponseClient = BeanDefinitionBuilder.rootBeanDefinition(
 					"org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient")
+					.addPropertyReference("restOperations", OAuth2ClientBeanNames.REST_OPERATIONS)
 					.getBeanDefinition();
 		}
 		return accessTokenResponseClient;

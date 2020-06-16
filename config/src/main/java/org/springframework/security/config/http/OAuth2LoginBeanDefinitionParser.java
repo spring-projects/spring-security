@@ -15,13 +15,6 @@
  */
 package org.springframework.security.config.http;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -37,6 +30,7 @@ import org.springframework.core.ResolvableType;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Elements;
+import org.springframework.security.config.oauth2.client.OAuth2ClientBeanNames;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
@@ -65,6 +59,13 @@ import org.springframework.util.xml.DomUtils;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 import org.w3c.dom.Element;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Ruby Hartono
@@ -320,8 +321,13 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		if (!StringUtils.isEmpty(oidcUserServiceRef)) {
 			oidcUserService = new RuntimeBeanReference(oidcUserServiceRef);
 		} else {
+			BeanMetadataElement oauth2UserService = BeanDefinitionBuilder
+					.rootBeanDefinition("org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService")
+					.addPropertyReference("restOperations", OAuth2ClientBeanNames.REST_OPERATIONS)
+					.getBeanDefinition();
 			oidcUserService = BeanDefinitionBuilder
 					.rootBeanDefinition("org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService")
+					.addPropertyValue("oauth2UserService", oauth2UserService)
 					.getBeanDefinition();
 		}
 		return oidcUserService;
@@ -335,6 +341,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		} else {
 			oauth2UserService = BeanDefinitionBuilder
 					.rootBeanDefinition("org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService")
+					.addPropertyReference("restOperations", OAuth2ClientBeanNames.REST_OPERATIONS)
 					.getBeanDefinition();
 		}
 		return oauth2UserService;
@@ -348,6 +355,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		} else {
 			accessTokenResponseClient = BeanDefinitionBuilder.rootBeanDefinition(
 					"org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient")
+					.addPropertyReference("restOperations", OAuth2ClientBeanNames.REST_OPERATIONS)
 					.getBeanDefinition();
 		}
 		return accessTokenResponseClient;
