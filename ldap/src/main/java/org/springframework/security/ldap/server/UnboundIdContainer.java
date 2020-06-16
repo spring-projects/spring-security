@@ -25,7 +25,6 @@ import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldif.LDIFReader;
 import java.util.Arrays;
-import java.util.Objects;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -37,7 +36,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * @author Eddú Meléndez
- * @author Shay Dratler
+ * @contributer Shay Dratler
  */
 public class UnboundIdContainer implements InitializingBean, DisposableBean, Lifecycle,
 		ApplicationContextAware {
@@ -140,7 +139,7 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 			throw new IllegalArgumentException("requested resource is not found");
 		}
 		return Arrays.stream(resources).filter(resource ->
-				Objects.requireNonNull(resource.getFilename()).equalsIgnoreCase(this.ldif)
+						!StringUtils.isEmpty(resource.getFilename())
 						&& resource.isFile()
 						&& resource.exists()
 						&& resource.isReadable()
