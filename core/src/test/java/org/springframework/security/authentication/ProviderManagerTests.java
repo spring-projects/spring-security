@@ -16,19 +16,27 @@
 
 package org.springframework.security.authentication;
 
-import org.junit.Test;
-import org.springframework.context.MessageSource;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Test;
+
+import org.springframework.context.MessageSource;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link ProviderManager}.
@@ -107,22 +115,12 @@ public class ProviderManagerTests {
 		new ProviderManager(Arrays.asList(mock(AuthenticationProvider.class), null));
 	}
 
+	// gh-8689
 	@Test
-	public void testUsingNullNotPermittedList() {
-		// imitated Java9 List.of(e) object, which disallows null elements and
-		// throws NPE when contains(null) called
-		List<AuthenticationProvider> providers = new ArrayList<AuthenticationProvider>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public boolean contains(Object o) {
-				if (o == null) {
-					throw new NullPointerException();
-				}
-				return super.contains(o);
-			}
-		};
-
+	public void constructorWhenUsingListOfThenNoException() {
+		List<AuthenticationProvider> providers = spy(ArrayList.class);
+		// List.of(null) in JDK 9 throws a NullPointerException
+		when(providers.contains(eq(null))).thenThrow(NullPointerException.class);
 		providers.add(mock(AuthenticationProvider.class));
 		new ProviderManager(providers);
 	}
