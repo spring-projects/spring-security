@@ -54,8 +54,7 @@ import org.xml.sax.InputSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -95,18 +94,16 @@ public class OpenSamlAuthenticationProviderTests {
 	@Test
 	public void supportsWhenSaml2AuthenticationTokenThenReturnTrue() {
 
-		assertTrue(
-				OpenSamlAuthenticationProvider.class + "should support " + Saml2AuthenticationToken.class,
-				this.provider.supports(Saml2AuthenticationToken.class)
-		);
+		assertThat(this.provider.supports(Saml2AuthenticationToken.class))
+				.withFailMessage(OpenSamlAuthenticationProvider.class + "should support " + Saml2AuthenticationToken.class)
+				.isTrue();
 	}
 
 	@Test
 	public void supportsWhenNotSaml2AuthenticationTokenThenReturnFalse() {
-		assertTrue(
-				OpenSamlAuthenticationProvider.class + "should not support " + Authentication.class,
-				!this.provider.supports(Authentication.class)
-		);
+		assertThat(!this.provider.supports(Authentication.class))
+				.withFailMessage(OpenSamlAuthenticationProvider.class + "should not support " + Authentication.class)
+				.isTrue();
 	}
 
 	@Test
@@ -237,8 +234,8 @@ public class OpenSamlAuthenticationProviderTests {
 		Instant registeredDate = Instant.ofEpochMilli(DateTime.parse("1970-01-01T00:00:00Z").getMillis());
 		expected.put("registeredDate", Collections.singletonList(registeredDate));
 
-		assertEquals("John Doe", principal.getFirstAttribute("name"));
-		assertEquals(expected, principal.getAttributes());
+		assertThat((String) principal.getFirstAttribute("name")).isEqualTo("John Doe");
+		assertThat(principal.getAttributes()).isEqualTo(expected);
 	}
 
 	@Test
