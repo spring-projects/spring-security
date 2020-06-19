@@ -57,6 +57,7 @@ public class SimpleSavedRequest implements SavedRequest {
 		}
 		this.locales = request.getLocales();
 		this.parameters = request.getParameterMap();
+		this.method = request.getMethod();
 	}
 
 	@Override
@@ -71,7 +72,7 @@ public class SimpleSavedRequest implements SavedRequest {
 
 	@Override
 	public String getMethod() {
-		return null;
+		return this.method;
 	}
 
 	@Override
