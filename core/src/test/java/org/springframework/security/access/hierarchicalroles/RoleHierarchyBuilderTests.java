@@ -51,8 +51,8 @@ public class RoleHierarchyBuilderTests {
 		RoleHierarchy roleHierarchy = RoleHierarchyBuilder
 				.builder()
 				.role(ROLE_A)
-				.includes(ROLE_B)
-				.build();
+					.includes(ROLE_B)
+					.build();
 
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchy.getReachableGrantedAuthorities(authorities0),
@@ -74,7 +74,7 @@ public class RoleHierarchyBuilderTests {
 		List<GrantedAuthority> authorities3 = AuthorityUtils.createAuthorityList(ROLE_A,
 				ROLE_B, ROLE_C, ROLE_D);
 
-		RoleHierarchy roleHierarchy = RoleHierarchyBuilder
+		RoleHierarchy roleHierarchy1 = RoleHierarchyBuilder
 				.builder()
 				.role(ROLE_A)
 				.includes(ROLE_B)
@@ -82,19 +82,48 @@ public class RoleHierarchyBuilderTests {
 				.build();
 
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
-				roleHierarchy.getReachableGrantedAuthorities(authorities1),
+				roleHierarchy1.getReachableGrantedAuthorities(authorities1),
 				authorities2)).isTrue();
 
 		RoleHierarchy roleHierarchy2 = RoleHierarchyBuilder
 				.builder()
 				.role(ROLE_A)
-				.includes(ROLE_B)
-				.includes(ROLE_C)
-				.includes(ROLE_D)
-				.build();
+					.includes(ROLE_B)
+					.and()
+				.role(ROLE_B)
+					.includes(ROLE_C)
+					.build();
 
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchy2.getReachableGrantedAuthorities(authorities1),
+				authorities2)).isTrue();
+
+		RoleHierarchy roleHierarchy3 = RoleHierarchyBuilder
+				.builder()
+				.role(ROLE_A)
+					.includes(ROLE_B)
+					.includes(ROLE_C)
+					.includes(ROLE_D)
+					.build();
+
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				roleHierarchy3.getReachableGrantedAuthorities(authorities1),
+				authorities3)).isTrue();
+
+		RoleHierarchy roleHierarchy4 = RoleHierarchyBuilder
+				.builder()
+				.role(ROLE_A)
+					.includes(ROLE_B)
+					.and()
+				.role(ROLE_B)
+					.includes(ROLE_C)
+					.and()
+				.role(ROLE_C)
+					.includes(ROLE_D)
+					.build();
+
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				roleHierarchy4.getReachableGrantedAuthorities(authorities1),
 				authorities3)).isTrue();
 	}
 
@@ -132,10 +161,6 @@ public class RoleHierarchyBuilderTests {
 					.includes(ROLE_D)
 					.build();
 
-		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
-		roleHierarchyImpl.setHierarchy(
-				"ROLE_A > ROLE_B\nROLE_A > ROLE_C\nROLE_C > ROLE_D\nROLE_B > ROLE_D");
-
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchy.getReachableGrantedAuthorities(authoritiesInput1),
 				authoritiesOutput1)).isTrue();
@@ -148,62 +173,158 @@ public class RoleHierarchyBuilderTests {
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
 				roleHierarchy.getReachableGrantedAuthorities(authoritiesInput4),
 				authoritiesOutput4)).isTrue();
+
+		RoleHierarchy roleHierarchy2 = RoleHierarchyBuilder
+				.builder()
+				.role(ROLE_A)
+					.includes(ROLE_B)
+					.includes(ROLE_D)
+					.and()
+				.role(ROLE_A)
+					.includes(ROLE_C)
+					.includes(ROLE_D)
+					.build();
+
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				roleHierarchy2.getReachableGrantedAuthorities(authoritiesInput1),
+				authoritiesOutput1)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				roleHierarchy2.getReachableGrantedAuthorities(authoritiesInput2),
+				authoritiesOutput2)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				roleHierarchy2.getReachableGrantedAuthorities(authoritiesInput3),
+				authoritiesOutput3)).isTrue();
+		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
+				roleHierarchy2.getReachableGrantedAuthorities(authoritiesInput4),
+				authoritiesOutput4)).isTrue();
 	}
 
 	@Test
 	public void testCyclesInRoleHierarchy() {
 		try {
-			RoleHierarchyBuilder.builder().role(ROLE_A).includes(ROLE_A).build();
+			RoleHierarchyBuilder
+					.builder()
+					.role(ROLE_A)
+						.includes(ROLE_A)
+						.build();
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
 		}
 
 		try {
-			RoleHierarchyBuilder.builder().role(ROLE_A).includes(ROLE_B).includes(ROLE_A).build();
+			RoleHierarchyBuilder
+					.builder()
+					.role(ROLE_A)
+						.includes(ROLE_B)
+						.includes(ROLE_A)
+						.build();
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
 		}
 
 		try {
-			RoleHierarchyBuilder.builder().role(ROLE_A).includes(ROLE_B).and().role(ROLE_B).includes(ROLE_A).build();
+			RoleHierarchyBuilder
+					.builder()
+						.role(ROLE_A)
+						.includes(ROLE_B)
+						.and()
+					.role(ROLE_B)
+						.includes(ROLE_A)
+						.build();
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
 		}
 
 		try {
-			RoleHierarchyBuilder.builder().role(ROLE_A).includes(ROLE_B).includes(ROLE_C).includes(ROLE_A).build();
+			RoleHierarchyBuilder
+					.builder()
+					.role(ROLE_A)
+						.includes(ROLE_B)
+						.includes(ROLE_C)
+						.includes(ROLE_A)
+						.build();
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
 		}
 
 		try {
-			RoleHierarchyBuilder.builder().role(ROLE_A).includes(ROLE_B).and().role(ROLE_B).includes(ROLE_C).and().role(ROLE_C).includes(ROLE_A).build();
+			RoleHierarchyBuilder
+					.builder()
+					.role(ROLE_A)
+						.includes(ROLE_B)
+						.and()
+					.role(ROLE_B)
+						.includes(ROLE_C)
+						.and()
+					.role(ROLE_C)
+						.includes(ROLE_A)
+						.build();
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
 		}
 
 		try {
-			RoleHierarchyBuilder.builder().role(ROLE_A).includes(ROLE_B).includes(ROLE_C).includes(ROLE_E).includes(ROLE_D).includes(ROLE_B).build();
+			RoleHierarchyBuilder
+					.builder()
+					.role(ROLE_A)
+						.includes(ROLE_B)
+						.includes(ROLE_C)
+						.includes(ROLE_E)
+						.includes(ROLE_D)
+						.includes(ROLE_B)
+						.build();
 
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
 		}
 
 		try {
-			RoleHierarchyBuilder.builder().role(ROLE_A).includes(ROLE_B).and().role(ROLE_B).includes(ROLE_C).and().role(ROLE_C).includes(ROLE_E).and().role(ROLE_E).includes(ROLE_D).and().role(ROLE_D).includes(ROLE_B).build();
+			RoleHierarchyBuilder
+					.builder()
+					.role(ROLE_A)
+						.includes(ROLE_B)
+						.and()
+					.role(ROLE_B)
+						.includes(ROLE_C)
+						.and()
+					.role(ROLE_C)
+						.includes(ROLE_E)
+						.and()
+					.role(ROLE_E)
+						.includes(ROLE_D)
+						.and()
+					.role(ROLE_D)
+						.includes(ROLE_B)
+						.build();
 
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
 		}
 
 		try {
-			RoleHierarchyBuilder.builder().role(ROLE_C).includes(ROLE_B).includes(ROLE_A).includes(ROLE_B).build();
+			RoleHierarchyBuilder
+					.builder()
+					.role(ROLE_C)
+						.includes(ROLE_B)
+						.includes(ROLE_A)
+						.includes(ROLE_B)
+						.build();
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
 		}
 
 		try {
-			RoleHierarchyBuilder.builder().role(ROLE_C).includes(ROLE_B).and().role(ROLE_B).includes(ROLE_A).and().role(ROLE_A).includes(ROLE_B).build();
+			RoleHierarchyBuilder
+					.builder()
+					.role(ROLE_C)
+						.includes(ROLE_B)
+						.and()
+					.role(ROLE_B)
+						.includes(ROLE_A)
+						.and()
+					.role(ROLE_A)
+						.includes(ROLE_B)
+						.build();
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
 		}
@@ -217,13 +338,13 @@ public class RoleHierarchyBuilderTests {
 			RoleHierarchyBuilder
 					.builder()
 					.role(ROLE_A)
-					.includes(ROLE_B)
-					.includes(ROLE_D)
-					.and()
+						.includes(ROLE_B)
+						.includes(ROLE_D)
+						.and()
 					.role(ROLE_A)
-					.includes(ROLE_C)
-					.includes(ROLE_D)
-					.build();
+						.includes(ROLE_C)
+						.includes(ROLE_D)
+						.build();
 
 		} catch (CycleInRoleHierarchyException e) {
 			fail("A cycle in role hierarchy was incorrectly detected!");
@@ -244,8 +365,8 @@ public class RoleHierarchyBuilderTests {
 		RoleHierarchy roleHierarchy = RoleHierarchyBuilder
 				.builder()
 				.role(ROLE_A)
-				.includes(ROLE_B)
-				.build();
+					.includes(ROLE_B)
+					.build();
 
 		assertThat(
 				HierarchicalRolesTestHelper.containTheSameGrantedAuthoritiesCompareByAuthorityString(

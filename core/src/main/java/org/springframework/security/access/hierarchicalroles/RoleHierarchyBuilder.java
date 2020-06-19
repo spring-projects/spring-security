@@ -18,7 +18,10 @@ package org.springframework.security.access.hierarchicalroles;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The simple interface of a role hierarchy.
@@ -26,9 +29,13 @@ import java.util.*;
  * @author Sebastijan Grabar
  */
 public class RoleHierarchyBuilder {
-	private final Map<String, Set<GrantedAuthority>> rolesReachableInOneOrMoreStepsMap = new HashMap<>();
+	private final Map<String, Set<GrantedAuthority>> rolesReachableInOneStepMap = new HashMap<>();
 
 	private RoleHierarchyBuilder() {
+	}
+
+	public static RoleHierarchyBuilder builder() {
+		return new RoleHierarchyBuilder();
 	}
 
 	public CurrRole role(String role_1) {
@@ -36,70 +43,41 @@ public class RoleHierarchyBuilder {
 	}
 
 	private void addReachableRole(String currRole, String nextReachableRole) {
-		if (!rolesReachableInOneOrMoreStepsMap.containsKey(currRole)) {
-			Set<GrantedAuthority> reachableRoles = new HashSet<>();
-			reachableRoles
-					.add(new SimpleGrantedAuthority(nextReachableRole));
+		Set<GrantedAuthority> reachableRoles = rolesReachableInOneStepMap
+				.getOrDefault(currRole, new HashSet<>());
 
-			rolesReachableInOneOrMoreStepsMap
-					.put(currRole, reachableRoles);
-		} else {
-			rolesReachableInOneOrMoreStepsMap
-					.get(currRole)
-					.add(new SimpleGrantedAuthority(nextReachableRole));
-		}
+		reachableRoles
+				.add(new SimpleGrantedAuthority(nextReachableRole));
 
-
-		if (rolesReachableInOneOrMoreStepsMap.containsKey(nextReachableRole)) {
-			rolesReachableInOneOrMoreStepsMap
-					.get(currRole)
-					.addAll(
-							rolesReachableInOneOrMoreStepsMap
-									.get(nextReachableRole)
-					);
-		}
-
-
+		rolesReachableInOneStepMap
+				.put(currRole, reachableRoles);
 	}
 
-	private Map<String, Set<GrantedAuthority>> getRolesReachableInOneOrMoreStepsMap() {
-		return Collections.unmodifiableMap(this.rolesReachableInOneOrMoreStepsMap);
+	private Map<String, Set<GrantedAuthority>> getRolesReachableInOneStepMap() {
+		return this.rolesReachableInOneStepMap;
 	}
-
 
 	public static class CurrRole {
 
+		private final String currRole;
 		private final RoleHierarchyBuilder roleHierarchyBuilder;
-		private final List<String> rolesTree = new ArrayList<>();
 
 		private CurrRole(String role_1, RoleHierarchyBuilder roleHierarchyBuilder) {
+			this.currRole = role_1;
 			this.roleHierarchyBuilder = roleHierarchyBuilder;
-			rolesTree.add(role_1);
 		}
 
 		public CurrRole includes(String role_2) {
-			rolesTree.add(role_2);
-			return this;
+			roleHierarchyBuilder.addReachableRole(currRole, role_2);
+			return new CurrRole(role_2, roleHierarchyBuilder);
 		}
 
 		public RoleHierarchyBuilder and() {
-			for (int i = rolesTree.size() - 2; i >= 0; i--) {
-				roleHierarchyBuilder.addReachableRole(rolesTree.get(i), rolesTree.get(i + 1));
-			}
-
 			return roleHierarchyBuilder;
 		}
 
 		public RoleHierarchy build() {
-			for (int i = rolesTree.size() - 2; i >= 0; i--) {
-				roleHierarchyBuilder.addReachableRole(rolesTree.get(i), rolesTree.get(i + 1));
-			}
-
-			return new RoleHierarchyImpl(this.roleHierarchyBuilder.getRolesReachableInOneOrMoreStepsMap());
+			return new RoleHierarchyImpl(this.roleHierarchyBuilder.getRolesReachableInOneStepMap());
 		}
-	}
-
-	public static RoleHierarchyBuilder builder() {
-		return new RoleHierarchyBuilder();
 	}
 }

@@ -72,29 +72,16 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	private static final Log logger = LogFactory.getLog(RoleHierarchyImpl.class);
 
 	/**
-	 * Raw hierarchy configuration where each line represents single or multiple level role chain.
-	 */
-	private String roleHierarchyStringRepresentation = null;
-
-	/**
-	 * {@code rolesReachableInOneStepMap} is a Map that under the key of a specific role name
-	 * contains a set of all roles reachable from this role in 1 step
-	 * (i.e. parsed {@link #roleHierarchyStringRepresentation} grouped by the higher role)
-	 */
-	private Map<String, Set<GrantedAuthority>> rolesReachableInOneStepMap = null;
-
-	/**
 	 * {@code rolesReachableInOneOrMoreStepsMap} is a Map that under the key of a specific role
 	 * name contains a set of all roles reachable from this role in 1 or more steps
-	 * (i.e. fully resolved hierarchy from {@link #rolesReachableInOneStepMap})
 	 */
 	private Map<String, Set<GrantedAuthority>> rolesReachableInOneOrMoreStepsMap = null;
 
 	public RoleHierarchyImpl() {
 	}
 
-	protected RoleHierarchyImpl(Map<String, Set<GrantedAuthority>> rolesReachableInOneOrMoreStepsMap) {
-		this.rolesReachableInOneOrMoreStepsMap = rolesReachableInOneOrMoreStepsMap;
+	protected RoleHierarchyImpl(Map<String, Set<GrantedAuthority>> rolesReachableInOneStepMap) {
+		this.rolesReachableInOneOrMoreStepsMap = buildRolesReachableInOneOrMoreStepsMap(rolesReachableInOneStepMap);
 	}
 
 	/**
@@ -107,15 +94,13 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	 * @param roleHierarchyStringRepresentation - String definition of the role hierarchy.
 	 */
 	public void setHierarchy(String roleHierarchyStringRepresentation) {
-		this.roleHierarchyStringRepresentation = roleHierarchyStringRepresentation;
-
 		if (logger.isDebugEnabled()) {
 			logger.debug("setHierarchy() - The following role hierarchy was set: "
 					+ roleHierarchyStringRepresentation);
 		}
 
-		buildRolesReachableInOneStepMap();
-		buildRolesReachableInOneOrMoreStepsMap();
+		Map<String, Set<GrantedAuthority>> rolesReachableInOneStepMap = buildRolesReachableInOneStepMap(roleHierarchyStringRepresentation);
+		this.rolesReachableInOneOrMoreStepsMap = buildRolesReachableInOneOrMoreStepsMap(rolesReachableInOneStepMap);
 	}
 
 	@Override
@@ -157,10 +142,13 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	/**
 	 * Parse input and build the map for the roles reachable in one step: the higher role
 	 * will become a key that references a set of the reachable lower roles.
+	 *
+	 * @return
 	 */
-	private void buildRolesReachableInOneStepMap() {
-		this.rolesReachableInOneStepMap = new HashMap<>();
-		for (String line : this.roleHierarchyStringRepresentation.split("\n")) {
+	private Map<String, Set<GrantedAuthority>> buildRolesReachableInOneStepMap(String roleHierarchyStringRepresentation) {
+		Map<String, Set<GrantedAuthority>> rolesReachableInOneStepMap = new HashMap<>();
+
+		for (String line : roleHierarchyStringRepresentation.split("\n")) {
 			// Split on > and trim excessive whitespace
 			String[] roles = line.trim().split("\\s+>\\s+");
 
@@ -169,11 +157,11 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 				GrantedAuthority lowerRole = new SimpleGrantedAuthority(roles[i]);
 
 				Set<GrantedAuthority> rolesReachableInOneStepSet;
-				if (!this.rolesReachableInOneStepMap.containsKey(higherRole)) {
+				if (!rolesReachableInOneStepMap.containsKey(higherRole)) {
 					rolesReachableInOneStepSet = new HashSet<>();
-					this.rolesReachableInOneStepMap.put(higherRole, rolesReachableInOneStepSet);
+					rolesReachableInOneStepMap.put(higherRole, rolesReachableInOneStepSet);
 				} else {
-					rolesReachableInOneStepSet = this.rolesReachableInOneStepMap.get(higherRole);
+					rolesReachableInOneStepSet = rolesReachableInOneStepMap.get(higherRole);
 				}
 				rolesReachableInOneStepSet.add(lowerRole);
 
@@ -183,6 +171,8 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 				}
 			}
 		}
+
+		return rolesReachableInOneStepMap;
 	}
 
 	/**
@@ -190,12 +180,15 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	 * reachable from it in the map of roles reachable in one or more steps. (Or throw a
 	 * CycleInRoleHierarchyException if a cycle in the role hierarchy definition is
 	 * detected)
+	 *
+	 * @param rolesReachableInOneStepMap
 	 */
-	private void buildRolesReachableInOneOrMoreStepsMap() {
-		this.rolesReachableInOneOrMoreStepsMap = new HashMap<>();
+	private Map<String, Set<GrantedAuthority>> buildRolesReachableInOneOrMoreStepsMap(Map<String, Set<GrantedAuthority>> rolesReachableInOneStepMap) {
+		Map<String, Set<GrantedAuthority>> rolesReachableInOneOrMoreStepsMap = new HashMap<>();
+
 		// iterate over all higher roles from rolesReachableInOneStepMap
-		for (String roleName : this.rolesReachableInOneStepMap.keySet()) {
-			Set<GrantedAuthority> rolesToVisitSet = new HashSet<>(this.rolesReachableInOneStepMap.get(roleName));
+		for (String roleName : rolesReachableInOneStepMap.keySet()) {
+			Set<GrantedAuthority> rolesToVisitSet = new HashSet<>(rolesReachableInOneStepMap.get(roleName));
 			Set<GrantedAuthority> visitedRolesSet = new HashSet<>();
 
 			while (!rolesToVisitSet.isEmpty()) {
@@ -203,18 +196,20 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 				GrantedAuthority lowerRole = rolesToVisitSet.iterator().next();
 				rolesToVisitSet.remove(lowerRole);
 				if (!visitedRolesSet.add(lowerRole) ||
-						!this.rolesReachableInOneStepMap.containsKey(lowerRole.getAuthority())) {
+						!rolesReachableInOneStepMap.containsKey(lowerRole.getAuthority())) {
 					continue; // Already visited role or role with missing hierarchy
 				} else if (roleName.equals(lowerRole.getAuthority())) {
 					throw new CycleInRoleHierarchyException();
 				}
-				rolesToVisitSet.addAll(this.rolesReachableInOneStepMap.get(lowerRole.getAuthority()));
+				rolesToVisitSet.addAll(rolesReachableInOneStepMap.get(lowerRole.getAuthority()));
 			}
-			this.rolesReachableInOneOrMoreStepsMap.put(roleName, visitedRolesSet);
+			rolesReachableInOneOrMoreStepsMap.put(roleName, visitedRolesSet);
 
 			logger.debug("buildRolesReachableInOneOrMoreStepsMap() - From role " + roleName
 					+ " one can reach " + visitedRolesSet + " in one or more steps.");
 		}
+
+		return rolesReachableInOneOrMoreStepsMap;
 
 	}
 
