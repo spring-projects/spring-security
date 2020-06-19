@@ -53,10 +53,6 @@ public class RoleHierarchyBuilder {
 				.put(currRole, reachableRoles);
 	}
 
-	private Map<String, Set<GrantedAuthority>> getRolesReachableInOneStepMap() {
-		return this.rolesReachableInOneStepMap;
-	}
-
 	private static abstract class BaseRoleBuilder {
 		private final RoleHierarchyBuilder roleHierarchyBuilder;
 
@@ -65,7 +61,7 @@ public class RoleHierarchyBuilder {
 		}
 
 		public RoleHierarchy build() {
-			return new RoleHierarchyImpl(this.roleHierarchyBuilder.getRolesReachableInOneStepMap());
+			return new RoleHierarchyImpl(this.roleHierarchyBuilder.rolesReachableInOneStepMap);
 		}
 	}
 
