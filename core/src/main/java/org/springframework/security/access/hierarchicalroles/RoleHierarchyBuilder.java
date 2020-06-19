@@ -38,8 +38,8 @@ public class RoleHierarchyBuilder {
 		return new RoleHierarchyBuilder();
 	}
 
-	public CurrRole role(String role_1) {
-		return new CurrRole(role_1, this);
+	public FirstRoleBuilder role(String role_1) {
+		return new FirstRoleBuilder(role_1, this);
 	}
 
 	private void addReachableRole(String currRole, String nextReachableRole) {
@@ -57,27 +57,53 @@ public class RoleHierarchyBuilder {
 		return this.rolesReachableInOneStepMap;
 	}
 
-	public static class CurrRole {
-
-		private final String currRole;
+	private static abstract class BaseRoleBuilder {
 		private final RoleHierarchyBuilder roleHierarchyBuilder;
 
-		private CurrRole(String role_1, RoleHierarchyBuilder roleHierarchyBuilder) {
-			this.currRole = role_1;
+		BaseRoleBuilder(RoleHierarchyBuilder roleHierarchyBuilder) {
 			this.roleHierarchyBuilder = roleHierarchyBuilder;
-		}
-
-		public CurrRole includes(String role_2) {
-			roleHierarchyBuilder.addReachableRole(currRole, role_2);
-			return new CurrRole(role_2, roleHierarchyBuilder);
-		}
-
-		public RoleHierarchyBuilder and() {
-			return roleHierarchyBuilder;
 		}
 
 		public RoleHierarchy build() {
 			return new RoleHierarchyImpl(this.roleHierarchyBuilder.getRolesReachableInOneStepMap());
+		}
+	}
+
+	public static class FirstRoleBuilder extends BaseRoleBuilder {
+
+		private final String currRole;
+		private final RoleHierarchyBuilder roleHierarchyBuilder;
+
+		private FirstRoleBuilder(String role_1, RoleHierarchyBuilder roleHierarchyBuilder) {
+			super(roleHierarchyBuilder);
+			this.currRole = role_1;
+			this.roleHierarchyBuilder = roleHierarchyBuilder;
+		}
+
+		public NextRoleBuilder includes(String role_2) {
+			roleHierarchyBuilder.addReachableRole(currRole, role_2);
+			return new NextRoleBuilder(role_2, roleHierarchyBuilder);
+		}
+	}
+
+	public static class NextRoleBuilder extends BaseRoleBuilder {
+
+		private final String currRole;
+		private final RoleHierarchyBuilder roleHierarchyBuilder;
+
+		private NextRoleBuilder(String role_1, RoleHierarchyBuilder roleHierarchyBuilder) {
+			super(roleHierarchyBuilder);
+			this.currRole = role_1;
+			this.roleHierarchyBuilder = roleHierarchyBuilder;
+		}
+
+		public NextRoleBuilder whichIncludes(String role_2) {
+			roleHierarchyBuilder.addReachableRole(currRole, role_2);
+			return new NextRoleBuilder(role_2, roleHierarchyBuilder);
+		}
+
+		public RoleHierarchyBuilder and() {
+			return roleHierarchyBuilder;
 		}
 	}
 }

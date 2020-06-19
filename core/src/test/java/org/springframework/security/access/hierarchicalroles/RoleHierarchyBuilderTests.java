@@ -40,7 +40,6 @@ public class RoleHierarchyBuilderTests {
 
 	@Test
 	public void testSimpleRoleHierarchy() {
-
 		List<GrantedAuthority> authorities0 = AuthorityUtils.createAuthorityList(
 				ROLE_0);
 		List<GrantedAuthority> authorities1 = AuthorityUtils.createAuthorityList(
@@ -78,7 +77,7 @@ public class RoleHierarchyBuilderTests {
 				.builder()
 				.role(ROLE_A)
 				.includes(ROLE_B)
-				.includes(ROLE_C)
+				.whichIncludes(ROLE_C)
 				.build();
 
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
@@ -102,8 +101,8 @@ public class RoleHierarchyBuilderTests {
 				.builder()
 				.role(ROLE_A)
 					.includes(ROLE_B)
-					.includes(ROLE_C)
-					.includes(ROLE_D)
+					.whichIncludes(ROLE_C)
+					.whichIncludes(ROLE_D)
 					.build();
 
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
@@ -178,11 +177,11 @@ public class RoleHierarchyBuilderTests {
 				.builder()
 				.role(ROLE_A)
 					.includes(ROLE_B)
-					.includes(ROLE_D)
+					.whichIncludes(ROLE_D)
 					.and()
 				.role(ROLE_A)
 					.includes(ROLE_C)
-					.includes(ROLE_D)
+					.whichIncludes(ROLE_D)
 					.build();
 
 		assertThat(HierarchicalRolesTestHelper.containTheSameGrantedAuthorities(
@@ -216,7 +215,7 @@ public class RoleHierarchyBuilderTests {
 					.builder()
 					.role(ROLE_A)
 						.includes(ROLE_B)
-						.includes(ROLE_A)
+						.whichIncludes(ROLE_A)
 						.build();
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
@@ -240,8 +239,8 @@ public class RoleHierarchyBuilderTests {
 					.builder()
 					.role(ROLE_A)
 						.includes(ROLE_B)
-						.includes(ROLE_C)
-						.includes(ROLE_A)
+						.whichIncludes(ROLE_C)
+						.whichIncludes(ROLE_A)
 						.build();
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
@@ -268,10 +267,10 @@ public class RoleHierarchyBuilderTests {
 					.builder()
 					.role(ROLE_A)
 						.includes(ROLE_B)
-						.includes(ROLE_C)
-						.includes(ROLE_E)
-						.includes(ROLE_D)
-						.includes(ROLE_B)
+						.whichIncludes(ROLE_C)
+						.whichIncludes(ROLE_E)
+						.whichIncludes(ROLE_D)
+						.whichIncludes(ROLE_B)
 						.build();
 
 			fail("Cycle in role hierarchy was not detected!");
@@ -306,8 +305,8 @@ public class RoleHierarchyBuilderTests {
 					.builder()
 					.role(ROLE_C)
 						.includes(ROLE_B)
-						.includes(ROLE_A)
-						.includes(ROLE_B)
+						.whichIncludes(ROLE_A)
+						.whichIncludes(ROLE_B)
 						.build();
 			fail("Cycle in role hierarchy was not detected!");
 		} catch (CycleInRoleHierarchyException e) {
@@ -332,18 +331,16 @@ public class RoleHierarchyBuilderTests {
 
 	@Test
 	public void testNoCyclesInRoleHierarchy() {
-		RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
-
 		try {
 			RoleHierarchyBuilder
 					.builder()
 					.role(ROLE_A)
 						.includes(ROLE_B)
-						.includes(ROLE_D)
+						.whichIncludes(ROLE_D)
 						.and()
 					.role(ROLE_A)
 						.includes(ROLE_C)
-						.includes(ROLE_D)
+						.whichIncludes(ROLE_D)
 						.build();
 
 		} catch (CycleInRoleHierarchyException e) {
@@ -354,7 +351,6 @@ public class RoleHierarchyBuilderTests {
 	// SEC-863
 	@Test
 	public void testSimpleRoleHierarchyWithCustomGrantedAuthorityImplementation() {
-
 		List<GrantedAuthority> authorities0 = HierarchicalRolesTestHelper.createAuthorityList(
 				ROLE_0);
 		List<GrantedAuthority> authorities1 = HierarchicalRolesTestHelper.createAuthorityList(
