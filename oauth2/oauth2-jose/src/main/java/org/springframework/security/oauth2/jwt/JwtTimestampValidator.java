@@ -92,12 +92,13 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 		if (notBefore != null) {
 			if (Instant.now(this.clock).plus(clockSkew).isBefore(notBefore)) {
+				final String reason = String.format("Jwt used before %s", jwt.getNotBefore());
 				if (logger.isDebugEnabled()){
-					logger.debug("Failed to validate OAuth2 token claim. Token should not be used before: " + isoDateTime(notBefore));
+					logger.debug(reason);
 				}
 				OAuth2Error error = new OAuth2Error(
 						OAuth2ErrorCodes.INVALID_REQUEST,
-						String.format("Jwt used before %s", jwt.getNotBefore()),
+						reason,
 						"https://tools.ietf.org/html/rfc6750#section-3.1");
 				return OAuth2TokenValidatorResult.failure(error);
 			}

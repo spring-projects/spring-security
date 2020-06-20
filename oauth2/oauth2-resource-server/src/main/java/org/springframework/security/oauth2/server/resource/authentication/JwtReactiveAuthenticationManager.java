@@ -78,9 +78,6 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 	}
 
 	private AuthenticationException onError(JwtException e) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Authentication error for Jwt Token: " + e.getMessage());
-		}
 		if (e instanceof BadJwtException) {
 			return new InvalidBearerTokenException(e.getMessage(), e);
 		} else {

@@ -16,13 +16,16 @@
 package org.springframework.security.oauth2.jwt;
 
 import java.security.interfaces.RSAPublicKey;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 
 import com.nimbusds.jose.Header;
@@ -46,6 +49,7 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -177,10 +181,13 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 	private Jwt validateJwt(Jwt jwt) {
 		OAuth2TokenValidatorResult result = this.jwtValidator.validate(jwt);
-
 		if ( result.hasErrors() ) {
-			String message = result.getErrors().iterator().next().getDescription();
-			throw new JwtValidationException(message, result.getErrors());
+			final Collection<OAuth2Error> errors = result.getErrors();
+			final String collectiveValidationErrorString = errors.stream()
+					.map(OAuth2Error::getDescription)
+					.filter(Objects::nonNull)
+					.collect(Collectors.joining(", "));
+			throw new JwtValidationException(collectiveValidationErrorString, errors);
 		}
 
 		return jwt;
