@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -50,6 +51,9 @@ public class ClientRegistrationTests {
 	private static final String JWK_SET_URI = "https://provider.com/oauth2/keys";
 	private static final String ISSUER_URI = "https://provider.com";
 	private static final String CLIENT_NAME = "Client 1";
+	private static final String CLIENT_ASSERTION_SIGN_ALG_HS_256 = JwsAlgorithms.HS256;
+	private static final String CLIENT_ASSERTION_SIGN_ALG_HS_512 = JwsAlgorithms.HS512;
+	private static final String CLIENT_ASSERTION_SIGN_ALG_INVALID = "RS784";
 	private static final Map<String, Object> PROVIDER_CONFIGURATION_METADATA =
 			Collections.unmodifiableMap(createProviderConfigurationMetadata());
 
@@ -74,6 +78,7 @@ public class ClientRegistrationTests {
 			.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
 			.jwkSetUri(JWK_SET_URI)
 			.clientName(CLIENT_NAME)
+			.clientAssertionSigningAlgorithm(CLIENT_ASSERTION_SIGN_ALG_HS_256)
 			.build();
 	}
 
@@ -771,4 +776,78 @@ public class ClientRegistrationTests {
 		assertThat(updated.getProviderDetails().getConfigurationMetadata())
 				.containsOnlyKeys("a-new-config").containsValue("a-new-value");
 	}
+
+	@Test
+	public void buildWhenAuthorizationCodeGrantAllAttributesProvidedThenAllAttributesAreSetAndClientAssertionNotSet() {
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.SECRET_JWT)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.issuerUri(ISSUER_URI)
+				.providerConfigurationMetadata(PROVIDER_CONFIGURATION_METADATA)
+				.clientName(CLIENT_NAME)
+
+				.build();
+
+		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
+		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
+		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.SECRET_JWT);
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+		assertThat(registration.getRedirectUriTemplate()).isEqualTo(REDIRECT_URI);
+		assertThat(registration.getScopes()).isEqualTo(SCOPES);
+		assertThat(registration.getProviderDetails().getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
+		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
+		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod()).isEqualTo(AuthenticationMethod.FORM);
+		assertThat(registration.getProviderDetails().getJwkSetUri()).isEqualTo(JWK_SET_URI);
+		assertThat(registration.getProviderDetails().getIssuerUri()).isEqualTo(ISSUER_URI);
+		assertThat(registration.getProviderDetails().getConfigurationMetadata()).isEqualTo(PROVIDER_CONFIGURATION_METADATA);
+		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
+		assertThat(registration.getClientAssertionSigningAlgorithm()).isEqualTo(CLIENT_ASSERTION_SIGN_ALG_HS_256);
+	}
+
+	@Test
+	public void buildWhenAuthorizationCodeGrantAllAttributesProvidedThenAllAttributesAreSetAndClientAssertionIsSet() {
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.SECRET_JWT)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUriTemplate(REDIRECT_URI)
+				.scope(SCOPES.toArray(new String[0]))
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.userInfoAuthenticationMethod(AuthenticationMethod.FORM)
+				.jwkSetUri(JWK_SET_URI)
+				.issuerUri(ISSUER_URI)
+				.providerConfigurationMetadata(PROVIDER_CONFIGURATION_METADATA)
+				.clientName(CLIENT_NAME)
+				.clientAssertionSigningAlgorithm(CLIENT_ASSERTION_SIGN_ALG_HS_512)
+				.build();
+
+		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
+		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
+		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
+		assertThat(registration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.SECRET_JWT);
+		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+		assertThat(registration.getRedirectUriTemplate()).isEqualTo(REDIRECT_URI);
+		assertThat(registration.getScopes()).isEqualTo(SCOPES);
+		assertThat(registration.getProviderDetails().getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
+		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
+		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod()).isEqualTo(AuthenticationMethod.FORM);
+		assertThat(registration.getProviderDetails().getJwkSetUri()).isEqualTo(JWK_SET_URI);
+		assertThat(registration.getProviderDetails().getIssuerUri()).isEqualTo(ISSUER_URI);
+		assertThat(registration.getProviderDetails().getConfigurationMetadata()).isEqualTo(PROVIDER_CONFIGURATION_METADATA);
+		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
+		assertThat(registration.getClientAssertionSigningAlgorithm()).isEqualTo(CLIENT_ASSERTION_SIGN_ALG_HS_512);
+	}
+
+
 }

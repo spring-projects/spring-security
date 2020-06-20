@@ -24,6 +24,9 @@ import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.endpoint.ClientAssertionParameterNames;
+import org.springframework.security.oauth2.core.endpoint.ClientAssertionParameterValues;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.MultiValueMap;
 
@@ -73,4 +76,51 @@ public class OAuth2PasswordGrantRequestEntityConverterTests {
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read write");
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void convertWhenGrantRequestJWTSecretValidThenConverts() {
+
+
+		ClientRegistration clientRegistration = this.from(this.passwordGrantRequest.getClientRegistration())
+				.clientAuthenticationMethod(ClientAuthenticationMethod.SECRET_JWT.SECRET_JWT)
+				.clientSecret("2ae2135579004d5d87ae8241603c0a5c")
+				.build();
+		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration, "user1", "password");
+
+		RequestEntity<?> requestEntity = this.converter.convert(passwordGrantRequest);
+		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
+		assertThat(requestEntity.getUrl().toASCIIString()).isEqualTo(
+				clientRegistration.getProviderDetails().getTokenUri());
+
+		HttpHeaders headers = requestEntity.getHeaders();
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
+		assertThat(headers.getContentType()).isEqualTo(
+				MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
+
+		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE)).isEqualTo(
+				AuthorizationGrantType.PASSWORD.getValue());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.USERNAME)).isEqualTo("user1");
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.PASSWORD)).isEqualTo("password");
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read write");
+		assertThat(formParameters.getFirst(ClientAssertionParameterNames.CLIENT_ASSERTION)).isNotEmpty();
+		assertThat(formParameters.getFirst(ClientAssertionParameterNames.CLIENT_ASSERTION_TYPE)).isEqualTo(
+				ClientAssertionParameterValues.CLIENT_ASSERTION_TYPE_JWT_BEARER);
+	}
+
+
+	private ClientRegistration.Builder from(ClientRegistration registration) {
+		return ClientRegistration.withRegistrationId(registration.getRegistrationId())
+				.clientId(registration.getClientId())
+				.clientSecret(registration.getClientSecret())
+				.clientAuthenticationMethod(registration.getClientAuthenticationMethod())
+				.authorizationGrantType(registration.getAuthorizationGrantType())
+				.redirectUriTemplate(registration.getRedirectUriTemplate())
+				.scope(registration.getScopes())
+				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
+				.tokenUri(registration.getProviderDetails().getTokenUri())
+				.userInfoUri(registration.getProviderDetails().getUserInfoEndpoint().getUri())
+				.userNameAttributeName(registration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName())
+				.clientName(registration.getClientName());
+	}
 }

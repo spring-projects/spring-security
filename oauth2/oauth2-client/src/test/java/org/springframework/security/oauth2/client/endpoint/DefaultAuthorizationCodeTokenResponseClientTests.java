@@ -172,6 +172,31 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 		assertThat(formParameters).contains("client_secret=secret");
 	}
 
+
+	@Test
+	public void getTokenResponseWhenClientAuthenticationSecretJWTThenFormParametersAreSent() throws Exception {
+		String accessTokenSuccessResponse = "{\n" +
+				"	\"access_token\": \"access-token-1234\",\n" +
+				"   \"token_type\": \"bearer\",\n" +
+				"   \"expires_in\": \"3600\"\n" +
+				"}\n";
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+
+		ClientRegistration clientRegistration = this.from(this.clientRegistration)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.SECRET_JWT)
+				.clientSecret("2ae2135579004d5d87ae8241603c0a5c")
+				.build();
+
+		this.tokenResponseClient.getTokenResponse(this.authorizationCodeGrantRequest(clientRegistration));
+
+		RecordedRequest recordedRequest = this.server.takeRequest();
+		assertThat(recordedRequest.getHeader(HttpHeaders.AUTHORIZATION)).isNull();
+
+		String formParameters = recordedRequest.getBody().readUtf8();
+		assertThat(formParameters).contains("client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer");
+		assertThat(formParameters).contains("client_assertion");
+	}
+
 	@Test
 	public void getTokenResponseWhenSuccessResponseAndNotBearerTokenTypeThenThrowOAuth2AuthorizationException() {
 		String accessTokenSuccessResponse = "{\n" +
