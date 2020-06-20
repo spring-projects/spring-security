@@ -50,7 +50,9 @@ abstract class StdConverters {
 			if (ClientAuthenticationMethod.BASIC.getValue().equalsIgnoreCase(value)) {
 				return ClientAuthenticationMethod.BASIC;
 			} else if (ClientAuthenticationMethod.POST.getValue().equalsIgnoreCase(value)) {
-				return ClientAuthenticationMethod.POST;
+				return ClientAuthenticationMethod.POST;}
+			else if (ClientAuthenticationMethod.SECRET_JWT.getValue().equalsIgnoreCase(value)) {
+				return ClientAuthenticationMethod.SECRET_JWT;
 			} else if (ClientAuthenticationMethod.NONE.getValue().equalsIgnoreCase(value)) {
 				return ClientAuthenticationMethod.NONE;
 			}

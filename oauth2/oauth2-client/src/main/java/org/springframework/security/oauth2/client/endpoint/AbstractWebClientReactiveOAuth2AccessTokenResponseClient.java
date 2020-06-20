@@ -19,6 +19,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.endpoint.ClientAssertionParameterNames;
+import org.springframework.security.oauth2.core.endpoint.ClientAssertionParameterValues;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
@@ -123,6 +125,11 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 		}
 		if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
 			body.with(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
+		}
+		if(ClientAuthenticationMethod.SECRET_JWT.equals(clientRegistration.getClientAuthenticationMethod())){
+			body.with(ClientAssertionParameterNames.CLIENT_ASSERTION_TYPE, ClientAssertionParameterValues.CLIENT_ASSERTION_TYPE_JWT_BEARER);
+			body.with(ClientAssertionParameterNames.CLIENT_ASSERTION, OAuth2AuthorizationGrantRequestEntityUtils.getClientSecretAssertion(clientRegistration).serialize());
+
 		}
 		Set<String> scopes = scopes(grantRequest);
 		if (!CollectionUtils.isEmpty(scopes)) {
