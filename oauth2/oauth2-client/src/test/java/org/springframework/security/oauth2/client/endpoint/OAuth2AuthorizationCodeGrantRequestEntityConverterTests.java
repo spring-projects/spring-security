@@ -34,7 +34,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
-import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.util.MultiValueMap;
 
 import java.util.Arrays;
@@ -44,7 +43,6 @@ import java.util.Map;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 /**
@@ -199,7 +197,7 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 				.isEqualTo(ClientAssertionParameterValues.CLIENT_ASSERTION_TYPE_JWT_BEARER);
 		assertThat(formParameters.getFirst(ClientAssertionParameterNames.CLIENT_ASSERTION))
 				.isNotEmpty();
-		assertTrue(validateJWTSecret(formParameters.getFirst(ClientAssertionParameterNames.CLIENT_ASSERTION),clientRegistration));
+		assertThat(validateJWTSecret(formParameters.getFirst(ClientAssertionParameterNames.CLIENT_ASSERTION), clientRegistration)).isTrue();
 
 	}
 
@@ -240,7 +238,7 @@ public class OAuth2AuthorizationCodeGrantRequestEntityConverterTests {
 		RequestEntity<?> requestEntity = this.converter.convert(authorizationCodeGrantRequest);
 	}
 
-	private boolean validateJWTSecret(String jwt,ClientRegistration registration ){
+	private boolean validateJWTSecret(String jwt, ClientRegistration registration ){
 
 		boolean success;
 

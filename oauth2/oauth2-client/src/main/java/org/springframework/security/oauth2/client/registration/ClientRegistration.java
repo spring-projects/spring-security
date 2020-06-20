@@ -15,7 +15,6 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
-import com.nimbusds.jose.JWSAlgorithm;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
