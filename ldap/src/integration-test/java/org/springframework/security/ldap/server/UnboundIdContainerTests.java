@@ -15,13 +15,13 @@
  */
 package org.springframework.security.ldap.server;
 
+import com.unboundid.ldap.sdk.LDAPException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,7 +96,7 @@ public class UnboundIdContainerTests {
 
 	@Test
 	public void missingContextInInit() {
-		UnboundIdContainer server = new UnboundIdContainer(validRootDn, validLdifClassPath);
+		UnboundIdContainer server = new UnboundIdContainer(validRootDn, null);
 		server.setPort(0);
 		try {
 			server.afterPropertiesSet();
@@ -113,10 +113,10 @@ public class UnboundIdContainerTests {
 		server.setPort(0);
 		try {
 			server.afterPropertiesSet();
-			failBecauseExceptionWasNotThrown(IllegalStateException.class);
+			failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
 		} catch (Exception e) {
-			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF missing-file.ldif");
+			assertThat(e.getCause()).isInstanceOf(IllegalArgumentException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:missing-file.ldif");
 		} finally {
 			server.destroy();
 		}
@@ -130,26 +130,12 @@ public class UnboundIdContainerTests {
 		server.setPort(0);
 		try {
 			server.afterPropertiesSet();
-			failBecauseExceptionWasNotThrown(IllegalStateException.class);
+			failBecauseExceptionWasNotThrown(LDAPException.class);
 		} catch (Exception e) {
-			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
-			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:test-server-malformed.txt");
+			assertThat(e.getCause()).isInstanceOf(LDAPException.class);
 		} finally {
 			server.destroy();
 		}
 	}
 
-	@Test
-	public void loadContextFromXmlApacheDSContainer() {
-		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext-security.xml");
-		String[] beanNames = context.getBeanNamesForType(ApacheDSContainer.class);
-		assertThat(beanNames).hasSize(2);
-	}
-
-	@Test
-	public void loadContextFromXmlUnboundIdContainer() {
-		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext-security.xml");
-		String[] beanNames = context.getBeanNamesForType(UnboundIdContainer.class);
-		assertThat(beanNames).hasSize(1);
-	}
 }
