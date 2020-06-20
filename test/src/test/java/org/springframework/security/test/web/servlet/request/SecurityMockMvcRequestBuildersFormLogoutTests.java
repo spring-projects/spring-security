@@ -105,20 +105,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 		assertThat(mvcResult.getRequest().getHeader("Accept"))
 				.isEqualTo(MediaType.toString(Arrays.asList(MediaType.TEXT_HTML, MediaType.ALL)));
 		assertThat(mvcResult.getRequest().getRequestURI()).isEqualTo("/logout");
-		assertCsrfToken(mvcResult.getRequest());
+		assertThat(mvcResult.getRequest().getParameter("_csrf")).isNotEmpty();
 		verify(postProcessor).postProcessRequest(any());
 	}
-
-	private void assertCsrfToken(MockHttpServletRequest request) {
-		CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
-		if (!(repository instanceof CsrfRequestPostProcessor.TestCsrfTokenRepository)) {
-			repository = new CsrfRequestPostProcessor.TestCsrfTokenRepository(
-					new HttpSessionCsrfTokenRepository());
-			WebTestUtils.setCsrfTokenRepository(request, repository);
-		}
-		CsrfRequestPostProcessor.TestCsrfTokenRepository.enable(request);
-		CsrfToken token = repository.generateToken(request);
-		assertThat(request.getParameter(token.getParameterName())).isNotNull();
-	}
-
 }

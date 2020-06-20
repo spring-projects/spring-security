@@ -117,20 +117,8 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 		assertThat(mvcResult.getRequest().getParameter("username")).isEqualTo("user");
 		assertThat(mvcResult.getRequest().getParameter("password")).isEqualTo("password");
 		assertThat(mvcResult.getRequest().getRequestURI()).isEqualTo("/login");
-		assertCsrfToken(mvcResult.getRequest());
+		assertThat(mvcResult.getRequest().getParameter("_csrf")).isNotEmpty();
 		verify(postProcessor).postProcessRequest(any());
-	}
-
-	private void assertCsrfToken(MockHttpServletRequest request) {
-		CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
-		if (!(repository instanceof CsrfRequestPostProcessor.TestCsrfTokenRepository)) {
-			repository = new CsrfRequestPostProcessor.TestCsrfTokenRepository(
-					new HttpSessionCsrfTokenRepository());
-			WebTestUtils.setCsrfTokenRepository(request, repository);
-		}
-		CsrfRequestPostProcessor.TestCsrfTokenRepository.enable(request);
-		CsrfToken token = repository.generateToken(request);
-		assertThat(request.getParameter(token.getParameterName())).isNotNull();
 	}
 
 	// gh-3920
