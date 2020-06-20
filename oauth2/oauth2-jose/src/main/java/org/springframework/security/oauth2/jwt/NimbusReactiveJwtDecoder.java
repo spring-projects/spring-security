@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -183,11 +184,11 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		OAuth2TokenValidatorResult result = this.jwtValidator.validate(jwt);
 		if ( result.hasErrors() ) {
 			final Collection<OAuth2Error> errors = result.getErrors();
-			final String collectiveValidationErrorString = errors.stream()
+			final Optional<String> validationErrorString = errors.stream()
 					.map(OAuth2Error::getDescription)
 					.filter(Objects::nonNull)
-					.collect(Collectors.joining(", "));
-			throw new JwtValidationException(collectiveValidationErrorString, errors);
+					.findFirst();
+			throw new JwtValidationException(validationErrorString.orElse("Unable to validate Jwt"), errors);
 		}
 
 		return jwt;
