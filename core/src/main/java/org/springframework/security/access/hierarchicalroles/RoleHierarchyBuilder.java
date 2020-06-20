@@ -31,16 +31,16 @@ import java.util.Set;
  * <pre>
  *     RoleHierarchy roleHierarchy = RoleHierarchyBuilder
  * 		.builder()
- * 		.role(ROLE_A)
- * 			.includes(ROLE_B)
- * 			.whichIncludes(ROLE_C)
+ * 		.role("ROLE_A")
+ * 			.includes("ROLE_B")
+ * 			.whichIncludes("ROLE_C")
  * 			.and()
- * 		.role(ROLE_A)
- * 			.includes(ROLE_D)
- * 			.whichIncludes(ROLE_E)
+ * 		.role("ROLE_A")
+ * 			.includes("ROLE_D")
+ * 			.whichIncludes("ROLE_E")
  * 			.and()
- * 		.role(ROLE_D)
- * 			.includes(ROLE_F)
+ * 		.role("ROLE_D")
+ * 			.includes("ROLE_F")
  * 			.build();
  * </pre>
  * </p>
