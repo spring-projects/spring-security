@@ -24,6 +24,8 @@ import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.endpoint.ClientAssertionParameterNames;
+import org.springframework.security.oauth2.core.endpoint.ClientAssertionParameterValues;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.MultiValueMap;
 
@@ -73,5 +75,50 @@ public class OAuth2ClientCredentialsGrantRequestEntityConverterTests {
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE)).isEqualTo(
 				AuthorizationGrantType.CLIENT_CREDENTIALS.getValue());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read write");
+	}
+	@SuppressWarnings("unchecked")
+	@Test
+	public void convertWhenGrantRequestSecretJWTValidThenConverts() {
+
+		ClientRegistration clientRegistration = this.from(this.clientCredentialsGrantRequest.getClientRegistration())
+				.clientAuthenticationMethod(ClientAuthenticationMethod.SECRET_JWT)
+				.clientSecret("2ae2135579004d5d87ae8241603c0a5c")
+				.build();
+
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(clientRegistration);
+		RequestEntity<?> requestEntity = this.converter.convert(clientCredentialsGrantRequest);
+
+		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
+		assertThat(requestEntity.getUrl().toASCIIString()).isEqualTo(
+				clientRegistration.getProviderDetails().getTokenUri());
+
+		HttpHeaders headers = requestEntity.getHeaders();
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
+		assertThat(headers.getContentType()).isEqualTo(
+				MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
+
+		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE)).isEqualTo(
+				AuthorizationGrantType.CLIENT_CREDENTIALS.getValue());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read write");
+		assertThat(formParameters.getFirst(ClientAssertionParameterNames.CLIENT_ASSERTION)).isNotEmpty();
+		assertThat(formParameters.getFirst(ClientAssertionParameterNames.CLIENT_ASSERTION_TYPE)).isEqualTo(
+				ClientAssertionParameterValues.CLIENT_ASSERTION_TYPE_JWT_BEARER);
+	}
+
+
+	private ClientRegistration.Builder from(ClientRegistration registration) {
+		return ClientRegistration.withRegistrationId(registration.getRegistrationId())
+				.clientId(registration.getClientId())
+				.clientSecret(registration.getClientSecret())
+				.clientAuthenticationMethod(registration.getClientAuthenticationMethod())
+				.authorizationGrantType(registration.getAuthorizationGrantType())
+				.redirectUriTemplate(registration.getRedirectUriTemplate())
+				.scope(registration.getScopes())
+				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
+				.tokenUri(registration.getProviderDetails().getTokenUri())
+				.userInfoUri(registration.getProviderDetails().getUserInfoEndpoint().getUri())
+				.userNameAttributeName(registration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName())
+				.clientName(registration.getClientName());
 	}
 }

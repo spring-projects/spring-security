@@ -257,6 +257,7 @@ public class OAuth2AuthorizedClientMixinTests {
 				"    \"registrationId\": \"" + clientRegistration.getRegistrationId() + "\",\n" +
 				"    \"clientId\": \"" + clientRegistration.getClientId() + "\",\n" +
 				"    \"clientSecret\": \"" + clientRegistration.getClientSecret() + "\",\n" +
+				"    \"clientAssertionSigningAlgorithm\": \"" + clientRegistration.getClientAssertionSigningAlgorithm() + "\",\n" +
 				"    \"clientAuthenticationMethod\": {\n" +
 				"      \"value\": \"" + clientRegistration.getClientAuthenticationMethod().getValue() + "\"\n" +
 				"    },\n" +

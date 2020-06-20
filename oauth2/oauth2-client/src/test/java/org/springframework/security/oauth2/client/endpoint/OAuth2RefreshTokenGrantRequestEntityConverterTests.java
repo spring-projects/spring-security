@@ -23,10 +23,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.OAuth2RefreshToken;
-import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
-import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
+import org.springframework.security.oauth2.core.*;
+import org.springframework.security.oauth2.core.endpoint.ClientAssertionParameterNames;
+import org.springframework.security.oauth2.core.endpoint.ClientAssertionParameterValues;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.MultiValueMap;
 
@@ -77,5 +76,59 @@ public class OAuth2RefreshTokenGrantRequestEntityConverterTests {
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.REFRESH_TOKEN)).isEqualTo(
 				refreshToken.getTokenValue());
 		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read");
+	}
+	@SuppressWarnings("unchecked")
+	@Test
+	public void convertWhenGrantRequestJWTSecretValidThenConverts() {
+
+		ClientRegistration clientRegistration = this.from(this.refreshTokenGrantRequest.getClientRegistration())
+				.clientAuthenticationMethod(ClientAuthenticationMethod.SECRET_JWT)
+				.clientSecret("2ae2135579004d5d87ae8241603c0a5c")
+				.build();
+
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+				clientRegistration,
+				TestOAuth2AccessTokens.scopes("read", "write"),
+				TestOAuth2RefreshTokens.refreshToken(),
+				Collections.singleton("read"));
+		RequestEntity<?> requestEntity = this.converter.convert(refreshTokenGrantRequest);
+
+		OAuth2RefreshToken refreshToken = this.refreshTokenGrantRequest.getRefreshToken();
+
+		assertThat(requestEntity.getMethod()).isEqualTo(HttpMethod.POST);
+		assertThat(requestEntity.getUrl().toASCIIString()).isEqualTo(
+				clientRegistration.getProviderDetails().getTokenUri());
+
+		HttpHeaders headers = requestEntity.getHeaders();
+		assertThat(headers.getAccept()).contains(MediaType.APPLICATION_JSON_UTF8);
+		assertThat(headers.getContentType()).isEqualTo(
+				MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8"));
+
+		MultiValueMap<String, String> formParameters = (MultiValueMap<String, String>) requestEntity.getBody();
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.GRANT_TYPE)).isEqualTo(
+				AuthorizationGrantType.REFRESH_TOKEN.getValue());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.REFRESH_TOKEN)).isEqualTo(
+				refreshToken.getTokenValue());
+		assertThat(formParameters.getFirst(OAuth2ParameterNames.SCOPE)).isEqualTo("read");
+		assertThat(formParameters.getFirst(ClientAssertionParameterNames.CLIENT_ASSERTION)).isNotEmpty();
+		assertThat(formParameters.getFirst(ClientAssertionParameterNames.CLIENT_ASSERTION_TYPE)).isEqualTo(
+				ClientAssertionParameterValues.CLIENT_ASSERTION_TYPE_JWT_BEARER);
+	}
+
+
+
+	private ClientRegistration.Builder from(ClientRegistration registration) {
+		return ClientRegistration.withRegistrationId(registration.getRegistrationId())
+				.clientId(registration.getClientId())
+				.clientSecret(registration.getClientSecret())
+				.clientAuthenticationMethod(registration.getClientAuthenticationMethod())
+				.authorizationGrantType(registration.getAuthorizationGrantType())
+				.redirectUriTemplate(registration.getRedirectUriTemplate())
+				.scope(registration.getScopes())
+				.authorizationUri(registration.getProviderDetails().getAuthorizationUri())
+				.tokenUri(registration.getProviderDetails().getTokenUri())
+				.userInfoUri(registration.getProviderDetails().getUserInfoEndpoint().getUri())
+				.userNameAttributeName(registration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName())
+				.clientName(registration.getClientName());
 	}
 }

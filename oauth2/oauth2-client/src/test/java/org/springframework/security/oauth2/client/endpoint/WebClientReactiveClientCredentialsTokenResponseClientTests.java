@@ -113,6 +113,34 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 	}
 
 	@Test
+	public void getTokenResponseWhenJWTSecretThenSuccess() throws Exception {
+		ClientRegistration registration = this.clientRegistration
+				.clientAuthenticationMethod(ClientAuthenticationMethod.SECRET_JWT)
+				.clientSecret("2ae2135579004d5d87ae8241603c0a5c")
+				.build();
+
+		enqueueJson("{\n"
+				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+				+ "  \"token_type\":\"bearer\",\n"
+				+ "  \"expires_in\":3600,\n"
+				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\",\n"
+				+ "  \"scope\":\"create\"\n"
+				+ "}");
+
+		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
+
+		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
+		RecordedRequest actualRequest = this.server.takeRequest();
+		String body = actualRequest.getUtf8Body();
+
+		assertThat(response.getAccessToken()).isNotNull();
+		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isNull();
+		assertThat(body).contains("grant_type=client_credentials");
+		assertThat(body).contains("scope=read%3Auser");
+		assertThat(body).contains("client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer");
+	}
+
+	@Test
 	public void getTokenResponseWhenNoScopeThenClientRegistrationScopesDefaulted() {
 		ClientRegistration registration = this.clientRegistration.build();
 		enqueueJson("{\n"

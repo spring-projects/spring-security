@@ -21,6 +21,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.endpoint.ClientAssertionParameterNames;
+import org.springframework.security.oauth2.core.endpoint.ClientAssertionParameterValues;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -81,7 +83,10 @@ public class OAuth2ClientCredentialsGrantRequestEntityConverter implements Conve
 			formParameters.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
 			formParameters.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
 		}
-
+		if(ClientAuthenticationMethod.SECRET_JWT.equals(clientRegistration.getClientAuthenticationMethod())){
+			formParameters.add(ClientAssertionParameterNames.CLIENT_ASSERTION_TYPE, ClientAssertionParameterValues.CLIENT_ASSERTION_TYPE_JWT_BEARER);
+			formParameters.add(ClientAssertionParameterNames.CLIENT_ASSERTION, OAuth2AuthorizationGrantRequestEntityUtils.getClientSecretAssertion(clientRegistration).serialize());
+		}
 		return formParameters;
 	}
 }
