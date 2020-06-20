@@ -15,6 +15,7 @@
  */
 package org.springframework.security.oauth2.client.registration;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +31,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -47,6 +49,7 @@ public final class ClientRegistration implements Serializable {
 	private String registrationId;
 	private String clientId;
 	private String clientSecret;
+	private String clientAssertionSigningAlgorithm = JwsAlgorithms.HS256;
 	private ClientAuthenticationMethod clientAuthenticationMethod = ClientAuthenticationMethod.BASIC;
 	private AuthorizationGrantType authorizationGrantType;
 	private String redirectUriTemplate;
@@ -139,6 +142,15 @@ public final class ClientRegistration implements Serializable {
 		return this.clientName;
 	}
 
+	/**
+	 * Returns the Signing Algorithm used for Client Assertion
+	 *
+	 * @return the {@link String}
+	 */
+	public String getClientAssertionSigningAlgorithm() {
+		return this.clientAssertionSigningAlgorithm;
+	}
+
 	@Override
 	public String toString() {
 		return "ClientRegistration{"
@@ -151,6 +163,7 @@ public final class ClientRegistration implements Serializable {
 			+ ", scopes=" + this.scopes
 			+ ", providerDetails=" + this.providerDetails
 			+ ", clientName='" + this.clientName
+			+ ", clientAssertionSigningAlgorithm='" + this.clientAssertionSigningAlgorithm
 			+ '\'' + '}';
 	}
 
@@ -311,6 +324,7 @@ public final class ClientRegistration implements Serializable {
 		private String issuerUri;
 		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 		private String clientName;
+		private String clientAssertionSigningAlgorithm = JwsAlgorithms.HS256;
 
 		private Builder(String registrationId) {
 			this.registrationId = registrationId;
@@ -336,6 +350,7 @@ public final class ClientRegistration implements Serializable {
 				this.configurationMetadata = new HashMap<>(configurationMetadata);
 			}
 			this.clientName = clientRegistration.clientName;
+			this.clientAssertionSigningAlgorithm = clientRegistration.clientAssertionSigningAlgorithm;
 		}
 
 		/**
@@ -537,6 +552,16 @@ public final class ClientRegistration implements Serializable {
 			this.clientName = clientName;
 			return this;
 		}
+		/**
+		 * Sets the Client Assertion Signature Algorithm
+		 *
+		 * @param clientAssertionSigningAlgorithm the client or registration name
+		 * @return the {@link Builder}
+		 */
+		public Builder clientAssertionSigningAlgorithm(String clientAssertionSigningAlgorithm) {
+			this.clientAssertionSigningAlgorithm = clientAssertionSigningAlgorithm;
+			return this;
+		}
 
 		/**
 		 * Builds a new {@link ClientRegistration}.
@@ -588,6 +613,7 @@ public final class ClientRegistration implements Serializable {
 			clientRegistration.clientName = StringUtils.hasText(this.clientName) ?
 					this.clientName : this.registrationId;
 
+			clientRegistration.clientAssertionSigningAlgorithm = this.clientAssertionSigningAlgorithm;
 			return clientRegistration;
 		}
 

@@ -15,6 +15,14 @@
  */
 package org.springframework.security.oauth2.client.endpoint;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.oauth2.sdk.auth.ClientSecretJWT;
+import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.id.ClientID;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,6 +31,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import java.util.Collections;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
@@ -38,6 +48,7 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
  * @see OAuth2ClientCredentialsGrantRequestEntityConverter
  */
 final class OAuth2AuthorizationGrantRequestEntityUtils {
+
 	private static HttpHeaders DEFAULT_TOKEN_REQUEST_HEADERS = getDefaultTokenRequestHeaders();
 
 	static HttpHeaders getTokenRequestHeaders(ClientRegistration clientRegistration) {
@@ -55,5 +66,42 @@ final class OAuth2AuthorizationGrantRequestEntityUtils {
 		final MediaType contentType = MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 		headers.setContentType(contentType);
 		return headers;
+	}
+
+	/*
+		Adding support for client assertion authentication
+		https://tools.ietf.org/html/rfc7521#section-6.1
+	 */
+
+	static JWT getClientSecretAssertion(ClientRegistration clientRegistration){
+
+		JWT clientAssertion = null;
+
+		if(ClientAuthenticationMethod.SECRET_JWT.equals(clientRegistration.getClientAuthenticationMethod())) {
+
+			try {
+				ClientID clientID = new ClientID(clientRegistration.getClientId());
+				URI audience = new URI(clientRegistration.getProviderDetails().getTokenUri());
+				Secret secret = new Secret(clientRegistration.getClientSecret());
+				JWSAlgorithm jwsAlgorithm = new JWSAlgorithm(clientRegistration.getClientAssertionSigningAlgorithm());
+
+				//Generate a client secret JWT using nimbus libraries.
+				clientAssertion = new ClientSecretJWT(clientID,
+						audience
+						, jwsAlgorithm
+						, secret).getClientAssertion();
+			} catch (JOSEException e) {
+				OAuth2Error oauth2Error = new OAuth2Error("Client_secret_jwt",
+						"Encountered an error generating a client secret JWT",null);
+				throw new OAuth2AuthenticationException(oauth2Error,e.getMessage());
+
+			} catch(URISyntaxException e){
+				OAuth2Error oauth2Error = new OAuth2Error("token_endpoint",
+						"The token endpoint provided or configured doesn't conform to a standard URI Pattern",null);
+				throw new OAuth2AuthenticationException(oauth2Error,e.getMessage());
+			}
+		}
+
+		return clientAssertion;
 	}
 }

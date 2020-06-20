@@ -261,6 +261,9 @@ public final class ClientRegistrations {
 		if (metadataAuthMethods.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_POST)) {
 			return ClientAuthenticationMethod.POST;
 		}
+		if (metadataAuthMethods.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_JWT)) {
+			return ClientAuthenticationMethod.SECRET_JWT;
+		}
 		if (metadataAuthMethods.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.NONE)) {
 			return ClientAuthenticationMethod.NONE;
 		}
