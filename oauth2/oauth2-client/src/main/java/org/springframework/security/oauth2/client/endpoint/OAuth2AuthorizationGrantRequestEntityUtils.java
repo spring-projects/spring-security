@@ -77,7 +77,7 @@ final class OAuth2AuthorizationGrantRequestEntityUtils {
 
 		JWT clientAssertion = null;
 
-		if(ClientAuthenticationMethod.SECRET_JWT.equals(clientRegistration.getClientAuthenticationMethod())) {
+		if (ClientAuthenticationMethod.SECRET_JWT.equals(clientRegistration.getClientAuthenticationMethod())) {
 
 			try {
 				ClientID clientID = new ClientID(clientRegistration.getClientId());
@@ -92,13 +92,13 @@ final class OAuth2AuthorizationGrantRequestEntityUtils {
 						, secret).getClientAssertion();
 			} catch (JOSEException e) {
 				OAuth2Error oauth2Error = new OAuth2Error("Client_secret_jwt",
-						"Encountered an error generating a client secret JWT",null);
-				throw new OAuth2AuthenticationException(oauth2Error,e.getMessage());
+						"Encountered an error generating a client secret JWT", null);
+				throw new OAuth2AuthenticationException(oauth2Error, e.getMessage());
 
 			} catch(URISyntaxException e){
 				OAuth2Error oauth2Error = new OAuth2Error("token_endpoint",
-						"The token endpoint provided or configured doesn't conform to a standard URI Pattern",null);
-				throw new OAuth2AuthenticationException(oauth2Error,e.getMessage());
+						"The token endpoint provided or configured doesn't conform to a standard URI Pattern", null);
+				throw new OAuth2AuthenticationException(oauth2Error, e.getMessage());
 			}
 		}
 

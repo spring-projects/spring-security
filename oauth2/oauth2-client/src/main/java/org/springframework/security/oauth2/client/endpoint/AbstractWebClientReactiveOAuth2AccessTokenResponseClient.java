@@ -126,7 +126,7 @@ abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extend
 		if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
 			body.with(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
 		}
-		if(ClientAuthenticationMethod.SECRET_JWT.equals(clientRegistration.getClientAuthenticationMethod())){
+		if (ClientAuthenticationMethod.SECRET_JWT.equals(clientRegistration.getClientAuthenticationMethod())){
 			body.with(ClientAssertionParameterNames.CLIENT_ASSERTION_TYPE, ClientAssertionParameterValues.CLIENT_ASSERTION_TYPE_JWT_BEARER);
 			body.with(ClientAssertionParameterNames.CLIENT_ASSERTION, OAuth2AuthorizationGrantRequestEntityUtils.getClientSecretAssertion(clientRegistration).serialize());
 
