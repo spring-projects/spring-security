@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class RoleHierarchyBuilder {
 	}
 
 	/**
-	 * @param role_1 role to initialize the the builder tree branch with
+	 * @param role_1 role to start the hierarchy branch with
 	 * @return builder with {@code role_1} as the base to build one branch on the role hierarchy tree
 	 */
 	public FirstRoleBuilder role(String role_1) {
@@ -90,7 +90,7 @@ public class RoleHierarchyBuilder {
 	}
 
 	/**
-	 * Adds {@code nextReachableRole} to the map with roles that {@code currStep} can reach in one step
+	 * Adds {@code nextReachableRole} to the Set with roles that {@code currStep} can reach in one step
 	 *
 	 * @param currRole
 	 * @param nextReachableRole
@@ -108,7 +108,7 @@ public class RoleHierarchyBuilder {
 
 	/**
 	 * The base class for {@link FirstRoleBuilder} and {@link NextRoleBuilder}, so they can both call
-	 * the {@link BaseRoleBuilder#build()} method, which returns a {@link RoleHierarchyImpl} instance
+	 * the {@link BaseRoleBuilder#build()} method, which returns a new {@link RoleHierarchyImpl} instance
 	 */
 	private static abstract class BaseRoleBuilder {
 		private final RoleHierarchyBuilder roleHierarchyBuilder;
@@ -128,9 +128,9 @@ public class RoleHierarchyBuilder {
 	}
 
 	/**
-	 * The class whose instance is returned only by the {@link RoleHierarchyBuilder#builder()} method, so that
+	 * The class whose instance is returned only by the {@link RoleHierarchyBuilder#role(String role)} method, so
 	 * the consecutive call to {@link NextRoleBuilder#whichIncludes(String role)} can emphasize that it is
-	 * referring to the role was used in the previous {@link FirstRoleBuilder#includes(String role)} method call and
+	 * referring to the role used in the previous {@link FirstRoleBuilder#includes(String role)} method call and
 	 * not the role used in the call to the {@link RoleHierarchyBuilder#role(String role)} method
 	 */
 	public static class FirstRoleBuilder extends BaseRoleBuilder {
@@ -146,7 +146,7 @@ public class RoleHierarchyBuilder {
 
 		/**
 		 * @see NextRoleBuilder#whichIncludes(String role)
-		 * @param role_2 role to include in the tree branch that the class was called upon
+		 * @param role_2 role to include in the hierarchy tree
 		 * @return {@link NextRoleBuilder} for further chaining
 		 */
 		public NextRoleBuilder includes(String role_2) {
@@ -171,8 +171,7 @@ public class RoleHierarchyBuilder {
 		}
 
 		/**
-		 * @param role_2 role to include in the tree branch that the class was called upon
-		 * @see FirstRoleBuilder#includes(String role)
+		 * @param role_2 role to include in the hierarchy tree
 		 * @return {@link NextRoleBuilder} for further chaining
 		 */
 		public NextRoleBuilder whichIncludes(String role_2) {

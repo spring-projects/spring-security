@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,22 @@
  */
 package org.springframework.security.access.hierarchicalroles;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
- * <p>
  * This class defines a role hierarchy for use with various access checking components.
  *
  * <p>
@@ -41,6 +45,7 @@ import java.util.stream.Stream;
  *         &lt;/value&gt;
  *     &lt;/property&gt;
  * </pre>
+ * </p>
  *
  * <p>
  * Explanation of the above:
@@ -49,11 +54,10 @@ import java.util.stream.Stream;
  * <li>every user with ROLE_B also has ROLE_AUTHENTICATED and ROLE_UNAUTHENTICATED;</li>
  * <li>every user with ROLE_AUTHENTICATED also has ROLE_UNAUTHENTICATED.</li>
  * </ul>
- *
+ * </p>
  * <p>
  * Hierarchical Roles will dramatically shorten your access rules (and also make the access rules
  * much more elegant).
- *
  * <p>
  * Consider this access rule for Spring Security's RoleVoter (background: every user that is
  * authenticated should be able to log out):
@@ -110,24 +114,20 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 			return AuthorityUtils.NO_AUTHORITIES;
 		}
 
-		Set<String> processedNames = new HashSet<>();
+		Set<String> processedNames = authorities
+				.stream()
+				.map(GrantedAuthority::getAuthority) // Add the incoming authorities to already processed
+				.collect(Collectors.toSet());
 
 		List<GrantedAuthority> reachableRoleList = authorities
 				.stream()
-				.filter(authority -> processedNames.add(authority.getAuthority())) // Skip already added authorities
-				.flatMap(authority -> {
-					if (authority.getAuthority() == null) { // Skip authorities without string representation
-						return Stream.of(authority);
-					}
-
-					return Stream.concat(
-							Stream.of(authority), // Add original authority
-							this.rolesReachableInOneOrMoreStepsMap // Add authorities reachable in one or more steps
-									.getOrDefault(authority.getAuthority(), new HashSet<>())
-									.stream()
-									.filter(role -> processedNames.add(role.getAuthority())) // Skip already added authorities
-					);
-				})
+				.flatMap(authority -> Stream.concat(
+						Stream.of(authority), // Add original authority
+						this.rolesReachableInOneOrMoreStepsMap // Add authorities reachable in one or more steps
+								.getOrDefault(authority.getAuthority(), new HashSet<>())
+								.stream()
+								.filter(inheritedAuthority -> processedNames.add(inheritedAuthority.getAuthority())) // Skip adding already added authorities
+				))
 				.collect(Collectors.toList());
 
 		if (logger.isDebugEnabled()) {
