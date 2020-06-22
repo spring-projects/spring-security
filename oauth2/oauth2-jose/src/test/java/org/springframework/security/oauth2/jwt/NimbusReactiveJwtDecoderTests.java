@@ -31,12 +31,14 @@ import java.util.Date;
 import java.util.Map;
 import javax.crypto.SecretKey;
 
+import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JWKSecurityContext;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
@@ -44,6 +46,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -270,6 +273,13 @@ public class NimbusReactiveJwtDecoderTests {
 	}
 
 	@Test
+	public void withJwkSetUriWhenJwtProcessorCustomizerNullThenThrowsIllegalArgumentException() {
+		assertThatCode(() -> withJwkSetUri(jwkSetUri).jwtProcessorCustomizer(null).build())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("jwtProcessorCustomizer cannot be null");
+	}
+
+	@Test
 	public void restOperationsWhenNullThenThrowsException() {
 		NimbusReactiveJwtDecoder.JwkSetUriReactiveJwtDecoderBuilder builder = withJwkSetUri(this.jwkSetUri);
 		assertThatCode(() -> builder.webClient(null)).isInstanceOf(IllegalArgumentException.class);
@@ -286,6 +296,19 @@ public class NimbusReactiveJwtDecoderTests {
 		verify(webClient).get();
 	}
 
+	// gh-8730
+	@Test
+	public void withJwkSetUriWhenUsingCustomTypeHeaderThenRefuseOmittedType() {
+		WebClient webClient = mockJwkSetResponse(this.jwkSet);
+		NimbusReactiveJwtDecoder decoder = withJwkSetUri(this.jwkSetUri)
+				.webClient(webClient)
+				.jwtProcessorCustomizer(p -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
+				.build();
+		assertThatCode(() -> decoder.decode(messageReadToken).block())
+				.isInstanceOf(BadJwtException.class)
+				.hasRootCauseMessage("Required JOSE header \"typ\" (type) parameter is missing");
+	}
+
 	@Test
 	public void withPublicKeyWhenNullThenThrowsException() {
 		assertThatThrownBy(() -> withPublicKey(null))
@@ -298,6 +321,13 @@ public class NimbusReactiveJwtDecoderTests {
 				.signatureAlgorithm(SignatureAlgorithm.ES256)
 				.build())
 				.isInstanceOf(IllegalStateException.class);
+	}
+
+	@Test
+	public void buildWhenJwtProcessorCustomizerNullThenThrowsIllegalArgumentException() {
+		assertThatCode(() -> withPublicKey(key()).jwtProcessorCustomizer(null).build())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("jwtProcessorCustomizer cannot be null");
 	}
 
 	@Test
@@ -325,10 +355,29 @@ public class NimbusReactiveJwtDecoderTests {
 				.isInstanceOf(BadJwtException.class);
 	}
 
+	// gh-8730
+	@Test
+	public void withPublicKeyWhenUsingCustomTypeHeaderThenRefuseOmittedType() throws Exception {
+		NimbusReactiveJwtDecoder decoder = withPublicKey(key())
+				.jwtProcessorCustomizer(p -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
+				.build();
+
+		AssertionsForClassTypes.assertThatCode(() -> decoder.decode(this.rsa256).block())
+				.isInstanceOf(BadJwtException.class)
+				.hasRootCauseMessage("Required JOSE header \"typ\" (type) parameter is missing");
+	}
+
 	@Test
 	public void withJwkSourceWhenNullThenThrowsException() {
 		assertThatCode(() -> withJwkSource(null))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void withJwkSourceWhenJwtProcessorCustomizerNullThenThrowsIllegalArgumentException() {
+		assertThatCode(() -> withJwkSource(jwt -> Flux.empty()).jwtProcessorCustomizer(null).build())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("jwtProcessorCustomizer cannot be null");
 	}
 
 	@Test
@@ -342,11 +391,31 @@ public class NimbusReactiveJwtDecoderTests {
 				.isNotNull();
 	}
 
+	// gh-8730
+	@Test
+	public void withJwkSourceWhenUsingCustomTypeHeaderThenRefuseOmittedType() {
+		NimbusReactiveJwtDecoder decoder = withJwkSource(jwt -> Flux.empty())
+				.jwtProcessorCustomizer(p -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
+				.build();
+
+		assertThatCode(() -> decoder.decode(this.messageReadToken).block())
+				.isInstanceOf(BadJwtException.class)
+				.hasRootCauseMessage("Required JOSE header \"typ\" (type) parameter is missing");
+	}
+
 	@Test
 	public void withSecretKeyWhenSecretKeyNullThenThrowsIllegalArgumentException() {
 		assertThatThrownBy(() -> withSecretKey(null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("secretKey cannot be null");
+	}
+
+	@Test
+	public void withSecretKeyWhenJwtProcessorCustomizerNullThenThrowsIllegalArgumentException() {
+		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
+		assertThatThrownBy(() -> withSecretKey(secretKey).jwtProcessorCustomizer(null).build())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("jwtProcessorCustomizer cannot be null");
 	}
 
 	@Test
@@ -370,6 +439,18 @@ public class NimbusReactiveJwtDecoderTests {
 		this.decoder = withSecretKey(secretKey).macAlgorithm(macAlgorithm).build();
 		Jwt jwt = this.decoder.decode(signedJWT.serialize()).block();
 		assertThat(jwt.getSubject()).isEqualTo("test-subject");
+	}
+
+	// gh-8730
+	@Test
+	public void withSecretKeyWhenUsingCustomTypeHeaderThenRefuseOmittedType() {
+		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
+		NimbusReactiveJwtDecoder decoder = withSecretKey(secretKey)
+				.jwtProcessorCustomizer(p -> p.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS"))))
+				.build();
+		assertThatCode(() -> decoder.decode(messageReadToken).block())
+				.isInstanceOf(BadJwtException.class)
+				.hasRootCauseMessage("Required JOSE header \"typ\" (type) parameter is missing");
 	}
 
 	@Test
