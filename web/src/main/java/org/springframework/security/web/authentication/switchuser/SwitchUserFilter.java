@@ -437,7 +437,8 @@ public class SwitchUserFilter extends GenericFilterBean
 	}
 
 	/**
-	 * Set the URL to respond to exit user processing.
+	 * Set the URL to respond to exit user processing. This is a shortcut for
+	 * {@link #setExitUserMatcher(RequestMatcher)}.
 	 *
 	 * @param exitUserUrl The exit user URL.
 	 */
@@ -448,10 +449,9 @@ public class SwitchUserFilter extends GenericFilterBean
 	}
 
 	/**
-	 * Set the matcher to respond to exit user processing. This is a shortcut for
-	 * {@link #setExitUserMatcher(RequestMatcher)}
+	 * Set the matcher to respond to exit user processing.
 	 *
-	 * @param exitUserMatcher The exit matcher to use
+	 * @param exitUserMatcher The exit matcher to use.
 	 */
 	public void setExitUserMatcher(RequestMatcher exitUserMatcher) {
 		Assert.notNull(exitUserMatcher, "exitUserMatcher cannot be null");
