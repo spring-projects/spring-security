@@ -17,7 +17,10 @@ package org.springframework.security.oauth2.jwt;
 
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.*;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKMatcher;
+import com.nimbusds.jose.jwk.JWKSelector;
+import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.apache.commons.logging.Log;
@@ -29,13 +32,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * An abstraction of the common functionality for the two main JwtDecoderBuilder instances
  * ({@link NimbusJwtDecoder}, and {@link NimbusReactiveJwtDecoder}).
- * @param <T>
+ * @param <T> The parent class type
+ *
+ * @author Nick Hitchan
  */
 public abstract class JwtDecoderBuilder<T> {
 
