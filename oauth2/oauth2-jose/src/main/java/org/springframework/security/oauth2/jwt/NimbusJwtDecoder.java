@@ -219,10 +219,12 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 		private RestOperations restOperations = new RestTemplate();
 		private Cache cache;
+		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
 			this.jwkSetUri = jwkSetUri;
+			this.jwtProcessorCustomizer = (processor) -> {};
 		}
 
 		/**
@@ -282,6 +284,20 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return this;
 		}
 
+		/**
+		 * Use the given {@link Consumer} to customize the {@link JWTProcessor ConfigurableJWTProcessor} before
+		 * passing it to the build {@link NimbusJwtDecoder}.
+		 *
+		 * @param jwtProcessorCustomizer the callback used to alter the processor
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
+		 * @since 5.4
+		 */
+		public JwkSetUriJwtDecoderBuilder jwtProcessorCustomizer(Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer) {
+			Assert.notNull(jwtProcessorCustomizer, "jwtProcessorCustomizer cannot be null");
+			this.jwtProcessorCustomizer = jwtProcessorCustomizer;
+			return this;
+		}
+
 		JWSKeySelector<SecurityContext> jwsKeySelector(JWKSource<SecurityContext> jwkSource) {
 			if (this.signatureAlgorithms.isEmpty()) {
 				return new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
@@ -311,6 +327,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 			// Spring Security validates the claim set independent from Nimbus
 			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> { });
+
+			this.jwtProcessorCustomizer.accept(jwtProcessor);
 
 			return jwtProcessor;
 		}
@@ -414,11 +432,13 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	public static final class PublicKeyJwtDecoderBuilder {
 		private JWSAlgorithm jwsAlgorithm;
 		private RSAPublicKey key;
+		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
 		private PublicKeyJwtDecoderBuilder(RSAPublicKey key) {
 			Assert.notNull(key, "key cannot be null");
 			this.jwsAlgorithm = JWSAlgorithm.RS256;
 			this.key = key;
+			this.jwtProcessorCustomizer = (processor) -> {};
 		}
 
 		/**
@@ -437,6 +457,20 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return this;
 		}
 
+		/**
+		 * Use the given {@link Consumer} to customize the {@link JWTProcessor ConfigurableJWTProcessor} before
+		 * passing it to the build {@link NimbusJwtDecoder}.
+		 *
+		 * @param jwtProcessorCustomizer the callback used to alter the processor
+		 * @return a {@link PublicKeyJwtDecoderBuilder} for further configurations
+		 * @since 5.4
+		 */
+		public PublicKeyJwtDecoderBuilder jwtProcessorCustomizer(Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer) {
+			Assert.notNull(jwtProcessorCustomizer, "jwtProcessorCustomizer cannot be null");
+			this.jwtProcessorCustomizer = jwtProcessorCustomizer;
+			return this;
+		}
+
 		JWTProcessor<SecurityContext> processor() {
 			if (!JWSAlgorithm.Family.RSA.contains(this.jwsAlgorithm)) {
 				throw new IllegalStateException("The provided key is of type RSA; " +
@@ -451,6 +485,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 			// Spring Security validates the claim set independent from Nimbus
 			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> { });
+
+			this.jwtProcessorCustomizer.accept(jwtProcessor);
 
 			return jwtProcessor;
 		}
@@ -471,10 +507,12 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	public static final class SecretKeyJwtDecoderBuilder {
 		private final SecretKey secretKey;
 		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
+		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
 		private SecretKeyJwtDecoderBuilder(SecretKey secretKey) {
 			Assert.notNull(secretKey, "secretKey cannot be null");
 			this.secretKey = secretKey;
+			this.jwtProcessorCustomizer = (processor) -> {};
 		}
 
 		/**
@@ -495,6 +533,20 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		/**
+		 * Use the given {@link Consumer} to customize the {@link JWTProcessor ConfigurableJWTProcessor} before
+		 * passing it to the build {@link NimbusJwtDecoder}.
+		 *
+		 * @param jwtProcessorCustomizer the callback used to alter the processor
+		 * @return a {@link SecretKeyJwtDecoderBuilder} for further configurations
+		 * @since 5.4
+		 */
+		public SecretKeyJwtDecoderBuilder jwtProcessorCustomizer(Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer) {
+			Assert.notNull(jwtProcessorCustomizer, "jwtProcessorCustomizer cannot be null");
+			this.jwtProcessorCustomizer = jwtProcessorCustomizer;
+			return this;
+		}
+
+		/**
 		 * Build the configured {@link NimbusJwtDecoder}.
 		 *
 		 * @return the configured {@link NimbusJwtDecoder}
@@ -511,6 +563,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 			// Spring Security validates the claim set independent from Nimbus
 			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> { });
+
+			this.jwtProcessorCustomizer.accept(jwtProcessor);
 
 			return jwtProcessor;
 		}
