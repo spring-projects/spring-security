@@ -82,8 +82,9 @@ public final class OAuth2AccessTokenResponse {
 	}
 
 	/**
-	 * Returns a new {@link Builder}, initialized with the provided response
-	 * @param response the response to intialize the builder with
+	 * Returns a new {@link Builder}, initialized with the provided response.
+	 *
+	 * @param response the response to initialize the builder with
 	 * @return the {@link Builder}
 	 */
 	public static Builder withResponse(OAuth2AccessTokenResponse response) {
