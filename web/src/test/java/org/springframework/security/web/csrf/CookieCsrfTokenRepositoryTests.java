@@ -99,6 +99,33 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
+	public void saveTokenSecureFlagTrue() {
+		this.request.setSecure(false);
+		this.repository.setSecure(Boolean.TRUE);
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+
+		Cookie tokenCookie = this.response
+				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+
+		assertThat(tokenCookie.getSecure()).isTrue();
+	}
+
+	@Test
+	public void saveTokenSecureFlagFalse() {
+		this.request.setSecure(true);
+		this.repository.setSecure(Boolean.FALSE);
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+
+		Cookie tokenCookie = this.response
+				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+
+		assertThat(tokenCookie.getSecure()).isFalse();
+	}
+
+
+	@Test
 	public void saveTokenNull() {
 		this.request.setSecure(true);
 		this.repository.saveToken(null, this.request, this.response);
