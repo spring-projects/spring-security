@@ -16,20 +16,6 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.interfaces.RSAPublicKey;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import javax.crypto.SecretKey;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
@@ -49,14 +35,9 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-
 import org.springframework.cache.Cache;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -64,6 +45,16 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+
+import javax.crypto.SecretKey;
+import java.io.IOException;
+import java.net.URL;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * A low-level Nimbus implementation of {@link JwtDecoder} which takes a raw Nimbus configuration.
@@ -214,42 +205,22 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 * A builder for creating {@link NimbusJwtDecoder} instances based on a
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri.
 	 */
-	public static final class JwkSetUriJwtDecoderBuilder {
-		private String jwkSetUri;
-		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
+	public static final class JwkSetUriJwtDecoderBuilder extends JwtDecoderBuilder<JwkSetUriJwtDecoderBuilder> {
+
 		private RestOperations restOperations = new RestTemplate();
+
 		private Cache cache;
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
-			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
-			this.jwkSetUri = jwkSetUri;
+			super(jwkSetUri);
 		}
 
 		/**
-		 * Append the given signing
-		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithm</a>
-		 * to the set of algorithms to use.
-		 *
-		 * @param signatureAlgorithm the algorithm to use
-		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
+		 * Get the current instance of the builder from within this classes super class.
+		 * @return The current builder instance.
 		 */
-		public JwkSetUriJwtDecoderBuilder jwsAlgorithm(SignatureAlgorithm signatureAlgorithm) {
-			Assert.notNull(signatureAlgorithm, "signatureAlgorithm cannot be null");
-			this.signatureAlgorithms.add(signatureAlgorithm);
-			return this;
-		}
-
-		/**
-		 * Configure the list of
-		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithms</a>
-		 * to use with the given {@link Consumer}.
-		 *
-		 * @param signatureAlgorithmsConsumer a {@link Consumer} for further configuring the algorithm list
-		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
-		 */
-		public JwkSetUriJwtDecoderBuilder jwsAlgorithms(Consumer<Set<SignatureAlgorithm>> signatureAlgorithmsConsumer) {
-			Assert.notNull(signatureAlgorithmsConsumer, "signatureAlgorithmsConsumer cannot be null");
-			signatureAlgorithmsConsumer.accept(this.signatureAlgorithms);
+		@Override
+		protected JwkSetUriJwtDecoderBuilder self() {
 			return this;
 		}
 
@@ -283,24 +254,15 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		JWSKeySelector<SecurityContext> jwsKeySelector(JWKSource<SecurityContext> jwkSource) {
-			if (this.signatureAlgorithms.isEmpty()) {
-				return new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
-			} else {
-				Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
-				for (SignatureAlgorithm signatureAlgorithm : this.signatureAlgorithms) {
-					JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
-					jwsAlgorithms.add(jwsAlgorithm);
-				}
-				return new JWSVerificationKeySelector<>(jwsAlgorithms, jwkSource);
-			}
+			return new JWSVerificationKeySelector<>(getSignatureAlgorithms(jwkSource), jwkSource);
 		}
 
 		JWKSource<SecurityContext> jwkSource(ResourceRetriever jwkSetRetriever) {
 			if (this.cache == null) {
-				return new RemoteJWKSet<>(toURL(this.jwkSetUri), jwkSetRetriever);
+				return new RemoteJWKSet<>(toURL(getJwkSetUri()), jwkSetRetriever);
 			}
 			ResourceRetriever cachingJwkSetRetriever = new CachingResourceRetriever(this.cache, jwkSetRetriever);
-			return new RemoteJWKSet<>(toURL(this.jwkSetUri), cachingJwkSetRetriever, new NoOpJwkSetCache());
+			return new RemoteJWKSet<>(toURL(getJwkSetUri()), cachingJwkSetRetriever, new NoOpJwkSetCache());
 		}
 
 		JWTProcessor<SecurityContext> processor() {
@@ -322,14 +284,6 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 */
 		public NimbusJwtDecoder build() {
 			return new NimbusJwtDecoder(processor());
-		}
-
-		private static URL toURL(String url) {
-			try {
-				return new URL(url);
-			} catch (MalformedURLException ex) {
-				throw new IllegalArgumentException("Invalid JWK Set URL \"" + url + "\" : " + ex.getMessage(), ex);
-			}
 		}
 
 		private static class NoOpJwkSetCache implements JWKSetCache {

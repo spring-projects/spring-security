@@ -36,18 +36,23 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.source.JWKSecurityContextJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.JWKSecurityContext;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.cache.Cache;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -95,6 +100,32 @@ public class NimbusReactiveJwtDecoderTests {
 		+ "      }\n"
 		+ "   ]\n"
 		+ "}";
+	private static final String JWK_SET_MULTIPLE = "{\n" +
+			"  \"keys\": [\n" +
+			"    {\n" +
+			"      \"kty\": \"EC\",\n" +
+			"      \"use\": \"sig\",\n" +
+			"      \"crv\": \"P-256\",\n" +
+			"      \"x\": \"9w9ddaCKCdOfyKsENWI_cf90XmWRDISBrWf2vNo-TpE\",\n" +
+			"      \"y\": \"CThkQsCBR6dC-Y8-MVf6NFTYvMiJtjBx1x0Pbr-kP5c\",\n" +
+			"      \"alg\": \"ES256\"\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"kty\": \"RSA\",\n" +
+			"      \"e\": \"AQAB\",\n" +
+			"      \"use\": \"sig\",\n" +
+			"      \"alg\": \"RS256\",\n" +
+			"      \"n\": \"rNXfHmPwwPcmyjIG0gfBdera44Y6C6jhqgGAxCFlxrhveOAy12ff3Z0oyu0fsB-q2eVQ1amBYUWaNCopVuZEBx9GcNs0KmkAmh0bQVAT9rI81CE6thuZiNfnNaqcIHnvUa__1wnR1PzX7mDyvcVtxSC6VbQo9jt6ouBXaW6ZolqzlfbDAU-2FJpE2YLoqMs1PtSss_gYiXrP0f9GLomcQTWgsw-VNc9iYJZG5K8kIKlo_bu6YQf7GoGt4IEUd-dQBpavIBL7jjRKp30zY94J4QAwPo_UnO_EpDuUa9QyO6kuk6A3yv0nfstK-4wE1Jr42tlDO1SFzRzy_aYAjT7Ozw\"\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"kty\": \"EC\",\n" +
+			"      \"use\": \"sig\",\n" +
+			"      \"crv\": \"P-384\",\n" +
+			"      \"x\": \"71M1BlzONOc9LYuOB-xmK8Y3njqqGTJLguDLd7geILqYDiWrH5ELb9SKtVYcQvD1\",\n" +
+			"      \"y\": \"Lv8lK0ukUNFa1Vhlzbi8VDdIfHrd2IEmUp21fmLNwPwTMJLbDGYoPm4DgYfzOfSm\"\n" +
+			"    }\n" +
+			"  ]\n" +
+			"}";
 	private String jwkSetUri = "https://issuer/certs";
 
 	private String rsa512 = "eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJ0ZXN0LXN1YmplY3QiLCJleHAiOjE5NzQzMjYxMTl9.LKAx-60EBfD7jC1jb1eKcjO4uLvf3ssISV-8tN-qp7gAjSvKvj4YA9-V2mIb6jcS1X_xGmNy6EIimZXpWaBR3nJmeu-jpe85u4WaW2Ztr8ecAi-dTO7ZozwdtljKuBKKvj4u1nF70zyCNl15AozSG0W1ASrjUuWrJtfyDG6WoZ8VfNMuhtU-xUYUFvscmeZKUYQcJ1KS-oV5tHeF8aNiwQoiPC_9KXCOZtNEJFdq6-uzFdHxvOP2yex5Gbmg5hXonauIFXG2ZPPGdXzm-5xkhBpgM8U7A_6wb3So8wBvLYYm2245QUump63AJRAy8tQpwt4n9MvQxQgS3z9R-NK92A";
@@ -389,7 +420,7 @@ public class NimbusReactiveJwtDecoderTests {
 
 	@Test
 	public void jwsKeySelectorWhenNoAlgorithmThenReturnsRS256Selector() {
-		JWKSource<JWKSecurityContext> jwkSource = mock(JWKSource.class);
+		ReactiveRemoteJWKSource jwkSource = mock(ReactiveRemoteJWKSource.class);
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector =
 				withJwkSetUri(this.jwkSetUri).jwsKeySelector(jwkSource);
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
@@ -400,8 +431,18 @@ public class NimbusReactiveJwtDecoderTests {
 	}
 
 	@Test
+	public void jwsKeySelectorWithMultipleJWK() {
+		ReactiveRemoteJWKSource source = new ReactiveRemoteJWKSource(jwkSetUri);
+		source.setWebClient(mockJwkSetResponse(JWK_SET_MULTIPLE));
+		NimbusReactiveJwtDecoder.JwkSetUriReactiveJwtDecoderBuilder builder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri);
+		JWSVerificationKeySelector<JWKSecurityContext> selector = (JWSVerificationKeySelector<JWKSecurityContext>) builder.jwsKeySelector(source);
+		assertThat(selector.isAllowed(JWSAlgorithm.RS256)).isTrue();
+		assertThat(selector.isAllowed(JWSAlgorithm.ES256)).isTrue();
+	}
+
+	@Test
 	public void jwsKeySelectorWhenOneAlgorithmThenReturnsSingleSelector() {
-		JWKSource<JWKSecurityContext> jwkSource = mock(JWKSource.class);
+		ReactiveRemoteJWKSource jwkSource = mock(ReactiveRemoteJWKSource.class);
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector =
 				withJwkSetUri(this.jwkSetUri).jwsAlgorithm(SignatureAlgorithm.RS512)
 						.jwsKeySelector(jwkSource);
@@ -414,7 +455,7 @@ public class NimbusReactiveJwtDecoderTests {
 
 	@Test
 	public void jwsKeySelectorWhenMultipleAlgorithmThenReturnsCompositeSelector() {
-		JWKSource<JWKSecurityContext> jwkSource = mock(JWKSource.class);
+		ReactiveRemoteJWKSource jwkSource = mock(ReactiveRemoteJWKSource.class);
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector =
 				withJwkSetUri(this.jwkSetUri)
 						.jwsAlgorithm(SignatureAlgorithm.RS256)

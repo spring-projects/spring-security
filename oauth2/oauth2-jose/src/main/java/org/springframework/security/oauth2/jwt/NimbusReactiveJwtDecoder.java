@@ -15,16 +15,6 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.security.interfaces.RSAPublicKey;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import javax.crypto.SecretKey;
-
 import com.nimbusds.jose.Header;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -33,22 +23,10 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.source.JWKSecurityContextJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.BadJOSEException;
-import com.nimbusds.jose.proc.JWKSecurityContext;
-import com.nimbusds.jose.proc.JWSKeySelector;
-import com.nimbusds.jose.proc.JWSVerificationKeySelector;
-import com.nimbusds.jose.proc.SecurityContext;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.JWTParser;
-import com.nimbusds.jwt.PlainJWT;
-import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jose.proc.*;
+import com.nimbusds.jwt.*;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
@@ -57,6 +35,15 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import javax.crypto.SecretKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * An implementation of a {@link ReactiveJwtDecoder} that &quot;decodes&quot; a
@@ -241,41 +228,16 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 *
 	 * @since 5.2
 	 */
-	public static final class JwkSetUriReactiveJwtDecoderBuilder {
-		private final String jwkSetUri;
-		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
+	public static final class JwkSetUriReactiveJwtDecoderBuilder extends JwtDecoderBuilder<JwkSetUriReactiveJwtDecoderBuilder> {
+
 		private WebClient webClient = WebClient.create();
 
 		private JwkSetUriReactiveJwtDecoderBuilder(String jwkSetUri) {
-			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
-			this.jwkSetUri = jwkSetUri;
+			super(jwkSetUri);
 		}
 
-		/**
-		 * Append the given signing
-		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithm</a>
-		 * to the set of algorithms to use.
-		 *
-		 * @param signatureAlgorithm the algorithm to use
-		 * @return a {@link JwkSetUriReactiveJwtDecoderBuilder} for further configurations
-		 */
-		public JwkSetUriReactiveJwtDecoderBuilder jwsAlgorithm(SignatureAlgorithm signatureAlgorithm) {
-			Assert.notNull(signatureAlgorithm, "sig cannot be null");
-			this.signatureAlgorithms.add(signatureAlgorithm);
-			return this;
-		}
-
-		/**
-		 * Configure the list of
-		 * <a href="https://tools.ietf.org/html/rfc7515#section-4.1.1" target="_blank">algorithms</a>
-		 * to use with the given {@link Consumer}.
-		 *
-		 * @param signatureAlgorithmsConsumer a {@link Consumer} for further configuring the algorithm list
-		 * @return a {@link JwkSetUriReactiveJwtDecoderBuilder} for further configurations
-		 */
-		public JwkSetUriReactiveJwtDecoderBuilder jwsAlgorithms(Consumer<Set<SignatureAlgorithm>> signatureAlgorithmsConsumer) {
-			Assert.notNull(signatureAlgorithmsConsumer, "signatureAlgorithmsConsumer cannot be null");
-			signatureAlgorithmsConsumer.accept(this.signatureAlgorithms);
+		@Override
+		protected JwkSetUriReactiveJwtDecoderBuilder self() {
 			return this;
 		}
 
@@ -294,6 +256,10 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			return this;
 		}
 
+		JWSKeySelector<JWKSecurityContext> jwsKeySelector(ReactiveRemoteJWKSource jwkSource) {
+			return new JWSVerificationKeySelector<>(getSignatureAlgorithms(jwkSource), new JWKSecurityContextJWKSet());
+		}
+
 		/**
 		 * Build the configured {@link NimbusReactiveJwtDecoder}.
 		 *
@@ -303,28 +269,13 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			return new NimbusReactiveJwtDecoder(processor());
 		}
 
-		JWSKeySelector<JWKSecurityContext> jwsKeySelector(JWKSource<JWKSecurityContext> jwkSource) {
-			if (this.signatureAlgorithms.isEmpty()) {
-				return new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
-			} else {
-				Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
-				for (SignatureAlgorithm signatureAlgorithm : this.signatureAlgorithms) {
-					JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
-					jwsAlgorithms.add(jwsAlgorithm);
-				}
-				return new JWSVerificationKeySelector<>(jwsAlgorithms, jwkSource);
-			}
-		}
-
 		Converter<JWT, Mono<JWTClaimsSet>> processor() {
-			JWKSecurityContextJWKSet jwkSource = new JWKSecurityContextJWKSet();
+			ReactiveRemoteJWKSource source = new ReactiveRemoteJWKSource(getJwkSetUri());
+			source.setWebClient(this.webClient);
 			DefaultJWTProcessor<JWKSecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
-			JWSKeySelector<JWKSecurityContext> jwsKeySelector = jwsKeySelector(jwkSource);
+			JWSKeySelector<JWKSecurityContext> jwsKeySelector = jwsKeySelector(source);
 			jwtProcessor.setJWSKeySelector(jwsKeySelector);
 			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
-
-			ReactiveRemoteJWKSource source = new ReactiveRemoteJWKSource(this.jwkSetUri);
-			source.setWebClient(this.webClient);
 
 			Function<JWSAlgorithm, Boolean> expectedJwsAlgorithms = getExpectedJwsAlgorithms(jwsKeySelector);
 			return jwt -> {

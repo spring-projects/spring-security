@@ -16,25 +16,6 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import javax.crypto.SecretKey;
-
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
@@ -50,11 +31,11 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
+import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.mockito.ArgumentCaptor;
 import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
@@ -72,19 +53,27 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 
+import javax.crypto.SecretKey;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.Callable;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
-import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withPublicKey;
-import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withSecretKey;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.*;
 
 /**
  * Tests for {@link NimbusJwtDecoder}
@@ -95,6 +84,33 @@ import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withSecre
  */
 public class NimbusJwtDecoderTests {
 	private static final String JWK_SET = "{\"keys\":[{\"p\":\"49neceJFs8R6n7WamRGy45F5Tv0YM-R2ODK3eSBUSLOSH2tAqjEVKOkLE5fiNA3ygqq15NcKRadB2pTVf-Yb5ZIBuKzko8bzYIkIqYhSh_FAdEEr0vHF5fq_yWSvc6swsOJGqvBEtuqtJY027u-G2gAQasCQdhyejer68zsTn8M\",\"kty\":\"RSA\",\"q\":\"tWR-ysspjZ73B6p2vVRVyHwP3KQWL5KEQcdgcmMOE_P_cPs98vZJfLhxobXVmvzuEWBpRSiqiuyKlQnpstKt94Cy77iO8m8ISfF3C9VyLWXi9HUGAJb99irWABFl3sNDff5K2ODQ8CmuXLYM25OwN3ikbrhEJozlXg_NJFSGD4E\",\"d\":\"FkZHYZlw5KSoqQ1i2RA2kCUygSUOf1OqMt3uomtXuUmqKBm_bY7PCOhmwbvbn4xZYEeHuTR8Xix-0KpHe3NKyWrtRjkq1T_un49_1LLVUhJ0dL-9_x0xRquVjhl_XrsRXaGMEHs8G9pLTvXQ1uST585gxIfmCe0sxPZLvwoic-bXf64UZ9BGRV3lFexWJQqCZp2S21HfoU7wiz6kfLRNi-K4xiVNB1gswm_8o5lRuY7zB9bRARQ3TS2G4eW7p5sxT3CgsGiQD3_wPugU8iDplqAjgJ5ofNJXZezoj0t6JMB_qOpbrmAM1EnomIPebSLW7Ky9SugEd6KMdL5lW6AuAQ\",\"e\":\"AQAB\",\"use\":\"sig\",\"kid\":\"one\",\"qi\":\"wdkFu_tV2V1l_PWUUimG516Zvhqk2SWDw1F7uNDD-Lvrv_WNRIJVzuffZ8WYiPy8VvYQPJUrT2EXL8P0ocqwlaSTuXctrORcbjwgxDQDLsiZE0C23HYzgi0cofbScsJdhcBg7d07LAf7cdJWG0YVl1FkMCsxUlZ2wTwHfKWf-v4\",\"dp\":\"uwnPxqC-IxG4r33-SIT02kZC1IqC4aY7PWq0nePiDEQMQWpjjNH50rlq9EyLzbtdRdIouo-jyQXB01K15-XXJJ60dwrGLYNVqfsTd0eGqD1scYJGHUWG9IDgCsxyEnuG3s0AwbW2UolWVSsU2xMZGb9PurIUZECeD1XDZwMp2s0\",\"dq\":\"hra786AunB8TF35h8PpROzPoE9VJJMuLrc6Esm8eZXMwopf0yhxfN2FEAvUoTpLJu93-UH6DKenCgi16gnQ0_zt1qNNIVoRfg4rw_rjmsxCYHTVL3-RDeC8X_7TsEySxW0EgFTHh-nr6I6CQrAJjPM88T35KHtdFATZ7BCBB8AE\",\"n\":\"oXJ8OyOv_eRnce4akdanR4KYRfnC2zLV4uYNQpcFn6oHL0dj7D6kxQmsXoYgJV8ZVDn71KGmuLvolxsDncc2UrhyMBY6DVQVgMSVYaPCTgW76iYEKGgzTEw5IBRQL9w3SRJWd3VJTZZQjkXef48Ocz06PGF3lhbz4t5UEZtdF4rIe7u-977QwHuh7yRPBQ3sII-cVoOUMgaXB9SHcGF2iZCtPzL_IffDUcfhLQteGebhW8A6eUHgpD5A1PQ-JCw_G7UOzZAjjDjtNM2eqm8j-Ms_gqnm4MiCZ4E-9pDN77CAAPVN7kuX6ejs9KBXpk01z48i9fORYk9u7rAkh1HuQw\"}]}";
+	private static final String JWK_SET_MULTIPLE = "{\n" +
+			"  \"keys\": [\n" +
+			"    {\n" +
+			"      \"kty\": \"EC\",\n" +
+			"      \"use\": \"sig\",\n" +
+			"      \"crv\": \"P-256\",\n" +
+			"      \"x\": \"9w9ddaCKCdOfyKsENWI_cf90XmWRDISBrWf2vNo-TpE\",\n" +
+			"      \"y\": \"CThkQsCBR6dC-Y8-MVf6NFTYvMiJtjBx1x0Pbr-kP5c\",\n" +
+			"      \"alg\": \"ES256\"\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"kty\": \"RSA\",\n" +
+			"      \"e\": \"AQAB\",\n" +
+			"      \"use\": \"sig\",\n" +
+			"      \"alg\": \"RS256\",\n" +
+			"      \"n\": \"rNXfHmPwwPcmyjIG0gfBdera44Y6C6jhqgGAxCFlxrhveOAy12ff3Z0oyu0fsB-q2eVQ1amBYUWaNCopVuZEBx9GcNs0KmkAmh0bQVAT9rI81CE6thuZiNfnNaqcIHnvUa__1wnR1PzX7mDyvcVtxSC6VbQo9jt6ouBXaW6ZolqzlfbDAU-2FJpE2YLoqMs1PtSss_gYiXrP0f9GLomcQTWgsw-VNc9iYJZG5K8kIKlo_bu6YQf7GoGt4IEUd-dQBpavIBL7jjRKp30zY94J4QAwPo_UnO_EpDuUa9QyO6kuk6A3yv0nfstK-4wE1Jr42tlDO1SFzRzy_aYAjT7Ozw\"\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"kty\": \"EC\",\n" +
+			"      \"use\": \"sig\",\n" +
+			"      \"crv\": \"P-384\",\n" +
+			"      \"x\": \"71M1BlzONOc9LYuOB-xmK8Y3njqqGTJLguDLd7geILqYDiWrH5ELb9SKtVYcQvD1\",\n" +
+			"      \"y\": \"Lv8lK0ukUNFa1Vhlzbi8VDdIfHrd2IEmUp21fmLNwPwTMJLbDGYoPm4DgYfzOfSm\"\n" +
+			"    }\n" +
+			"  ]\n" +
+			"}";
+
 	private static final String MALFORMED_JWK_SET = "malformed";
 
 	private static final String SIGNED_JWT = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0LXN1YmplY3QiLCJzY3AiOlsibWVzc2FnZTpyZWFkIl0sImV4cCI6NDY4Mzg5Nzc3Nn0.LtMVtIiRIwSyc3aX35Zl0JVwLTcQZAB3dyBOMHNaHCKUljwMrf20a_gT79LfhjDzE_fUVUmFiAO32W1vFnYpZSVaMDUgeIOIOpxfoe9shj_uYenAwIS-_UxqGVIJiJoXNZh_MK80ShNpvsQwamxWEEOAMBtpWNiVYNDMdfgho9n3o5_Z7Gjy8RLBo1tbDREbO9kTFwGIxm_EYpezmRCRq4w1DdS6UDW321hkwMxPnCMSWOvp-hRpmgY2yjzLgPJ6Aucmg9TJ8jloAP1DjJoF1gRR7NTAk8LOGkSjTzVYDYMbCF51YdpojhItSk80YzXiEsv1mTz4oMM49jXBmfXFMA";
@@ -244,9 +260,9 @@ public class NimbusJwtDecoderTests {
 	public void decodeWhenJwkEndpointIsUnresponsiveThenReturnsJwtException() throws Exception {
 		try ( MockWebServer server = new MockWebServer() ) {
 			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
+			server.shutdown();
 			NimbusJwtDecoder jwtDecoder = withJwkSetUri(jwkSetUri).build();
 
-			server.shutdown();
 			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT))
 					.isInstanceOf(JwtException.class)
 					.isNotInstanceOf(BadJwtException.class)
@@ -259,9 +275,9 @@ public class NimbusJwtDecoderTests {
 		try ( MockWebServer server = new MockWebServer() ) {
 			Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
+			server.shutdown();
 			NimbusJwtDecoder jwtDecoder = withJwkSetUri(jwkSetUri).cache(cache).build();
 
-			server.shutdown();
 			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT))
 					.isInstanceOf(JwtException.class)
 					.isNotInstanceOf(BadJwtException.class)
@@ -449,6 +465,25 @@ public class NimbusJwtDecoderTests {
 				.isTrue();
 	}
 
+	@Test
+	public void jwsKeySelectorWithMultipleJWK() throws Exception {
+
+		try ( MockWebServer server = new MockWebServer() ) {
+			Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
+			server.enqueue(new MockResponse().setBody(JWK_SET_MULTIPLE));
+			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
+			NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = withJwkSetUri(jwkSetUri);
+			builder.cache(cache);
+			DefaultJWTProcessor<SecurityContext> processor = (DefaultJWTProcessor<SecurityContext>) builder.processor();
+			builder.build();
+			JWSVerificationKeySelector<SecurityContext> selector = (JWSVerificationKeySelector<SecurityContext>) processor.getJWSKeySelector();
+			server.shutdown();
+			assertThat(selector.isAllowed(JWSAlgorithm.RS256)).isTrue();
+			assertThat(selector.isAllowed(JWSAlgorithm.ES256)).isTrue();
+		}
+
+	}
+
 	// gh-7290
 	@Test
 	public void decodeWhenJwkSetRequestedThenAcceptHeaderJsonAndJwkSetJson() {
@@ -501,7 +536,7 @@ public class NimbusJwtDecoderTests {
 		// when
 		jwtDecoder.decode(SIGNED_JWT);
 		// then
-		verify(cache).get(eq(JWK_SET_URI), any(Callable.class));
+		verify(cache, times(2)).get(eq(JWK_SET_URI), any(Callable.class));
 		verifyNoMoreInteractions(cache);
 		verifyNoInteractions(restOperations);
 	}
