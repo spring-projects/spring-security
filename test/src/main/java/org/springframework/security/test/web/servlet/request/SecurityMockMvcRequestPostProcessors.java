@@ -571,7 +571,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 			private final CsrfTokenRepository delegate;
 
-			private TestCsrfTokenRepository(CsrfTokenRepository delegate) {
+			TestCsrfTokenRepository(CsrfTokenRepository delegate) {
 				this.delegate = delegate;
 			}
 
