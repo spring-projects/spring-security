@@ -57,5 +57,7 @@ public interface SecurityContextHolderStrategy {
 	 *
 	 * @return the empty context.
 	 */
-	SecurityContext createEmptyContext();
+	default SecurityContext createEmptyContext(){
+		return new SecurityContextImpl();
+	}
 }

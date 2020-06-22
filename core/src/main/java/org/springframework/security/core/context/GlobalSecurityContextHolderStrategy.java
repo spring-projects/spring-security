@@ -52,8 +52,4 @@ final class GlobalSecurityContextHolderStrategy implements SecurityContextHolder
 		Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
 		contextHolder = context;
 	}
-
-	public SecurityContext createEmptyContext() {
-		return new SecurityContextImpl();
-	}
 }

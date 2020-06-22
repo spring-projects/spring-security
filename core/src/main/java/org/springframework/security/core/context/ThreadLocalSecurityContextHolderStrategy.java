@@ -56,8 +56,4 @@ final class ThreadLocalSecurityContextHolderStrategy implements
 		Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
 		contextHolder.set(context);
 	}
-
-	public SecurityContext createEmptyContext() {
-		return new SecurityContextImpl();
-	}
 }
