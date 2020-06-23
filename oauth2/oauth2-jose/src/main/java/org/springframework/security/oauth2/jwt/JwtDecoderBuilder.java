@@ -94,13 +94,16 @@ public abstract class JwtDecoderBuilder<T> {
 
 	/**
 	 * Fetches {@link SignatureAlgorithm}s based on the configured {@link JWKSource}s keys.
+	 * If algorithms have already been provided, then dynamic JWK algorithm fetching will not occur.
 	 * @param jwkSource
 	 * @return A set of {@link JWSAlgorithm}s to be used for JWT signature verification.
 	 */
 	protected Set<JWSAlgorithm> getSignatureAlgorithms(JWKSource<SecurityContext> jwkSource) {
 		Set<SignatureAlgorithm> jwkAlgorithms = getDefaultAlgorithms();
 		try {
-			jwkAlgorithms.addAll(fetchSignatureVerificationAlgorithms(jwkSource));
+			if (signatureAlgorithms.isEmpty()) {
+				jwkAlgorithms.addAll(fetchSignatureVerificationAlgorithms(jwkSource));
+			}
 		} catch (Exception ex) {
 			log.error("Error fetching Signature Verification algorithms");
 		}
@@ -109,13 +112,16 @@ public abstract class JwtDecoderBuilder<T> {
 
 	/**
 	 * Fetches {@link SignatureAlgorithm}s based on the configured {@link ReactiveJWKSource}s keys.
+	 * If algorithms have already been provided, then dynamic JWK algorithm fetching will not occur.
 	 * @param jwkSource
 	 * @return A set of {@link JWSAlgorithm}s to be used for JWT signature verification.
 	 */
 	protected Set<JWSAlgorithm> getSignatureAlgorithms(ReactiveJWKSource jwkSource) {
 		Set<SignatureAlgorithm> jwkAlgorithms = getDefaultAlgorithms();
 		try {
-			jwkAlgorithms.addAll(fetchSignatureVerificationAlgorithms(jwkSource));
+			if (signatureAlgorithms.isEmpty()) {
+				jwkAlgorithms.addAll(fetchSignatureVerificationAlgorithms(jwkSource));
+			}
 		} catch (Exception ex) {
 			log.error("Error fetching Signature Verification algorithms");
 		}
@@ -169,13 +175,19 @@ public abstract class JwtDecoderBuilder<T> {
 		if (jwks == null) {
 			return Collections.emptySet();
 		}
-		return jwks.stream().map(jwk -> {
+
+		Set<SignatureAlgorithm> algorithms = new HashSet<>();
+		for (JWK jwk : jwks) {
 			Algorithm algorithm = jwk.getAlgorithm();
 			if (algorithm != null) {
-				return SignatureAlgorithm.from(algorithm.getName());
+				SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.from(algorithm.getName());
+				if (signatureAlgorithm != null) {
+					algorithms.add(signatureAlgorithm);
+				}
 			}
-			return null;
-		}).filter(Objects::nonNull).collect(Collectors.toSet());
+		}
+
+		return algorithms;
 	}
 
 	/**
