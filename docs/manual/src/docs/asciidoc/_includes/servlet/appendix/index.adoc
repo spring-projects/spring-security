@@ -5,6 +5,4 @@ include::database-schema.adoc[]
 
 include::namespace.adoc[]
 
-include::dependencies.adoc[]
-
 include::faq.adoc[]
