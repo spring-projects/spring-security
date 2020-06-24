@@ -304,7 +304,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 				return Collections.emptySet();
 			}
 			try {
-				return parseAlgorithms(JWKSet.load(toURL(jwkSetUri)));
+				return parseAlgorithms(JWKSet.load(toURL(jwkSetUri), 5000, 5000, 0));
 			} catch (Exception ex) {
 				log.error("Failed to load Signature Algorithms from remote JWK source.");
 				return Collections.emptySet();
@@ -316,10 +316,13 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 				return Collections.emptySet();
 			}
 
-			JWKSelector selector = new JWKSelector(new JWKMatcher.Builder()
-					.keyUse(KeyUse.SIGNATURE)
-					.build());
-			List<JWK> jwks = selector.select(jwkSet);
+			List<JWK> jwks = new ArrayList<>();
+			for (JWK jwk : jwkSet.getKeys()) {
+				KeyUse keyUse = jwk.getKeyUse();
+				if (keyUse != null && keyUse.equals(KeyUse.SIGNATURE)) {
+					jwks.add(jwk);
+				}
+			}
 
 			Set<SignatureAlgorithm> algorithms = new HashSet<>();
 			for (JWK jwk : jwks) {
