@@ -21,8 +21,6 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.RequestEntity;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.oauth2.client.OAuth2ClientBeanNames;
@@ -34,7 +32,6 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResp
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -407,20 +404,5 @@ public class OAuth2ClientConfigurationTests {
 		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
 			return mock(OAuth2AuthorizedClientRepository.class);
 		}
-	}
-
-	@Test
-	public void loadContextWhenRestOperationsRegisteredThenClientRegistrationsUses() {
-		this.spring.register(OAuth2ClientBeanOverridesConfig.class).autowire();
-
-		when(OAuth2ClientBeanOverridesConfig.restOperations.exchange(
-				any(RequestEntity.class), any(ParameterizedTypeReference.class)))
-				.thenThrow(new IllegalStateException());
-
-		assertThatThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation("https://invalid.issuer.com"))
-				.isInstanceOf(IllegalStateException.class);
-
-		verify(OAuth2ClientBeanOverridesConfig.restOperations).exchange(
-				any(RequestEntity.class), any(ParameterizedTypeReference.class));
 	}
 }

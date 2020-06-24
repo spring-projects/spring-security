@@ -123,12 +123,6 @@ public class ClientRegistrationsTest {
 	}
 
 	@Test
-	public void setRestOperationsWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> ClientRegistrations.setRestOperations(null))
-				.isInstanceOf(IllegalArgumentException.class);
-	}
-
-	@Test
 	public void issuerWhenAllInformationThenSuccess() throws Exception {
 		ClientRegistration registration = registration("").build();
 		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();

@@ -16,7 +16,6 @@
 package org.springframework.security.config.annotation.web.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,19 +23,16 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.config.oauth2.client.DefaultOAuth2AuthorizedClientManagerPostProcessor;
-import org.springframework.security.config.oauth2.client.OAuth2ClientBeanNames;
 import org.springframework.security.config.oauth2.client.OAuth2ClientRestOperationsPostProcessor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.util.ClassUtils;
-import org.springframework.web.client.RestOperations;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -55,8 +51,7 @@ import java.util.Optional;
  * @see OAuth2ImportSelector
  */
 @Import({OAuth2ClientConfiguration.OAuth2ClientSecurityConfiguration.class,
-		OAuth2ClientConfiguration.OAuth2ClientWebMvcImportSelector.class,
-		OAuth2ClientConfiguration.OAuth2ClientRegistrationsConfiguration.class})
+		OAuth2ClientConfiguration.OAuth2ClientWebMvcImportSelector.class})
 final class OAuth2ClientConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
@@ -132,16 +127,6 @@ final class OAuth2ClientConfiguration {
 		void setAccessTokenResponseClient(
 				Optional<OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest>> accessTokenResponseClient) {
 			accessTokenResponseClient.ifPresent(client -> this.accessTokenResponseClient = client);
-		}
-	}
-
-	@Configuration(proxyBeanMethods = false)
-	static class OAuth2ClientRegistrationsConfiguration {
-
-		@Autowired
-		@Qualifier(OAuth2ClientBeanNames.REST_OPERATIONS)
-		void configure(RestOperations restOperations) {
-			ClientRegistrations.setRestOperations(restOperations);
 		}
 	}
 }
