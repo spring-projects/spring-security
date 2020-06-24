@@ -16,7 +16,7 @@
 package org.springframework.security.acls.jdbc;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +99,7 @@ public class JdbcAclService implements AclService {
 					return new ObjectIdentityImpl(javaType, identifier);
 				});
 
-		if (objects.size() == 0) {
+		if (objects.isEmpty()) {
 			return null;
 		}
 
@@ -108,7 +108,7 @@ public class JdbcAclService implements AclService {
 
 	public Acl readAclById(ObjectIdentity object, List<Sid> sids)
 			throws NotFoundException {
-		Map<ObjectIdentity, Acl> map = readAclsById(Arrays.asList(object), sids);
+		Map<ObjectIdentity, Acl> map = readAclsById(Collections.singletonList(object), sids);
 		Assert.isTrue(map.containsKey(object),
 				() -> "There should have been an Acl entry for ObjectIdentity " + object);
 
