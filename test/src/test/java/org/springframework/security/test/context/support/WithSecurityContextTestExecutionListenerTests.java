@@ -125,6 +125,18 @@ public class WithSecurityContextTestExecutionListenerTests {
 	}
 
 	@Test
+	// gh-6591
+	public void beforeTestMethodWhenTestExecutionThenDelayFactoryCreate() throws Exception {
+		Method testMethod = TheTest.class.getMethod("withUserDetails");
+		when(this.testContext.getApplicationContext()).thenReturn(this.applicationContext);
+		// do not set a UserDetailsService Bean so it would fail if looked up
+		when(this.testContext.getTestMethod()).thenReturn(testMethod);
+
+		this.listener.beforeTestMethod(this.testContext);
+		// bean lookup of UserDetailsService would fail if it has already been looked up
+	}
+
+	@Test
 	public void beforeTestExecutionWhenTestContextNullThenSecurityContextNotSet() {
 		this.listener.beforeTestExecution(this.testContext);
 
@@ -158,7 +170,10 @@ public class WithSecurityContextTestExecutionListenerTests {
 		@WithMockUser
 		public void withMockUserDefault() {
 		}
-	}
 
+		@WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION)
+		public void withUserDetails() {
+		}
+	}
 
 }
