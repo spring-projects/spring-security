@@ -261,6 +261,7 @@ public class OAuth2ResourceServerSpecTests {
 		this.spring.register(JwkSetUriConfig.class, RootController.class).autowire();
 		MockWebServer mockWebServer = this.spring.getContext().getBean(MockWebServer.class);
 		mockWebServer.enqueue(new MockResponse().setBody(this.jwkSet));
+		mockWebServer.enqueue(new MockResponse().setBody(this.jwkSet));
 		// @formatter:off
 		this.client.get()
 				.headers((headers) -> headers
@@ -275,6 +276,7 @@ public class OAuth2ResourceServerSpecTests {
 	public void getWhenUsingJwkSetUriInLambdaThenConsultsAccordingly() {
 		this.spring.register(JwkSetUriInLambdaConfig.class, RootController.class).autowire();
 		MockWebServer mockWebServer = this.spring.getContext().getBean(MockWebServer.class);
+		mockWebServer.enqueue(new MockResponse().setBody(this.jwkSet));
 		mockWebServer.enqueue(new MockResponse().setBody(this.jwkSet));
 		// @formatter:off
 		this.client.get()

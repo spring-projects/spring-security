@@ -148,6 +148,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void getWhenUsingJwkSetUriThenAcceptsRequest() throws Exception {
 		this.spring.configLocations(xml("WebServer"), xml("JwkSetUri")).autowire();
 		mockWebServer(jwks("Default"));
+		mockWebServer(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
@@ -709,17 +710,20 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		String jwtThree = jwtFromIssuer(issuerThree);
 		mockWebServer(String.format(metadata, issuerOne, issuerOne));
 		mockWebServer(jwkSet);
+		mockWebServer(jwkSet);
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer " + jwtOne))
 				.andExpect(status().isNotFound());
 		// @formatter:on
 		mockWebServer(String.format(metadata, issuerTwo, issuerTwo));
 		mockWebServer(jwkSet);
+		mockWebServer(jwkSet);
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer " + jwtTwo))
 				.andExpect(status().isNotFound());
 		// @formatter:on
 		mockWebServer(String.format(metadata, issuerThree, issuerThree));
+		mockWebServer(jwkSet);
 		mockWebServer(jwkSet);
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer " + jwtThree))

@@ -223,6 +223,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	public void getWhenUsingJwkSetUriThenAcceptsRequest() throws Exception {
 		this.spring.register(WebServerConfig.class, JwkSetUriConfig.class, BasicController.class).autowire();
 		mockWebServer(jwks("Default"));
+		mockWebServer(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		this.mvc.perform(get("/").with(bearerToken(token)))
@@ -234,6 +235,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	@Test
 	public void getWhenUsingJwkSetUriInLambdaThenAcceptsRequest() throws Exception {
 		this.spring.register(WebServerConfig.class, JwkSetUriInLambdaConfig.class, BasicController.class).autowire();
+		mockWebServer(jwks("Default"));
 		mockWebServer(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
@@ -1185,12 +1187,14 @@ public class OAuth2ResourceServerConfigurerTests {
 		String jwtThree = jwtFromIssuer(issuerThree);
 		mockWebServer(String.format(metadata, issuerOne, issuerOne));
 		mockWebServer(jwkSet);
+		mockWebServer(jwkSet);
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(bearerToken(jwtOne)))
 				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
 		// @formatter:on
 		mockWebServer(String.format(metadata, issuerTwo, issuerTwo));
+		mockWebServer(jwkSet);
 		mockWebServer(jwkSet);
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(bearerToken(jwtTwo)))

@@ -70,6 +70,7 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)
 			));
 			// @formatter:on
+			server.enqueue(new MockResponse().setResponseCode(200));
 			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
 					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
 			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));

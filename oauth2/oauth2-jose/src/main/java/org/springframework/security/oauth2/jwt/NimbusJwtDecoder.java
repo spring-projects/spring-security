@@ -21,21 +21,26 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import javax.crypto.SecretKey;
 
+import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.source.JWKSetCache;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
@@ -234,6 +239,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 */
 	public static final class JwkSetUriJwtDecoderBuilder {
 
+		private static final Log log = LogFactory.getLog(JwkSetUriJwtDecoderBuilder.class);
+
 		private String jwkSetUri;
 
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
@@ -322,15 +329,58 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		JWSKeySelector<SecurityContext> jwsKeySelector(JWKSource<SecurityContext> jwkSource) {
-			if (this.signatureAlgorithms.isEmpty()) {
-				return new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
+			Set<SignatureAlgorithm> algorithms = new HashSet<>();
+			if (!this.signatureAlgorithms.isEmpty()) {
+				algorithms.addAll(this.signatureAlgorithms);
+			} else {
+				algorithms.addAll(fetchSignatureAlgorithms());
 			}
+
+			if (algorithms.isEmpty()) {
+				algorithms.add(SignatureAlgorithm.RS256);
+			}
+
 			Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
-			for (SignatureAlgorithm signatureAlgorithm : this.signatureAlgorithms) {
-				JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
-				jwsAlgorithms.add(jwsAlgorithm);
+			for (SignatureAlgorithm signatureAlgorithm : algorithms) {
+				jwsAlgorithms.add(JWSAlgorithm.parse(signatureAlgorithm.getName()));
 			}
+
 			return new JWSVerificationKeySelector<>(jwsAlgorithms, jwkSource);
+		}
+
+		private Set<SignatureAlgorithm> fetchSignatureAlgorithms() {
+			try {
+				return parseAlgorithms(JWKSet.load(toURL(jwkSetUri), 5000, 5000, 0));
+			} catch (Exception ex) {
+				throw new IllegalArgumentException("Failed to load Signature Algorithms from remote JWK source.", ex);
+			}
+		}
+
+		private Set<SignatureAlgorithm> parseAlgorithms(JWKSet jwkSet) {
+			if (jwkSet == null) {
+				throw new IllegalArgumentException(String.format("No JWKs received from %s", jwkSetUri));
+			}
+
+			List<JWK> jwks = new ArrayList<>();
+			for (JWK jwk : jwkSet.getKeys()) {
+				KeyUse keyUse = jwk.getKeyUse();
+				if (keyUse != null && keyUse.equals(KeyUse.SIGNATURE)) {
+					jwks.add(jwk);
+				}
+			}
+
+			Set<SignatureAlgorithm> algorithms = new HashSet<>();
+			for (JWK jwk : jwks) {
+				Algorithm algorithm = jwk.getAlgorithm();
+				if (algorithm != null) {
+					SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.from(algorithm.getName());
+					if (signatureAlgorithm != null) {
+						algorithms.add(signatureAlgorithm);
+					}
+				}
+			}
+
+			return algorithms;
 		}
 
 		JWKSource<SecurityContext> jwkSource(ResourceRetriever jwkSetRetriever) {

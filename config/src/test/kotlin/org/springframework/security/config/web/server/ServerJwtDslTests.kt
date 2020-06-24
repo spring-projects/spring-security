@@ -161,6 +161,7 @@ class ServerJwtDslTests {
         this.spring.register(CustomJwkSetUriConfig::class.java).autowire()
 
         CustomJwkSetUriConfig.MOCK_WEB_SERVER.enqueue(MockResponse().setBody(jwkSet))
+        CustomJwkSetUriConfig.MOCK_WEB_SERVER.enqueue(MockResponse().setBody(jwkSet))
 
         this.client.get()
                 .uri("/")
