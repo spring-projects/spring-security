@@ -92,7 +92,7 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 	}
 
 	private Filter getSpringSecurityFilterChain() {
-		return this.delegateFilter.delegate;
+		return this.delegateFilter.getDelegate();
 	}
 
 	/**
