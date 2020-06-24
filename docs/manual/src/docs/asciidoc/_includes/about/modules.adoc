@@ -1,7 +1,7 @@
 // FIXME: This might make sense in Getting Spring Security along with the artifact information
 
 [[modules]]
-= Project Modules and Dependencies
+= Project Modules
 In Spring Security 3.0, the codebase was sub-divided into separate jars which more clearly separate different functionality areas and third-party dependencies.
 If you use Maven to build your project, these are the modules you should add to your `pom.xml`.
 Even if you do not use Maven, we recommend that you consult the `pom.xml` files to get an idea of third-party dependencies and versions.
@@ -114,5 +114,3 @@ It requires OpenID4Java.
 [[spring-security-test]]
 == Test -- `spring-security-test.jar`
 This module contains support for testing with Spring Security.
-
-include::dependencies.adoc[]

@@ -16,7 +16,6 @@ apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
-apply plugin: "org.sonarqube"
 
 group = 'org.springframework.security'
 description = 'Spring Security'

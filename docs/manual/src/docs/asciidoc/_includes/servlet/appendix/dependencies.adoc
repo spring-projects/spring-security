@@ -2,7 +2,7 @@
 
 [[appendix-dependencies]]
 == Spring Security Dependencies
-This section provides a reference of the modules in Spring Security and the additional dependencies that they require in order to function in a running application.
+This appendix provides a reference of the modules in Spring Security and the additional dependencies that they require in order to function in a running application.
 We don't include dependencies that are only used when building or testing Spring Security itself.
 Nor do we include transitive dependencies which are required by external dependencies.
 
