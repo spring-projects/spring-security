@@ -17,6 +17,7 @@ package org.springframework.security.config.http;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -28,7 +29,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -40,6 +43,7 @@ import org.springframework.security.oauth2.client.web.AuthorizationRequestReposi
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -50,13 +54,22 @@ import org.springframework.security.oauth2.core.user.TestOAuth2Users;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.TestJwts;
+import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,18 +79,17 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses.accessTokenResponse;
 import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses.oidcAccessTokenResponse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Tests for {@link OAuth2LoginBeanDefinitionParser}.
  *
  * @author Ruby Hartono
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@SecurityTestExecutionListeners
 public class OAuth2LoginBeanDefinitionParserTests {
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/OAuth2LoginBeanDefinitionParserTests";
 
@@ -487,6 +499,32 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		this.mvc.perform(get("/login/oauth2/code/" + clientRegistration.getRegistrationId()).params(params));
 
 		verify(authorizedClientService).saveAuthorizedClient(any(), any());
+	}
+
+	@WithMockUser
+	@Test
+	public void requestWhenAuthorizedClientFoundThenMethodArgumentResolved() throws Exception {
+		this.spring.configLocations(xml("AuthorizedClientArgumentResolver")).autowire();
+
+		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google-login");
+
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				clientRegistration, "user", TestOAuth2AccessTokens.noScopes());
+		when(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
+				.thenReturn(authorizedClient);
+
+		this.mvc.perform(get("/authorized-client"))
+				.andExpect(status().isOk())
+				.andExpect(content().string("resolved"));
+	}
+
+	@RestController
+	static class AuthorizedClientController {
+
+		@GetMapping("/authorized-client")
+		String authorizedClient(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
+			return authorizedClient != null ? "resolved" : "not-resolved";
+		}
 	}
 
 	private String xml(String configName) {
