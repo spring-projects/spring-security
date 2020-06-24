@@ -16,24 +16,11 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.interfaces.RSAPublicKey;
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import javax.crypto.SecretKey;
-
+import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
-import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.*;
 import com.nimbusds.jose.jwk.source.JWKSetCache;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
@@ -49,21 +36,28 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cache.Cache;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+
+import javax.crypto.SecretKey;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * A low-level Nimbus implementation of {@link JwtDecoder} which takes a raw Nimbus configuration.
@@ -215,6 +209,9 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri.
 	 */
 	public static final class JwkSetUriJwtDecoderBuilder {
+
+		private static final Log log = LogFactory.getLog(JwkSetUriJwtDecoderBuilder.class);
+
 		private String jwkSetUri;
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 		private RestOperations restOperations = new RestTemplate();
@@ -283,16 +280,59 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		JWSKeySelector<SecurityContext> jwsKeySelector(JWKSource<SecurityContext> jwkSource) {
-			if (this.signatureAlgorithms.isEmpty()) {
-				return new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
+			Set<SignatureAlgorithm> algorithms = new HashSet<>();
+			if (!this.signatureAlgorithms.isEmpty()) {
+				algorithms.addAll(this.signatureAlgorithms);
 			} else {
-				Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
-				for (SignatureAlgorithm signatureAlgorithm : this.signatureAlgorithms) {
-					JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
-					jwsAlgorithms.add(jwsAlgorithm);
-				}
-				return new JWSVerificationKeySelector<>(jwsAlgorithms, jwkSource);
+				algorithms.addAll(fetchSignatureAlgorithms());
 			}
+
+			if (algorithms.isEmpty()) {
+				algorithms.add(SignatureAlgorithm.RS256);
+			}
+
+			Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
+			for (SignatureAlgorithm signatureAlgorithm : algorithms) {
+				jwsAlgorithms.add(JWSAlgorithm.parse(signatureAlgorithm.getName()));
+			}
+
+			return new JWSVerificationKeySelector<>(jwsAlgorithms, jwkSource);
+		}
+
+		private Set<SignatureAlgorithm> fetchSignatureAlgorithms() {
+			if (StringUtils.isEmpty(jwkSetUri)) {
+				return Collections.emptySet();
+			}
+			try {
+				return parseAlgorithms(JWKSet.load(toURL(jwkSetUri)));
+			} catch (Exception ex) {
+				log.error("Failed to load Signature Algorithms from remote JWK source.");
+				return Collections.emptySet();
+			}
+		}
+
+		private Set<SignatureAlgorithm> parseAlgorithms(JWKSet jwkSet) {
+			if (jwkSet == null) {
+				return Collections.emptySet();
+			}
+
+			JWKSelector selector = new JWKSelector(new JWKMatcher.Builder()
+					.keyUse(KeyUse.SIGNATURE)
+					.build());
+			List<JWK> jwks = selector.select(jwkSet);
+
+			Set<SignatureAlgorithm> algorithms = new HashSet<>();
+			for (JWK jwk : jwks) {
+				Algorithm algorithm = jwk.getAlgorithm();
+				if (algorithm != null) {
+					SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.from(algorithm.getName());
+					if (signatureAlgorithm != null) {
+						algorithms.add(signatureAlgorithm);
+					}
+				}
+			}
+
+			return algorithms;
 		}
 
 		JWKSource<SecurityContext> jwkSource(ResourceRetriever jwkSetRetriever) {

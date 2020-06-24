@@ -251,6 +251,7 @@ public class ReactiveJwtDecodersTests {
 	private void prepareConfigurationResponse(String body) {
 		this.server.enqueue(response(body));
 		this.server.enqueue(response(JWK_SET));
+		this.server.enqueue(response(JWK_SET));
 	}
 
 	private void prepareConfigurationResponseOidc() {

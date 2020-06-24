@@ -834,6 +834,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 		mockWebServer(String.format(metadata, issuerOne, issuerOne));
 		mockWebServer(jwkSet);
+		mockWebServer(jwkSet);
 
 		this.mvc.perform(get("/authenticated")
 				.header("Authorization", "Bearer " + jwtOne))
@@ -841,12 +842,14 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 		mockWebServer(String.format(metadata, issuerTwo, issuerTwo));
 		mockWebServer(jwkSet);
+		mockWebServer(jwkSet);
 
 		this.mvc.perform(get("/authenticated")
 				.header("Authorization", "Bearer " + jwtTwo))
 				.andExpect(status().isNotFound());
 
 		mockWebServer(String.format(metadata, issuerThree, issuerThree));
+		mockWebServer(jwkSet);
 		mockWebServer(jwkSet);
 
 		this.mvc.perform(get("/authenticated")

@@ -16,6 +16,36 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.source.JWKSecurityContextJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.JWKSecurityContext;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import javax.crypto.SecretKey;
 import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -29,49 +59,13 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
-import javax.crypto.SecretKey;
-
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.JWKSecurityContext;
-import com.nimbusds.jose.proc.JWSKeySelector;
-import com.nimbusds.jose.proc.JWSVerificationKeySelector;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
-import org.springframework.security.oauth2.jose.TestKeys;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withJwkSetUri;
-import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withJwkSource;
-import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withPublicKey;
-import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.withSecretKey;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder.*;
 
 /**
  * @author Rob Winch
@@ -95,6 +89,32 @@ public class NimbusReactiveJwtDecoderTests {
 		+ "      }\n"
 		+ "   ]\n"
 		+ "}";
+	private static final String JWK_SET_MULTIPLE = "{\n" +
+			"  \"keys\": [\n" +
+			"    {\n" +
+			"      \"kty\": \"EC\",\n" +
+			"      \"use\": \"sig\",\n" +
+			"      \"crv\": \"P-256\",\n" +
+			"      \"x\": \"9w9ddaCKCdOfyKsENWI_cf90XmWRDISBrWf2vNo-TpE\",\n" +
+			"      \"y\": \"CThkQsCBR6dC-Y8-MVf6NFTYvMiJtjBx1x0Pbr-kP5c\",\n" +
+			"      \"alg\": \"ES256\"\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"kty\": \"RSA\",\n" +
+			"      \"e\": \"AQAB\",\n" +
+			"      \"use\": \"sig\",\n" +
+			"      \"alg\": \"RS256\",\n" +
+			"      \"n\": \"rNXfHmPwwPcmyjIG0gfBdera44Y6C6jhqgGAxCFlxrhveOAy12ff3Z0oyu0fsB-q2eVQ1amBYUWaNCopVuZEBx9GcNs0KmkAmh0bQVAT9rI81CE6thuZiNfnNaqcIHnvUa__1wnR1PzX7mDyvcVtxSC6VbQo9jt6ouBXaW6ZolqzlfbDAU-2FJpE2YLoqMs1PtSss_gYiXrP0f9GLomcQTWgsw-VNc9iYJZG5K8kIKlo_bu6YQf7GoGt4IEUd-dQBpavIBL7jjRKp30zY94J4QAwPo_UnO_EpDuUa9QyO6kuk6A3yv0nfstK-4wE1Jr42tlDO1SFzRzy_aYAjT7Ozw\"\n" +
+			"    },\n" +
+			"    {\n" +
+			"      \"kty\": \"EC\",\n" +
+			"      \"use\": \"sig\",\n" +
+			"      \"crv\": \"P-384\",\n" +
+			"      \"x\": \"71M1BlzONOc9LYuOB-xmK8Y3njqqGTJLguDLd7geILqYDiWrH5ELb9SKtVYcQvD1\",\n" +
+			"      \"y\": \"Lv8lK0ukUNFa1Vhlzbi8VDdIfHrd2IEmUp21fmLNwPwTMJLbDGYoPm4DgYfzOfSm\"\n" +
+			"    }\n" +
+			"  ]\n" +
+			"}";
 	private String jwkSetUri = "https://issuer/certs";
 
 	private String rsa512 = "eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJ0ZXN0LXN1YmplY3QiLCJleHAiOjE5NzQzMjYxMTl9.LKAx-60EBfD7jC1jb1eKcjO4uLvf3ssISV-8tN-qp7gAjSvKvj4YA9-V2mIb6jcS1X_xGmNy6EIimZXpWaBR3nJmeu-jpe85u4WaW2Ztr8ecAi-dTO7ZozwdtljKuBKKvj4u1nF70zyCNl15AozSG0W1ASrjUuWrJtfyDG6WoZ8VfNMuhtU-xUYUFvscmeZKUYQcJ1KS-oV5tHeF8aNiwQoiPC_9KXCOZtNEJFdq6-uzFdHxvOP2yex5Gbmg5hXonauIFXG2ZPPGdXzm-5xkhBpgM8U7A_6wb3So8wBvLYYm2245QUump63AJRAy8tQpwt4n9MvQxQgS3z9R-NK92A";
@@ -115,6 +135,7 @@ public class NimbusReactiveJwtDecoderTests {
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
+		this.server.enqueue(new MockResponse().setBody(jwkSet));
 		this.server.enqueue(new MockResponse().setBody(jwkSet));
 		this.decoder = new NimbusReactiveJwtDecoder(this.server.url("/certs").toString());
 	}
@@ -397,6 +418,19 @@ public class NimbusReactiveJwtDecoderTests {
 				(JWSVerificationKeySelector<JWKSecurityContext>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS256))
 				.isTrue();
+	}
+
+	@Test
+	public void jwsKeySetWithMultipleJWKThenMultipleAlgorithmsInSelector() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			server.enqueue(new MockResponse().setBody(JWK_SET_MULTIPLE));
+			String jwkSetUri = server.url("/.well-known/jwks.json").toString();
+			NimbusReactiveJwtDecoder.JwkSetUriReactiveJwtDecoderBuilder builder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri);
+			JWSVerificationKeySelector<JWKSecurityContext> selector = (JWSVerificationKeySelector<JWKSecurityContext>) builder.jwsKeySelector(new JWKSecurityContextJWKSet());
+			server.shutdown();
+			assertThat(selector.isAllowed(JWSAlgorithm.RS256)).isTrue();
+			assertThat(selector.isAllowed(JWSAlgorithm.ES256)).isTrue();
+		}
 	}
 
 	@Test

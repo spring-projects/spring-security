@@ -63,8 +63,6 @@ public class NimbusJwtDecoderJwkSupportTests {
 	private static final String MALFORMED_JWT = "eyJhbGciOiJSUzI1NiJ9.eyJuYmYiOnt9LCJleHAiOjQ2ODQyMjUwODd9.guoQvujdWvd3xw7FYQEn4D6-gzM_WqFvXdmvAUNSLbxG7fv2_LLCNujPdrBHJoYPbOwS1BGNxIKQWS1tylvqzmr1RohQ-RZ2iAM1HYQzboUlkoMkcd8ENM__ELqho8aNYBfqwkNdUOyBFoy7Syu_w2SoJADw2RTjnesKO6CVVa05bW118pDS4xWxqC4s7fnBjmZoTn4uQ-Kt9YSQZQk8YQxkJSiyanozzgyfgXULA6mPu1pTNU3FVFaK1i1av_xtH_zAPgb647ZeaNe4nahgqC5h8nhOlm8W2dndXbwAt29nd2ZWBsru_QwZz83XSKLhTPFz-mPBByZZDsyBbIHf9A";
 	private static final String UNSIGNED_JWT = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOi0yMDMzMjI0OTcsImp0aSI6IjEyMyIsInR5cCI6IkpXVCJ9.";
 
-	private NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL, JWS_ALGORITHM);
-
 	@Test
 	public void constructorWhenJwkSetUrlIsNullThenThrowIllegalArgumentException() {
 		assertThatThrownBy(() -> new NimbusJwtDecoderJwkSupport(null))
@@ -85,13 +83,15 @@ public class NimbusJwtDecoderJwkSupportTests {
 
 	@Test
 	public void setRestOperationsWhenNullThenThrowIllegalArgumentException() {
-		Assertions.assertThatThrownBy(() -> this.jwtDecoder.setRestOperations(null))
+		NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL, JWS_ALGORITHM);
+		Assertions.assertThatThrownBy(() -> jwtDecoder.setRestOperations(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void decodeWhenJwtInvalidThenThrowJwtException() {
-		assertThatThrownBy(() -> this.jwtDecoder.decode("invalid"))
+		NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL, JWS_ALGORITHM);
+		assertThatThrownBy(() -> jwtDecoder.decode("invalid"))
 				.isInstanceOf(JwtException.class);
 	}
 
@@ -111,7 +111,8 @@ public class NimbusJwtDecoderJwkSupportTests {
 	// gh-5457
 	@Test
 	public void decodeWhenPlainJwtThenExceptionDoesNotMentionClass() {
-		assertThatCode(() -> this.jwtDecoder.decode(UNSIGNED_JWT))
+		NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL, JWS_ALGORITHM);
+		assertThatCode(() -> jwtDecoder.decode(UNSIGNED_JWT))
 				.isInstanceOf(JwtException.class)
 				.hasMessageContaining("Unsupported algorithm of none");
 	}
@@ -133,6 +134,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 	public void decodeWhenJwkResponseIsMalformedThenReturnsStockException() throws Exception {
 		try ( MockWebServer server = new MockWebServer() ) {
 			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
+			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
 			assertThatCode(() -> jwtDecoder.decode(SIGNED_JWT))
@@ -145,6 +147,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 	@Test
 	public void decodeWhenJwkEndpointIsUnresponsiveThenReturnsJwtException() throws Exception {
 		try ( MockWebServer server = new MockWebServer() ) {
+			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
 			server.enqueue(new MockResponse().setBody(MALFORMED_JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
@@ -159,6 +162,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 	@Test
 	public void decodeWhenCustomRestOperationsSetThenUsed() throws Exception {
 		try ( MockWebServer server = new MockWebServer() ) {
+			server.enqueue(new MockResponse().setBody(JWK_SET));
 			server.enqueue(new MockResponse().setBody(JWK_SET));
 			String jwkSetUrl = server.url("/.well-known/jwks.json").toString();
 			NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(jwkSetUrl);
@@ -233,6 +237,7 @@ public class NimbusJwtDecoderJwkSupportTests {
 
 	@Test
 	public void setClaimSetConverterWhenIsNullThenThrowsIllegalArgumentException() {
+		NimbusJwtDecoderJwkSupport jwtDecoder = new NimbusJwtDecoderJwkSupport(JWK_SET_URL, JWS_ALGORITHM);
 		assertThatCode(() -> jwtDecoder.setClaimSetConverter(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
