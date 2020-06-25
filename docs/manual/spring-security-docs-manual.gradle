@@ -11,6 +11,13 @@ asciidoctor {
 		'gh-samples-url': "$ghUrl/samples"
 }
 
+remotes {
+	docs {
+		retryCount = 5 // retry 5 times (default is 0)
+		retryWaitSec = 10 // wait 10 seconds between retries (default is 0)
+	}
+}
+
 docsZip {
 	from(project(':spring-security-docs-guides').asciidoctor) {
 		into 'guides'
