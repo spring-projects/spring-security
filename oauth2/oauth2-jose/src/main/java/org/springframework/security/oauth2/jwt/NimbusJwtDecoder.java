@@ -20,7 +20,9 @@ import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.RemoteKeySourceException;
-import com.nimbusds.jose.jwk.*;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.source.JWKSetCache;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
@@ -40,13 +42,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cache.Cache;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
@@ -56,7 +61,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -300,20 +312,16 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		private Set<SignatureAlgorithm> fetchSignatureAlgorithms() {
-			if (StringUtils.isEmpty(jwkSetUri)) {
-				return Collections.emptySet();
-			}
 			try {
 				return parseAlgorithms(JWKSet.load(toURL(jwkSetUri), 5000, 5000, 0));
 			} catch (Exception ex) {
-				log.error("Failed to load Signature Algorithms from remote JWK source.");
-				return Collections.emptySet();
+				throw new IllegalArgumentException("Failed to load Signature Algorithms from remote JWK source.", ex);
 			}
 		}
 
 		private Set<SignatureAlgorithm> parseAlgorithms(JWKSet jwkSet) {
 			if (jwkSet == null) {
-				return Collections.emptySet();
+				throw new IllegalArgumentException(String.format("No JWKs received from %s", jwkSetUri));
 			}
 
 			List<JWK> jwks = new ArrayList<>();

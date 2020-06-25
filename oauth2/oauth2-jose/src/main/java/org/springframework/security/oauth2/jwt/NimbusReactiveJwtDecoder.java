@@ -320,14 +320,13 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			try {
 				return parseAlgorithms(JWKSet.load(toURL(jwkSetUri), 5000, 5000, 0));
 			} catch (Exception ex) {
-				log.error("Failed to load Signature Algorithms from remote JWK source.");
-				return Collections.emptySet();
+				throw new IllegalArgumentException("Failed to load Signature Algorithms from remote JWK source.", ex);
 			}
 		}
 
 		private Set<SignatureAlgorithm> parseAlgorithms(JWKSet jwkSet) {
 			if (jwkSet == null) {
-				return Collections.emptySet();
+				throw new IllegalArgumentException(String.format("No JWKs received from %s", jwkSetUri));
 			}
 
 			List<JWK> jwks = new ArrayList<>();
