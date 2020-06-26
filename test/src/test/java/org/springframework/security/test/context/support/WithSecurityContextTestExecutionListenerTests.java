@@ -21,6 +21,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,7 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -102,7 +105,35 @@ public class WithSecurityContextTestExecutionListenerTests {
 		this.listener.beforeTestMethod(this.testContext);
 
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isNull();
-		verify(this.testContext).setAttribute(eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME), any(SecurityContext.class));
+		verify(this.testContext).setAttribute(eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME)
+				, ArgumentMatchers.<Supplier<SecurityContext>>any());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void beforeTestMethodWhenWithMockUserTestExecutionThenTestContextSupplierOk() throws Exception {
+		Method testMethod = TheTest.class.getMethod("withMockUserTestExecution");
+		when(this.testContext.getApplicationContext()).thenReturn(this.applicationContext);
+		when(this.testContext.getTestMethod()).thenReturn(testMethod);
+
+		this.listener.beforeTestMethod(this.testContext);
+
+		ArgumentCaptor<Supplier<SecurityContext>> supplierCaptor = ArgumentCaptor.forClass(Supplier.class);
+		verify(this.testContext).setAttribute(eq(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME),
+				supplierCaptor.capture());
+		assertThat(supplierCaptor.getValue().get().getAuthentication()).isNotNull();
+	}
+
+	@Test
+	// gh-6591
+	public void beforeTestMethodWhenTestExecutionThenDelayFactoryCreate() throws Exception {
+		Method testMethod = TheTest.class.getMethod("withUserDetails");
+		when(this.testContext.getApplicationContext()).thenReturn(this.applicationContext);
+		// do not set a UserDetailsService Bean so it would fail if looked up
+		when(this.testContext.getTestMethod()).thenReturn(testMethod);
+
+		this.listener.beforeTestMethod(this.testContext);
+		// bean lookup of UserDetailsService would fail if it has already been looked up
 	}
 
 	@Test
@@ -116,7 +147,8 @@ public class WithSecurityContextTestExecutionListenerTests {
 	public void beforeTestExecutionWhenTestContextNotNullThenSecurityContextSet() {
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(new TestingAuthenticationToken("user", "passsword", "ROLE_USER"));
-		when(this.testContext.removeAttribute(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME)).thenReturn(securityContext);
+		Supplier<SecurityContext> supplier = () -> securityContext;
+		when(this.testContext.removeAttribute(WithSecurityContextTestExecutionListener.SECURITY_CONTEXT_ATTR_NAME)).thenReturn(supplier);
 
 		this.listener.beforeTestExecution(this.testContext);
 
@@ -138,7 +170,10 @@ public class WithSecurityContextTestExecutionListenerTests {
 		@WithMockUser
 		public void withMockUserDefault() {
 		}
-	}
 
+		@WithUserDetails(setupBefore = TestExecutionEvent.TEST_EXECUTION)
+		public void withUserDetails() {
+		}
+	}
 
 }

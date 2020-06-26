@@ -18,6 +18,7 @@ package org.springframework.security.web.csrf;
 
 import java.util.UUID;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,6 +54,8 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private String cookieDomain;
 
+	private Boolean secure;
+
 	public CookieCsrfTokenRepository() {
 	}
 
@@ -67,7 +70,12 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 			HttpServletResponse response) {
 		String tokenValue = token == null ? "" : token.getToken();
 		Cookie cookie = new Cookie(this.cookieName, tokenValue);
-		cookie.setSecure(request.isSecure());
+		if (secure == null) {
+			cookie.setSecure(request.isSecure());
+		} else {
+			cookie.setSecure(secure);
+		}
+
 		if (this.cookiePath != null && !this.cookiePath.isEmpty()) {
 				cookie.setPath(this.cookiePath);
 		} else {
@@ -194,5 +202,18 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	public void setCookieDomain(String cookieDomain) {
 		this.cookieDomain = cookieDomain;
 	}
+
+	/**
+	 * Sets secure flag of the cookie that the expected CSRF token is saved to and read from.
+	 * By default secure flag depends on {@link ServletRequest#isSecure()}
+	 *
+	 * @since 5.4
+	 * @param secure the secure flag of the cookie that the expected CSRF token is saved to
+	 * and read from
+	 */
+	public void setSecure(Boolean secure) {
+		this.secure = secure;
+	}
+
 
 }

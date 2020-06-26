@@ -15,18 +15,8 @@
  */
 package org.springframework.security.config.http;
 
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Element;
-
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
@@ -63,8 +53,18 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
+import org.w3c.dom.Element;
+
+import javax.servlet.http.HttpServletRequest;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 import static org.springframework.security.config.http.SecurityFilters.ANONYMOUS_FILTER;
 import static org.springframework.security.config.http.SecurityFilters.BASIC_AUTH_FILTER;
@@ -160,12 +160,16 @@ final class AuthenticationConfigBuilder {
 
 	private String openIDLoginPage;
 
+	private boolean oauth2LoginEnabled;
+	private boolean defaultAuthorizedClientRepositoryRegistered;
 	private String oauth2LoginFilterId;
 	private BeanDefinition oauth2AuthorizationRequestRedirectFilter;
 	private BeanDefinition oauth2LoginEntryPoint;
 	private BeanReference oauth2LoginAuthenticationProviderRef;
 	private BeanReference oauth2LoginOidcAuthenticationProviderRef;
 	private BeanDefinition oauth2LoginLinks;
+
+	private boolean oauth2ClientEnabled;
 	private BeanDefinition authorizationRequestRedirectFilter;
 	private BeanDefinition authorizationCodeGrantFilter;
 	private BeanReference authorizationCodeAuthenticationProviderRef;
@@ -196,8 +200,7 @@ final class AuthenticationConfigBuilder {
 		createBasicFilter(authenticationManager);
 		createBearerTokenAuthenticationFilter(authenticationManager);
 		createFormLoginFilter(sessionStrategy, authenticationManager);
-		createOAuth2LoginFilter(sessionStrategy, authenticationManager);
-		createOAuth2ClientFilter(requestCache, authenticationManager);
+		createOAuth2ClientFilters(sessionStrategy, requestCache, authenticationManager);
 		createOpenIDLoginFilter(sessionStrategy, authenticationManager);
 		createX509Filter(authenticationManager);
 		createJeeFilter(authenticationManager);
@@ -274,15 +277,27 @@ final class AuthenticationConfigBuilder {
 		}
 	}
 
+	void createOAuth2ClientFilters(BeanReference sessionStrategy, BeanReference requestCache,
+			BeanReference authenticationManager) {
+		createOAuth2LoginFilter(sessionStrategy, authenticationManager);
+		createOAuth2ClientFilter(requestCache, authenticationManager);
+		registerOAuth2ClientPostProcessors();
+	}
+
 	void createOAuth2LoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
 		Element oauth2LoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_LOGIN);
 		if (oauth2LoginElt == null) {
 			return;
 		}
+		this.oauth2LoginEnabled = true;
 
 		OAuth2LoginBeanDefinitionParser parser = new OAuth2LoginBeanDefinitionParser(requestCache, portMapper,
 				portResolver, sessionStrategy, allowSessionCreation);
 		BeanDefinition oauth2LoginFilterBean = parser.parse(oauth2LoginElt, this.pc);
+
+		BeanDefinition defaultAuthorizedClientRepository = parser.getDefaultAuthorizedClientRepository();
+		registerDefaultAuthorizedClientRepositoryIfNecessary(defaultAuthorizedClientRepository);
+
 		oauth2LoginFilterBean.getPropertyValues().addPropertyValue("authenticationManager", authManager);
 
 		// retrieve the other bean result
@@ -319,10 +334,14 @@ final class AuthenticationConfigBuilder {
 		if (oauth2ClientElt == null) {
 			return;
 		}
+		this.oauth2ClientEnabled = true;
 
 		OAuth2ClientBeanDefinitionParser parser = new OAuth2ClientBeanDefinitionParser(
 				requestCache, authenticationManager);
 		parser.parse(oauth2ClientElt, this.pc);
+
+		BeanDefinition defaultAuthorizedClientRepository = parser.getDefaultAuthorizedClientRepository();
+		registerDefaultAuthorizedClientRepositoryIfNecessary(defaultAuthorizedClientRepository);
 
 		this.authorizationRequestRedirectFilter = parser.getAuthorizationRequestRedirectFilter();
 		String authorizationRequestRedirectFilterId = pc.getReaderContext()
@@ -342,6 +361,28 @@ final class AuthenticationConfigBuilder {
 		this.pc.registerBeanComponent(new BeanComponentDefinition(
 				authorizationCodeAuthenticationProvider, authorizationCodeAuthenticationProviderId));
 		this.authorizationCodeAuthenticationProviderRef = new RuntimeBeanReference(authorizationCodeAuthenticationProviderId);
+	}
+
+	void registerDefaultAuthorizedClientRepositoryIfNecessary(BeanDefinition defaultAuthorizedClientRepository) {
+		if (!this.defaultAuthorizedClientRepositoryRegistered && defaultAuthorizedClientRepository != null) {
+			String authorizedClientRepositoryId = pc.getReaderContext()
+					.generateBeanName(defaultAuthorizedClientRepository);
+			this.pc.registerBeanComponent(new BeanComponentDefinition(
+					defaultAuthorizedClientRepository, authorizedClientRepositoryId));
+			this.defaultAuthorizedClientRepositoryRegistered = true;
+		}
+	}
+
+	private void registerOAuth2ClientPostProcessors() {
+		if (!this.oauth2LoginEnabled && !this.oauth2ClientEnabled) {
+			return;
+		}
+
+		boolean webmvcPresent = ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet", getClass().getClassLoader());
+		if (webmvcPresent) {
+			this.pc.getReaderContext().registerWithGeneratedName(
+					new RootBeanDefinition(OAuth2ClientWebMvcSecurityPostProcessor.class));
+		}
 	}
 
 	void createOpenIDLoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
