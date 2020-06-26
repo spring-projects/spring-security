@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,5 +152,21 @@ public class OAuth2AccessTokenResponseTests {
 				.build();
 
 		assertThat(withResponse.getRefreshToken()).isNull();
+	}
+
+	@Test
+	public void buildWhenResponseAndExpiresInThenExpiresAtEqualToIssuedAtPlusExpiresIn() {
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
+				.withToken(TOKEN_VALUE)
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.build();
+
+		long expiresIn = 30;
+		OAuth2AccessTokenResponse withResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
+				.expiresIn(expiresIn)
+				.build();
+
+		assertThat(withResponse.getAccessToken().getExpiresAt()).isEqualTo(
+				withResponse.getAccessToken().getIssuedAt().plusSeconds(expiresIn));
 	}
 }

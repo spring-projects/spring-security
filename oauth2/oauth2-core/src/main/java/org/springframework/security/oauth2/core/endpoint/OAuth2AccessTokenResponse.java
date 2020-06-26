@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,20 +97,19 @@ public final class OAuth2AccessTokenResponse {
 	public static class Builder {
 		private String tokenValue;
 		private OAuth2AccessToken.TokenType tokenType;
+		private Instant issuedAt;
+		private Instant expiresAt;
 		private long expiresIn;
 		private Set<String> scopes;
 		private String refreshToken;
 		private Map<String, Object> additionalParameters;
 
-		private Instant issuedAt;
-		private Instant expiresAt;
-
 		private Builder(OAuth2AccessTokenResponse response) {
 			OAuth2AccessToken accessToken = response.getAccessToken();
 			this.tokenValue = accessToken.getTokenValue();
 			this.tokenType = accessToken.getTokenType();
-			this.expiresAt = accessToken.getExpiresAt();
 			this.issuedAt = accessToken.getIssuedAt();
+			this.expiresAt = accessToken.getExpiresAt();
 			this.scopes = accessToken.getScopes();
 			this.refreshToken = response.getRefreshToken() == null ?
 					null : response.getRefreshToken().getTokenValue();
@@ -140,6 +139,7 @@ public final class OAuth2AccessTokenResponse {
 		 */
 		public Builder expiresIn(long expiresIn) {
 			this.expiresIn = expiresIn;
+			this.expiresAt = null;
 			return this;
 		}
 
@@ -183,7 +183,6 @@ public final class OAuth2AccessTokenResponse {
 		 */
 		public OAuth2AccessTokenResponse build() {
 			Instant issuedAt = getIssuedAt();
-
 			Instant expiresAt = getExpiresAt();
 
 			OAuth2AccessTokenResponse accessTokenResponse = new OAuth2AccessTokenResponse();
