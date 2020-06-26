@@ -1,9 +1,9 @@
 if (!project.hasProperty("reactorVersion")) {
-	ext.reactorVersion = "Dysprosium-SR+"
+	ext.reactorVersion = "2020.0.0-RC2"
 }
 
 if (!project.hasProperty("springVersion")) {
-	ext.springVersion = "5.2.+"
+	ext.springVersion = "5.3.+"
 }
 
 if (!project.hasProperty("springDataVersion")) {
@@ -13,7 +13,7 @@ if (!project.hasProperty("kotlinVersion")) {
 	ext.kotlinVersion = "1.+"
 }
 if (!project.hasProperty("rsocketVersion")) {
-	ext.rsocketVersion = "1.0.+"
+	ext.rsocketVersion = "1.1.+"
 }
 if (!project.hasProperty("locksDisabled")) {
 	dependencyLocking {

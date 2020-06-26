@@ -13,6 +13,7 @@ dependencies {
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 	optional 'org.springframework:spring-jdbc'
+	optional 'org.springframework:spring-r2dbc'
 
 	testCompile project(path: ':spring-security-oauth2-core', configuration: 'tests')
 	testCompile project(path: ':spring-security-oauth2-jose', configuration: 'tests')
@@ -22,6 +23,8 @@ dependencies {
 	testCompile 'io.projectreactor:reactor-test'
 	testCompile 'io.projectreactor.tools:blockhound'
 	testCompile 'org.skyscreamer:jsonassert'
+	testCompile 'io.r2dbc:r2dbc-h2:0.8.4.RELEASE'
+	testCompile 'io.r2dbc:r2dbc-spi-test:0.8.1.RELEASE'
 
 	testRuntime 'org.hsqldb:hsqldb'
 
