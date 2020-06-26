@@ -140,6 +140,7 @@ public final class OAuth2AccessTokenResponse {
 		 */
 		public Builder expiresIn(long expiresIn) {
 			this.expiresIn = expiresIn;
+			this.expiresAt = null;
 			return this;
 		}
 

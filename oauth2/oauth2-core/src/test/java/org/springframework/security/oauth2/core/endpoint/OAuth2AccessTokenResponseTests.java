@@ -153,4 +153,22 @@ public class OAuth2AccessTokenResponseTests {
 
 		assertThat(withResponse.getRefreshToken()).isNull();
 	}
+
+	@Test
+	public void buildWhenResponseThenChangeExpiresInThenExpiresAtMatchIssueAtPlusExpiresIn() {
+		long originalExpiresIn = 10;
+		OAuth2AccessTokenResponse tokenResponse = OAuth2AccessTokenResponse
+				.withToken(TOKEN_VALUE)
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.expiresIn(originalExpiresIn)
+				.build();
+
+		long alteredExpiresIn = 30;
+		OAuth2AccessTokenResponse withResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
+				.expiresIn(alteredExpiresIn)
+				.build();
+
+		assertThat(withResponse.getAccessToken().getExpiresAt()).isEqualTo(
+				withResponse.getAccessToken().getIssuedAt().plusSeconds(alteredExpiresIn));
+	}
 }
