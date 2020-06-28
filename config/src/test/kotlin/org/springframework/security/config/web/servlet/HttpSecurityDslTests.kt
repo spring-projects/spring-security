@@ -239,6 +239,27 @@ class HttpSecurityDslTests {
     }
 
     @Test
+    fun `HTTP security when custom filter configured with reified variant then custom filter added to filter chain`() {
+        this.spring.register(CustomFilterConfigReified::class.java).autowire()
+
+        val filterChain = spring.context.getBean(FilterChainProxy::class.java)
+        val filters: List<Filter> = filterChain.getFilters("/")
+
+        assertThat(filters).hasSize(1)
+        assertThat(filters[0]).isExactlyInstanceOf(CustomFilter::class.java)
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class CustomFilterConfigReified : WebSecurityConfigurerAdapter(true) {
+        override fun configure(http: HttpSecurity) {
+            http {
+                addFilterAt<UsernamePasswordAuthenticationFilter>(CustomFilter())
+            }
+        }
+    }
+
+    @Test
     fun `HTTP security when custom filter configured then custom filter added after specific filter to filter chain`() {
         this.spring.register(CustomFilterAfterConfig::class.java).autowire()
 
@@ -263,6 +284,30 @@ class HttpSecurityDslTests {
     }
 
     @Test
+    fun `HTTP security when custom filter configured with reified variant then custom filter added after specific filter to filter chain`() {
+        this.spring.register(CustomFilterAfterConfigReified::class.java).autowire()
+
+        val filterChain = spring.context.getBean(FilterChainProxy::class.java)
+        val filterClasses: List<Class<out Filter>> = filterChain.getFilters("/").map { it.javaClass }
+
+        assertThat(filterClasses).containsSubsequence(
+            UsernamePasswordAuthenticationFilter::class.java,
+            CustomFilter::class.java
+        )
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class CustomFilterAfterConfigReified : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                addFilterAfter<UsernamePasswordAuthenticationFilter>(CustomFilter())
+                formLogin { }
+            }
+        }
+    }
+
+    @Test
     fun `HTTP security when custom filter configured then custom filter added before specific filter to filter chain`() {
         this.spring.register(CustomFilterBeforeConfig::class.java).autowire()
 
@@ -282,6 +327,30 @@ class HttpSecurityDslTests {
             http {
                 addFilterBefore(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
                 formLogin {}
+            }
+        }
+    }
+
+    @Test
+    fun `HTTP security when custom filter configured with reified variant then custom filter added before specific filter to filter chain`() {
+        this.spring.register(CustomFilterBeforeConfigReified::class.java).autowire()
+
+        val filterChain = spring.context.getBean(FilterChainProxy::class.java)
+        val filterClasses: List<Class<out Filter>> = filterChain.getFilters("/").map { it.javaClass }
+
+        assertThat(filterClasses).containsSubsequence(
+            CustomFilter::class.java,
+            UsernamePasswordAuthenticationFilter::class.java
+        )
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class CustomFilterBeforeConfigReified : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                addFilterBefore<UsernamePasswordAuthenticationFilter>(CustomFilter())
+                formLogin { }
             }
         }
     }

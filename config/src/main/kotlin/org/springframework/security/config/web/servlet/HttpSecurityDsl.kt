@@ -670,6 +670,32 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     }
 
     /**
+     * Adds the [Filter] at the location of the specified [Filter] class.
+     * Variant that is leveraging Kotlin reified type parameters.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebSecurity
+     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     *
+     *     override fun configure(http: HttpSecurity) {
+     *         http {
+     *             addFilterAt<UsernamePasswordAuthenticationFilter>(CustomFilter())
+     *         }
+     *     }
+     * }
+     * ```
+     *
+     * @param filter the [Filter] to register
+     * @param T the location of another [Filter] that is already registered
+     * (i.e. known) with Spring Security.
+     */
+    inline fun <reified T: Filter> addFilterAt(filter: Filter) {
+        this.addFilterAt(filter, T::class.java)
+    }
+
+    /**
      * Adds the [Filter] after the location of the specified [Filter] class.
      *
      * Example:
@@ -695,6 +721,32 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     }
 
     /**
+     * Adds the [Filter] after the location of the specified [Filter] class.
+     * Variant that is leveraging Kotlin reified type parameters.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebSecurity
+     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     *
+     *     override fun configure(http: HttpSecurity) {
+     *         http {
+     *             addFilterAfter<UsernamePasswordAuthenticationFilter>(CustomFilter())
+     *         }
+     *     }
+     * }
+     * ```
+     *
+     * @param filter the [Filter] to register
+     * @param T the location of another [Filter] that is already registered
+     * (i.e. known) with Spring Security.
+     */
+    inline fun <reified T: Filter> addFilterAfter(filter: Filter) {
+        this.addFilterAfter(filter, T::class.java)
+    }
+
+    /**
      * Adds the [Filter] before the location of the specified [Filter] class.
      *
      * Example:
@@ -717,6 +769,32 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      */
     fun addFilterBefore(filter: Filter, beforeFilter: Class<out Filter>) {
         this.http.addFilterBefore(filter, beforeFilter)
+    }
+
+    /**
+     * Adds the [Filter] before the location of the specified [Filter] class.
+     * Variant that is leveraging Kotlin reified type parameters.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebSecurity
+     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     *
+     *    override fun configure(http: HttpSecurity) {
+     *        http {
+     *            addFilterBefore<UsernamePasswordAuthenticationFilter>(CustomFilter())
+     *        }
+     *    }
+     * }
+     * ```
+     *
+     * @param filter the [Filter] to register
+     * @param T the location of another [Filter] that is already registered
+     * (i.e. known) with Spring Security.
+     */
+    inline fun <reified T: Filter> addFilterBefore(filter: Filter) {
+        this.addFilterBefore(filter, T::class.java)
     }
 
     /**
