@@ -50,8 +50,6 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 	private final Duration clockSkew;
 
 	private Clock clock = Clock.systemUTC();
-	private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME
-			.withZone( clock.getZone() );
 
 	/**
 	 * A basic instance with no custom verification and the default max clock skew
