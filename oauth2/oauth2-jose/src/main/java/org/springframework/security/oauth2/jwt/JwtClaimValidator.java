@@ -66,7 +66,7 @@ public final class JwtClaimValidator<T> implements OAuth2TokenValidator<Jwt> {
 			return OAuth2TokenValidatorResult.success();
 		} else {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Failed to validate OAuth2 token claim " + claim);
+				logger.debug(error.getDescription());
 			}
 			return OAuth2TokenValidatorResult.failure(error);
 		}

@@ -213,7 +213,8 @@ public class NimbusReactiveJwtDecoderTests {
 		this.decoder.setJwtValidator(jwtValidator);
 
 		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
-		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(error);
+		OAuth2Error error2 = new OAuth2Error("mock-error-second", "mock-description-second", "mock-uri-second");
+		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(error, error2);
 		when(jwtValidator.validate(any(Jwt.class))).thenReturn(result);
 
 		assertThatCode(() -> this.decoder.decode(this.messageReadToken).block())

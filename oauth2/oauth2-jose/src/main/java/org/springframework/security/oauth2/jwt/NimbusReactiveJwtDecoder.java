@@ -15,19 +15,6 @@
  */
 package org.springframework.security.oauth2.jwt;
 
-import java.security.interfaces.RSAPublicKey;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import javax.crypto.SecretKey;
-
 import com.nimbusds.jose.Header;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -49,18 +36,29 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import javax.crypto.SecretKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * An implementation of a {@link ReactiveJwtDecoder} that &quot;decodes&quot; a
@@ -183,11 +181,14 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		OAuth2TokenValidatorResult result = this.jwtValidator.validate(jwt);
 		if ( result.hasErrors() ) {
 			final Collection<OAuth2Error> errors = result.getErrors();
-			final Optional<String> validationErrorString = errors.stream()
-					.map(OAuth2Error::getDescription)
-					.filter(Objects::nonNull)
-					.findFirst();
-			throw new JwtValidationException(validationErrorString.orElse("Unable to validate Jwt"), errors);
+			String validationErrorString = "Unable to validate Jwt";
+			for (OAuth2Error oAuth2Error: errors){
+				if (!StringUtils.isEmpty(oAuth2Error.getDescription())) {
+					validationErrorString = oAuth2Error.getDescription();
+					break;
+				}
+			}
+			throw new JwtValidationException(validationErrorString, errors);
 		}
 
 		return jwt;

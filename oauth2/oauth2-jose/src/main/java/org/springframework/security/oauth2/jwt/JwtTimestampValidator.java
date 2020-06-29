@@ -76,14 +76,8 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 		if (expiry != null) {
 			if (Instant.now(this.clock).minus(clockSkew).isAfter(expiry)) {
-				if (logger.isDebugEnabled()){
-					logger.debug("Failed to validate OAuth2 token claim. Token has expired");
-				}
-				OAuth2Error error = new OAuth2Error(
-						OAuth2ErrorCodes.INVALID_REQUEST,
-						String.format("Jwt expired at %s", jwt.getExpiresAt()),
-						"https://tools.ietf.org/html/rfc6750#section-3.1");
-				return OAuth2TokenValidatorResult.failure(error);
+				final OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt expired at %s", jwt.getExpiresAt()));
+				return OAuth2TokenValidatorResult.failure(oAuth2Error);
 			}
 		}
 
@@ -91,23 +85,22 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 
 		if (notBefore != null) {
 			if (Instant.now(this.clock).plus(clockSkew).isBefore(notBefore)) {
-				final String reason = String.format("Jwt used before %s", jwt.getNotBefore());
-				if (logger.isDebugEnabled()){
-					logger.debug(reason);
-				}
-				OAuth2Error error = new OAuth2Error(
-						OAuth2ErrorCodes.INVALID_REQUEST,
-						reason,
-						"https://tools.ietf.org/html/rfc6750#section-3.1");
-				return OAuth2TokenValidatorResult.failure(error);
+				final OAuth2Error oAuth2Error = createOAuth2Error(String.format("Jwt used before %s", jwt.getNotBefore()));
+				return OAuth2TokenValidatorResult.failure(oAuth2Error);
 			}
 		}
 
 		return OAuth2TokenValidatorResult.success();
 	}
 
-	private String isoDateTime(Instant instant) {
-		return dateTimeFormatter.format(instant);
+	private OAuth2Error createOAuth2Error(String reason) {
+		if (logger.isDebugEnabled()) {
+			logger.debug(reason);
+		}
+		return new OAuth2Error(
+				OAuth2ErrorCodes.INVALID_REQUEST,
+				reason,
+				"https://tools.ietf.org/html/rfc6750#section-3.1");
 	}
 
 	/**
