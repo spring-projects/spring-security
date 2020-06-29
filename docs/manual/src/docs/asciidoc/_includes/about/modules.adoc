@@ -6,6 +6,7 @@ In Spring Security 3.0, the codebase was sub-divided into separate jars which mo
 If you use Maven to build your project, these are the modules you should add to your `pom.xml`.
 Even if you do not use Maven, we recommend that you consult the `pom.xml` files to get an idea of third-party dependencies and versions.
 Another good idea is to examine the libraries that are included in the sample applications.
+
 This section provides a reference of the modules in Spring Security and the additional dependencies that they require in order to function in a running application.
 We don't include dependencies that are only used when building or testing Spring Security itself.
 Nor do we include transitive dependencies which are required by external dependencies.
