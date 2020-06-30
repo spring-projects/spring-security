@@ -34,9 +34,11 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.opensaml.core.config.InitializationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
@@ -90,6 +92,11 @@ public class OpenSamlAuthenticationProviderTests {
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
+
+	@BeforeClass
+	public static void bootstrap() throws Exception {
+		InitializationService.initialize();
+	}
 
 	@Test
 	public void supportsWhenSaml2AuthenticationTokenThenReturnTrue() {

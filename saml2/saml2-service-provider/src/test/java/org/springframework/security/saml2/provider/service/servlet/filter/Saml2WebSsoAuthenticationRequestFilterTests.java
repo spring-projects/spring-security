@@ -21,7 +21,9 @@ import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletException;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opensaml.core.config.InitializationService;
 
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -53,6 +55,11 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	private MockHttpServletResponse response;
 	private MockFilterChain filterChain;
 	private RelyingPartyRegistration.Builder rpBuilder;
+
+	@BeforeClass
+	public static void bootstrap() throws Exception {
+		InitializationService.initialize();
+	}
 
 	@Before
 	public void setup() {

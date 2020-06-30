@@ -19,7 +19,9 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opensaml.core.config.InitializationService;
 import org.opensaml.xmlsec.crypto.XMLSigningUtil;
 
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
@@ -29,11 +31,16 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256;
-import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.getSigningCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartySigningCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
+import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.getSigningCredential;
 
 public class OpenSamlImplementationTests {
+
+	@BeforeClass
+	public static void bootstrap() throws Exception {
+		InitializationService.initialize();
+	}
 
 	@Test
 	public void getInstance() {

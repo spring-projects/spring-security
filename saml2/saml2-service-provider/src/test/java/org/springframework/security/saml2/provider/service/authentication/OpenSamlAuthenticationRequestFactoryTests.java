@@ -18,9 +18,11 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.opensaml.core.config.InitializationService;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
@@ -30,8 +32,8 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDecode;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartySigningCredential;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDecode;
 import static org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.withRelyingPartyRegistration;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.REDIRECT;
@@ -48,6 +50,11 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 	private RelyingPartyRegistration relyingPartyRegistration;
+
+	@BeforeClass
+	public static void bootstrap() throws Exception {
+		InitializationService.initialize();
+	}
 
 	@Before
 	public void setUp() {
