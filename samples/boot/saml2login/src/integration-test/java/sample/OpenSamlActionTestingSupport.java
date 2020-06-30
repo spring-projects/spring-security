@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.authentication;
+package sample;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.cert.X509Certificate;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.crypto.SecretKey;
 
 import net.shibboleth.utilities.java.support.annotation.constraint.NotEmpty;
 import org.apache.xml.security.algorithms.JCEMapper;
@@ -54,14 +61,8 @@ import org.opensaml.security.credential.CredentialSupport;
 import org.opensaml.xmlsec.encryption.support.DataEncryptionParameters;
 import org.opensaml.xmlsec.encryption.support.EncryptionException;
 import org.opensaml.xmlsec.encryption.support.KeyEncryptionParameters;
-import org.springframework.security.saml2.Saml2Exception;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.cert.X509Certificate;
+import org.springframework.security.saml2.Saml2Exception;
 
 import static java.util.Arrays.asList;
 import static org.opensaml.security.crypto.KeySupport.generateKey;

@@ -14,12 +14,31 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.authentication;
+package sample;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.UUID;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterOutputStream;
+import javax.servlet.http.HttpSession;
 
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
+import org.apache.commons.codec.binary.Base64;
 import org.hamcrest.Matcher;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -47,12 +66,17 @@ import org.opensaml.xmlsec.SignatureSigningParameters;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureSupport;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.AssertionErrors;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,31 +84,12 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.servlet.http.HttpSession;
-import java.io.ByteArrayInputStream;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.zip.Deflater.DEFLATED;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.startsWith;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.buildConditions;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.buildIssuer;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.buildSubject;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.buildSubjectConfirmation;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.buildSubjectConfirmationData;
-import static org.springframework.security.saml2.provider.service.authentication.OpenSamlActionTestingSupport.encryptNameId;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.web.WebAttributes.AUTHENTICATION_EXCEPTION;
@@ -95,6 +100,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static sample.OpenSamlActionTestingSupport.buildConditions;
+import static sample.OpenSamlActionTestingSupport.buildIssuer;
+import static sample.OpenSamlActionTestingSupport.buildSubject;
+import static sample.OpenSamlActionTestingSupport.buildSubjectConfirmation;
+import static sample.OpenSamlActionTestingSupport.buildSubjectConfirmationData;
+import static sample.OpenSamlActionTestingSupport.encryptNameId;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -155,7 +166,7 @@ public class Saml2LoginIntegrationTests {
 		String request = parameters.getFirst("SAMLRequest");
 		AssertionErrors.assertNotNull("SAMLRequest parameter is missing", request);
 		request = URLDecoder.decode(request);
-		request = Saml2Utils.samlInflate(Saml2Utils.samlDecode(request));
+		request = samlInflate(samlDecode(request));
 		AuthnRequest authnRequest = (AuthnRequest) fromXml(request);
 		String destination = authnRequest.getDestination();
 		assertEquals(
@@ -301,7 +312,7 @@ public class Saml2LoginIntegrationTests {
 		String xml = toXml(response);
 		return mockMvc.perform(post("http://localhost:8080/login/saml2/sso/simplesamlphp")
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.param("SAMLResponse", Saml2Utils.samlEncode(xml.getBytes(UTF_8))))
+				.param("SAMLResponse", samlEncode(xml.getBytes(UTF_8))))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl(redirectUrl));
 	}
@@ -342,6 +353,7 @@ public class Saml2LoginIntegrationTests {
 		confirmationData.setRecipient("http://localhost:8080/login/saml2/sso/simplesamlphp");
 		subjectConfirmation.setSubjectConfirmationData(confirmationData);
 		assertion.getSubject().getSubjectConfirmations().add(subjectConfirmation);
+
 		return assertion;
 	}
 
@@ -498,5 +510,41 @@ public class Saml2LoginIntegrationTests {
 			assertEquals("SAML 2 Error Code", code, se.getError().getErrorCode());
 			assertTrue("SAML 2 Error Description", message.matches(se.getError().getDescription()));
 		};
+	}
+
+	private static Base64 BASE64 = new Base64(0, new byte[]{'\n'});
+
+	static String samlEncode(byte[] b) {
+		return BASE64.encodeAsString(b);
+	}
+
+	static byte[] samlDecode(String s) {
+		return BASE64.decode(s);
+	}
+
+	static byte[] samlDeflate(String s) {
+		try {
+			ByteArrayOutputStream b = new ByteArrayOutputStream();
+			DeflaterOutputStream deflater = new DeflaterOutputStream(b, new Deflater(DEFLATED, true));
+			deflater.write(s.getBytes(UTF_8));
+			deflater.finish();
+			return b.toByteArray();
+		}
+		catch (IOException e) {
+			throw new Saml2Exception("Unable to deflate string", e);
+		}
+	}
+
+	static String samlInflate(byte[] b) {
+		try {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			InflaterOutputStream iout = new InflaterOutputStream(out, new Inflater(true));
+			iout.write(b);
+			iout.finish();
+			return new String(out.toByteArray(), UTF_8);
+		}
+		catch (IOException e) {
+			throw new Saml2Exception("Unable to inflate string", e);
+		}
 	}
 }

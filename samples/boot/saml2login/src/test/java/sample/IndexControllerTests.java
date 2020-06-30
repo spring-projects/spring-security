@@ -1,0 +1,76 @@
+/*
+ * Copyright 2002-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package sample;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.saml2.Saml2RelyingPartyAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import static org.springframework.security.core.authority.AuthorityUtils.NO_AUTHORITIES;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@RunWith(SpringRunner.class)
+@WebMvcTest(controllers=IndexController.class)
+@Import(value=Saml2RelyingPartyAutoConfiguration.class)
+public class IndexControllerTests {
+	@Autowired
+	MockMvc mvc;
+
+	private String response = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c2FtbDJwOlJlc3BvbnNlIHhtbG5zOnNhbWwycD0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOnByb3RvY29sIiBEZXN0aW5hdGlvbj0iaHR0cDovL2xvY2FsaG9zdDo4MDgwL2xvZ2luL3NhbWwyL3Nzby9zaW1wbGVzYW1scGhwIiBJRD0iX2U5ZGNhOTEzLTZlYzYtNDJlMS1iMTQxLTBjOTlhOTlhOWU5NCIgSXNzdWVJbnN0YW50PSIyMDIwLTA2LTMwVDE4OjM4OjIwLjY2M1oiIFZlcnNpb249IjIuMCIgeG1sbnM6eHNkPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSI+PHNhbWwyOklzc3VlciB4bWxuczpzYW1sMj0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmFzc2VydGlvbiI+aHR0cHM6Ly9zaW1wbGVzYW1sLWZvci1zcHJpbmctc2FtbC5jZmFwcHMuaW8vc2FtbDIvaWRwL21ldGFkYXRhLnBocDwvc2FtbDI6SXNzdWVyPjxkczpTaWduYXR1cmUgeG1sbnM6ZHM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyMiPgo8ZHM6U2lnbmVkSW5mbz4KPGRzOkNhbm9uaWNhbGl6YXRpb25NZXRob2QgQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzEwL3htbC1leGMtYzE0biMiLz4KPGRzOlNpZ25hdHVyZU1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZHNpZy1tb3JlI3JzYS1zaGEyNTYiLz4KPGRzOlJlZmVyZW5jZSBVUkk9IiNfZTlkY2E5MTMtNmVjNi00MmUxLWIxNDEtMGM5OWE5OWE5ZTk0Ij4KPGRzOlRyYW5zZm9ybXM+CjxkczpUcmFuc2Zvcm0gQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjZW52ZWxvcGVkLXNpZ25hdHVyZSIvPgo8ZHM6VHJhbnNmb3JtIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8xMC94bWwtZXhjLWMxNG4jIj48ZWM6SW5jbHVzaXZlTmFtZXNwYWNlcyB4bWxuczplYz0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8xMC94bWwtZXhjLWMxNG4jIiBQcmVmaXhMaXN0PSJ4c2QiLz48L2RzOlRyYW5zZm9ybT4KPC9kczpUcmFuc2Zvcm1zPgo8ZHM6RGlnZXN0TWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8wNC94bWxlbmMjc2hhMjU2Ii8+CjxkczpEaWdlc3RWYWx1ZT4yZm5FQ1hZaTBNOVM0TWlCWk9JQXJVMVNvdm1DbHMzT1pTcU5WN09ydFhFPTwvZHM6RGlnZXN0VmFsdWU+CjwvZHM6UmVmZXJlbmNlPgo8L2RzOlNpZ25lZEluZm8+CjxkczpTaWduYXR1cmVWYWx1ZT4KU2l1K0VrVDhtK2xJMjhFMEhTbDd4Tk1zNnVIbTlzRkYvbU05a0Q3STNYa05HanFmTkJDL3kxRGdTTnNBZ3NVQ1dIaUI1SkZTbW5jcCYjMTM7CnBZQVlpclpnR3VLRkg1akNXaXNlRHBmK2VqUUZDSUgzcEY1VnhqUFJXbEs1L2d1TVRWM3d0bHhQODNudU9IWGRaa0wvYmVFbnplNEUmIzEzOwpEYVBUdXhIYUhpanpYNHNvOGUzUXNHZTgzTUZhQ0N6ekNNMTFlNldFR1VrbWVLSmo0bjdtT0FJVm12RW94T2hnT0NDY1c3L1R0V293JiMxMzsKRkRqR3dqUjVsaGllWGt6SzI1M05hRXBLYzRhdnJsZmRLS1lRL0pNN2MrZklJdFZZNzAxZ0xERWd1M2JteVBlb0tGT29WbnlONXhuaiYjMTM7CjdzUFhBYkcyRzNwM0tPR3l6MHMxcmljZWpWUnhmbFVaOEVFZTNBPT0KPC9kczpTaWduYXR1cmVWYWx1ZT4KPC9kczpTaWduYXR1cmU+PHNhbWwyOkFzc2VydGlvbiB4bWxuczpzYW1sMj0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmFzc2VydGlvbiIgSUQ9ImFzc2VydGlvbiIgSXNzdWVJbnN0YW50PSIyMDIwLTA2LTMwVDE4OjM4OjE1LjQxNloiIFZlcnNpb249IjIuMCI+PHNhbWwyOklzc3Vlcj5odHRwczovL3NpbXBsZXNhbWwtZm9yLXNwcmluZy1zYW1sLmNmYXBwcy5pby9zYW1sMi9pZHAvbWV0YWRhdGEucGhwPC9zYW1sMjpJc3N1ZXI+PHNhbWwyOlN1YmplY3Q+PHNhbWwyOk5hbWVJRD50ZXN0dXNlckBzcHJpbmcuc2VjdXJpdHkuc2FtbDwvc2FtbDI6TmFtZUlEPjxzYW1sMjpTdWJqZWN0Q29uZmlybWF0aW9uIE1ldGhvZD0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOmNtOmJlYXJlciI+PHNhbWwyOlN1YmplY3RDb25maXJtYXRpb25EYXRhIE5vdEJlZm9yZT0iMjAyMC0wNi0zMFQxODozMzoxNS40MjFaIiBOb3RPbk9yQWZ0ZXI9IjIwNDAtMDYtMjVUMTg6Mzg6MTUuNDIxWiIgUmVjaXBpZW50PSJodHRwOi8vbG9jYWxob3N0OjgwODAvbG9naW4vc2FtbDIvc3NvL3NpbXBsZXNhbWxwaHAiLz48L3NhbWwyOlN1YmplY3RDb25maXJtYXRpb24+PC9zYW1sMjpTdWJqZWN0PjxzYW1sMjpDb25kaXRpb25zIE5vdEJlZm9yZT0iMjAyMC0wNi0zMFQxODozMzoxNS40MThaIiBOb3RPbk9yQWZ0ZXI9IjIwNDAtMDYtMjVUMTg6Mzg6MTUuNDE5WiIvPjxzYW1sMjpBdHRyaWJ1dGVTdGF0ZW1lbnQ+PHNhbWwyOkF0dHJpYnV0ZSBOYW1lPSJlbWFpbEFkZHJlc3MiPjxzYW1sMjpBdHRyaWJ1dGVWYWx1ZSB4bWxuczp4c2k9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvWE1MU2NoZW1hLWluc3RhbmNlIiB4c2k6dHlwZT0ieHNkOnN0cmluZyI+c3ByaW5nQGV4YW1wbGUub3JnPC9zYW1sMjpBdHRyaWJ1dGVWYWx1ZT48L3NhbWwyOkF0dHJpYnV0ZT48L3NhbWwyOkF0dHJpYnV0ZVN0YXRlbWVudD48L3NhbWwyOkFzc2VydGlvbj48L3NhbWwycDpSZXNwb25zZT4=";
+
+	@Test
+	public void getWhenMockingAuthenticationThenOk() throws Exception {
+		Saml2AuthenticatedPrincipal principal = () -> "subject";
+		Saml2Authentication authentication = new Saml2Authentication(
+				principal, "response", NO_AUTHORITIES);
+		this.mvc.perform(get("/").with(authentication(authentication)))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenFirstPostingValueSamlResponseThenOk() throws Exception {
+		MvcResult result = this.mvc.perform(post("http://localhost:8080/login/saml2/sso/simplesamlphp")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.param("SAMLResponse", this.response))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/"))
+				.andReturn();
+
+		MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
+
+		this.mvc.perform(get("/")
+			.session(session))
+			.andExpect(model().attribute("emailAddress", "spring@example.org"))
+			.andExpect(status().isOk());
+	}
+}
