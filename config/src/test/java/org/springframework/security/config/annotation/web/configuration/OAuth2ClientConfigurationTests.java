@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
@@ -32,6 +33,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +43,14 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import javax.servlet.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientCredentials;
 import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -312,6 +321,73 @@ public class OAuth2ClientConfigurationTests {
 		@Bean
 		public OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient2() {
 			return mock(OAuth2AccessTokenResponseClient.class);
+		}
+	}
+
+	// gh-8700
+	@Test
+	public void requestWhenAuthorizedClientManagerConfiguredThenUsed() throws Exception {
+		String clientRegistrationId = "client1";
+		String principalName = "user1";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
+
+		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
+		OAuth2AuthorizedClientRepository authorizedClientRepository = mock(OAuth2AuthorizedClientRepository.class);
+		OAuth2AuthorizedClientManager authorizedClientManager = mock(OAuth2AuthorizedClientManager.class);
+
+		ClientRegistration clientRegistration = clientRegistration().registrationId(clientRegistrationId).build();
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
+				clientRegistration, principalName, TestOAuth2AccessTokens.noScopes());
+
+		when(authorizedClientManager.authorize(any())).thenReturn(authorizedClient);
+
+		OAuth2AuthorizedClientManagerRegisteredConfig.CLIENT_REGISTRATION_REPOSITORY = clientRegistrationRepository;
+		OAuth2AuthorizedClientManagerRegisteredConfig.AUTHORIZED_CLIENT_REPOSITORY = authorizedClientRepository;
+		OAuth2AuthorizedClientManagerRegisteredConfig.AUTHORIZED_CLIENT_MANAGER = authorizedClientManager;
+		this.spring.register(OAuth2AuthorizedClientManagerRegisteredConfig.class).autowire();
+
+		this.mockMvc.perform(get("/authorized-client").with(authentication(authentication)))
+				.andExpect(status().isOk())
+				.andExpect(content().string("resolved"));
+
+		verify(authorizedClientManager).authorize(any());
+		verifyNoInteractions(clientRegistrationRepository);
+		verifyNoInteractions(authorizedClientRepository);
+	}
+
+	@EnableWebMvc
+	@EnableWebSecurity
+	static class OAuth2AuthorizedClientManagerRegisteredConfig extends WebSecurityConfigurerAdapter {
+		static ClientRegistrationRepository CLIENT_REGISTRATION_REPOSITORY;
+		static OAuth2AuthorizedClientRepository AUTHORIZED_CLIENT_REPOSITORY;
+		static OAuth2AuthorizedClientManager AUTHORIZED_CLIENT_MANAGER;
+
+		@Override
+		protected void configure(HttpSecurity http) {
+		}
+
+		@RestController
+		public class Controller {
+
+			@GetMapping("/authorized-client")
+			public String authorizedClient(@RegisteredOAuth2AuthorizedClient("client1") OAuth2AuthorizedClient authorizedClient) {
+				return authorizedClient != null ? "resolved" : "not-resolved";
+			}
+		}
+
+		@Bean
+		public ClientRegistrationRepository clientRegistrationRepository() {
+			return CLIENT_REGISTRATION_REPOSITORY;
+		}
+
+		@Bean
+		public OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return AUTHORIZED_CLIENT_REPOSITORY;
+		}
+
+		@Bean
+		public OAuth2AuthorizedClientManager authorizedClientManager() {
+			return AUTHORIZED_CLIENT_MANAGER;
 		}
 	}
 }
