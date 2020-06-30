@@ -17,7 +17,7 @@
 package org.springframework.security.saml2.provider.service.registration;
 
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
-import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
+import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationFilter;
 
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartySigningCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;

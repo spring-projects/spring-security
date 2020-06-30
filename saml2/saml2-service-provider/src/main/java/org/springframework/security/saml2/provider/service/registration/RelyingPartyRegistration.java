@@ -29,6 +29,7 @@ import java.util.function.Function;
 
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
+import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationFilter;
 import org.springframework.util.Assert;
 
 /**
@@ -360,6 +361,7 @@ public class RelyingPartyRegistration {
 					.encryptionX509Credentials(c -> c.addAll(registration.getAssertingPartyDetails().getEncryptionX509Credentials()))
 					.singleSignOnServiceLocation(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation())
 					.singleSignOnServiceBinding(registration.getAssertingPartyDetails().getSingleSignOnServiceBinding())
+					.nameIdFormat(registration.getAssertingPartyDetails().getNameIdFormat())
 				);
 	}
 
@@ -375,6 +377,7 @@ public class RelyingPartyRegistration {
 		private final Collection<Saml2X509Credential> verificationX509Credentials;
 		private final Collection<Saml2X509Credential> encryptionX509Credentials;
 		private final String singleSignOnServiceLocation;
+		private final String nameIdFormat;
 		private final Saml2MessageBinding singleSignOnServiceBinding;
 
 		private AssertingPartyDetails(
@@ -383,6 +386,7 @@ public class RelyingPartyRegistration {
 				Collection<Saml2X509Credential> verificationX509Credentials,
 				Collection<Saml2X509Credential> encryptionX509Credentials,
 				String singleSignOnServiceLocation,
+				String nameIdFormat,
 				Saml2MessageBinding singleSignOnServiceBinding) {
 
 			Assert.hasText(entityId, "entityId cannot be null or empty");
@@ -405,6 +409,7 @@ public class RelyingPartyRegistration {
 			this.verificationX509Credentials = verificationX509Credentials;
 			this.encryptionX509Credentials = encryptionX509Credentials;
 			this.singleSignOnServiceLocation = singleSignOnServiceLocation;
+			this.nameIdFormat = nameIdFormat;
 			this.singleSignOnServiceBinding = singleSignOnServiceBinding;
 		}
 
@@ -473,6 +478,15 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
+		 * Get the NameIDFormat setting, indicating which user property should be used as a NameID Format attribute
+		 *
+		 * @return the NameIdFormat value
+		 */
+		public String getNameIdFormat() {
+			return nameIdFormat;
+		}
+
+		/**
 		 * Get the
 		 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
 		 * Binding.
@@ -493,6 +507,7 @@ public class RelyingPartyRegistration {
 			private Collection<Saml2X509Credential> verificationX509Credentials = new HashSet<>();
 			private Collection<Saml2X509Credential> encryptionX509Credentials = new HashSet<>();
 			private String singleSignOnServiceLocation;
+			private String nameIdFormat = "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified";
 			private Saml2MessageBinding singleSignOnServiceBinding = Saml2MessageBinding.REDIRECT;
 
 			/**
@@ -563,6 +578,18 @@ public class RelyingPartyRegistration {
 			}
 
 			/**
+			 * Set the preference for name identifier returned by IdP.
+			 * See <a href="https://wiki.shibboleth.net/confluence/display/SHIB/NameIdentifierFormat">for possible values</a>
+			 *
+			 * @param nameIdFormat the name identifier
+			 * @return the {@link ProviderDetails.Builder} for further configuration
+			 */
+			public Builder nameIdFormat(String nameIdFormat) {
+				this.nameIdFormat = nameIdFormat;
+				return this;
+			}
+
+			/**
 			 * Set the
 			 * <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/MetadataForIdP#MetadataForIdP-SingleSign-OnServices">SingleSignOnService</a>
 			 * Binding.
@@ -590,6 +617,7 @@ public class RelyingPartyRegistration {
 						this.verificationX509Credentials,
 						this.encryptionX509Credentials,
 						this.singleSignOnServiceLocation,
+						this.nameIdFormat,
 						this.singleSignOnServiceBinding
 				);
 			}

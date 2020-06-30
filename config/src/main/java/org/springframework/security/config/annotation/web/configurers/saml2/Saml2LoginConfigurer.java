@@ -38,8 +38,11 @@ import org.springframework.security.saml2.provider.service.servlet.filter.Saml2W
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.DefaultSaml2AuthenticationRequestContextResolver;
+import org.springframework.security.saml2.provider.service.web.OpenSamlMetadataResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
+import org.springframework.security.saml2.provider.service.web.Saml2MetadataFilter;
+import org.springframework.security.saml2.provider.service.web.Saml2MetadataResolver;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
@@ -110,9 +113,14 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 	private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
 	private AuthenticationConverter authenticationConverter;
+
+	private Saml2MetadataResolver saml2MetadataResolver;
+
 	private AuthenticationManager authenticationManager;
 
 	private Saml2WebSsoAuthenticationFilter saml2WebSsoAuthenticationFilter;
+
+	private Saml2MetadataFilter saml2MetadataFilter;
 
 	/**
 	 * Use this {@link AuthenticationConverter} when converting incoming requests to an {@link Authentication}.
@@ -151,6 +159,16 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 	 */
 	public Saml2LoginConfigurer relyingPartyRegistrationRepository(RelyingPartyRegistrationRepository repo) {
 		this.relyingPartyRegistrationRepository = repo;
+		return this;
+	}
+
+	/**
+	 * Sets the {@code Saml2MetadataResolver}
+	 * @param saml2MetadataResolver the implementation of the metadata resolver
+	 * @return the {@link Saml2LoginConfigurer} for further configuration
+	 */
+	public Saml2LoginConfigurer saml2MetadataResolver(Saml2MetadataResolver saml2MetadataResolver) {
+		this.saml2MetadataResolver = saml2MetadataResolver;
 		return this;
 	}
 
@@ -211,6 +229,14 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 		setAuthenticationFilter(saml2WebSsoAuthenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 
+		if (this.saml2MetadataResolver == null) {
+			this.saml2MetadataResolver = new OpenSamlMetadataResolver();
+		}
+
+		saml2MetadataFilter = new Saml2MetadataFilter(
+				this.relyingPartyRegistrationRepository, this.saml2MetadataResolver
+		);
+
 		if (hasText(this.loginPage)) {
 			// Set custom login page
 			super.loginPage(this.loginPage);
@@ -250,6 +276,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 	@Override
 	public void configure(B http) throws Exception {
 		http.addFilter(this.authenticationRequestEndpoint.build(http));
+		http.addFilter(saml2MetadataFilter);
 		super.configure(http);
 		if (this.authenticationManager == null) {
 			registerDefaultAuthenticationProvider(http);
