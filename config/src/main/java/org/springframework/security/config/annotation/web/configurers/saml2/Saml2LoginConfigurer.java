@@ -35,6 +35,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter;
+import org.springframework.security.saml2.provider.service.servlet.filter.SamlServiceProviderMetadataFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -106,6 +107,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 	private AuthenticationManager authenticationManager;
 
 	private Saml2WebSsoAuthenticationFilter saml2WebSsoAuthenticationFilter;
+
+	private SamlServiceProviderMetadataFilter samlServiceProviderMetadataFilter;
 
 	/**
 	 * Allows a configuration of a {@link AuthenticationManager} to be used during SAML 2 authentication.
@@ -190,6 +193,10 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 		setAuthenticationFilter(saml2WebSsoAuthenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 
+		samlServiceProviderMetadataFilter = new SamlServiceProviderMetadataFilter(
+				this.relyingPartyRegistrationRepository
+		);
+
 		if (hasText(this.loginPage)) {
 			// Set custom login page
 			super.loginPage(this.loginPage);
@@ -229,6 +236,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 	@Override
 	public void configure(B http) throws Exception {
 		http.addFilter(this.authenticationRequestEndpoint.build(http));
+		http.addFilter(samlServiceProviderMetadataFilter);
 		super.configure(http);
 		if (this.authenticationManager == null) {
 			registerDefaultAuthenticationProvider(http);

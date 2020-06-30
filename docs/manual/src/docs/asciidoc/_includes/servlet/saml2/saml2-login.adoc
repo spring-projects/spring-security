@@ -61,8 +61,7 @@ the IDP sends an assertion to the SP.
 
 1. Mappings assertion conditions and attributes to session features (timeout, tracking, etc)
 2. Single logout
-3. Dynamic metadata generation
-4. Receiving and validating standalone assertion (not wrapped in a response object)
+3. Receiving and validating standalone assertion (not wrapped in a response object)
 
 [[servlet-saml2-javaconfig]]
 === Saml 2 Login - Introduction to Java Configuration
@@ -200,19 +199,8 @@ credentials on all the identity providers.
 [[servlet-saml2-serviceprovider-metadata]]
 ==== Service Provider Metadata
 
-The Spring Security SAML 2 implementation does not yet provide an endpoint for downloading
-SP metadata in XML format. The minimal pieces that are exchanged
-
-* *entity ID* - defaults to `+{baseUrl}/saml2/service-provider-metadata/{registrationId}+`
-Other known configuration names that also use this same value
-** Audience Restriction
-* *single signon URL* - defaults to `+{baseUrl}/login/saml2/sso/{registrationId}+`
-Other known configuration names that also use this same value
-** Recipient URL
-** Destination URL
-** Assertion Consumer Service URL
-* X509Certificate - the certificate that you configure as part of your {SIGNING,DECRYPTION}
-credentials must be shared with the Identity Provider
+The Spring Security SAML 2 implementation does provide an endpoint for downloading
+SP metadata in XML format. The provider is mapped to: `+{baseUrl}/saml2/service-provider-metadata/{registrationId}+`
 
 [[servlet-saml2-sp-initiated]]
 ==== Authentication Requests - SP Initiated Flow
