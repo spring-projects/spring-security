@@ -15,6 +15,12 @@
  */
 package org.springframework.security.samples.config;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,12 +30,6 @@ import org.springframework.security.saml2.credentials.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.security.PrivateKey;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 
 import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION;
 import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING;
@@ -54,12 +54,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		Saml2X509Credential idpVerificationCertificate = getVerificationCertificate();
 		String acsUrlTemplate = "{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
 		return RelyingPartyRegistration.withRegistrationId(registrationId)
-				.providerDetails(config -> config.entityId(idpEntityId))
-				.providerDetails(config -> config.webSsoUrl(webSsoEndpoint))
+				.entityId(localEntityIdTemplate)
+				.assertionConsumerServiceLocation(acsUrlTemplate)
 				.credentials(c -> c.add(signingCredential))
-				.credentials(c -> c.add(idpVerificationCertificate))
-				.localEntityIdTemplate(localEntityIdTemplate)
-				.assertionConsumerServiceUrlTemplate(acsUrlTemplate)
+				.assertingPartyDetails(config -> config
+						.entityId(idpEntityId)
+						.singleSignOnServiceLocation(webSsoEndpoint))
+						.credentials(c -> c.add(idpVerificationCertificate))
 				.build();
 	}
 

@@ -52,7 +52,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	@Before
 	public void setUp() {
 		relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("id")
-				.assertionConsumerServiceUrlTemplate("template")
+				.assertionConsumerServiceLocation("template")
 				.providerDetails(c -> c.webSsoUrl("https://destination/sso"))
 				.providerDetails(c -> c.entityId("remote-entity-id"))
 				.localEntityIdTemplate("local-entity-id")

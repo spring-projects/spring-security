@@ -67,8 +67,8 @@ public final class DefaultSaml2AuthenticationRequestContextResolver implements S
 
 		String applicationUri = getApplicationUri(request);
 		Function<String, String> resolver = templateResolver(applicationUri, relyingParty);
-		String localSpEntityId = resolver.apply(relyingParty.getLocalEntityIdTemplate());
-		String assertionConsumerServiceUrl = resolver.apply(relyingParty.getAssertionConsumerServiceUrlTemplate());
+		String localSpEntityId = resolver.apply(relyingParty.getEntityId());
+		String assertionConsumerServiceUrl = resolver.apply(relyingParty.getAssertionConsumerServiceLocation());
 		return Saml2AuthenticationRequestContext.builder()
 				.issuer(localSpEntityId)
 				.relyingPartyRegistration(relyingParty)
@@ -82,7 +82,7 @@ public final class DefaultSaml2AuthenticationRequestContextResolver implements S
 	}
 
 	private static String resolveUrlTemplate(String template, String baseUrl, RelyingPartyRegistration relyingParty) {
-		String entityId = relyingParty.getProviderDetails().getEntityId();
+		String entityId = relyingParty.getAssertingPartyDetails().getEntityId();
 		String registrationId = relyingParty.getRegistrationId();
 		Map<String, String> uriVariables = new HashMap<>();
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(baseUrl)

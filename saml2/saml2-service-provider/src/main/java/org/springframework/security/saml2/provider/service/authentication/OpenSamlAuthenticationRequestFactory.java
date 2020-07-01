@@ -57,7 +57,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	@Override
 	public Saml2PostAuthenticationRequest createPostAuthenticationRequest(Saml2AuthenticationRequestContext context) {
 		AuthnRequest authnRequest = createAuthnRequest(context);
-		String xml = context.getRelyingPartyRegistration().getProviderDetails().isSignAuthNRequest() ?
+		String xml = context.getRelyingPartyRegistration().getAssertingPartyDetails().getWantAuthnRequestsSigned() ?
 			this.saml.serialize(authnRequest, context.getRelyingPartyRegistration().getSigningCredentials()) :
 			this.saml.serialize(authnRequest);
 
@@ -78,7 +78,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		result.samlRequest(deflatedAndEncoded)
 				.relayState(context.getRelayState());
 
-		if (context.getRelyingPartyRegistration().getProviderDetails().isSignAuthNRequest()) {
+		if (context.getRelyingPartyRegistration().getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
 			List<Saml2X509Credential> signingCredentials = context.getRelyingPartyRegistration().getSigningCredentials();
 			Map<String, String> signedParams = this.saml.signQueryParameters(
 					signingCredentials,
