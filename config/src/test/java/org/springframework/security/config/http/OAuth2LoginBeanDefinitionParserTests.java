@@ -62,6 +62,7 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -522,7 +523,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 	static class AuthorizedClientController {
 
 		@GetMapping("/authorized-client")
-		String authorizedClient(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
+		String authorizedClient(Model model, @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
 			return authorizedClient != null ? "resolved" : "not-resolved";
 		}
 	}

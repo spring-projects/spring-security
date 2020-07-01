@@ -38,7 +38,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @since 5.4
  */
 final class OAuth2ClientWebMvcSecurityPostProcessor implements BeanDefinitionRegistryPostProcessor, BeanFactoryAware {
-	private static final String ARGUMENT_RESOLVERS_PROPERTY = "argumentResolvers";
+	private static final String CUSTOM_ARGUMENT_RESOLVERS_PROPERTY = "customArgumentResolvers";
 	private BeanFactory beanFactory;
 
 	@Override
@@ -56,7 +56,7 @@ final class OAuth2ClientWebMvcSecurityPostProcessor implements BeanDefinitionReg
 			BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
 			if (RequestMappingHandlerAdapter.class.getName().equals(beanDefinition.getBeanClassName())) {
 				PropertyValue currentArgumentResolvers =
-						beanDefinition.getPropertyValues().getPropertyValue(ARGUMENT_RESOLVERS_PROPERTY);
+						beanDefinition.getPropertyValues().getPropertyValue(CUSTOM_ARGUMENT_RESOLVERS_PROPERTY);
 				ManagedList<Object> argumentResolvers = new ManagedList<>();
 				if (currentArgumentResolvers != null) {
 					argumentResolvers.addAll((ManagedList<?>) currentArgumentResolvers.getValue());
@@ -74,7 +74,7 @@ final class OAuth2ClientWebMvcSecurityPostProcessor implements BeanDefinitionReg
 					beanDefinitionBuilder.addConstructorArgReference(authorizedClientRepositoryBeanNames[0]);
 				}
 				argumentResolvers.add(beanDefinitionBuilder.getBeanDefinition());
-				beanDefinition.getPropertyValues().add(ARGUMENT_RESOLVERS_PROPERTY, argumentResolvers);
+				beanDefinition.getPropertyValues().add(CUSTOM_ARGUMENT_RESOLVERS_PROPERTY, argumentResolvers);
 				break;
 			}
 		}
