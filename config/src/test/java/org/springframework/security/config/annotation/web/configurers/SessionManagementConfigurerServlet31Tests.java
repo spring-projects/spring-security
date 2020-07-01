@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  * @author Rob Winch
  */
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
+@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*", "javax.xml.validation.*", "org.opensaml.*" })
 public class SessionManagementConfigurerServlet31Tests {
 	@Mock
 	Method method;
