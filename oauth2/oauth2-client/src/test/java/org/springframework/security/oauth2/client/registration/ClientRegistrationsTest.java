@@ -158,7 +158,7 @@ public class ClientRegistrationsTest {
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRegistrationId()).isEqualTo(this.server.getHostName());
 		assertThat(registration.getClientName()).isEqualTo(this.issuer);
-		assertThat(registration.getScopes()).containsOnly("openid", "email", "profile");
+		assertThat(registration.getScopes()).isNull();
 		assertThat(provider.getAuthorizationUri()).isEqualTo("https://example.com/o/oauth2/v2/auth");
 		assertThat(provider.getTokenUri()).isEqualTo("https://example.com/oauth2/v4/token");
 		assertThat(provider.getJwkSetUri()).isEqualTo("https://example.com/oauth2/v3/certs");
@@ -221,41 +221,6 @@ public class ClientRegistrationsTest {
 		assertThat(registrationOAuth2("", null)).isNotNull();
 		assertThat(this.issuer).endsWith("/");
 	}
-
-	/**
-	 * https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
-	 *
-	 * RECOMMENDED. JSON array containing a list of the OAuth 2.0 [RFC6749] scope values that this server supports. The
-	 * server MUST support the openid scope value.
-	 * @throws Exception
-	 */
-	@Test
-	public void issuerWhenScopesNullThenScopesDefaulted() throws Exception {
-		this.response.remove("scopes_supported");
-
-		ClientRegistration registration = registration("").build();
-
-		assertThat(registration.getScopes()).containsOnly("openid");
-	}
-
-	@Test
-	public void issuerWhenOidcFallbackScopesNullThenScopesDefaulted() throws Exception {
-		this.response.remove("scopes_supported");
-
-		ClientRegistration registration = registrationOidcFallback("", null).build();
-
-		assertThat(registration.getScopes()).containsOnly("openid");
-	}
-
-	@Test
-	public void issuerWhenOAuth2ScopesNullThenScopesDefaulted() throws Exception {
-		this.response.remove("scopes_supported");
-
-		ClientRegistration registration = registrationOAuth2("", null).build();
-
-		assertThat(registration.getScopes()).containsOnly("openid");
-	}
-
 
 	@Test
 	public void issuerWhenGrantTypesSupportedNullThenDefaulted() throws Exception {

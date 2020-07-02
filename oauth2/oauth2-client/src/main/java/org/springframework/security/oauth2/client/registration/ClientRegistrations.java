@@ -25,7 +25,6 @@ import java.util.function.Supplier;
 
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import net.minidev.json.JSONObject;
@@ -35,7 +34,6 @@ import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -236,12 +234,10 @@ public final class ClientRegistrations {
 			throw new IllegalArgumentException("Only AuthorizationGrantType.AUTHORIZATION_CODE is supported. The issuer \"" + issuer +
 					"\" returned a configuration of " + grantTypes);
 		}
-		List<String> scopes = getScopes(metadata);
 		Map<String, Object> configurationMetadata = new LinkedHashMap<>(metadata.toJSONObject());
 
 		return ClientRegistration.withRegistrationId(name)
 				.userNameAttributeName(IdTokenClaimNames.SUB)
-				.scope(scopes)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 				.clientAuthenticationMethod(method)
 				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
@@ -266,16 +262,6 @@ public final class ClientRegistrations {
 		}
 		throw new IllegalArgumentException("Only ClientAuthenticationMethod.BASIC, ClientAuthenticationMethod.POST and "
 				+ "ClientAuthenticationMethod.NONE are supported. The issuer \"" + issuer + "\" returned a configuration of " + metadataAuthMethods);
-	}
-
-	private static List<String> getScopes(AuthorizationServerMetadata metadata) {
-		Scope scope = metadata.getScopes();
-		if (scope == null) {
-			// If null, default to "openid" which must be supported
-			return Collections.singletonList(OidcScopes.OPENID);
-		} else {
-			return scope.toStringList();
-		}
 	}
 
 	private ClientRegistrations() {}
