@@ -35,6 +35,7 @@ import java.util.Base64;
  * An Implementation of {@code RequestCache} which saves the original request URI in a cookie.
  *
  * @author Zeeshan Adnan
+ * @since 5.4
  */
 public class CookieRequestCache implements RequestCache {
 
