@@ -158,7 +158,7 @@ public class ClientRegistrationsTest {
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRegistrationId()).isEqualTo(this.server.getHostName());
 		assertThat(registration.getClientName()).isEqualTo(this.issuer);
-		assertThat(registration.getScopes()).containsOnly("openid", "email", "profile");
+		assertThat(registration.getScopes()).containsOnly("openid");
 		assertThat(provider.getAuthorizationUri()).isEqualTo("https://example.com/o/oauth2/v2/auth");
 		assertThat(provider.getTokenUri()).isEqualTo("https://example.com/oauth2/v4/token");
 		assertThat(provider.getJwkSetUri()).isEqualTo("https://example.com/oauth2/v3/certs");

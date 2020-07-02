@@ -152,7 +152,7 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 		assertThat(googleRegistration.getClientAuthenticationMethod()).isEqualTo(ClientAuthenticationMethod.BASIC);
 		assertThat(googleRegistration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(googleRegistration.getRedirectUri()).isEqualTo("{baseUrl}/{action}/oauth2/code/{registrationId}");
-		assertThat(googleRegistration.getScopes()).isEqualTo(StringUtils.commaDelimitedListToSet("openid,profile,email"));
+		assertThat(googleRegistration.getScopes()).isEqualTo(StringUtils.commaDelimitedListToSet("openid"));
 		assertThat(googleRegistration.getClientName()).isEqualTo(serverUrl);
 
 		ProviderDetails googleProviderDetails = googleRegistration.getProviderDetails();
