@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.Filter;
@@ -43,7 +44,9 @@ import org.springframework.security.config.crypto.RsaKeyConversionServicePostPro
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 
 
@@ -70,6 +73,8 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 
 	private List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers;
 
+	private List<SecurityFilterChain> securityFilterChains = Collections.emptyList();
+
 	private ClassLoader beanClassLoader;
 
 	@Autowired(required = false)
@@ -95,11 +100,26 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	public Filter springSecurityFilterChain() throws Exception {
 		boolean hasConfigurers = webSecurityConfigurers != null
 				&& !webSecurityConfigurers.isEmpty();
-		if (!hasConfigurers) {
+		boolean hasFilterChain = !securityFilterChains.isEmpty();
+		if (hasConfigurers && hasFilterChain) {
+			throw new IllegalStateException(
+					"Found WebSecurityConfigurerAdapter as well as SecurityFilterChain." +
+							"Please select just one.");
+		}
+		if (!hasConfigurers && !hasFilterChain) {
 			WebSecurityConfigurerAdapter adapter = objectObjectPostProcessor
 					.postProcess(new WebSecurityConfigurerAdapter() {
 					});
 			webSecurity.apply(adapter);
+		}
+		for (SecurityFilterChain securityFilterChain : securityFilterChains) {
+			webSecurity.addSecurityFilterChainBuilder(() -> securityFilterChain);
+			for (Filter filter : securityFilterChain.getFilters()) {
+				if (filter instanceof FilterSecurityInterceptor) {
+					webSecurity.securityInterceptor((FilterSecurityInterceptor) filter);
+					break;
+				}
+			}
 		}
 		return webSecurity.build();
 	}
@@ -156,6 +176,12 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 			webSecurity.apply(webSecurityConfigurer);
 		}
 		this.webSecurityConfigurers = webSecurityConfigurers;
+	}
+
+	@Autowired(required = false)
+	void setFilterChains(List<SecurityFilterChain> securityFilterChains) {
+		securityFilterChains.sort(AnnotationAwareOrderComparator.INSTANCE);
+		this.securityFilterChains = securityFilterChains;
 	}
 
 	@Bean
