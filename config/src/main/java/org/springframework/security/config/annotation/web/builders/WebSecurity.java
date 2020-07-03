@@ -283,7 +283,8 @@ public final class WebSecurity extends
 		Assert.state(
 				!securityFilterChainBuilders.isEmpty(),
 				() -> "At least one SecurityBuilder<? extends SecurityFilterChain> needs to be specified. "
-						+ "Typically this done by adding a @Configuration that extends WebSecurityConfigurerAdapter. "
+						+ "Typically this is done by exposing a SecurityFilterChain bean "
+						+ "or by adding a @Configuration that extends WebSecurityConfigurerAdapter. "
 						+ "More advanced users can invoke "
 						+ WebSecurity.class.getSimpleName()
 						+ ".addSecurityFilterChainBuilder directly");

@@ -171,6 +171,76 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
+	public void loadConfigWhenSecurityFilterChainsHaveOrderThenFilterChainsOrdered() {
+		this.spring.register(SortedSecurityFilterChainConfig.class).autowire();
+
+		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<SecurityFilterChain> filterChains = filterChainProxy.getFilterChains();
+		assertThat(filterChains).hasSize(4);
+
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+
+		request.setServletPath("/role1/**");
+		assertThat(filterChains.get(0).matches(request)).isTrue();
+
+		request.setServletPath("/role2/**");
+		assertThat(filterChains.get(1).matches(request)).isTrue();
+
+		request.setServletPath("/role3/**");
+		assertThat(filterChains.get(2).matches(request)).isTrue();
+
+		request.setServletPath("/**");
+		assertThat(filterChains.get(3).matches(request)).isTrue();
+	}
+
+	@EnableWebSecurity
+	@Import(AuthenticationTestConfiguration.class)
+	static class SortedSecurityFilterChainConfig {
+
+		@Order(1)
+		@Bean
+		SecurityFilterChain filterChain1(HttpSecurity http) throws Exception {
+			return http
+					.antMatcher("/role1/**")
+					.authorizeRequests(authorize -> authorize
+							.anyRequest().hasRole("1")
+					)
+					.build();
+		}
+
+		@Order(2)
+		@Bean
+		SecurityFilterChain filterChain2(HttpSecurity http) throws Exception {
+			return http
+					.antMatcher("/role2/**")
+					.authorizeRequests(authorize -> authorize
+							.anyRequest().hasRole("2")
+					)
+					.build();
+		}
+
+		@Order(3)
+		@Bean
+		SecurityFilterChain filterChain3(HttpSecurity http) throws Exception {
+			return http
+					.antMatcher("/role3/**")
+					.authorizeRequests(authorize -> authorize
+							.anyRequest().hasRole("3")
+					)
+					.build();
+		}
+
+		@Bean
+		SecurityFilterChain filterChain4(HttpSecurity http) throws Exception {
+			return http
+					.authorizeRequests(authorize -> authorize
+							.anyRequest().hasRole("4")
+					)
+					.build();
+		}
+	}
+
+	@Test
 	public void loadConfigWhenWebSecurityConfigurersHaveSameOrderThenThrowBeanCreationException() {
 		Throwable thrown = catchThrowable(() -> this.spring.register(DuplicateOrderConfig.class).autowire());
 
@@ -372,6 +442,26 @@ public class WebSecurityConfigurationTests {
 		}
 	}
 
+	@Test
+	public void loadConfigWhenSecurityFilterChainBeanThenDefaultWebInvocationPrivilegeEvaluatorIsRegistered() {
+		this.spring.register(AuthorizeRequestsFilterChainConfig.class).autowire();
+
+		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
+			.isInstanceOf(DefaultWebInvocationPrivilegeEvaluator.class);
+	}
+
+	@EnableWebSecurity
+	static class AuthorizeRequestsFilterChainConfig {
+		@Bean
+		public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http
+					.authorizeRequests(authorize -> authorize
+							.anyRequest().authenticated()
+					)
+					.build();
+		}
+	}
+
 	// SEC-2303
 	@Test
 	public void loadConfigWhenDefaultSecurityExpressionHandlerThenBeanResolverSet() throws Exception {
@@ -497,6 +587,44 @@ public class WebSecurityConfigurationTests {
 						.authorizeRequests()
 						.anyRequest().authenticated();
 			}
+		}
+	}
+
+	@Test
+	public void loadConfigWhenBothAdapterAndFilterChainConfiguredThenException() {
+		Throwable thrown = catchThrowable(() -> this.spring.register(AdapterAndFilterChainConfig.class).autowire());
+
+		assertThat(thrown).isInstanceOf(BeanCreationException.class)
+				.hasRootCauseExactlyInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("Found WebSecurityConfigurerAdapter as well as SecurityFilterChain.");
+
+	}
+
+	@EnableWebSecurity
+	@Import(AuthenticationTestConfiguration.class)
+	static class AdapterAndFilterChainConfig {
+		@Order(1)
+		@Configuration
+		static class WebConfigurer extends WebSecurityConfigurerAdapter {
+			@Override
+			protected void configure(HttpSecurity http) throws Exception {
+				http
+						.antMatcher("/config/**")
+						.authorizeRequests(authorize -> authorize
+								.anyRequest().permitAll()
+						);
+			}
+		}
+
+		@Order(2)
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http
+					.antMatcher("/filter/**")
+					.authorizeRequests(authorize -> authorize
+							.anyRequest().authenticated()
+					)
+					.build();
 		}
 	}
 }

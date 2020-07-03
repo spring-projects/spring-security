@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -111,6 +112,32 @@ public class EnableWebSecurityTests {
 	static class AuthenticationPrincipalConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) {
+		}
+
+		@RestController
+		static class AuthController {
+
+			@GetMapping("/")
+			String principal(@AuthenticationPrincipal String principal) {
+				return principal;
+			}
+		}
+	}
+
+	@Test
+	public void securityFilterChainWhenEnableWebMvcThenAuthenticationPrincipalResolvable() throws Exception {
+		this.spring.register(SecurityFilterChainAuthenticationPrincipalConfig.class).autowire();
+
+		this.mockMvc.perform(get("/").with(authentication(new TestingAuthenticationToken("user1", "password"))))
+			.andExpect(content().string("user1"));
+	}
+
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class SecurityFilterChainAuthenticationPrincipalConfig {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.build();
 		}
 
 		@RestController
