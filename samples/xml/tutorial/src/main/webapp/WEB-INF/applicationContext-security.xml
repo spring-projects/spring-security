@@ -61,4 +61,8 @@
 		</authentication-provider>
 	</authentication-manager>
 
+	<beans:bean id="grantedAuthorityDefaults" class="org.springframework.security.config.core.GrantedAuthorityDefaults">
+		<beans:constructor-arg value="" />
+	</beans:bean>
+
 </beans:beans>
