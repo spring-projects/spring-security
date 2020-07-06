@@ -2,7 +2,7 @@
 == Handling Logouts
 
 [[logout-java-configuration]]
-=== Logout Java Configuration
+=== Logout Java/Kotlin Configuration
 
 When using the `{security-api-url}org/springframework/security/config/annotation/web/configuration/WebSecurityConfigurerAdapter.html[WebSecurityConfigurerAdapter]`, logout capabilities are automatically applied.
 The default is that accessing the URL `/logout` will log the user out by:
@@ -14,7 +14,10 @@ The default is that accessing the URL `/logout` will log the user out by:
 
 Similar to configuring login capabilities, however, you also have various options to further customize your logout requirements:
 
-[source,java]
+.Logout Configuration
+====
+.Java
+[source,java,role="primary"]
 ----
 protected void configure(HttpSecurity http) throws Exception {
     http
@@ -29,6 +32,24 @@ protected void configure(HttpSecurity http) throws Exception {
         ...
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+-----
+override fun configure(http: HttpSecurity) {
+    http {
+        logout {
+            logoutUrl = "/my/logout"                              // <1>
+            logoutSuccessUrl = "/my/index"                        // <2>
+            logoutSuccessHandler = customLogoutSuccessHandler     // <3>
+            invalidateHttpSession = true                          // <4>
+            addLogoutHandler(logoutHandler)                       // <5>
+            deleteCookies(cookieNamesToClear)                     // <6>
+        }
+    }
+}
+-----
+====
 
 <1> Provides logout support.
 This is automatically applied when using `WebSecurityConfigurerAdapter`.
