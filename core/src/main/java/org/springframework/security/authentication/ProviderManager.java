@@ -238,7 +238,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 				((CredentialsContainer) result).eraseCredentials();
 			}
 
-			// If the parent AuthenticationManager was attempted and successful than it will publish an AuthenticationSuccessEvent
+			// If the parent AuthenticationManager was attempted and successful then it will publish an AuthenticationSuccessEvent
 			// This check prevents a duplicate AuthenticationSuccessEvent if the parent AuthenticationManager already published it
 			if (parentResult == null) {
 				eventPublisher.publishAuthenticationSuccess(result);
@@ -255,7 +255,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 					"No AuthenticationProvider found for {0}"));
 		}
 
-		// If the parent AuthenticationManager was attempted and failed than it will publish an AbstractAuthenticationFailureEvent
+		// If the parent AuthenticationManager was attempted and failed then it will publish an AbstractAuthenticationFailureEvent
 		// This check prevents a duplicate AbstractAuthenticationFailureEvent if the parent AuthenticationManager already published it
 		if (parentException == null) {
 			prepareException(lastException, authentication);
