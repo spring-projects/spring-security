@@ -105,7 +105,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 				+ "  </head>\n"
 				+ "  <body>\n"
 				+ "     <div class=\"container\">\n"
-				+ formLogin(queryParams, csrfTokenHtmlInput)
+				+ formLogin(queryParams, contextPath, csrfTokenHtmlInput)
 				+ oauth2LoginLinks(queryParams, contextPath, this.oauth2AuthenticationUrlToClientName)
 				+ "    </div>\n"
 				+ "  </body>\n"
@@ -114,13 +114,13 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		return page.getBytes(Charset.defaultCharset());
 	}
 
-	private String formLogin(MultiValueMap<String, String> queryParams, String csrfTokenHtmlInput) {
+	private String formLogin(MultiValueMap<String, String> queryParams, String contextPath, String csrfTokenHtmlInput) {
 		if (!this.formLoginEnabled) {
 			return "";
 		}
 		boolean isError = queryParams.containsKey("error");
 		boolean isLogoutSuccess = queryParams.containsKey("logout");
-		return "      <form class=\"form-signin\" method=\"post\" action=\"/login\">\n"
+		return "      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath + "/login\">\n"
 				+ "        <h2 class=\"form-signin-heading\">Please sign in</h2>\n"
 				+ createError(isError)
 				+ createLogoutSuccess(isLogoutSuccess)
