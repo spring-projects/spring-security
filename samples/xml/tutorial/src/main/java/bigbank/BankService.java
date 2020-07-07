@@ -23,7 +23,7 @@ public interface BankService {
 
 	Account[] findAccounts();
 
-	@PreAuthorize("hasRole('supervisor') or "
-			+ "hasRole('teller') and (#account.balance + #amount >= -#account.overdraft)")
+	@PreAuthorize("hasAuthority('supervisor') or "
+			+ "hasAuthority('teller') and (#account.balance + #amount >= -#account.overdraft)")
 	Account post(Account account, double amount);
 }
