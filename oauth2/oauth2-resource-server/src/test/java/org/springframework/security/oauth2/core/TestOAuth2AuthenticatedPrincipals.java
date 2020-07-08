@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 
 /**
@@ -56,7 +57,7 @@ public class TestOAuth2AuthenticatedPrincipals {
 		Collection<GrantedAuthority> authorities =
 				Arrays.asList(new SimpleGrantedAuthority("SCOPE_read"),
 						new SimpleGrantedAuthority("SCOPE_write"), new SimpleGrantedAuthority("SCOPE_dolphin"));
-		return new DefaultOAuth2AuthenticatedPrincipal(attributes, authorities);
+		return new OAuth2IntrospectionAuthenticatedPrincipal(attributes, authorities);
 	}
 
 	private static URL url(String url) {

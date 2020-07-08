@@ -39,7 +39,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
@@ -232,7 +231,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 			}
 		}
 
-		return new DefaultOAuth2AuthenticatedPrincipal(claims, authorities);
+		return new OAuth2IntrospectionAuthenticatedPrincipal(claims, authorities);
 	}
 
 	private URL issuer(String uri) {
