@@ -21,6 +21,8 @@ import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.WebUtils;
@@ -29,6 +31,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Base64;
+import java.util.HashMap;
 
 
 /**
@@ -52,7 +55,7 @@ public class CookieRequestCache implements RequestCache {
 			Cookie savedCookie = new Cookie(COOKIE_NAME, encodeCookie(redirectUrl));
 			savedCookie.setMaxAge(COOKIE_MAX_AGE);
 			savedCookie.setSecure(request.isSecure());
-			savedCookie.setPath(request.getContextPath());
+			savedCookie.setPath(getCookiePath(request));
 			savedCookie.setHttpOnly(true);
 
 			response.addCookie(savedCookie);
@@ -65,7 +68,7 @@ public class CookieRequestCache implements RequestCache {
 	public SavedRequest getRequest(HttpServletRequest request, HttpServletResponse response) {
 		Cookie savedRequestCookie = WebUtils.getCookie(request, COOKIE_NAME);
 		if (savedRequestCookie != null) {
-			String originalURI = decodeCookie(savedRequestCookie.getValue());
+			final String originalURI = decodeCookie(savedRequestCookie.getValue());
 			UriComponents uriComponents = UriComponentsBuilder.fromUriString(originalURI).build();
 			DefaultSavedRequest.Builder builder = new DefaultSavedRequest.Builder();
 
@@ -77,11 +80,21 @@ public class CookieRequestCache implements RequestCache {
 					port = 80;
 				}
 			}
+
+			final MultiValueMap<String, String> queryParams = uriComponents.getQueryParams();
+
+			if (!queryParams.isEmpty()) {
+				final HashMap<String, String[]> parameters = new HashMap<>(queryParams.size());
+				queryParams.forEach((key, value) -> parameters.put(key, value.toArray(new String[]{})));
+				builder.setParameters(parameters);
+			}
+
 			return builder.setScheme(uriComponents.getScheme())
 					.setServerName(uriComponents.getHost())
 					.setRequestURI(uriComponents.getPath())
 					.setQueryString(uriComponents.getQuery())
 					.setServerPort(port)
+					.setMethod(request.getMethod())
 					.build();
 		}
 		return null;
@@ -89,12 +102,14 @@ public class CookieRequestCache implements RequestCache {
 
 	@Override
 	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
-		SavedRequest savedRequest = getRequest(request, response);
-		if (savedRequest != null) {
-			removeRequest(request, response);
-			return new SavedRequestAwareWrapper(savedRequest, request);
+		SavedRequest saved = this.getRequest(request, response);
+		if (!this.matchesSavedRequest(request, saved)) {
+			this.logger.debug("saved request doesn't match");
+			return null;
+		} else {
+			this.removeRequest(request, response);
+			return new SavedRequestAwareWrapper(saved, request);
 		}
-		return null;
 	}
 
 	@Override
@@ -102,7 +117,7 @@ public class CookieRequestCache implements RequestCache {
 		Cookie removeSavedRequestCookie = new Cookie(COOKIE_NAME, "");
 		removeSavedRequestCookie.setSecure(request.isSecure());
 		removeSavedRequestCookie.setHttpOnly(true);
-		removeSavedRequestCookie.setPath(request.getContextPath());
+		removeSavedRequestCookie.setPath(getCookiePath(request));
 		removeSavedRequestCookie.setMaxAge(0);
 		response.addCookie(removeSavedRequestCookie);
 	}
@@ -113,6 +128,23 @@ public class CookieRequestCache implements RequestCache {
 
 	private static String decodeCookie(String encodedCookieValue) {
 		return new String(Base64.getDecoder().decode(encodedCookieValue.getBytes()));
+	}
+
+	private static String getCookiePath(HttpServletRequest request) {
+		final String contextPath = request.getContextPath();
+		if (StringUtils.isEmpty(contextPath)) {
+			return "/";
+		}
+		return contextPath;
+	}
+
+	private boolean matchesSavedRequest(HttpServletRequest request, SavedRequest savedRequest) {
+		if (savedRequest == null) {
+			return false;
+		} else {
+			String currentUrl = UrlUtils.buildFullRequestUrl(request);
+			return savedRequest.getRedirectUrl().equals(currentUrl);
+		}
 	}
 
 	/**
