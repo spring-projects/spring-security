@@ -25,9 +25,9 @@ import org.junit.Test;
 
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
@@ -63,9 +63,9 @@ public class OpaqueTokenAuthenticationProviderTests {
 		Authentication result =
 				provider.authenticate(new BearerTokenAuthenticationToken("token"));
 
-		assertThat(result.getPrincipal()).isInstanceOf(DefaultOAuth2AuthenticatedPrincipal.class);
+		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
 
-		Map<String, Object> attributes = ((DefaultOAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
+		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
 		assertThat(attributes)
 				.isNotNull()
 				.containsEntry(ACTIVE, true)
@@ -85,7 +85,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenMissingScopeAttributeThenNoAuthorities() {
-		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(Collections.singletonMap("claim", "value"), null);
+		OAuth2AuthenticatedPrincipal principal = new OAuth2IntrospectionAuthenticatedPrincipal(Collections.singletonMap("claim", "value"), null);
 		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
 		when(introspector.introspect(any())).thenReturn(principal);
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
