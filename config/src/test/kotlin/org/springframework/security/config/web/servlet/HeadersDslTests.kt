@@ -91,4 +91,31 @@ class HeadersDslTests {
             }
         }
     }
+
+    @Test
+    fun `request when headers disabled then no security headers are in the response`() {
+        this.spring.register(HeadersDisabledConfig::class.java).autowire()
+
+        this.mockMvc.get("/")
+                .andExpect {
+                    header { doesNotExist(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS) }
+                    header { doesNotExist(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS) }
+                    header { doesNotExist(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY) }
+                    header { doesNotExist(HttpHeaders.CACHE_CONTROL) }
+                    header { doesNotExist(HttpHeaders.EXPIRES) }
+                    header { doesNotExist(HttpHeaders.PRAGMA) }
+                    header { doesNotExist(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION) }
+                }
+    }
+
+    @EnableWebSecurity
+    open class HeadersDisabledConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                headers {
+                    disable()
+                }
+            }
+        }
+    }
 }

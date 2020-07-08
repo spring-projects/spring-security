@@ -40,6 +40,7 @@ class HeadersDsl {
     private var contentSecurityPolicy: ((HeadersConfigurer<HttpSecurity>.ContentSecurityPolicyConfig) -> Unit)? = null
     private var referrerPolicy: ((HeadersConfigurer<HttpSecurity>.ReferrerPolicyConfig) -> Unit)? = null
     private var featurePolicyDirectives: String? = null
+    private var disabled = false
 
     var defaultsDisabled: Boolean? = null
 
@@ -161,6 +162,15 @@ class HeadersDsl {
         this.featurePolicyDirectives = policyDirectives
     }
 
+    /**
+     * Disable all HTTP security headers.
+     *
+     * @since 5.4
+     */
+    fun disable() {
+        disabled = true
+    }
+
     internal fun get(): (HeadersConfigurer<HttpSecurity>) -> Unit {
         return { headers ->
             defaultsDisabled?.also {
@@ -194,6 +204,9 @@ class HeadersDsl {
             }
             featurePolicyDirectives?.also {
                 headers.featurePolicy(featurePolicyDirectives)
+            }
+            if (disabled) {
+                headers.disable()
             }
         }
     }
