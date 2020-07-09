@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -258,6 +258,23 @@ public class DefaultReactiveOAuth2UserServiceTests {
 		assertThat(user.getAuthorities()).hasSize(1);
 		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
 		assertThat(authorities.next()).isInstanceOf(OAuth2UserAuthority.class);
+	}
+
+	// gh-8764
+	@Test
+	public void loadUserWhenUserInfoSuccessResponseInvalidContentTypeThenThrowOAuth2AuthenticationException() {
+		MockResponse response = new MockResponse();
+		response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+		response.setBody("invalid content type");
+		this.server.enqueue(response);
+
+		OAuth2UserRequest userRequest = oauth2UserRequest();
+
+		assertThatThrownBy(() -> this.userService.loadUser(userRequest).block())
+				.isInstanceOf(OAuth2AuthenticationException.class)
+				.hasMessageContaining("[invalid_user_info_response] An error occurred while attempting to retrieve the UserInfo Resource from '" +
+						userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri() + "': " +
+						"response contains invalid content type 'text/plain'");
 	}
 
 	private DefaultReactiveOAuth2UserService withMockResponse(Map<String, Object> body) {
