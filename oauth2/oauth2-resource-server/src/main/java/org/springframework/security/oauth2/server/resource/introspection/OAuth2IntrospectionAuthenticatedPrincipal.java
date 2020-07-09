@@ -16,16 +16,13 @@
 
 package org.springframework.security.oauth2.server.resource.introspection;
 
-import static org.springframework.security.core.authority.AuthorityUtils.NO_AUTHORITIES;
-
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-import org.springframework.util.Assert;
 
 /**
  * A domain object that wraps the attributes of OAuth 2.0 Token Introspection.
@@ -34,11 +31,9 @@ import org.springframework.util.Assert;
  * @since 5.4
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7662#section-2.2">Introspection Response</a>
  */
-public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2AuthenticatedPrincipal,
-		OAuth2IntrospectionClaimAccessor, Serializable {
-	private final Map<String, Object> attributes;
-	private final Collection<GrantedAuthority> authorities;
-	private final String name;
+public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2IntrospectionClaimAccessor,
+		OAuth2AuthenticatedPrincipal, Serializable {
+	private final OAuth2AuthenticatedPrincipal delegate;
 
 	/**
 	 * Constructs an {@code OAuth2IntrospectionAuthenticatedPrincipal} using the provided parameters.
@@ -49,7 +44,7 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2Au
 	public OAuth2IntrospectionAuthenticatedPrincipal(Map<String, Object> attributes,
 			Collection<GrantedAuthority> authorities) {
 
-		this(null, attributes, authorities);
+		this.delegate = new DefaultOAuth2AuthenticatedPrincipal(attributes, authorities);
 	}
 
 	/**
@@ -62,11 +57,7 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2Au
 	public OAuth2IntrospectionAuthenticatedPrincipal(String name, Map<String, Object> attributes,
 			Collection<GrantedAuthority> authorities) {
 
-		Assert.notEmpty(attributes, "attributes cannot be empty");
-		this.attributes = Collections.unmodifiableMap(attributes);
-		this.authorities = authorities == null ?
-				NO_AUTHORITIES : Collections.unmodifiableCollection(authorities);
-		this.name = name == null ? getSubject() : name;
+		this.delegate = new DefaultOAuth2AuthenticatedPrincipal(name, attributes, authorities);
 	}
 
 	/**
@@ -76,7 +67,7 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2Au
 	 */
 	@Override
 	public Map<String, Object> getAttributes() {
-		return this.attributes;
+		return this.delegate.getAttributes();
 	}
 
 	/**
@@ -87,7 +78,7 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2Au
 	 */
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return this.authorities;
+		return this.delegate.getAuthorities();
 	}
 
 	/**
@@ -95,7 +86,7 @@ public final class OAuth2IntrospectionAuthenticatedPrincipal implements OAuth2Au
 	 */
 	@Override
 	public String getName() {
-		return this.name;
+		return this.delegate.getName();
 	}
 
 	/**
