@@ -33,9 +33,11 @@ import org.springframework.security.saml2.provider.service.authentication.OpenSa
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
-import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
-import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter;
-import org.springframework.security.saml2.provider.service.servlet.filter.SamlServiceProviderMetadataFilter;
+import org.springframework.security.saml2.provider.service.web.OpenSamlMetadataResolver;
+import org.springframework.security.saml2.provider.service.web.Saml2MetadataResolver;
+import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationFilter;
+import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationRequestFilter;
+import org.springframework.security.saml2.provider.service.web.Saml2MetadataFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -104,11 +106,13 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 
 	private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
+	private Saml2MetadataResolver saml2MetadataResolver;
+
 	private AuthenticationManager authenticationManager;
 
 	private Saml2WebSsoAuthenticationFilter saml2WebSsoAuthenticationFilter;
 
-	private SamlServiceProviderMetadataFilter samlServiceProviderMetadataFilter;
+	private Saml2MetadataFilter saml2MetadataFilter;
 
 	/**
 	 * Allows a configuration of a {@link AuthenticationManager} to be used during SAML 2 authentication.
@@ -133,6 +137,16 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 	 */
 	public Saml2LoginConfigurer relyingPartyRegistrationRepository(RelyingPartyRegistrationRepository repo) {
 		this.relyingPartyRegistrationRepository = repo;
+		return this;
+	}
+
+	/**
+	 * Sets the {@code Saml2MetadataResolver}
+	 * @param saml2MetadataResolver the implementation of the metadata resolver
+	 * @return the {@link Saml2LoginConfigurer} for further configuration
+	 */
+	public Saml2LoginConfigurer saml2MetadataResolver(Saml2MetadataResolver saml2MetadataResolver) {
+		this.saml2MetadataResolver = saml2MetadataResolver;
 		return this;
 	}
 
@@ -193,8 +207,12 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 		setAuthenticationFilter(saml2WebSsoAuthenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 
-		samlServiceProviderMetadataFilter = new SamlServiceProviderMetadataFilter(
-				this.relyingPartyRegistrationRepository
+		if (this.saml2MetadataResolver == null) {
+			this.saml2MetadataResolver = new OpenSamlMetadataResolver();
+		}
+
+		saml2MetadataFilter = new Saml2MetadataFilter(
+				this.relyingPartyRegistrationRepository, this.saml2MetadataResolver
 		);
 
 		if (hasText(this.loginPage)) {
@@ -236,7 +254,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>> extend
 	@Override
 	public void configure(B http) throws Exception {
 		http.addFilter(this.authenticationRequestEndpoint.build(http));
-		http.addFilter(samlServiceProviderMetadataFilter);
+		http.addFilter(saml2MetadataFilter);
 		super.configure(http);
 		if (this.authenticationManager == null) {
 			registerDefaultAuthenticationProvider(http);

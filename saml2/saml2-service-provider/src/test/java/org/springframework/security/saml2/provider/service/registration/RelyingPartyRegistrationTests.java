@@ -18,7 +18,7 @@ package org.springframework.security.saml2.provider.service.registration;
 
 import org.junit.Test;
 
-import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
+import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;

@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.servlet.filter;
+package org.springframework.security.saml2.provider.service.web;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opensaml.core.config.InitializationException;
+import org.opensaml.core.config.InitializationService;
+import org.opensaml.saml.saml2.core.NameIDType;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 
@@ -28,25 +30,26 @@ import javax.servlet.http.HttpServletRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.REDIRECT;
 
-public class SamlMetadataGeneratorTest {
+public class OpenSamlMetadataResolverTest {
 
 	@Before
-	public void setUp() {
-		new OpenSamlAuthenticationRequestFactory(); // ensure OpenSaml is bootstraped
+	public void setUp() throws InitializationException {
+		InitializationService.initialize();
 	}
 
 	@Test
 	public void shouldGenerateMetadata() {
 		// given
-		SamlMetadataGenerator samlMetadataGenerator = new SamlMetadataGenerator();
+		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.relyingPartyRegistration()
-				.providerDetails(p -> p.binding(REDIRECT))
-				.providerDetails(p -> p.signAuthNRequest(true))
+				.assertingPartyDetails(p -> p.singleSignOnServiceBinding(REDIRECT))
+				.assertingPartyDetails(p -> p.wantAuthnRequestsSigned(true))
+				.assertingPartyDetails(p -> p.nameIdFormat(NameIDType.EMAIL))
 				.build();
 		HttpServletRequest servletRequestMock = new MockHttpServletRequest();
 
 		// when
-		String metadataXml = samlMetadataGenerator.generateMetadata(relyingPartyRegistration, servletRequestMock);
+		String metadataXml = openSamlMetadataResolver.resolveMetadata(servletRequestMock, relyingPartyRegistration);
 
 		// then
 		assertThat(metadataXml)

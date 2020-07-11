@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.servlet.filter;
+package org.springframework.security.saml2.provider.service.web;
 
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
-import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObjectBuilder;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
-import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
@@ -43,24 +40,25 @@ import org.w3c.dom.Element;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
 import java.security.cert.CertificateEncodingException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Jakub Kubrynski
  * @since 5.4
  */
-class SamlMetadataGenerator {
+public class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 
-	String generateMetadata(RelyingPartyRegistration registration, HttpServletRequest request) {
+	@Override
+	public String resolveMetadata(HttpServletRequest request, RelyingPartyRegistration registration) {
 
-		XMLObjectBuilderFactory builderFactory = ConfigurationService.get(XMLObjectProviderRegistry.class).getBuilderFactory();
+		XMLObjectBuilderFactory builderFactory = XMLObjectProviderRegistrySupport.getBuilderFactory();
 
 		EntityDescriptor entityDescriptor = buildObject(builderFactory, EntityDescriptor.ELEMENT_QNAME);
 
 		entityDescriptor.setEntityID(
-				resolveTemplate(registration.getLocalEntityIdTemplate(), registration, request));
+				resolveTemplate(registration.getEntityId(), registration, request));
 
 		SPSSODescriptor spSsoDescriptor = buildSpSsoDescriptor(registration, builderFactory, request);
 		entityDescriptor.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).add(spSsoDescriptor);
@@ -76,7 +74,7 @@ class SamlMetadataGenerator {
 			}
 			Element element = marshaller.marshall(entityDescriptor);
 			return SerializeSupport.prettyPrintXML(element);
-		} catch (MarshallingException e) {
+		} catch (Exception e) {
 			throw new Saml2Exception(e);
 		}
 	}
@@ -85,12 +83,12 @@ class SamlMetadataGenerator {
 			XMLObjectBuilderFactory builderFactory, HttpServletRequest request) {
 
 		SPSSODescriptor spSsoDescriptor = buildObject(builderFactory, SPSSODescriptor.DEFAULT_ELEMENT_NAME);
-		spSsoDescriptor.setAuthnRequestsSigned(registration.getProviderDetails().isSignAuthNRequest());
+		spSsoDescriptor.setAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned());
 		spSsoDescriptor.setWantAssertionsSigned(true);
 		spSsoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
 
 		NameIDFormat nameIdFormat = buildObject(builderFactory, NameIDFormat.DEFAULT_ELEMENT_NAME);
-		nameIdFormat.setFormat(NameIDType.EMAIL);
+		nameIdFormat.setFormat(registration.getAssertingPartyDetails().getNameIdFormat());
 		spSsoDescriptor.getNameIDFormats().add(nameIdFormat);
 
 		spSsoDescriptor.getAssertionConsumerServices().add(
@@ -106,10 +104,12 @@ class SamlMetadataGenerator {
 
 	private List<KeyDescriptor> buildKeys(XMLObjectBuilderFactory builderFactory,
 			List<Saml2X509Credential> credentials, UsageType usageType) {
-		return credentials
-				.stream()
-				.map(credential -> buildKeyDescriptor(builderFactory, usageType, credential.getCertificate()))
-				.collect(Collectors.toList());
+		List<KeyDescriptor> list = new ArrayList<>();
+		for (Saml2X509Credential credential : credentials) {
+			KeyDescriptor keyDescriptor = buildKeyDescriptor(builderFactory, usageType, credential.getCertificate());
+			list.add(keyDescriptor);
+		}
+		return list;
 	}
 
 	private KeyDescriptor buildKeyDescriptor(XMLObjectBuilderFactory builderFactory, UsageType usageType,
@@ -138,8 +138,8 @@ class SamlMetadataGenerator {
 		AssertionConsumerService assertionConsumerService = buildObject(builderFactory, AssertionConsumerService.DEFAULT_ELEMENT_NAME);
 
 		assertionConsumerService.setLocation(
-				resolveTemplate(registration.getAssertionConsumerServiceUrlTemplate(), registration, request));
-		assertionConsumerService.setBinding(registration.getProviderDetails().getBinding().getUrn());
+				resolveTemplate(registration.getAssertionConsumerServiceLocation(), registration, request));
+		assertionConsumerService.setBinding(registration.getAssertingPartyDetails().getSingleSignOnServiceBinding().getUrn());
 		assertionConsumerService.setIndex(1);
 		return assertionConsumerService;
 	}

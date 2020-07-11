@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.servlet.filter;
+package org.springframework.security.saml2.provider.service.web;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -37,20 +37,16 @@ import java.io.IOException;
  * @since 5.4
  * @author Jakub Kubrynski
  */
-public class SamlServiceProviderMetadataFilter extends OncePerRequestFilter {
+public class Saml2MetadataFilter extends OncePerRequestFilter {
 
 	private final RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
-	private final SamlMetadataGenerator samlMetadataGenerator;
+	private final Saml2MetadataResolver saml2MetadataResolver;
 
 	private RequestMatcher redirectMatcher = new AntPathRequestMatcher("/saml2/service-provider-metadata/{registrationId}");
 
-	public SamlServiceProviderMetadataFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
-		this(relyingPartyRegistrationRepository, new SamlMetadataGenerator());
-	}
-
-	SamlServiceProviderMetadataFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository, SamlMetadataGenerator samlMetadataGenerator) {
+	public Saml2MetadataFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository, Saml2MetadataResolver saml2MetadataResolver) {
 		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
-		this.samlMetadataGenerator = samlMetadataGenerator;
+		this.saml2MetadataResolver = saml2MetadataResolver;
 	}
 
 	@Override
@@ -67,23 +63,20 @@ public class SamlServiceProviderMetadataFilter extends OncePerRequestFilter {
 		RelyingPartyRegistration registration = relyingPartyRegistrationRepository.findByRegistrationId(registrationId);
 
 		if (registration == null) {
-			response.setStatus(404);
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 
-		String xml = samlMetadataGenerator.generateMetadata(registration, request);
+		String xml = saml2MetadataResolver.resolveMetadata(request, registration);
 
 		writeMetadataToResponse(response, registrationId, xml);
 	}
 
 	private void writeMetadataToResponse(HttpServletResponse response, String registrationId, String xml) throws IOException {
-		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		response.setContentType(MediaType.APPLICATION_XML_VALUE);
 		response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"saml-" + registrationId + "-metadata.xml\"");
 		response.setContentLength(xml.length());
-		ServletOutputStream outputStream = response.getOutputStream();
-		outputStream.print(xml);
-		outputStream.flush();
-		outputStream.close();
+		response.getWriter().write(xml);
 	}
 
 }

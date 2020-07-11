@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.servlet.filter;
+package org.springframework.security.saml2.provider.service.web;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,10 +32,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-public class SamlServiceProviderMetadataFilterTest {
+public class Saml2MetadataFilterTest {
 
 	RelyingPartyRegistrationRepository repository;
-	SamlServiceProviderMetadataFilter filter;
+	Saml2MetadataResolver saml2MetadataResolver;
+	Saml2MetadataFilter filter;
 	MockHttpServletRequest request;
 	MockHttpServletResponse response;
 	FilterChain filterChain;
@@ -43,7 +44,8 @@ public class SamlServiceProviderMetadataFilterTest {
 	@Before
 	public void setup() {
 		repository = mock(RelyingPartyRegistrationRepository.class);
-		filter = new SamlServiceProviderMetadataFilter(repository);
+		saml2MetadataResolver = mock(Saml2MetadataResolver.class);
+		filter = new Saml2MetadataFilter(repository, saml2MetadataResolver);
 		request = new MockHttpServletRequest();
 		response = new MockHttpServletResponse();
 		filterChain = mock(FilterChain.class);
@@ -74,7 +76,7 @@ public class SamlServiceProviderMetadataFilterTest {
 	}
 
 	@Test
-	public void shouldReturn404IfNoRegistrationIsFound() throws Exception {
+	public void shouldReturn401IfNoRegistrationIsFound() throws Exception {
 		// given
 		request.setPathInfo("/saml2/service-provider-metadata/invalidRegistration");
 		when(repository.findByRegistrationId("invalidRegistration")).thenReturn(null);
@@ -84,7 +86,7 @@ public class SamlServiceProviderMetadataFilterTest {
 
 		// then
 		verifyNoInteractions(filterChain);
-		assertThat(response.getStatus()).isEqualTo(404);
+		assertThat(response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
@@ -94,11 +96,10 @@ public class SamlServiceProviderMetadataFilterTest {
 		RelyingPartyRegistration validRegistration = TestRelyingPartyRegistrations.relyingPartyRegistration().build();
 		when(repository.findByRegistrationId("validRegistration")).thenReturn(validRegistration);
 
-		SamlMetadataGenerator samlMetadataGenerator = mock(SamlMetadataGenerator.class);
 		String generatedMetadata = "<xml>test</xml>";
-		when(samlMetadataGenerator.generateMetadata(validRegistration, request)).thenReturn(generatedMetadata);
+		when(saml2MetadataResolver.resolveMetadata(request, validRegistration)).thenReturn(generatedMetadata);
 
-		filter = new SamlServiceProviderMetadataFilter(repository, samlMetadataGenerator);
+		filter = new Saml2MetadataFilter(repository, saml2MetadataResolver);
 
 		// when
 		filter.doFilter(request, response, filterChain);
@@ -107,7 +108,7 @@ public class SamlServiceProviderMetadataFilterTest {
 		verifyNoInteractions(filterChain);
 		assertThat(response.getStatus()).isEqualTo(200);
 		assertThat(response.getContentAsString()).isEqualTo(generatedMetadata);
-		verify(samlMetadataGenerator).generateMetadata(validRegistration, request);
+		verify(saml2MetadataResolver).resolveMetadata(request, validRegistration);
 	}
 
 }
