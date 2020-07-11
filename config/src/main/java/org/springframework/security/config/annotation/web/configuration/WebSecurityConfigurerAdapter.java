@@ -330,6 +330,15 @@ public abstract class WebSecurityConfigurerAdapter implements
 	/**
 	 * Override this method to configure {@link WebSecurity}. For example, if you wish to
 	 * ignore certain requests.
+	 *
+	 * Endpoint used in this method ignores the
+	 * spring security filters, headers, csrf etc. see
+	 * {@link org.springframework.security.config.annotation.web.configurers.HeadersConfigurer} and
+	 * {@link org.springframework.security.config.annotation.web.configurers.CsrfConfigurer }
+	 *
+	 * Instead, if you want to protect public endpoints against common vulnerabilities, then see
+	 * {@link #configure(HttpSecurity)} and the {@link HttpSecurity#authorizeRequests}
+	 * configuration method.
 	 */
 	public void configure(WebSecurity web) throws Exception {
 	}
@@ -342,6 +351,10 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * <pre>
 	 * http.authorizeRequests().anyRequest().authenticated().and().formLogin().and().httpBasic();
 	 * </pre>
+	 *
+	 * Public endpoints that require defense against common vulnerabilities can be specified here.
+	 * See {@link HttpSecurity#authorizeRequests} and the `permitAll()` authorization rule
+	 * for more details.
 	 *
 	 * @param http the {@link HttpSecurity} to modify
 	 * @throws Exception if an error occurs
