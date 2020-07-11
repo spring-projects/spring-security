@@ -22,6 +22,8 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -101,5 +103,7 @@ public class OAuth2ClientJackson2Module extends SimpleModule {
 		context.setMixInAnnotations(OidcUserAuthority.class, OidcUserAuthorityMixin.class);
 		context.setMixInAnnotations(DefaultOidcUser.class, DefaultOidcUserMixin.class);
 		context.setMixInAnnotations(OAuth2AuthenticationToken.class, OAuth2AuthenticationTokenMixin.class);
+		context.setMixInAnnotations(OAuth2AuthenticationException.class, OAuth2AuthenticationExceptionMixin.class);
+		context.setMixInAnnotations(OAuth2Error.class, OAuth2ErrorMixin.class);
 	}
 }
