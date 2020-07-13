@@ -186,7 +186,7 @@ public class OpenSamlAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenUsernameMissingThenThrowAuthenticationException() throws Exception {
-		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.USERNAME_NOT_FOUND));
+		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.SUBJECT_NOT_FOUND));
 
 		Response response = response();
 		Assertion assertion = assertion();

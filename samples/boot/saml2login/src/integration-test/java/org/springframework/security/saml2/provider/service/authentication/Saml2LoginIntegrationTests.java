@@ -16,6 +16,18 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.io.ByteArrayInputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.UUID;
+import javax.servlet.http.HttpSession;
+
 import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
@@ -47,6 +59,9 @@ import org.opensaml.xmlsec.SignatureSigningParameters;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureSupport;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -60,20 +75,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.servlet.http.HttpSession;
-import java.io.ByteArrayInputStream;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.containsString;
@@ -287,9 +288,9 @@ public class Saml2LoginIntegrationTests {
 				.andExpect(unauthenticated())
 				.andExpect(
 						saml2AuthenticationExceptionMatcher(
-								"invalid_issuer",
+								"invalid_signature",
 								containsString(
-										"Invalid issuer [invalid issuer] for SAML response"
+										"Invalid signature for SAML Response"
 								)
 						)
 				);
