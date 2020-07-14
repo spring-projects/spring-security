@@ -15,6 +15,8 @@
  */
 package org.springframework.security.ldap.server;
 
+import static org.springframework.util.StringUtils.isEmpty;
+
 import java.io.IOException;
 import java.io.InputStream;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
@@ -24,7 +26,6 @@ import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldif.LDIFReader;
-import java.util.Arrays;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -89,7 +90,6 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 		if (isRunning()) {
 			return;
 		}
-
 		try {
 			InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(this.defaultPartitionSuffix);
 			config.addAdditionalBindCredentials("uid=admin,ou=system", "secret");
@@ -112,16 +112,12 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 			this.running = true;
 		} catch (LDAPException ex) {
 			throw new RuntimeException("Server startup failed", ex);
-		} catch (IllegalArgumentException ex) {
-			throw ex;
 		}
-
 	}
 
-	private void importLdif(InMemoryDirectoryServer directoryServer) throws LDAPException {
+	private void importLdif(InMemoryDirectoryServer directoryServer) {
 		if (StringUtils.hasText(this.ldif)) {
 			try {
-
 				Resource resource = locateResource();
 				try (InputStream inputStream = resource.getInputStream()) {
 					directoryServer.importFromLDIF(false, new LDIFReader(inputStream));
@@ -133,19 +129,20 @@ public class UnboundIdContainer implements InitializingBean, DisposableBean, Lif
 
 	}
 
-	private Resource locateResource() throws IOException , NullPointerException {
+	private Resource locateResource() throws IOException, NullPointerException {
 		Resource[] resources = this.context.getResources(this.ldif);
-		if (null == resources || 0 == resources.length) {
+		if (0 == resources.length) {
 			throw new IllegalArgumentException("requested resource is not found");
 		}
-		return Arrays.stream(resources).filter(resource ->
-						!StringUtils.isEmpty(resource.getFilename())
-						&& resource.isFile()
-						&& resource.exists()
-						&& resource.isReadable()
-		)
-				.findFirst()
-				.orElseThrow(()->new IllegalArgumentException("Unable to load LDIF :"+this.ldif));
+		for (Resource resource : resources) {
+			if (!isEmpty(resource.getFilename())
+					&& resource.isFile()
+					&& resource.exists()
+					&& resource.isReadable()) {
+				return resource;
+			}
+		}
+		throw new IllegalArgumentException("Unable to load LDIF :" + this.ldif);
 	}
 
 	@Override

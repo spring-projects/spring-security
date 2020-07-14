@@ -35,6 +35,7 @@ public class UnboundIdContainerTests {
 
 	private final String validLdifClassPath = "classpath:test-server.ldif";
 	private final String validRootDn = "dc=springframework,dc=org";
+	private final String validLdifFileClassPathTop = "classpath:test-server-custom-attribute-types.ldif";
 
 	@Test
 	public void startLdapServer() throws Exception {
@@ -57,23 +58,6 @@ public class UnboundIdContainerTests {
 		}
 	}
 
-	private List<Integer> getDefaultPorts(int count) throws IOException {
-		List<ServerSocket> connections = new ArrayList<>();
-		List<Integer> availablePorts = new ArrayList<>(count);
-		try {
-			for (int i = 0; i < count; i++) {
-				ServerSocket socket = new ServerSocket(0);
-				connections.add(socket);
-				availablePorts.add(socket.getLocalPort());
-			}
-			return availablePorts;
-		} finally {
-			for (ServerSocket conn : connections) {
-				conn.close();
-			}
-		}
-	}
-
 	@Test
 	public void startLdapServerWithoutLdif() throws Exception {
 		UnboundIdContainer server = new UnboundIdContainer(
@@ -81,14 +65,17 @@ public class UnboundIdContainerTests {
 		createAndRunServer(server);
 	}
 
-	private void createAndRunServer(UnboundIdContainer server) throws IOException {
+	@Test
+	public void startLdapServerMixedLdif() throws Exception {
+		UnboundIdContainer server = new UnboundIdContainer(
+				validRootDn, validLdifFileClassPathTop);
 		server.setApplicationContext(new GenericApplicationContext());
-		List<Integer> ports = getDefaultPorts(1);
-		server.setPort(ports.get(0));
-
+		server.setPort(0);
 		try {
 			server.afterPropertiesSet();
-			assertThat(server.getPort()).isEqualTo(ports.get(0));
+			failBecauseExceptionWasNotThrown(LDAPException.class);
+		} catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(LDAPException.class);
 		} finally {
 			server.destroy();
 		}
@@ -133,6 +120,36 @@ public class UnboundIdContainerTests {
 			failBecauseExceptionWasNotThrown(LDAPException.class);
 		} catch (Exception e) {
 			assertThat(e.getCause()).isInstanceOf(LDAPException.class);
+		} finally {
+			server.destroy();
+		}
+	}
+
+	private List<Integer> getDefaultPorts(int count) throws IOException {
+		List<ServerSocket> connections = new ArrayList<>();
+		List<Integer> availablePorts = new ArrayList<>(count);
+		try {
+			for (int i = 0; i < count; i++) {
+				ServerSocket socket = new ServerSocket(0);
+				connections.add(socket);
+				availablePorts.add(socket.getLocalPort());
+			}
+			return availablePorts;
+		} finally {
+			for (ServerSocket conn : connections) {
+				conn.close();
+			}
+		}
+	}
+
+	private void createAndRunServer(UnboundIdContainer server) throws IOException {
+		server.setApplicationContext(new GenericApplicationContext());
+		List<Integer> ports = getDefaultPorts(1);
+		server.setPort(ports.get(0));
+
+		try {
+			server.afterPropertiesSet();
+			assertThat(server.getPort()).isEqualTo(ports.get(0));
 		} finally {
 			server.destroy();
 		}
