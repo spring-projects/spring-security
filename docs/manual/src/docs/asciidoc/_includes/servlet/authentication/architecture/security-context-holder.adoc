@@ -74,7 +74,7 @@ val authorities = authentication.authorities
 
 // FIXME: add links to HttpServletRequest.getRemoteUser() and @CurrentSecurityContext @AuthenticationPrincipal
 
-By default the `SecurityContextHolder` uses a `ThreadLocal` to store these details, which means that the `SecurityContext` is always available to methods in the same thread of execution, even if the `SecurityContext` is not explicitly passed around as an argument to those methods.
+By default the `SecurityContextHolder` uses a `ThreadLocal` to store these details, which means that the `SecurityContext` is always available to methods in the same thread, even if the `SecurityContext` is not explicitly passed around as an argument to those methods.
 Using a `ThreadLocal` in this way is quite safe if care is taken to clear the thread after the present principal's request is processed.
 Spring Security's <<servlet-filterchainproxy,FilterChainProxy>> ensures that the `SecurityContext` is always cleared.
 

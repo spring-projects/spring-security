@@ -1,4 +1,3 @@
-
 [[test-mockmvc]]
 == Spring MVC Test Integration
 
@@ -140,7 +139,7 @@ mvc
 	.perform(get("/").with(anonymous()))
 ----
 
-This is especially useful if you are running with a default user and wish to execute a few requests as an anonymous user.
+This is especially useful if you are running with a default user and wish to process a few requests as an anonymous user.
 
 If you want a custom `Authentication` (which does not need to exist) you can do so using the following:
 

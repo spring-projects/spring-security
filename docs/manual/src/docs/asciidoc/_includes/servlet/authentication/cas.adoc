@@ -222,7 +222,7 @@ Below are updates to the Spring Security configuration that handle Single Logout
 </bean>
 ----
 
-The `logout` element logs the user out of the local application, but does not terminate the session with the CAS server or any other applications that have been logged into.
+The `logout` element logs the user out of the local application, but does not end the session with the CAS server or any other applications that have been logged into.
 The `requestSingleLogoutFilter` filter will allow the URL of `/spring_security_cas_logout` to be requested to redirect the application to the configured CAS Server logout URL.
 Then the CAS Server will send a Single Logout request to all the services that were signed into.
 The `singleLogoutFilter` handles the Single Logout request by looking up the `HttpSession` in a static `Map` and then invalidating it.

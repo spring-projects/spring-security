@@ -51,8 +51,8 @@ the IDP sends an assertion to the SP.
 3. Requires the assertion to be signed, unless the response is signed
 4. Supports encrypted assertions
 5. Supports encrypted NameId elements
-6. Allows for extraction of assertion attributes into authorities using a `Converter<Assertion, Collection<? extends GrantedAuthority>>`
-7. Allows mapping and white listing of authorities using a `GrantedAuthoritiesMapper`
+6. Allows for extraction of assertion attributes into authorities by using a `Converter<Assertion, Collection<? extends GrantedAuthority>>`
+7. Allows mapping and approved access listing for authorities by using a `GrantedAuthoritiesMapper`
 8. Public keys in `java.security.cert.X509Certificate` format.
 9. SP Initiated Authentication via an `AuthNRequest`
 
@@ -472,5 +472,3 @@ If we change our local SP entity ID to this value, it is still important that we
 out the correct single sign on URL (the assertion consumer service URL)
 for each registered identity provider based on the registration Id.
 `+{baseUrl}/login/saml2/sso/{registrationId}+`
-
-
