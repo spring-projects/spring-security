@@ -12,12 +12,14 @@ if (!project.hasProperty("springDataVersion")) {
 if (!project.hasProperty("kotlinVersion")) {
 	ext.kotlinVersion = "1.+"
 }
+if (!project.hasProperty("rsocketVersion")) {
+	ext.rsocketVersion = "1.+"
+}
 if (!project.hasProperty("locksDisabled")) {
 	dependencyLocking {
 		lockAllConfigurations()
 	}
 }
-ext.rsocketVersion = "1.+"
 ext.openSamlVersion = "3.+"
 
 dependencies {
