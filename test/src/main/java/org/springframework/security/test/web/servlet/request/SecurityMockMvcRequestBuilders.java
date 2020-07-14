@@ -15,15 +15,17 @@
  */
 package org.springframework.security.test.web.servlet.request;
 
-import javax.servlet.ServletContext;
-
+import org.springframework.beans.Mergeable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.servlet.ServletContext;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -86,15 +88,23 @@ public final class SecurityMockMvcRequestBuilders {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	public static final class LogoutRequestBuilder implements RequestBuilder {
+	public static final class LogoutRequestBuilder implements RequestBuilder, Mergeable {
 		private String logoutUrl = "/logout";
 		private RequestPostProcessor postProcessor = csrf();
+		private Mergeable parent;
 
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-			MockHttpServletRequest request = post(this.logoutUrl)
-					.accept(MediaType.TEXT_HTML, MediaType.ALL)
-					.buildRequest(servletContext);
+			MockHttpServletRequestBuilder logoutRequest = post(this.logoutUrl)
+					.accept(MediaType.TEXT_HTML, MediaType.ALL);
+
+			if (this.parent != null) {
+				logoutRequest = (MockHttpServletRequestBuilder) logoutRequest.merge(this.parent);
+			}
+
+			MockHttpServletRequest request = logoutRequest.buildRequest(servletContext);
+			logoutRequest.postProcessRequest(request);
+
 			return this.postProcessor.postProcessRequest(request);
 		}
 
@@ -122,6 +132,24 @@ public final class SecurityMockMvcRequestBuilders {
 			return this;
 		}
 
+		@Override
+		public boolean isMergeEnabled() {
+			return true;
+		}
+
+		@Override
+		public Object merge(Object parent) {
+			if (parent == null) {
+				return this;
+			}
+			if (parent instanceof Mergeable) {
+				this.parent = (Mergeable) parent;
+				return this;
+			} else {
+				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
+			}
+		}
+
 		private LogoutRequestBuilder() {
 		}
 	}
@@ -132,22 +160,31 @@ public final class SecurityMockMvcRequestBuilders {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	public static final class FormLoginRequestBuilder implements RequestBuilder {
+	public static final class FormLoginRequestBuilder implements RequestBuilder, Mergeable {
 		private String usernameParam = "username";
 		private String passwordParam = "password";
 		private String username = "user";
 		private String password = "password";
 		private String loginProcessingUrl = "/login";
 		private MediaType acceptMediaType = MediaType.APPLICATION_FORM_URLENCODED;
+		private Mergeable parent;
 
 		private RequestPostProcessor postProcessor = csrf();
 
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-			MockHttpServletRequest request = post(this.loginProcessingUrl)
-					.accept(this.acceptMediaType).param(this.usernameParam, this.username)
-					.param(this.passwordParam, this.password)
-					.buildRequest(servletContext);
+			MockHttpServletRequestBuilder loginRequest = post(this.loginProcessingUrl)
+					.accept(this.acceptMediaType)
+					.param(this.usernameParam, this.username)
+					.param(this.passwordParam, this.password);
+
+			if (this.parent != null) {
+				loginRequest = (MockHttpServletRequestBuilder) loginRequest.merge(this.parent);
+			}
+
+			MockHttpServletRequest request = loginRequest.buildRequest(servletContext);
+			loginRequest.postProcessRequest(request);
+
 			return this.postProcessor.postProcessRequest(request);
 		}
 
@@ -256,6 +293,24 @@ public final class SecurityMockMvcRequestBuilders {
 		public FormLoginRequestBuilder acceptMediaType(MediaType acceptMediaType) {
 			this.acceptMediaType = acceptMediaType;
 			return this;
+		}
+
+		@Override
+		public boolean isMergeEnabled() {
+			return true;
+		}
+
+		@Override
+		public Object merge(Object parent) {
+			if (parent == null) {
+				return this;
+			}
+			if (parent instanceof Mergeable ) {
+				this.parent = (Mergeable) parent;
+				return this;
+			} else {
+				throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
+			}
 		}
 
 		private FormLoginRequestBuilder() {

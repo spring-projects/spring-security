@@ -125,7 +125,20 @@ public class WebSecurity {
 
 You could refer to the method using:
 
-[source,xml]
+.Refer to method
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeRequests(authorize -> authorize
+        .antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
+        ...
+    )
+----
+
+.XML
+[source,xml,role="secondary"]
 ----
 <http>
 	<intercept-url pattern="/user/**"
@@ -134,17 +147,16 @@ You could refer to the method using:
 </http>
 ----
 
-or in Java configuration
-
-
-[source,java]
+.Kotlin
+[source,kotlin,role="secondary"]
 ----
-http
-    .authorizeRequests(authorize -> authorize
-        .antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
-        ...
-    )
+http {
+    authorizeRequests {
+        authorize("/user/**", "@webSecurity.check(authentication,request)")
+    }
+}
 ----
+====
 
 [[el-access-web-path-variables]]
 ==== Path Variables in Web Security Expressions
@@ -166,18 +178,10 @@ public class WebSecurity {
 
 You could refer to the method using:
 
-[source,xml,attrs="-attributes"]
-----
-<http>
-	<intercept-url pattern="/user/{userId}/**"
-		access="@webSecurity.checkUserId(authentication,#userId)"/>
-	...
-</http>
-----
-
-or in Java configuration
-
-[source,java,attrs="-attributes"]
+.Path Variables
+====
+.Java
+[source,java,role="primary",attrs="-attributes"]
 ----
 http
 	.authorizeRequests(authorize -> authorize
@@ -186,7 +190,28 @@ http
 	);
 ----
 
-In both configurations URLs that match would pass in the path variable (and convert it) into checkUserId method.
+.XML
+[source,xml,role="secondary",attrs="-attributes"]
+----
+<http>
+	<intercept-url pattern="/user/{userId}/**"
+		access="@webSecurity.checkUserId(authentication,#userId)"/>
+	...
+</http>
+----
+
+.Kotlin
+[source,kotlin,role="secondary",attrs="-attributes"]
+----
+http {
+    authorizeRequests {
+        authorize("/user/{userId}/**", "@webSecurity.checkUserId(authentication,#userId)")
+    }
+}
+----
+====
+
+In this configuration URLs that match would pass in the path variable (and convert it) into checkUserId method.
 For example, if the URL were `/user/123/resource`, then the id passed in would be `123`.
 
 === Method Security Expressions

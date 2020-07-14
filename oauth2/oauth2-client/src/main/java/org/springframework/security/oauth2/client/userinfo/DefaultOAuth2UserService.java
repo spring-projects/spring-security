@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.UnknownContentTypeException;
 
 /**
  * An implementation of an {@link OAuth2UserService} that supports standard OAuth 2.0 Provider's.
@@ -121,6 +122,17 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 			errorDetails.append("]");
 			oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
 					"An error occurred while attempting to retrieve the UserInfo Resource: " + errorDetails.toString(), null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
+		} catch (UnknownContentTypeException ex) {
+			String errorMessage = "An error occurred while attempting to retrieve the UserInfo Resource from '" +
+					userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri() +
+					"': response contains invalid content type '" + ex.getContentType().toString() + "'. " +
+					"The UserInfo Response should return a JSON object (content type 'application/json') " +
+					"that contains a collection of name and value pairs of the claims about the authenticated End-User. " +
+					"Please ensure the UserInfo Uri in UserInfoEndpoint for Client Registration '" +
+					userRequest.getClientRegistration().getRegistrationId() + "' conforms to the UserInfo Endpoint, " +
+					"as defined in OpenID Connect 1.0: 'https://openid.net/specs/openid-connect-core-1_0.html#UserInfo'";
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE, errorMessage, null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 		} catch (RestClientException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,

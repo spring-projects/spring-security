@@ -23,6 +23,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletRequest;
@@ -31,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.web.util.UrlUtils;
 
 /**
@@ -161,6 +166,8 @@ class DummyRequest extends HttpServletRequestWrapper {
 	private String pathInfo;
 	private String queryString;
 	private String method;
+	private final HttpHeaders headers = new HttpHeaders();
+	private final Map<String, String[]> parameters = new LinkedHashMap<>();
 
 	DummyRequest() {
 		super(UNSUPPORTED_REQUEST);
@@ -231,6 +238,61 @@ class DummyRequest extends HttpServletRequestWrapper {
 	@Override
 	public String getServerName() {
 		return null;
+	}
+
+	@Override
+	public String getHeader(String name) {
+		return this.headers.getFirst(name);
+	}
+
+	@Override
+	public Enumeration<String> getHeaders(String name) {
+		return Collections.enumeration(this.headers.get(name));
+	}
+
+	@Override
+	public Enumeration<String> getHeaderNames() {
+		return Collections.enumeration(this.headers.keySet());
+	}
+
+	@Override
+	public int getIntHeader(String name) {
+		String value = this.headers.getFirst(name);
+		if (value == null ) {
+			return -1;
+		}
+		else {
+			return Integer.parseInt(value);
+		}
+	}
+
+	public void addHeader(String name, String value) {
+		this.headers.add(name, value);
+	}
+
+	@Override
+	public String getParameter(String name) {
+		String[] arr = this.parameters.get(name);
+		return (arr != null && arr.length > 0 ? arr[0] : null);
+	}
+
+	@Override
+	public Map<String, String[]> getParameterMap() {
+		return Collections.unmodifiableMap(this.parameters);
+	}
+
+	@Override
+	public Enumeration<String> getParameterNames() {
+		return Collections.enumeration(this.parameters.keySet());
+	}
+
+	@Override
+	public String[] getParameterValues(String name) {
+		return this.parameters.get(name);
+	}
+
+	public void setParameter(String name, String... values) {
+		this.parameters.put(name, values);
 	}
 }
 

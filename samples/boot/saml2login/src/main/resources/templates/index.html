@@ -19,6 +19,11 @@
 <head>
 	<title>Spring Security - SAML 2.0 Login</title>
 	<meta charset="utf-8" />
+    <style>
+        span, dt {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 	<div>
@@ -30,6 +35,12 @@
         </a>
 	</div>
 	<h1>SAML 2.0 Login with Spring Security</h1>
-	<div>You are successfully logged in as <span sec:authentication="name"></span></div>
+	<p>You are successfully logged in as <span sec:authentication="name"></span></p>
+    <p>You're email address is <span th:text="${emailAddress}"></span></p>
+    <h2>All Your Attributes</h2>
+    <dl th:each="userAttribute : ${userAttributes}">
+        <dt th:text="${userAttribute.key}"></dt>
+        <dd th:text="${userAttribute.value}"></dd>
+    </dl>
 </body>
 </html>

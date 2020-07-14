@@ -437,7 +437,8 @@ public class SwitchUserFilter extends GenericFilterBean
 	}
 
 	/**
-	 * Set the URL to respond to exit user processing.
+	 * Set the URL to respond to exit user processing. This is a shortcut for
+	 * {@link #setExitUserMatcher(RequestMatcher)}.
 	 *
 	 * @param exitUserUrl The exit user URL.
 	 */
@@ -448,10 +449,9 @@ public class SwitchUserFilter extends GenericFilterBean
 	}
 
 	/**
-	 * Set the matcher to respond to exit user processing. This is a shortcut for
-	 * {@link #setExitUserMatcher(RequestMatcher)}
+	 * Set the matcher to respond to exit user processing.
 	 *
-	 * @param exitUserMatcher The exit matcher to use
+	 * @param exitUserMatcher The exit matcher to use.
 	 */
 	public void setExitUserMatcher(RequestMatcher exitUserMatcher) {
 		Assert.notNull(exitUserMatcher, "exitUserMatcher cannot be null");
@@ -538,6 +538,14 @@ public class SwitchUserFilter extends GenericFilterBean
 		this.switchUserAuthorityChanger = switchUserAuthorityChanger;
 	}
 
+	/**
+	 * Sets the {@link UserDetailsChecker} that is called on the target user
+	 * whenever the user is switched.
+	 *
+	 * @param userDetailsChecker the {@link UserDetailsChecker} that checks the
+	 * status of the user that is being switched to. Defaults to
+	 * {@link AccountStatusUserDetailsChecker}.
+	 */
 	public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
 		this.userDetailsChecker = userDetailsChecker;
 	}

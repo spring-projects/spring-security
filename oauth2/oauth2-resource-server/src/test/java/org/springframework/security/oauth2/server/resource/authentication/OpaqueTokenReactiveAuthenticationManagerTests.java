@@ -27,9 +27,9 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
@@ -66,9 +66,9 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 		Authentication result =
 				provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
 
-		assertThat(result.getPrincipal()).isInstanceOf(DefaultOAuth2AuthenticatedPrincipal.class);
+		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
 
-		Map<String, Object> attributes = ((DefaultOAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
+		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
 		assertThat(attributes)
 				.isNotNull()
 				.containsEntry(ACTIVE, true)
@@ -88,7 +88,7 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenMissingScopeAttributeThenNoAuthorities() {
-		OAuth2AuthenticatedPrincipal authority = new DefaultOAuth2AuthenticatedPrincipal(Collections.singletonMap("claim", "value"), null);
+		OAuth2AuthenticatedPrincipal authority = new OAuth2IntrospectionAuthenticatedPrincipal(Collections.singletonMap("claim", "value"), null);
 		ReactiveOpaqueTokenIntrospector introspector = mock(ReactiveOpaqueTokenIntrospector.class);
 		when(introspector.introspect(any())).thenReturn(Mono.just(authority));
 		OpaqueTokenReactiveAuthenticationManager provider =
@@ -96,9 +96,9 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 
 		Authentication result =
 				provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
-		assertThat(result.getPrincipal()).isInstanceOf(DefaultOAuth2AuthenticatedPrincipal.class);
+		assertThat(result.getPrincipal()).isInstanceOf(OAuth2IntrospectionAuthenticatedPrincipal.class);
 
-		Map<String, Object> attributes = ((DefaultOAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
+		Map<String, Object> attributes = ((OAuth2AuthenticatedPrincipal) result.getPrincipal()).getAttributes();
 		assertThat(attributes)
 				.isNotNull()
 				.doesNotContainKey(SCOPE);

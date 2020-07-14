@@ -24,6 +24,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestRule
+import org.springframework.security.web.header.writers.StaticHeadersWriter
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter
@@ -87,6 +88,54 @@ class HeadersDslTests {
             http {
                 headers {
                     featurePolicy(policyDirectives = "geolocation 'self'")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `request when headers disabled then no security headers are in the response`() {
+        this.spring.register(HeadersDisabledConfig::class.java).autowire()
+
+        this.mockMvc.get("/")
+                .andExpect {
+                    header { doesNotExist(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS) }
+                    header { doesNotExist(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS) }
+                    header { doesNotExist(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY) }
+                    header { doesNotExist(HttpHeaders.CACHE_CONTROL) }
+                    header { doesNotExist(HttpHeaders.EXPIRES) }
+                    header { doesNotExist(HttpHeaders.PRAGMA) }
+                    header { doesNotExist(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION) }
+                }
+    }
+
+    @EnableWebSecurity
+    open class HeadersDisabledConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                headers {
+                    disable()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `request when custom header writer then custom header in response`() {
+        this.spring.register(HeaderWriterConfig::class.java).autowire()
+
+        this.mockMvc.get("/")
+                .andExpect {
+                    header { string("custom-header", "custom-value") }
+                }
+    }
+
+    @EnableWebSecurity
+    open class HeaderWriterConfig : WebSecurityConfigurerAdapter() {
+        override fun configure(http: HttpSecurity) {
+            http {
+                headers {
+                    addHeaderWriter(StaticHeadersWriter("custom-header", "custom-value"))
                 }
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,21 @@
 
 package sample;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class IndexController {
 
 	@GetMapping("/")
-	public String index() {
+	public String index(Model model,
+			@AuthenticationPrincipal Saml2AuthenticatedPrincipal principal) {
+		String emailAddress = principal.getFirstAttribute("emailAddress");
+		model.addAttribute("emailAddress", emailAddress);
+		model.addAttribute("userAttributes", principal.getAttributes());
 		return "index";
 	}
 }

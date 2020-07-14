@@ -40,7 +40,7 @@ final class Saml2ServletUtils {
 			return baseUrl;
 		}
 
-		String entityId = relyingParty.getProviderDetails().getEntityId();
+		String entityId = relyingParty.getAssertingPartyDetails().getEntityId();
 		String registrationId = relyingParty.getRegistrationId();
 		Map<String, String> uriVariables = new HashMap<>();
 		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(baseUrl)

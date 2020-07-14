@@ -27,14 +27,14 @@ The Resource Server subsequently verifies with the Authorization Server and auth
 phrase
 
 ```bash
-Hello, subject for tenantOne!
+Hello, subject for tenant one!
 ```
 
 where "subject" is the value of the `sub` field in the JWT sent in the `Authorization` header,
 
 or the phrase
 ```bash
-Hello, subject for tenantTwo!
+Hello, subject for tenant two!
 ```
 where "subject" is the value of the `sub` field in the Introspection response from the Authorization Server.
 
@@ -60,13 +60,13 @@ export TOKEN=eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzdWJqZWN0IiwiZXhwIjo0NjgzODA1MTI4fQ
 And then make this request:
 
 ```bash
-curl -H "Authorization: Bearer $TOKEN" localhost:8080/tenantOne
+curl -H "tenant: one" -H "Authorization: Bearer $TOKEN" localhost:8080
 ```
 
 Which will respond with the phrase:
 
 ```bash
-Hello, subject for tenantOne!
+Hello, subject for tenant one!
 ```
 
 where `subject` is the value of the `sub` field in the JWT sent in the `Authorization` header.
@@ -76,13 +76,13 @@ Or this:
 ```bash
 export TOKEN=eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzdWJqZWN0Iiwic2NvcGUiOiJtZXNzYWdlOnJlYWQiLCJleHAiOjQ2ODM4MDUxNDF9.h-j6FKRFdnTdmAueTZCdep45e6DPwqM68ZQ8doIJ1exi9YxAlbWzOwId6Bd0L5YmCmp63gGQgsBUBLzwnZQ8kLUgUOBEC3UzSWGRqMskCY9_k9pX0iomX6IfF3N0PaYs0WPC4hO1s8wfZQ-6hKQ4KigFi13G9LMLdH58PRMK0pKEvs3gCbHJuEPw-K5ORlpdnleUTQIwINafU57cmK3KocTeknPAM_L716sCuSYGvDl6xUTXO7oPdrXhS_EhxLP6KxrpI1uD4Ea_5OWTh7S0Wx5LLDfU6wBG1DowN20d374zepOIEkR-Jnmr_QlR44vmRqS5ncrF-1R0EGcPX49U6A
 
-curl -H "Authorization: Bearer $TOKEN" localhost:8080/tenantOne/message
+curl -H "tenant: one" -H "Authorization: Bearer $TOKEN" localhost:8080/message
 ```
 
 Will respond with:
 
 ```bash
-secret message for tenantOne
+secret message for tenant one
 ```
 
 === Authorizing with tenantTwo (Opaque token)
@@ -96,13 +96,13 @@ export TOKEN=00ed5855-1869-47a0-b0c9-0f3ce520aee7
 And then make this request:
 
 ```bash
-curl -H "Authorization: Bearer $TOKEN" localhost:8080/tenantTwo
+curl -H "tenant: two" -H "Authorization: Bearer $TOKEN" localhost:8080
 ```
 
 Which will respond with the phrase:
 
 ```bash
-Hello, subject for tenantTwo!
+Hello, subject for tenant two!
 ```
 
 where `subject` is the value of the `sub` field in the Introspection response from the Authorization Server.
@@ -112,13 +112,13 @@ Or this:
 ```bash
 export TOKEN=b43d1500-c405-4dc9-b9c9-6cfd966c34c9
 
-curl -H "Authorization: Bearer $TOKEN" localhost:8080/tenantTwo/message
+curl -H "tenant: two" -H "Authorization: Bearer $TOKEN" localhost:8080/message
 ```
 
 Will respond with:
 
 ```bash
-secret message for tenantTwo
+secret message for tenant two
 ```
 
 == 2. Testing against other Authorization Servers

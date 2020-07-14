@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package sample;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -27,14 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class OAuth2ResourceServerController {
 
-	@GetMapping("/{tenantId}")
-	public String index(@AuthenticationPrincipal OAuth2AuthenticatedPrincipal token, @PathVariable("tenantId") String tenantId) {
+	@GetMapping("/")
+	public String index(@AuthenticationPrincipal OAuth2AuthenticatedPrincipal token, @RequestHeader("tenant") String tenant) {
 		String subject = token.getAttribute("sub");
-		return String.format("Hello, %s for %s!", subject, tenantId);
+		return String.format("Hello, %s for tenant %s!", subject, tenant);
 	}
 
-	@GetMapping("/{tenantId}/message")
-	public String message(@PathVariable("tenantId") String tenantId) {
-		return String.format("secret message for %s", tenantId);
+	@GetMapping("/message")
+	public String message(@RequestHeader("tenant") String tenant) {
+		return String.format("secret message for tenant %s", tenant);
 	}
 }

@@ -98,11 +98,11 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 			throw new Saml2AuthenticationException(saml2Error);
 		}
 		String applicationUri = Saml2ServletUtils.getApplicationUri(request);
-		String localSpEntityId = Saml2ServletUtils.resolveUrlTemplate(rp.getLocalEntityIdTemplate(), applicationUri, rp);
+		String localSpEntityId = Saml2ServletUtils.resolveUrlTemplate(rp.getEntityId(), applicationUri, rp);
 		final Saml2AuthenticationToken authentication = new Saml2AuthenticationToken(
 				responseXml,
 				request.getRequestURL().toString(),
-				rp.getProviderDetails().getEntityId(),
+				rp.getAssertingPartyDetails().getEntityId(),
 				localSpEntityId,
 				rp.getCredentials()
 		);

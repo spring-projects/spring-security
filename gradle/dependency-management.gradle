@@ -12,12 +12,14 @@ if (!project.hasProperty("springDataVersion")) {
 if (!project.hasProperty("kotlinVersion")) {
 	ext.kotlinVersion = "1.+"
 }
+if (!project.hasProperty("rsocketVersion")) {
+	ext.rsocketVersion = "1.+"
+}
 if (!project.hasProperty("locksDisabled")) {
 	dependencyLocking {
 		lockAllConfigurations()
 	}
 }
-ext.rsocketVersion = "1.+"
 ext.openSamlVersion = "3.+"
 
 dependencies {
@@ -84,7 +86,7 @@ dependencies {
 		management "org.hsqldb:hsqldb:2.+"
 		management "org.jasig.cas.client:cas-client-core:3.+"
 		management "org.jasig.cas:cas-server-webapp:4.0.7@war"
-		management "org.mockito:mockito-core:3.+"
+		management "org.mockito:mockito-core:3.3.+"
 		management "org.openid4java:openid4java-nodeps:0.+"
 		management "org.opensaml:opensaml-core:$openSamlVersion"
 		management "org.opensaml:opensaml-saml-api:$openSamlVersion"

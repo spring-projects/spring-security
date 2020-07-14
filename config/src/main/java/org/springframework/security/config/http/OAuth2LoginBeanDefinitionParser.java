@@ -15,13 +15,6 @@
  */
 package org.springframework.security.config.http;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -66,6 +59,19 @@ import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 import org.w3c.dom.Element;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.createAuthorizedClientRepository;
+import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.createDefaultAuthorizedClientRepository;
+import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.getAuthorizedClientRepository;
+import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.getAuthorizedClientService;
+import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.getClientRegistrationRepository;
+
 /**
  * @author Ruby Hartono
  * @since 5.3
@@ -77,9 +83,6 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String ELT_CLIENT_REGISTRATION = "client-registration";
 	private static final String ATT_REGISTRATION_ID = "registration-id";
-	private static final String ATT_CLIENT_REGISTRATION_REPOSITORY_REF = "client-registration-repository-ref";
-	private static final String ATT_AUTHORIZED_CLIENT_REPOSITORY_REF = "authorized-client-repository-ref";
-	private static final String ATT_AUTHORIZED_CLIENT_SERVICE_REF = "authorized-client-service-ref";
 	private static final String ATT_AUTHORIZATION_REQUEST_REPOSITORY_REF = "authorization-request-repository-ref";
 	private static final String ATT_AUTHORIZATION_REQUEST_RESOLVER_REF = "authorization-request-resolver-ref";
 	private static final String ATT_ACCESS_TOKEN_RESPONSE_CLIENT_REF = "access-token-response-client-ref";
@@ -97,6 +100,8 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 	private final BeanReference portResolver;
 	private final BeanReference sessionStrategy;
 	private final boolean allowSessionCreation;
+
+	private BeanDefinition defaultAuthorizedClientRepository;
 
 	private BeanDefinition oauth2AuthorizationRequestRedirectFilter;
 
@@ -128,8 +133,16 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 		// configure filter
 		BeanMetadataElement clientRegistrationRepository = getClientRegistrationRepository(element);
-		BeanMetadataElement authorizedClientRepository = getAuthorizedClientRepository(element,
-				clientRegistrationRepository);
+		BeanMetadataElement authorizedClientRepository = getAuthorizedClientRepository(element);
+		if (authorizedClientRepository == null) {
+			BeanMetadataElement authorizedClientService = getAuthorizedClientService(element);
+			if (authorizedClientService == null) {
+				this.defaultAuthorizedClientRepository = createDefaultAuthorizedClientRepository(clientRegistrationRepository);
+				authorizedClientRepository = this.defaultAuthorizedClientRepository;
+			} else {
+				authorizedClientRepository = createAuthorizedClientRepository(authorizedClientService);
+			}
+		}
 		BeanMetadataElement accessTokenResponseClient = getAccessTokenResponseClient(element);
 		BeanMetadataElement oauth2UserService = getOAuth2UserService(element);
 		BeanMetadataElement authorizationRequestRepository = getAuthorizationRequestRepository(element);
@@ -251,41 +264,6 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		return authorizationRequestRepository;
 	}
 
-	private BeanMetadataElement getAuthorizedClientRepository(Element element,
-			BeanMetadataElement clientRegistrationRepository) {
-		BeanMetadataElement authorizedClientRepository;
-		String authorizedClientRepositoryRef = element.getAttribute(ATT_AUTHORIZED_CLIENT_REPOSITORY_REF);
-		if (!StringUtils.isEmpty(authorizedClientRepositoryRef)) {
-			authorizedClientRepository = new RuntimeBeanReference(authorizedClientRepositoryRef);
-		} else {
-			BeanMetadataElement authorizedClientService;
-			String authorizedClientServiceRef = element.getAttribute(ATT_AUTHORIZED_CLIENT_SERVICE_REF);
-			if (!StringUtils.isEmpty(authorizedClientServiceRef)) {
-				authorizedClientService = new RuntimeBeanReference(authorizedClientServiceRef);
-			} else {
-				authorizedClientService = BeanDefinitionBuilder
-						.rootBeanDefinition(
-								"org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService")
-						.addConstructorArgValue(clientRegistrationRepository).getBeanDefinition();
-			}
-			authorizedClientRepository = BeanDefinitionBuilder.rootBeanDefinition(
-					"org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository")
-					.addConstructorArgValue(authorizedClientService).getBeanDefinition();
-		}
-		return authorizedClientRepository;
-	}
-
-	private BeanMetadataElement getClientRegistrationRepository(Element element) {
-		BeanMetadataElement clientRegistrationRepository;
-		String clientRegistrationRepositoryRef = element.getAttribute(ATT_CLIENT_REGISTRATION_REPOSITORY_REF);
-		if (!StringUtils.isEmpty(clientRegistrationRepositoryRef)) {
-			clientRegistrationRepository = new RuntimeBeanReference(clientRegistrationRepositoryRef);
-		} else {
-			clientRegistrationRepository = new RuntimeBeanReference(ClientRegistrationRepository.class);
-		}
-		return clientRegistrationRepository;
-	}
-
 	private BeanDefinition getOidcAuthProvider(Element element,
 			BeanMetadataElement accessTokenResponseClient, String userAuthoritiesMapperRef) {
 
@@ -351,6 +329,10 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 					.getBeanDefinition();
 		}
 		return accessTokenResponseClient;
+	}
+
+	BeanDefinition getDefaultAuthorizedClientRepository() {
+		return this.defaultAuthorizedClientRepository;
 	}
 
 	BeanDefinition getOAuth2AuthorizationRequestRedirectFilter() {

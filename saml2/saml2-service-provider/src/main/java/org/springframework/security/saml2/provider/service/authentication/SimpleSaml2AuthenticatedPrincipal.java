@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package org.springframework.security.saml2.provider.service.authentication;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Default implementation of a {@link Saml2AuthenticatedPrincipal}.
@@ -27,13 +29,20 @@ import java.io.Serializable;
 class SimpleSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPrincipal, Serializable {
 
 	private final String name;
+	private final Map<String, List<Object>> attributes;
 
-	SimpleSaml2AuthenticatedPrincipal(String name) {
+	SimpleSaml2AuthenticatedPrincipal(String name, Map<String, List<Object>> attributes) {
 		this.name = name;
+		this.attributes = attributes;
 	}
 
 	@Override
 	public String getName() {
 		return this.name;
+	}
+
+	@Override
+	public Map<String, List<Object>> getAttributes() {
+		return this.attributes;
 	}
 }

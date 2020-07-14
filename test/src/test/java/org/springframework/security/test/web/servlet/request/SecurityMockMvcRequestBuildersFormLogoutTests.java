@@ -15,15 +15,28 @@
  */
 package org.springframework.security.test.web.servlet.request;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.CsrfRequestPostProcessor;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
 
 public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	private MockServletContext servletContext;
@@ -71,4 +84,25 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 		assertThat(request.getRequestURI()).isEqualTo("/uri-logout/val1/val2");
 	}
 
+	/**
+	 * spring-restdocs uses postprocessors to do its trick. It will work only if these are merged together
+	 * with our request builders. (gh-7572)
+	 * @throws Exception
+	 */
+	@Test
+	public void postProcessorsAreMergedDuringMockMvcPerform() throws Exception {
+		RequestPostProcessor postProcessor = mock(RequestPostProcessor.class);
+		when(postProcessor.postProcessRequest(any())).thenAnswer(i -> i.getArgument(0));
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new Object())
+				.defaultRequest(MockMvcRequestBuilders.get("/").with(postProcessor))
+				.build();
+
+		MvcResult mvcResult = mockMvc.perform(logout()).andReturn();
+		assertThat(mvcResult.getRequest().getMethod()).isEqualTo(HttpMethod.POST.name());
+		assertThat(mvcResult.getRequest().getHeader("Accept"))
+				.isEqualTo(MediaType.toString(Arrays.asList(MediaType.TEXT_HTML, MediaType.ALL)));
+		assertThat(mvcResult.getRequest().getRequestURI()).isEqualTo("/logout");
+		assertThat(mvcResult.getRequest().getParameter("_csrf")).isNotEmpty();
+		verify(postProcessor).postProcessRequest(any());
+	}
 }

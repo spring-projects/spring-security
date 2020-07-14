@@ -30,6 +30,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Iterates an {@link Authentication} request through a list of
@@ -145,7 +146,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			throw new IllegalArgumentException(
 					"A parent AuthenticationManager or a list "
 							+ "of AuthenticationProviders is required");
-		} else if (providers.contains(null)) {
+		} else if (CollectionUtils.contains(providers.iterator(), null)) {
 			throw new IllegalArgumentException(
 					"providers list cannot contain null values");
 		}
@@ -237,7 +238,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 				((CredentialsContainer) result).eraseCredentials();
 			}
 
-			// If the parent AuthenticationManager was attempted and successful than it will publish an AuthenticationSuccessEvent
+			// If the parent AuthenticationManager was attempted and successful then it will publish an AuthenticationSuccessEvent
 			// This check prevents a duplicate AuthenticationSuccessEvent if the parent AuthenticationManager already published it
 			if (parentResult == null) {
 				eventPublisher.publishAuthenticationSuccess(result);
@@ -254,7 +255,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 					"No AuthenticationProvider found for {0}"));
 		}
 
-		// If the parent AuthenticationManager was attempted and failed than it will publish an AbstractAuthenticationFailureEvent
+		// If the parent AuthenticationManager was attempted and failed then it will publish an AbstractAuthenticationFailureEvent
 		// This check prevents a duplicate AbstractAuthenticationFailureEvent if the parent AuthenticationManager already published it
 		if (parentException == null) {
 			prepareException(lastException, authentication);

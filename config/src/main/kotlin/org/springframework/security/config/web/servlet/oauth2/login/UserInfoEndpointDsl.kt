@@ -57,6 +57,18 @@ class UserInfoEndpointDsl {
         customUserTypePair = Pair(customUserType, clientRegistrationId)
     }
 
+    /**
+     * Sets a custom [OAuth2User] type and associates it to the provided
+     * client [ClientRegistration.getRegistrationId] registration identifier.
+     * Variant that is leveraging Kotlin reified type parameters.
+     *
+     * @param T a custom [OAuth2User] type
+     * @param clientRegistrationId the client registration identifier
+     */
+    inline fun <reified T: OAuth2User> customUserType(clientRegistrationId: String) {
+        customUserType(T::class.java, clientRegistrationId)
+    }
+
     internal fun get(): (OAuth2LoginConfigurer<HttpSecurity>.UserInfoEndpointConfig) -> Unit {
         return { userInfoEndpoint ->
             userService?.also { userInfoEndpoint.userService(userService) }

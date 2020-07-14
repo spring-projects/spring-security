@@ -16,6 +16,12 @@
 
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
+import java.io.IOException;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
@@ -35,12 +41,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
@@ -155,7 +155,7 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 			return;
 		}
 		Saml2AuthenticationRequestContext context = authenticationRequestContextResolver.resolve(request, relyingParty);
-		if (relyingParty.getProviderDetails().getBinding() == Saml2MessageBinding.REDIRECT) {
+		if (relyingParty.getAssertingPartyDetails().getSingleSignOnServiceBinding() == Saml2MessageBinding.REDIRECT) {
 			sendRedirect(response, context);
 		} else {
 			sendPost(response, context);

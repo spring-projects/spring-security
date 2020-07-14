@@ -19,6 +19,7 @@ package org.springframework.security.config.web.servlet
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
 import org.springframework.security.config.web.servlet.headers.*
+import org.springframework.security.web.header.HeaderWriter
 import org.springframework.security.web.header.writers.*
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 
@@ -40,6 +41,8 @@ class HeadersDsl {
     private var contentSecurityPolicy: ((HeadersConfigurer<HttpSecurity>.ContentSecurityPolicyConfig) -> Unit)? = null
     private var referrerPolicy: ((HeadersConfigurer<HttpSecurity>.ReferrerPolicyConfig) -> Unit)? = null
     private var featurePolicyDirectives: String? = null
+    private var disabled = false
+    private var headerWriters = mutableListOf<HeaderWriter>()
 
     var defaultsDisabled: Boolean? = null
 
@@ -161,6 +164,25 @@ class HeadersDsl {
         this.featurePolicyDirectives = policyDirectives
     }
 
+    /**
+     * Adds a [HeaderWriter] instance.
+     *
+     * @param headerWriter the [HeaderWriter] instance to add
+     * @since 5.4
+     */
+    fun addHeaderWriter(headerWriter: HeaderWriter) {
+        this.headerWriters.add(headerWriter)
+    }
+
+    /**
+     * Disable all HTTP security headers.
+     *
+     * @since 5.4
+     */
+    fun disable() {
+        disabled = true
+    }
+
     internal fun get(): (HeadersConfigurer<HttpSecurity>) -> Unit {
         return { headers ->
             defaultsDisabled?.also {
@@ -194,6 +216,12 @@ class HeadersDsl {
             }
             featurePolicyDirectives?.also {
                 headers.featurePolicy(featurePolicyDirectives)
+            }
+            headerWriters.forEach { headerWriter ->
+                headers.addHeaderWriter(headerWriter)
+            }
+            if (disabled) {
+                headers.disable()
             }
         }
     }
