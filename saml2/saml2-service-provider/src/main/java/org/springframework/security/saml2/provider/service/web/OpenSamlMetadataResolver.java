@@ -34,6 +34,7 @@ import org.opensaml.xmlsec.signature.X509Data;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.servlet.filter.Saml2ServletUtils;
 import org.w3c.dom.Element;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,16 +67,17 @@ public class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	}
 
 	private String serializeToXmlString(EntityDescriptor entityDescriptor) {
+		Marshaller marshaller = XMLObjectProviderRegistrySupport.getMarshallerFactory().getMarshaller(entityDescriptor);
+		if (marshaller == null) {
+			throw new Saml2Exception("Unable to resolve Marshaller");
+		}
+		Element element;
 		try {
-			Marshaller marshaller = XMLObjectProviderRegistrySupport.getMarshallerFactory().getMarshaller(entityDescriptor);
-			if (marshaller == null) {
-				throw new Saml2Exception("Unable to resolve Marshaller");
-			}
-			Element element = marshaller.marshall(entityDescriptor);
-			return SerializeSupport.prettyPrintXML(element);
+			element = marshaller.marshall(entityDescriptor);
 		} catch (Exception e) {
 			throw new Saml2Exception(e);
 		}
+		return SerializeSupport.prettyPrintXML(element);
 	}
 
 	private SPSSODescriptor buildSpSsoDescriptor(RelyingPartyRegistration registration,

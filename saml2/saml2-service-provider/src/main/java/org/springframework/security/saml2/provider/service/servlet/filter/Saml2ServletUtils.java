@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.web;
+package org.springframework.security.saml2.provider.service.servlet.filter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,11 +31,11 @@ import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
 /**
  * @since 5.3
  */
-final class Saml2ServletUtils {
+public final class Saml2ServletUtils {
 
 	private static final char PATH_DELIMITER = '/';
 
-	static String resolveUrlTemplate(String template, String baseUrl, RelyingPartyRegistration relyingParty) {
+	public static String resolveUrlTemplate(String template, String baseUrl, RelyingPartyRegistration relyingParty) {
 		if (!StringUtils.hasText(template)) {
 			return baseUrl;
 		}
@@ -70,7 +70,7 @@ final class Saml2ServletUtils {
 				.toUriString();
 	}
 
-	static String getApplicationUri(HttpServletRequest request) {
+	public static String getApplicationUri(HttpServletRequest request) {
 		UriComponents uriComponents = fromHttpUrl(buildFullRequestUrl(request))
 				.replacePath(request.getContextPath())
 				.replaceQuery(null)

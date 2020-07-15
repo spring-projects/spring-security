@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.web;
+package org.springframework.security.saml2.provider.service.servlet.filter;
 
 import org.junit.Assert;
 import org.junit.Before;
