@@ -277,8 +277,8 @@ public ModelAndView findMessagesForUser(@CurrentUser CustomUser customUser) {
 === Spring MVC Async Integration
 
 Spring Web MVC 3.2+ has excellent support for https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-ann-async[Asynchronous Request Processing].
-With no additional configuration, Spring Security will automatically setup the `SecurityContext` to the `Thread` that executes a `Callable` returned by your controllers.
-For example, the following method will automatically have its `Callable` executed with the `SecurityContext` that was available when the `Callable` was created:
+With no additional configuration, Spring Security will automatically setup the `SecurityContext` to the `Thread` that invokes a `Callable` returned by your controllers.
+For example, the following method will automatically have its `Callable` invoked with the `SecurityContext` that was available when the `Callable` was created:
 
 [source,java]
 ----

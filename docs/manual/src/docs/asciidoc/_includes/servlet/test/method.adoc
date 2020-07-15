@@ -208,7 +208,7 @@ public void getMessageWithUserDetails() {
 ----
 
 We can also customize the username used to lookup the user from our `UserDetailsService`.
-For example, this test would be executed with a principal that is returned from the `UserDetailsService` with the username of "customUsername".
+For example, this test would be run with a principal that is returned from the `UserDetailsService` with the username of "customUsername".
 
 [source,java]
 ----

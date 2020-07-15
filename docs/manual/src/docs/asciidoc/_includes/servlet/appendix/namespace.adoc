@@ -2584,8 +2584,8 @@ Access configuration attributes list that applies to all methods matching the po
 
 [[nsa-protect-pointcut-expression]]
 * **expression**
-An AspectJ expression, including the 'execution' keyword.
-For example, 'execution(int com.foo.TargetObject.countLength(String))' (without the quotes).
+An AspectJ expression, including the `execution` keyword.
+For example, `execution(int com.foo.TargetObject.countLength(String))`.
 
 
 [[nsa-intercept-methods]]

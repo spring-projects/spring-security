@@ -133,8 +133,8 @@ executor.execute(originalRunnable);
 }
 ----
 
-Now our code is unaware that the `SecurityContext` is being propagated to the `Thread`, then the `originalRunnable` is executed, and then the `SecurityContextHolder` is cleared out.
-In this example, the same user is being used to execute each Thread.
+Now our code is unaware that the `SecurityContext` is being propagated to the `Thread`, then the `originalRunnable` is run, and then the `SecurityContextHolder` is cleared out.
+In this example, the same user is being used to run each thread.
 What if we wanted to use the user from `SecurityContextHolder` at the time we invoked `executor.execute(Runnable)` (i.e. the currently logged in user) to process ``originalRunnable``?
 This can be done by removing the `SecurityContext` argument from our `DelegatingSecurityContextExecutor` constructor.
 For example:
@@ -148,19 +148,19 @@ DelegatingSecurityContextExecutor executor =
 ----
 
 Now anytime `executor.execute(Runnable)` is executed the `SecurityContext` is first obtained by the `SecurityContextHolder` and then that `SecurityContext` is used to create our `DelegatingSecurityContextRunnable`.
-This means that we are executing our `Runnable` with the same user that was used to invoke the `executor.execute(Runnable)` code.
+This means that we are running our `Runnable` with the same user that was used to invoke the `executor.execute(Runnable)` code.
 
 === Spring Security Concurrency Classes
 
 Refer to the Javadoc for additional integrations with both the Java concurrent APIs and the Spring Task abstractions.
 They are quite self-explanatory once you understand the previous code.
 
-* DelegatingSecurityContextCallable
-* DelegatingSecurityContextExecutor
-* DelegatingSecurityContextExecutorService
-* DelegatingSecurityContextRunnable
-* DelegatingSecurityContextScheduledExecutorService
-* DelegatingSecurityContextSchedulingTaskExecutor
-* DelegatingSecurityContextAsyncTaskExecutor
-* DelegatingSecurityContextTaskExecutor
-* DelegatingSecurityContextTaskScheduler
+* `DelegatingSecurityContextCallable`
+* `DelegatingSecurityContextExecutor`
+* `DelegatingSecurityContextExecutorService`
+* `DelegatingSecurityContextRunnable`
+* `DelegatingSecurityContextScheduledExecutorService`
+* `DelegatingSecurityContextSchedulingTaskExecutor`
+* `DelegatingSecurityContextAsyncTaskExecutor`
+* `DelegatingSecurityContextTaskExecutor`
+* `DelegatingSecurityContextTaskScheduler`

@@ -246,7 +246,7 @@ class="org.springframework.security.web.session.ConcurrentSessionFilter">
 
 
 
-Adding the listener to `web.xml` causes an `ApplicationEvent` to be published to the Spring `ApplicationContext` every time a `HttpSession` commences or terminates.
+Adding the listener to `web.xml` causes an `ApplicationEvent` to be published to the Spring `ApplicationContext` every time a `HttpSession` commences or ends.
 This is critical, as it allows the `SessionRegistryImpl` to be notified when a session ends.
 Without it, a user will never be able to log back in again once they have exceeded their session allowance, even if they log out of another session or it times out.
 
