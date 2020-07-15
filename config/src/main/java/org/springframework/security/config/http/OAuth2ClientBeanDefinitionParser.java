@@ -25,11 +25,11 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
-import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.createAuthorizedClientRepository;
 import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.createDefaultAuthorizedClientRepository;
 import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.getAuthorizedClientRepository;
 import static org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserUtils.getAuthorizedClientService;
@@ -64,12 +64,9 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 		BeanMetadataElement authorizedClientRepository = getAuthorizedClientRepository(element);
 		if (authorizedClientRepository == null) {
 			BeanMetadataElement authorizedClientService = getAuthorizedClientService(element);
-			if (authorizedClientService == null) {
-				this.defaultAuthorizedClientRepository = createDefaultAuthorizedClientRepository(clientRegistrationRepository);
-				authorizedClientRepository = this.defaultAuthorizedClientRepository;
-			} else {
-				authorizedClientRepository = createAuthorizedClientRepository(authorizedClientService);
-			}
+			this.defaultAuthorizedClientRepository = createDefaultAuthorizedClientRepository(
+					clientRegistrationRepository, authorizedClientService);
+			authorizedClientRepository = new RuntimeBeanReference(OAuth2AuthorizedClientRepository.class);
 		}
 		BeanMetadataElement authorizationRequestRepository = getAuthorizationRequestRepository(
 				authorizationCodeGrantElt);
