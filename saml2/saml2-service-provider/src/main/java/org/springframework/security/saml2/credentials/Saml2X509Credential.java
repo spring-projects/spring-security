@@ -55,6 +55,40 @@ public class Saml2X509Credential {
 	private final Set<Saml2X509CredentialType> credentialTypes;
 
 	/**
+	 * Create a {@link Saml2X509Credential} that can be used for encryption.
+	 * @param certificate the certificate to use for encryption
+	 */
+	public static Saml2X509Credential encryption(X509Certificate certificate) {
+		return new Saml2X509Credential(certificate, Saml2X509CredentialType.ENCRYPTION);
+	}
+
+	/**
+	 * Create a {@link Saml2X509Credential} that can be used for verification.
+	 * @param certificate the certificate to use for verification
+	 */
+	public static Saml2X509Credential verification(X509Certificate certificate) {
+		return new Saml2X509Credential(certificate, Saml2X509CredentialType.VERIFICATION);
+	}
+
+	/**
+	 * Create a {@link Saml2X509Credential} that can be used for decryption.
+	 * @param privateKey the private key to use for decryption
+	 * @param certificate the certificate to use for decryption
+	 */
+	public static Saml2X509Credential decryption(PrivateKey privateKey, X509Certificate certificate) {
+		return new Saml2X509Credential(privateKey, certificate, Saml2X509CredentialType.DECRYPTION);
+	}
+
+	/**
+	 * Create a {@link Saml2X509Credential} that can be used for signing.
+	 * @param privateKey the private key to use for signing
+	 * @param certificate the certificate to use for signing
+	 */
+	public static Saml2X509Credential signing(PrivateKey privateKey, X509Certificate certificate) {
+		return new Saml2X509Credential(privateKey, certificate, Saml2X509CredentialType.SIGNING);
+	}
+
+	/**
 	 * Creates a Saml2X509Credentials representing Identity Provider credentials for
 	 * verification, encryption or both.
 	 * @param certificate an IDP X509Certificate, cannot be null
