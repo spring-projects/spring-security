@@ -25,8 +25,10 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link OAuth2AuthenticationExceptionMixin}.
@@ -45,44 +47,88 @@ public class OAuth2AuthenticationExceptionMixinTests {
 		this.mapper.registerModules(SecurityJackson2Modules.getModules(loader));
 	}
 
-	// @formatter:off
-	private static final String EXCEPTION_JSON
-			= "\n{"
-			+ "\n  \"@class\": \"org.springframework.security.oauth2.core.OAuth2AuthenticationException\","
-			+ "\n  \"error\":"
-			+ "\n  {"
-			+ "\n    \"@class\":\"org.springframework.security.oauth2.core.OAuth2Error\","
-			+ "\n    \"errorCode\":\"authorization_request_not_found\","
-			+ "\n    \"description\":null,"
-			+ "\n    \"uri\":null"
-			+ "\n  },"
-			+ "\n  \"message\":\"[authorization_request_not_found] \","
-			+ "\n  \"suppressed\":[\"[Ljava.lang.Throwable;\",[]],"
-			+ "\n  \"localizedMessage\":\"[authorization_request_not_found] \""
-			+ "\n}";
-	// @formatter:on
-
 	@Test
-	public void serializeOAuth2AuthenticationExceptionMixinTest() throws JsonProcessingException, JSONException {
-		OAuth2Error oauth2Error = new OAuth2Error("authorization_request_not_found");
-		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+	public void serializeWhenMixinRegisteredThenSerializes() throws JsonProcessingException, JSONException {
+		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(new OAuth2Error(
+				"[authorization_request_not_found] ",
+				"Authorization Request Not Found",
+				"/foo/bar"
+		), "Authorization Request Not Found");
+
 		String serializedJson = mapper.writeValueAsString(exception);
-		JSONAssert.assertEquals(EXCEPTION_JSON, serializedJson, true);
+		String expected = asJson(exception);
+		JSONAssert.assertEquals(expected, serializedJson, true);
 	}
 
 	@Test
-	public void deserializeOAuth2AuthenticationExceptionMixinTest() throws IOException {
-		OAuth2AuthenticationException exception = mapper.readValue(EXCEPTION_JSON, OAuth2AuthenticationException.class);
+	public void serializeWhenRequiredAttributesOnlyThenSerializes() throws JsonProcessingException, JSONException {
+		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(
+				new OAuth2Error("[authorization_request_not_found] ")
+		);
+
+		String serializedJson = mapper.writeValueAsString(exception);
+		String expected = asJson(exception);
+		JSONAssert.assertEquals(expected, serializedJson, true);
+	}
+
+	@Test
+	public void deserializeWhenMixinRegisteredThenDeserializes() throws IOException {
+		OAuth2AuthenticationException expected = new OAuth2AuthenticationException(new OAuth2Error(
+				"[authorization_request_not_found] ",
+				"Authorization Request Not Found",
+				"/foo/bar"
+		), "Authorization Request Not Found");
+
+		OAuth2AuthenticationException exception = mapper.readValue(asJson(expected), OAuth2AuthenticationException.class);
 		assertThat(exception).isNotNull();
 		assertThat(exception.getCause()).isNull();
-		assertThat(exception.getMessage()).isEqualTo("[authorization_request_not_found] ");
-		assertThat(exception.getLocalizedMessage()).isEqualTo("[authorization_request_not_found] ");
+		assertThat(exception.getMessage()).isEqualTo(expected.getMessage());
 
 		OAuth2Error oauth2Error = exception.getError();
 		assertThat(oauth2Error).isNotNull();
-		assertThat(oauth2Error.getErrorCode()).isEqualTo("authorization_request_not_found");
+		assertThat(oauth2Error.getErrorCode()).isEqualTo(expected.getError().getErrorCode());
+		assertThat(oauth2Error.getDescription()).isEqualTo(expected.getError().getDescription());
+		assertThat(oauth2Error.getUri()).isEqualTo(expected.getError().getUri());
+	}
+
+	@Test
+	public void deserializeWhenRequiredAttributesOnlyThenDeserializes() throws IOException {
+		OAuth2AuthenticationException expected = new OAuth2AuthenticationException(
+				new OAuth2Error("[authorization_request_not_found] ")
+		);
+
+		OAuth2AuthenticationException exception = mapper.readValue(asJson(expected), OAuth2AuthenticationException.class);
+		assertThat(exception).isNotNull();
+		assertThat(exception.getCause()).isNull();
+		assertThat(exception.getMessage()).isNull();
+
+		OAuth2Error oauth2Error = exception.getError();
+		assertThat(oauth2Error).isNotNull();
+		assertThat(oauth2Error.getErrorCode()).isEqualTo(expected.getError().getErrorCode());
 		assertThat(oauth2Error.getDescription()).isNull();
 		assertThat(oauth2Error.getUri()).isNull();
 	}
 
+	private String asJson(OAuth2AuthenticationException exception) {
+		OAuth2Error error = exception.getError();
+		// @formatter:off
+		return "\n{"
+				+ "\n  \"@class\": \"org.springframework.security.oauth2.core.OAuth2AuthenticationException\","
+				+ "\n  \"error\":"
+				+ "\n  {"
+				+ "\n    \"@class\":\"org.springframework.security.oauth2.core.OAuth2Error\","
+				+ "\n    \"errorCode\":\"" + error.getErrorCode() + "\","
+				+ "\n    \"description\":" + jsonStringOrNull(error.getDescription()) + ","
+				+ "\n    \"uri\":" + jsonStringOrNull(error.getUri())
+				+ "\n  },"
+				+ "\n  \"detailMessage\":" + jsonStringOrNull(exception.getMessage())
+				+ "\n}";
+		// @formatter:on
+	}
+
+	private String jsonStringOrNull(String input) {
+		return input != null
+				? "\"" + input + "\""
+				: "null";
+	}
 }
