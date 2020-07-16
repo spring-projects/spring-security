@@ -19,7 +19,6 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.io.Serializable;
 
 import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.util.Assert;
 
 /**
  * A representation of an SAML 2.0 Error.
@@ -36,8 +35,7 @@ import org.springframework.util.Assert;
 public class Saml2Error implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	private final String errorCode;
-	private final String description;
+	private final org.springframework.security.saml2.core.Saml2Error error;
 
 	/**
 	 * Constructs a {@code Saml2Error} using the provided parameters.
@@ -46,9 +44,7 @@ public class Saml2Error implements Serializable {
 	 * @param description the error description
 	 */
 	public Saml2Error(String errorCode, String description) {
-		Assert.hasText(errorCode, "errorCode cannot be empty");
-		this.errorCode = errorCode;
-		this.description = description;
+		this.error = new org.springframework.security.saml2.core.Saml2Error(errorCode, description);
 	}
 
 	/**
@@ -57,7 +53,7 @@ public class Saml2Error implements Serializable {
 	 * @return the error code
 	 */
 	public final String getErrorCode() {
-		return this.errorCode;
+		return this.error.getErrorCode();
 	}
 
 	/**
@@ -66,7 +62,7 @@ public class Saml2Error implements Serializable {
 	 * @return the error description
 	 */
 	public final String getDescription() {
-		return this.description;
+		return this.error.getDescription();
 	}
 
 	@Override

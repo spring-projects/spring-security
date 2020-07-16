@@ -84,17 +84,83 @@ public class Saml2AuthenticationException extends AuthenticationException {
 	}
 
 	/**
+	 * Constructs a {@code Saml2AuthenticationException} using the provided parameters.
+	 *
+	 * @param error the {@link org.springframework.security.saml2.provider.service.authentication.Saml2Error SAML 2.0 Error}
+	 * @deprecated Use {@link org.springframework.security.saml2.provider.service.authentication.Saml2Error} constructor instead
+	 */
+	@Deprecated
+	public Saml2AuthenticationException(org.springframework.security.saml2.provider.service.authentication.Saml2Error error) {
+		this(error, error.getDescription());
+	}
+
+	/**
+	 * Constructs a {@code Saml2AuthenticationException} using the provided parameters.
+	 *
+	 * @param error the {@link org.springframework.security.saml2.provider.service.authentication.Saml2Error SAML 2.0 Error}
+	 * @param cause the root cause
+	 * @deprecated Use {@link org.springframework.security.saml2.provider.service.authentication.Saml2Error} constructor instead
+	 */
+	@Deprecated
+	public Saml2AuthenticationException(org.springframework.security.saml2.provider.service.authentication.Saml2Error error, Throwable cause) {
+		this(error, cause.getMessage(), cause);
+	}
+
+	/**
+	 * Constructs a {@code Saml2AuthenticationException} using the provided parameters.
+	 *
+	 * @param error the {@link Saml2Error SAML 2.0 Error}
+	 * @param message the detail message
+	 * @deprecated Use {@link Saml2Error} constructor instead
+	 */
+	@Deprecated
+	public Saml2AuthenticationException(org.springframework.security.saml2.provider.service.authentication.Saml2Error error, String message) {
+		super(message);
+		this.setError(error);
+	}
+
+	/**
+	 * Constructs a {@code Saml2AuthenticationException} using the provided parameters.
+	 *
+	 * @param error the {@link org.springframework.security.saml2.provider.service.authentication.Saml2Error SAML 2.0 Error}
+	 * @param message the detail message
+	 * @param cause the root cause
+	 * @deprecated Use {@link org.springframework.security.saml2.provider.service.authentication.Saml2Error} constructor instead
+	 */
+	@Deprecated
+	public Saml2AuthenticationException(org.springframework.security.saml2.provider.service.authentication.Saml2Error error, String message, Throwable cause) {
+		super(message, cause);
+		this.setError(error);
+	}
+
+	/**
+	 * Get the associated {@link Saml2Error}
+	 *
+	 * @return the associated {@link Saml2Error}
+	 */
+	public Saml2Error getSaml2Error() {
+		return this.error;
+	}
+
+	/**
 	 * Returns the {@link Saml2Error SAML 2.0 Error}.
 	 *
 	 * @return the {@link Saml2Error}
+	 * @deprecated Use {@link #getSaml2Error()} instead
 	 */
-	public Saml2Error getError() {
-		return this.error;
+	@Deprecated
+	public org.springframework.security.saml2.provider.service.authentication.Saml2Error getError() {
+		return new org.springframework.security.saml2.provider.service.authentication.Saml2Error(
+				this.error.getErrorCode(), this.error.getDescription());
 	}
 
 	private void setError(Saml2Error error) {
 		Assert.notNull(error, "error cannot be null");
 		this.error = error;
+	}
+
+	private void setError(org.springframework.security.saml2.provider.service.authentication.Saml2Error error) {
+		setError(new Saml2Error(error.getErrorCode(), error.getDescription()));
 	}
 
 	@Override

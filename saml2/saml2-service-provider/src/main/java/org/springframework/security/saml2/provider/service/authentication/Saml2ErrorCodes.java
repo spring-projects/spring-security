@@ -30,12 +30,12 @@ public interface Saml2ErrorCodes {
 	 * SAML 2 Response object of type {@code ResponseType} per specification
 	 * https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf#page=46
 	 */
-	String UNKNOWN_RESPONSE_CLASS = "unknown_response_class";
+	String UNKNOWN_RESPONSE_CLASS = org.springframework.security.saml2.core.Saml2ErrorCodes.UNKNOWN_RESPONSE_CLASS;
 	/**
 	 * The response data is malformed or incomplete.
 	 * An invalid XML object was received, and XML unmarshalling failed.
 	 */
-	String MALFORMED_RESPONSE_DATA = "malformed_response_data";
+	String MALFORMED_RESPONSE_DATA = org.springframework.security.saml2.core.Saml2ErrorCodes.MALFORMED_RESPONSE_DATA;
 	/**
 	 * Response destination does not match the request URL.
 	 * A SAML 2 response object was received at a URL that
@@ -43,13 +43,13 @@ public interface Saml2ErrorCodes {
 	 * in the Response object.
 	 * https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf#page=38
 	 */
-	String INVALID_DESTINATION = "invalid_destination";
+	String INVALID_DESTINATION = org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_DESTINATION;
 	/**
 	 * The assertion was not valid.
 	 * The assertion used for authentication failed validation.
 	 * Details around the failure will be present in the error description.
 	 */
-	String INVALID_ASSERTION = "invalid_assertion";
+	String INVALID_ASSERTION = org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_ASSERTION;
 	/**
 	 * The signature of response or assertion was invalid.
 	 * Either the response or the assertion was missing a signature
@@ -57,7 +57,7 @@ public interface Saml2ErrorCodes {
 	 * configured credentials. Most commonly the IDP's
 	 * X509 certificate.
 	 */
-	String INVALID_SIGNATURE = "invalid_signature";
+	String INVALID_SIGNATURE = org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_SIGNATURE;
 	/**
 	 * The assertion did not contain a subject element.
 	 * The subject element, type SubjectType, contains
@@ -67,7 +67,7 @@ public interface Saml2ErrorCodes {
 	 *
 	 * https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf#page=18
 	 */
-	String SUBJECT_NOT_FOUND = "subject_not_found";
+	String SUBJECT_NOT_FOUND = org.springframework.security.saml2.core.Saml2ErrorCodes.SUBJECT_NOT_FOUND;
 	/**
 	 * The subject did not contain a user identifier
 	 * The assertion contained a subject element, but the subject
@@ -76,28 +76,28 @@ public interface Saml2ErrorCodes {
 	 *
 	 * https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf#page=18
 	 */
-	String USERNAME_NOT_FOUND = "username_not_found";
+	String USERNAME_NOT_FOUND = org.springframework.security.saml2.core.Saml2ErrorCodes.USERNAME_NOT_FOUND;
 	/**
 	 * The system failed to decrypt an assertion or a name identifier.
 	 * This error code will be thrown if the decryption of either a
 	 * {@code EncryptedAssertion} or {@code EncryptedID} fails.
 	 * https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf#page=17
 	 */
-	String DECRYPTION_ERROR = "decryption_error";
+	String DECRYPTION_ERROR = org.springframework.security.saml2.core.Saml2ErrorCodes.DECRYPTION_ERROR;
 	/**
 	 * An Issuer element contained a value that didn't
 	 * https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf#page=15
 	 */
-	String INVALID_ISSUER = "invalid_issuer";
+	String INVALID_ISSUER = org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_ISSUER;
 	/**
 	 * An error happened during validation.
 	 * Used when internal, non classified, errors are caught during the
 	 * authentication process.
 	 */
-	String INTERNAL_VALIDATION_ERROR = "internal_validation_error";
+	String INTERNAL_VALIDATION_ERROR = org.springframework.security.saml2.core.Saml2ErrorCodes.INTERNAL_VALIDATION_ERROR;
 	/**
 	 * The relying party registration was not found.
 	 * The registration ID did not correspond to any relying party registration.
 	 */
-	String RELYING_PARTY_REGISTRATION_NOT_FOUND = "relying_party_registration_not_found";
+	String RELYING_PARTY_REGISTRATION_NOT_FOUND = org.springframework.security.saml2.core.Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND;
 }
