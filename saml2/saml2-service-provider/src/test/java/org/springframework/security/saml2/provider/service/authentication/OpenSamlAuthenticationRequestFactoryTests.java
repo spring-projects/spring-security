@@ -16,6 +16,9 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,9 +32,13 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDecode;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartySigningCredential;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDecode;
 import static org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.withRelyingPartyRegistration;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.REDIRECT;
@@ -158,6 +165,34 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 		exception.expect(IllegalArgumentException.class);
 		exception.expectMessage(containsString("my-invalid-binding"));
 		factory.setProtocolBinding("my-invalid-binding");
+	}
+
+	@Test
+	public void createPostAuthenticationRequestWhenAuthnRequestConsumerThenUses() {
+		Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver =
+				mock(Function.class);
+		when(authnRequestConsumerResolver.apply(this.context)).thenReturn(authnRequest -> {});
+		this.factory.setAuthnRequestConsumerResolver(authnRequestConsumerResolver);
+
+		this.factory.createPostAuthenticationRequest(this.context);
+		verify(authnRequestConsumerResolver).apply(this.context);
+	}
+
+	@Test
+	public void createRedirectAuthenticationRequestWhenAuthnRequestConsumerThenUses() {
+		Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver =
+				mock(Function.class);
+		when(authnRequestConsumerResolver.apply(this.context)).thenReturn(authnRequest -> {});
+		this.factory.setAuthnRequestConsumerResolver(authnRequestConsumerResolver);
+
+		this.factory.createRedirectAuthenticationRequest(this.context);
+		verify(authnRequestConsumerResolver).apply(this.context);
+	}
+
+	@Test
+	public void setAuthnRequestConsumerResolverWhenNullThenException() {
+		assertThatCode(() -> this.factory.setAuthnRequestConsumerResolver(null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	private AuthnRequest getAuthNRequest(Saml2MessageBinding binding) {

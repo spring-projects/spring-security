@@ -21,6 +21,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.joda.time.DateTime;
 import org.opensaml.saml.common.xml.SAMLConstants;
@@ -42,6 +44,9 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	private Clock clock = Clock.systemUTC();
 	private final OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
 	private String protocolBinding = SAMLConstants.SAML2_POST_BINDING_URI;
+
+	private Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver
+			= context -> authnRequest -> {};
 
 	@Override
 	@Deprecated
@@ -95,8 +100,10 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	}
 
 	private AuthnRequest createAuthnRequest(Saml2AuthenticationRequestContext context) {
-		return createAuthnRequest(context.getIssuer(),
+		AuthnRequest authnRequest = createAuthnRequest(context.getIssuer(),
 				context.getDestination(), context.getAssertionConsumerServiceUrl());
+		this.authnRequestConsumerResolver.apply(context).accept(authnRequest);
+		return authnRequest;
 	}
 
 	private AuthnRequest createAuthnRequest(String issuer, String destination, String assertionConsumerServiceUrl) {
@@ -112,6 +119,18 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		auth.setDestination(destination);
 		auth.setAssertionConsumerServiceURL(assertionConsumerServiceUrl);
 		return auth;
+	}
+
+	/**
+	 * Set the {@link AuthnRequest} post-processor resolver
+	 *
+	 * @param authnRequestConsumerResolver
+	 * @since 5.4
+	 */
+	public void setAuthnRequestConsumerResolver(
+			Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver) {
+		Assert.notNull(authnRequestConsumerResolver, "authnRequestConsumerResolver cannot be null");
+		this.authnRequestConsumerResolver = authnRequestConsumerResolver;
 	}
 
 	/**
