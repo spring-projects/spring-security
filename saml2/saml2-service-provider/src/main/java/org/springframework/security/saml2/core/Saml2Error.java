@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.authentication;
+package org.springframework.security.saml2.core;
 
 import java.io.Serializable;
 
@@ -30,9 +30,7 @@ import org.springframework.util.Assert;
  * or a new codes can be defined in the future as arbitrary strings.
  * </p>
  * @since 5.2
- * @deprecated Use {@link org.springframework.security.saml2.core.Saml2Error} instead
  */
-@Deprecated
 public class Saml2Error implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 

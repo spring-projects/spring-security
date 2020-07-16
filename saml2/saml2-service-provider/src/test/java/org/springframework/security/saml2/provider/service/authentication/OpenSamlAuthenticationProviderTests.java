@@ -52,6 +52,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 
 import static org.assertj.core.api.Assertions.assertThat;

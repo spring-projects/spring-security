@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.authentication;
+package org.springframework.security.saml2.core;
 
 /**
  * A list of SAML known 2 error codes used during SAML authentication.
  *
  * @since 5.2
- * @deprecated Use {@link org.springframework.security.saml2.core.Saml2ErrorCodes} instead
  */
-@Deprecated
 public interface Saml2ErrorCodes {
 	/**
 	 * SAML Data does not represent a SAML 2 Response object.
