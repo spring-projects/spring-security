@@ -21,6 +21,8 @@ import org.junit.Test;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
+import static org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.withRegistrationId;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;
 import static org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations.relyingPartyRegistration;
 
@@ -31,6 +33,7 @@ public class RelyingPartyRegistrationTests {
 		RelyingPartyRegistration registration = relyingPartyRegistration()
 				.providerDetails(p -> p.binding(POST))
 				.providerDetails(p -> p.signAuthNRequest(false))
+				.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
 				.build();
 		RelyingPartyRegistration copy = RelyingPartyRegistration.withRelyingPartyRegistration(registration).build();
 		compareRegistrations(registration, copy);
@@ -76,5 +79,22 @@ public class RelyingPartyRegistrationTests {
 				.isEqualTo(copy.getAssertingPartyDetails().getWantAuthnRequestsSigned())
 				.isEqualTo(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
 				.isFalse();
+		assertThat(copy.getAssertionConsumerServiceBinding())
+				.isEqualTo(registration.getAssertionConsumerServiceBinding());
+	}
+
+	@Test
+	public void buildWhenUsingDefaultsThenAssertionConsumerServiceBindingDefaultsToPost() {
+		RelyingPartyRegistration relyingPartyRegistration = withRegistrationId("id")
+				.entityId("entity-id")
+				.assertionConsumerServiceLocation("location")
+				.assertingPartyDetails(assertingParty -> assertingParty
+					.entityId("entity-id")
+					.singleSignOnServiceLocation("location"))
+					.credentials(c -> c.add(relyingPartyVerifyingCredential()))
+				.build();
+
+		assertThat(relyingPartyRegistration.getAssertionConsumerServiceBinding())
+				.isEqualTo(POST);
 	}
 }

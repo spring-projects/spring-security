@@ -29,6 +29,7 @@ import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest.Builder;
 import org.springframework.util.Assert;
@@ -43,7 +44,14 @@ import static org.springframework.security.saml2.provider.service.authentication
 public class OpenSamlAuthenticationRequestFactory implements Saml2AuthenticationRequestFactory {
 	private Clock clock = Clock.systemUTC();
 	private final OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
-	private String protocolBinding = SAMLConstants.SAML2_POST_BINDING_URI;
+
+	private Converter<Saml2AuthenticationRequestContext, String> protocolBindingResolver =
+			context -> {
+				if (context == null) {
+					return SAMLConstants.SAML2_POST_BINDING_URI;
+				}
+				return context.getRelyingPartyRegistration().getAssertionConsumerServiceBinding().getUrn();
+			};
 
 	private Function<Saml2AuthenticationRequestContext, Consumer<AuthnRequest>> authnRequestConsumerResolver
 			= context -> authnRequest -> {};
@@ -52,7 +60,8 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	@Deprecated
 	public String createAuthenticationRequest(Saml2AuthenticationRequest request) {
 		AuthnRequest authnRequest = createAuthnRequest(request.getIssuer(),
-				request.getDestination(), request.getAssertionConsumerServiceUrl());
+				request.getDestination(), request.getAssertionConsumerServiceUrl(),
+				this.protocolBindingResolver.convert(null));
 		return this.saml.serialize(authnRequest, request.getCredentials());
 	}
 
@@ -101,12 +110,14 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 
 	private AuthnRequest createAuthnRequest(Saml2AuthenticationRequestContext context) {
 		AuthnRequest authnRequest = createAuthnRequest(context.getIssuer(),
-				context.getDestination(), context.getAssertionConsumerServiceUrl());
+				context.getDestination(), context.getAssertionConsumerServiceUrl(),
+				this.protocolBindingResolver.convert(context));
 		this.authnRequestConsumerResolver.apply(context).accept(authnRequest);
 		return authnRequest;
 	}
 
-	private AuthnRequest createAuthnRequest(String issuer, String destination, String assertionConsumerServiceUrl) {
+	private AuthnRequest createAuthnRequest
+			(String issuer, String destination, String assertionConsumerServiceUrl, String protocolBinding) {
 		AuthnRequest auth = this.saml.buildSamlObject(AuthnRequest.DEFAULT_ELEMENT_NAME);
 		auth.setID("ARQ" + UUID.randomUUID().toString().substring(1));
 		auth.setIssueInstant(new DateTime(this.clock.millis()));
@@ -155,13 +166,16 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	 * @param protocolBinding either {@link SAMLConstants#SAML2_POST_BINDING_URI} or
 	 * {@link SAMLConstants#SAML2_REDIRECT_BINDING_URI}
 	 * @throws IllegalArgumentException if the protocolBinding is not valid
+	 * @deprecated Use {@link org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.Builder#assertionConsumerServiceBinding}
+	 * instead
 	 */
+	@Deprecated
 	public void setProtocolBinding(String protocolBinding) {
 		boolean isAllowedBinding = SAMLConstants.SAML2_POST_BINDING_URI.equals(protocolBinding) ||
 				SAMLConstants.SAML2_REDIRECT_BINDING_URI.equals(protocolBinding);
 		if (!isAllowedBinding) {
 			throw new IllegalArgumentException("Invalid protocol binding: " + protocolBinding);
 		}
-		this.protocolBinding = protocolBinding;
+		this.protocolBindingResolver = context -> protocolBinding;
 	}
 }

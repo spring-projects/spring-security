@@ -68,6 +68,7 @@ public class RelyingPartyRegistration {
 	private final String registrationId;
 	private final String entityId;
 	private final String assertionConsumerServiceLocation;
+	private final Saml2MessageBinding assertionConsumerServiceBinding;
 	private final ProviderDetails providerDetails;
 	private final List<Saml2X509Credential> credentials;
 
@@ -75,12 +76,14 @@ public class RelyingPartyRegistration {
 			String registrationId,
 			String entityId,
 			String assertionConsumerServiceLocation,
+			Saml2MessageBinding assertionConsumerServiceBinding,
 			ProviderDetails providerDetails,
 			List<Saml2X509Credential> credentials) {
 
 		Assert.hasText(registrationId, "registrationId cannot be empty");
 		Assert.hasText(entityId, "entityId cannot be empty");
 		Assert.hasText(assertionConsumerServiceLocation, "assertionConsumerServiceLocation cannot be empty");
+		Assert.notNull(assertionConsumerServiceBinding, "assertionConsumerServiceBinding cannot be null");
 		Assert.notNull(providerDetails, "providerDetails cannot be null");
 		Assert.notEmpty(credentials, "credentials cannot be empty");
 		for (Saml2X509Credential c : credentials) {
@@ -89,6 +92,7 @@ public class RelyingPartyRegistration {
 		this.registrationId = registrationId;
 		this.entityId = entityId;
 		this.assertionConsumerServiceLocation = assertionConsumerServiceLocation;
+		this.assertionConsumerServiceBinding = assertionConsumerServiceBinding;
 		this.providerDetails = providerDetails;
 		this.credentials = Collections.unmodifiableList(new LinkedList<>(credentials));
 	}
@@ -136,6 +140,18 @@ public class RelyingPartyRegistration {
 	 */
 	public String getAssertionConsumerServiceLocation() {
 		return this.assertionConsumerServiceLocation;
+	}
+
+	/**
+	 * Get the AssertionConsumerService Binding.
+	 * Equivalent to the value found in &lt;AssertionConsumerService Binding="..."/&gt;
+	 * in the relying party's &lt;SPSSODescriptor&gt;.
+	 *
+	 * @return the AssertionConsumerService Binding
+	 * @since 5.4
+	 */
+	public Saml2MessageBinding getAssertionConsumerServiceBinding() {
+		return this.assertionConsumerServiceBinding;
 	}
 
 	/**
@@ -280,6 +296,7 @@ public class RelyingPartyRegistration {
 		return withRegistrationId(registration.getRegistrationId())
 				.entityId(registration.getEntityId())
 				.assertionConsumerServiceLocation(registration.getAssertionConsumerServiceLocation())
+				.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
 				.assertingPartyDetails(c -> c
 					.entityId(registration.getAssertingPartyDetails().getEntityId())
 					.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
@@ -575,6 +592,7 @@ public class RelyingPartyRegistration {
 		private String registrationId;
 		private String entityId = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
 		private String assertionConsumerServiceLocation;
+		private Saml2MessageBinding assertionConsumerServiceBinding = Saml2MessageBinding.POST;
 		private ProviderDetails.Builder providerDetails = new ProviderDetails.Builder();
 		private List<Saml2X509Credential> credentials = new LinkedList<>();
 
@@ -630,6 +648,23 @@ public class RelyingPartyRegistration {
 		 */
 		public Builder assertionConsumerServiceLocation(String assertionConsumerServiceLocation) {
 			this.assertionConsumerServiceLocation = assertionConsumerServiceLocation;
+			return this;
+		}
+
+		/**
+		 * Set the <a href="https://wiki.shibboleth.net/confluence/display/CONCEPT/AssertionConsumerService">AssertionConsumerService</a>
+		 * Binding.
+		 *
+		 * <p>
+		 * Equivalent to the value found in &lt;AssertionConsumerService Binding="..."/&gt;
+		 * in the relying party's &lt;SPSSODescriptor&gt;
+		 *
+		 * @param assertionConsumerServiceBinding
+		 * @return the {@link Builder} for further configuration
+		 * @since 5.4
+		 */
+		public Builder assertionConsumerServiceBinding(Saml2MessageBinding assertionConsumerServiceBinding) {
+			this.assertionConsumerServiceBinding = assertionConsumerServiceBinding;
 			return this;
 		}
 
@@ -738,6 +773,7 @@ public class RelyingPartyRegistration {
 					this.registrationId,
 					this.entityId,
 					this.assertionConsumerServiceLocation,
+					this.assertionConsumerServiceBinding,
 					this.providerDetails.build(),
 					this.credentials
 			);

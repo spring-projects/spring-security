@@ -39,6 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartySigningCredential;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDecode;
+import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlInflate;
 import static org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.withRelyingPartyRegistration;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.POST;
 import static org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding.REDIRECT;
@@ -52,19 +53,21 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 	private Saml2AuthenticationRequestContext.Builder contextBuilder;
 	private Saml2AuthenticationRequestContext context;
 
+	private RelyingPartyRegistration.Builder relyingPartyRegistrationBuilder;
+	private RelyingPartyRegistration relyingPartyRegistration;
+
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
-	private RelyingPartyRegistration relyingPartyRegistration;
 
 	@Before
 	public void setUp() {
-		relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("id")
+		this.relyingPartyRegistrationBuilder = RelyingPartyRegistration.withRegistrationId("id")
 				.assertionConsumerServiceLocation("template")
 				.providerDetails(c -> c.webSsoUrl("https://destination/sso"))
 				.providerDetails(c -> c.entityId("remote-entity-id"))
 				.localEntityIdTemplate("local-entity-id")
-				.credentials(c -> c.add(relyingPartySigningCredential()))
-				.build();
+				.credentials(c -> c.add(relyingPartySigningCredential()));
+		this.relyingPartyRegistration = this.relyingPartyRegistrationBuilder.build();
 		contextBuilder = Saml2AuthenticationRequestContext.builder()
 				.issuer("https://issuer")
 				.relyingPartyRegistration(relyingPartyRegistration)
@@ -195,6 +198,20 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
+	@Test
+	public void createPostAuthenticationRequestWhenAssertionConsumerServiceBindingThenUses() {
+		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationBuilder
+				.assertionConsumerServiceBinding(REDIRECT)
+				.build();
+		Saml2AuthenticationRequestContext context = this.contextBuilder
+				.relyingPartyRegistration(relyingPartyRegistration)
+				.build();
+		Saml2PostAuthenticationRequest request = this.factory.createPostAuthenticationRequest(context);
+		String samlRequest = request.getSamlRequest();
+		String inflated = new String(samlDecode(samlRequest));
+		assertThat(inflated).contains("ProtocolBinding=\"" + SAMLConstants.SAML2_REDIRECT_BINDING_URI + "\"");
+	}
+
 	private AuthnRequest getAuthNRequest(Saml2MessageBinding binding) {
 		AbstractSaml2AuthenticationRequest result = (binding == REDIRECT) ?
 				factory.createRedirectAuthenticationRequest(context) :
@@ -202,7 +219,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 		String samlRequest = result.getSamlRequest();
 		assertThat(samlRequest).isNotEmpty();
 		if (result.getBinding() == REDIRECT) {
-			samlRequest = Saml2Utils.samlInflate(samlDecode(samlRequest));
+			samlRequest = samlInflate(samlDecode(samlRequest));
 		}
 		else {
 			samlRequest = new String(samlDecode(samlRequest), UTF_8);
