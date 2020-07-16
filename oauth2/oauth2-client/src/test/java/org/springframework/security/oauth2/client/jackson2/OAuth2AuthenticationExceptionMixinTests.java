@@ -72,6 +72,15 @@ public class OAuth2AuthenticationExceptionMixinTests {
 	}
 
 	@Test
+	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
+		String json = asJson(new OAuth2AuthenticationException(
+				new OAuth2Error("[authorization_request_not_found] ")
+		));
+		assertThatThrownBy(() -> new ObjectMapper().readValue(json, OAuth2AuthorizationRequest.class))
+				.isInstanceOf(JsonProcessingException.class);
+	}
+
+	@Test
 	public void deserializeWhenMixinRegisteredThenDeserializes() throws IOException {
 		OAuth2AuthenticationException expected = new OAuth2AuthenticationException(new OAuth2Error(
 				"[authorization_request_not_found] ",
