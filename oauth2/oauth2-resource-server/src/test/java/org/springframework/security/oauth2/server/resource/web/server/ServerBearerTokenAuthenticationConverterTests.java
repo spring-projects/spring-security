@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 
 package org.springframework.security.oauth2.server.resource.web.server;
 
+import java.util.Base64;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -26,8 +29,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
-
-import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -54,6 +55,17 @@ public class ServerBearerTokenAuthenticationConverterTests {
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + TEST_TOKEN);
 
 		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
+	}
+
+	// gh-8502
+	@Test
+	public void resolveWhenHeaderEndsWithPaddingIndicatorThenTokenIsResolved() {
+		String token = TEST_TOKEN + "==";
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest
+				.get("/")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+
+		assertThat(convertToToken(request).getToken()).isEqualTo(token);
 	}
 
 	// gh-7011

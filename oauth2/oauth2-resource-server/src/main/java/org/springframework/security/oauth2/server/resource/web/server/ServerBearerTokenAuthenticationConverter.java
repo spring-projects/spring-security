@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
  */
 public class ServerBearerTokenAuthenticationConverter
 		implements ServerAuthenticationConverter {
-	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$");
+	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$");
 
 	private boolean allowUriQueryParameter = false;
 

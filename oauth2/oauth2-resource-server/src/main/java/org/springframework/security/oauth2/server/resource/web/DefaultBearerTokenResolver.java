@@ -36,7 +36,7 @@ import org.springframework.util.StringUtils;
  */
 public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
-	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$");
+	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$");
 
 	private boolean allowFormEncodedBodyParameter = false;
 
@@ -98,7 +98,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 				throw new OAuth2AuthenticationException(error);
 			}
 
-			return authorization.substring(7);
+			return matcher.group("token");
 		}
 		return null;
 	}

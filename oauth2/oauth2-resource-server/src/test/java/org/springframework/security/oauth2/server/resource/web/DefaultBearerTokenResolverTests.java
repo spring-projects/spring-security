@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,17 +51,9 @@ public class DefaultBearerTokenResolverTests {
 		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
 	}
 
+	// gh-8502
 	@Test
-	public void resolveWhenValidHeaderIsPresentWithSingleBytePaddingIndicatorThenTokenIsResolved() {
-		String token = TEST_TOKEN + "=";
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Bearer " + token);
-
-		assertThat(this.resolver.resolve(request)).isEqualTo(token);
-	}
-
-	@Test
-	public void resolveWhenValidHeaderIsPresentWithTwoBytesPaddingIndicatorThenTokenIsResolved() {
+	public void resolveWhenHeaderEndsWithPaddingIndicatorThenTokenIsResolved() {
 		String token = TEST_TOKEN + "==";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + token);
