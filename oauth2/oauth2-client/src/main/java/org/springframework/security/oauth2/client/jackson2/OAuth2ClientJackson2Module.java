@@ -52,6 +52,8 @@ import java.util.Collections;
  *     <li>{@link OidcUserAuthorityMixin}</li>
  *     <li>{@link DefaultOidcUserMixin}</li>
  *     <li>{@link OAuth2AuthenticationTokenMixin}</li>
+ *     <li>{@link OAuth2AuthenticationExceptionMixin}</li>
+ *     <li>{@link OAuth2ErrorMixin}</li>
  * </ul>
  *
  * If not already enabled, default typing will be automatically enabled
@@ -80,6 +82,8 @@ import java.util.Collections;
  * @see OidcUserAuthorityMixin
  * @see DefaultOidcUserMixin
  * @see OAuth2AuthenticationTokenMixin
+ * @see OAuth2AuthenticationExceptionMixin
+ * @see OAuth2ErrorMixin
  */
 public class OAuth2ClientJackson2Module extends SimpleModule {
 
