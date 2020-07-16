@@ -46,7 +46,7 @@ import static org.springframework.security.oauth2.server.resource.BearerTokenErr
 public class ServerBearerTokenAuthenticationConverter
 		implements ServerAuthenticationConverter {
 	private static final Pattern authorizationPattern = Pattern.compile(
-		"^Bearer (?<token>[a-zA-Z0-9-._~+/]+)=*$",
+		"^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$",
 		Pattern.CASE_INSENSITIVE);
 
 	private boolean allowUriQueryParameter = false;
