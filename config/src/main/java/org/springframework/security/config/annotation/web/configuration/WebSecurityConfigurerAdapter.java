@@ -331,11 +331,14 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * Override this method to configure {@link WebSecurity}. For example, if you wish to
 	 * ignore certain requests.
 	 *
-	 * Endpoint used in this method ignores the spring security filters, security features (secure headers, csrf protection etc) are also ignored
-	 * and no security context will be set and can not protect endpoints for Cross Site Scripting, XSS attacks, Content-Sniffing etc
+	 * Endpoint used in this method ignores the
+	 * spring security filters, headers, csrf etc. see
+	 * {@link org.springframework.security.config.annotation.web.configurers.HeadersConfigurer} and
+	 * {@link org.springframework.security.config.annotation.web.configurers.CsrfConfigurer }
 	 *
-	 * @see <a href="https://docs.spring.io/spring-security/site/docs/current/reference/html5/#csrf">Cross Site Request Forgery (CSRF)</a>
-	 * @see <a href="https://docs.spring.io/spring-security/site/docs/current/reference/html5/#headers">Security HTTP Response Headers</a>
+	 * Instead, if you want to protect public endpoints against common vulnerabilities, then see
+	 * {@link #configure(HttpSecurity)} and the {@link HttpSecurity#authorizeRequests}
+	 * configuration method.
 	 */
 	public void configure(WebSecurity web) throws Exception {
 	}
@@ -349,11 +352,9 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * http.authorizeRequests().anyRequest().authenticated().and().formLogin().and().httpBasic();
 	 * </pre>
 	 *
-	 * Endpoint used in this method with permitAll() ignores the authentication
-	 * however other defnied security feature will be in effect such as secure headers, csrf protection etc.
-	 *
-	 *  @see <a href="https://docs.spring.io/spring-security/site/docs/current/reference/html5/#csrf">Cross Site Request Forgery (CSRF)</a>
-	 *  @see <a href="https://docs.spring.io/spring-security/site/docs/current/reference/html5/#headers">Security HTTP Response Headers</a>
+	 * Public endpoints that require defense against common vulnerabilities can be specified here.
+	 * See {@link HttpSecurity#authorizeRequests} and the `permitAll()` authorization rule
+	 * for more details.
 	 *
 	 * @param http the {@link HttpSecurity} to modify
 	 * @throws Exception if an error occurs
