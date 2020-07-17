@@ -111,14 +111,14 @@ public class OpenSamlAuthenticationProviderTests {
 		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.UNKNOWN_RESPONSE_CLASS));
 
 		Assertion assertion = this.saml.buildSamlObject(Assertion.DEFAULT_ELEMENT_NAME);
-		this.provider.authenticate(token(this.saml.serialize(assertion)));
+		this.provider.authenticate(token(this.saml.serialize(assertion), relyingPartyVerifyingCredential()));
 	}
 
 	@Test
 	public void authenticateWhenXmlErrorThenThrowAuthenticationException() {
 		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA));
 
-		Saml2AuthenticationToken token = token("invalid xml");
+		Saml2AuthenticationToken token = token("invalid xml", relyingPartyVerifyingCredential());
 		this.provider.authenticate(token);
 	}
 
@@ -149,7 +149,7 @@ public class OpenSamlAuthenticationProviderTests {
 
 		Response response = response();
 		response.getAssertions().add(assertion());
-		Saml2AuthenticationToken token = token(response);
+		Saml2AuthenticationToken token = token(response, relyingPartyVerifyingCredential());
 		this.provider.authenticate(token);
 	}
 
@@ -316,7 +316,7 @@ public class OpenSamlAuthenticationProviderTests {
 		Response response = response();
 		EncryptedAssertion encryptedAssertion = encrypted(assertion(), assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		Saml2AuthenticationToken token = token(this.saml.serialize(response));
+		Saml2AuthenticationToken token = token(this.saml.serialize(response), relyingPartyVerifyingCredential());
 		this.provider.authenticate(token);
 	}
 

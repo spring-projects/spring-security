@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.security.saml2.core.Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND;
+import static org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.withRelyingPartyRegistration;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
@@ -98,14 +99,15 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 			throw new Saml2AuthenticationException(saml2Error);
 		}
 		String applicationUri = Saml2ServletUtils.getApplicationUri(request);
-		String localSpEntityId = Saml2ServletUtils.resolveUrlTemplate(rp.getEntityId(), applicationUri, rp);
-		final Saml2AuthenticationToken authentication = new Saml2AuthenticationToken(
-				responseXml,
-				request.getRequestURL().toString(),
-				rp.getAssertingPartyDetails().getEntityId(),
-				localSpEntityId,
-				rp.getCredentials()
-		);
+		String relyingPartyEntityId = Saml2ServletUtils.resolveUrlTemplate(rp.getEntityId(), applicationUri, rp);
+		String assertionConsumerServiceLocation = Saml2ServletUtils.resolveUrlTemplate(
+				rp.getAssertionConsumerServiceLocation(), applicationUri, rp);
+		RelyingPartyRegistration relyingPartyRegistration = withRelyingPartyRegistration(rp)
+				.entityId(relyingPartyEntityId)
+				.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
+				.build();
+		Saml2AuthenticationToken authentication = new Saml2AuthenticationToken(
+				relyingPartyRegistration, responseXml);
 		return getAuthenticationManager().authenticate(authentication);
 	}
 

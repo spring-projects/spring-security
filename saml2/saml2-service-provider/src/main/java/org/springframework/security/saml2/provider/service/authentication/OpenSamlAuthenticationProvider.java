@@ -480,13 +480,10 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 
 		private SignatureTrustEngine buildSignatureTrustEngine(Saml2AuthenticationToken token) {
 			Set<Credential> credentials = new HashSet<>();
-			for (Saml2X509Credential key : token.getX509Credentials()) {
-				if (!key.isSignatureVerficationCredential()) {
-					continue;
-				}
+			for (Saml2X509Credential key : token.getRelyingPartyRegistration().getVerificationCredentials()) {
 				BasicX509Credential cred = new BasicX509Credential(key.getCertificate());
 				cred.setUsageType(UsageType.SIGNING);
-				cred.setEntityId(token.getIdpEntityId());
+				cred.setEntityId(token.getRelyingPartyRegistration().getAssertingPartyDetails().getEntityId());
 				credentials.add(cred);
 			}
 			CredentialResolver credentialsResolver = new CollectionCredentialResolver(credentials);
@@ -506,13 +503,14 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 				Map<String, Saml2AuthenticationException> validationExceptions = new LinkedHashMap<>();
 
 				String destination = response.getDestination();
-				if (StringUtils.hasText(destination) && !destination.equals(token.getRecipientUri())) {
+				String location = token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
+				if (StringUtils.hasText(destination) && !destination.equals(location)) {
 					String message = "Invalid destination [" + destination + "] for SAML response [" + response.getID() + "]";
 					validationExceptions.put(INVALID_DESTINATION, authException(INVALID_DESTINATION, message));
 				}
 
 				String issuer = response.getIssuer().getValue();
-				String assertingPartyEntityId = token.getIdpEntityId();
+				String assertingPartyEntityId = token.getRelyingPartyRegistration().getAssertingPartyDetails().getEntityId();
 				if (!StringUtils.hasText(issuer) || !issuer.equals(assertingPartyEntityId)) {
 					String message = String.format("Invalid issuer [%s] for SAML response [%s]", issuer, response.getID());
 					validationExceptions.put(INVALID_ISSUER, authException(INVALID_ISSUER, message));
@@ -538,11 +536,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			return encrypted -> {
 				Saml2AuthenticationException last =
 						authException(DECRYPTION_ERROR, "No valid decryption credentials found.");
-				List<Saml2X509Credential> decryptionCredentials = token.getX509Credentials();
+				List<Saml2X509Credential> decryptionCredentials = token.getRelyingPartyRegistration().getDecryptionCredentials();
 				for (Saml2X509Credential key : decryptionCredentials) {
-					if (!key.isDecryptionCredential()) {
-						continue;
-					}
 					Decrypter decrypter = getDecrypter(key);
 					try {
 						return decrypter.decrypt(encrypted);
@@ -623,11 +618,10 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 
 		private SignatureTrustEngine buildSignatureTrustEngine(Saml2AuthenticationToken token) {
 			Set<Credential> credentials = new HashSet<>();
-			for (Saml2X509Credential key : token.getX509Credentials()) {
-				if (!key.isSignatureVerficationCredential()) continue;
+			for (Saml2X509Credential key : token.getRelyingPartyRegistration().getVerificationCredentials()) {
 				BasicX509Credential cred = new BasicX509Credential(key.getCertificate());
 				cred.setUsageType(UsageType.SIGNING);
-				cred.setEntityId(token.getIdpEntityId());
+				cred.setEntityId(token.getRelyingPartyRegistration().getAssertingPartyDetails().getEntityId());
 				credentials.add(cred);
 			}
 			CredentialResolver credentialsResolver = new CollectionCredentialResolver(credentials);
@@ -709,10 +703,12 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 							}
 						},
 						token -> {
+							String audience = token.getRelyingPartyRegistration().getEntityId();
+							String recipient = token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
 							Map<String, Object> params = new HashMap<>();
 							params.put(CLOCK_SKEW, Duration.ofMinutes(5).toMillis());
-							params.put(COND_VALID_AUDIENCES, singleton(token.getIdpEntityId()));
-							params.put(SC_VALID_RECIPIENTS, singleton(token.getRecipientUri()));
+							params.put(COND_VALID_AUDIENCES, singleton(audience));
+							params.put(SC_VALID_RECIPIENTS, singleton(recipient));
 							params.putAll(this.validationContextParameters);
 							return new ValidationContext(params);
 						});
@@ -734,9 +730,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			return encrypted -> {
 				Saml2AuthenticationException last =
 						authException(DECRYPTION_ERROR, "No valid decryption credentials found.");
-				List<Saml2X509Credential> decryptionCredentials = token.getX509Credentials();
+				List<Saml2X509Credential> decryptionCredentials = token.getRelyingPartyRegistration().getDecryptionCredentials();
 				for (Saml2X509Credential key : decryptionCredentials) {
-					if (!key.isDecryptionCredential()) continue;
 					Decrypter decrypter = getDecrypter(key);
 					try {
 						return (NameID) decrypter.decrypt(encrypted);
