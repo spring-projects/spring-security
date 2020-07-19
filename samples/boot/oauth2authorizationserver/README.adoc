@@ -32,7 +32,7 @@ Which will respond with something like:
 }
 ```
 
-You can also so the same with the `writer` client:
+You can also do the same with the `writer` client:
 
 ```bash
 curl writer:secret@localhost:8081/oauth/token -d grant_type=password -d username=subject -d password=password
