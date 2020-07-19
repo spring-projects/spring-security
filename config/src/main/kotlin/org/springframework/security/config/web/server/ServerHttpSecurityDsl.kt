@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
 import org.springframework.web.server.ServerWebExchange
+import org.springframework.web.server.WebFilter
 
 /**
  * Configures [ServerHttpSecurity] using a [ServerHttpSecurity Kotlin DSL][ServerHttpSecurityDsl].
@@ -87,6 +88,81 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      */
     fun securityMatcher(securityMatcher: ServerWebExchangeMatcher) {
         this.http.securityMatcher(securityMatcher)
+    }
+
+    /**
+     * Adds a [WebFilter] at a specific position.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebFluxSecurity
+     * class SecurityConfig {
+     *
+     *  @Bean
+     *  fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+     *      return http {
+     *          addFilterAt(CustomWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE)
+     *       }
+     *   }
+     * }
+     * ```
+     *
+     * @param webFilter the [WebFilter] to add
+     * @param order the place to insert the [WebFilter]
+     */
+    fun addFilterAt(webFilter: WebFilter, order: SecurityWebFiltersOrder) {
+        this.http.addFilterAt(webFilter, order)
+    }
+
+    /**
+     * Adds a [WebFilter] before specific position.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebFluxSecurity
+     * class SecurityConfig {
+     *
+     *  @Bean
+     *  fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+     *      return http {
+     *          addFilterBefore(CustomWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE)
+     *       }
+     *   }
+     * }
+     * ```
+     *
+     * @param webFilter the [WebFilter] to add
+     * @param order the place before which to insert the [WebFilter]
+     */
+    fun addFilterBefore(webFilter: WebFilter, order: SecurityWebFiltersOrder) {
+        this.http.addFilterBefore(webFilter, order)
+    }
+
+    /**
+     * Adds a [WebFilter] after specific position.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebFluxSecurity
+     * class SecurityConfig {
+     *
+     *  @Bean
+     *  fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+     *      return http {
+     *          addFilterAfter(CustomWebFilter(), SecurityWebFiltersOrder.SECURITY_CONTEXT_SERVER_WEB_EXCHANGE)
+     *       }
+     *   }
+     * }
+     * ```
+     *
+     * @param webFilter the [WebFilter] to add
+     * @param order the place after which to insert the [WebFilter]
+     */
+    fun addFilterAfter(webFilter: WebFilter, order: SecurityWebFiltersOrder) {
+        this.http.addFilterAfter(webFilter, order)
     }
 
     /**
