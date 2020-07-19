@@ -43,7 +43,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 
 
 	public BCryptPasswordEncoder() {
-		this(-1);
+		this(BCrypt.DEFAULT_ROUNDS);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 * @param random  the secure random instance to use
 	 */
 	public BCryptPasswordEncoder(BCryptVersion version, SecureRandom random) {
-		this(version, -1, random);
+		this(version, BCrypt.DEFAULT_ROUNDS, random);
 	}
 
 	/**
@@ -90,11 +90,11 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 * @param random   the secure random instance to use
 	 */
 	public BCryptPasswordEncoder(BCryptVersion version, int strength, SecureRandom random) {
-		if (strength != -1 && (strength < BCrypt.MIN_LOG_ROUNDS || strength > BCrypt.MAX_LOG_ROUNDS)) {
+		if (strength < BCrypt.MIN_LOG_ROUNDS || strength > BCrypt.MAX_LOG_ROUNDS) {
 			throw new IllegalArgumentException("Bad strength");
 		}
 		this.version = version;
-		this.strength = strength == -1 ? 10 : strength;
+		this.strength = strength;
 		this.random = random;
 	}
 

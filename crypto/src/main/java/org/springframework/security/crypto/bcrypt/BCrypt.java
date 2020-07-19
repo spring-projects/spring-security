@@ -370,6 +370,7 @@ public class BCrypt {
 	};
 	static final int MIN_LOG_ROUNDS = 4;
 	static final int MAX_LOG_ROUNDS = 31;
+	static final int DEFAULT_ROUNDS = 10;
 
 	// Expanded Blowfish key
 	private int P[];
