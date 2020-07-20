@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import org.springframework.util.Assert;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -24,14 +26,17 @@ import java.util.Map;
  * Default implementation of a {@link Saml2AuthenticatedPrincipal}.
  *
  * @author Clement Stoquart
- * @since 5.2.2
+ * @since 5.4
  */
-class SimpleSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPrincipal, Serializable {
+public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPrincipal, Serializable {
 
 	private final String name;
 	private final Map<String, List<Object>> attributes;
 
-	SimpleSaml2AuthenticatedPrincipal(String name, Map<String, List<Object>> attributes) {
+	public DefaultSaml2AuthenticatedPrincipal(String name, Map<String, List<Object>> attributes) {
+		Assert.notNull(name, "name cannot be null");
+		Assert.notNull(attributes, "attributes cannot be null");
+
 		this.name = name;
 		this.attributes = attributes;
 	}

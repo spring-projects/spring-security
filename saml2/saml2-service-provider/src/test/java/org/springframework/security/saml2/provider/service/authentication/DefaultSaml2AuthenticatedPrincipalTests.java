@@ -26,23 +26,40 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
-public class SimpleSaml2AuthenticatedPrincipalTests {
+public class DefaultSaml2AuthenticatedPrincipalTests {
 
 	@Test
-	public void createSimpleSaml2AuthenticatedPrincipal() {
+	public void createDefaultSaml2AuthenticatedPrincipal() {
 		Map<String, List<Object>> attributes = new LinkedHashMap<>();
 		attributes.put("email", Arrays.asList("john.doe@example.com", "doe.john@example.com"));
-		SimpleSaml2AuthenticatedPrincipal principal = new SimpleSaml2AuthenticatedPrincipal("user", attributes);
+		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user", attributes);
 		assertThat(principal.getName()).isEqualTo("user");
 		assertThat(principal.getAttributes()).isEqualTo(attributes);
+	}
+
+	@Test
+	public void createDefaultSaml2AuthenticatedPrincipalWhenNameNullThenException() {
+		Map<String, List<Object>> attributes = new LinkedHashMap<>();
+		attributes.put("email", Arrays.asList("john.doe@example.com", "doe.john@example.com"));
+		assertThatCode(() -> new DefaultSaml2AuthenticatedPrincipal(null, attributes))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("name cannot be null");
+	}
+
+	@Test
+	public void createDefaultSaml2AuthenticatedPrincipalWhenAttributesNullThenException() {
+		assertThatCode(() -> new DefaultSaml2AuthenticatedPrincipal("user", null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("attributes cannot be null");
 	}
 
 	@Test
 	public void getFirstAttributeWhenStringValueThenReturnsValue() {
 		Map<String, List<Object>> attributes = new LinkedHashMap<>();
 		attributes.put("email", Arrays.asList("john.doe@example.com", "doe.john@example.com"));
-		SimpleSaml2AuthenticatedPrincipal principal = new SimpleSaml2AuthenticatedPrincipal("user", attributes);
+		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user", attributes);
 		assertThat(principal.<String>getFirstAttribute("email")).isEqualTo(attributes.get("email").get(0));
 	}
 
@@ -50,7 +67,7 @@ public class SimpleSaml2AuthenticatedPrincipalTests {
 	public void getAttributeWhenStringValuesThenReturnsValues() {
 		Map<String, List<Object>> attributes = new LinkedHashMap<>();
 		attributes.put("email", Arrays.asList("john.doe@example.com", "doe.john@example.com"));
-		SimpleSaml2AuthenticatedPrincipal principal = new SimpleSaml2AuthenticatedPrincipal("user", attributes);
+		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user", attributes);
 		assertThat(principal.<String>getAttribute("email")).isEqualTo(attributes.get("email"));
 	}
 
@@ -62,7 +79,7 @@ public class SimpleSaml2AuthenticatedPrincipalTests {
 		Map<String, List<Object>> attributes = new LinkedHashMap<>();
 		attributes.put("registration", Arrays.asList(registered, registeredDate));
 
-		SimpleSaml2AuthenticatedPrincipal principal = new SimpleSaml2AuthenticatedPrincipal("user", attributes);
+		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user", attributes);
 
 		List<Object> registrationInfo = principal.getAttribute("registration");
 
