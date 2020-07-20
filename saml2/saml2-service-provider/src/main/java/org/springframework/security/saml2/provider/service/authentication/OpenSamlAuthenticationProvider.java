@@ -198,7 +198,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 				String username = assertion.getSubject().getNameID().getValue();
 				Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
 				return new Saml2Authentication(
-						new SimpleSaml2AuthenticatedPrincipal(username, attributes), token.getSaml2Response(),
+						new DefaultSaml2AuthenticatedPrincipal(username, attributes), token.getSaml2Response(),
 						this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion)));
 			};
 
