@@ -108,6 +108,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.AuthenticationConverterServerWebExchangeMatcher;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.ReactivePreAuthenticatedAuthenticationManager;
@@ -179,8 +180,6 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.match;
-import static org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult.notMatch;
 
 /**
  * A {@link ServerHttpSecurity} is similar to Spring Security's {@code HttpSecurity} but for WebFlux.
@@ -1629,8 +1628,7 @@ public class ServerHttpSecurity {
 		private ServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
 		private ServerAccessDeniedHandler accessDeniedHandler = new BearerTokenServerAccessDeniedHandler();
 		private ServerAuthenticationConverter bearerTokenConverter = new ServerBearerTokenAuthenticationConverter();
-		private BearerTokenServerWebExchangeMatcher bearerTokenServerWebExchangeMatcher =
-				new BearerTokenServerWebExchangeMatcher();
+		private AuthenticationConverterServerWebExchangeMatcher authenticationConverterServerWebExchangeMatcher;
 
 		private JwtSpec jwt;
 		private OpaqueTokenSpec opaqueToken;
@@ -1748,8 +1746,8 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			this.bearerTokenServerWebExchangeMatcher
-					.setBearerTokenConverter(this.bearerTokenConverter);
+			this.authenticationConverterServerWebExchangeMatcher =
+					new AuthenticationConverterServerWebExchangeMatcher(this.bearerTokenConverter);
 
 			registerDefaultAccessDeniedHandler(http);
 			registerDefaultAuthenticationEntryPoint(http);
@@ -1794,7 +1792,7 @@ public class ServerHttpSecurity {
 			if ( http.exceptionHandling != null ) {
 				http.defaultAccessDeniedHandlers.add(
 						new ServerWebExchangeDelegatingServerAccessDeniedHandler.DelegateEntry(
-								this.bearerTokenServerWebExchangeMatcher,
+								this.authenticationConverterServerWebExchangeMatcher,
 								OAuth2ResourceServerSpec.this.accessDeniedHandler
 						)
 				);
@@ -1805,7 +1803,7 @@ public class ServerHttpSecurity {
 			if (http.exceptionHandling != null) {
 				http.defaultEntryPoints.add(
 						new DelegateEntry(
-								this.bearerTokenServerWebExchangeMatcher,
+								this.authenticationConverterServerWebExchangeMatcher,
 								OAuth2ResourceServerSpec.this.entryPoint
 						)
 				);
@@ -1820,27 +1818,7 @@ public class ServerHttpSecurity {
 							new AndServerWebExchangeMatcher(
 									CsrfWebFilter.DEFAULT_CSRF_MATCHER,
 									new NegatedServerWebExchangeMatcher(
-											this.bearerTokenServerWebExchangeMatcher)));
-			}
-		}
-
-		private class BearerTokenServerWebExchangeMatcher implements ServerWebExchangeMatcher {
-			ServerAuthenticationConverter bearerTokenConverter;
-
-			@Override
-			public Mono<MatchResult> matches(ServerWebExchange exchange) {
-				return this.bearerTokenConverter.convert(exchange)
-						.flatMap(this::nullAuthentication)
-						.onErrorResume(e -> notMatch());
-			}
-
-			public void setBearerTokenConverter(ServerAuthenticationConverter bearerTokenConverter) {
-				Assert.notNull(bearerTokenConverter, "bearerTokenConverter cannot be null");
-				this.bearerTokenConverter = bearerTokenConverter;
-			}
-
-			private Mono<MatchResult> nullAuthentication(Authentication authentication) {
-				return authentication == null ? notMatch() : match();
+											this.authenticationConverterServerWebExchangeMatcher)));
 			}
 		}
 
@@ -4034,4 +4012,5 @@ public class ServerHttpSecurity {
 		private AnonymousSpec() {}
 
 	}
+
 }
