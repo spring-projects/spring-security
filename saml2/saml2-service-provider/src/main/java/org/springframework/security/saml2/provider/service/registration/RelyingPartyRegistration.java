@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,18 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
-import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
 
 /**
@@ -51,11 +54,11 @@ import org.springframework.util.Assert;
  *	RelyingPartyRegistration rp = RelyingPartyRegistration.withRegistrationId(registrationId)
  * 			.entityId(relyingPartyEntityId)
  * 			.assertionConsumerServiceLocation(assertingConsumerServiceLocation)
- * 		 	.credentials(c -> c.add(relyingPartySigningCredential))
+ * 		 	.signingX509Credentials(c -> c.add(relyingPartySigningCredential))
  * 			.assertingPartyDetails(details -> details
  * 				.entityId(assertingPartyEntityId));
  * 				.singleSignOnServiceLocation(singleSignOnServiceLocation))
- * 				.credentials(c -> c.add(assertingPartyVerificationCredential))
+ * 				.verifyingX509Credentials(c -> c.add(assertingPartyVerificationCredential))
  * 			.build();
  * </pre>
  *
@@ -70,7 +73,9 @@ public class RelyingPartyRegistration {
 	private final String assertionConsumerServiceLocation;
 	private final Saml2MessageBinding assertionConsumerServiceBinding;
 	private final ProviderDetails providerDetails;
-	private final List<Saml2X509Credential> credentials;
+	private final List<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials;
+	private final Collection<Saml2X509Credential> decryptionX509Credentials;
+	private final Collection<Saml2X509Credential> signingX509Credentials;
 
 	private RelyingPartyRegistration(
 			String registrationId,
@@ -78,7 +83,9 @@ public class RelyingPartyRegistration {
 			String assertionConsumerServiceLocation,
 			Saml2MessageBinding assertionConsumerServiceBinding,
 			ProviderDetails providerDetails,
-			List<Saml2X509Credential> credentials) {
+			Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials,
+			Collection<Saml2X509Credential> decryptionX509Credentials,
+			Collection<Saml2X509Credential> signingX509Credentials) {
 
 		Assert.hasText(registrationId, "registrationId cannot be empty");
 		Assert.hasText(entityId, "entityId cannot be empty");
@@ -86,8 +93,20 @@ public class RelyingPartyRegistration {
 		Assert.notNull(assertionConsumerServiceBinding, "assertionConsumerServiceBinding cannot be null");
 		Assert.notNull(providerDetails, "providerDetails cannot be null");
 		Assert.notEmpty(credentials, "credentials cannot be empty");
-		for (Saml2X509Credential c : credentials) {
+		for (org.springframework.security.saml2.credentials.Saml2X509Credential c : credentials) {
 			Assert.notNull(c, "credentials cannot contain null elements");
+		}
+		Assert.notNull(decryptionX509Credentials, "decryptionX509Credentials cannot be null");
+		for (Saml2X509Credential c : decryptionX509Credentials) {
+			Assert.notNull(c, "decryptionX509Credentials cannot contain null elements");
+			Assert.isTrue(c.isDecryptionCredential(),
+					"All decryptionX509Credentials must have a usage of DECRYPTION set");
+		}
+		Assert.notNull(signingX509Credentials, "signingX509Credentials cannot be null");
+		for (Saml2X509Credential c : signingX509Credentials) {
+			Assert.notNull(c, "signingX509Credentials cannot contain null elements");
+			Assert.isTrue(c.isSigningCredential(),
+					"All signingX509Credentials must have a usage of SIGNING set");
 		}
 		this.registrationId = registrationId;
 		this.entityId = entityId;
@@ -95,6 +114,8 @@ public class RelyingPartyRegistration {
 		this.assertionConsumerServiceBinding = assertionConsumerServiceBinding;
 		this.providerDetails = providerDetails;
 		this.credentials = Collections.unmodifiableList(new LinkedList<>(credentials));
+		this.decryptionX509Credentials = Collections.unmodifiableList(new LinkedList<>(decryptionX509Credentials));
+		this.signingX509Credentials = Collections.unmodifiableList(new LinkedList<>(signingX509Credentials));
 	}
 
 	/**
@@ -152,6 +173,26 @@ public class RelyingPartyRegistration {
 	 */
 	public Saml2MessageBinding getAssertionConsumerServiceBinding() {
 		return this.assertionConsumerServiceBinding;
+	}
+
+	/**
+	 * Get the {@link Collection} of decryption {@link Saml2X509Credential}s associated with this relying party
+	 *
+	 * @return the {@link Collection} of decryption {@link Saml2X509Credential}s associated with this relying party
+	 * @since 5.4
+	 */
+	public Collection<Saml2X509Credential> getDecryptionX509Credentials() {
+		return this.decryptionX509Credentials;
+	}
+
+	/**
+	 * Get the {@link Collection} of signing {@link Saml2X509Credential}s associated with this relying party
+	 *
+	 * @return the {@link Collection} of signing {@link Saml2X509Credential}s associated with this relying party
+	 * @since 5.4
+	 */
+	public Collection<Saml2X509Credential> getSigningX509Credentials() {
+		return this.signingX509Credentials;
 	}
 
 	/**
@@ -225,50 +266,62 @@ public class RelyingPartyRegistration {
 	 * Returns a list of configured credentials to be used in message exchanges between relying party, SP, and
 	 * asserting party, IDP.
 	 * @return a list of credentials
+	 * @deprecated Instead of retrieving all credentials, use the appropriate method for obtaining the correct type
 	 */
-	public List<Saml2X509Credential> getCredentials() {
+	@Deprecated
+	public List<org.springframework.security.saml2.credentials.Saml2X509Credential> getCredentials() {
 		return this.credentials;
 	}
 
 	/**
 	 * @return a filtered list containing only credentials of type
-	 * {@link Saml2X509CredentialType#VERIFICATION}.
+	 * {@link org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType#VERIFICATION}.
 	 * Returns an empty list of credentials are not found
+	 * @deprecated Use {@link #getAssertingPartyDetails().getSigningX509Credentials()} instead
 	 */
-	public List<Saml2X509Credential> getVerificationCredentials() {
-		return filterCredentials(c -> c.isSignatureVerficationCredential());
+	@Deprecated
+	public List<org.springframework.security.saml2.credentials.Saml2X509Credential> getVerificationCredentials() {
+		return filterCredentials(org.springframework.security.saml2.credentials.Saml2X509Credential::isSignatureVerficationCredential);
 	}
 
 	/**
 	 * @return a filtered list containing only credentials of type
-	 * {@link Saml2X509CredentialType#SIGNING}.
+	 * {@link org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType#SIGNING}.
 	 * Returns an empty list of credentials are not found
+	 * @deprecated Use {@link #getSigningX509Credentials()} instead
 	 */
-	public List<Saml2X509Credential> getSigningCredentials() {
-		return filterCredentials(c -> c.isSigningCredential());
+	@Deprecated
+	public List<org.springframework.security.saml2.credentials.Saml2X509Credential> getSigningCredentials() {
+		return filterCredentials(org.springframework.security.saml2.credentials.Saml2X509Credential::isSigningCredential);
 	}
 
 	/**
 	 * @return a filtered list containing only credentials of type
-	 * {@link Saml2X509CredentialType#ENCRYPTION}.
+	 * {@link org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType#ENCRYPTION}.
 	 * Returns an empty list of credentials are not found
+	 * @deprecated Use {@link AssertingPartyDetails#getEncryptionX509Credentials()} instead
 	 */
-	public List<Saml2X509Credential> getEncryptionCredentials() {
-		return filterCredentials(c -> c.isEncryptionCredential());
+	@Deprecated
+	public List<org.springframework.security.saml2.credentials.Saml2X509Credential> getEncryptionCredentials() {
+		return filterCredentials(org.springframework.security.saml2.credentials.Saml2X509Credential::isEncryptionCredential);
 	}
 
 	/**
 	 * @return a filtered list containing only credentials of type
-	 * {@link Saml2X509CredentialType#DECRYPTION}.
+	 * {@link org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType#DECRYPTION}.
 	 * Returns an empty list of credentials are not found
+	 * @deprecated Use {@link #getDecryptionX509Credentials()} instead
 	 */
-	public List<Saml2X509Credential> getDecryptionCredentials() {
-		return filterCredentials(c -> c.isDecryptionCredential());
+	@Deprecated
+	public List<org.springframework.security.saml2.credentials.Saml2X509Credential> getDecryptionCredentials() {
+		return filterCredentials(org.springframework.security.saml2.credentials.Saml2X509Credential::isDecryptionCredential);
 	}
 
-	private List<Saml2X509Credential> filterCredentials(Function<Saml2X509Credential, Boolean> filter) {
-		List<Saml2X509Credential> result = new LinkedList<>();
-		for (Saml2X509Credential c : getCredentials()) {
+	private List<org.springframework.security.saml2.credentials.Saml2X509Credential> filterCredentials(
+			Function<org.springframework.security.saml2.credentials.Saml2X509Credential, Boolean> filter) {
+
+		List<org.springframework.security.saml2.credentials.Saml2X509Credential> result = new LinkedList<>();
+		for (org.springframework.security.saml2.credentials.Saml2X509Credential c : this.credentials) {
 			if (filter.apply(c)) {
 				result.add(c);
 			}
@@ -295,15 +348,18 @@ public class RelyingPartyRegistration {
 		Assert.notNull(registration, "registration cannot be null");
 		return withRegistrationId(registration.getRegistrationId())
 				.entityId(registration.getEntityId())
+				.signingX509Credentials(c -> c.addAll(registration.getSigningX509Credentials()))
+				.decryptionX509Credentials(c -> c.addAll(registration.getDecryptionX509Credentials()))
 				.assertionConsumerServiceLocation(registration.getAssertionConsumerServiceLocation())
 				.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
-				.assertingPartyDetails(c -> c
+				.assertingPartyDetails(assertingParty -> assertingParty
 					.entityId(registration.getAssertingPartyDetails().getEntityId())
 					.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
+					.verificationX509Credentials(c -> c.addAll(registration.getAssertingPartyDetails().getVerificationX509Credentials()))
+					.encryptionX509Credentials(c -> c.addAll(registration.getAssertingPartyDetails().getEncryptionX509Credentials()))
 					.singleSignOnServiceLocation(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation())
 					.singleSignOnServiceBinding(registration.getAssertingPartyDetails().getSingleSignOnServiceBinding())
-				)
-				.credentials(c -> c.addAll(registration.getCredentials()));
+				);
 	}
 
 
@@ -315,20 +371,38 @@ public class RelyingPartyRegistration {
 	public final static class AssertingPartyDetails {
 		private final String entityId;
 		private final boolean wantAuthnRequestsSigned;
+		private final Collection<Saml2X509Credential> verificationX509Credentials;
+		private final Collection<Saml2X509Credential> encryptionX509Credentials;
 		private final String singleSignOnServiceLocation;
 		private final Saml2MessageBinding singleSignOnServiceBinding;
 
 		private AssertingPartyDetails(
 				String entityId,
 				boolean wantAuthnRequestsSigned,
+				Collection<Saml2X509Credential> verificationX509Credentials,
+				Collection<Saml2X509Credential> encryptionX509Credentials,
 				String singleSignOnServiceLocation,
 				Saml2MessageBinding singleSignOnServiceBinding) {
 
 			Assert.hasText(entityId, "entityId cannot be null or empty");
+			Assert.notNull(verificationX509Credentials, "verificationX509Credentials cannot be null");
+			for (Saml2X509Credential credential : verificationX509Credentials) {
+				Assert.notNull(credential, "verificationX509Credentials cannot have null values");
+				Assert.isTrue(credential.isVerificationCredential(),
+						"All verificationX509Credentials must have a usage of VERIFICATION set");
+			}
+			Assert.notNull(encryptionX509Credentials, "encryptionX509Credentials cannot be null");
+			for (Saml2X509Credential credential : encryptionX509Credentials) {
+				Assert.notNull(credential, "encryptionX509Credentials cannot have null values");
+				Assert.isTrue(credential.isEncryptionCredential(),
+						"All encryptionX509Credentials must have a usage of ENCRYPTION set");
+			}
 			Assert.notNull(singleSignOnServiceLocation, "singleSignOnServiceLocation cannot be null");
 			Assert.notNull(singleSignOnServiceBinding, "singleSignOnServiceBinding cannot be null");
 			this.entityId = entityId;
 			this.wantAuthnRequestsSigned = wantAuthnRequestsSigned;
+			this.verificationX509Credentials = verificationX509Credentials;
+			this.encryptionX509Credentials = encryptionX509Credentials;
 			this.singleSignOnServiceLocation = singleSignOnServiceLocation;
 			this.singleSignOnServiceBinding = singleSignOnServiceBinding;
 		}
@@ -360,6 +434,26 @@ public class RelyingPartyRegistration {
 		 */
 		public boolean getWantAuthnRequestsSigned() {
 			return this.wantAuthnRequestsSigned;
+		}
+
+		/**
+		 * Get all verification {@link Saml2X509Credential}s associated with this asserting party
+		 *
+		 * @return all verification {@link Saml2X509Credential}s associated with this asserting party
+		 * @since 5.4
+		 */
+		public Collection<Saml2X509Credential> getVerificationX509Credentials() {
+			return this.verificationX509Credentials;
+		}
+
+		/**
+		 * Get all encryption {@link Saml2X509Credential}s associated with this asserting party
+		 *
+		 * @return all encryption {@link Saml2X509Credential}s associated with this asserting party
+		 * @since 5.4
+		 */
+		public Collection<Saml2X509Credential> getEncryptionX509Credentials() {
+			return this.encryptionX509Credentials;
 		}
 
 		/**
@@ -395,6 +489,8 @@ public class RelyingPartyRegistration {
 		public final static class Builder {
 			private String entityId;
 			private boolean wantAuthnRequestsSigned = true;
+			private Collection<Saml2X509Credential> verificationX509Credentials = new HashSet<>();
+			private Collection<Saml2X509Credential> encryptionX509Credentials = new HashSet<>();
 			private String singleSignOnServiceLocation;
 			private Saml2MessageBinding singleSignOnServiceBinding = Saml2MessageBinding.REDIRECT;
 
@@ -421,6 +517,30 @@ public class RelyingPartyRegistration {
 			 */
 			public Builder wantAuthnRequestsSigned(boolean wantAuthnRequestsSigned) {
 				this.wantAuthnRequestsSigned = wantAuthnRequestsSigned;
+				return this;
+			}
+
+			/**
+			 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s
+			 *
+			 * @param credentialsConsumer a {@link Consumer} of the {@link List} of {@link Saml2X509Credential}s
+			 * @return the {@link RelyingPartyRegistration.Builder} for further configuration
+			 * @since 5.4
+			 */
+			public Builder verificationX509Credentials(Consumer<Collection<Saml2X509Credential>> credentialsConsumer) {
+				credentialsConsumer.accept(this.verificationX509Credentials);
+				return this;
+			}
+
+			/**
+			 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s
+			 *
+			 * @param credentialsConsumer a {@link Consumer} of the {@link List} of {@link Saml2X509Credential}s
+			 * @return the {@link RelyingPartyRegistration.Builder} for further configuration
+			 * @since 5.4
+			 */
+			public Builder encryptionX509Credentials(Consumer<Collection<Saml2X509Credential>> credentialsConsumer) {
+				credentialsConsumer.accept(this.encryptionX509Credentials);
 				return this;
 			}
 
@@ -466,6 +586,8 @@ public class RelyingPartyRegistration {
 				return new AssertingPartyDetails(
 						this.entityId,
 						this.wantAuthnRequestsSigned,
+						this.verificationX509Credentials,
+						this.encryptionX509Credentials,
 						this.singleSignOnServiceLocation,
 						this.singleSignOnServiceBinding
 				);
@@ -591,10 +713,12 @@ public class RelyingPartyRegistration {
 	public final static class Builder {
 		private String registrationId;
 		private String entityId = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
+		private Collection<Saml2X509Credential> signingX509Credentials = new HashSet<>();
+		private Collection<Saml2X509Credential> decryptionX509Credentials = new HashSet<>();
 		private String assertionConsumerServiceLocation;
 		private Saml2MessageBinding assertionConsumerServiceBinding = Saml2MessageBinding.POST;
 		private ProviderDetails.Builder providerDetails = new ProviderDetails.Builder();
-		private List<Saml2X509Credential> credentials = new LinkedList<>();
+		private Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials = new HashSet<>();
 
 		private Builder(String registrationId) {
 			this.registrationId = registrationId;
@@ -626,6 +750,32 @@ public class RelyingPartyRegistration {
 		 */
 		public Builder entityId(String entityId) {
 			this.entityId = entityId;
+			return this;
+		}
+
+		/**
+		 * Apply this {@link Consumer} to the {@link Collection} of {@link Saml2X509Credential}s
+		 * for the purposes of modifying the {@link Collection}
+		 *
+		 * @param credentialsConsumer - the {@link Consumer} for modifying the {@link Collection}
+		 * @return the {@link Builder} for further configuration
+		 * @since 5.4
+		 */
+		public Builder signingX509Credentials(Consumer<Collection<Saml2X509Credential>> credentialsConsumer) {
+			credentialsConsumer.accept(this.signingX509Credentials);
+			return this;
+		}
+
+		/**
+		 * Apply this {@link Consumer} to the {@link Collection} of {@link Saml2X509Credential}s
+		 * for the purposes of modifying the {@link Collection}
+		 *
+		 * @param credentialsConsumer - the {@link Consumer} for modifying the {@link Collection}
+		 * @return the {@link Builder} for further configuration
+		 * @since 5.4
+		 */
+		public Builder decryptionX509Credentials(Consumer<Collection<Saml2X509Credential>> credentialsConsumer) {
+			credentialsConsumer.accept(this.decryptionX509Credentials);
 			return this;
 		}
 
@@ -693,8 +843,12 @@ public class RelyingPartyRegistration {
 		 * </code>
 		 * @param credentials - a consumer that can modify the collection of credentials
 		 * @return this object
+		 * @deprecated Use {@link #signingX509Credentials} or {@link #decryptionX509Credentials} instead
+		 * for relying party keys or {@link AssertingPartyDetails.Builder#verificationX509Credentials} or
+		 * {@link AssertingPartyDetails.Builder#encryptionX509Credentials} for asserting party keys
 		 */
-		public Builder credentials(Consumer<Collection<Saml2X509Credential>> credentials) {
+		@Deprecated
+		public Builder credentials(Consumer<Collection<org.springframework.security.saml2.credentials.Saml2X509Credential>> credentials) {
 			credentials.accept(this.credentials);
 			return this;
 		}
@@ -769,15 +923,85 @@ public class RelyingPartyRegistration {
 		 * @return a RelyingPartyRegistration instance
 		 */
 		public RelyingPartyRegistration build() {
+			for (org.springframework.security.saml2.credentials.Saml2X509Credential credential : this.credentials) {
+				Saml2X509Credential mapped = fromDeprecated(credential);
+				if (credential.isSigningCredential()) {
+					signingX509Credentials(c -> c.add(mapped));
+				}
+				if (credential.isDecryptionCredential()) {
+					decryptionX509Credentials(c -> c.add(mapped));
+				}
+				if (credential.isSignatureVerficationCredential()) {
+					this.providerDetails.assertingPartyDetailsBuilder
+							.verificationX509Credentials(c -> c.add(mapped));
+				}
+				if (credential.isEncryptionCredential()) {
+					this.providerDetails.assertingPartyDetailsBuilder
+							.encryptionX509Credentials(c -> c.add(mapped));
+				}
+			}
+
+			for (Saml2X509Credential credential : this.signingX509Credentials) {
+				this.credentials.add(toDeprecated(credential));
+			}
+			for (Saml2X509Credential credential : this.decryptionX509Credentials) {
+				this.credentials.add(toDeprecated(credential));
+			}
+			for (Saml2X509Credential credential : this.providerDetails.assertingPartyDetailsBuilder.verificationX509Credentials) {
+				this.credentials.add(toDeprecated(credential));
+			}
+			for (Saml2X509Credential credential : this.providerDetails.assertingPartyDetailsBuilder.encryptionX509Credentials) {
+				this.credentials.add(toDeprecated(credential));
+			}
+
 			return new RelyingPartyRegistration(
 					this.registrationId,
 					this.entityId,
 					this.assertionConsumerServiceLocation,
 					this.assertionConsumerServiceBinding,
 					this.providerDetails.build(),
-					this.credentials
+					this.credentials,
+					this.decryptionX509Credentials,
+					this.signingX509Credentials
 			);
 		}
 	}
 
+	private static Saml2X509Credential fromDeprecated(org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
+		PrivateKey privateKey = credential.getPrivateKey();
+		X509Certificate certificate = credential.getCertificate();
+		Set<Saml2X509Credential.Saml2X509CredentialType> credentialTypes = new HashSet<>();
+		if (credential.isSigningCredential()) {
+			credentialTypes.add(Saml2X509Credential.Saml2X509CredentialType.SIGNING);
+		}
+		if (credential.isSignatureVerficationCredential()) {
+			credentialTypes.add(Saml2X509Credential.Saml2X509CredentialType.VERIFICATION);
+		}
+		if (credential.isEncryptionCredential()) {
+			credentialTypes.add(Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION);
+		}
+		if (credential.isDecryptionCredential()) {
+			credentialTypes.add(Saml2X509Credential.Saml2X509CredentialType.DECRYPTION);
+		}
+		return new Saml2X509Credential(privateKey, certificate, credentialTypes);
+	}
+
+	private static org.springframework.security.saml2.credentials.Saml2X509Credential toDeprecated(Saml2X509Credential credential) {
+		PrivateKey privateKey = credential.getPrivateKey();
+		X509Certificate certificate = credential.getCertificate();
+		Set<org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType> credentialTypes = new HashSet<>();
+		if (credential.isSigningCredential()) {
+			credentialTypes.add(org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING);
+		}
+		if (credential.isVerificationCredential()) {
+			credentialTypes.add(org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION);
+		}
+		if (credential.isEncryptionCredential()) {
+			credentialTypes.add(org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION);
+		}
+		if (credential.isDecryptionCredential()) {
+			credentialTypes.add(org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION);
+		}
+		return new org.springframework.security.saml2.credentials.Saml2X509Credential(privateKey, certificate, credentialTypes);
+	}
 }

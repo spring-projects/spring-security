@@ -26,14 +26,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.converter.RsaKeyConverters;
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION;
+import static org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION;
+import static org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType.SIGNING;
+import static org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -56,11 +56,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return RelyingPartyRegistration.withRegistrationId(registrationId)
 				.entityId(localEntityIdTemplate)
 				.assertionConsumerServiceLocation(acsUrlTemplate)
-				.credentials(c -> c.add(signingCredential))
+				.signingX509Credentials(c -> c.add(signingCredential))
 				.assertingPartyDetails(config -> config
 						.entityId(idpEntityId)
-						.singleSignOnServiceLocation(webSsoEndpoint))
-						.credentials(c -> c.add(idpVerificationCertificate))
+						.singleSignOnServiceLocation(webSsoEndpoint)
+						.verificationX509Credentials(c -> c.add(idpVerificationCertificate)))
 				.build();
 	}
 

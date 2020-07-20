@@ -19,9 +19,9 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -62,7 +62,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.springframework.security.saml2.Saml2Exception;
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
 import org.springframework.web.util.UriUtils;
 
@@ -187,13 +187,6 @@ final class OpenSamlImplementation {
 		}
 	}
 
-	String serialize(AuthnRequest authnRequest, List<Saml2X509Credential> signingCredentials) {
-		if (hasSigningCredential(signingCredentials) != null) {
-			signAuthnRequest(authnRequest, signingCredentials);
-		}
-		return serialize(authnRequest);
-	}
-
 	/**
 	 * Returns query parameter after creating a Query String signature
 	 * All return values are unencoded and will need to be encoded prior to sending
@@ -205,7 +198,7 @@ final class OpenSamlImplementation {
 	 *
 	 */
 	Map<String, String> signQueryParameters(
-			List<Saml2X509Credential> signingCredentials,
+			Collection<Saml2X509Credential> signingCredentials,
 			String samlRequest,
 			String relayState) {
 		Assert.notNull(samlRequest, "samlRequest cannot be null");
@@ -280,7 +273,7 @@ final class OpenSamlImplementation {
 	}
 
 
-	private Saml2X509Credential hasSigningCredential(List<Saml2X509Credential> credentials) {
+	private Saml2X509Credential hasSigningCredential(Collection<Saml2X509Credential> credentials) {
 		for (Saml2X509Credential c : credentials) {
 			if (c.isSigningCredential()) {
 				return c;
@@ -289,7 +282,7 @@ final class OpenSamlImplementation {
 		return null;
 	}
 
-	private Credential getSigningCredential(List<Saml2X509Credential> signingCredential,
+	private Credential getSigningCredential(Collection<Saml2X509Credential> signingCredential,
 											String localSpEntityId
 	) {
 		Saml2X509Credential credential = hasSigningCredential(signingCredential);
@@ -302,7 +295,7 @@ final class OpenSamlImplementation {
 		return cred;
 	}
 
-	private void signAuthnRequest(AuthnRequest authnRequest, List<Saml2X509Credential> signingCredentials) {
+	private void signAuthnRequest(AuthnRequest authnRequest, Collection<Saml2X509Credential> signingCredentials) {
 		SignatureSigningParameters parameters = new SignatureSigningParameters();
 		Credential credential = getSigningCredential(signingCredentials, authnRequest.getIssuer().getValue());
 		parameters.setSigningCredential(credential);

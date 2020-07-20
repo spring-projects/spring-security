@@ -16,11 +16,11 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
-import org.springframework.security.saml2.Saml2Exception;
-import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType;
-import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
-
 import java.nio.charset.StandardCharsets;
+
+import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType;
+import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
 import static org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequest.withAuthenticationRequestContext;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDeflate;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.opensaml.xmlsec.crypto.XMLSigningUtil;
 
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.web.util.UriUtils;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
@@ -30,8 +30,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.opensaml.xmlsec.signature.support.SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256;
 import static org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects.getSigningCredential;
-import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartySigningCredential;
-import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
+import static org.springframework.security.saml2.core.TestSaml2X509Credentials.assertingPartySigningCredential;
+import static org.springframework.security.saml2.core.TestSaml2X509Credentials.relyingPartyVerifyingCredential;
 
 public class OpenSamlImplementationTests {
 

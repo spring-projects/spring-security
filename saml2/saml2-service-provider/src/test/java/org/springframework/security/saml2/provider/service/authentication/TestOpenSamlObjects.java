@@ -74,7 +74,7 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureSupport;
 
 import org.springframework.security.saml2.Saml2Exception;
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 
 final class TestOpenSamlObjects {
 	private static OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
@@ -178,6 +178,13 @@ final class TestOpenSamlObjects {
 		return cred;
 	}
 
+	static Credential getSigningCredential(org.springframework.security.saml2.credentials.Saml2X509Credential credential, String entityId) {
+		BasicCredential cred = getBasicCredential(credential);
+		cred.setEntityId(entityId);
+		cred.setUsageType(UsageType.SIGNING);
+		return cred;
+	}
+
 	static BasicCredential getBasicCredential(Saml2X509Credential credential) {
 		return CredentialSupport.getSimpleCredential(
 				credential.getCertificate(),
@@ -185,7 +192,30 @@ final class TestOpenSamlObjects {
 		);
 	}
 
+	static BasicCredential getBasicCredential(org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
+		return CredentialSupport.getSimpleCredential(
+				credential.getCertificate(),
+				credential.getPrivateKey()
+		);
+	}
+
 	static <T extends SignableSAMLObject> T signed(T signable, Saml2X509Credential credential, String entityId) {
+		SignatureSigningParameters parameters = new SignatureSigningParameters();
+		Credential signingCredential = getSigningCredential(credential, entityId);
+		parameters.setSigningCredential(signingCredential);
+		parameters.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
+		parameters.setSignatureReferenceDigestMethod(SignatureConstants.ALGO_ID_DIGEST_SHA256);
+		parameters.setSignatureCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+		try {
+			SignatureSupport.signObject(signable, parameters);
+		} catch (MarshallingException | SignatureException | SecurityException e) {
+			throw new Saml2Exception(e);
+		}
+
+		return signable;
+	}
+
+	static <T extends SignableSAMLObject> T signed(T signable, org.springframework.security.saml2.credentials.Saml2X509Credential credential, String entityId) {
 		SignatureSigningParameters parameters = new SignatureSigningParameters();
 		Credential signingCredential = getSigningCredential(credential, entityId);
 		parameters.setSigningCredential(signingCredential);
@@ -212,7 +242,29 @@ final class TestOpenSamlObjects {
 		}
 	}
 
+	static EncryptedAssertion encrypted(Assertion assertion, org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
+		X509Certificate certificate = credential.getCertificate();
+		Encrypter encrypter = getEncrypter(certificate);
+		try {
+			return encrypter.encrypt(assertion);
+		}
+		catch (EncryptionException e) {
+			throw new Saml2Exception("Unable to encrypt assertion.", e);
+		}
+	}
+
 	static EncryptedID encrypted(NameID nameId, Saml2X509Credential credential) {
+		X509Certificate certificate = credential.getCertificate();
+		Encrypter encrypter = getEncrypter(certificate);
+		try {
+			return encrypter.encrypt(nameId);
+		}
+		catch (EncryptionException e) {
+			throw new Saml2Exception("Unable to encrypt nameID.", e);
+		}
+	}
+
+	static EncryptedID encrypted(NameID nameId, org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
 		X509Certificate certificate = credential.getCertificate();
 		Encrypter encrypter = getEncrypter(certificate);
 		try {

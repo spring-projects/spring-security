@@ -99,7 +99,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.Saml2Error;
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -480,7 +480,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 
 		private SignatureTrustEngine buildSignatureTrustEngine(Saml2AuthenticationToken token) {
 			Set<Credential> credentials = new HashSet<>();
-			for (Saml2X509Credential key : token.getRelyingPartyRegistration().getVerificationCredentials()) {
+			Collection<Saml2X509Credential> keys = token.getRelyingPartyRegistration().getAssertingPartyDetails().getVerificationX509Credentials();
+			for (Saml2X509Credential key : keys) {
 				BasicX509Credential cred = new BasicX509Credential(key.getCertificate());
 				cred.setUsageType(UsageType.SIGNING);
 				cred.setEntityId(token.getRelyingPartyRegistration().getAssertingPartyDetails().getEntityId());
@@ -536,8 +537,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			return encrypted -> {
 				Saml2AuthenticationException last =
 						authException(DECRYPTION_ERROR, "No valid decryption credentials found.");
-				List<Saml2X509Credential> decryptionCredentials = token.getRelyingPartyRegistration().getDecryptionCredentials();
-				for (Saml2X509Credential key : decryptionCredentials) {
+				Collection<Saml2X509Credential> keys = token.getRelyingPartyRegistration().getDecryptionX509Credentials();
+				for (Saml2X509Credential key : keys) {
 					Decrypter decrypter = getDecrypter(key);
 					try {
 						return decrypter.decrypt(encrypted);
@@ -618,7 +619,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 
 		private SignatureTrustEngine buildSignatureTrustEngine(Saml2AuthenticationToken token) {
 			Set<Credential> credentials = new HashSet<>();
-			for (Saml2X509Credential key : token.getRelyingPartyRegistration().getVerificationCredentials()) {
+			Collection<Saml2X509Credential> keys = token.getRelyingPartyRegistration().getAssertingPartyDetails().getVerificationX509Credentials();
+			for (Saml2X509Credential key : keys) {
 				BasicX509Credential cred = new BasicX509Credential(key.getCertificate());
 				cred.setUsageType(UsageType.SIGNING);
 				cred.setEntityId(token.getRelyingPartyRegistration().getAssertingPartyDetails().getEntityId());
@@ -730,8 +732,8 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 			return encrypted -> {
 				Saml2AuthenticationException last =
 						authException(DECRYPTION_ERROR, "No valid decryption credentials found.");
-				List<Saml2X509Credential> decryptionCredentials = token.getRelyingPartyRegistration().getDecryptionCredentials();
-				for (Saml2X509Credential key : decryptionCredentials) {
+				Collection<Saml2X509Credential> keys = token.getRelyingPartyRegistration().getDecryptionX509Credentials();
+				for (Saml2X509Credential key : keys) {
 					Decrypter decrypter = getDecrypter(key);
 					try {
 						return (NameID) decrypter.decrypt(encrypted);

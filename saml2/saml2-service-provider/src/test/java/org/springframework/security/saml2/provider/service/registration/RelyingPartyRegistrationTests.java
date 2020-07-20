@@ -81,6 +81,14 @@ public class RelyingPartyRegistrationTests {
 				.isFalse();
 		assertThat(copy.getAssertionConsumerServiceBinding())
 				.isEqualTo(registration.getAssertionConsumerServiceBinding());
+		assertThat(copy.getDecryptionX509Credentials())
+				.isEqualTo(registration.getDecryptionX509Credentials());
+		assertThat(copy.getSigningX509Credentials())
+				.isEqualTo(registration.getSigningX509Credentials());
+		assertThat(copy.getAssertingPartyDetails().getEncryptionX509Credentials())
+				.isEqualTo(registration.getAssertingPartyDetails().getEncryptionX509Credentials());
+		assertThat(copy.getAssertingPartyDetails().getVerificationX509Credentials())
+				.isEqualTo(registration.getAssertingPartyDetails().getVerificationX509Credentials());
 	}
 
 	@Test

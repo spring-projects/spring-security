@@ -16,22 +16,36 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.security.PrivateKey;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.security.cert.X509Certificate;
 
 import org.joda.time.DateTime;
+import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
+import org.opensaml.security.SecurityException;
+import org.opensaml.security.credential.BasicCredential;
+import org.opensaml.security.credential.Credential;
+import org.opensaml.security.credential.CredentialSupport;
+import org.opensaml.security.credential.UsageType;
+import org.opensaml.xmlsec.SignatureSigningParameters;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
+import org.opensaml.xmlsec.signature.support.SignatureException;
+import org.opensaml.xmlsec.signature.support.SignatureSupport;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest.Builder;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -62,7 +76,14 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 		AuthnRequest authnRequest = createAuthnRequest(request.getIssuer(),
 				request.getDestination(), request.getAssertionConsumerServiceUrl(),
 				this.protocolBindingResolver.convert(null));
-		return this.saml.serialize(authnRequest, request.getCredentials());
+		for (org.springframework.security.saml2.credentials.Saml2X509Credential credential : request.getCredentials()) {
+			if (credential.isSigningCredential()) {
+				Credential cred = getSigningCredential(credential.getCertificate(), credential.getPrivateKey(), request.getIssuer());
+				signAuthnRequest(authnRequest, cred);
+				return this.saml.serialize(authnRequest);
+			}
+		}
+		throw new IllegalArgumentException("No signing credential provided");
 	}
 
 	/**
@@ -72,7 +93,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	public Saml2PostAuthenticationRequest createPostAuthenticationRequest(Saml2AuthenticationRequestContext context) {
 		AuthnRequest authnRequest = createAuthnRequest(context);
 		String xml = context.getRelyingPartyRegistration().getAssertingPartyDetails().getWantAuthnRequestsSigned() ?
-			this.saml.serialize(authnRequest, context.getRelyingPartyRegistration().getSigningCredentials()) :
+			signThenSerialize(authnRequest, context.getRelyingPartyRegistration()) :
 			this.saml.serialize(authnRequest);
 
 		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context)
@@ -93,7 +114,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 				.relayState(context.getRelayState());
 
 		if (context.getRelyingPartyRegistration().getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
-			List<Saml2X509Credential> signingCredentials = context.getRelyingPartyRegistration().getSigningCredentials();
+			Collection<Saml2X509Credential> signingCredentials = context.getRelyingPartyRegistration().getSigningX509Credentials();
 			Map<String, String> signedParams = this.saml.signQueryParameters(
 					signingCredentials,
 					deflatedAndEncoded,
@@ -177,5 +198,35 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 			throw new IllegalArgumentException("Invalid protocol binding: " + protocolBinding);
 		}
 		this.protocolBindingResolver = context -> protocolBinding;
+	}
+
+	private String signThenSerialize(AuthnRequest authnRequest, RelyingPartyRegistration relyingPartyRegistration) {
+		for (Saml2X509Credential credential : relyingPartyRegistration.getSigningX509Credentials()) {
+			Credential cred = getSigningCredential(
+					credential.getCertificate(), credential.getPrivateKey(), relyingPartyRegistration.getEntityId());
+			signAuthnRequest(authnRequest, cred);
+			return this.saml.serialize(authnRequest);
+		}
+		throw new IllegalArgumentException("No signing credential provided");
+	}
+
+	private void signAuthnRequest(AuthnRequest authnRequest, Credential credential) {
+		SignatureSigningParameters parameters = new SignatureSigningParameters();
+		parameters.setSigningCredential(credential);
+		parameters.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
+		parameters.setSignatureReferenceDigestMethod(SignatureConstants.ALGO_ID_DIGEST_SHA256);
+		parameters.setSignatureCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+		try {
+			SignatureSupport.signObject(authnRequest, parameters);
+		} catch (MarshallingException | SignatureException | SecurityException e) {
+			throw new Saml2Exception(e);
+		}
+	}
+
+	private Credential getSigningCredential(X509Certificate certificate, PrivateKey privateKey, String entityId) {
+		BasicCredential cred = CredentialSupport.getSimpleCredential(certificate, privateKey);
+		cred.setEntityId(entityId);
+		cred.setUsageType(UsageType.SIGNING);
+		return cred;
 	}
 }
