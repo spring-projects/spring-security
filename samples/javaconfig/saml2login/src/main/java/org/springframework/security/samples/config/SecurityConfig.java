@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.springframework.security.saml2.provider.service.servlet.filter.Saml2W
 
 import static org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION;
 import static org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType.SIGNING;
-import static org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION;
+import static org.springframework.security.saml2.core.Saml2X509Credential.verification;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -107,10 +107,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				"V9DQBy2zds9f1I3qxg0eX6JnGrXi/ZiCT+lJgVe3ZFXiejiLAiKB04sXW3ti0LW3\n" +
 				"lx13Y1YlQ4/tlpgTgfIJxKV6nyPiLoK0nywbMd+vpAirDt2Oc+hk\n" +
 				"-----END CERTIFICATE-----";
-		return new Saml2X509Credential(
-				x509Certificate(certificate),
-				VERIFICATION
-		);
+		return verification(x509Certificate(certificate));
 	}
 
 	private X509Certificate x509Certificate(String source) {

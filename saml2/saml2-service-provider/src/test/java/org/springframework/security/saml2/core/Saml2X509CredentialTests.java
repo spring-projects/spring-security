@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,31 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.credentials;
-
-import org.springframework.security.converter.RsaKeyConverters;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+package org.springframework.security.saml2.core;
 
 import java.io.ByteArrayInputStream;
 import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import org.springframework.security.converter.RsaKeyConverters;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING;
-import static org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION;
+import static org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType.DECRYPTION;
+import static org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION;
+import static org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType.SIGNING;
+import static org.springframework.security.saml2.core.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION;
 
 public class Saml2X509CredentialTests {
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
-	private Saml2X509Credential credential;
 	private PrivateKey key;
 	private X509Certificate certificate;
 
@@ -88,6 +87,8 @@ public class Saml2X509CredentialTests {
 		new Saml2X509Credential(key, certificate, SIGNING);
 		new Saml2X509Credential(key, certificate, SIGNING, DECRYPTION);
 		new Saml2X509Credential(key, certificate, DECRYPTION);
+		Saml2X509Credential.signing(key, certificate);
+		Saml2X509Credential.decryption(key, certificate);
 	}
 
 	@Test
@@ -95,6 +96,8 @@ public class Saml2X509CredentialTests {
 		new Saml2X509Credential(certificate, VERIFICATION);
 		new Saml2X509Credential(certificate, VERIFICATION, ENCRYPTION);
 		new Saml2X509Credential(certificate, ENCRYPTION);
+		Saml2X509Credential.verification(certificate);
+		Saml2X509Credential.encryption(certificate);
 	}
 
 	@Test
@@ -145,5 +148,51 @@ public class Saml2X509CredentialTests {
 		new Saml2X509Credential(certificate, DECRYPTION);
 	}
 
+	@Test
+	public void factoryWhenRelyingPartyForSigningWithoutCredentialsThenItFails() {
+		exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.signing(null, null);
+	}
 
+	@Test
+	public void factoryWhenRelyingPartyForSigningWithoutPrivateKeyThenItFails() {
+		exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.signing(null, certificate);
+	}
+
+	@Test
+	public void factoryWhenRelyingPartyForSigningWithoutCertificateThenItFails() {
+		exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.signing(key, null);
+	}
+
+	@Test
+	public void factoryWhenRelyingPartyForDecryptionWithoutCredentialsThenItFails() {
+		exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.decryption(null, null);
+	}
+
+	@Test
+	public void factoryWhenRelyingPartyForDecryptionWithoutPrivateKeyThenItFails() {
+		exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.decryption(null, certificate);
+	}
+
+	@Test
+	public void factoryWhenRelyingPartyForDecryptionWithoutCertificateThenItFails() {
+		exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.decryption(key, null);
+	}
+
+	@Test
+	public void factoryWhenAssertingPartyForVerificationWithoutCertificateThenItFails() {
+		exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.verification(null);
+	}
+
+	@Test
+	public void factoryWhenAssertingPartyForEncryptionWithoutCertificateThenItFails() {
+		exception.expect(IllegalArgumentException.class);
+		Saml2X509Credential.encryption(null);
+	}
 }
