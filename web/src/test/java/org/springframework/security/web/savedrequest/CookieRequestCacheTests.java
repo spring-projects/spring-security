@@ -18,7 +18,6 @@ package org.springframework.security.web.savedrequest;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +38,13 @@ public class CookieRequestCacheTests {
 	public void saveRequestWhenMatchesThenSavedRequestInACookieOnResponse() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
 
-		MockHttpServletRequest request = requestToSave();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServerPort(443);
+		request.setSecure(true);
+		request.setScheme("https");
+		request.setServerName("abc.com");
+		request.setRequestURI("/destination");
+		request.setQueryString("param1=a&param2=b&param3=1122");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		cookieRequestCache.saveRequest(request, response);
@@ -51,10 +56,9 @@ public class CookieRequestCacheTests {
 		assertThat(redirectUrl).isEqualTo("https://abc.com/destination?param1=a&param2=b&param3=1122");
 
 		assertThat(savedCookie.getMaxAge()).isEqualTo(-1);
-		assertThat(savedCookie.getPath()).isEqualTo(StringUtils.isEmpty(request.getContextPath()) ? "/" : request.getContextPath());
+		assertThat(savedCookie.getPath()).isEqualTo("/");
 		assertThat(savedCookie.isHttpOnly()).isTrue();
 		assertThat(savedCookie.getSecure()).isTrue();
-
 	}
 
 	@Test
@@ -118,13 +122,18 @@ public class CookieRequestCacheTests {
 		HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(new MockHttpServletRequest(), response);
 		assertThat(matchingRequest).isNull();
 		assertThat(response.getCookie(DEFAULT_COOKIE_NAME)).isNull();
-
 	}
 
 	@Test
 	public void matchingRequestWhenRequestContainsSavedRequestCookieThenSetsAnExpiredCookieInResponse() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
-		MockHttpServletRequest request = requestToSave();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServerPort(443);
+		request.setSecure(true);
+		request.setScheme("https");
+		request.setServerName("abc.com");
+		request.setRequestURI("/destination");
+		request.setQueryString("param1=a&param2=b&param3=1122");
 
 		String redirectUrl = "https://abc.com/destination?param1=a&param2=b&param3=1122";
 		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
@@ -138,9 +147,14 @@ public class CookieRequestCacheTests {
 	}
 
 	@Test
-	public void notMatchingRequestWhenRequestNotContainsSavedRequestCookie() {
+	public void requestWhenDoesNotMatchSavedRequestThenDoesNotClearCookie() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
-		MockHttpServletRequest request = requestToSave();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServerPort(443);
+		request.setSecure(true);
+		request.setScheme("https");
+		request.setServerName("abc.com");
+		request.setRequestURI("/destination");
 
 		String redirectUrl = "https://abc.com/api";
 		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
@@ -150,7 +164,6 @@ public class CookieRequestCacheTests {
 		assertThat(matchingRequest).isNull();
 		Cookie expiredCookie = response.getCookie(DEFAULT_COOKIE_NAME);
 		assertThat(expiredCookie).isNull();
-
 	}
 
 	@Test
@@ -162,17 +175,6 @@ public class CookieRequestCacheTests {
 		assertThat(expiredCookie).isNotNull();
 		assertThat(expiredCookie.getValue()).isEmpty();
 		assertThat(expiredCookie.getMaxAge()).isZero();
-	}
-
-	private MockHttpServletRequest requestToSave() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setServerPort(443);
-		request.setSecure(true);
-		request.setScheme("https");
-		request.setServerName("abc.com");
-		request.setRequestURI("/destination");
-		request.setQueryString("param1=a&param2=b&param3=1122");
-		return request;
 	}
 
 	private static String encodeCookie(String cookieValue) {
