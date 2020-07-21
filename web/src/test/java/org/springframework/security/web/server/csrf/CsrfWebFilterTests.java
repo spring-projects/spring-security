@@ -23,7 +23,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -190,9 +189,7 @@ public class CsrfWebFilterTests {
 	@Test
 	// gh-8452
 	public void matchesRequireCsrfProtectionWhenNonStandardHTTPMethodIsUsed() {
-		ServerHttpRequest nonStandardHttpRequest = mock(ServerHttpRequest.class);
-		ServerWebExchange nonStandardHttpExchange = mock(ServerWebExchange.class);
-		when(nonStandardHttpExchange.getRequest()).thenReturn(nonStandardHttpRequest);
+		MockServerWebExchange nonStandardHttpExchange = from(MockServerHttpRequest.method("non-standard-http-method", "/"));
 
 		ServerWebExchangeMatcher serverWebExchangeMatcher = CsrfWebFilter.DEFAULT_CSRF_MATCHER;
 		assertThat(serverWebExchangeMatcher.matches(nonStandardHttpExchange).map(MatchResult::isMatch).block()).isTrue();
