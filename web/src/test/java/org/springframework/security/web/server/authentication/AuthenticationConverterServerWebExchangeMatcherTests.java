@@ -16,21 +16,22 @@
 
 package org.springframework.security.web.server.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
-import reactor.core.publisher.Mono;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author David Kovac
@@ -40,16 +41,16 @@ import reactor.core.publisher.Mono;
 public class AuthenticationConverterServerWebExchangeMatcherTests {
 	private MockServerWebExchange exchange;
 	private AuthenticationConverterServerWebExchangeMatcher matcher;
+	private Authentication authentication = new TestingAuthenticationToken("user", "password");
+
 	@Mock
 	private ServerAuthenticationConverter converter;
-	@Mock
-	private Authentication authentication;
 
 	@Before
 	public void setup() {
 		MockServerHttpRequest request = MockServerHttpRequest.get("/path").build();
-		exchange = MockServerWebExchange.from(request);
-		matcher = new AuthenticationConverterServerWebExchangeMatcher(converter);
+		this.exchange = MockServerWebExchange.from(request);
+		this.matcher = new AuthenticationConverterServerWebExchangeMatcher(this.converter);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -59,30 +60,30 @@ public class AuthenticationConverterServerWebExchangeMatcherTests {
 
 	@Test
 	public void matchesWhenNotEmptyThenReturnTrue() {
-		when(converter.convert(any())).thenReturn(Mono.just(authentication));
+		when(this.converter.convert(any())).thenReturn(Mono.just(this.authentication));
 
-		assertThat(matcher.matches(exchange).block().isMatch()).isTrue();
+		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isTrue();
 	}
 
 	@Test
 	public void matchesWhenEmptyThenReturnFalse() {
-		when(converter.convert(any())).thenReturn(Mono.empty());
+		when(this.converter.convert(any())).thenReturn(Mono.empty());
 
-		assertThat(matcher.matches(exchange).block().isMatch()).isFalse();
+		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
 	public void matchesWhenErrorThenReturnFalse() {
-		when(converter.convert(any())).thenReturn(Mono.error(new RuntimeException()));
+		when(this.converter.convert(any())).thenReturn(Mono.error(new RuntimeException()));
 
-		assertThat(matcher.matches(exchange).block().isMatch()).isFalse();
+		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isFalse();
 	}
 
 	@Test
 	public void matchesWhenNullThenThrowsException() {
 		when(this.converter.convert(any())).thenReturn(null);
 
-		assertThatCode(() -> matcher.matches(exchange).block())
+		assertThatCode(() -> this.matcher.matches(this.exchange).block())
 				.isInstanceOf(NullPointerException.class);
 	}
 
@@ -90,7 +91,7 @@ public class AuthenticationConverterServerWebExchangeMatcherTests {
 	public void matchesWhenExceptionThenPropagates() {
 		when(this.converter.convert(any())).thenThrow(RuntimeException.class);
 
-		assertThatCode(() -> matcher.matches(exchange).block())
+		assertThatCode(() -> this.matcher.matches(this.exchange).block())
 				.isInstanceOf(RuntimeException.class);
 	}
 }
