@@ -141,4 +141,54 @@ public class UnboundIdContainerLdifTests {
 			this.container.stop();
 		}
 	}
+
+	@Test
+	public void unboundIdContainerWhenMissingLdifThenException() {
+		try {
+			appCtx = new AnnotationConfigApplicationContext(MissingLdifConfig.class);
+			failBecauseExceptionWasNotThrown(IllegalStateException.class);
+		} catch (Exception e) {
+			assertThat(e.getCause()).isInstanceOf(IllegalStateException.class);
+			assertThat(e.getMessage()).contains("Unable to load LDIF classpath:does-not-exist.ldif");
+		}
+	}
+
+	@Configuration
+	static class MissingLdifConfig {
+		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
+				"classpath:does-not-exist.ldif");
+
+		@Bean
+		UnboundIdContainer ldapContainer() {
+			this.container.setPort(0);
+			return this.container;
+		}
+
+		@PreDestroy
+		void shutdown() {
+			this.container.stop();
+		}
+	}
+
+	@Test
+	public void unboundIdContainerWhenWildcardLdifNotFoundThenProceeds() {
+		new AnnotationConfigApplicationContext(WildcardNoLdifConfig.class);
+	}
+
+	@Configuration
+	static class WildcardNoLdifConfig {
+		private UnboundIdContainer container = new UnboundIdContainer("dc=springframework,dc=org",
+				"classpath*:*.test.ldif");
+
+		@Bean
+		UnboundIdContainer ldapContainer() {
+			this.container.setPort(0);
+			return this.container;
+		}
+
+		@PreDestroy
+		void shutdown() {
+			this.container.stop();
+		}
+	}
 }
