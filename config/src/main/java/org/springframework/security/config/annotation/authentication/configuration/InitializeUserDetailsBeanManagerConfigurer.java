@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.annotation.authentication.configuration;
 
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -87,8 +88,12 @@ class InitializeUserDetailsBeanManagerConfigurer
 		private <T> T getBeanOrNull(Class<T> type) {
 			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context
 					.getBeanNamesForType(type);
-			if (beanNames.length != 1) {
+			if (beanNames.length == 0) {
 				return null;
+			}
+
+			if (beanNames.length > 1) {
+				throw new NoUniqueBeanDefinitionException(type, beanNames);
 			}
 
 			return InitializeUserDetailsBeanManagerConfigurer.this.context
