@@ -255,10 +255,12 @@ public class EnableWebFluxSecurityTests {
 	static class MapReactiveUserDetailsServiceConfig {
 		@Bean
 		public MapReactiveUserDetailsService userDetailsService() {
+			// @formatter:off
 			return new MapReactiveUserDetailsService(User.withUsername("user")
 					.password("{noop}password")
 					.roles("USER")
 					.build()
+			// @formatter:on
 			);
 		}
 	}

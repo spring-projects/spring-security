@@ -59,10 +59,12 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	@Mock
 	private UserDetailsChecker postAuthenticationChecks;
 
+	// @formatter:off
 	private UserDetails user = User.withUsername("user")
 		.password("password")
 		.roles("USER")
 		.build();
+	// @formatter:on
 
 	private UserDetailsRepositoryReactiveAuthenticationManager manager;
 
@@ -176,12 +178,13 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	@Test(expected = AccountExpiredException.class)
 	public void authenticateWhenAccountExpiredThenException() {
 		this.manager.setPasswordEncoder(this.encoder);
-
+		// @formatter:off
 		UserDetails expiredUser = User.withUsername("user")
 				.password("password")
 				.roles("USER")
 				.accountExpired(true)
 				.build();
+		// @formatter:on
 		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(expiredUser));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
@@ -193,12 +196,13 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	@Test(expected = LockedException.class)
 	public void authenticateWhenAccountLockedThenException() {
 		this.manager.setPasswordEncoder(this.encoder);
-
+		// @formatter:off
 		UserDetails lockedUser = User.withUsername("user")
 				.password("password")
 				.roles("USER")
 				.accountLocked(true)
 				.build();
+		// @formatter:on
 		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(lockedUser));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
@@ -211,11 +215,13 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	public void authenticateWhenAccountDisabledThenException() {
 		this.manager.setPasswordEncoder(this.encoder);
 
+		// @formatter:off
 		UserDetails disabledUser = User.withUsername("user")
 				.password("password")
 				.roles("USER")
 				.disabled(true)
 				.build();
+		// @formatter:on
 		when(this.userDetailsService.findByUsername(any())).thenReturn(Mono.just(disabledUser));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(

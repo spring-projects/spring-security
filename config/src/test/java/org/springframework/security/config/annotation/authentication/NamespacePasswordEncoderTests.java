@@ -114,11 +114,13 @@ public class NamespacePasswordEncoderTests {
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+			// @formatter:off
 			UserDetails user = User.withUsername("user")
 				.passwordEncoder(encoder::encode)
 				.password("password")
 				.roles("USER")
 				.build();
+			// @formatter:on
 			InMemoryUserDetailsManager uds = new InMemoryUserDetailsManager(user);
 			// @formatter:off
 			auth
