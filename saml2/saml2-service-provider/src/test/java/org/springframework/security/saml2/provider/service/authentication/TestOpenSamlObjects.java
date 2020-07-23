@@ -74,9 +74,14 @@ import org.opensaml.xmlsec.signature.support.SignatureException;
 import org.opensaml.xmlsec.signature.support.SignatureSupport;
 
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 
 final class TestOpenSamlObjects {
+	static {
+		OpenSamlInitializationService.initialize();
+	}
+
 	private static OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
 
 	private static String USERNAME = "test@saml.user";

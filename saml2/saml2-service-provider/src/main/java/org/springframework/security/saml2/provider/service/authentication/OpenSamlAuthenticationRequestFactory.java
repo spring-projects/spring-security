@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.authentication;
 
 import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collection;
@@ -24,7 +25,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.security.cert.X509Certificate;
 
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -43,6 +43,7 @@ import org.opensaml.xmlsec.signature.support.SignatureSupport;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest.Builder;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -56,6 +57,10 @@ import static org.springframework.security.saml2.provider.service.authentication
  * @since 5.2
  */
 public class OpenSamlAuthenticationRequestFactory implements Saml2AuthenticationRequestFactory {
+	static {
+		OpenSamlInitializationService.initialize();
+	}
+
 	private Clock clock = Clock.systemUTC();
 	private final OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
 

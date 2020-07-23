@@ -98,6 +98,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
@@ -159,6 +160,10 @@ import static org.springframework.util.Assert.notNull;
  * @see <a href="https://wiki.shibboleth.net/confluence/display/OS30/Home">OpenSAML 3</a>
  */
 public final class OpenSamlAuthenticationProvider implements AuthenticationProvider {
+
+	static {
+		OpenSamlInitializationService.initialize();
+	}
 
 	private static Log logger = LogFactory.getLog(OpenSamlAuthenticationProvider.class);
 
@@ -270,7 +275,6 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 		} catch (Saml2Exception x) {
 			throw authException(MALFORMED_RESPONSE_DATA, x.getMessage(), x);
 		}
-
 	}
 
 	private void process(Saml2AuthenticationToken token, Response response) {

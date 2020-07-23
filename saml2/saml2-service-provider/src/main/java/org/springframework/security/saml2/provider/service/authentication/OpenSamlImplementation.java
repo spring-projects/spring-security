@@ -20,22 +20,14 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import net.shibboleth.utilities.java.support.xml.BasicParserPool;
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
-import org.opensaml.core.config.ConfigurationService;
-import org.opensaml.core.config.InitializationException;
-import org.opensaml.core.config.InitializationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.MarshallerFactory;
 import org.opensaml.core.xml.io.MarshallingException;
@@ -62,24 +54,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
 import org.springframework.web.util.UriUtils;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
+import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getParserPool;
 import static org.springframework.util.StringUtils.hasText;
 
 /**
  * @since 5.2
  */
 final class OpenSamlImplementation {
+	static {
+		OpenSamlInitializationService.initialize();
+	}
+
 	private static OpenSamlImplementation instance = new OpenSamlImplementation();
 	private static XMLObjectBuilderFactory xmlObjectBuilderFactory =
 			XMLObjectProviderRegistrySupport.getBuilderFactory();
 
-	private final BasicParserPool parserPool = new BasicParserPool();
 	private final EncryptedKeyResolver encryptedKeyResolver = new ChainingEncryptedKeyResolver(
 			asList(
 					new InlineEncryptedKeyResolver(),
@@ -87,74 +82,6 @@ final class OpenSamlImplementation {
 					new SimpleRetrievalMethodEncryptedKeyResolver()
 			)
 	);
-
-	private OpenSamlImplementation() {
-		bootstrap();
-	}
-
-	/*
-	 * ==============================================================
-	 * PRIVATE METHODS
-	 * ==============================================================
-	 */
-	private void bootstrap() {
-		// configure default values
-		// maxPoolSize = 5;
-		this.parserPool.setMaxPoolSize(50);
-		// coalescing = true;
-		this.parserPool.setCoalescing(true);
-		// expandEntityReferences = false;
-		this.parserPool.setExpandEntityReferences(false);
-		// ignoreComments = true;
-		this.parserPool.setIgnoreComments(true);
-		// ignoreElementContentWhitespace = true;
-		this.parserPool.setIgnoreElementContentWhitespace(true);
-		// namespaceAware = true;
-		this.parserPool.setNamespaceAware(true);
-		// schema = null;
-		this.parserPool.setSchema(null);
-		// dtdValidating = false;
-		this.parserPool.setDTDValidating(false);
-		// xincludeAware = false;
-		this.parserPool.setXincludeAware(false);
-
-		Map<String, Object> builderAttributes = new HashMap<>();
-		this.parserPool.setBuilderAttributes(builderAttributes);
-
-		Map<String, Boolean> parserBuilderFeatures = new HashMap<>();
-		parserBuilderFeatures.put("http://apache.org/xml/features/disallow-doctype-decl", TRUE);
-		parserBuilderFeatures.put(XMLConstants.FEATURE_SECURE_PROCESSING, TRUE);
-		parserBuilderFeatures.put("http://xml.org/sax/features/external-general-entities", FALSE);
-		parserBuilderFeatures.put("http://apache.org/xml/features/validation/schema/normalized-value", FALSE);
-		parserBuilderFeatures.put("http://xml.org/sax/features/external-parameter-entities", FALSE);
-		parserBuilderFeatures.put("http://apache.org/xml/features/dom/defer-node-expansion", FALSE);
-		this.parserPool.setBuilderFeatures(parserBuilderFeatures);
-
-		try {
-			this.parserPool.initialize();
-		}
-		catch (ComponentInitializationException x) {
-			throw new Saml2Exception("Unable to initialize OpenSaml v3 ParserPool", x);
-		}
-
-		try {
-			InitializationService.initialize();
-		}
-		catch (InitializationException e) {
-			throw new Saml2Exception("Unable to initialize OpenSaml v3", e);
-		}
-
-		XMLObjectProviderRegistry registry;
-		synchronized (ConfigurationService.class) {
-			registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
-			if (registry == null) {
-				registry = new XMLObjectProviderRegistry();
-				ConfigurationService.register(XMLObjectProviderRegistry.class, registry);
-			}
-		}
-
-		registry.setParserPool(this.parserPool);
-	}
 
 	/*
 	 * ==============================================================
@@ -259,7 +186,7 @@ final class OpenSamlImplementation {
 
 	private XMLObject parse(byte[] xml) {
 		try {
-			Document document = this.parserPool.parse(new ByteArrayInputStream(xml));
+			Document document = getParserPool().parse(new ByteArrayInputStream(xml));
 			Element element = document.getDocumentElement();
 			return getUnmarshallerFactory().getUnmarshaller(element).unmarshall(element);
 		}

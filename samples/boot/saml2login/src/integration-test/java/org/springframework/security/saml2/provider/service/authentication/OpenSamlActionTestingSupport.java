@@ -16,6 +16,13 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.cert.X509Certificate;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.crypto.SecretKey;
+
 import net.shibboleth.utilities.java.support.annotation.constraint.NotEmpty;
 import org.apache.xml.security.algorithms.JCEMapper;
 import org.apache.xml.security.encryption.XMLCipherParameters;
@@ -54,14 +61,9 @@ import org.opensaml.security.credential.CredentialSupport;
 import org.opensaml.xmlsec.encryption.support.DataEncryptionParameters;
 import org.opensaml.xmlsec.encryption.support.EncryptionException;
 import org.opensaml.xmlsec.encryption.support.KeyEncryptionParameters;
-import org.springframework.security.saml2.Saml2Exception;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.cert.X509Certificate;
+import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.OpenSamlInitializationService;
 
 import static java.util.Arrays.asList;
 import static org.opensaml.security.crypto.KeySupport.generateKey;
@@ -72,6 +74,10 @@ import static org.opensaml.security.crypto.KeySupport.generateKey;
  * always objects that have been created via Mockito unless otherwise noted.
  */
 public class OpenSamlActionTestingSupport {
+
+	static {
+		OpenSamlInitializationService.initialize();
+	}
 
 	/** ID used for all generated {@link Response} objects. */
 	final static String REQUEST_ID = "request";
