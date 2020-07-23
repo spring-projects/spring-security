@@ -1746,11 +1746,13 @@ public class OAuth2ResourceServerConfigurerTests {
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
+					// @formatter:off
 					org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder()
 							.username("basic-user")
 							.password("basic-password")
 							.roles("USER")
 							.build());
+					// @formatter:on
 		}
 	}
 
@@ -1819,11 +1821,13 @@ public class OAuth2ResourceServerConfigurerTests {
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
+					// @formatter:off
 					org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder()
 							.username("basic-user")
 							.password("basic-password")
 							.roles("USER")
 							.build());
+					// @formatter:on
 		}
 	}
 

@@ -100,13 +100,13 @@ public class SecurityMockMvcResultMatchersTests {
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 
-		// @formatter:off
 		@Bean
 		public UserDetailsService userDetailsService() {
+			// @formatter:off
 			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER", "SELLER").build();
+			// @formatter:on
 			return new InMemoryUserDetailsManager(user);
 		}
-		// @formatter:on
 
 		@RestController
 		static class Controller {

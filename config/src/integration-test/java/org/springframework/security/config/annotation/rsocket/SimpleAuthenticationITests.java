@@ -165,11 +165,13 @@ public class SimpleAuthenticationITests {
 
 		@Bean
 		MapReactiveUserDetailsService uds() {
+			// @formatter:off
 			UserDetails rob = User.withDefaultPasswordEncoder()
 					.username("rob")
 					.password("password")
 					.roles("USER", "ADMIN")
 					.build();
+			// @formatter:on
 			return new MapReactiveUserDetailsService(rob);
 		}
 	}

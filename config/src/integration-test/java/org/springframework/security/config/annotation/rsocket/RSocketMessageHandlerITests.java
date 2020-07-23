@@ -237,6 +237,7 @@ public class RSocketMessageHandlerITests {
 
 		@Bean
 		MapReactiveUserDetailsService uds() {
+			// @formatter:off
 			UserDetails rob = User.withDefaultPasswordEncoder()
 					.username("rob")
 					.password("password")
@@ -247,6 +248,7 @@ public class RSocketMessageHandlerITests {
 					.password("password")
 					.roles("USER")
 					.build();
+			// @formatter:on
 			return new MapReactiveUserDetailsService(rob, rossen);
 		}
 

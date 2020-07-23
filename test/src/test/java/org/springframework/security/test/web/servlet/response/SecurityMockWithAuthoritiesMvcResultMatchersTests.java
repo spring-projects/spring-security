@@ -80,13 +80,13 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 
-		// @formatter:off
 		@Bean
 		public UserDetailsService userDetailsService() {
+			// @formatter:off
 			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("ADMIN", "SELLER").build();
 			return new InMemoryUserDetailsManager(user);
+			// @formatter:on
 		}
-		// @formatter:on
 
 		@RestController
 		static class Controller {
