@@ -29,21 +29,21 @@ import org.springframework.security.ldap.userdetails.PersonContextMapper;
 public class NamespaceLdapAuthenticationProviderTestsConfigs {
 	@EnableWebSecurity
 	static class LdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
 					.userDnPatterns("uid={0},ou=people"); // ldap-server@user-dn-pattern
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@EnableWebSecurity
 	static class CustomLdapAuthenticationProviderConfig extends
 			WebSecurityConfigurerAdapter {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupRoleAttribute("cn") // ldap-authentication-provider@group-role-attribute
@@ -63,28 +63,28 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 						.root("dc=springframework,dc=org") // ldap-server@root
 						// .url("ldap://localhost:33389/dc-springframework,dc=org") this overrides root and port and is used for external
 						;
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@EnableWebSecurity
 	static class CustomAuthoritiesPopulatorConfig extends WebSecurityConfigurerAdapter {
 		static LdapAuthoritiesPopulator LAP;
 
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.userSearchFilter("(uid={0})")
 					.ldapAuthoritiesPopulator(LAP);
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@EnableWebSecurity
 	static class PasswordCompareLdapConfig extends WebSecurityConfigurerAdapter {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
@@ -92,7 +92,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 					.passwordCompare()
 						.passwordEncoder(new BCryptPasswordEncoder()) // ldap-authentication-provider/password-compare/password-encoder@ref
 						.passwordAttribute("userPassword"); // ldap-authentication-provider/password-compare@password-attribute
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 }

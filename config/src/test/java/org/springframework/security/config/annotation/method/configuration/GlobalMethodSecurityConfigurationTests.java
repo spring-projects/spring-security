@@ -134,8 +134,10 @@ public class GlobalMethodSecurityConfigurationTests {
 	public static class InMemoryAuthWithGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication();
+			// @formatter:on
 		}
 
 		@Bean

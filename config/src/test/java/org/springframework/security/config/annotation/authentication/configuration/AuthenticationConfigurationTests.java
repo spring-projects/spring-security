@@ -241,9 +241,11 @@ public class AuthenticationConfigurationTests {
 	static class ConfiguresInMemoryConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
 
 		public void init(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
 		}
 	}
 

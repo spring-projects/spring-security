@@ -28,9 +28,11 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 public class BaseAuthenticationConfig {
 	@Autowired
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		// @formatter:off
 		auth
 			.inMemoryAuthentication()
 				.withUser("user").password("password").roles("USER").and()
 				.withUser("admin").password("password").roles("USER", "ADMIN");
+		// @formatter:on
 	}
 }

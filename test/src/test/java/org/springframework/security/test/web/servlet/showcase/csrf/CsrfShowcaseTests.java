@@ -75,13 +75,13 @@ public class CsrfShowcaseTests {
 		protected void configure(HttpSecurity http) {
 		}
 
-		// @formatter:off
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 }

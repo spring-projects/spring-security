@@ -61,10 +61,12 @@ public class NamespacePasswordEncoderTests {
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 				.withUser("user").password(encoder.encode("password")).roles("USER").and()
 				.passwordEncoder(encoder);
+			// @formatter:on
 		}
 	}
 
@@ -82,12 +84,14 @@ public class NamespacePasswordEncoderTests {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+			// @formatter:off
 			auth
 				.jdbcAuthentication()
 				.withDefaultSchema()
 				.dataSource(dataSource())
 				.withUser("user").password(encoder.encode("password")).roles("USER").and()
 				.passwordEncoder(encoder);
+			// @formatter:on
 		}
 
 		@Bean
@@ -116,9 +120,11 @@ public class NamespacePasswordEncoderTests {
 				.roles("USER")
 				.build();
 			InMemoryUserDetailsManager uds = new InMemoryUserDetailsManager(user);
+			// @formatter:off
 			auth
 				.userDetailsService(uds)
 				.passwordEncoder(encoder);
+			// @formatter:on
 		}
 
 		@Bean

@@ -97,14 +97,14 @@ public class WithUserDetailsAuthenticationTests {
 			return super.userDetailsServiceBean();
 		}
 
-		// @formatter:off
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER").and()
 					.withUser("admin").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 }

@@ -63,11 +63,13 @@ public class NamespaceJdbcUserServiceTests {
 		private DataSource dataSource;
 
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.jdbcAuthentication()
 					.withDefaultSchema()
 					.withUser(PasswordEncodedUser.user())
 					.dataSource(this.dataSource); // jdbc-user-service@data-source-ref
+			// @formatter:on
 		}
 	}
 
@@ -94,6 +96,7 @@ public class NamespaceJdbcUserServiceTests {
 		private DataSource dataSource;
 
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.jdbcAuthentication()
 				// jdbc-user-service@dataSource
@@ -108,6 +111,7 @@ public class NamespaceJdbcUserServiceTests {
 				.groupAuthoritiesByUsername(JdbcUserDetailsManager.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY)
 				// jdbc-user-service@role-prefix
 				.rolePrefix("ROLE_");
+			// @formatter:on
 
 		}
 

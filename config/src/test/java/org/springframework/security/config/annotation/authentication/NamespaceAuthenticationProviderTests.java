@@ -56,8 +56,10 @@ public class NamespaceAuthenticationProviderTests {
 	@EnableWebSecurity
 	static class AuthenticationProviderRefConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(AuthenticationManagerBuilder auth) {
+			// @formatter:off
 			auth
 				.authenticationProvider(authenticationProvider());
+			// @formatter:on
 		}
 
 		@Bean
@@ -80,8 +82,10 @@ public class NamespaceAuthenticationProviderTests {
 	@EnableWebSecurity
 	static class UserServiceRefConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.userDetailsService(userDetailsService());
+			// @formatter:on
 		}
 
 		@Bean

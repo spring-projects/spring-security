@@ -71,13 +71,13 @@ public class SessionManagementConfigurerSessionAuthenticationStrategyTests {
 			// @formatter:on
 		}
 
-		// @formatter:off
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 }
