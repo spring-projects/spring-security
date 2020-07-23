@@ -67,12 +67,14 @@ public class UserDetailsMapFactoryBean implements FactoryBean<Collection<UserDet
 				throw new IllegalStateException("The entry with username '" + name
 					+ "' and value '" + property + "' could not be converted to a UserDetails.");
 			}
+			// @formatter:off
 			UserDetails user = User.withUsername(name)
 				.password(attr.getPassword())
 				.disabled(!attr.isEnabled())
 				.authorities(attr.getAuthorities())
 				.build();
 			users.add(user);
+			// @formatter:on
 		} return users;
 	}
 

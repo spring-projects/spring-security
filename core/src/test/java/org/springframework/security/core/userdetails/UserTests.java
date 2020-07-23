@@ -203,11 +203,13 @@ public class UserTests {
 
 	@Test
 	public void withUsernameWhenPasswordAndPasswordEncoderThenEncodes() {
+		// @formatter:off
 		UserDetails withEncodedPassword = User.withUsername("user")
 			.passwordEncoder(p -> p + "encoded")
 			.password("password")
 			.roles("USER")
 			.build();
+		// @formatter:on
 
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}
@@ -215,12 +217,14 @@ public class UserTests {
 	@Test
 	public void withUsernameWhenPasswordAndPasswordEncoderTwiceThenEncodesOnce() {
 		Function<String, String> encoder = p -> p + "encoded";
+		// @formatter:off
 		UserDetails withEncodedPassword = User.withUsername("user")
 			.passwordEncoder(encoder)
 			.password("password")
 			.passwordEncoder(encoder)
 			.roles("USER")
 			.build();
+		// @formatter:on
 
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
 	}

@@ -27,10 +27,12 @@ import org.junit.Test;
 import reactor.core.publisher.Mono;
 
 public class MapReactiveUserDetailsServiceTests {
+	// @formatter:off
 	private static final UserDetails USER_DETAILS = User.withUsername("user")
 			.password("password")
 			.roles("USER")
 			.build();
+	// @formatter:on
 
 	private MapReactiveUserDetailsService users = new MapReactiveUserDetailsService(Arrays.asList(USER_DETAILS));
 

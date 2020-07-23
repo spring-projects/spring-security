@@ -92,11 +92,12 @@ public class UserDetailsResourceFactoryBeanTests {
 
 	private void assertLoaded() throws Exception {
 		Collection<UserDetails> users = factory.getObject();
-
+		// @formatter:off
 		UserDetails expectedUser = User.withUsername("user")
 			.password("password")
 			.authorities("ROLE_USER")
 			.build();
+		// @formatter:on
 		assertThat(users).containsExactly(expectedUser);
 	}
 }

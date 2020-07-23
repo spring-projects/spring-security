@@ -76,10 +76,12 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenPasswordNotEqualThenBadCredentials() {
+		// @formatter:off
 		UserDetails user = PasswordEncodedUser.withUsername(this.username)
 			.password(this.password)
 			.roles("USER")
 			.build();
+		// @formatter:on
 		when(repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, this.password + "INVALID");
@@ -93,10 +95,12 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 
 	@Test
 	public void authenticateWhenSuccessThenSuccess() {
+		// @formatter:off
 		UserDetails user = PasswordEncodedUser.withUsername(this.username)
 			.password(this.password)
 			.roles("USER")
 			.build();
+		// @formatter:on
 		when(repository.findByUsername(user.getUsername())).thenReturn(Mono.just(user));
 
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
