@@ -88,11 +88,13 @@ public class NamespaceHttpX509Tests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.x509();
+			// @formatter:on
 		}
 	}
 
@@ -119,12 +121,14 @@ public class NamespaceHttpX509Tests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.x509()
 					.authenticationDetailsSource(authenticationDetailsSource());
+			// @formatter:on
 		}
 
 		@Bean
@@ -155,12 +159,14 @@ public class NamespaceHttpX509Tests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.x509()
 					.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)");
+			// @formatter:on
 		}
 	}
 
@@ -184,12 +190,14 @@ public class NamespaceHttpX509Tests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.x509()
 					.x509PrincipalExtractor(this::extractCommonName);
+			// @formatter:on
 		}
 
 		private String extractCommonName(X509Certificate certificate) {
@@ -221,12 +229,14 @@ public class NamespaceHttpX509Tests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.x509()
 					.userDetailsService(username -> USER);
+			// @formatter:on
 		}
 	}
 
@@ -248,12 +258,14 @@ public class NamespaceHttpX509Tests {
 		}
 
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.x509()
 					.authenticationUserDetailsService(authentication -> USER);
+			// @formatter:on
 		}
 	}
 

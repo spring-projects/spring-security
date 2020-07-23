@@ -189,29 +189,29 @@ public class WebTestUtilsTests {
 		static CsrfTokenRepository CSRF_REPO;
 		static SecurityContextRepository CONTEXT_REPO;
 
-		// @formatter:off
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.csrf()
 					.csrfTokenRepository(CSRF_REPO)
 					.and()
 				.securityContext()
 					.securityContextRepository(CONTEXT_REPO);
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@EnableWebSecurity
 	static class PartialSecurityConfig extends WebSecurityConfigurerAdapter {
 
-		// @formatter:off
 		@Override
 		public void configure(HttpSecurity http) {
+			// @formatter:off
 			http
 				.antMatcher("/willnotmatchthis");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@Configuration

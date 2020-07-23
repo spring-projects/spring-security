@@ -117,8 +117,10 @@ public class OAuth2ClientSpecTests {
 	static class Config {
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			// @formatter:off
 			http
 				.oauth2Client();
+			// @formatter:on
 			return http.build();
 		}
 
@@ -208,6 +210,7 @@ public class OAuth2ClientSpecTests {
 
 		@Bean
 		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+			// @formatter:off
 			http
 				.oauth2Client()
 					.authenticationConverter(this.authenticationConverter)
@@ -215,6 +218,7 @@ public class OAuth2ClientSpecTests {
 					.authorizationRequestRepository(this.authorizationRequestRepository)
 					.and()
 				.requestCache(c -> c.requestCache(this.requestCache));
+			// @formatter:on
 			return http.build();
 		}
 	}
@@ -274,6 +278,7 @@ public class OAuth2ClientSpecTests {
 
 		@Bean
 		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+			// @formatter:off
 			http
 				.oauth2Client(oauth2Client ->
 					oauth2Client
@@ -281,6 +286,7 @@ public class OAuth2ClientSpecTests {
 						.authenticationManager(this.manager)
 						.authorizationRequestRepository(this.authorizationRequestRepository))
 				.requestCache(c -> c.requestCache(this.requestCache));
+			// @formatter:on
 			return http.build();
 		}
 	}

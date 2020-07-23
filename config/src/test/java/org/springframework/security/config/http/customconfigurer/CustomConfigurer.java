@@ -42,17 +42,19 @@ public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
 		// autowire this bean
 		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
 		context.getAutowireCapableBeanFactory().autowireBean(this);
-
+		// @formatter:off
 		http
 			.authorizeRequests()
 				.antMatchers(permitAllPattern).permitAll()
 				.anyRequest().authenticated();
-
+		// @formatter:on
 		if (http.getConfigurer(FormLoginConfigurer.class) == null) {
 			// only apply if formLogin() was not invoked by the user
+			// @formatter:off
 			http
 				.formLogin()
 					.loginPage(loginPage);
+			// @formatter:on
 		}
 	}
 

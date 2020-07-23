@@ -97,9 +97,11 @@ public class LogoutConfigurerClearSiteDataTests {
 	static class HttpLogoutConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.logout()
 					.addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(SOURCE)));
+			// @formatter:on
 		}
 	}
 }

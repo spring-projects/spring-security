@@ -60,16 +60,16 @@ public class SessionManagementConfigurerSessionAuthenticationStrategyTests {
 	static class CustomSessionAuthenticationStrategyConfig extends WebSecurityConfigurerAdapter {
 		static SessionAuthenticationStrategy customSessionAuthenticationStrategy = mock(SessionAuthenticationStrategy.class);
 
-		// @formatter:off
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.formLogin()
 					.and()
 				.sessionManagement()
 					.sessionAuthenticationStrategy(customSessionAuthenticationStrategy);
+			// @formatter:on
 		}
-		// @formatter:on
 
 		// @formatter:off
 		@Override

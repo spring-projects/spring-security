@@ -165,9 +165,11 @@ public class GrantedAuthorityDefaultsJcTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().access("hasRole('USER')");
+			// @formatter:on
 		}
 
 		@Bean

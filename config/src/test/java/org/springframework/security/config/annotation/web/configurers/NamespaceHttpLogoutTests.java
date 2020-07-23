@@ -122,12 +122,14 @@ public class NamespaceHttpLogoutTests {
 	static class CustomHttpLogoutConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.logout()
 					.deleteCookies("remove") // logout@delete-cookies
 					.invalidateHttpSession(false) // logout@invalidate-session=false (default is true)
 					.logoutUrl("/custom-logout") // logout@logout-url (default is /logout)
 					.logoutSuccessUrl("/logout-success"); // logout@success-url (default is /login?logout)
+			// @formatter:on
 		}
 	}
 
@@ -182,10 +184,11 @@ public class NamespaceHttpLogoutTests {
 			SimpleUrlLogoutSuccessHandler logoutSuccessHandler =
 					new SimpleUrlLogoutSuccessHandler();
 			logoutSuccessHandler.setDefaultTargetUrl("/SuccessHandlerRefHttpLogoutConfig");
-
+			// @formatter:off
 			http
 				.logout()
 					.logoutSuccessHandler(logoutSuccessHandler);
+			// @formatter:on
 		}
 	}
 

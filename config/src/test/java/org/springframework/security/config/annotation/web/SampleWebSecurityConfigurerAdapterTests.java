@@ -218,6 +218,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/signup", "/about").permitAll()
@@ -227,6 +228,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 					.loginPage("/login")
 						// set permitAll for all URLs associated with Form Login
 						.permitAll();
+			// @formatter:on
 		}
 
 		@Override
@@ -354,6 +356,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 		@Order(1)
 		public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
 					.antMatcher("/api/**")
 						.authorizeRequests()
@@ -361,6 +364,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 							.antMatchers("/api/**").hasRole("USER")
 							.and()
 						.httpBasic();
+				// @formatter:on
 			}
 		}
 
@@ -375,6 +379,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
 					.authorizeRequests()
 						.antMatchers("/signup", "/about").permitAll()
@@ -383,6 +388,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 					.formLogin()
 						.loginPage("/login")
 							.permitAll();
+				// @formatter:on
 			}
 		}
 	}

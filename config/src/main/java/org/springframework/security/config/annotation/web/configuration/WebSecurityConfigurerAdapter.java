@@ -357,18 +357,18 @@ public abstract class WebSecurityConfigurerAdapter implements
 	 * @param http the {@link HttpSecurity} to modify
 	 * @throws Exception if an error occurs
 	 */
-	// @formatter:off
 	protected void configure(HttpSecurity http) throws Exception {
 		logger.debug("Using default configure(HttpSecurity). If subclassed this will potentially override subclass configure(HttpSecurity).");
 
+		// @formatter:off
 		http
 			.authorizeRequests()
 				.anyRequest().authenticated()
 				.and()
 			.formLogin().and()
 			.httpBasic();
+		// @formatter:on
 	}
-	// @formatter:on
 
 	/**
 	 * Gets the ApplicationContext

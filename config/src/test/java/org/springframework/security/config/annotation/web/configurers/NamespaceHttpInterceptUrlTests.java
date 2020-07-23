@@ -120,6 +120,7 @@ public class NamespaceHttpInterceptUrlTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					// the line below is similar to intercept-url@pattern:
@@ -142,6 +143,7 @@ public class NamespaceHttpInterceptUrlTests {
 					// the line below is similar to intercept-url@requires-channel="http":
 					//    <intercept-url pattern="/**" requires-channel="http"/>
 					.anyRequest().requiresInsecure();
+			// @formatter:on
 		}
 
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {

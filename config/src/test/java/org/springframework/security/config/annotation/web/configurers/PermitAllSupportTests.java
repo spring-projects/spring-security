@@ -63,6 +63,7 @@ public class PermitAllSupportTests {
 	static class PermitAllConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
@@ -70,6 +71,7 @@ public class PermitAllSupportTests {
 				.formLogin()
 					.loginPage("/xyz").permitAll()
 					.loginProcessingUrl("/abc?def").permitAll();
+			// @formatter:on
 		}
 	}
 
@@ -85,9 +87,11 @@ public class PermitAllSupportTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.formLogin()
 					.permitAll();
+			// @formatter:on
 		}
 	}
 }

@@ -97,12 +97,14 @@ public class NamespaceHttpOpenIDLoginTests {
 	static class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.openidLogin()
 					.permitAll();
+			// @formatter:on
 		}
 	}
 
@@ -159,6 +161,7 @@ public class NamespaceHttpOpenIDLoginTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -191,6 +194,7 @@ public class NamespaceHttpOpenIDLoginTests {
 							.and()
 						.and()
 					.permitAll();
+			// @formatter:on
 		}
 	}
 
@@ -209,6 +213,7 @@ public class NamespaceHttpOpenIDLoginTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			boolean alwaysUseDefaultSuccess = true;
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -219,6 +224,7 @@ public class NamespaceHttpOpenIDLoginTests {
 					.failureUrl("/authentication/login?failed") // openid-login@authentication-failure-url
 					.loginProcessingUrl("/authentication/login/process") // openid-login@login-processing-url
 					.defaultSuccessUrl("/default", alwaysUseDefaultSuccess); // openid-login@default-target-url / openid-login@always-use-default-target
+			// @formatter:on
 		}
 	}
 
@@ -267,7 +273,7 @@ public class NamespaceHttpOpenIDLoginTests {
 			SavedRequestAwareAuthenticationSuccessHandler handler =
 					new SavedRequestAwareAuthenticationSuccessHandler();
 			handler.setDefaultTargetUrl("/custom/targetUrl");
-
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -285,7 +291,7 @@ public class NamespaceHttpOpenIDLoginTests {
 							return filter;
 						}
 					});
-
+			// @formatter:on
 		}
 	}
 

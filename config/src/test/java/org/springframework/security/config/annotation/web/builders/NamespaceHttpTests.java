@@ -94,10 +94,12 @@ public class NamespaceHttpTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().permitAll()
 				.accessDecisionManager(ACCESS_DECISION_MANAGER);
+			// @formatter:on
 		}
 	}
 
@@ -114,6 +116,7 @@ public class NamespaceHttpTests {
 	static class AccessDeniedPageConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/admin").hasRole("ADMIN")
@@ -121,6 +124,7 @@ public class NamespaceHttpTests {
 					.and()
 				.exceptionHandling()
 					.accessDeniedPage("/AccessDeniedPage");
+			// @formatter:on
 		}
 	}
 
@@ -145,11 +149,13 @@ public class NamespaceHttpTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.formLogin();
+			// @formatter:on
 		}
 	}
 
@@ -168,12 +174,14 @@ public class NamespaceHttpTests {
 	static class CreateSessionAlwaysConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().permitAll()
 					.and()
 				.sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+			// @formatter:on
 		}
 	}
 
@@ -191,12 +199,14 @@ public class NamespaceHttpTests {
 	static class CreateSessionStatelessConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().permitAll()
 					.and()
 				.sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			// @formatter:on
 		}
 	}
 
@@ -220,6 +230,7 @@ public class NamespaceHttpTests {
 	static class IfRequiredConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/unsecure").permitAll()
@@ -229,6 +240,7 @@ public class NamespaceHttpTests {
 					.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
 					.and()
 				.formLogin();
+			// @formatter:on
 		}
 	}
 
@@ -246,12 +258,14 @@ public class NamespaceHttpTests {
 	static class CreateSessionNeverConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().anonymous()
 					.and()
 				.sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.NEVER);
+			// @formatter:on
 		}
 	}
 
@@ -268,6 +282,7 @@ public class NamespaceHttpTests {
 	static class EntryPointRefConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
@@ -276,6 +291,7 @@ public class NamespaceHttpTests {
 					.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/entry-point"))
 					.and()
 				.formLogin();
+			// @formatter:on
 		}
 	}
 
@@ -299,8 +315,10 @@ public class NamespaceHttpTests {
 	static class JaasApiProvisionConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) {
+			// @formatter:off
 			http
 				.addFilter(new JaasApiIntegrationFilter());
+			// @formatter:on
 		}
 	}
 
@@ -317,12 +335,14 @@ public class NamespaceHttpTests {
 	static class RealmConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.httpBasic()
 					.realmName("RealmConfig");
+			// @formatter:on
 		}
 	}
 
@@ -341,8 +361,10 @@ public class NamespaceHttpTests {
 	static class RequestMatcherAntConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) {
+			// @formatter:off
 			http
 				.antMatcher("/api/**");
+			// @formatter:on
 		}
 	}
 
@@ -361,8 +383,10 @@ public class NamespaceHttpTests {
 	static class RequestMatcherRegexConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) {
+			// @formatter:off
 			http
 				.regexMatcher("/regex/.*");
+			// @formatter:on
 		}
 	}
 
@@ -381,8 +405,10 @@ public class NamespaceHttpTests {
 	static class RequestMatcherRefConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) {
+			// @formatter:off
 			http
 				.requestMatcher(new MyRequestMatcher());
+			// @formatter:on
 		}
 
 		static class MyRequestMatcher implements RequestMatcher {
@@ -439,6 +465,7 @@ public class NamespaceHttpTests {
 	static class SecurityContextRepoConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
@@ -447,6 +474,7 @@ public class NamespaceHttpTests {
 					.securityContextRepository(new NullSecurityContextRepository())
 					.and()
 				.formLogin();
+			// @formatter:on
 		}
 
 		@Override
@@ -470,12 +498,14 @@ public class NamespaceHttpTests {
 	static class ServletApiProvisionConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().permitAll()
 					.and()
 				.servletApi()
 					.disable();
+			// @formatter:on
 		}
 	}
 
@@ -492,9 +522,11 @@ public class NamespaceHttpTests {
 	static class ServletApiProvisionDefaultsConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().permitAll();
+			// @formatter:on
 		}
 	}
 
@@ -525,11 +557,13 @@ public class NamespaceHttpTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/users**", "/sessions/**").hasRole("USER")
 					.antMatchers("/signup").permitAll()
 					.anyRequest().hasRole("USER");
+			// @formatter:on
 		}
 
 		@Override
@@ -560,11 +594,13 @@ public class NamespaceHttpTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.apply(new UrlAuthorizationConfigurer<>(getApplicationContext())).getRegistry()
 					.antMatchers("/users**", "/sessions/**").hasRole("USER")
 					.antMatchers("/signup").hasRole("ANONYMOUS")
 					.anyRequest().hasRole("USER");
+			// @formatter:on
 		}
 
 		@Override

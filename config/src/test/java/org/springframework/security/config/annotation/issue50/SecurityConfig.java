@@ -45,22 +45,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private UserRepository myUserRepository;
 
-	// @formatter:off
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) {
+		// @formatter:off
 		auth
 			.authenticationProvider(authenticationProvider());
+		// @formatter:on
 	}
-	// @formatter:on
 
-	// @formatter:off
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		// @formatter:off
 		http
 			.authorizeRequests()
 				.antMatchers("/*").permitAll();
+		// @formatter:on
 	}
-	// @formatter:on
 
 	@Bean
 	@Override

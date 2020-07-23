@@ -70,9 +70,10 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			super.configure(http);
-
+			// @formatter:off
 			http
 				.csrf().disable();
+			// @formatter:on
 		}
 
 		@Override
@@ -86,8 +87,10 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 	static class AlwaysCreateSessionConfig extends WithTransientAuthenticationConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+			// @formatter:on
 		}
 	}
 

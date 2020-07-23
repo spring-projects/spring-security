@@ -64,6 +64,7 @@ public class NamespaceHttpPortMappingsTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -74,6 +75,7 @@ public class NamespaceHttpPortMappingsTests {
 				.requiresChannel()
 					.antMatchers("/login", "/secured/**").requiresSecure()
 					.anyRequest().requiresInsecure();
+			// @formatter:on
 		}
 
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {

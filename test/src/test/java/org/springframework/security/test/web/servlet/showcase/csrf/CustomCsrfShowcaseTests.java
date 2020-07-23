@@ -74,14 +74,14 @@ public class CustomCsrfShowcaseTests {
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 
-		// @formatter:off
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.csrf()
 					.csrfTokenRepository(repo());
+			// @formatter:on
 		}
-		// @formatter:on
 
 		// @formatter:off
 		@Autowired

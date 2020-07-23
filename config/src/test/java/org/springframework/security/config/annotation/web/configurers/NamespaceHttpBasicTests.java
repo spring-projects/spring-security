@@ -95,11 +95,13 @@ public class NamespaceHttpBasicTests {
 	@EnableWebSecurity
 	static class HttpBasicConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.httpBasic();
+			// @formatter:on
 		}
 	}
 
@@ -151,11 +153,13 @@ public class NamespaceHttpBasicTests {
 	static class CustomHttpBasicConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.httpBasic().realmName("Custom Realm");
+			// @formatter:on
 		}
 	}
 
@@ -207,9 +211,11 @@ public class NamespaceHttpBasicTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.httpBasic()
 					.authenticationDetailsSource(this.authenticationDetailsSource);
+			// @formatter:on
 		}
 
 		@Bean
@@ -278,12 +284,14 @@ public class NamespaceHttpBasicTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.httpBasic()
 					.authenticationEntryPoint(this.authenticationEntryPoint);
+			// @formatter:on
 		}
 	}
 

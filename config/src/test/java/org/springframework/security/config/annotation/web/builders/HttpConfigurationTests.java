@@ -68,8 +68,10 @@ public class HttpConfigurationTests {
 	static class UnregisteredFilterConfig extends WebSecurityConfigurerAdapter {
 
 		protected void configure(HttpSecurity http) {
+			// @formatter:off
 			http
 				.addFilter(new UnregisteredFilter());
+			// @formatter:on
 		}
 
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -105,8 +107,10 @@ public class HttpConfigurationTests {
 		static CasAuthenticationFilter CAS_AUTHENTICATION_FILTER;
 
 		protected void configure(HttpSecurity http) {
+			// @formatter:off
 			http
 				.addFilter(CAS_AUTHENTICATION_FILTER);
+			// @formatter:on
 		}
 	}
 
@@ -124,6 +128,7 @@ public class HttpConfigurationTests {
 	static class RequestMatcherRegistryConfigs extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.requestMatchers()
 					.antMatchers("/api/**")
@@ -133,6 +138,7 @@ public class HttpConfigurationTests {
 					.antMatchers("/**").hasRole("USER")
 					.and()
 				.httpBasic();
+			// @formatter:on
 		}
 	}
 }

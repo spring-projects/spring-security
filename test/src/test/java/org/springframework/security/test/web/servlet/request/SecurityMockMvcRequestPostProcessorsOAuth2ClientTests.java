@@ -165,11 +165,13 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 	static class OAuth2ClientConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests(authz -> authz
 					.anyRequest().permitAll()
 				)
 				.oauth2Client();
+			// @formatter:on
 		}
 
 		@Bean

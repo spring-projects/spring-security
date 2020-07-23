@@ -617,10 +617,12 @@ public class OAuth2LoginConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.oauth2Login()
 					.clientRegistrationRepository(
 						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION));
+			// @formatter:on
 			super.configure(http);
 		}
 
@@ -658,12 +660,14 @@ public class OAuth2LoginConfigurerTests {
 	static class OAuth2LoginConfigCustomWithConfigurer extends CommonWebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.oauth2Login()
 					.clientRegistrationRepository(
 							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
 					.userInfoEndpoint()
 						.userAuthoritiesMapper(createGrantedAuthoritiesMapper());
+			// @formatter:on
 			super.configure(http);
 		}
 	}
@@ -672,8 +676,10 @@ public class OAuth2LoginConfigurerTests {
 	static class OAuth2LoginConfigCustomWithBeanRegistration extends CommonWebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.oauth2Login();
+			// @formatter:on
 			super.configure(http);
 		}
 
@@ -692,6 +698,7 @@ public class OAuth2LoginConfigurerTests {
 	static class OAuth2LoginConfigCustomUserServiceBeanRegistration extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
@@ -702,6 +709,7 @@ public class OAuth2LoginConfigurerTests {
 				.oauth2Login()
 					.tokenEndpoint()
 						.accessTokenResponseClient(createOauth2AccessTokenResponseClient());
+			// @formatter:on
 		}
 
 		@Bean
@@ -739,11 +747,13 @@ public class OAuth2LoginConfigurerTests {
 	static class OAuth2LoginConfigLoginProcessingUrl extends CommonWebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.oauth2Login()
 					.clientRegistrationRepository(
 						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
 					.loginProcessingUrl("/login/oauth2/*");
+			// @formatter:on
 			super.configure(http);
 		}
 	}
@@ -757,11 +767,13 @@ public class OAuth2LoginConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.oauth2Login()
 					.clientRegistrationRepository(this.clientRegistrationRepository)
 					.authorizationEndpoint()
 						.authorizationRequestResolver(this.resolver);
+			// @formatter:on
 			super.configure(http);
 		}
 	}
@@ -775,6 +787,7 @@ public class OAuth2LoginConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.oauth2Login(oauth2Login ->
 					oauth2Login
@@ -784,6 +797,7 @@ public class OAuth2LoginConfigurerTests {
 								.authorizationRequestResolver(this.resolver)
 						)
 				);
+			// @formatter:on
 			super.configure(http);
 		}
 	}
@@ -792,11 +806,13 @@ public class OAuth2LoginConfigurerTests {
 	static class OAuth2LoginConfigMultipleClients extends CommonWebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 					.oauth2Login()
 					.clientRegistrationRepository(
 							new InMemoryClientRegistrationRepository(
 									GOOGLE_CLIENT_REGISTRATION, GITHUB_CLIENT_REGISTRATION));
+			// @formatter:on
 			super.configure(http);
 		}
 	}
@@ -805,11 +821,13 @@ public class OAuth2LoginConfigurerTests {
 	static class OAuth2LoginConfigCustomLoginPage extends CommonWebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 					.oauth2Login()
 					.clientRegistrationRepository(
 							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
 					.loginPage("/custom-login");
+			// @formatter:on
 			super.configure(http);
 		}
 	}
@@ -835,9 +853,11 @@ public class OAuth2LoginConfigurerTests {
 	static class OAuth2LoginConfigWithOidcLogoutSuccessHandler extends CommonWebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.logout()
 					.logoutSuccessHandler(oidcLogoutSuccessHandler());
+			// @formatter:on
 			super.configure(http);
 		}
 
@@ -859,6 +879,7 @@ public class OAuth2LoginConfigurerTests {
 	private static abstract class CommonWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
@@ -873,6 +894,7 @@ public class OAuth2LoginConfigurerTests {
 					.userInfoEndpoint()
 						.userService(createOauth2UserService())
 						.oidcUserService(createOidcUserService());
+			// @formatter:on
 		}
 
 		@Bean

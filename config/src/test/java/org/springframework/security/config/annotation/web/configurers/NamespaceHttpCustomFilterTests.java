@@ -67,9 +67,11 @@ public class NamespaceHttpCustomFilterTests {
 	@EnableWebSecurity
 	static class CustomFilterBeforeConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.addFilterBefore(new CustomFilter(), UsernamePasswordAuthenticationFilter.class)
 				.formLogin();
+			// @formatter:on
 		}
 	}
 
@@ -82,9 +84,11 @@ public class NamespaceHttpCustomFilterTests {
 	@EnableWebSecurity
 	static class CustomFilterAfterConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.addFilterAfter(new CustomFilter(), UsernamePasswordAuthenticationFilter.class)
 				.formLogin();
+			// @formatter:on
 		}
 	}
 
@@ -102,10 +106,12 @@ public class NamespaceHttpCustomFilterTests {
 		}
 
 		protected void configure(HttpSecurity http) {
+			// @formatter:off
 			http
 				// this works so long as the CustomFilter extends one of the standard filters
 				// if not, use addFilterBefore or addFilterAfter
 				.addFilter(new CustomFilter());
+			// @formatter:on
 		}
 	}
 
@@ -124,8 +130,10 @@ public class NamespaceHttpCustomFilterTests {
 		}
 
 		protected void configure(HttpSecurity http) {
+			// @formatter:off
 			http
 				.addFilterAt(new OtherCustomFilter(), UsernamePasswordAuthenticationFilter.class);
+			// @formatter:on
 		}
 	}
 
@@ -147,11 +155,13 @@ public class NamespaceHttpCustomFilterTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.addFilterBefore(new CustomFilter(), UsernamePasswordAuthenticationFilter.class);
+			// @formatter:on
 		}
 	}
 

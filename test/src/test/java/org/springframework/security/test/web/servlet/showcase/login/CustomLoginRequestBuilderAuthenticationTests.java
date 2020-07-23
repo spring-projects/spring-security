@@ -81,9 +81,9 @@ public class CustomLoginRequestBuilderAuthenticationTests {
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 
-		// @formatter:off
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
@@ -92,8 +92,8 @@ public class CustomLoginRequestBuilderAuthenticationTests {
 					.usernameParameter("user")
 					.passwordParameter("pass")
 					.loginPage("/authenticate");
+			// @formatter:on
 		}
-		// @formatter:on
 
 		// @formatter:off
 		@Bean

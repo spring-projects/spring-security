@@ -83,10 +83,12 @@ public class FormLoginConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.formLogin().and()
 				.requestCache()
 					.requestCache(this.requestCache);
+			// @formatter:on
 		}
 	}
 
