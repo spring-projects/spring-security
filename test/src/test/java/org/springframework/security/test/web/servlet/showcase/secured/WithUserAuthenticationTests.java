@@ -99,13 +99,13 @@ public class WithUserAuthenticationTests {
 			// @formatter:on
 		}
 
-		// @formatter:off
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 }

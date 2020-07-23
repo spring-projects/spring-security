@@ -78,8 +78,10 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) {
+			// @formatter:off
 			auth
 				.authenticationProvider(new TransientAuthenticationProvider());
+			// @formatter:on
 		}
 	}
 

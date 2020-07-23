@@ -79,8 +79,10 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	static class Config {
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication();
+			// @formatter:off
 		}
 
 		@Bean

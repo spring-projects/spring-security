@@ -95,8 +95,10 @@ public class HttpSecurityLogoutTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication();
+			// @formatter:on
 		}
 	}
 

@@ -96,9 +96,11 @@ public class WebSecurityConfigurerAdapterTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
 		}
 
 		@Override
@@ -125,9 +127,11 @@ public class WebSecurityConfigurerAdapterTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
 		}
 
 		@Override
@@ -152,9 +156,11 @@ public class WebSecurityConfigurerAdapterTests {
 	static class InMemoryConfigureProtectedConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
 		}
 
 		@Override
@@ -180,9 +186,11 @@ public class WebSecurityConfigurerAdapterTests {
 	static class InMemoryConfigureGlobalConfig extends WebSecurityConfigurerAdapter {
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
 		}
 
 		@Override
@@ -283,9 +291,11 @@ public class WebSecurityConfigurerAdapterTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
 		}
 	}
 

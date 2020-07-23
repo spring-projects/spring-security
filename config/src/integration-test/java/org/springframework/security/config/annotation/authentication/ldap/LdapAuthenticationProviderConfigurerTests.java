@@ -83,8 +83,8 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 	@EnableWebSecurity
 	static class MultiLdapAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
@@ -95,14 +95,14 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.groupSearchBase("ou=groups")
 					.groupSearchFilter("(member={0})")
 					.userDnPatterns("uid={0},ou=people");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@EnableWebSecurity
 	static class MultiLdapWithCustomRolePrefixAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
@@ -115,14 +115,15 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.groupSearchFilter("(member={0})")
 					.userDnPatterns("uid={0},ou=people")
 					.rolePrefix("RUOLO_");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@EnableWebSecurity
 	static class LdapWithRandomPortConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
@@ -130,20 +131,21 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.userDnPatterns("uid={0},ou=people")
 					.contextSource()
 						.port(0);
+			// @formatter:on
 		}
 	}
 
 	@EnableWebSecurity
 	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
 					.groupSearchFilter("(member={0})")
 					.groupSearchSubtree(true)
 					.userDnPatterns("uid={0},ou=people");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 }

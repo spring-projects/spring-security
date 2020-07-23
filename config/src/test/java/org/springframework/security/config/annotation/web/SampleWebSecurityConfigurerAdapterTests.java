@@ -135,9 +135,11 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	public static class HelloWorldWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
 		}
 	}
 
@@ -233,10 +235,12 @@ public class SampleWebSecurityConfigurerAdapterTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user())
 					.withUser(PasswordEncodedUser.admin());
+			// @formatter:on
 		}
 	}
 
@@ -346,10 +350,12 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	public static class SampleMultiHttpSecurityConfig {
 		@Autowired
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user())
 					.withUser(PasswordEncodedUser.admin());
+			// @formatter:on
 		}
 
 		@Configuration

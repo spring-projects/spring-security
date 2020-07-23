@@ -90,8 +90,10 @@ public class HttpSecurityAntMatchersTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication();
+			// @formatter:on
 		}
 	}
 
@@ -123,8 +125,10 @@ public class HttpSecurityAntMatchersTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication();
+			// @formatter:on
 		}
 	}
 

@@ -77,9 +77,11 @@ public class NamespaceHttpExpressionHandlerTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("rod").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
 
 		@Override

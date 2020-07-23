@@ -82,13 +82,13 @@ public class SecurityMockMvcRequestPostProcessorsAuthenticationStatelessTests {
 			// @formatter:on
 		}
 
-		// @formatter:off
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication();
+			// @formatter:on
 		}
-		// @formatter:on
 
 		@RestController
 		static class Controller {

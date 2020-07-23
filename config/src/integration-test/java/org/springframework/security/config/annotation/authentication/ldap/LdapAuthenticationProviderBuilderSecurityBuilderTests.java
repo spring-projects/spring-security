@@ -74,14 +74,14 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	@EnableWebSecurity
 	static class DefaultLdapConfig extends BaseLdapProviderConfig {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.contextSource(contextSource())
 					.userDnPatterns("uid={0},ou=people");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@Test
@@ -94,15 +94,15 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	@EnableWebSecurity
 	static class GroupRolesConfig extends BaseLdapProviderConfig {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.contextSource(contextSource())
 					.userDnPatterns("uid={0},ou=people")
 					.groupRoleAttribute("group");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@Test
@@ -115,15 +115,15 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	@EnableWebSecurity
 	static class GroupSearchConfig extends BaseLdapProviderConfig {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.contextSource(contextSource())
 					.userDnPatterns("uid={0},ou=people")
 					.groupSearchFilter("ou=groupName");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@Test
@@ -137,16 +137,16 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	@EnableWebSecurity
 	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.contextSource(contextSource())
 					.userDnPatterns("uid={0},ou=people")
 					.groupSearchFilter("ou=groupName")
 					.groupSearchSubtree(true);
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@Test
@@ -159,15 +159,15 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	@EnableWebSecurity
 	static class RolePrefixConfig extends BaseLdapProviderConfig {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.contextSource(contextSource())
 					.userDnPatterns("uid={0},ou=people")
 					.rolePrefix("role_");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	@Test
@@ -180,16 +180,16 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	@EnableWebSecurity
 	static class BindAuthenticationConfig extends BaseLdapServerConfig {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.contextSource(contextSource())
 					.groupSearchBase("ou=groups")
 					.groupSearchFilter("(member={0})")
 					.userDnPatterns("uid={0},ou=people");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	// SEC-2472
@@ -203,8 +203,8 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends BaseLdapServerConfig {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.contextSource(contextSource())
@@ -212,8 +212,8 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 					.groupSearchBase("ou=groups")
 					.groupSearchFilter("(member={0})")
 					.userDnPatterns("uid={0},ou=people");
+			// @formatter:on
 		}
-		// @formatter:on
 	}
 
 	private LdapAuthenticationProvider ldapProvider() {

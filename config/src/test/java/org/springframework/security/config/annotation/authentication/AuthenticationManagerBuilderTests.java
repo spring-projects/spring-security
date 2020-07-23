@@ -113,9 +113,11 @@ public class AuthenticationManagerBuilderTests {
 	static class PasswordEncoderGlobalConfig extends WebSecurityConfigurerAdapter {
 		@Autowired
 		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 				.withUser("user").password("password").roles("USER");
+			// @formatter:on
 		}
 
 		@Bean
@@ -139,9 +141,11 @@ public class AuthenticationManagerBuilderTests {
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 				.withUser("user").password("password").roles("USER");
+			// @formatter:on
 		}
 
 		@Bean

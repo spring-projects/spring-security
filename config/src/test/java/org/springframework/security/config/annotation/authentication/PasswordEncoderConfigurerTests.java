@@ -49,15 +49,15 @@ public class PasswordEncoderConfigurerTests {
 
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = passwordEncoder();
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password(encoder.encode("password")).roles("USER").and()
 					.passwordEncoder(encoder);
+			// @formatter:on
 		}
-		// @formatter:on
 
 		@Override
 		protected void configure(HttpSecurity http) {
@@ -80,15 +80,15 @@ public class PasswordEncoderConfigurerTests {
 	@EnableWebSecurity
 	static class PasswordEncoderNoAuthManagerLoadsConfig extends
 		WebSecurityConfigurerAdapter {
-		// @formatter:off
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = passwordEncoder();
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password(encoder.encode("password")).roles("USER").and()
 					.passwordEncoder(encoder);
+			// @formatter:on
 		}
-		// @formatter:on
 
 		@Bean
 		public BCryptPasswordEncoder passwordEncoder() {

@@ -81,9 +81,11 @@ public class NamespaceHttpX509Tests {
 	public static class X509Config extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("rod").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
 
 		@Override
@@ -114,9 +116,11 @@ public class NamespaceHttpX509Tests {
 	static class AuthenticationDetailsSourceRefConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("rod").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
 
 		@Override
@@ -152,9 +156,11 @@ public class NamespaceHttpX509Tests {
 	public static class SubjectPrincipalRegexConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("rod").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
 
 		@Override
@@ -183,9 +189,11 @@ public class NamespaceHttpX509Tests {
 	public static class CustomPrincipalExtractorConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("rod@example.com").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
 
 		@Override
@@ -222,9 +230,11 @@ public class NamespaceHttpX509Tests {
 	public static class UserDetailsServiceRefConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("rod").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
 
 		@Override

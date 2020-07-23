@@ -77,13 +77,13 @@ public class WithUserDetailsTests {
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {
-		// @formatter:off
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 					.userDetailsService(myUserDetailsService());
+			// @formatter:on
 		}
-		// @formatter:on
 
 		@Bean
 		public UserDetailsService myUserDetailsService() {
