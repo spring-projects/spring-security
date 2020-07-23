@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.io.ByteArrayInputStream;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -26,7 +27,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.core.impl.AuthnRequestUnmarshaller;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
@@ -37,6 +42,8 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getParserPool;
+import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getUnmarshallerFactory;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.relyingPartySigningCredential;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlDecode;
 import static org.springframework.security.saml2.provider.service.authentication.Saml2Utils.samlInflate;
@@ -55,6 +62,9 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	private RelyingPartyRegistration.Builder relyingPartyRegistrationBuilder;
 	private RelyingPartyRegistration relyingPartyRegistration;
+
+	private AuthnRequestUnmarshaller unmarshaller = (AuthnRequestUnmarshaller) getUnmarshallerFactory()
+			.getUnmarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME);
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -224,6 +234,14 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 		else {
 			samlRequest = new String(samlDecode(samlRequest), UTF_8);
 		}
-		return (AuthnRequest) OpenSamlImplementation.getInstance().resolve(samlRequest);
+		try {
+			Document document = getParserPool().parse(
+					new ByteArrayInputStream(samlRequest.getBytes(UTF_8)));
+			Element element = document.getDocumentElement();
+			return (AuthnRequest) this.unmarshaller.unmarshall(element);
+		}
+		catch (Exception e) {
+			throw new Saml2Exception(e);
+		}
 	}
 }
