@@ -253,12 +253,14 @@ public class OAuth2LoginTests {
 
 		@Bean
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			// @formatter:off
 			http
 				.requestCache()
 					.requestCache(this.requestCache)
 					.and()
 				.oauth2Login()
 					.authorizationRequestRepository(this.authorizationRequestRepository);
+			// @formatter:on
 			return http.build();
 		}
 
@@ -395,6 +397,7 @@ public class OAuth2LoginTests {
 
 		@Bean
 		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+			// @formatter:off
 			http
 				.authorizeExchange()
 					.anyExchange().authenticated()
@@ -406,6 +409,7 @@ public class OAuth2LoginTests {
 					.authorizationRequestResolver(resolver)
 					.authenticationSuccessHandler(successHandler)
 					.authenticationFailureHandler(failureHandler);
+			// @formatter:on
 			return http.build();
 		}
 	}
@@ -474,6 +478,7 @@ public class OAuth2LoginTests {
 
 		@Bean
 		public SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
+			// @formatter:off
 			http
 				.authorizeExchange(exchanges ->
 					exchanges
@@ -487,6 +492,7 @@ public class OAuth2LoginTests {
 						.authorizationRequestResolver(resolver)
 						.authenticationSuccessHandler(successHandler)
 				);
+			// @formatter:on
 			return http.build();
 		}
 	}
@@ -715,7 +721,7 @@ public class OAuth2LoginTests {
 
 		@Bean
 		public SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
-
+			// @formatter:off
 			http
 				.csrf().disable()
 				.logout()
@@ -726,7 +732,7 @@ public class OAuth2LoginTests {
 									new InMemoryReactiveClientRegistrationRepository(this.withLogout)))
 					.and()
 				.securityContextRepository(this.repository);
-
+			// @formatter:on
 			return http.build();
 		}
 

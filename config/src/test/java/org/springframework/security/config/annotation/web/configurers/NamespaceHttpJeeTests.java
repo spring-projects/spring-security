@@ -83,12 +83,14 @@ public class NamespaceHttpJeeTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("user")
 					.and()
 				.jee()
 					.mappableRoles("user", "admin");
+			// @formatter:on
 		}
 	}
 
@@ -120,6 +122,7 @@ public class NamespaceHttpJeeTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("user")
@@ -127,6 +130,7 @@ public class NamespaceHttpJeeTests {
 				.jee()
 					.mappableAuthorities("ROLE_user", "ROLE_admin")
 					.authenticatedUserDetailsService(this.authenticationUserDetailsService);
+			// @formatter:on
 		}
 
 		@Bean

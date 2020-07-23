@@ -77,11 +77,13 @@ public class EnableWebSecurityTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/*").hasRole("USER")
 					.and()
 				.formLogin();
+			// @formatter:on
 		}
 	}
 

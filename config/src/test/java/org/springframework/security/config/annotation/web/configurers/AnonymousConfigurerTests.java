@@ -60,12 +60,14 @@ public class AnonymousConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.anonymous()
 					.key("key")
 					.principal("principal")
 					.and()
 				.anonymous();
+			// @formatter:on
 		}
 	}
 

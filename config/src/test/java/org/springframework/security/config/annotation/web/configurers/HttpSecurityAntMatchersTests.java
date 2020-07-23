@@ -78,12 +78,14 @@ public class HttpSecurityAntMatchersTests {
 	@Configuration
 	static class AntMatchersNoPatternsConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.requestMatchers()
 					.antMatchers(HttpMethod.POST)
 					.and()
 				.authorizeRequests()
 					.anyRequest().denyAll();
+			// @formatter:on
 		}
 
 		@Override
@@ -108,6 +110,7 @@ public class HttpSecurityAntMatchersTests {
 	@Configuration
 	static class AntMatchersEmptyPatternsConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.requestMatchers()
 					.antMatchers("/never/")
@@ -115,6 +118,7 @@ public class HttpSecurityAntMatchersTests {
 					.and()
 				.authorizeRequests()
 					.anyRequest().denyAll();
+			// @formatter:on
 		}
 
 		@Override

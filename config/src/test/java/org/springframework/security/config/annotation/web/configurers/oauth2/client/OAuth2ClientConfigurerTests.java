@@ -268,6 +268,7 @@ public class OAuth2ClientConfigurerTests {
 	static class OAuth2ClientConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
@@ -279,6 +280,7 @@ public class OAuth2ClientConfigurerTests {
 					.authorizationCodeGrant()
 						.authorizationRequestResolver(authorizationRequestResolver)
 						.accessTokenResponseClient(accessTokenResponseClient);
+			// @formatter:on
 		}
 
 		@Bean

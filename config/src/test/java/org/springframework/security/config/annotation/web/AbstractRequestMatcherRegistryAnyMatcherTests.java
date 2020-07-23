@@ -35,10 +35,12 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 	@EnableWebSecurity
 	static class AntMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 				.anyRequest().authenticated()
 				.antMatchers("/demo/**").permitAll();
+			// @formatter:on
 
 		}
 	}
@@ -51,10 +53,12 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 	@EnableWebSecurity
 	static class MvcMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 				.anyRequest().authenticated()
 				.mvcMatchers("/demo/**").permitAll();
+			// @formatter:on
 
 		}
 	}
@@ -67,10 +71,12 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 	@EnableWebSecurity
 	static class RegexMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 				.anyRequest().authenticated()
 				.regexMatchers(".*").permitAll();
+			// @formatter:on
 
 		}
 	}
@@ -83,10 +89,12 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 	@EnableWebSecurity
 	static class AnyRequestAfterItselfConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 				.anyRequest().authenticated()
 				.anyRequest().permitAll();
+			// @formatter:on
 
 		}
 	}
@@ -99,10 +107,12 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests{
 	@EnableWebSecurity
 	static class RequestMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 				.anyRequest().authenticated()
 				.requestMatchers(new AntPathRequestMatcher("/**")).permitAll();
+			// @formatter:on
 
 		}
 	}

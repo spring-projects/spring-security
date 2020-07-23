@@ -127,10 +127,12 @@ public class WebSecurityConfigurationTests {
 
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
 					.antMatcher("/role1/**")
 					.authorizeRequests()
 						.anyRequest().hasRole("1");
+				// @formatter:on
 			}
 		}
 
@@ -139,10 +141,12 @@ public class WebSecurityConfigurationTests {
 		static class WebConfigurer2 extends WebSecurityConfigurerAdapter {
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
 					.antMatcher("/role2/**")
 					.authorizeRequests()
 						.anyRequest().hasRole("2");
+				// @formatter:on
 			}
 		}
 
@@ -151,10 +155,12 @@ public class WebSecurityConfigurationTests {
 		static class WebConfigurer3 extends WebSecurityConfigurerAdapter {
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
 					.antMatcher("/role3/**")
 					.authorizeRequests()
 						.anyRequest().hasRole("3");
+				// @formatter:on
 			}
 		}
 
@@ -163,9 +169,11 @@ public class WebSecurityConfigurationTests {
 
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
 					.authorizeRequests()
 						.anyRequest().hasRole("4");
+				// @formatter:on
 			}
 		}
 	}
@@ -258,10 +266,12 @@ public class WebSecurityConfigurationTests {
 		static class WebConfigurer1 extends WebSecurityConfigurerAdapter {
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
 					.antMatcher("/role1/**")
 						.authorizeRequests()
 							.anyRequest().hasRole("1");
+				// @formatter:on
 			}
 		}
 
@@ -269,10 +279,12 @@ public class WebSecurityConfigurationTests {
 		static class WebConfigurer2 extends WebSecurityConfigurerAdapter {
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
 					.antMatcher("/role2/**")
 						.authorizeRequests()
 							.anyRequest().hasRole("2");
+				// @formatter:on
 			}
 		}
 	}
@@ -319,10 +331,12 @@ public class WebSecurityConfigurationTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.expressionHandler(EXPRESSION_HANDLER);
+			// @formatter:on
 		}
 	}
 
@@ -357,9 +371,11 @@ public class WebSecurityConfigurationTests {
 	static class WebSecurityExpressionHandlerDefaultsConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated();
+			// @formatter:on
 		}
 	}
 
@@ -436,9 +452,11 @@ public class WebSecurityConfigurationTests {
 	static class WebInvocationPrivilegeEvaluatorDefaultsConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated();
+			// @formatter:on
 		}
 	}
 
@@ -475,9 +493,11 @@ public class WebSecurityConfigurationTests {
 	static class DefaultExpressionHandlerSetsBeanResolverConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().access("request.method == 'GET' ? @b.grant() : @b.deny()");
+			// @formatter:on
 		}
 
 		@RestController
@@ -571,10 +591,12 @@ public class WebSecurityConfigurationTests {
 
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
 						.antMatcher("/anonymous/**")
 						.authorizeRequests()
 						.anyRequest().anonymous();
+				// @formatter:on
 			}
 		}
 
@@ -583,9 +605,11 @@ public class WebSecurityConfigurationTests {
 
 			@Override
 			protected void configure(HttpSecurity http) throws Exception {
+				// @formatter:off
 				http
 						.authorizeRequests()
 						.anyRequest().authenticated();
+				// @formatter:on
 			}
 		}
 	}

@@ -54,6 +54,7 @@ public class PortMapperConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.requiresChannel()
 					.anyRequest().requiresSecure()
@@ -62,6 +63,7 @@ public class PortMapperConfigurerTests {
 					.http(543).mapsTo(123)
 					.and()
 				.portMapper();
+			// @formatter:on
 		}
 	}
 

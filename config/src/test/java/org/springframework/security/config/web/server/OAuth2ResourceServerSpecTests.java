@@ -486,8 +486,6 @@ public class OAuth2ResourceServerSpecTests {
 					.jwt()
 						.publicKey(publicKey());
 			// @formatter:on
-
-
 			return http.build();
 		}
 	}
@@ -511,7 +509,6 @@ public class OAuth2ResourceServerSpecTests {
 						)
 				);
 			// @formatter:on
-
 			return http.build();
 		}
 	}
@@ -533,8 +530,6 @@ public class OAuth2ResourceServerSpecTests {
 					.jwt()
 						.publicKey(this.key);
 			// @formatter:on
-
-
 			return http.build();
 		}
 	}
@@ -877,6 +872,7 @@ public class OAuth2ResourceServerSpecTests {
 				.oauth2ResourceServer()
 					.authenticationManagerResolver(mock(ReactiveAuthenticationManagerResolver.class))
 					.opaqueToken();
+			// @formatter:on
 
 			return http.build();
 		}

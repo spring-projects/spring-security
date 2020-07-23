@@ -90,11 +90,13 @@ public class NamespaceHttpFormLoginTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
 					.and()
 				.formLogin();
+			// @formatter:on
 		}
 	}
 
@@ -120,6 +122,7 @@ public class NamespaceHttpFormLoginTests {
 	static class FormLoginCustomConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
 			boolean alwaysUseDefaultSuccess = true;
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -131,6 +134,7 @@ public class NamespaceHttpFormLoginTests {
 					.failureUrl("/authentication/login?failed") // form-login@authentication-failure-url
 					.loginProcessingUrl("/authentication/login/process") // form-login@login-processing-url
 					.defaultSuccessUrl("/default", alwaysUseDefaultSuccess); // form-login@default-target-url / form-login@always-use-default-target
+			// @formatter:on
 		}
 	}
 
@@ -159,7 +163,7 @@ public class NamespaceHttpFormLoginTests {
 			SavedRequestAwareAuthenticationSuccessHandler successHandler =
 					new SavedRequestAwareAuthenticationSuccessHandler();
 			successHandler.setDefaultTargetUrl("/custom/targetUrl");
-
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -170,6 +174,7 @@ public class NamespaceHttpFormLoginTests {
 					.successHandler(successHandler) // form-login@authentication-success-handler-ref
 					.authenticationDetailsSource(authenticationDetailsSource()) // form-login@authentication-details-source-ref
 					.and();
+			// @formatter:on
 		}
 
 		@Bean

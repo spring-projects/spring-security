@@ -70,12 +70,14 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	@EnableWebSecurity
 	static class AccessDeniedPageConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().denyAll()
 					.and()
 				.exceptionHandling()
 					.accessDeniedPage("/AccessDeniedPageConfig");
+			// @formatter:on
 		}
 	}
 
@@ -121,12 +123,14 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	@EnableWebSecurity
 	static class AccessDeniedHandlerRefConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().denyAll()
 					.and()
 				.exceptionHandling()
 					.accessDeniedHandler(accessDeniedHandler());
+			// @formatter:on
 		}
 
 		@Bean

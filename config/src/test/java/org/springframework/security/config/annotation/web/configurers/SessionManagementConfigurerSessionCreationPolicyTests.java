@@ -80,8 +80,10 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			super.configure(http);
+			// @formatter:off
 			http
 					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			// @formatter:on
 
 			http.setSharedObject(SessionCreationPolicy.class, SessionCreationPolicy.ALWAYS);
 		}

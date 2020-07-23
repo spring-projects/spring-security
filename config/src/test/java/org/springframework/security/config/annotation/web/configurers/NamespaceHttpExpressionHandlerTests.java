@@ -86,11 +86,12 @@ public class NamespaceHttpExpressionHandlerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
 			handler.setExpressionParser(expressionParser());
-
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.expressionHandler(handler)
 					.anyRequest().access("hasRole('USER')");
+			// @formatter:on
 		}
 
 		@Bean

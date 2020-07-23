@@ -130,6 +130,7 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 	static class OAuth2LoginConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.mvcMatchers("/admin/**").hasAuthority("SCOPE_admin")
@@ -138,6 +139,7 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 				.oauth2ResourceServer()
 					.opaqueToken()
 						.introspector(mock(OpaqueTokenIntrospector.class));
+			// @formatter:on
 		}
 
 		@RestController

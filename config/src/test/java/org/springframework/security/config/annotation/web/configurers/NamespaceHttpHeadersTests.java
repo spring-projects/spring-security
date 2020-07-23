@@ -77,8 +77,10 @@ public class NamespaceHttpHeadersTests {
 	static class HeadersDefaultConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.headers();
+			// @formatter:on
 		}
 	}
 
@@ -94,10 +96,12 @@ public class NamespaceHttpHeadersTests {
 	static class HeadersCacheControlConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.headers()
 					.defaultsDisabled()
 					.cacheControl();
+			// @formatter:on
 		}
 	}
 
@@ -113,10 +117,12 @@ public class NamespaceHttpHeadersTests {
 	static class HstsConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.headers()
 					.defaultsDisabled()
 					.httpStrictTransportSecurity();
+			// @formatter:on
 		}
 	}
 
@@ -132,6 +138,7 @@ public class NamespaceHttpHeadersTests {
 	static class HstsCustomConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.headers()
 					// hsts@request-matcher-ref, hsts@max-age-seconds, hsts@include-subdomains
@@ -140,6 +147,7 @@ public class NamespaceHttpHeadersTests {
 						.requestMatcher(AnyRequestMatcher.INSTANCE)
 						.maxAgeInSeconds(15768000)
 						.includeSubDomains(false);
+			// @formatter:on
 		}
 	}
 
@@ -155,12 +163,14 @@ public class NamespaceHttpHeadersTests {
 	static class FrameOptionsSameOriginConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.headers()
 					// frame-options@policy=SAMEORIGIN
 					.defaultsDisabled()
 					.frameOptions()
 						.sameOrigin();
+			// @formatter:on
 		}
 	}
 
@@ -178,12 +188,14 @@ public class NamespaceHttpHeadersTests {
 	static class FrameOptionsAllowFromConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.headers()
 					// frame-options@ref
 					.defaultsDisabled()
 					.addHeaderWriter(new XFrameOptionsHeaderWriter(
 							new StaticAllowFromStrategy(URI.create("https://example.com"))));
+			// @formatter:on
 		}
 	}
 
@@ -199,11 +211,13 @@ public class NamespaceHttpHeadersTests {
 	static class XssProtectionConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.headers()
 					// xss-protection
 					.defaultsDisabled()
 					.xssProtection();
+			// @formatter:on
 		}
 	}
 
@@ -219,6 +233,7 @@ public class NamespaceHttpHeadersTests {
 	static class XssProtectionCustomConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.headers()
 					// xss-protection@enabled and xss-protection@block
@@ -226,6 +241,7 @@ public class NamespaceHttpHeadersTests {
 					.xssProtection()
 						.xssProtectionEnabled(true)
 						.block(false);
+			// @formatter:on
 		}
 	}
 
@@ -241,11 +257,13 @@ public class NamespaceHttpHeadersTests {
 	static class ContentTypeOptionsConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.headers()
 					// content-type-options
 					.defaultsDisabled()
 					.contentTypeOptions();
+			// @formatter:on
 		}
 	}
 
@@ -263,10 +281,12 @@ public class NamespaceHttpHeadersTests {
 	static class HeaderRefConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.headers()
 					.defaultsDisabled()
 					.addHeaderWriter(new StaticHeadersWriter("customHeaderName", "customHeaderValue"));
+			// @formatter:on
 		}
 	}
 

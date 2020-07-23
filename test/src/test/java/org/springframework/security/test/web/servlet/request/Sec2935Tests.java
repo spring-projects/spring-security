@@ -148,12 +148,14 @@ public class Sec2935Tests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					.and()
 				.httpBasic();
+			// @formatter:on
 		}
 
 		@Autowired

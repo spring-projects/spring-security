@@ -103,15 +103,15 @@ public class SessionManagementConfigurerServlet31Tests {
 	@EnableWebSecurity
 	static class SessionManagementDefaultSessionFixationServlet31Config extends
 			WebSecurityConfigurerAdapter {
-		// @formatter:off
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.formLogin()
 					.and()
 				.sessionManagement();
+			// @formatter:on
 		}
-		// @formatter:on
 
 		// @formatter:off
 		@Override

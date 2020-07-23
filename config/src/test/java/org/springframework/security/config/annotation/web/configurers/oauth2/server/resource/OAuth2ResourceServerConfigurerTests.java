@@ -1761,7 +1761,6 @@ public class OAuth2ResourceServerConfigurerTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
-
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
@@ -1769,7 +1768,6 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.jwtAuthenticationConverter(getJwtAuthenticationConverter());
-
 			// @formatter:on
 		}
 
@@ -1783,7 +1781,6 @@ public class OAuth2ResourceServerConfigurerTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
-
 			http
 				.authorizeRequests()
 					.antMatchers("/requires-read-scope").access("hasAuthority('message:read')")
@@ -1791,7 +1788,6 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.jwtAuthenticationConverter(getJwtAuthenticationConverter());
-
 			// @formatter:on
 		}
 
@@ -2255,6 +2251,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.jwt()
 						.and()
 					.opaqueToken();
+			// @formatter:on
 		}
 	}
 
@@ -2306,6 +2303,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.authenticationManagerResolver(mock(AuthenticationManagerResolver.class))
 					.opaqueToken();
+			// @formatter:on
 		}
 	}
 

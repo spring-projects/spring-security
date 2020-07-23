@@ -167,11 +167,13 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 	static class OAuth2LoginConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests(authorize -> authorize
 					.mvcMatchers("/admin/**").hasAuthority("SCOPE_admin")
 					.anyRequest().hasAuthority("SCOPE_read")
 				).oauth2Login();
+			// @formatter:on
 		}
 
 		@Bean

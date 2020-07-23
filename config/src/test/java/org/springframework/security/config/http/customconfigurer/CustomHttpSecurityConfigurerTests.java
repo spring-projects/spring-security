@@ -120,9 +120,11 @@ public class CustomHttpSecurityConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.apply(customConfigurer())
 					.loginPage("/custom");
+			// @formatter:on
 		}
 
 		@Bean
@@ -142,12 +144,14 @@ public class CustomHttpSecurityConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.apply(customConfigurer())
 					.and()
 				.csrf().disable()
 				.formLogin()
 					.loginPage("/other");
+			// @formatter:on
 		}
 
 		@Bean

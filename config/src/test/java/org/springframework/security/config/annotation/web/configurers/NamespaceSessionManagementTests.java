@@ -174,6 +174,7 @@ public class NamespaceSessionManagementTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
@@ -187,6 +188,7 @@ public class NamespaceSessionManagementTests {
 						.maxSessionsPreventsLogin(true) // session-management/concurrency-control@error-if-maximum-exceeded
 						.expiredUrl("/expired-session") // session-management/concurrency-control@expired-url
 						.sessionRegistry(sessionRegistry()); // session-management/concurrency-control@session-registry-ref
+			// @formatter:on
 		}
 
 		@Bean
@@ -219,9 +221,11 @@ public class NamespaceSessionManagementTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.sessionManagement()
 					.invalidSessionStrategy(invalidSessionStrategy());
+			// @formatter:on
 		}
 
 		@Bean
@@ -250,11 +254,13 @@ public class NamespaceSessionManagementTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.sessionManagement()
 					.sessionAuthenticationStrategy(sessionAuthenticationStrategy()) // session-management@session-authentication-strategy-ref
 					.and()
 				.httpBasic();
+			// @formatter:on
 		}
 
 		@Bean
@@ -283,11 +289,13 @@ public class NamespaceSessionManagementTests {
 	static class SFPNoneSessionManagementConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.sessionManagement()
 					.sessionAuthenticationStrategy(new NullAuthenticatedSessionStrategy())
 					.and()
 				.httpBasic();
+			// @formatter:on
 		}
 	}
 
@@ -314,10 +322,12 @@ public class NamespaceSessionManagementTests {
 	static class SFPMigrateSessionManagementConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.sessionManagement()
 					.and()
 				.httpBasic();
+			// @formatter:on
 		}
 	}
 
@@ -338,10 +348,12 @@ public class NamespaceSessionManagementTests {
 	static class SFPPostProcessedConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.sessionManagement()
 					.and()
 				.httpBasic();
+			// @formatter:on
 		}
 
 		@Bean
@@ -373,11 +385,13 @@ public class NamespaceSessionManagementTests {
 	static class SFPNewSessionSessionManagementConfig extends WebSecurityConfigurerAdapter {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.sessionManagement()
 					.sessionFixation().newSession()
 					.and()
 				.httpBasic();
+			// @formatter:on
 		}
 	}
 

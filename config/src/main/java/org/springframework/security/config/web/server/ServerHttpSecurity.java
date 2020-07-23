@@ -1812,6 +1812,7 @@ public class ServerHttpSecurity {
 
 		private void registerDefaultCsrfOverride(ServerHttpSecurity http) {
 			if ( http.csrf != null && !http.csrf.specifiedRequireCsrfProtectionMatcher ) {
+				// @formatter:off
 				http
 					.csrf()
 					.requireCsrfProtectionMatcher(
@@ -1819,6 +1820,7 @@ public class ServerHttpSecurity {
 									CsrfWebFilter.DEFAULT_CSRF_MATCHER,
 									new NegatedServerWebExchangeMatcher(
 											this.authenticationConverterServerWebExchangeMatcher)));
+				// @formatter:on
 			}
 		}
 
@@ -1920,8 +1922,10 @@ public class ServerHttpSecurity {
 				AuthenticationWebFilter oauth2 = new BearerTokenAuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
+				// @formatter:off
 				http
 					.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
+				// @formatter:on
 			}
 
 			protected ReactiveJwtDecoder getJwtDecoder() {

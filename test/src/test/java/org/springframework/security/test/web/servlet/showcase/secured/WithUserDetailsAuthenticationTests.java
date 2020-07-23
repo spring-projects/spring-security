@@ -79,17 +79,17 @@ public class WithUserDetailsAuthenticationTests {
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 
-		// @formatter:off
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					.and()
 				.formLogin();
+			// @formatter:on
 		}
-		// @formatter:on
 
 		@Bean
 		@Override

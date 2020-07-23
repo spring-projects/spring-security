@@ -67,12 +67,14 @@ public class NamespaceHttpRequestCacheTests {
 	@EnableWebSecurity
 	static class RequestCacheRefConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.requestCache()
 					.requestCache(requestCache());
+			// @formatter:on
 		}
 
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -104,9 +106,11 @@ public class NamespaceHttpRequestCacheTests {
 	@EnableWebSecurity
 	static class DefaultRequestCacheRefConfig extends WebSecurityConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated();
+			// @formatter:on
 		}
 
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
