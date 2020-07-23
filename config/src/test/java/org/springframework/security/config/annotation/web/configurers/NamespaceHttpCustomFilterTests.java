@@ -170,11 +170,13 @@ public class NamespaceHttpCustomFilterTests {
 		@Bean
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
+					// @formatter:off
 					User.withDefaultPasswordEncoder()
 							.username("user")
 							.password("password")
 							.roles("USER")
 							.build());
+					// @formatter:on
 		}
 	}
 

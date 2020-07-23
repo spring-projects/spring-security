@@ -251,12 +251,14 @@ public class ExceptionHandlingConfigurerTests {
 
 		@Bean
 		public InMemoryUserDetailsManager userDetailsManager() {
+			// @formatter:off
 			return new InMemoryUserDetailsManager(User.withDefaultPasswordEncoder()
 				.username("user")
 				.password("password")
 				.roles("USER")
 				.build()
 			);
+			// @formatter:off
 		}
 	}
 
