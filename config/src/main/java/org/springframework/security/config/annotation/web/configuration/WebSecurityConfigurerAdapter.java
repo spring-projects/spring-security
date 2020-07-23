@@ -32,7 +32,6 @@ import org.springframework.aop.framework.Advised;
 import org.springframework.aop.target.LazyInitTargetSource;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.BeanFactoryUtils;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
@@ -44,23 +43,20 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.builders.DefaultPasswordEncoderAuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserDetailsManagerConfigurer;
-import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.DefaultLoginPageConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SecurityContextConfigurer;
+import org.springframework.security.config.crypto.password.LazyPasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.util.Assert;
@@ -557,92 +553,6 @@ public abstract class WebSecurityConfigurerAdapter implements
 				}
 				beanNames = Collections.emptySet();
 			}
-		}
-	}
-
-	static class DefaultPasswordEncoderAuthenticationManagerBuilder extends AuthenticationManagerBuilder {
-		private PasswordEncoder defaultPasswordEncoder;
-
-		/**
-		 * Creates a new instance
-		 *
-		 * @param objectPostProcessor the {@link ObjectPostProcessor} instance to use.
-		 */
-		DefaultPasswordEncoderAuthenticationManagerBuilder(
-			ObjectPostProcessor<Object> objectPostProcessor, PasswordEncoder defaultPasswordEncoder) {
-			super(objectPostProcessor);
-			this.defaultPasswordEncoder = defaultPasswordEncoder;
-		}
-
-		@Override
-		public InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemoryAuthentication()
-			throws Exception {
-			return super.inMemoryAuthentication()
-				.passwordEncoder(this.defaultPasswordEncoder);
-		}
-
-		@Override
-		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication()
-			throws Exception {
-			return super.jdbcAuthentication()
-				.passwordEncoder(this.defaultPasswordEncoder);
-		}
-
-		@Override
-		public <T extends UserDetailsService> DaoAuthenticationConfigurer<AuthenticationManagerBuilder, T> userDetailsService(
-			T userDetailsService) throws Exception {
-			return super.userDetailsService(userDetailsService)
-				.passwordEncoder(this.defaultPasswordEncoder);
-		}
-	}
-
-	static class LazyPasswordEncoder implements PasswordEncoder {
-		private ApplicationContext applicationContext;
-		private PasswordEncoder passwordEncoder;
-
-		LazyPasswordEncoder(ApplicationContext applicationContext) {
-			this.applicationContext = applicationContext;
-		}
-
-		@Override
-		public String encode(CharSequence rawPassword) {
-			return getPasswordEncoder().encode(rawPassword);
-		}
-
-		@Override
-		public boolean matches(CharSequence rawPassword,
-			String encodedPassword) {
-			return getPasswordEncoder().matches(rawPassword, encodedPassword);
-		}
-
-		@Override
-		public boolean upgradeEncoding(String encodedPassword) {
-			return getPasswordEncoder().upgradeEncoding(encodedPassword);
-		}
-
-		private PasswordEncoder getPasswordEncoder() {
-			if (this.passwordEncoder != null) {
-				return this.passwordEncoder;
-			}
-			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
-			if (passwordEncoder == null) {
-				passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-			}
-			this.passwordEncoder = passwordEncoder;
-			return passwordEncoder;
-		}
-
-		private <T> T getBeanOrNull(Class<T> type) {
-			try {
-				return this.applicationContext.getBean(type);
-			} catch(NoSuchBeanDefinitionException notFound) {
-				return null;
-			}
-		}
-
-		@Override
-		public String toString() {
-			return getPasswordEncoder().toString();
 		}
 	}
 }
