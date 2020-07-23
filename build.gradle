@@ -1,6 +1,7 @@
 buildscript {
 	dependencies {
 		classpath 'io.spring.gradle:spring-build-conventions:0.0.33.RELEASE'
+		classpath "io.spring.javaformat:spring-javaformat-gradle-plugin:$springJavaformatVersion"
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
 		classpath 'io.spring.nohttp:nohttp-gradle:0.0.5.RELEASE'
 		classpath "io.freefair.gradle:aspectj-plugin:5.0.1"
@@ -34,9 +35,19 @@ subprojects {
 	plugins.withType(JavaPlugin) {
 		project.sourceCompatibility='1.8'
 	}
-
 	tasks.withType(JavaCompile) {
 		options.encoding = "UTF-8"
+	}
+}
+
+allprojects {
+	apply plugin: 'io.spring.javaformat'
+	if (project.name.contains('sample')) {
+		tasks.whenTaskAdded { task ->
+			if (task.name.contains('format') || task.name.contains('checkFormat')) {
+				task.enabled = false
+			}
+		}
 	}
 }
 
