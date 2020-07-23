@@ -15,6 +15,8 @@
  */
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -32,13 +34,17 @@ import java.util.function.Function;
 import javax.annotation.Nonnull;
 
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
+import net.shibboleth.utilities.java.support.xml.ParserPool;
+import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
+import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.XMLObject;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.io.Marshaller;
+import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSBoolean;
 import org.opensaml.core.xml.schema.XSBooleanValue;
@@ -65,6 +71,7 @@ import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
+import org.opensaml.saml.saml2.core.impl.ResponseUnmarshaller;
 import org.opensaml.saml.saml2.encryption.Decrypter;
 import org.opensaml.saml.saml2.encryption.EncryptedElementTypeEncryptedKeyResolver;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
@@ -88,6 +95,8 @@ import org.opensaml.xmlsec.keyinfo.impl.StaticKeyInfoCredentialResolver;
 import org.opensaml.xmlsec.signature.support.SignaturePrevalidator;
 import org.opensaml.xmlsec.signature.support.SignatureTrustEngine;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -120,7 +129,6 @@ import static org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_IS
 import static org.springframework.security.saml2.core.Saml2ErrorCodes.INVALID_SIGNATURE;
 import static org.springframework.security.saml2.core.Saml2ErrorCodes.MALFORMED_RESPONSE_DATA;
 import static org.springframework.security.saml2.core.Saml2ErrorCodes.SUBJECT_NOT_FOUND;
-import static org.springframework.security.saml2.core.Saml2ErrorCodes.UNKNOWN_RESPONSE_CLASS;
 import static org.springframework.util.Assert.notNull;
 
 /**
@@ -167,7 +175,9 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 
 	private static Log logger = LogFactory.getLog(OpenSamlAuthenticationProvider.class);
 
-	private final OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
+	private final XMLObjectProviderRegistry registry;
+	private final ResponseUnmarshaller responseUnmarshaller;
+	private final ParserPool parserPool;
 
 	private Converter<Assertion, Collection<? extends GrantedAuthority>> authoritiesExtractor =
 			(a -> singletonList(new SimpleGrantedAuthority("ROLE_USER")));
@@ -191,6 +201,16 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 						new SimpleSaml2AuthenticatedPrincipal(username, attributes), token.getSaml2Response(),
 						this.authoritiesMapper.mapAuthorities(getAssertionAuthorities(assertion)));
 			};
+
+	/**
+	 * Creates an {@link OpenSamlAuthenticationProvider}
+	 */
+	public OpenSamlAuthenticationProvider() {
+		this.registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
+		this.responseUnmarshaller = (ResponseUnmarshaller) this.registry.getUnmarshallerFactory()
+				.getUnmarshaller(Response.DEFAULT_ELEMENT_NAME);
+		this.parserPool = this.registry.getParserPool();
+	}
 
 	/**
 	 * Sets the {@link Converter} used for extracting assertion attributes that
@@ -265,15 +285,13 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 
 	private Response parse(String response) throws Saml2Exception, Saml2AuthenticationException {
 		try {
-			Object result = this.saml.resolve(response);
-			if (result instanceof Response) {
-				return (Response) result;
-			}
-			else {
-				throw authException(UNKNOWN_RESPONSE_CLASS, "Invalid response class:" + result.getClass().getName());
-			}
-		} catch (Saml2Exception x) {
-			throw authException(MALFORMED_RESPONSE_DATA, x.getMessage(), x);
+			Document document = this.parserPool.parse(new ByteArrayInputStream(
+					response.getBytes(StandardCharsets.UTF_8)));
+			Element element = document.getDocumentElement();
+			return (Response) this.responseUnmarshaller.unmarshall(element);
+		}
+		catch (Exception e) {
+			throw authException(MALFORMED_RESPONSE_DATA, e.getMessage(), e);
 		}
 	}
 
@@ -427,9 +445,14 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	}
 
 	private Object getXSAnyObjectValue(XSAny xsAny) {
-		Marshaller marshaller = XMLObjectProviderRegistrySupport.getMarshallerFactory().getMarshaller(xsAny);
+		Marshaller marshaller = this.registry.getMarshallerFactory().getMarshaller(xsAny);
 		if (marshaller != null) {
-			return this.saml.serialize(xsAny);
+			try {
+				Element element = marshaller.marshall(xsAny);
+				return SerializeSupport.nodeToString(element);
+			} catch (MarshallingException e) {
+				throw new Saml2Exception(e);
+			}
 		}
 		return xsAny.getTextContent();
 	}

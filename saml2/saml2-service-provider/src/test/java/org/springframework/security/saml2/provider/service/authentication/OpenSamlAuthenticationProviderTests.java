@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -40,6 +41,7 @@ import org.junit.rules.ExpectedException;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
+import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.AttributeValue;
@@ -52,6 +54,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.credentials.Saml2X509Credential;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +63,8 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
+import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getMarshallerFactory;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyEncryptingCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartyPrivateCredential;
 import static org.springframework.security.saml2.credentials.TestSaml2X509Credentials.assertingPartySigningCredential;
@@ -85,8 +90,6 @@ public class OpenSamlAuthenticationProviderTests {
 	private static String ASSERTING_PARTY_ENTITY_ID = "https://some.idp.test/saml2/idp";
 
 	private OpenSamlAuthenticationProvider provider = new OpenSamlAuthenticationProvider();
-	private OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
-
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -108,10 +111,11 @@ public class OpenSamlAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenUnknownDataClassThenThrowAuthenticationException() {
-		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.UNKNOWN_RESPONSE_CLASS));
+		this.exception.expect(authenticationMatcher(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA));
 
-		Assertion assertion = this.saml.buildSamlObject(Assertion.DEFAULT_ELEMENT_NAME);
-		this.provider.authenticate(token(this.saml.serialize(assertion), relyingPartyVerifyingCredential()));
+		Assertion assertion = (Assertion) getBuilderFactory().getBuilder(Assertion.DEFAULT_ELEMENT_NAME)
+				.buildObject(Assertion.DEFAULT_ELEMENT_NAME);
+		this.provider.authenticate(token(serialize(assertion), relyingPartyVerifyingCredential()));
 	}
 
 	@Test
@@ -316,7 +320,7 @@ public class OpenSamlAuthenticationProviderTests {
 		Response response = response();
 		EncryptedAssertion encryptedAssertion = encrypted(assertion(), assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		Saml2AuthenticationToken token = token(this.saml.serialize(response), relyingPartyVerifyingCredential());
+		Saml2AuthenticationToken token = token(serialize(response), relyingPartyVerifyingCredential());
 		this.provider.authenticate(token);
 	}
 
@@ -329,7 +333,7 @@ public class OpenSamlAuthenticationProviderTests {
 		Response response = response();
 		EncryptedAssertion encryptedAssertion = encrypted(assertion(), assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		Saml2AuthenticationToken token = token(this.saml.serialize(response), assertingPartyPrivateCredential());
+		Saml2AuthenticationToken token = token(serialize(response), assertingPartyPrivateCredential());
 		this.provider.authenticate(token);
 	}
 
@@ -347,6 +351,16 @@ public class OpenSamlAuthenticationProviderTests {
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream);
 		objectOutputStream.writeObject(authentication);
 		objectOutputStream.flush();
+	}
+
+	private String serialize(XMLObject object) {
+		try {
+			Marshaller marshaller = getMarshallerFactory().getMarshaller(object);
+			Element element = marshaller.marshall(object);
+			return SerializeSupport.nodeToString(element);
+		} catch (MarshallingException e) {
+			throw new Saml2Exception(e);
+		}
 	}
 
 	private Matcher<Saml2AuthenticationException> authenticationMatcher(String code) {
@@ -382,7 +396,7 @@ public class OpenSamlAuthenticationProviderTests {
 	}
 
 	private Saml2AuthenticationToken token(Response response, Saml2X509Credential... credentials) {
-		String payload = this.saml.serialize(response);
+		String payload = serialize(response);
 		return token(payload, credentials);
 	}
 
