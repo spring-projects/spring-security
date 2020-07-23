@@ -17,18 +17,19 @@
 package org.springframework.security.saml2.provider.service.authentication;
 
 import java.security.cert.X509Certificate;
-import java.util.Base64;
-import java.util.UUID;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.namespace.QName;
 
 import org.apache.xml.security.encryption.XMLCipherParameters;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.io.MarshallingException;
-
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSBoolean;
 import org.opensaml.core.xml.schema.XSBooleanValue;
@@ -77,12 +78,12 @@ import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 
+import static org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport.getBuilderFactory;
+
 final class TestOpenSamlObjects {
 	static {
 		OpenSamlInitializationService.initialize();
 	}
-
-	private static OpenSamlImplementation saml = OpenSamlImplementation.getInstance();
 
 	private static String USERNAME = "test@saml.user";
 	private static String DESTINATION = "https://localhost/login/saml2/sso/idp-alias";
@@ -96,7 +97,7 @@ final class TestOpenSamlObjects {
 	}
 
 	static Response response(String destination, String issuerEntityId) {
-		Response response = saml.buildSamlObject(Response.DEFAULT_ELEMENT_NAME);
+		Response response = build(Response.DEFAULT_ELEMENT_NAME);
 		response.setID("R"+UUID.randomUUID().toString());
 		response.setIssueInstant(DateTime.now());
 		response.setVersion(SAMLVersion.VERSION_20);
@@ -116,7 +117,7 @@ final class TestOpenSamlObjects {
 			String recipientEntityId,
 			String recipientUri
 	) {
-		Assertion assertion = saml.buildSamlObject(Assertion.DEFAULT_ELEMENT_NAME);
+		Assertion assertion = build(Assertion.DEFAULT_ELEMENT_NAME);
 		assertion.setID("A"+ UUID.randomUUID().toString());
 		assertion.setIssueInstant(DateTime.now());
 		assertion.setVersion(SAMLVersion.VERSION_20);
@@ -136,13 +137,13 @@ final class TestOpenSamlObjects {
 
 
 	static Issuer issuer(String entityId) {
-		Issuer issuer = saml.buildSamlObject(Issuer.DEFAULT_ELEMENT_NAME);
+		Issuer issuer = build(Issuer.DEFAULT_ELEMENT_NAME);
 		issuer.setValue(entityId);
 		return issuer;
 	}
 
 	static Subject subject(String principalName) {
-		Subject subject = saml.buildSamlObject(Subject.DEFAULT_ELEMENT_NAME);
+		Subject subject = build(Subject.DEFAULT_ELEMENT_NAME);
 
 		if (principalName != null) {
 			subject.setNameID(nameId(principalName));
@@ -152,17 +153,17 @@ final class TestOpenSamlObjects {
 	}
 
 	static NameID nameId(String principalName) {
-		NameID nameId = saml.buildSamlObject(NameID.DEFAULT_ELEMENT_NAME);
+		NameID nameId = build(NameID.DEFAULT_ELEMENT_NAME);
 		nameId.setValue(principalName);
 		return nameId;
 	}
 
 	static SubjectConfirmation subjectConfirmation() {
-		return saml.buildSamlObject(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
+		return build(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
 	}
 
 	static SubjectConfirmationData subjectConfirmationData(String recipient) {
-		SubjectConfirmationData subject = saml.buildSamlObject(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
+		SubjectConfirmationData subject = build(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
 		subject.setRecipient(recipient);
 		subject.setNotBefore(DateTime.now().minus(Duration.millis(5 * 60 * 1000)));
 		subject.setNotOnOrAfter(DateTime.now().plus(Duration.millis(5 * 60 * 1000)));
@@ -170,7 +171,7 @@ final class TestOpenSamlObjects {
 	}
 
 	static Conditions conditions() {
-		Conditions conditions = saml.buildSamlObject(Conditions.DEFAULT_ELEMENT_NAME);
+		Conditions conditions = build(Conditions.DEFAULT_ELEMENT_NAME);
 		conditions.setNotBefore(DateTime.now().minus(Duration.millis(5 * 60 * 1000)));
 		conditions.setNotOnOrAfter(DateTime.now().plus(Duration.millis(5 * 60 * 1000)));
 		return conditions;
@@ -361,5 +362,9 @@ final class TestOpenSamlObjects {
 		attributeStatements.add(attrStmt2);
 
 		return attributeStatements;
+	}
+
+	static <T extends XMLObject> T build(QName qName) {
+		return (T) getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}
 }
