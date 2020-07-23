@@ -117,17 +117,11 @@ import org.springframework.util.Assert;
  */
 public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvider {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private LdapAuthenticator authenticator;
 
 	private LdapAuthoritiesPopulator authoritiesPopulator;
 
 	private boolean hideUserNotFoundExceptions = true;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Create an instance with the supplied authenticator and authorities populator
@@ -151,9 +145,6 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 		this.setAuthenticator(authenticator);
 		this.setAuthoritiesPopulator(new NullLdapAuthoritiesPopulator());
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	private void setAuthenticator(LdapAuthenticator authenticator) {
 		Assert.notNull(authenticator, "An LdapAuthenticator must be supplied");

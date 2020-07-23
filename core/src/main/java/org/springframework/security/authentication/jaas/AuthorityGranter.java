@@ -31,9 +31,6 @@ import java.util.Set;
  */
 public interface AuthorityGranter {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * The grant method is called for each principal returned from the LoginContext
 	 * subject. If the AuthorityGranter wishes to grant any authorities, it should return

@@ -39,13 +39,7 @@ import org.aopalliance.intercept.MethodInvocation;
  */
 public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements MethodInterceptor {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private MethodSecurityMetadataSource securityMetadataSource;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Class<?> getSecureObjectClass() {
 		return MethodInvocation.class;

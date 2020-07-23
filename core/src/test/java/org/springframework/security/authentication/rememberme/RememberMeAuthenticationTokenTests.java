@@ -36,8 +36,6 @@ public class RememberMeAuthenticationTokenTests {
 
 	private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testConstructorRejectsNulls() {
 		try {

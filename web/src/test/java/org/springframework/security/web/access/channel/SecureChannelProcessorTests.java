@@ -35,8 +35,6 @@ import org.springframework.security.web.access.channel.SecureChannelProcessor;
  */
 public class SecureChannelProcessorTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testDecideDetectsAcceptableChannel() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();

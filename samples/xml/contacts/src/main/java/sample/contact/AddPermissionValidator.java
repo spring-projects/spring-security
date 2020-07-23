@@ -27,8 +27,7 @@ import org.springframework.validation.Validator;
  * @author Ben Alex
  */
 public class AddPermissionValidator implements Validator {
-	// ~ Methods
-	// ========================================================================================================
+
 
 	@SuppressWarnings("unchecked")
 	public boolean supports(Class clazz) {

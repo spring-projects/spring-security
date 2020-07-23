@@ -68,9 +68,6 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 	SimpleUrlAuthenticationFailureHandler failureHandler;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	private MockHttpServletRequest createMockAuthenticationRequest() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
@@ -475,9 +472,6 @@ public class AbstractAuthenticationProcessingFilterTests {
 		AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
 		filter.setRememberMeServices(null);
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 

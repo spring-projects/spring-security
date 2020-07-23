@@ -35,9 +35,6 @@ import javax.security.auth.callback.NameCallback;
  */
 public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandler {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * If the callback passed to the 'handle' method is an instance of NameCallback, the
 	 * JaasNameCallbackHandler will call,

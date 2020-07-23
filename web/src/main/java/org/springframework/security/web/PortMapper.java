@@ -24,9 +24,6 @@ package org.springframework.security.web;
  */
 public interface PortMapper {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Locates the HTTP port associated with the specified HTTPS port.
 	 * <P>

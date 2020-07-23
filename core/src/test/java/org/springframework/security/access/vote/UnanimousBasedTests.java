@@ -36,9 +36,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
  */
 public class UnanimousBasedTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	private UnanimousBased makeDecisionManager() {
 		RoleVoter roleVoter = new RoleVoter();
 		DenyVoter denyForSureVoter = new DenyVoter();

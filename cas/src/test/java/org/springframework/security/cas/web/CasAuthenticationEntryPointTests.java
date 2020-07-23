@@ -33,8 +33,6 @@ import org.springframework.security.cas.ServiceProperties;
  */
 public class CasAuthenticationEntryPointTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testDetectsMissingLoginFormUrl() throws Exception {
 		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();

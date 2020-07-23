@@ -46,9 +46,6 @@ import org.springframework.security.core.Authentication;
  */
 public interface JaasAuthenticationCallbackHandler {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Handle the <a href=
 	 * "https://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html"

@@ -34,8 +34,6 @@ import org.springframework.security.access.method.MethodSecurityMetadataSource;
  */
 public class MethodSecurityMetadataSourceAdvisorTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testAdvisorReturnsFalseWhenMethodInvocationNotDefined() throws Exception {
 		Class<TargetObject> clazz = TargetObject.class;

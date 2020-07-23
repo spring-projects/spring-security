@@ -32,20 +32,11 @@ import java.util.Set;
  */
 class CollectionFilterer<T> implements Filterer<T> {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log logger = LogFactory.getLog(CollectionFilterer.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final Collection<T> collection;
 
 	private final Set<T> removeList;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	CollectionFilterer(Collection<T> collection) {
 		this.collection = collection;
@@ -59,9 +50,6 @@ class CollectionFilterer<T> implements Filterer<T> {
 		// manually adding may lose sort order or other capabilities)
 		removeList = new HashSet<>();
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 *

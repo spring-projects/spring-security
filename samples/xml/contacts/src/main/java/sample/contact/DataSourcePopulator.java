@@ -43,8 +43,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class DataSourcePopulator implements InitializingBean {
-	// ~ Instance fields
-	// ================================================================================================
+
 
 	JdbcTemplate template;
 	private MutableAclService mutableAclService;
@@ -60,8 +59,6 @@ public class DataSourcePopulator implements InitializingBean {
 			"Parklin", "Findlay", "Robinson", "Giugni", "Lang", "Chi", "Carmichael" };
 	private int createEntities = 50;
 
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(mutableAclService, "mutableAclService required");

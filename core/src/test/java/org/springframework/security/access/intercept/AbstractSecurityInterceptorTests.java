@@ -32,9 +32,6 @@ import org.springframework.security.util.SimpleMethodInvocation;
  */
 public class AbstractSecurityInterceptorTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test(expected = IllegalArgumentException.class)
 	public void detectsIfInvocationPassedIncompatibleSecureObject() {
 		MockSecurityInterceptorWhichOnlySupportsStrings si = new MockSecurityInterceptorWhichOnlySupportsStrings();
@@ -57,9 +54,6 @@ public class AbstractSecurityInterceptorTests {
 		si.setSecurityMetadataSource(mock(SecurityMetadataSource.class));
 		si.afterPropertiesSet();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockSecurityInterceptorReturnsNull extends AbstractSecurityInterceptor {
 

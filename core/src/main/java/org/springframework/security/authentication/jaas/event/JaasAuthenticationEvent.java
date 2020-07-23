@@ -29,9 +29,6 @@ import org.springframework.context.ApplicationEvent;
  */
 public abstract class JaasAuthenticationEvent extends ApplicationEvent {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * The Authentication object is stored as the ApplicationEvent 'source'.
 	 * @param auth
@@ -39,9 +36,6 @@ public abstract class JaasAuthenticationEvent extends ApplicationEvent {
 	public JaasAuthenticationEvent(Authentication auth) {
 		super(auth);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Pre-casted method that returns the 'source' of the event.

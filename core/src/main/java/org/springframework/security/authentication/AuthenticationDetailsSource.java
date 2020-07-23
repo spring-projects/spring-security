@@ -24,9 +24,6 @@ package org.springframework.security.authentication;
  */
 public interface AuthenticationDetailsSource<C, T> {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Called by a class when it wishes a new authentication details instance to be
 	 * created.

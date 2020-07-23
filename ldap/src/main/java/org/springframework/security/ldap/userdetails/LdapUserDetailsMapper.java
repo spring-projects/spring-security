@@ -39,9 +39,6 @@ import org.springframework.util.Assert;
  */
 public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Log logger = LogFactory.getLog(LdapUserDetailsMapper.class);
 
 	private String passwordAttributeName = "userPassword";
@@ -51,9 +48,6 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 	private String[] roleAttributes = null;
 
 	private boolean convertToUpperCase = true;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public UserDetails mapUserFromContext(DirContextOperations ctx, String username,

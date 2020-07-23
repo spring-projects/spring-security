@@ -33,9 +33,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface ChannelEntryPoint {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Commences a secure channel.
 	 * <p>

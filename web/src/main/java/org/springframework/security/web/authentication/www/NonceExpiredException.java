@@ -25,9 +25,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class NonceExpiredException extends AuthenticationException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs a <code>NonceExpiredException</code> with the specified message.
 	 * @param msg the detail message

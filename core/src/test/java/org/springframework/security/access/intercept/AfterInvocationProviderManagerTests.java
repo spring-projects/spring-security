@@ -40,8 +40,6 @@ import org.springframework.security.util.SimpleMethodInvocation;
 @SuppressWarnings("unchecked")
 public class AfterInvocationProviderManagerTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testCorrectOperation() throws Exception {
 		AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
@@ -146,9 +144,6 @@ public class AfterInvocationProviderManagerTests {
 		// assertFalse(manager.supports(FilterInvocation.class));
 		assertThat(manager.supports(MethodInvocation.class)).isTrue();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	/**
 	 * Always returns the constructor-defined <code>forceReturnObject</code>, provided the

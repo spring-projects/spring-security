@@ -30,9 +30,6 @@ import org.springframework.util.ClassUtils;
  */
 public class LoggerListener implements ApplicationListener<AbstractAuthenticationEvent> {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(LoggerListener.class);
 
 	/**
@@ -40,9 +37,6 @@ public class LoggerListener implements ApplicationListener<AbstractAuthenticatio
 	 * (defaults to true)
 	 */
 	private boolean logInteractiveAuthenticationSuccessEvents = true;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void onApplicationEvent(AbstractAuthenticationEvent event) {
 		if (!logInteractiveAuthenticationSuccessEvents && event instanceof InteractiveAuthenticationSuccessEvent) {

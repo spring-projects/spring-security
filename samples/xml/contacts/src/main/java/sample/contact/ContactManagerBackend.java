@@ -49,15 +49,12 @@ import java.util.Random;
 @Transactional
 public class ContactManagerBackend extends ApplicationObjectSupport implements
 		ContactManager, InitializingBean {
-	// ~ Instance fields
-	// ================================================================================================
+
 
 	private ContactDao contactDao;
 	private MutableAclService mutableAclService;
 	private int counter = 1000;
 
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(contactDao, "contactDao required");

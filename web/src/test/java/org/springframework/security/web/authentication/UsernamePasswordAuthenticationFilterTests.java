@@ -35,9 +35,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class UsernamePasswordAuthenticationFilterTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void testNormalOperation() {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");

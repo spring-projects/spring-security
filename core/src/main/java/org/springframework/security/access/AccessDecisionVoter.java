@@ -31,17 +31,11 @@ import org.springframework.security.core.Authentication;
  */
 public interface AccessDecisionVoter<S> {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	int ACCESS_GRANTED = 1;
 
 	int ACCESS_ABSTAIN = 0;
 
 	int ACCESS_DENIED = -1;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Indicates whether this {@code AccessDecisionVoter} is able to vote on the passed

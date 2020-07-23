@@ -28,9 +28,6 @@ import org.springframework.security.core.Authentication;
  */
 public class JaasAuthenticationSuccessEvent extends JaasAuthenticationEvent {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public JaasAuthenticationSuccessEvent(Authentication auth) {
 		super(auth);
 	}

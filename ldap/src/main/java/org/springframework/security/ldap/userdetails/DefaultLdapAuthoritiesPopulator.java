@@ -100,13 +100,7 @@ import org.springframework.util.Assert;
  */
 public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(DefaultLdapAuthoritiesPopulator.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	/**
 	 * A default role which will be assigned to all authenticated users if set
@@ -154,9 +148,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 */
 	private Function<Map<String, List<String>>, GrantedAuthority> authorityMapper;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
 	 * set as a property.
@@ -187,9 +178,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 			return new SimpleGrantedAuthority(this.rolePrefix + role);
 		};
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * This method should be overridden if required to obtain any additional roles for the

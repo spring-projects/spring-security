@@ -45,9 +45,6 @@ import java.util.Base64;
 @Deprecated
 public class LdapShaPasswordEncoder implements PasswordEncoder {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	/** The number of bytes in a SHA hash */
 	private static final int SHA_LENGTH = 20;
 
@@ -59,14 +56,9 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 
 	private static final String SHA_PREFIX_LC = SHA_PREFIX.toLowerCase();
 
-	// ~ Instance fields
-	// ================================================================================================
 	private BytesKeyGenerator saltGenerator;
 
 	private boolean forceLowerCasePrefix;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public LdapShaPasswordEncoder() {
 		this(KeyGenerators.secureRandom());
@@ -78,9 +70,6 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		}
 		this.saltGenerator = saltGenerator;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	private byte[] combineHashAndSalt(byte[] hash, byte[] salt) {
 		if (salt == null) {

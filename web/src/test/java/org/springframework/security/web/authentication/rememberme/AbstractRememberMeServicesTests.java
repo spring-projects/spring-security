@@ -482,9 +482,6 @@ public class AbstractRememberMeServicesTests {
 		assertThat(returnedCookie.getMaxAge()).isZero();
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
-
 	static class MockRememberMeServices extends AbstractRememberMeServices {
 
 		boolean loginSuccessCalled;

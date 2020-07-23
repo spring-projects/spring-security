@@ -26,9 +26,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class BadCredentialsException extends AuthenticationException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs a <code>BadCredentialsException</code> with the specified message.
 	 * @param msg the detail message

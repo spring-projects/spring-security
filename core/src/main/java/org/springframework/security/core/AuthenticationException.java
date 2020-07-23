@@ -24,9 +24,6 @@ package org.springframework.security.core;
  */
 public abstract class AuthenticationException extends RuntimeException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs an {@code AuthenticationException} with the specified message and root
 	 * cause.

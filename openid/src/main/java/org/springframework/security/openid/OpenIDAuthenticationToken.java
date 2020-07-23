@@ -36,9 +36,6 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final OpenIDAuthenticationStatus status;
 
 	private final Object principal;
@@ -48,9 +45,6 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 	private final String message;
 
 	private final List<OpenIDAttribute> attributes;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public OpenIDAuthenticationToken(OpenIDAuthenticationStatus status, String identityUrl, String message,
 			List<OpenIDAttribute> attributes) {
@@ -80,9 +74,6 @@ public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
 
 		setAuthenticated(true);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Returns 'null' always, as no credentials are processed by the OpenID provider.

@@ -42,9 +42,6 @@ import java.util.Collection;
  */
 public interface UserDetails extends Serializable {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Returns the authorities granted to the user. Cannot return <code>null</code>.
 	 * @return the authorities, sorted by natural key (never <code>null</code>)

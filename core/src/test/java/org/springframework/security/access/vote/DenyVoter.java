@@ -37,9 +37,6 @@ import java.util.Iterator;
  */
 public class DenyVoter implements AccessDecisionVoter<Object> {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public boolean supports(ConfigAttribute attribute) {
 		if ("DENY_FOR_SURE".equals(attribute.getAttribute())) {
 			return true;

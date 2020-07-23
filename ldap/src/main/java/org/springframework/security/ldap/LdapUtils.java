@@ -37,19 +37,10 @@ import java.net.URISyntaxException;
  */
 public final class LdapUtils {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(LdapUtils.class);
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	private LdapUtils() {
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public static void closeContext(Context ctx) {
 		if (ctx instanceof DirContextAdapter) {

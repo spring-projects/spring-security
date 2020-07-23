@@ -34,9 +34,6 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
 		super(decisionVoters);
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * This concrete implementation simply polls all configured
 	 * {@link AccessDecisionVoter}s and grants access if any

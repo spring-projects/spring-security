@@ -58,9 +58,6 @@ import org.springframework.util.StringUtils;
  */
 public abstract class AbstractRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	public static final String SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY = "remember-me";
 
 	public static final String DEFAULT_PARAMETER = "remember-me";
@@ -69,8 +66,6 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
 	private static final String DELIMITER = ":";
 
-	// ~ Instance fields
-	// ================================================================================================
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	protected final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();

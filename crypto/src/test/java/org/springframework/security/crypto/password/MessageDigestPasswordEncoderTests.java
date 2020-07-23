@@ -33,9 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("deprecation")
 public class MessageDigestPasswordEncoderTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void md5BasicFunctionality() {
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("MD5");

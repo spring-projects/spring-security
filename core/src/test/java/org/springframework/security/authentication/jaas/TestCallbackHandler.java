@@ -29,9 +29,6 @@ import javax.security.auth.callback.TextInputCallback;
  */
 public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public void handle(Callback callback, Authentication auth) {
 		if (callback instanceof TextInputCallback) {
 			TextInputCallback tic = (TextInputCallback) callback;

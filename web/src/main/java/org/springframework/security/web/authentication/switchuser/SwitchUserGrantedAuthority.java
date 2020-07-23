@@ -35,14 +35,9 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
 	private final String role;
 
 	private final Authentication source;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public SwitchUserGrantedAuthority(String role, Authentication source) {
 		Assert.notNull(role, "role cannot be null");
@@ -50,9 +45,6 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 		this.role = role;
 		this.source = source;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Returns the original user associated with a successful user switch.

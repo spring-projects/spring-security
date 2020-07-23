@@ -39,8 +39,6 @@ import org.springframework.test.util.ReflectionTestUtils;
  */
 public class ContextPropagatingRemoteInvocationTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@After
 	public void tearDown() {
 		SecurityContextHolder.clearContext();

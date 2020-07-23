@@ -28,22 +28,13 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractAuthenticationFailureEvent extends AbstractAuthenticationEvent {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final AuthenticationException exception;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public AbstractAuthenticationFailureEvent(Authentication authentication, AuthenticationException exception) {
 		super(authentication);
 		Assert.notNull(exception, "AuthenticationException is required");
 		this.exception = exception;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public AuthenticationException getException() {
 		return exception;

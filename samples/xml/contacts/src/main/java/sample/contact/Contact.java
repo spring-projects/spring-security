@@ -24,15 +24,12 @@ import java.io.Serializable;
  * @author Ben Alex
  */
 public class Contact implements Serializable {
-	// ~ Instance fields
-	// ================================================================================================
+
 
 	private Long id;
 	private String email;
 	private String name;
 
-	// ~ Constructors
-	// ===================================================================================================
 
 	public Contact(String name, String email) {
 		this.name = name;
@@ -42,8 +39,6 @@ public class Contact implements Serializable {
 	public Contact() {
 	}
 
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * @return Returns the email.

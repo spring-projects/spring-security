@@ -34,15 +34,9 @@ import java.util.Arrays;
  */
 public class InMemoryResource extends AbstractResource {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final byte[] source;
 
 	private final String description;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public InMemoryResource(String source) {
 		this(source.getBytes());
@@ -57,9 +51,6 @@ public class InMemoryResource extends AbstractResource {
 		this.source = source;
 		this.description = description;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public String getDescription() {

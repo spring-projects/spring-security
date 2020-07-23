@@ -35,9 +35,6 @@ import org.springframework.remoting.support.RemoteInvocationFactory;
  */
 public class ContextPropagatingRemoteInvocationFactory implements RemoteInvocationFactory {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public RemoteInvocation createRemoteInvocation(MethodInvocation methodInvocation) {
 		return new ContextPropagatingRemoteInvocation(methodInvocation);
 	}

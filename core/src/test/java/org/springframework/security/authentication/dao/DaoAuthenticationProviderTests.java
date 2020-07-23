@@ -70,8 +70,6 @@ public class DaoAuthenticationProviderTests {
 
 	private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testAuthenticateFailsForIncorrectPasswordCase() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("rod", "KOala");
@@ -683,9 +681,6 @@ public class DaoAuthenticationProviderTests {
 
 		verify(encoder, times(0)).matches(anyString(), anyString());
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockUserDetailsServiceReturnsNull implements UserDetailsService {
 

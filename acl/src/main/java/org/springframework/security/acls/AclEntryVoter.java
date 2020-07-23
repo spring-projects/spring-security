@@ -96,13 +96,7 @@ import org.springframework.util.StringUtils;
  */
 public class AclEntryVoter extends AbstractAclVoter {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(AclEntryVoter.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private AclService aclService;
 
@@ -116,9 +110,6 @@ public class AclEntryVoter extends AbstractAclVoter {
 
 	private List<Permission> requirePermission;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public AclEntryVoter(AclService aclService, String processConfigAttribute, Permission[] requirePermission) {
 		Assert.notNull(processConfigAttribute, "A processConfigAttribute is mandatory");
 		Assert.notNull(aclService, "An AclService is mandatory");
@@ -131,9 +122,6 @@ public class AclEntryVoter extends AbstractAclVoter {
 		this.processConfigAttribute = processConfigAttribute;
 		this.requirePermission = Arrays.asList(requirePermission);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Optionally specifies a method of the domain object that will be used to obtain a

@@ -51,17 +51,11 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class LogoutFilter extends GenericFilterBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private RequestMatcher logoutRequestMatcher;
 
 	private final LogoutHandler handler;
 
 	private final LogoutSuccessHandler logoutSuccessHandler;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructor which takes a <tt>LogoutSuccessHandler</tt> instance to determine the
@@ -87,9 +81,6 @@ public class LogoutFilter extends GenericFilterBean {
 		logoutSuccessHandler = urlLogoutSuccessHandler;
 		setFilterProcessesUrl("/logout");
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {

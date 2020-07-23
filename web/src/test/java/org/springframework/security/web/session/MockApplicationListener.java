@@ -28,17 +28,11 @@ import org.springframework.security.web.session.HttpSessionDestroyedEvent;
  */
 public class MockApplicationListener implements ApplicationListener<ApplicationEvent> {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private HttpSessionCreatedEvent createdEvent;
 
 	private HttpSessionDestroyedEvent destroyedEvent;
 
 	private HttpSessionIdChangedEvent sessionIdChangedEvent;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public HttpSessionCreatedEvent getCreatedEvent() {
 		return createdEvent;

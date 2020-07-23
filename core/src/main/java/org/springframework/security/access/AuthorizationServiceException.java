@@ -26,9 +26,6 @@ package org.springframework.security.access;
  */
 public class AuthorizationServiceException extends AccessDeniedException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs an <code>AuthorizationServiceException</code> with the specified
 	 * message.

@@ -31,9 +31,6 @@ import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
  */
 public class ObjectIdentityRetrievalStrategyImpl implements ObjectIdentityRetrievalStrategy, ObjectIdentityGenerator {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public ObjectIdentity getObjectIdentity(Object domainObject) {
 		return new ObjectIdentityImpl(domainObject);
 	}

@@ -41,13 +41,7 @@ import javax.naming.directory.SearchControls;
  */
 public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(FilterBasedLdapUserSearch.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final ContextSource contextSource;
 
@@ -78,9 +72,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	 */
 	private final String searchFilter;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public FilterBasedLdapUserSearch(String searchBase, String searchFilter, BaseLdapPathContextSource contextSource) {
 		Assert.notNull(contextSource, "contextSource must not be null");
 		Assert.notNull(searchFilter, "searchFilter must not be null.");
@@ -97,9 +88,6 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 					"SearchBase not set. Searches will be performed from the root: " + contextSource.getBaseLdapPath());
 		}
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Return the LdapUserDetails containing the user's information

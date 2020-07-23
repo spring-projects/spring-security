@@ -34,18 +34,9 @@ import org.springframework.util.Assert;
  */
 public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(EhCacheBasedUserCache.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private Ehcache cache;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(cache, "cache mandatory");

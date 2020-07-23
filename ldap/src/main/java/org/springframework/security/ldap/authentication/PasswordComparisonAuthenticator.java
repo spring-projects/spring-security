@@ -48,13 +48,7 @@ import org.springframework.util.Assert;
  */
 public final class PasswordComparisonAuthenticator extends AbstractLdapAuthenticator {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(PasswordComparisonAuthenticator.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private PasswordEncoder passwordEncoder = new LdapShaPasswordEncoder(KeyGenerators.shared(0));
 
@@ -62,15 +56,9 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
 	private boolean usePasswordAttrCompare = false;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public PasswordComparisonAuthenticator(BaseLdapPathContextSource contextSource) {
 		super(contextSource);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public DirContextOperations authenticate(final Authentication authentication) {
 		Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,

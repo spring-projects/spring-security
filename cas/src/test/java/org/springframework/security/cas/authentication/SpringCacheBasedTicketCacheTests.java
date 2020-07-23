@@ -34,9 +34,6 @@ public class SpringCacheBasedTicketCacheTests extends AbstractStatelessTicketCac
 
 	private static CacheManager cacheManager;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@BeforeClass
 	public static void initCacheManaer() {
 		cacheManager = new ConcurrentMapCacheManager();

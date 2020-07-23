@@ -28,8 +28,6 @@ import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
  */
 public class ObjectIdentityRetrievalStrategyImplTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testObjectIdentityCreation() {
 		MockIdDomainObject domain = new MockIdDomainObject();
@@ -42,8 +40,6 @@ public class ObjectIdentityRetrievalStrategyImplTests {
 		assertThat(new ObjectIdentityImpl(domain)).isEqualTo(identity);
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
 	@SuppressWarnings("unused")
 	private class MockIdDomainObject {
 

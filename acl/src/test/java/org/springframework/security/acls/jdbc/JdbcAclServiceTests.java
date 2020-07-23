@@ -112,9 +112,6 @@ public class JdbcAclServiceTests {
 		assertThat(objectIdentities).isNull();
 	}
 
-	// ~ Some integration tests
-	// ========================================================================================================
-
 	@Test
 	public void findChildrenWithoutIdType() {
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(MockLongIdDomainObject.class, 4711L);

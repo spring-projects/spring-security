@@ -58,9 +58,6 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 
 	private final List<ConfigAttribute> role = SecurityConfig.createList("ROLE_IGNORED");
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public final void setUp() {
 		SecurityContextHolder.clearContext();

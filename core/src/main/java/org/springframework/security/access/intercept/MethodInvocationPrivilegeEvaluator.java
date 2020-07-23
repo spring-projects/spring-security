@@ -44,18 +44,9 @@ import org.springframework.util.Assert;
  */
 public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log logger = LogFactory.getLog(MethodInvocationPrivilegeEvaluator.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private AbstractSecurityInterceptor securityInterceptor;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(securityInterceptor, "SecurityInterceptor required");

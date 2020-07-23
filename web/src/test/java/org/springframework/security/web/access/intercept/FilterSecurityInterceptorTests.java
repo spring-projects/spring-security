@@ -62,9 +62,6 @@ public class FilterSecurityInterceptorTests {
 
 	private ApplicationEventPublisher publisher;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public final void setUp() {
 		interceptor = new FilterSecurityInterceptor();

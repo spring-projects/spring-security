@@ -25,9 +25,6 @@ import java.util.Map;
  */
 public interface AclService {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Locates all object identities that use the specified parent. This is useful for
 	 * administration tools.

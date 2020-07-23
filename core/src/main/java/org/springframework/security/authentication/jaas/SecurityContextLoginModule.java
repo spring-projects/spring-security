@@ -53,22 +53,13 @@ import javax.security.auth.spi.LoginModule;
  */
 public class SecurityContextLoginModule implements LoginModule {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log log = LogFactory.getLog(SecurityContextLoginModule.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private Authentication authen;
 
 	private Subject subject;
 
 	private boolean ignoreMissingAuthentication = false;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Abort the authentication process by forgetting the Spring Security

@@ -30,9 +30,6 @@ import java.util.Map;
  */
 public interface LookupStrategy {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Perform database-specific optimized lookup.
 	 * @param objects the identities to lookup (required)

@@ -26,9 +26,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class RememberMeAuthenticationException extends AuthenticationException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs a {@code RememberMeAuthenticationException} with the specified message
 	 * and root cause.

@@ -26,9 +26,6 @@ package org.springframework.security.openid;
  */
 public class OpenIDConsumerException extends Exception {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public OpenIDConsumerException(String message) {
 		super(message);
 	}

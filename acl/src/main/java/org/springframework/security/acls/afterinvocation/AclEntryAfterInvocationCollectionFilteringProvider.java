@@ -62,21 +62,12 @@ import org.springframework.security.core.Authentication;
  */
 public class AclEntryAfterInvocationCollectionFilteringProvider extends AbstractAclProvider {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log logger = LogFactory.getLog(AclEntryAfterInvocationCollectionFilteringProvider.class);
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public AclEntryAfterInvocationCollectionFilteringProvider(AclService aclService,
 			List<Permission> requirePermission) {
 		super(aclService, "AFTER_ACL_COLLECTION_READ", requirePermission);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@SuppressWarnings("unchecked")
 	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,

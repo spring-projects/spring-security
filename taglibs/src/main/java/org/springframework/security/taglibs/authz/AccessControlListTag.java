@@ -53,13 +53,7 @@ import org.springframework.security.web.context.support.SecurityWebApplicationCo
  */
 public class AccessControlListTag extends TagSupport {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log logger = LogFactory.getLog(AccessControlListTag.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private ApplicationContext applicationContext;
 
@@ -70,9 +64,6 @@ public class AccessControlListTag extends TagSupport {
 	private String hasPermission = "";
 
 	private String var;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public int doStartTag() throws JspException {
 		if ((null == hasPermission) || "".equals(hasPermission)) {

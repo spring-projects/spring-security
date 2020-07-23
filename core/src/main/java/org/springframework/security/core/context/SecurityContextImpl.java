@@ -30,9 +30,6 @@ public class SecurityContextImpl implements SecurityContext {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private Authentication authentication;
 
 	public SecurityContextImpl() {
@@ -41,9 +38,6 @@ public class SecurityContextImpl implements SecurityContext {
 	public SecurityContextImpl(Authentication authentication) {
 		this.authentication = authentication;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public boolean equals(Object obj) {

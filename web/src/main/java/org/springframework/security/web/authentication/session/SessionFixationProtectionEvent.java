@@ -29,15 +29,9 @@ import org.springframework.util.Assert;
  */
 public class SessionFixationProtectionEvent extends AbstractAuthenticationEvent {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final String oldSessionId;
 
 	private final String newSessionId;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructs a new session fixation protection event.
@@ -52,9 +46,6 @@ public class SessionFixationProtectionEvent extends AbstractAuthenticationEvent 
 		this.oldSessionId = oldSessionId;
 		this.newSessionId = newSessionId;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Getter for the session ID before it was changed.

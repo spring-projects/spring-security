@@ -116,9 +116,6 @@ import org.springframework.util.ObjectUtils;
 public abstract class AbstractJaasAuthenticationProvider implements AuthenticationProvider,
 		ApplicationEventPublisherAware, InitializingBean, ApplicationListener<SessionDestroyedEvent> {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private ApplicationEventPublisher applicationEventPublisher;
 
 	private AuthorityGranter[] authorityGranters;
@@ -130,9 +127,6 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	private LoginExceptionResolver loginExceptionResolver = new DefaultLoginExceptionResolver();
 
 	private String loginContextName = "SPRINGSECURITY";
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Validates the required properties are set. In addition, if
@@ -369,9 +363,6 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	protected ApplicationEventPublisher getApplicationEventPublisher() {
 		return this.applicationEventPublisher;
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	/**
 	 * Wrapper class for JAASAuthenticationCallbackHandlers

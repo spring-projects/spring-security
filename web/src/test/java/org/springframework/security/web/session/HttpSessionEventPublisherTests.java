@@ -33,9 +33,6 @@ import org.springframework.web.context.support.StaticWebApplicationContext;
  */
 public class HttpSessionEventPublisherTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * It's not that complicated so we'll just run it straight through here.
 	 */

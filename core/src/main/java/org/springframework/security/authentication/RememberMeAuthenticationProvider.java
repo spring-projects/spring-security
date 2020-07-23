@@ -34,9 +34,6 @@ import org.springframework.util.Assert;
  */
 public class RememberMeAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	private String key;
@@ -45,9 +42,6 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
 		Assert.hasLength(key, "key must have a length");
 		this.key = key;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(this.messages, "A message source must be set");

@@ -31,9 +31,6 @@ import org.springframework.ldap.core.DirContextOperations;
  */
 public interface LdapAuthenticator {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Authenticates as a user and obtains additional user information from the directory.
 	 * @param authentication

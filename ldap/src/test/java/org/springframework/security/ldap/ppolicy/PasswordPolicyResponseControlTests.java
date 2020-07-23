@@ -27,9 +27,6 @@ import org.junit.Test;
  */
 public class PasswordPolicyResponseControlTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Useful method for obtaining data from a server for use in tests
 	 */

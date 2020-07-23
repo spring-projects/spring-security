@@ -57,8 +57,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class JaasApiIntegrationFilterTests {
 
-	// ~ Instance fields
-	// ================================================================================================
 	private JaasApiIntegrationFilter filter;
 
 	private MockHttpServletRequest request;
@@ -72,9 +70,6 @@ public class JaasApiIntegrationFilterTests {
 	private Configuration testConfiguration;
 
 	private CallbackHandler callbackHandler;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Before
 	public void onBeforeTests() throws Exception {
@@ -192,9 +187,6 @@ public class JaasApiIntegrationFilterTests {
 		filter.setCreateEmptySubject(true);
 		assertJaasSubjectEquals(new Subject());
 	}
-
-	// ~ Helper Methods
-	// ====================================================================================================
 
 	private void assertJaasSubjectEquals(final Subject expectedValue) throws Exception {
 		MockFilterChain chain = new MockFilterChain() {

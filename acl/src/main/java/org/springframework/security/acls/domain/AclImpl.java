@@ -39,9 +39,6 @@ import org.springframework.util.Assert;
  */
 public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private Acl parentAcl;
 
 	private transient AclAuthorizationStrategy aclAuthorizationStrategy;
@@ -60,9 +57,6 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 											// even if there was no ACE for a SID
 
 	private boolean entriesInheriting = true;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Minimal constructor, which should be used
@@ -124,9 +118,6 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	@SuppressWarnings("unused")
 	private AclImpl() {
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void deleteAce(int aceIndex) throws NotFoundException {

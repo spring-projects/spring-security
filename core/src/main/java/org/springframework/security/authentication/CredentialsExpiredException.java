@@ -24,9 +24,6 @@ package org.springframework.security.authentication;
  */
 public class CredentialsExpiredException extends AccountStatusException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs a <code>CredentialsExpiredException</code> with the specified message.
 	 * @param msg the detail message

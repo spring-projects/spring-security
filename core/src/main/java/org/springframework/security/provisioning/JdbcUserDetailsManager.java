@@ -58,9 +58,6 @@ import java.util.List;
  */
 public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	// UserDetailsManager SQL
 	public static final String DEF_CREATE_USER_SQL = "insert into users (username, password, enabled) values (?,?,?)";
 
@@ -104,9 +101,6 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 			+ "from groups g, group_authorities ga " + "where g.group_name = ? " + "and g.id = ga.group_id ";
 
 	public static final String DEF_DELETE_GROUP_AUTHORITY_SQL = "delete from group_authorities where group_id = ? and authority = ?";
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
@@ -161,9 +155,6 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		setDataSource(dataSource);
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	protected void initDao() throws ApplicationContextException {
 		if (authenticationManager == null) {
 			logger.info("No authentication manager set. Reauthentication of users when changing passwords will "
@@ -172,9 +163,6 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 		super.initDao();
 	}
-
-	// ~ UserDetailsManager implementation
-	// ==============================================================================
 
 	/**
 	 * Executes the SQL <tt>usersByUsernameQuery</tt> and returns a list of UserDetails
@@ -323,9 +311,6 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 		return users.size() == 1;
 	}
-
-	// ~ GroupManager implementation
-	// ====================================================================================
 
 	public List<String> findAllGroups() {
 		return getJdbcTemplate().queryForList(findAllGroupsSql, String.class);

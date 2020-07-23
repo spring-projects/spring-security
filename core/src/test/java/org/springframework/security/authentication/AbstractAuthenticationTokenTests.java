@@ -34,13 +34,7 @@ import java.util.*;
  */
 public class AbstractAuthenticationTokenTests {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private List<GrantedAuthority> authorities = null;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Before
 	public final void setUp() {
@@ -135,9 +129,6 @@ public class AbstractAuthenticationTokenTests {
 		assertThat(token.getName()).isEqualTo(principalName);
 		verify(principal, times(1)).getName();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockAuthenticationImpl extends AbstractAuthenticationToken {
 

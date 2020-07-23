@@ -27,9 +27,6 @@ import org.springframework.security.core.GrantedAuthority;
  */
 public interface RemoteAuthenticationManager {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Attempts to authenticate the remote client using the presented username and
 	 * password. If authentication is successful, a collection of {@code GrantedAuthority}

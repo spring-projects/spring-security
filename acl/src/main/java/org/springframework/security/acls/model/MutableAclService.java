@@ -22,9 +22,6 @@ package org.springframework.security.acls.model;
  */
 public interface MutableAclService extends AclService {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Creates an empty <code>Acl</code> object in the database. It will have no entries.
 	 * The returned object will then be used to add entries.

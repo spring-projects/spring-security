@@ -30,26 +30,14 @@ import org.springframework.util.Assert;
  */
 public class SpringCacheBasedUserCache implements UserCache {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(SpringCacheBasedUserCache.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Cache cache;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public SpringCacheBasedUserCache(Cache cache) {
 		Assert.notNull(cache, "cache mandatory");
 		this.cache = cache;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public UserDetails getUserFromCache(String username) {
 		Cache.ValueWrapper element = username != null ? cache.get(username) : null;

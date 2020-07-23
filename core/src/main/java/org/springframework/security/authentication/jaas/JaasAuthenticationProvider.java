@@ -139,21 +139,12 @@ import org.springframework.util.Assert;
  */
 public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvider {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	// exists for passivity
 	protected static final Log log = LogFactory.getLog(JaasAuthenticationProvider.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private Resource loginConfig;
 
 	private boolean refreshConfigurationOnStartup = true;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() throws Exception {

@@ -52,13 +52,7 @@ import org.springframework.util.Assert;
  */
 public class RemoteAuthenticationProvider implements AuthenticationProvider, InitializingBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private RemoteAuthenticationManager remoteAuthenticationManager;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(this.remoteAuthenticationManager, "remoteAuthenticationManager is mandatory");

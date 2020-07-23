@@ -27,23 +27,14 @@ import javax.servlet.ServletRequest;
  */
 public class MockPortResolver implements PortResolver {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private int http = 80;
 
 	private int https = 443;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public MockPortResolver(int http, int https) {
 		this.http = http;
 		this.https = https;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public int getServerPort(ServletRequest request) {
 		if ((request.getScheme() != null) && request.getScheme().equals("https")) {

@@ -50,13 +50,7 @@ import org.springframework.dao.DataRetrievalFailureException;
  */
 public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(PasswordPolicyResponseControl.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final byte[] encodedValue;
 
@@ -65,9 +59,6 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	private int graceLoginsRemaining = Integer.MAX_VALUE;
 
 	private int timeBeforeExpiration = Integer.MAX_VALUE;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Decodes the Ber encoded control data. The ASN.1 value of the control data is:
@@ -97,9 +88,6 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 			throw new DataRetrievalFailureException("Failed to parse control value", e);
 		}
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Returns the unchanged value of the response control. Returns the unchanged value of
@@ -194,17 +182,11 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 		return sb.toString();
 	}
 
-	// ~ Inner Interfaces
-	// ===============================================================================================
-
 	private interface PPolicyDecoder {
 
 		void decode() throws IOException;
 
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	/**
 	 * Decoder based on Netscape ldapsdk library

@@ -28,8 +28,6 @@ import org.springframework.security.web.authentication.NullRememberMeServices;
  */
 public class NullRememberMeServicesTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testAlwaysReturnsNull() {
 		NullRememberMeServices services = new NullRememberMeServices();

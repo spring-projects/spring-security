@@ -31,13 +31,7 @@ import org.springframework.context.ApplicationListener;
  */
 public class LoggerListener implements ApplicationListener<AbstractAuthorizationEvent> {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(LoggerListener.class);
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void onApplicationEvent(AbstractAuthorizationEvent event) {
 		if (event instanceof AuthenticationCredentialsNotFoundEvent) {

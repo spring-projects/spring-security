@@ -27,9 +27,6 @@ import java.io.Serializable;
  */
 public interface AclCache {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	void evictFromCache(Serializable pk);
 
 	void evictFromCache(ObjectIdentity objectIdentity);

@@ -62,9 +62,6 @@ public class AclImplTests {
 
 	private DefaultPermissionFactory permissionFactory;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public void setUp() {
 		SecurityContextHolder.getContext().setAuthentication(auth);
@@ -539,9 +536,6 @@ public class AclImplTests {
 		// when - then none StackOverFlowError been raised
 		ace.hashCode();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private static class MaskPermissionGrantingStrategy extends DefaultPermissionGrantingStrategy {
 

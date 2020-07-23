@@ -53,9 +53,6 @@ import org.springframework.util.Assert;
  */
 public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private transient MethodSecurityMetadataSource attributeSource;
 
 	private transient MethodInterceptor interceptor;
@@ -69,9 +66,6 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 	private final String metadataSourceBeanName;
 
 	private transient volatile Object adviceMonitor = new Object();
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Alternative constructor for situations where we want the advisor decoupled from the
@@ -95,9 +89,6 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 		this.attributeSource = attributeSource;
 		this.metadataSourceBeanName = attributeSourceBeanName;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Pointcut getPointcut() {
 		return pointcut;
@@ -123,9 +114,6 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 		adviceMonitor = new Object();
 		attributeSource = beanFactory.getBean(metadataSourceBeanName, MethodSecurityMetadataSource.class);
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	class MethodSecurityMetadataSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 

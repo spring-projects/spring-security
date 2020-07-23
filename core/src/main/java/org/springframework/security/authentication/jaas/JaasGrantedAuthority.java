@@ -44,9 +44,6 @@ public final class JaasGrantedAuthority implements GrantedAuthority {
 		this.principal = principal;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public Principal getPrincipal() {
 		return principal;
 	}

@@ -39,9 +39,6 @@ import static org.mockito.Mockito.verify;
  */
 public class JdbcDaoImplTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	private JdbcDaoImpl makePopulatedJdbcDao() {
 		JdbcDaoImpl dao = new JdbcDaoImpl();
 		dao.setDataSource(PopulatedDatabase.getDataSource());

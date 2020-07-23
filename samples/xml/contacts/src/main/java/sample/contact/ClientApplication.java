@@ -36,20 +36,15 @@ import org.springframework.util.StopWatch;
  * @author Ben Alex
  */
 public class ClientApplication {
-	// ~ Instance fields
-	// ================================================================================================
+
 
 	private final ListableBeanFactory beanFactory;
 
-	// ~ Constructors
-	// ===================================================================================================
 
 	public ClientApplication(ListableBeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
 
 	public void invokeContactManager(Authentication authentication, int nrOfCalls) {
 		StopWatch stopWatch = new StopWatch(nrOfCalls + " ContactManager call(s)");

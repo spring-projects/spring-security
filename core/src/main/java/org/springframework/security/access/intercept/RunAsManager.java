@@ -60,9 +60,6 @@ import org.springframework.security.core.Authentication;
  */
 public interface RunAsManager {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Returns a replacement <code>Authentication</code> object for the current secure
 	 * object invocation, or <code>null</code> if replacement not required.

@@ -50,9 +50,6 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 
 	private DefaultLdapAuthoritiesPopulator populator;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public void setUp() {
 		populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, "ou=groups");

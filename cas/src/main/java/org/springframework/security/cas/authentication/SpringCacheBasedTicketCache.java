@@ -29,26 +29,14 @@ import org.springframework.util.Assert;
  */
 public class SpringCacheBasedTicketCache implements StatelessTicketCache {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(SpringCacheBasedTicketCache.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Cache cache;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public SpringCacheBasedTicketCache(Cache cache) {
 		Assert.notNull(cache, "cache mandatory");
 		this.cache = cache;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
 		final Cache.ValueWrapper element = serviceTicket != null ? cache.get(serviceTicket) : null;

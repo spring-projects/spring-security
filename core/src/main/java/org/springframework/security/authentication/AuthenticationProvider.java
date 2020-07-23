@@ -27,9 +27,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public interface AuthenticationProvider {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Performs authentication with the same contract as
 	 * {@link org.springframework.security.authentication.AuthenticationManager#authenticate(Authentication)}

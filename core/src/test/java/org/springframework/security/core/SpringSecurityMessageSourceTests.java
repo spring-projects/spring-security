@@ -29,8 +29,6 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public class SpringSecurityMessageSourceTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testOperation() {
 		SpringSecurityMessageSource msgs = new SpringSecurityMessageSource();

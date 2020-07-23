@@ -81,9 +81,6 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	private UserCache userCache = new NullUserCache();
@@ -97,9 +94,6 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 	private UserDetailsChecker postAuthenticationChecks = new DefaultPostAuthenticationChecks();
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Allows subclasses to perform any additional checks of a returned (or cached)

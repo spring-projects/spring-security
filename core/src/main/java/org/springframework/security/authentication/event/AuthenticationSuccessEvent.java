@@ -25,9 +25,6 @@ import org.springframework.security.core.Authentication;
  */
 public class AuthenticationSuccessEvent extends AbstractAuthenticationEvent {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public AuthenticationSuccessEvent(Authentication authentication) {
 		super(authentication);
 	}

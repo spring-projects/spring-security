@@ -24,9 +24,6 @@ package org.springframework.security.authentication;
  */
 public class LockedException extends AccountStatusException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs a <code>LockedException</code> with the specified message.
 	 * @param msg the detail message.

@@ -34,17 +34,11 @@ import org.springframework.security.core.Authentication;
  */
 public class ConsensusBased extends AbstractAccessDecisionManager {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private boolean allowIfEqualGrantedDeniedDecisions = true;
 
 	public ConsensusBased(List<AccessDecisionVoter<?>> decisionVoters) {
 		super(decisionVoters);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * This concrete implementation simply polls all configured

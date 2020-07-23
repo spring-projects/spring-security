@@ -35,8 +35,6 @@ import static org.assertj.core.api.Assertions.fail;
  */
 public class RememberMeAuthenticationProviderTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testDetectsAnInvalidKey() {
 		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");

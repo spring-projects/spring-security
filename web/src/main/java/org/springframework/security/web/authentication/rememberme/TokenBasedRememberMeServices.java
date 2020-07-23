@@ -87,9 +87,6 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		super(key, userDetailsService);
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Override
 	protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
 			HttpServletResponse response) {

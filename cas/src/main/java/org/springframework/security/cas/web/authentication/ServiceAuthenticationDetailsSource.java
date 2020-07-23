@@ -37,15 +37,9 @@ import org.springframework.util.Assert;
 public class ServiceAuthenticationDetailsSource
 		implements AuthenticationDetailsSource<HttpServletRequest, ServiceAuthenticationDetails> {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Pattern artifactPattern;
 
 	private ServiceProperties serviceProperties;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Creates an implementation that uses the specified ServiceProperties and the default
@@ -68,9 +62,6 @@ public class ServiceAuthenticationDetailsSource
 		this.serviceProperties = serviceProperties;
 		this.artifactPattern = DefaultServiceAuthenticationDetails.createArtifactPattern(artifactParameterName);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * @param context the {@code HttpServletRequest} object.

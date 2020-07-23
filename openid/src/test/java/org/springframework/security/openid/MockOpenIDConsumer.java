@@ -26,9 +26,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class MockOpenIDConsumer implements OpenIDConsumer {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private OpenIDAuthenticationToken token;
 
 	private String redirectUrl;
@@ -48,9 +45,6 @@ public class MockOpenIDConsumer implements OpenIDConsumer {
 	public MockOpenIDConsumer(OpenIDAuthenticationToken token) {
 		this.token = token;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl, String realm) {
 		return redirectUrl;

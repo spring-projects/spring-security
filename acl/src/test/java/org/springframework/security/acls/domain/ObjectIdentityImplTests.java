@@ -32,9 +32,6 @@ public class ObjectIdentityImplTests {
 
 	private static final String DOMAIN_CLASS = "org.springframework.security.acls.domain.ObjectIdentityImplTests$MockIdDomainObject";
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void constructorsRespectRequiredFields() {
 		// Check one-argument constructor required field
@@ -176,9 +173,6 @@ public class ObjectIdentityImplTests {
 		ObjectIdentity obj2 = new ObjectIdentityImpl(Object.class, 1000L);
 		assertThat(obj).isNotEqualTo(obj2);
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockIdDomainObject {
 

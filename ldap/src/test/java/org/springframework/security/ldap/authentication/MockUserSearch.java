@@ -25,13 +25,7 @@ import org.springframework.ldap.core.DirContextOperations;
  */
 public class MockUserSearch implements LdapUserSearch {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	DirContextOperations user;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public MockUserSearch() {
 	}
@@ -39,9 +33,6 @@ public class MockUserSearch implements LdapUserSearch {
 	public MockUserSearch(DirContextOperations user) {
 		this.user = user;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public DirContextOperations searchForUser(String username) {
 		return user;

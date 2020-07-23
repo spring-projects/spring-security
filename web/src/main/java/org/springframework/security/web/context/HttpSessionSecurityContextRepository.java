@@ -253,9 +253,6 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		this.springSecurityContextKey = springSecurityContextKey;
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
-
 	private static class SaveToSessionRequestWrapper extends HttpServletRequestWrapper {
 
 		private final SaveContextOnUpdateOrErrorResponseWrapper response;

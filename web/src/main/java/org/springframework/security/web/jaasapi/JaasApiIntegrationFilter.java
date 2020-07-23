@@ -49,13 +49,7 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class JaasApiIntegrationFilter extends GenericFilterBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private boolean createEmptySubject;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * <p>

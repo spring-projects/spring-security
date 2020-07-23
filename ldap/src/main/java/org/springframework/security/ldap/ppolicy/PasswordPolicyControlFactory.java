@@ -27,9 +27,6 @@ import javax.naming.ldap.ControlFactory;
  */
 public class PasswordPolicyControlFactory extends ControlFactory {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Creates an instance of PasswordPolicyResponseControl if the passed control is a
 	 * response control of this type. Attributes of the result are filled with the correct

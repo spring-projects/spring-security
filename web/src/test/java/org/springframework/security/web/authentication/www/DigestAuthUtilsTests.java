@@ -31,11 +31,6 @@ import org.springframework.util.StringUtils;
  */
 public class DigestAuthUtilsTests {
 
-	// ~ Constructors
-	// ===================================================================================================
-
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testSplitEachArrayElementAndCreateMapNormalOperation() {
 		// note it ignores malformed entries (ie those without an equals sign)

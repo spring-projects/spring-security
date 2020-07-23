@@ -39,17 +39,11 @@ import org.springframework.util.Assert;
  */
 public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	/**
 	 * The plaintext password used to perform PasswordEncoder#matches(CharSequence,
 	 * String)} on when the user is not found to avoid SEC-2056.
 	 */
 	private static final String USER_NOT_FOUND_PASSWORD = "userNotFoundPassword";
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private PasswordEncoder passwordEncoder;
 
@@ -68,9 +62,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	public DaoAuthenticationProvider() {
 		setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@SuppressWarnings("deprecation")
 	protected void additionalAuthenticationChecks(UserDetails userDetails,

@@ -33,9 +33,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 public class AnonymousAuthenticationProviderTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void testDetectsAnInvalidKey() {
 		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");

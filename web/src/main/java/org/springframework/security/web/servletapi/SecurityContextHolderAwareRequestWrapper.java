@@ -49,9 +49,6 @@ import org.springframework.util.Assert;
  */
 public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final AuthenticationTrustResolver trustResolver;
 
 	/**
@@ -59,9 +56,6 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	 * before comparing it with the roles obtained from the security context.
 	 */
 	private final String rolePrefix;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Creates a new instance with {@link AuthenticationTrustResolverImpl}.
@@ -87,9 +81,6 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 		this.rolePrefix = rolePrefix;
 		this.trustResolver = trustResolver;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Obtain the current active <code>Authentication</code>

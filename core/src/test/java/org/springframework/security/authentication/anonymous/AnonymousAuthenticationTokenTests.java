@@ -37,8 +37,6 @@ public class AnonymousAuthenticationTokenTests {
 
 	private final static List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testConstructorRejectsNulls() {
 		try {

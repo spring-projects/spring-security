@@ -44,8 +44,6 @@ import org.springframework.util.Assert;
  */
 public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
-	// ~ Instance fields
-	// ================================================================================================
 	private ServiceProperties serviceProperties;
 
 	private String loginUrl;
@@ -60,9 +58,6 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 * By default, encoding is enabled.
 	 */
 	private boolean encodeServiceUrlWithSessionId = true;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.hasLength(this.loginUrl, "loginUrl must be specified");

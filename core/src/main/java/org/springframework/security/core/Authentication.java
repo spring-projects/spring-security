@@ -50,9 +50,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public interface Authentication extends Principal, Serializable {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Set by an <code>AuthenticationManager</code> to indicate the authorities that the
 	 * principal has been granted. Note that classes should not rely on this value as

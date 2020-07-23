@@ -28,19 +28,10 @@ import javax.sql.DataSource;
  */
 public class PopulatedDatabase {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static TestDataSource dataSource = null;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	private PopulatedDatabase() {
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public static DataSource getDataSource() {
 		if (dataSource == null) {

@@ -24,9 +24,6 @@ package org.springframework.security.authentication;
  */
 public class DisabledException extends AccountStatusException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs a <code>DisabledException</code> with the specified message.
 	 * @param msg the detail message

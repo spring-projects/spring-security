@@ -44,16 +44,10 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 
 	private final Map<DefaultCacheKey, Collection<ConfigAttribute>> attributeCache = new HashMap<>();
 
-	// ~ Constructor
-	// ====================================================================================================
-
 	public DelegatingMethodSecurityMetadataSource(List<MethodSecurityMetadataSource> methodSecurityMetadataSources) {
 		Assert.notNull(methodSecurityMetadataSources, "MethodSecurityMetadataSources cannot be null");
 		this.methodSecurityMetadataSources = methodSecurityMetadataSources;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
 		DefaultCacheKey cacheKey = new DefaultCacheKey(method, targetClass);
@@ -105,9 +99,6 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 	public List<MethodSecurityMetadataSource> getMethodSecurityMetadataSources() {
 		return methodSecurityMetadataSources;
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private static class DefaultCacheKey {
 

@@ -30,12 +30,7 @@ import java.io.IOException;
  */
 public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
 	protected final Log logger = LogFactory.getLog(getClass());
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private PortMapper portMapper = new PortMapperImpl();
 
@@ -49,16 +44,10 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public AbstractRetryEntryPoint(String scheme, int standardPort) {
 		this.scheme = scheme;
 		this.standardPort = standardPort;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void commence(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String queryString = request.getQueryString();

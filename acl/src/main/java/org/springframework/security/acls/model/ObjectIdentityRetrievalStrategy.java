@@ -25,9 +25,6 @@ package org.springframework.security.acls.model;
  */
 public interface ObjectIdentityRetrievalStrategy {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	ObjectIdentity getObjectIdentity(Object domainObject);
 
 }

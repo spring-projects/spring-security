@@ -31,9 +31,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class NullRememberMeServices implements RememberMeServices {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
 		return null;
 	}

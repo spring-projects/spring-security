@@ -110,12 +110,6 @@ import org.springframework.web.filter.GenericFilterBean;
 public abstract class AbstractAuthenticationProcessingFilter extends GenericFilterBean
 		implements ApplicationEventPublisherAware, MessageSourceAware {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
-	// ~ Instance fields
-	// ================================================================================================
-
 	protected ApplicationEventPublisher eventPublisher;
 
 	protected AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
@@ -137,9 +131,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 
 	private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
@@ -184,9 +175,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		setRequiresAuthenticationRequestMatcher(requiresAuthenticationRequestMatcher);
 		setAuthenticationManager(authenticationManager);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() {

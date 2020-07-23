@@ -24,9 +24,6 @@ package org.springframework.security.access.vote;
  */
 public class SomeDomainObjectManager {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public void someServiceMethod(SomeDomainObject someDomainObject) {
 	}
 

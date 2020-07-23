@@ -28,8 +28,7 @@ import java.util.List;
  * @author Ben Alex
  */
 public interface ContactManager {
-	// ~ Methods
-	// ========================================================================================================
+
 	@PreAuthorize("hasPermission(#contact, admin)")
 	void addPermission(Contact contact, Sid recipient, Permission permission);
 

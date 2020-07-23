@@ -37,9 +37,6 @@ package org.springframework.security.core.userdetails;
  */
 public interface UserCache {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Obtains a {@link UserDetails} from the cache.
 	 * @param username the {@link User#getUsername()} used to place the user in the cache

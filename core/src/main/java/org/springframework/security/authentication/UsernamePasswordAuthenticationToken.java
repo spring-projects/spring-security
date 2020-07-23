@@ -36,15 +36,9 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Object principal;
 
 	private Object credentials;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * This constructor can be safely used by any code that wishes to create a
@@ -75,9 +69,6 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 		this.credentials = credentials;
 		super.setAuthenticated(true); // must use super, as we override
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Object getCredentials() {
 		return this.credentials;

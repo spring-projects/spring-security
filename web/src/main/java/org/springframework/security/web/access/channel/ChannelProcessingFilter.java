@@ -85,15 +85,9 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class ChannelProcessingFilter extends GenericFilterBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private ChannelDecisionManager channelDecisionManager;
 
 	private FilterInvocationSecurityMetadataSource securityMetadataSource;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() {

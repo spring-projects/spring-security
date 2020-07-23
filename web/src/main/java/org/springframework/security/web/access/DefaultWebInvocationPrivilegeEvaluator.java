@@ -36,18 +36,9 @@ import org.springframework.util.Assert;
  */
 public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log logger = LogFactory.getLog(DefaultWebInvocationPrivilegeEvaluator.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final AbstractSecurityInterceptor securityInterceptor;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public DefaultWebInvocationPrivilegeEvaluator(AbstractSecurityInterceptor securityInterceptor) {
 		Assert.notNull(securityInterceptor, "SecurityInterceptor cannot be null");
@@ -58,9 +49,6 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 
 		this.securityInterceptor = securityInterceptor;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Determines whether the user represented by the supplied <tt>Authentication</tt>

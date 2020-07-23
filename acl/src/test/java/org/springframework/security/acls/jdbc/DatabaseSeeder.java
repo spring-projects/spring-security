@@ -33,9 +33,6 @@ import javax.sql.DataSource;
  */
 public class DatabaseSeeder {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public DatabaseSeeder(DataSource dataSource, Resource resource) throws IOException {
 		Assert.notNull(dataSource, "dataSource required");
 		Assert.notNull(resource, "resource required");

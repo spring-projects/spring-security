@@ -29,9 +29,6 @@ import org.springframework.security.cas.ServiceProperties;
  */
 public class ServicePropertiesTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test(expected = IllegalArgumentException.class)
 	public void detectsMissingService() throws Exception {
 		ServiceProperties sp = new ServiceProperties();

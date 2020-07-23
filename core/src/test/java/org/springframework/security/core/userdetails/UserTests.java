@@ -39,9 +39,6 @@ public class UserTests {
 
 	private static final List<GrantedAuthority> ROLE_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void equalsReturnsTrueIfUsernamesAreTheSame() {
 		User user1 = new User("rod", "koala", true, true, true, true, ROLE_12);

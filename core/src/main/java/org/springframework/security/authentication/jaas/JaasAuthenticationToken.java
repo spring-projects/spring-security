@@ -34,13 +34,7 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final transient LoginContext loginContext;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public JaasAuthenticationToken(Object principal, Object credentials, LoginContext loginContext) {
 		super(principal, credentials);
@@ -52,9 +46,6 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 		super(principal, credentials, authorities);
 		this.loginContext = loginContext;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public LoginContext getLoginContext() {
 		return loginContext;

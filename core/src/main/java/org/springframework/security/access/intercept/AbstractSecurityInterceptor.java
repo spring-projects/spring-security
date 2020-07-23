@@ -104,13 +104,7 @@ import org.springframework.util.Assert;
 public abstract class AbstractSecurityInterceptor
 		implements InitializingBean, ApplicationEventPublisherAware, MessageSourceAware {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected final Log logger = LogFactory.getLog(getClass());
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
@@ -131,9 +125,6 @@ public abstract class AbstractSecurityInterceptor
 	private boolean validateConfigAttributes = true;
 
 	private boolean publishAuthorizationSuccess = false;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(getSecureObjectClass(), "Subclass must provide a non-null response to getSecureObjectClass()");

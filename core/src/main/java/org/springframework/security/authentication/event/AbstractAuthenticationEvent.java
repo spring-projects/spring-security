@@ -31,15 +31,9 @@ import org.springframework.context.ApplicationEvent;
  */
 public abstract class AbstractAuthenticationEvent extends ApplicationEvent {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public AbstractAuthenticationEvent(Authentication authentication) {
 		super(authentication);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Getters for the <code>Authentication</code> request that caused the event. Also

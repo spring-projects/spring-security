@@ -51,13 +51,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 
 	public static final String ANY_CHANNEL = "ANY_CHANNEL";
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private List<ChannelProcessor> channelProcessors;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notEmpty(channelProcessors, "A list of ChannelProcessors is required");

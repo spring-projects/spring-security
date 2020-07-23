@@ -38,9 +38,6 @@ import org.springframework.security.access.intercept.RunAsManager;
  */
 public interface ConfigAttribute extends Serializable {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * If the <code>ConfigAttribute</code> can be represented as a <code>String</code> and
 	 * that <code>String</code> is sufficient in precision to be relied upon as a

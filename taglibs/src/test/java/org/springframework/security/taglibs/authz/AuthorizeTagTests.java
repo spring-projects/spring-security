@@ -49,9 +49,6 @@ import org.springframework.web.context.support.StaticWebApplicationContext;
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizeTagTests {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	@Mock
 	private PermissionEvaluator permissionEvaluator;
 
@@ -61,9 +58,6 @@ public class AuthorizeTagTests {
 
 	private final TestingAuthenticationToken currentUser = new TestingAuthenticationToken("abc", "123",
 			"ROLE SUPERVISOR", "ROLE_TELLER");
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Before
 	public void setUp() {

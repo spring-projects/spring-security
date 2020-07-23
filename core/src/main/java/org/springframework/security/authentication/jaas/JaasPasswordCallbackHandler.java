@@ -36,9 +36,6 @@ import javax.security.auth.callback.PasswordCallback;
  */
 public class JaasPasswordCallbackHandler implements JaasAuthenticationCallbackHandler {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * If the callback passed to the 'handle' method is an instance of PasswordCallback,
 	 * the JaasPasswordCallbackHandler will call,

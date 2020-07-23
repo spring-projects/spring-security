@@ -30,8 +30,6 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
  */
 public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
 
-	// ~ Methods
-	// ========================================================================================================
 
 	public void create(final Contact contact) {
 		getJdbcTemplate().update("insert into contacts values (?, ?, ?)",

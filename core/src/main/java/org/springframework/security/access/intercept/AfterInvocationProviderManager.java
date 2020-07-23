@@ -47,18 +47,9 @@ import org.springframework.util.Assert;
  */
 public class AfterInvocationProviderManager implements AfterInvocationManager, InitializingBean {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log logger = LogFactory.getLog(AfterInvocationProviderManager.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private List<AfterInvocationProvider> providers;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		checkIfValidList(this.providers);

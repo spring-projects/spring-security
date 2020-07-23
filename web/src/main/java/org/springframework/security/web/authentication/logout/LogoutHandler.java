@@ -31,9 +31,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface LogoutHandler {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Causes a logout to be completed. The method must complete successfully.
 	 * @param request the HTTP request

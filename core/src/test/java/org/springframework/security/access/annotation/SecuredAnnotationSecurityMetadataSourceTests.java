@@ -48,13 +48,7 @@ import org.springframework.security.core.GrantedAuthority;
  */
 public class SecuredAnnotationSecurityMetadataSourceTests {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private SecuredAnnotationSecurityMetadataSource mds = new SecuredAnnotationSecurityMetadataSource();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Test
 	public void genericsSuperclassDeclarationsAreIncludedWhenSubclassesOverride() {

@@ -29,9 +29,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  */
 public interface LdapUserSearch {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Locates a single user in the directory and returns the LDAP information for that
 	 * user.

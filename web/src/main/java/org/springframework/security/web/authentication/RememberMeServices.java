@@ -48,9 +48,6 @@ import org.springframework.security.core.Authentication;
  */
 public interface RememberMeServices {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * This method will be called whenever the <code>SecurityContextHolder</code> does not
 	 * contain an <code>Authentication</code> object and Spring Security wishes to provide

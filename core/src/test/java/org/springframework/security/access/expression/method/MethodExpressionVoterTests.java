@@ -147,9 +147,6 @@ public class MethodExpressionVoterTests {
 		return Target.class.getMethod("methodTakingACollection", Collection.class);
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
-
 	private interface Target {
 
 		void methodTakingAnArray(Object[] args);

@@ -44,9 +44,6 @@ import org.springframework.security.core.Authentication;
  */
 public interface AfterInvocationManager {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Given the details of a secure object invocation including its returned
 	 * <code>Object</code>, make an access control decision or optionally modify the

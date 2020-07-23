@@ -32,15 +32,9 @@ public class WebAuthenticationDetails implements Serializable {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final String remoteAddress;
 
 	private final String sessionId;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Records the remote address and will also set the session Id if a session already
@@ -63,9 +57,6 @@ public class WebAuthenticationDetails implements Serializable {
 		this.remoteAddress = remoteAddress;
 		this.sessionId = sessionId;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public boolean equals(Object obj) {

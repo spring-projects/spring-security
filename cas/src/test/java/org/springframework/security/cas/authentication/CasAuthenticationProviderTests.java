@@ -50,9 +50,6 @@ import java.util.*;
 @SuppressWarnings("unchecked")
 public class CasAuthenticationProviderTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	private UserDetails makeUserDetails() {
 		return new User("user", "password", true, true, true, true,
 				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
@@ -371,9 +368,6 @@ public class CasAuthenticationProviderTests {
 		assertThat(cap.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 		assertThat(cap.supports(CasAuthenticationToken.class)).isTrue();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockAuthoritiesPopulator implements AuthenticationUserDetailsService {
 

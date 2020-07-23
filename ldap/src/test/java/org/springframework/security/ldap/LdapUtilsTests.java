@@ -31,9 +31,6 @@ import org.junit.Test;
  */
 public class LdapUtilsTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void testCloseContextSwallowsNamingException() throws Exception {
 		final DirContext dirCtx = mock(DirContext.class);

@@ -46,9 +46,6 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
  */
 public class LdapAuthenticationProviderTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void testSupportsUsernamePasswordAuthenticationToken() {
 		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(new MockAuthenticator(),
@@ -176,9 +173,6 @@ public class LdapAuthenticationProviderTests {
 			assertThat(success.getCause()).isSameAs(expectedCause);
 		}
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	class MockAuthenticator implements LdapAuthenticator {
 

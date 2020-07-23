@@ -53,9 +53,6 @@ public class FilterChainProxyConfigTests {
 
 	private ClassPathXmlApplicationContext appCtx;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public void loadContext() {
 		System.setProperty("sec1235.pattern1", "/login");

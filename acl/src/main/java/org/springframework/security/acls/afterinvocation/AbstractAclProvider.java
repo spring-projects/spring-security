@@ -41,9 +41,6 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractAclProvider implements AfterInvocationProvider {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	protected final AclService aclService;
 
 	protected Class<?> processDomainObjectClass = Object.class;
@@ -55,9 +52,6 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 	protected String processConfigAttribute;
 
 	protected final List<Permission> requirePermission;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public AbstractAclProvider(AclService aclService, String processConfigAttribute,
 			List<Permission> requirePermission) {
@@ -72,9 +66,6 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
 		this.processConfigAttribute = processConfigAttribute;
 		this.requirePermission = requirePermission;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	protected Class<?> getProcessDomainObjectClass() {
 		return processDomainObjectClass;

@@ -25,9 +25,6 @@ import java.util.List;
  */
 public interface SessionRegistry {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Obtains all the known principals in the <code>SessionRegistry</code>.
 	 * @return each of the unique principals, which can then be presented to

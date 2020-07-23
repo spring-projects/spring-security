@@ -45,8 +45,6 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
 	private Collection<ConfigAttribute> def = SecurityConfig.createList("ROLE_ONE");
 
-	// ~ Methods
-	// ========================================================================================================
 	private void createFids(String pattern, String method) {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 		requestMap.put(new AntPathRequestMatcher(pattern, method), this.def);

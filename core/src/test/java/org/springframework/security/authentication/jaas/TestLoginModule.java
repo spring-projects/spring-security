@@ -28,17 +28,11 @@ import javax.security.auth.spi.LoginModule;
  */
 public class TestLoginModule implements LoginModule {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private String password;
 
 	private String user;
 
 	private Subject subject;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public boolean abort() {
 		return true;

@@ -47,9 +47,6 @@ import static org.assertj.core.api.Assertions.*;
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
 public class PasswordComparisonAuthenticatorTests {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	@Autowired
 	private DefaultSpringSecurityContextSource contextSource;
 
@@ -58,9 +55,6 @@ public class PasswordComparisonAuthenticatorTests {
 	private Authentication bob;
 
 	private Authentication ben;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Before
 	public void setUp() {

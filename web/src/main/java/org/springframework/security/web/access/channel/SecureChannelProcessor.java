@@ -42,15 +42,9 @@ import org.springframework.util.Assert;
  */
 public class SecureChannelProcessor implements InitializingBean, ChannelProcessor {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private ChannelEntryPoint entryPoint = new RetryWithHttpsEntryPoint();
 
 	private String secureKeyword = "REQUIRES_SECURE_CHANNEL";
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.hasLength(secureKeyword, "secureKeyword required");

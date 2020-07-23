@@ -109,9 +109,6 @@ import org.springframework.util.Assert;
  */
 public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, MessageSourceAware {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	public static final String DEF_USERS_BY_USERNAME_QUERY = "select username,password,enabled " + "from users "
 			+ "where username = ?";
 
@@ -121,9 +118,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	public static final String DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY = "select g.id, g.group_name, ga.authority "
 			+ "from groups g, group_members gm, group_authorities ga " + "where gm.username = ? "
 			+ "and g.id = ga.group_id " + "and g.id = gm.group_id";
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
@@ -141,17 +135,11 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 
 	private boolean enableGroups;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public JdbcDaoImpl() {
 		this.usersByUsernameQuery = DEF_USERS_BY_USERNAME_QUERY;
 		this.authoritiesByUsernameQuery = DEF_AUTHORITIES_BY_USERNAME_QUERY;
 		this.groupAuthoritiesByUsernameQuery = DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * @return the messages

@@ -29,17 +29,11 @@ import org.springframework.util.Assert;
  */
 public class AnonymousAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private static final long serialVersionUID = 1L;
 
 	private final Object principal;
 
 	private final int keyHash;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructor.
@@ -73,9 +67,6 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 		this.principal = principal;
 		setAuthenticated(true);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	private static Integer extractKeyHash(String key) {
 		Assert.hasLength(key, "key cannot be empty or null");

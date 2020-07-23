@@ -47,9 +47,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class UsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "username";
 
 	public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
@@ -63,9 +60,6 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 
 	private boolean postOnly = true;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public UsernamePasswordAuthenticationFilter() {
 		super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
 	}
@@ -73,9 +67,6 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 	public UsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
 		super(DEFAULT_ANT_PATH_REQUEST_MATCHER, authenticationManager);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {

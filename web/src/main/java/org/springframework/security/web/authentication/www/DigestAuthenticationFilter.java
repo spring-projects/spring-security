@@ -89,13 +89,7 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class DigestAuthenticationFilter extends GenericFilterBean implements MessageSourceAware {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(DigestAuthenticationFilter.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
@@ -110,9 +104,6 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 	private boolean passwordAlreadyEncoded = false;
 
 	private boolean createAuthenticatedToken = false;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() {

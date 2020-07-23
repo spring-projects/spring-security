@@ -33,9 +33,6 @@ package org.springframework.security.core.userdetails;
  */
 public interface UserDetailsService {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Locates the user based on the username. In the actual implementation, the search
 	 * may possibly be case sensitive, or case insensitive depending on how the

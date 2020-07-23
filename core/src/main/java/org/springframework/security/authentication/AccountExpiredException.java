@@ -24,9 +24,6 @@ package org.springframework.security.authentication;
  */
 public class AccountExpiredException extends AccountStatusException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs a <code>AccountExpiredException</code> with the specified message.
 	 * @param msg the detail message

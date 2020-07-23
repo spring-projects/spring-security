@@ -29,8 +29,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 public class AuthenticationTrustResolverImplTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testCorrectOperationIsAnonymous() {
 		AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();

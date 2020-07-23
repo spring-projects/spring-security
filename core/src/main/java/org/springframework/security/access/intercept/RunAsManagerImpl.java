@@ -55,15 +55,9 @@ import org.springframework.util.Assert;
  */
 public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private String key;
 
 	private String rolePrefix = "ROLE_";
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(key,

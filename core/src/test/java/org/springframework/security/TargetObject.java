@@ -26,9 +26,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class TargetObject implements ITargetObject {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public Integer computeHashCode(String input) {
 		return input.hashCode();
 	}

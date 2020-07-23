@@ -64,17 +64,11 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(locations = { "/jdbcMutableAclServiceTests-context.xml" })
 public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4SpringContextTests {
 
-	// ~ Constant fields
-	// ================================================================================================
-
 	private static final String TARGET_CLASS = TargetObject.class.getName();
 
 	private final Authentication auth = new TestingAuthenticationToken("ben", "ignored", "ROLE_ADMINISTRATOR");
 
 	public static final String SELECT_ALL_CLASSES = "SELECT * FROM acl_class WHERE class = ?";
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 
@@ -96,9 +90,6 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	protected String getSqlClassPathResource() {
 		return "createAclSchema.sql";

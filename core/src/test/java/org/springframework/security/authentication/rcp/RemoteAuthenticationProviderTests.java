@@ -35,9 +35,6 @@ import static org.assertj.core.api.Assertions.fail;
  */
 public class RemoteAuthenticationProviderTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void testExceptionsGetPassedBackToCaller() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
@@ -106,9 +103,6 @@ public class RemoteAuthenticationProviderTests {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		assertThat(provider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockRemoteAuthenticationManager implements RemoteAuthenticationManager {
 

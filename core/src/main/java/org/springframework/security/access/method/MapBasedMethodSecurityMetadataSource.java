@@ -45,8 +45,6 @@ import org.springframework.util.ClassUtils;
 public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource
 		implements BeanClassLoaderAware {
 
-	// ~ Instance fields
-	// ================================================================================================
 	private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
 	/** Map from RegisteredMethod to ConfigAttribute list */
@@ -54,9 +52,6 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 
 	/** Map from RegisteredMethod to name pattern used for registration */
 	private final Map<RegisteredMethod, String> nameMap = new HashMap<>();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public MapBasedMethodSecurityMetadataSource() {
 	}

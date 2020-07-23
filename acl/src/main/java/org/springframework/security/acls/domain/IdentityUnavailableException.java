@@ -22,9 +22,6 @@ package org.springframework.security.acls.domain;
  */
 public class IdentityUnavailableException extends RuntimeException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs an <code>IdentityUnavailableException</code> with the specified message.
 	 * @param msg the detail message

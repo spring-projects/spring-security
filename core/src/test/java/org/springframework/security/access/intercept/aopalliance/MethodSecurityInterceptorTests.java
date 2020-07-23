@@ -71,9 +71,6 @@ public class MethodSecurityInterceptorTests {
 
 	private ApplicationEventPublisher eventPublisher;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public final void setUp() {
 		SecurityContextHolder.clearContext();

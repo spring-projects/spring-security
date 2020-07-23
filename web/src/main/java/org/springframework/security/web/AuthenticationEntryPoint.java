@@ -32,9 +32,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface AuthenticationEntryPoint {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Commences an authentication scheme.
 	 * <p>

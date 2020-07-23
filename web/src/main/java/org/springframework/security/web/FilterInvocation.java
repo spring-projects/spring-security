@@ -54,23 +54,15 @@ import org.springframework.security.web.util.UrlUtils;
  */
 public class FilterInvocation {
 
-	// ~ Static fields
-	// ==================================================================================================
 	static final FilterChain DUMMY_CHAIN = (req, res) -> {
 		throw new UnsupportedOperationException("Dummy filter chain");
 	};
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private FilterChain chain;
 
 	private HttpServletRequest request;
 
 	private HttpServletResponse response;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public FilterInvocation(ServletRequest request, ServletResponse response, FilterChain chain) {
 		if ((request == null) || (response == null) || (chain == null)) {
@@ -103,9 +95,6 @@ public class FilterInvocation {
 		request.setMethod(method);
 		this.request = request;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public FilterChain getChain() {
 		return this.chain;

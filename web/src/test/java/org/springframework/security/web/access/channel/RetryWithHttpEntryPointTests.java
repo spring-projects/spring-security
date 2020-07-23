@@ -40,8 +40,6 @@ import static org.mockito.Mockito.mock;
  */
 public class RetryWithHttpEntryPointTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testDetectsMissingPortMapper() {
 		RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();

@@ -30,9 +30,6 @@ import java.util.*;
  */
 public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements PersistentTokenRepository {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	/** Default SQL for creating the database table to store the tokens */
 	public static final String CREATE_TABLE_SQL = "create table persistent_logins (username varchar(64) not null, series varchar(64) primary key, "
 			+ "token varchar(64) not null, last_used timestamp not null)";
@@ -48,9 +45,6 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 
 	/** The default SQL used by <tt>removeUserTokens</tt> */
 	public static final String DEF_REMOVE_USER_TOKENS_SQL = "delete from persistent_logins where username = ?";
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private String tokensBySeriesSql = DEF_TOKEN_BY_SERIES_SQL;
 

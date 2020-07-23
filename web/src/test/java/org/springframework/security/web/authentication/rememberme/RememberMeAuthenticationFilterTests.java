@@ -46,9 +46,6 @@ public class RememberMeAuthenticationFilterTests {
 
 	Authentication remembered = new TestingAuthenticationToken("remembered", "password", "ROLE_REMEMBERED");
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public void setUp() {
 		SecurityContextHolder.clearContext();
@@ -154,9 +151,6 @@ public class RememberMeAuthenticationFilterTests {
 		// Should return after success handler is invoked, so chain should not proceed
 		verifyZeroInteractions(fc);
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockRememberMeServices implements RememberMeServices {
 

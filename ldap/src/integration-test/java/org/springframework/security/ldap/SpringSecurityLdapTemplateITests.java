@@ -46,16 +46,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
 public class SpringSecurityLdapTemplateITests {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	@Autowired
 	private DefaultSpringSecurityContextSource contextSource;
 
 	private SpringSecurityLdapTemplate template;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Before
 	public void setUp() {

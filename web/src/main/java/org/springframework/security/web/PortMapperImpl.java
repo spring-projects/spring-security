@@ -33,22 +33,13 @@ import org.springframework.util.Assert;
  */
 public class PortMapperImpl implements PortMapper {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Map<Integer, Integer> httpsPortMappings;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public PortMapperImpl() {
 		this.httpsPortMappings = new HashMap<>();
 		this.httpsPortMappings.put(80, 443);
 		this.httpsPortMappings.put(8080, 8443);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Returns the translated (Integer -&gt; Integer) version of the original port mapping

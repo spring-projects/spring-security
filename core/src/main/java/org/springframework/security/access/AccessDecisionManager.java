@@ -28,9 +28,6 @@ import org.springframework.security.core.Authentication;
  */
 public interface AccessDecisionManager {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Resolves an access control decision for the passed parameters.
 	 * @param authentication the caller invoking the method (not null)

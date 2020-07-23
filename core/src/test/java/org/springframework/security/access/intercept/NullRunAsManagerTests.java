@@ -28,9 +28,6 @@ import org.springframework.security.access.SecurityConfig;
  */
 public class NullRunAsManagerTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void testAlwaysReturnsNull() {
 		NullRunAsManager runAs = new NullRunAsManager();

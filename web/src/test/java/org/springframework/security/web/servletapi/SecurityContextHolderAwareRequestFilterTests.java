@@ -113,9 +113,6 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		SecurityContextHolder.clearContext();
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void expectedRequestWrapperClassIsUsed() throws Exception {
 		this.filter.setRolePrefix("ROLE_");

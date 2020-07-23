@@ -34,8 +34,6 @@ import org.springframework.security.acls.model.AuditableAccessControlEntry;
  */
 public class AuditLoggerTests {
 
-	// ~ Instance fields
-	// ================================================================================================
 	private PrintStream console;
 
 	private ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -43,9 +41,6 @@ public class AuditLoggerTests {
 	private ConsoleAuditLogger logger;
 
 	private AuditableAccessControlEntry ace;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Before
 	public void setUp() {

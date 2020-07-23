@@ -52,17 +52,11 @@ import org.springframework.security.core.session.SessionDestroyedEvent;
  */
 public class JaasAuthenticationProviderTests {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private ApplicationContext context;
 
 	private JaasAuthenticationProvider jaasProvider;
 
 	private JaasEventCheck eventCheck;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Before
 	public void setUp() {
@@ -283,9 +277,6 @@ public class JaasAuthenticationProviderTests {
 				jaasProvider.authenticate(new TestingAuthenticationToken("foo", "bar", AuthorityUtils.NO_AUTHORITIES)))
 						.isNull();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private static class MockLoginContext extends LoginContext {
 
