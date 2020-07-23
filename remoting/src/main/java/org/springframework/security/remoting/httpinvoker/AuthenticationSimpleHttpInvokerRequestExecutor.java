@@ -36,18 +36,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpInvokerRequestExecutor {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(AuthenticationSimpleHttpInvokerRequestExecutor.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Provided so subclasses can perform additional configuration if required (eg set

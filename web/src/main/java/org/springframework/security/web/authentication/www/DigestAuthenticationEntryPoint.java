@@ -46,13 +46,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
  */
 public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(DigestAuthenticationEntryPoint.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private String key;
 
@@ -61,9 +55,6 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 	private int nonceValiditySeconds = 300;
 
 	private int order = Integer.MAX_VALUE; // ~ default
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public int getOrder() {
 		return order;

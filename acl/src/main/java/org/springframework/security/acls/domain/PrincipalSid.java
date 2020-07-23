@@ -32,13 +32,7 @@ import org.springframework.util.Assert;
  */
 public class PrincipalSid implements Sid {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final String principal;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public PrincipalSid(String principal) {
 		Assert.hasText(principal, "Principal required");
@@ -51,9 +45,6 @@ public class PrincipalSid implements Sid {
 
 		this.principal = authentication.getName();
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public boolean equals(Object object) {

@@ -190,9 +190,6 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
 		assertThat(expression.getExpressionString()).isEqualTo("hasRole('ROLE_PERSON')");
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
-
 	public interface ReturnVoid {
 
 		void doSomething(List<?> param);

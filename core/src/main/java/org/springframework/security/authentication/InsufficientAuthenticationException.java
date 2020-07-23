@@ -33,9 +33,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class InsufficientAuthenticationException extends AuthenticationException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs an <code>InsufficientAuthenticationException</code> with the specified
 	 * message.

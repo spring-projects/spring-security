@@ -68,9 +68,6 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private String rolePrefix = "ROLE_";
 
 	private HttpServletRequestFactory requestFactory;
@@ -82,9 +79,6 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	private List<LogoutHandler> logoutHandlers;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void setRolePrefix(String rolePrefix) {
 		Assert.notNull(rolePrefix, "Role prefix must not be null");

@@ -28,9 +28,6 @@ import org.springframework.util.Assert;
  */
 public class DataSourcePopulator implements InitializingBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	JdbcTemplate template;
 
 	public void afterPropertiesSet() {

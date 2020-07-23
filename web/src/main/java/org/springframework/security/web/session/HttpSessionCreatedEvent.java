@@ -29,9 +29,6 @@ import org.springframework.security.core.session.SessionCreationEvent;
  */
 public class HttpSessionCreatedEvent extends SessionCreationEvent {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public HttpSessionCreatedEvent(HttpSession session) {
 		super(session);
 	}

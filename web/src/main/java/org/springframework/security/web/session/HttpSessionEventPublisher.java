@@ -46,13 +46,7 @@ import javax.servlet.http.HttpSessionListener;
  */
 public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessionIdListener {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final String LOGGER_NAME = HttpSessionEventPublisher.class.getName();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	ApplicationContext getContext(ServletContext servletContext) {
 		return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(servletContext);

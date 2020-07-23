@@ -29,9 +29,6 @@ import org.springframework.security.access.intercept.AbstractSecurityInterceptor
  */
 public interface SecurityMetadataSource extends AopInfrastructureBean {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Accesses the {@code ConfigAttribute}s that apply to a given secure object.
 	 * @param object the object being secured

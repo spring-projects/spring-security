@@ -29,12 +29,7 @@ import javax.servlet.ServletContext;
 @SuppressWarnings("unchecked")
 public class MockFilterConfig implements FilterConfig {
 
-	// ~ Instance fields
-	// ================================================================================================
 	private Map map = new HashMap();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public String getFilterName() {
 		throw new UnsupportedOperationException("mock method not implemented");

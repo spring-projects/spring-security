@@ -33,9 +33,6 @@ import java.io.Serializable;
  */
 public interface ObjectIdentity extends Serializable {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * @param obj to be compared
 	 * @return <tt>true</tt> if the objects are equal, <tt>false</tt> otherwise

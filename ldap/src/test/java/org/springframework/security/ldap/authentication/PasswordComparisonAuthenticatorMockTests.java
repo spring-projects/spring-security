@@ -33,9 +33,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
  */
 public class PasswordComparisonAuthenticatorMockTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void ldapCompareOperationIsUsedWhenPasswordIsNotRetrieved() throws Exception {
 		final DirContext dirCtx = mock(DirContext.class);

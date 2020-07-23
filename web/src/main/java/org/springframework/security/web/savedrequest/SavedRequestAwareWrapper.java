@@ -54,18 +54,12 @@ import org.apache.commons.logging.LogFactory;
  */
 class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log logger = LogFactory.getLog(SavedRequestAwareWrapper.class);
 
 	protected static final TimeZone GMT_ZONE = TimeZone.getTimeZone("GMT");
 
 	/** The default Locale if none are specified. */
 	protected static Locale defaultLocale = Locale.getDefault();
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	protected SavedRequest savedRequest = null;
 
@@ -75,9 +69,6 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 	 * variable.
 	 */
 	protected final SimpleDateFormat[] formats = new SimpleDateFormat[3];
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	SavedRequestAwareWrapper(SavedRequest saved, HttpServletRequest request) {
 		super(request);
@@ -91,9 +82,6 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 		formats[1].setTimeZone(GMT_ZONE);
 		formats[2].setTimeZone(GMT_ZONE);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public long getDateHeader(String name) {

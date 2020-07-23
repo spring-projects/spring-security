@@ -22,9 +22,6 @@ package org.springframework.security.acls.model;
  */
 public class ChildrenExistException extends AclDataAccessException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs an <code>ChildrenExistException</code> with the specified message.
 	 * @param msg the detail message

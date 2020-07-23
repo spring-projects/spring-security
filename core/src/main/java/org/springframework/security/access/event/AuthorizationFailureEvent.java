@@ -36,17 +36,11 @@ import org.springframework.security.core.Authentication;
  */
 public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private AccessDeniedException accessDeniedException;
 
 	private Authentication authentication;
 
 	private Collection<ConfigAttribute> configAttributes;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Construct the event.
@@ -69,9 +63,6 @@ public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
 		this.authentication = authentication;
 		this.accessDeniedException = accessDeniedException;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public AccessDeniedException getAccessDeniedException() {
 		return accessDeniedException;

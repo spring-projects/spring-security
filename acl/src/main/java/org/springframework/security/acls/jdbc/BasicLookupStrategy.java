@@ -105,9 +105,6 @@ public class BasicLookupStrategy implements LookupStrategy {
 	public final static String DEFAULT_ORDER_BY_CLAUSE = ") order by acl_object_identity.object_id_identity"
 			+ " asc, acl_entry.ace_order asc";
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final AclAuthorizationStrategy aclAuthorizationStrategy;
 
 	private PermissionFactory permissionFactory = new DefaultPermissionFactory();
@@ -134,9 +131,6 @@ public class BasicLookupStrategy implements LookupStrategy {
 	private String orderByClause = DEFAULT_ORDER_BY_CLAUSE;
 
 	private AclClassIdUtils aclClassIdUtils;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructor accepting mandatory arguments
@@ -170,9 +164,6 @@ public class BasicLookupStrategy implements LookupStrategy {
 		fieldAces.setAccessible(true);
 		fieldAcl.setAccessible(true);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	private String computeRepeatingSql(String repeatingSql, int requiredRepetitions) {
 		assert requiredRepetitions > 0 : "requiredRepetitions must be > 0";
@@ -529,9 +520,6 @@ public class BasicLookupStrategy implements LookupStrategy {
 	public final void setConversionService(ConversionService conversionService) {
 		this.aclClassIdUtils = new AclClassIdUtils(conversionService);
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class ProcessResultSet implements ResultSetExtractor<Set<Long>> {
 

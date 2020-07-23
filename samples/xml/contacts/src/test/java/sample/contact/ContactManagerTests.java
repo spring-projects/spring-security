@@ -44,14 +44,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 		"/applicationContext-common-business.xml" })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ContactManagerTests {
-	// ~ Instance fields
-	// ================================================================================================
+
 
 	@Autowired
 	protected ContactManager contactManager;
 
-	// ~ Methods
-	// ========================================================================================================
 
 	void assertContainsContact(long id, List<Contact> contacts) {
 		for (Contact contact : contacts) {

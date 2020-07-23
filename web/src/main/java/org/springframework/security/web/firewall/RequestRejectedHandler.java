@@ -30,9 +30,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface RequestRejectedHandler {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Handles an request rejected failure.
 	 * @param request that resulted in an <code>RequestRejectedException</code>

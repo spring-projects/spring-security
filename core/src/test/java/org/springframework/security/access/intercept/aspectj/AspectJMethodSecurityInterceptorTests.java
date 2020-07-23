@@ -69,9 +69,6 @@ public class AspectJMethodSecurityInterceptorTests {
 
 	private ProceedingJoinPoint joinPoint;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public final void setUp() {
 		MockitoAnnotations.initMocks(this);

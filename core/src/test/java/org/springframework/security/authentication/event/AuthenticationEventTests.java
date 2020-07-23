@@ -32,9 +32,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class AuthenticationEventTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	private Authentication getAuthentication() {
 		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
 				"Credentials");

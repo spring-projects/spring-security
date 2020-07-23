@@ -48,15 +48,9 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 
 	private static final Log logger = LogFactory.getLog(ContextPropagatingRemoteInvocation.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final String principal;
 
 	private final String credentials;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructs the object, storing the principal and credentials extracted from the
@@ -83,9 +77,6 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 			}
 		}
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Invoked on the server-side.

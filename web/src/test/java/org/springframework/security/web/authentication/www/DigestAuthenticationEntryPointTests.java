@@ -37,9 +37,6 @@ import static org.assertj.core.api.Assertions.fail;
  */
 public class DigestAuthenticationEntryPointTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	private void checkNonceValid(String nonce) {
 		// Check the nonce seems to be generated correctly
 		// format of nonce is:

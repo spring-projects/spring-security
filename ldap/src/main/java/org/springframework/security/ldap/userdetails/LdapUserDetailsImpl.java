@@ -51,9 +51,6 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private String dn;
 
 	private String password;
@@ -75,14 +72,8 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 
 	private int graceLoginsRemaining = Integer.MAX_VALUE;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	protected LdapUserDetailsImpl() {
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public Collection<GrantedAuthority> getAuthorities() {
@@ -185,9 +176,6 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 
 		return sb.toString();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	/**
 	 * Variation of essence pattern. Used to create mutable intermediate object

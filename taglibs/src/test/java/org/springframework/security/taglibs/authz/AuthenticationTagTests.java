@@ -36,17 +36,11 @@ import org.springframework.security.core.userdetails.User;
  */
 public class AuthenticationTagTests {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final MyAuthenticationTag authenticationTag = new MyAuthenticationTag();
 
 	private final Authentication auth = new TestingAuthenticationToken(
 			new User("rodUserDetails", "koala", true, true, true, true, AuthorityUtils.NO_AUTHORITIES), "koala",
 			AuthorityUtils.NO_AUTHORITIES);
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@After
 	public void tearDown() {
@@ -143,9 +137,6 @@ public class AuthenticationTagTests {
 		authenticationTag.doEndTag();
 		assertThat(authenticationTag.getLastMessage()).isEqualTo("<>& ");
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MyAuthenticationTag extends AuthenticationTag {
 

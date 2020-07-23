@@ -43,8 +43,6 @@ import java.util.regex.Matcher;
  */
 public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
 
-	// ~ Instance fields
-	// ================================================================================================
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();

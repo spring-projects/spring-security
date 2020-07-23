@@ -63,9 +63,6 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 
 	private static final String DEFAULT_INSERT_INTO_ACL_CLASS_WITH_ID = "insert into acl_class (class, class_id_type) values (?, ?)";
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private boolean foreignKeysInDatabase = true;
 
 	private final AclCache aclCache;
@@ -100,17 +97,11 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	private String updateObjectIdentity = "update acl_object_identity set "
 			+ "parent_object = ?, owner_sid = ?, entries_inheriting = ?" + " where id = ?";
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public JdbcMutableAclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache) {
 		super(dataSource, lookupStrategy);
 		Assert.notNull(aclCache, "AclCache required");
 		this.aclCache = aclCache;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public MutableAcl createAcl(ObjectIdentity objectIdentity) throws AlreadyExistsException {
 		Assert.notNull(objectIdentity, "Object Identity required");

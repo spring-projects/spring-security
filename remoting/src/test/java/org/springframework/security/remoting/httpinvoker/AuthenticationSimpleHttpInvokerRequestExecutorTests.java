@@ -39,8 +39,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@After
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
@@ -94,9 +92,6 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 		// Check connection properties (shouldn't be an Authorization header)
 		assertThat(conn.getRequestProperty("Authorization")).isNull();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockHttpURLConnection extends HttpURLConnection {
 

@@ -49,9 +49,6 @@ import java.lang.reflect.Constructor;
  */
 public class SecurityContextHolder {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	public static final String MODE_THREADLOCAL = "MODE_THREADLOCAL";
 
 	public static final String MODE_INHERITABLETHREADLOCAL = "MODE_INHERITABLETHREADLOCAL";
@@ -69,9 +66,6 @@ public class SecurityContextHolder {
 	static {
 		initialize();
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Explicitly clears the context value from the current thread.

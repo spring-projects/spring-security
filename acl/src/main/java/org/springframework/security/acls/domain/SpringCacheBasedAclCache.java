@@ -40,17 +40,11 @@ import java.io.Serializable;
  */
 public class SpringCacheBasedAclCache implements AclCache {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Cache cache;
 
 	private PermissionGrantingStrategy permissionGrantingStrategy;
 
 	private AclAuthorizationStrategy aclAuthorizationStrategy;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public SpringCacheBasedAclCache(Cache cache, PermissionGrantingStrategy permissionGrantingStrategy,
 			AclAuthorizationStrategy aclAuthorizationStrategy) {
@@ -61,9 +55,6 @@ public class SpringCacheBasedAclCache implements AclCache {
 		this.permissionGrantingStrategy = permissionGrantingStrategy;
 		this.aclAuthorizationStrategy = aclAuthorizationStrategy;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void evictFromCache(Serializable pk) {
 		Assert.notNull(pk, "Primary key (identifier) required");

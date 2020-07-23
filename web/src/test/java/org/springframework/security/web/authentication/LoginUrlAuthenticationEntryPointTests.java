@@ -34,9 +34,6 @@ import org.springframework.security.web.PortMapperImpl;
  */
 public class LoginUrlAuthenticationEntryPointTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test(expected = IllegalArgumentException.class)
 	public void testDetectsMissingLoginFormUrl() {
 		new LoginUrlAuthenticationEntryPoint(null);

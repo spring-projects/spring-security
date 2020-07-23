@@ -40,18 +40,12 @@ import static org.assertj.core.api.Assertions.fail;
  */
 public class SecurityContextLoginModuleTests {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private SecurityContextLoginModule module = null;
 
 	private Subject subject = new Subject(false, new HashSet<>(), new HashSet<>(), new HashSet<>());
 
 	private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("principal",
 			"credentials");
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Before
 	public void setUp() {

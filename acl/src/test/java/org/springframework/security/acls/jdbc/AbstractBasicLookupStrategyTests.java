@@ -56,15 +56,9 @@ public abstract class AbstractBasicLookupStrategyTests {
 
 	protected static final Long OBJECT_IDENTITY_LONG_AS_UUID = 110L;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private BasicLookupStrategy strategy;
 
 	private static CacheManager cacheManager;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public abstract JdbcTemplate getJdbcTemplate();
 

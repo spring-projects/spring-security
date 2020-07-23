@@ -31,9 +31,6 @@ import org.springframework.security.access.AccessDecisionManager;
  */
 public interface GrantedAuthority extends Serializable {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * If the <code>GrantedAuthority</code> can be represented as a <code>String</code>
 	 * and that <code>String</code> is sufficient in precision to be relied upon for an

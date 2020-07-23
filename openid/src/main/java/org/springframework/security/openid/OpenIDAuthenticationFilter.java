@@ -71,13 +71,7 @@ import java.util.*;
  */
 public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	public static final String DEFAULT_CLAIMED_IDENTITY_FIELD = "openid_identifier";
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private OpenIDConsumer consumer;
 
@@ -87,15 +81,9 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 
 	private Set<String> returnToUrlParameters = Collections.emptySet();
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public OpenIDAuthenticationFilter() {
 		super("/login/openid");
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() {

@@ -547,8 +547,6 @@ public class SwitchUserFilterTests {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setSwitchFailureUrl("/foo");
 	}
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockUserDetailsService implements UserDetailsService {
 

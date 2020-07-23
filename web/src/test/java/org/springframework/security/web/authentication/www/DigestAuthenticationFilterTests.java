@@ -54,9 +54,6 @@ import static org.mockito.Mockito.verify;
  */
 public class DigestAuthenticationFilterTests {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final String NC = "00000002";
 
 	private static final String CNONCE = "c822c727a648aba7";
@@ -78,16 +75,10 @@ public class DigestAuthenticationFilterTests {
 	 */
 	private static final String NONCE = generateNonce(60);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	// private ApplicationContext ctx;
 	private DigestAuthenticationFilter filter;
 
 	private MockHttpServletRequest request;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	private String createAuthorizationHeader(String username, String realm, String nonce, String uri,
 			String responseDigest, String qop, String nc, String cnonce) {

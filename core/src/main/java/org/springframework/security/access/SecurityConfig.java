@@ -29,21 +29,12 @@ import org.springframework.util.StringUtils;
  */
 public class SecurityConfig implements ConfigAttribute {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final String attrib;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public SecurityConfig(String config) {
 		Assert.hasText(config, "You must provide a configuration attribute");
 		this.attrib = config;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public boolean equals(Object obj) {

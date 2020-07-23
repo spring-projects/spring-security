@@ -42,9 +42,6 @@ public class SidRetrievalStrategyTests {
 
 	Authentication authentication = new TestingAuthenticationToken("scott", "password", "A", "B", "C");
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void correctSidsAreRetrieved() {
 		SidRetrievalStrategy retrStrategy = new SidRetrievalStrategyImpl();

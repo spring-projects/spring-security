@@ -43,13 +43,7 @@ import javax.naming.directory.DirContext;
  */
 public class BindAuthenticator extends AbstractLdapAuthenticator {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(BindAuthenticator.class);
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Create an initialized instance using the {@link BaseLdapPathContextSource}
@@ -61,9 +55,6 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 	public BindAuthenticator(BaseLdapPathContextSource contextSource) {
 		super(contextSource);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public DirContextOperations authenticate(Authentication authentication) {
 		DirContextOperations user = null;

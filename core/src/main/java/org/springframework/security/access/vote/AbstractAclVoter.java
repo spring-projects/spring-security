@@ -28,13 +28,7 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractAclVoter implements AccessDecisionVoter<MethodInvocation> {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private Class<?> processDomainObjectClass;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	protected Object getDomainObjectInstance(MethodInvocation invocation) {
 		Object[] args;

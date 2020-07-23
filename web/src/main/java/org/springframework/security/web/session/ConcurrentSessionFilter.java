@@ -66,9 +66,6 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class ConcurrentSessionFilter extends GenericFilterBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final SessionRegistry sessionRegistry;
 
 	private String expiredUrl;
@@ -78,9 +75,6 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	private LogoutHandler handlers = new CompositeLogoutHandler(new SecurityContextLogoutHandler());
 
 	private SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public ConcurrentSessionFilter(SessionRegistry sessionRegistry) {
 		Assert.notNull(sessionRegistry, "SessionRegistry required");

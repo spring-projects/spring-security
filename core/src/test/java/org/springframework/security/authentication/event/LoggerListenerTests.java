@@ -28,9 +28,6 @@ import org.springframework.security.core.Authentication;
  */
 public class LoggerListenerTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	private Authentication getAuthentication() {
 		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
 				"Credentials");

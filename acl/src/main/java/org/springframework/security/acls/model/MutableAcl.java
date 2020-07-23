@@ -27,9 +27,6 @@ import java.io.Serializable;
  */
 public interface MutableAcl extends Acl {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	void deleteAce(int aceIndex) throws NotFoundException;
 
 	/**

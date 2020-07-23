@@ -26,9 +26,6 @@ import java.util.Iterator;
  */
 interface Filterer<T> extends Iterable<T> {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Gets the filtered collection or array.
 	 * @return the filtered collection or array

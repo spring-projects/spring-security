@@ -31,17 +31,11 @@ import java.util.List;
  */
 public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private static final long serialVersionUID = 1L;
 
 	private final Object credentials;
 
 	private final Object principal;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public TestingAuthenticationToken(Object principal, Object credentials) {
 		super(null);
@@ -59,9 +53,6 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 		this.credentials = credentials;
 		setAuthenticated(true);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Object getCredentials() {
 		return this.credentials;

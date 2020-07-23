@@ -27,9 +27,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class AuthenticationFailureProviderNotFoundEvent extends AbstractAuthenticationFailureEvent {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public AuthenticationFailureProviderNotFoundEvent(Authentication authentication,
 			AuthenticationException exception) {
 		super(authentication, exception);

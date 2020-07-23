@@ -35,9 +35,6 @@ package org.springframework.security;
  */
 public class OtherTargetObject extends TargetObject implements ITargetObject {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public String makeLowerCase(String input) {
 		return super.makeLowerCase(input);
 	}

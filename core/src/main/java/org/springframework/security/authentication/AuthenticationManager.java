@@ -26,9 +26,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public interface AuthenticationManager {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Attempts to authenticate the passed {@link Authentication} object, returning a
 	 * fully populated <code>Authentication</code> object (including granted authorities)

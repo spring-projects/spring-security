@@ -41,17 +41,11 @@ import java.util.NoSuchElementException;
  */
 public class Enumerator<T> implements Enumeration<T> {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	/**
 	 * The <code>Iterator</code> over which the <code>Enumeration</code> represented by
 	 * this class actually operates.
 	 */
 	private Iterator<T> iterator = null;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Return an Enumeration over the values of the specified Collection.
@@ -115,9 +109,6 @@ public class Enumerator<T> implements Enumeration<T> {
 	public Enumerator(Map<?, T> map, boolean clone) {
 		this(map.values().iterator(), clone);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Tests if this enumeration contains more elements.

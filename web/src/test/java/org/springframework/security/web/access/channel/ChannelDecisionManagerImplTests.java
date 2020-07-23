@@ -44,8 +44,6 @@ import static org.mockito.Mockito.mock;
 @SuppressWarnings("unchecked")
 public class ChannelDecisionManagerImplTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testCannotSetEmptyChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
@@ -189,9 +187,6 @@ public class ChannelDecisionManagerImplTests {
 			assertThat(expected.getMessage()).isEqualTo("A list of ChannelProcessors is required");
 		}
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockChannelProcessor implements ChannelProcessor {
 

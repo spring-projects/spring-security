@@ -24,9 +24,6 @@ package org.springframework.security.acls.model;
  */
 public class UnloadedSidException extends AclDataAccessException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs an <code>NotFoundException</code> with the specified message.
 	 * @param msg the detail message

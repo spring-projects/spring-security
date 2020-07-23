@@ -46,9 +46,6 @@ import org.springframework.util.Assert;
  */
 public class JdbcAclService implements AclService {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log log = LogFactory.getLog(JdbcAclService.class);
 
 	private static final String DEFAULT_SELECT_ACL_CLASS_COLUMNS = "class.class as class";
@@ -70,9 +67,6 @@ public class JdbcAclService implements AclService {
 			+ "and parent.object_id_identity = ? and parent.object_id_class = ("
 			+ "select id FROM acl_class where acl_class.class = ?)";
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	protected final JdbcOperations jdbcOperations;
 
 	private final LookupStrategy lookupStrategy;
@@ -82,9 +76,6 @@ public class JdbcAclService implements AclService {
 	private String findChildrenSql = DEFAULT_SELECT_ACL_WITH_PARENT_SQL;
 
 	private AclClassIdUtils aclClassIdUtils;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public JdbcAclService(DataSource dataSource, LookupStrategy lookupStrategy) {
 		this(new JdbcTemplate(dataSource), lookupStrategy);
@@ -97,9 +88,6 @@ public class JdbcAclService implements AclService {
 		this.lookupStrategy = lookupStrategy;
 		this.aclClassIdUtils = new AclClassIdUtils();
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
 		Object[] args = { parentIdentity.getIdentifier().toString(), parentIdentity.getType() };

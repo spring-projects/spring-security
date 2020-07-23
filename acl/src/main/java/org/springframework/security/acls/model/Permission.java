@@ -24,17 +24,11 @@ import java.io.Serializable;
  */
 public interface Permission extends Serializable {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	char RESERVED_ON = '~';
 
 	char RESERVED_OFF = '.';
 
 	String THIRTY_TWO_RESERVED_OFF = "................................";
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Returns the bits that represents the permission.

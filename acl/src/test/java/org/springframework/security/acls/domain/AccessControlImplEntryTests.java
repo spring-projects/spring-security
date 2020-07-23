@@ -32,9 +32,6 @@ import org.springframework.security.acls.model.Sid;
  */
 public class AccessControlImplEntryTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void testConstructorRequiredFields() {
 		// Check Acl field is present

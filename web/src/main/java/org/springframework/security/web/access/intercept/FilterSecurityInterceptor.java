@@ -44,20 +44,11 @@ import org.springframework.security.web.FilterInvocation;
  */
 public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final String FILTER_APPLIED = "__spring_security_filterSecurityInterceptor_filterApplied";
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private FilterInvocationSecurityMetadataSource securityMetadataSource;
 
 	private boolean observeOncePerRequest = true;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Not used (we rely on IoC container lifecycle services instead)

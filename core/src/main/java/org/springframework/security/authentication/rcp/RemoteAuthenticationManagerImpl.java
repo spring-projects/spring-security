@@ -35,13 +35,7 @@ import org.springframework.util.Assert;
  */
 public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationManager, InitializingBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private AuthenticationManager authenticationManager;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(this.authenticationManager, "authenticationManager is required");

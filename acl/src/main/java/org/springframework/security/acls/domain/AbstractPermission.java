@@ -25,15 +25,10 @@ import org.springframework.security.acls.model.Permission;
  */
 public abstract class AbstractPermission implements Permission {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	protected final char code;
 
 	protected int mask;
 
-	// ~ Constructors
-	// ===================================================================================================
 	/**
 	 * Sets the permission mask and uses the '*' character to represent active bits when
 	 * represented as a bit pattern string.
@@ -54,9 +49,6 @@ public abstract class AbstractPermission implements Permission {
 		this.mask = mask;
 		this.code = code;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public final boolean equals(Object arg0) {
 		if (arg0 == null) {

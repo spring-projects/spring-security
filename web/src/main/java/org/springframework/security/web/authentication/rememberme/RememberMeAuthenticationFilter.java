@@ -63,9 +63,6 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class RememberMeAuthenticationFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private ApplicationEventPublisher eventPublisher;
 
 	private AuthenticationSuccessHandler successHandler;
@@ -81,9 +78,6 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 		this.authenticationManager = authenticationManager;
 		this.rememberMeServices = rememberMeServices;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() {

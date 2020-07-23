@@ -48,22 +48,13 @@ import org.springframework.util.Assert;
  */
 public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	public static final String IS_AUTHENTICATED_FULLY = "IS_AUTHENTICATED_FULLY";
 
 	public static final String IS_AUTHENTICATED_REMEMBERED = "IS_AUTHENTICATED_REMEMBERED";
 
 	public static final String IS_AUTHENTICATED_ANONYMOUSLY = "IS_AUTHENTICATED_ANONYMOUSLY";
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	private boolean isFullyAuthenticated(Authentication authentication) {
 		return (!authenticationTrustResolver.isAnonymous(authentication)

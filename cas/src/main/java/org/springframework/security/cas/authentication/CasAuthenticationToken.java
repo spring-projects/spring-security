@@ -36,8 +36,6 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
 	private final Object credentials;
 
 	private final Object principal;
@@ -47,9 +45,6 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	private final int keyHash;
 
 	private final Assertion assertion;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructor.
@@ -109,9 +104,6 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		this.assertion = assertion;
 		setAuthenticated(true);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	private static Integer extractKeyHash(String key) {
 		Assert.hasLength(key, "key cannot be null or empty");

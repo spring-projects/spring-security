@@ -36,9 +36,6 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
 		super(decisionVoters);
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * This concrete implementation polls all configured {@link AccessDecisionVoter}s for
 	 * each {@link ConfigAttribute} and grants access if <b>only</b> grant (or abstain)

@@ -28,9 +28,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class AuthenticationCredentialsNotFoundException extends AuthenticationException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs an <code>AuthenticationCredentialsNotFoundException</code> with the
 	 * specified message.

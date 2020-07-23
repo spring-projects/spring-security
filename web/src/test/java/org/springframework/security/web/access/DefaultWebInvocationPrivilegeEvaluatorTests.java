@@ -48,9 +48,6 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 
 	private FilterSecurityInterceptor interceptor;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public final void setUp() {
 		interceptor = new FilterSecurityInterceptor();

@@ -23,15 +23,12 @@ import org.springframework.security.acls.domain.BasePermission;
  * @author Ben Alex
  */
 public class AddPermission {
-	// ~ Instance fields
-	// ================================================================================================
+
 
 	public Contact contact;
 	public Integer permission = BasePermission.READ.getMask();
 	public String recipient;
 
-	// ~ Methods
-	// ========================================================================================================
 
 	public Contact getContact() {
 		return contact;

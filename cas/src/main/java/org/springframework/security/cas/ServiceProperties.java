@@ -34,9 +34,6 @@ public class ServiceProperties implements InitializingBean {
 
 	public static final String DEFAULT_CAS_SERVICE_PARAMETER = "service";
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private String service;
 
 	private boolean authenticateAllArtifacts;
@@ -46,9 +43,6 @@ public class ServiceProperties implements InitializingBean {
 	private String artifactParameter = DEFAULT_CAS_ARTIFACT_PARAMETER;
 
 	private String serviceParameter = DEFAULT_CAS_SERVICE_PARAMETER;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.hasLength(this.service, "service cannot be empty.");

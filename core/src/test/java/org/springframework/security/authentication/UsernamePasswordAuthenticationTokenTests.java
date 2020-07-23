@@ -29,9 +29,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 public class UsernamePasswordAuthenticationTokenTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void authenticatedPropertyContractIsSatisfied() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",

@@ -39,17 +39,11 @@ import org.springframework.util.Assert;
  */
 public class EhCacheBasedAclCache implements AclCache {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Ehcache cache;
 
 	private PermissionGrantingStrategy permissionGrantingStrategy;
 
 	private AclAuthorizationStrategy aclAuthorizationStrategy;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public EhCacheBasedAclCache(Ehcache cache, PermissionGrantingStrategy permissionGrantingStrategy,
 			AclAuthorizationStrategy aclAuthorizationStrategy) {
@@ -60,9 +54,6 @@ public class EhCacheBasedAclCache implements AclCache {
 		this.permissionGrantingStrategy = permissionGrantingStrategy;
 		this.aclAuthorizationStrategy = aclAuthorizationStrategy;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void evictFromCache(Serializable pk) {
 		Assert.notNull(pk, "Primary key (identifier) required");

@@ -31,9 +31,6 @@ import javax.servlet.ServletRequest;
  */
 public interface PortResolver {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Indicates the port the <code>ServletRequest</code> was received on.
 	 * @param request that the method should lookup the port for

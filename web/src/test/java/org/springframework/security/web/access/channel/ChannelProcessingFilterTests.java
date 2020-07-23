@@ -39,9 +39,6 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
  */
 public class ChannelProcessingFilterTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test(expected = IllegalArgumentException.class)
 	public void testDetectsMissingChannelDecisionManager() {
 		ChannelProcessingFilter filter = new ChannelProcessingFilter();
@@ -151,9 +148,6 @@ public class ChannelProcessingFilterTests {
 
 		filter.afterPropertiesSet();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockChannelDecisionManager implements ChannelDecisionManager {
 

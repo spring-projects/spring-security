@@ -23,9 +23,6 @@ package org.springframework.security.acls.model;
  */
 public interface AuditableAcl extends MutableAcl {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	void updateAuditing(int aceIndex, boolean auditSuccess, boolean auditFailure);
 
 }

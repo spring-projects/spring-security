@@ -173,9 +173,6 @@ import org.springframework.util.Assert;
  */
 public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	/**
 	 * Used to identify a CAS request for a stateful user agent, such as a web browser.
 	 */
@@ -205,16 +202,10 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	private AuthenticationFailureHandler proxyFailureHandler = new SimpleUrlAuthenticationFailureHandler();
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public CasAuthenticationFilter() {
 		super("/login/cas");
 		setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler());
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	protected final void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,

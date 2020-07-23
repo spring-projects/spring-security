@@ -34,15 +34,9 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Object principal;
 
 	private final int keyHash;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructor.
@@ -79,9 +73,6 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 		this.principal = principal;
 		setAuthenticated(true);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Always returns an empty <code>String</code>

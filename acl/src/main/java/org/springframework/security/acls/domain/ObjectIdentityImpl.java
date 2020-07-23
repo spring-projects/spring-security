@@ -32,15 +32,9 @@ import org.springframework.util.ClassUtils;
  */
 public class ObjectIdentityImpl implements ObjectIdentity {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final String type;
 
 	private Serializable identifier;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public ObjectIdentityImpl(String type, Serializable identifier) {
 		Assert.hasText(type, "Type required");
@@ -91,9 +85,6 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 		Assert.isInstanceOf(Serializable.class, result, "Getter must provide a return value of type Serializable");
 		this.identifier = (Serializable) result;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Important so caching operates properly.

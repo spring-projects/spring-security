@@ -28,9 +28,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class AuthenticationCancelledException extends AuthenticationException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public AuthenticationCancelledException(String msg) {
 		super(msg);
 	}

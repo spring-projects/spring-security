@@ -33,20 +33,11 @@ import org.apache.commons.logging.LogFactory;
  */
 class ArrayFilterer<T> implements Filterer<T> {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log logger = LogFactory.getLog(ArrayFilterer.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final Set<T> removeList;
 
 	private final T[] list;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	ArrayFilterer(T[] list) {
 		this.list = list;
@@ -56,9 +47,6 @@ class ArrayFilterer<T> implements Filterer<T> {
 		// is constructed.
 		removeList = new HashSet<>();
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 *

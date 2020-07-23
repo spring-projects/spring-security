@@ -58,9 +58,6 @@ public class NestedLdapAuthoritiesPopulatorTests {
 
 	private LdapAuthority circularJavaDevelopers;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public void setUp() {
 		populator = new NestedLdapAuthoritiesPopulator(this.contextSource, "ou=jdeveloper");

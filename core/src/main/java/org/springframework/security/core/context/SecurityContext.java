@@ -32,9 +32,6 @@ import java.io.Serializable;
  */
 public interface SecurityContext extends Serializable {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Obtains the currently authenticated principal, or an authentication request token.
 	 * @return the <code>Authentication</code> or <code>null</code> if no authentication

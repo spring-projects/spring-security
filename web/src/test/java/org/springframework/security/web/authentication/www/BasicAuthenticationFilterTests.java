@@ -50,15 +50,9 @@ import java.nio.charset.StandardCharsets;
  */
 public class BasicAuthenticationFilterTests {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private BasicAuthenticationFilter filter;
 
 	private AuthenticationManager manager;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Before
 	public void setUp() {

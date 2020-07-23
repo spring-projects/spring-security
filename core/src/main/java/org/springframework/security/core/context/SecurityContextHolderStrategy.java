@@ -26,9 +26,6 @@ package org.springframework.security.core.context;
  */
 public interface SecurityContextHolderStrategy {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Clears the current context.
 	 */

@@ -52,17 +52,11 @@ import java.util.*;
  */
 public class DefaultSavedRequest implements SavedRequest {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log logger = LogFactory.getLog(DefaultSavedRequest.class);
 
 	private static final String HEADER_IF_NONE_MATCH = "If-None-Match";
 
 	private static final String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final ArrayList<SavedCookie> cookies = new ArrayList<>();
 
@@ -91,9 +85,6 @@ public class DefaultSavedRequest implements SavedRequest {
 	private final String servletPath;
 
 	private final int serverPort;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	@SuppressWarnings("unchecked")
 	public DefaultSavedRequest(HttpServletRequest request, PortResolver portResolver) {
@@ -153,9 +144,6 @@ public class DefaultSavedRequest implements SavedRequest {
 		this.servletPath = builder.servletPath;
 		this.serverPort = builder.serverPort;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * @since 4.2

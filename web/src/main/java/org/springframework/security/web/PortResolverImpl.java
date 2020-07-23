@@ -36,13 +36,7 @@ import javax.servlet.ServletRequest;
  */
 public class PortResolverImpl implements PortResolver {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private PortMapper portMapper = new PortMapperImpl();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public PortMapper getPortMapper() {
 		return portMapper;

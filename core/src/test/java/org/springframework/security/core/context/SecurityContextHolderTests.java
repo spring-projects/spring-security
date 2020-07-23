@@ -30,8 +30,6 @@ import org.springframework.security.core.context.SecurityContextImpl;
  */
 public class SecurityContextHolderTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Before
 	public final void setUp() {
 		SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);

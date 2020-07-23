@@ -24,8 +24,7 @@ import java.util.List;
  * @author Ben Alex
  */
 public interface ContactDao {
-	// ~ Methods
-	// ========================================================================================================
+
 
 	void create(Contact contact);
 

@@ -43,13 +43,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  */
 public class OpenIDAuthenticationProviderTests {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final String USERNAME = "user.acegiopenid.com";
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/*
 	 * Test method for

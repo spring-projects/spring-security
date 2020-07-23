@@ -28,9 +28,6 @@ import org.springframework.security.core.Authentication;
  */
 public interface SidRetrievalStrategy {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	List<Sid> getSids(Authentication authentication);
 
 }

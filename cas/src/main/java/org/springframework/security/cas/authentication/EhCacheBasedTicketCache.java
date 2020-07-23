@@ -32,18 +32,9 @@ import org.springframework.util.Assert;
  */
 public class EhCacheBasedTicketCache implements StatelessTicketCache, InitializingBean {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(EhCacheBasedTicketCache.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private Ehcache cache;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(cache, "cache mandatory");

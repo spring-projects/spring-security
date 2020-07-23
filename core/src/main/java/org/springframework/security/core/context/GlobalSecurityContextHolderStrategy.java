@@ -29,13 +29,7 @@ import org.springframework.util.Assert;
  */
 final class GlobalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static SecurityContext contextHolder;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void clearContext() {
 		contextHolder = null;

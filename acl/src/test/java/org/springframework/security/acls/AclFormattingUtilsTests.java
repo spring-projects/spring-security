@@ -29,8 +29,6 @@ import org.springframework.security.acls.model.Permission;
  */
 public class AclFormattingUtilsTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public final void testDemergePatternsParametersConstraints() {
 		try {

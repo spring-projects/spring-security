@@ -31,17 +31,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
  */
 public class UserAttribute {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private List<GrantedAuthority> authorities = new Vector<>();
 
 	private String password;
 
 	private boolean enabled = true;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void addAuthority(GrantedAuthority newAuthority) {
 		this.authorities.add(newAuthority);

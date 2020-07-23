@@ -29,9 +29,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class AuthenticationServiceException extends AuthenticationException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs an <code>AuthenticationServiceException</code> with the specified
 	 * message.

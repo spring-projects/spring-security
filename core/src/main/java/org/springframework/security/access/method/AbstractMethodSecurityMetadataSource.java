@@ -35,9 +35,6 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public final Collection<ConfigAttribute> getAttributes(Object object) {
 		if (object instanceof MethodInvocation) {
 			MethodInvocation mi = (MethodInvocation) object;

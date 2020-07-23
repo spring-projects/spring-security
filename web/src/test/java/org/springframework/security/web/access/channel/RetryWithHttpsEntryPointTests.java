@@ -36,8 +36,6 @@ import java.util.Map;
  */
 public class RetryWithHttpsEntryPointTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testDetectsMissingPortMapper() {
 		RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();

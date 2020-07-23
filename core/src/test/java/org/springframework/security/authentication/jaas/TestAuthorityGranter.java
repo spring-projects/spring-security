@@ -28,9 +28,6 @@ import org.springframework.security.authentication.jaas.AuthorityGranter;
  */
 public class TestAuthorityGranter implements AuthorityGranter {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public Set<String> grant(Principal principal) {
 		Set<String> rtnSet = new HashSet<>();
 

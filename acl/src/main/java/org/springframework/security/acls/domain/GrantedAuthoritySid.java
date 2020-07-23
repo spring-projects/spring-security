@@ -32,13 +32,7 @@ import org.springframework.util.Assert;
  */
 public class GrantedAuthoritySid implements Sid {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final String grantedAuthority;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public GrantedAuthoritySid(String grantedAuthority) {
 		Assert.hasText(grantedAuthority, "GrantedAuthority required");
@@ -51,9 +45,6 @@ public class GrantedAuthoritySid implements Sid {
 				"This Sid is only compatible with GrantedAuthoritys that provide a non-null getAuthority()");
 		this.grantedAuthority = grantedAuthority.getAuthority();
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public boolean equals(Object object) {

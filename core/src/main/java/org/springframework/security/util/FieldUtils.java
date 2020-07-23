@@ -29,8 +29,6 @@ import java.lang.reflect.Field;
  */
 public final class FieldUtils {
 
-	// ~ Methods
-	// ========================================================================================================
 	/**
 	 * Attempts to locate the specified field on the class.
 	 * @param clazz the class definition containing the field

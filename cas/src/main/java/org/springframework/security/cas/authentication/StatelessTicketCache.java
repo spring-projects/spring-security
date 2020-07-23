@@ -60,8 +60,6 @@ package org.springframework.security.cas.authentication;
  */
 public interface StatelessTicketCache {
 
-	// ~ Methods ================================================================
-
 	/**
 	 * Retrieves the <code>CasAuthenticationToken</code> associated with the specified
 	 * ticket.

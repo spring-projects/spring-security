@@ -358,9 +358,6 @@ public class ProviderManagerTests {
 		return new ProviderManager(provider);
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
-
 	private static class MockProvider implements AuthenticationProvider {
 
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {

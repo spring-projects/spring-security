@@ -38,9 +38,6 @@ public class AclImplementationSecurityCheckTests {
 
 	private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public void setUp() {
 		SecurityContextHolder.clearContext();

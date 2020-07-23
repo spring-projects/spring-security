@@ -42,8 +42,6 @@ import org.springframework.util.Assert;
 public abstract class AbstractAccessDecisionManager
 		implements AccessDecisionManager, InitializingBean, MessageSourceAware {
 
-	// ~ Instance fields
-	// ================================================================================================
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private List<AccessDecisionVoter<?>> decisionVoters;
@@ -56,9 +54,6 @@ public abstract class AbstractAccessDecisionManager
 		Assert.notEmpty(decisionVoters, "A list of AccessDecisionVoters is required");
 		this.decisionVoters = decisionVoters;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notEmpty(this.decisionVoters, "A list of AccessDecisionVoters is required");

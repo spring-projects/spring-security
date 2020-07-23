@@ -44,18 +44,9 @@ import org.springframework.security.web.WebAttributes;
  */
 public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log logger = LogFactory.getLog(AccessDeniedHandlerImpl.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private String errorPage;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {

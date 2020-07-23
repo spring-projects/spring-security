@@ -86,13 +86,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class ProviderManager implements AuthenticationManager, MessageSourceAware, InitializingBean {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(ProviderManager.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
 
@@ -131,9 +125,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		this.parent = parent;
 		checkState();
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		checkState();

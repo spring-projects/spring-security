@@ -45,9 +45,6 @@ import static org.mockito.Mockito.*;
  */
 public class CasAuthenticationFilterTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@After
 	public void tearDown() {
 		SecurityContextHolder.clearContext();

@@ -26,9 +26,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public class NullUserCache implements UserCache {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public UserDetails getUserFromCache(String username) {
 		return null;
 	}

@@ -48,9 +48,6 @@ import static org.mockito.Mockito.mock;
  */
 public class AnonymousAuthenticationFilterTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	private void executeFilterInContainerSimulator(FilterConfig filterConfig, Filter filter, ServletRequest request,
 			ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		filter.doFilter(request, response, filterChain);
@@ -108,9 +105,6 @@ public class AnonymousAuthenticationFilterTests {
 		SecurityContextHolder.getContext().setAuthentication(null); // so anonymous fires
 																	// again
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockFilterChain implements FilterChain {
 

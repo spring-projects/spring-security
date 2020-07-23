@@ -41,9 +41,6 @@ public class SessionInformation implements Serializable {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private Date lastRequest;
 
 	private final Object principal;
@@ -51,9 +48,6 @@ public class SessionInformation implements Serializable {
 	private final String sessionId;
 
 	private boolean expired = false;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public SessionInformation(Object principal, String sessionId, Date lastRequest) {
 		Assert.notNull(principal, "Principal required");
@@ -63,9 +57,6 @@ public class SessionInformation implements Serializable {
 		this.sessionId = sessionId;
 		this.lastRequest = lastRequest;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void expireNow() {
 		this.expired = true;

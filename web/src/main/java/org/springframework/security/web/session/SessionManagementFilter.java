@@ -49,13 +49,7 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class SessionManagementFilter extends GenericFilterBean {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	static final String FILTER_APPLIED = "__spring_security_session_mgmt_filter_applied";
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final SecurityContextRepository securityContextRepository;
 

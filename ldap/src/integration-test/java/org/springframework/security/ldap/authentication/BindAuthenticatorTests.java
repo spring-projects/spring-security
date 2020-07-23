@@ -45,18 +45,12 @@ import static org.assertj.core.api.Assertions.fail;
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
 public class BindAuthenticatorTests {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	@Autowired
 	private DefaultSpringSecurityContextSource contextSource;
 
 	private BindAuthenticator authenticator;
 
 	private Authentication bob;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Before
 	public void setUp() {

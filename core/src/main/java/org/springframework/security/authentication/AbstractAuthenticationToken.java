@@ -38,17 +38,11 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public abstract class AbstractAuthenticationToken implements Authentication, CredentialsContainer {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Collection<GrantedAuthority> authorities;
 
 	private Object details;
 
 	private boolean authenticated = false;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Creates a token with the supplied array of authorities.
@@ -70,9 +64,6 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		temp.addAll(authorities);
 		this.authorities = Collections.unmodifiableList(temp);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Collection<GrantedAuthority> getAuthorities() {
 		return authorities;

@@ -34,8 +34,6 @@ import java.util.Collections;
 
 public class SidTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testPrincipalSidConstructorsRequiredFields() {
 		// Check one String-argument constructor

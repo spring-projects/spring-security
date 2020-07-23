@@ -55,8 +55,6 @@ import java.util.Set;
  */
 public class SpringSecurityLdapTemplate extends LdapTemplate {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
 	private static final Log logger = LogFactory.getLog(SpringSecurityLdapTemplate.class);
 
 	public static final String[] NO_ATTRS = new String[0];
@@ -69,14 +67,8 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
 	private static final boolean RETURN_OBJECT = true;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	/** Default search controls */
 	private SearchControls searchControls = new SearchControls();
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public SpringSecurityLdapTemplate(ContextSource contextSource) {
 		Assert.notNull(contextSource, "ContextSource cannot be null");
@@ -84,9 +76,6 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Performs an LDAP compare operation of the value of an attribute for a particular

@@ -29,13 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("deprecation")
 public class LdapShaPasswordEncoderTests {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	LdapShaPasswordEncoder sha = new LdapShaPasswordEncoder();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Test
 	public void invalidPasswordFails() {

@@ -30,9 +30,6 @@ import java.io.Serializable;
  */
 public interface AccessControlEntry extends Serializable {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	Acl getAcl();
 
 	/**

@@ -25,9 +25,6 @@ import org.springframework.security.core.Authentication;
  */
 public interface AuthenticationTrustResolver {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Indicates whether the passed <code>Authentication</code> token represents an
 	 * anonymous user. Typically the framework will call this method if it is trying to

@@ -31,9 +31,6 @@ import org.springframework.security.core.Authentication;
  */
 final class NullRunAsManager implements RunAsManager {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public Authentication buildRunAs(Authentication authentication, Object object, Collection<ConfigAttribute> config) {
 		return null;
 	}

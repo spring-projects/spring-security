@@ -37,9 +37,6 @@ import org.springframework.security.web.util.UrlUtils;
  */
 public class FilterInvocationTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void testGettersAndStringMethods() {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);

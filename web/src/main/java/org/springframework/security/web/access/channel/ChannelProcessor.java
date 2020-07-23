@@ -37,9 +37,6 @@ import javax.servlet.ServletException;
  */
 public interface ChannelProcessor {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Decided whether the presented {@link FilterInvocation} provides the appropriate
 	 * level of channel security based on the requested list of <tt>ConfigAttribute</tt>s.

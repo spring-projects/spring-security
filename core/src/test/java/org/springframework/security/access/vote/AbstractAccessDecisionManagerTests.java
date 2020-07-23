@@ -37,8 +37,6 @@ import org.springframework.security.core.Authentication;
 @SuppressWarnings("unchecked")
 public class AbstractAccessDecisionManagerTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testAllowIfAccessDecisionManagerDefaults() {
 		List list = new Vector();
@@ -130,9 +128,6 @@ public class AbstractAccessDecisionManagerTests {
 
 		}
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockDecisionManagerImpl extends AbstractAccessDecisionManager {
 

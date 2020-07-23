@@ -137,13 +137,7 @@ import java.util.*;
  */
 public class FilterChainProxy extends GenericFilterBean {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(FilterChainProxy.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final static String FILTER_APPLIED = FilterChainProxy.class.getName().concat(".APPLIED");
 
@@ -154,9 +148,6 @@ public class FilterChainProxy extends GenericFilterBean {
 	private HttpFirewall firewall = new StrictHttpFirewall();
 
 	private RequestRejectedHandler requestRejectedHandler = new DefaultRequestRejectedHandler();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public FilterChainProxy() {
 	}
@@ -295,9 +286,6 @@ public class FilterChainProxy extends GenericFilterBean {
 
 		return sb.toString();
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	/**
 	 * Internal {@code FilterChain} implementation that is used to pass a request through

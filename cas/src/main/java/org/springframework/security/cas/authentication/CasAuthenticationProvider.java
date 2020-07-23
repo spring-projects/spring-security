@@ -56,13 +56,7 @@ import org.springframework.util.Assert;
  */
 public class CasAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(CasAuthenticationProvider.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private AuthenticationUserDetailsService<CasAssertionAuthenticationToken> authenticationUserDetailsService;
 
@@ -79,9 +73,6 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 	private ServiceProperties serviceProperties;
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(this.authenticationUserDetailsService, "An authenticationUserDetailsService must be set");

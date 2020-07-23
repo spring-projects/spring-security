@@ -37,9 +37,6 @@ import java.util.List;
  */
 public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, InitializingBean, MessageSourceAware {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final ContextSource contextSource;
 
 	/**
@@ -60,9 +57,6 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 	/** Stores the patterns which are used as potential DN matches */
 	private MessageFormat[] userDnFormat = null;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Create an initialized instance with the {@link ContextSource} provided.
 	 * @param contextSource
@@ -71,9 +65,6 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 		Assert.notNull(contextSource, "contextSource must not be null.");
 		this.contextSource = contextSource;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.isTrue((userDnFormat != null) || (userSearch != null),

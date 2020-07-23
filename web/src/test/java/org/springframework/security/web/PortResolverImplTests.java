@@ -29,8 +29,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
  */
 public class PortResolverImplTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testDetectsBuggyIeHttpRequest() {
 		PortResolverImpl pr = new PortResolverImpl();

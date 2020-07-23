@@ -31,15 +31,9 @@ import org.springframework.security.core.Authentication;
  */
 public class AuthorizedEvent extends AbstractAuthorizationEvent {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private Authentication authentication;
 
 	private Collection<ConfigAttribute> configAttributes;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Construct the event.
@@ -58,9 +52,6 @@ public class AuthorizedEvent extends AbstractAuthorizationEvent {
 		this.configAttributes = attributes;
 		this.authentication = authentication;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Authentication getAuthentication() {
 		return authentication;

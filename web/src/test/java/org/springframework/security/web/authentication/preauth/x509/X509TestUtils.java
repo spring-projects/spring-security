@@ -27,9 +27,6 @@ import java.security.cert.X509Certificate;
  */
 public class X509TestUtils {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Builds an X.509 certificate. In human-readable form it is:
 	 *

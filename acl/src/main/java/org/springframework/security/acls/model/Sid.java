@@ -32,9 +32,6 @@ import java.io.Serializable;
  */
 public interface Sid extends Serializable {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Refer to the <code>java.lang.Object</code> documentation for the interface
 	 * contract.

@@ -32,9 +32,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface AccessDeniedHandler {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Handles an access denied failure.
 	 * @param request that resulted in an <code>AccessDeniedException</code>

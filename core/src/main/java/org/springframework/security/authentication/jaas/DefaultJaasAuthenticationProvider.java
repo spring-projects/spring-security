@@ -86,13 +86,7 @@ import org.springframework.util.Assert;
  */
 public class DefaultJaasAuthenticationProvider extends AbstractJaasAuthenticationProvider {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private Configuration configuration;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() throws Exception {

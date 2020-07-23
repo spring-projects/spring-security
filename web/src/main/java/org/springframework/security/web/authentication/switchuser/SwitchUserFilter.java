@@ -108,15 +108,9 @@ import org.springframework.web.util.UrlPathHelper;
  */
 public class SwitchUserFilter extends GenericFilterBean implements ApplicationEventPublisherAware, MessageSourceAware {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	public static final String SPRING_SECURITY_SWITCH_USERNAME_KEY = "username";
 
 	public static final String ROLE_PREVIOUS_ADMINISTRATOR = "ROLE_PREVIOUS_ADMINISTRATOR";
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private ApplicationEventPublisher eventPublisher;
 
@@ -145,9 +139,6 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	private AuthenticationSuccessHandler successHandler;
 
 	private AuthenticationFailureHandler failureHandler;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() {

@@ -23,9 +23,6 @@ package org.springframework.security;
  */
 public interface ITargetObject {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	Integer computeHashCode(String input);
 
 	int countLength(String input);

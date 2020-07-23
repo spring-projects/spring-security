@@ -36,15 +36,9 @@ import org.springframework.util.Assert;
  */
 public class InMemoryConfiguration extends Configuration {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final AppConfigurationEntry[] defaultConfiguration;
 
 	private final Map<String, AppConfigurationEntry[]> mappedConfigurations;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Creates a new instance with only a defaultConfiguration. Any configuration name
@@ -81,9 +75,6 @@ public class InMemoryConfiguration extends Configuration {
 		this.mappedConfigurations = mappedConfigurations;
 		this.defaultConfiguration = defaultConfiguration;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public AppConfigurationEntry[] getAppConfigurationEntry(String name) {

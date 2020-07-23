@@ -30,9 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 public class WebAuthenticationDetailsSource
 		implements AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * @param context the {@code HttpServletRequest} object.
 	 * @return the {@code WebAuthenticationDetails} containing information about the

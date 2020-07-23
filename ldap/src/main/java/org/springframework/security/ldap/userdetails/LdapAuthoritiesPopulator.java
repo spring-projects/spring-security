@@ -33,9 +33,6 @@ import org.springframework.ldap.core.DirContextOperations;
  */
 public interface LdapAuthoritiesPopulator {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Get the list of authorities for the user.
 	 * @param userData the context object which was returned by the LDAP authenticator.

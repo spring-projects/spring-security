@@ -34,9 +34,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class TestingAuthenticationProvider implements AuthenticationProvider {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		return authentication;
 	}

@@ -29,9 +29,6 @@ import javax.security.auth.login.LoginException;
  */
 public class DefaultLoginExceptionResolver implements LoginExceptionResolver {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public AuthenticationException resolveException(LoginException e) {
 		return new AuthenticationServiceException(e.getMessage(), e);
 	}

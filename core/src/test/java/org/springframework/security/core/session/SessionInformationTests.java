@@ -29,8 +29,6 @@ import org.junit.Test;
  */
 public class SessionInformationTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testObject() throws Exception {
 		Object principal = "Some principal object";

@@ -42,9 +42,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class SessionRegistryImpl implements SessionRegistry, ApplicationListener<AbstractSessionEvent> {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	protected final Log logger = LogFactory.getLog(SessionRegistryImpl.class);
 
 	/** <principal:Object,SessionIdSet> */
@@ -52,9 +49,6 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 
 	/** <sessionId:Object,SessionInformation> */
 	private final Map<String, SessionInformation> sessionIds;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public SessionRegistryImpl() {
 		this.principals = new ConcurrentHashMap<>();

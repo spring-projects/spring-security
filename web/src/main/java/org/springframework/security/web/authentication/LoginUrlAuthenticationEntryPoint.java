@@ -64,13 +64,7 @@ import org.springframework.util.StringUtils;
  */
 public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	private static final Log logger = LogFactory.getLog(LoginUrlAuthenticationEntryPoint.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private PortMapper portMapper = new PortMapperImpl();
 
@@ -93,9 +87,6 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		Assert.notNull(loginFormUrl, "loginFormUrl cannot be null");
 		this.loginFormUrl = loginFormUrl;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.isTrue(StringUtils.hasText(loginFormUrl) && UrlUtils.isValidRedirectUrl(loginFormUrl),

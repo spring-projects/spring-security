@@ -202,9 +202,6 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 		assertThat(accessAttributes.toArray()[0].toString()).isEqualTo("ROLE_DERIVED");
 	}
 
-	// ~ Inner Classes
-	// ======================================================================================================
-
 	public static class A {
 
 		public void noRoleMethod() {

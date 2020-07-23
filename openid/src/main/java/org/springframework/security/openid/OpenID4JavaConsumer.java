@@ -55,17 +55,11 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 
 	private static final String ATTRIBUTE_LIST_KEY = "SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST";
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final ConsumerManager consumerManager;
 
 	private final AxFetchListFactory attributesToFetchFactory;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public OpenID4JavaConsumer() throws ConsumerException {
 		this(new ConsumerManager(), new NullAxFetchListFactory());
@@ -79,9 +73,6 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 		this.consumerManager = consumerManager;
 		this.attributesToFetchFactory = attributesToFetchFactory;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl, String realm)
 			throws OpenIDConsumerException {

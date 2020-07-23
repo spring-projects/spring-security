@@ -31,8 +31,6 @@ import org.junit.Test;
  */
 public class PortMapperImplTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testDefaultMappingsAreKnown() {
 		PortMapperImpl portMapper = new PortMapperImpl();

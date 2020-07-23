@@ -35,22 +35,13 @@ import org.springframework.util.Assert;
  */
 public class InteractiveAuthenticationSuccessEvent extends AbstractAuthenticationEvent {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Class<?> generatedBy;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public InteractiveAuthenticationSuccessEvent(Authentication authentication, Class<?> generatedBy) {
 		super(authentication);
 		Assert.notNull(generatedBy, "generatedBy cannot be null");
 		this.generatedBy = generatedBy;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Getter for the <code>Class</code> that generated this event. This can be useful for

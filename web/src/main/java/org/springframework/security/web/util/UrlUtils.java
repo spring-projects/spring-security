@@ -30,9 +30,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 public final class UrlUtils {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public static String buildFullRequestUrl(HttpServletRequest r) {
 		return buildFullRequestUrl(r.getScheme(), r.getServerName(), r.getServerPort(), r.getRequestURI(),
 				r.getQueryString());

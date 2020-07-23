@@ -37,9 +37,6 @@ public class SessionRegistryImplTests {
 
 	private SessionRegistryImpl sessionRegistry;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public void setUp() {
 		sessionRegistry = new SessionRegistryImpl();

@@ -77,9 +77,6 @@ import java.io.IOException;
  */
 public class ExceptionTranslationFilter extends GenericFilterBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
 	private AuthenticationEntryPoint authenticationEntryPoint;
@@ -102,9 +99,6 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 		this.authenticationEntryPoint = authenticationEntryPoint;
 		this.requestCache = requestCache;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() {

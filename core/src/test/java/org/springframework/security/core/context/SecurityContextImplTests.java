@@ -29,8 +29,6 @@ import org.springframework.security.core.Authentication;
  */
 public class SecurityContextImplTests {
 
-	// ~ Methods
-	// ========================================================================================================
 	@Test
 	public void testEmptyObjectsAreEquals() {
 		SecurityContextImpl obj1 = new SecurityContextImpl();

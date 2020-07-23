@@ -48,9 +48,6 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 
 	private boolean clearAuthentication = true;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Requires the request to be passed in.
 	 * @param request from which to obtain a HTTP session (cannot be null)

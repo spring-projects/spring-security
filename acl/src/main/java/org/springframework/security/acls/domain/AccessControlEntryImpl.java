@@ -32,9 +32,6 @@ import java.io.Serializable;
  */
 public class AccessControlEntryImpl implements AccessControlEntry, AuditableAccessControlEntry {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Acl acl;
 
 	private Permission permission;
@@ -49,9 +46,6 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 
 	private final boolean granting;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public AccessControlEntryImpl(Serializable id, Acl acl, Sid sid, Permission permission, boolean granting,
 			boolean auditSuccess, boolean auditFailure) {
 		Assert.notNull(acl, "Acl required");
@@ -65,9 +59,6 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 		this.auditSuccess = auditSuccess;
 		this.auditFailure = auditFailure;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public boolean equals(Object arg0) {

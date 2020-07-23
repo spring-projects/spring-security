@@ -29,15 +29,9 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
  */
 public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizationEvent {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private AuthenticationCredentialsNotFoundException credentialsNotFoundException;
 
 	private Collection<ConfigAttribute> configAttribs;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Construct the event.
@@ -58,9 +52,6 @@ public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizatio
 		this.configAttribs = attributes;
 		this.credentialsNotFoundException = credentialsNotFoundException;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Collection<ConfigAttribute> getConfigAttributes() {
 		return configAttribs;

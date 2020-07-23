@@ -44,9 +44,6 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class AnonymousAuthenticationFilter extends GenericFilterBean implements InitializingBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
 	private String key;
@@ -77,9 +74,6 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 		this.principal = principal;
 		this.authorities = authorities;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() {

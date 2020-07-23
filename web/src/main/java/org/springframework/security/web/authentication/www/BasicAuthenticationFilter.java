@@ -89,9 +89,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private AuthenticationEntryPoint authenticationEntryPoint;
 
 	private AuthenticationManager authenticationManager;
@@ -131,9 +128,6 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		this.authenticationManager = authenticationManager;
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public void afterPropertiesSet() {

@@ -24,9 +24,6 @@ package org.springframework.security.access;
  */
 public class AccessDeniedException extends RuntimeException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs an <code>AccessDeniedException</code> with the specified message.
 	 * @param msg the detail message

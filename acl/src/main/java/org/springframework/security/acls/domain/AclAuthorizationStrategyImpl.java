@@ -46,9 +46,6 @@ import java.util.Set;
  */
 public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final GrantedAuthority gaGeneralChanges;
 
 	private final GrantedAuthority gaModifyAuditing;
@@ -56,9 +53,6 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 	private final GrantedAuthority gaTakeOwnership;
 
 	private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructor. The only mandatory parameter relates to the system-wide
@@ -82,9 +76,6 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 			gaTakeOwnership = gaModifyAuditing = gaGeneralChanges = auths[0];
 		}
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void securityCheck(Acl acl, int changeType) {
 		if ((SecurityContextHolder.getContext() == null)

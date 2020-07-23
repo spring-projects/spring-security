@@ -53,15 +53,9 @@ import org.springframework.util.Assert;
  */
 public class OpenIDAuthenticationProvider implements AuthenticationProvider, InitializingBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private AuthenticationUserDetailsService<OpenIDAuthenticationToken> userDetailsService;
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.notNull(this.userDetailsService, "The userDetailsService must be set");

@@ -29,9 +29,6 @@ import org.springframework.security.access.SecurityConfig;
  */
 public class SecurityConfigTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test
 	public void testHashCode() {
 		SecurityConfig config = new SecurityConfig("TEST");
@@ -84,9 +81,6 @@ public class SecurityConfigTests {
 		SecurityConfig config = new SecurityConfig("TEST");
 		assertThat(config.toString()).isEqualTo("TEST");
 	}
-
-	// ~ Inner Classes
-	// ==================================================================================================
 
 	private class MockConfigAttribute implements ConfigAttribute {
 

@@ -60,18 +60,9 @@ import org.springframework.security.core.SpringSecurityMessageSource;
  */
 public class AclEntryAfterInvocationProvider extends AbstractAclProvider implements MessageSourceAware {
 
-	// ~ Static fields/initializers
-	// =====================================================================================
-
 	protected static final Log logger = LogFactory.getLog(AclEntryAfterInvocationProvider.class);
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public AclEntryAfterInvocationProvider(AclService aclService, List<Permission> requirePermission) {
 		this(aclService, "AFTER_ACL_READ", requirePermission);
@@ -81,9 +72,6 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 			List<Permission> requirePermission) {
 		super(aclService, processConfigAttribute, requirePermission);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
 			Object returnedObject) throws AccessDeniedException {

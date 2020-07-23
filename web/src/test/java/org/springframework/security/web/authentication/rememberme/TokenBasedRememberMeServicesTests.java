@@ -54,9 +54,6 @@ public class TokenBasedRememberMeServicesTests {
 
 	private TokenBasedRememberMeServices services;
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Before
 	public void createTokenBasedRememberMeServices() {
 		uds = mock(UserDetailsService.class);

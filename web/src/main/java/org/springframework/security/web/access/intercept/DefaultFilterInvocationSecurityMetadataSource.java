@@ -56,9 +56,6 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 
 	private final Map<RequestMatcher, Collection<ConfigAttribute>> requestMap;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Sets the internal request map from the supplied map. The key elements should be of
 	 * type {@link RequestMatcher}, which. The path stored in the key will depend on the
@@ -70,9 +67,6 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 
 		this.requestMap = requestMap;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> allAttributes = new HashSet<>();

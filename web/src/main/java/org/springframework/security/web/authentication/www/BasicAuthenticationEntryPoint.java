@@ -42,13 +42,7 @@ import org.springframework.util.Assert;
  */
 public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private String realmName;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public void afterPropertiesSet() {
 		Assert.hasText(realmName, "realmName must be specified");

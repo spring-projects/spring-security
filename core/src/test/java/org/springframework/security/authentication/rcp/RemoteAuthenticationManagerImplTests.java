@@ -32,9 +32,6 @@ import org.springframework.security.core.Authentication;
  */
 public class RemoteAuthenticationManagerImplTests {
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Test(expected = RemoteAuthenticationException.class)
 	public void testFailedAuthenticationReturnsRemoteAuthenticationException() {
 		RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();

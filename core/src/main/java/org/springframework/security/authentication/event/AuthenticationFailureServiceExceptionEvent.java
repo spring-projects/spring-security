@@ -27,9 +27,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class AuthenticationFailureServiceExceptionEvent extends AbstractAuthenticationFailureEvent {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public AuthenticationFailureServiceExceptionEvent(Authentication authentication,
 			AuthenticationException exception) {
 		super(authentication, exception);

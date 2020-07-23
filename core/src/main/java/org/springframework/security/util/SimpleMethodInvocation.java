@@ -28,17 +28,11 @@ import java.lang.reflect.Method;
  */
 public class SimpleMethodInvocation implements MethodInvocation {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private Method method;
 
 	private Object[] arguments;
 
 	private Object targetObject;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public SimpleMethodInvocation(Object targetObject, Method method, Object... arguments) {
 		this.targetObject = targetObject;
@@ -48,9 +42,6 @@ public class SimpleMethodInvocation implements MethodInvocation {
 
 	public SimpleMethodInvocation() {
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Object[] getArguments() {
 		return arguments;

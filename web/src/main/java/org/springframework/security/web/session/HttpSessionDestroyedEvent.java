@@ -33,9 +33,6 @@ import java.util.*;
  */
 public class HttpSessionDestroyedEvent extends SessionDestroyedEvent {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	public HttpSessionDestroyedEvent(HttpSession session) {
 		super(session);
 	}

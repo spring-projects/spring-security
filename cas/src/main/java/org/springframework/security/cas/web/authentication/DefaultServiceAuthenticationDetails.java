@@ -37,13 +37,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 
 	private static final long serialVersionUID = 6192409090610517700L;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final String serviceUrl;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Creates a new instance
@@ -62,9 +56,6 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 		this.serviceUrl = UrlUtils.buildFullRequestUrl(casServiceUrl.getProtocol(), casServiceUrl.getHost(), port,
 				request.getRequestURI(), query);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Returns the current URL minus the artifact parameter and its value, if present.

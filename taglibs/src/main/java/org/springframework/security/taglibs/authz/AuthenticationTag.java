@@ -43,9 +43,6 @@ import javax.servlet.jsp.tagext.TagSupport;
  */
 public class AuthenticationTag extends TagSupport {
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private String var;
 
 	private String property;
@@ -55,9 +52,6 @@ public class AuthenticationTag extends TagSupport {
 	private boolean scopeSpecified;
 
 	private boolean htmlEscape = true;
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public AuthenticationTag() {
 		init();

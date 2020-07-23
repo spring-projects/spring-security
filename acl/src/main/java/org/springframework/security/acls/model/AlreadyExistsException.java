@@ -22,9 +22,6 @@ package org.springframework.security.acls.model;
  */
 public class AlreadyExistsException extends AclDataAccessException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs an <code>AlreadyExistsException</code> with the specified message.
 	 * @param msg the detail message

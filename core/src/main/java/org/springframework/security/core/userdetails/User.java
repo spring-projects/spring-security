@@ -65,8 +65,6 @@ public class User implements UserDetails, CredentialsContainer {
 
 	private static final Log logger = LogFactory.getLog(User.class);
 
-	// ~ Instance fields
-	// ================================================================================================
 	private String password;
 
 	private final String username;
@@ -80,9 +78,6 @@ public class User implements UserDetails, CredentialsContainer {
 	private final boolean credentialsNonExpired;
 
 	private final boolean enabled;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Calls the more complex constructor with all boolean arguments set to {@code true}.
@@ -124,9 +119,6 @@ public class User implements UserDetails, CredentialsContainer {
 		this.accountNonLocked = accountNonLocked;
 		this.authorities = Collections.unmodifiableSet(sortAuthorities(authorities));
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	public Collection<GrantedAuthority> getAuthorities() {
 		return authorities;
