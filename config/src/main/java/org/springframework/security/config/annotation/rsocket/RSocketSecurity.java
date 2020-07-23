@@ -56,7 +56,6 @@ import java.util.List;
  * <pre class="code">
  * &#064;EnableRSocketSecurity
  * public class SecurityConfig {
- *     // @formatter:off
  *     &#064;Bean
  *     PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
  *         rsocket
@@ -66,9 +65,7 @@ import java.util.List;
  *             );
  *         return rsocket.build();
  *     }
- *     // @formatter:on
  *
- *     // @formatter:off
  *     &#064;Bean
  *     public MapReactiveUserDetailsService userDetailsService() {
  *          UserDetails user = User.withDefaultPasswordEncoder()
@@ -78,7 +75,6 @@ import java.util.List;
  *               .build();
  *          return new MapReactiveUserDetailsService(user);
  *     }
- *     // @formatter:on
  * }
  * </pre>
  *
@@ -87,7 +83,6 @@ import java.util.List;
  * <pre class="code">
  * &#064;EnableRSocketSecurity
  * public class SecurityConfig {
- *     // @formatter:off
  *     &#064;Bean
  *     PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
  *         rsocket
@@ -102,7 +97,6 @@ import java.util.List;
  *             );
  *         return rsocket.build();
  *     }
- *     // @formatter:on
  * }
  * </pre>
  * @author Rob Winch
