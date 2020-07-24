@@ -43,4 +43,8 @@
 	<suppress files=".*" checks="SpringTernary" />
 	<suppress files=".*" checks="WhitespaceAfter" />
 	<suppress files=".*" checks="WhitespaceAround" />
+
+	<!-- Ignore third-party code -->
+	<suppress files="BCrypt\.java|BCryptTests\.java" checks=".*"/>
+	<suppress files="org[\\/]springframework[\\/]security[\\/]core[\\/]ComparableVersion\.java" checks=".*"/>
 </suppressions>
