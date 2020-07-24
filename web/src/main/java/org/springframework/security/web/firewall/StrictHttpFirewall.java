@@ -71,10 +71,10 @@ import org.springframework.http.HttpMethod;
  * {@link #setAllowedParameterValues(Predicate)}</li>
  * </ul>
  *
- * @see DefaultHttpFirewall
  * @author Rob Winch
  * @author Eddú Meléndez
  * @since 4.2.4
+ * @see DefaultHttpFirewall
  */
 public class StrictHttpFirewall implements HttpFirewall {
 
@@ -146,8 +146,8 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 * Verb tampering and XST attacks</a>
 	 * @param unsafeAllowAnyHttpMethod if true, disables HTTP method validation, else
 	 * resets back to the defaults. Default is false.
-	 * @see #setAllowedHttpMethods(Collection)
 	 * @since 5.1
+	 * @see #setAllowedHttpMethods(Collection)
 	 */
 	public void setUnsafeAllowAnyHttpMethod(boolean unsafeAllowAnyHttpMethod) {
 		this.allowedHttpMethods = unsafeAllowAnyHttpMethod ? ALLOW_ANY_HTTP_METHOD : createDefaultAllowedHttpMethods();
@@ -160,8 +160,8 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 * </p>
 	 * @param allowedHttpMethods the case-sensitive collection of HTTP methods that are
 	 * allowed.
-	 * @see #setUnsafeAllowAnyHttpMethod(boolean)
 	 * @since 5.1
+	 * @see #setUnsafeAllowAnyHttpMethod(boolean)
 	 */
 	public void setAllowedHttpMethods(Collection<String> allowedHttpMethods) {
 		if (allowedHttpMethods == null) {
@@ -355,9 +355,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 * names that contain ISO control characters and characters that are not defined.
 	 * </p>
 	 * @param allowedHeaderNames the predicate for testing header names
+	 * @since 5.4
 	 * @see Character#isISOControl(int)
 	 * @see Character#isDefined(int)
-	 * @since 5.4
 	 */
 	public void setAllowedHeaderNames(Predicate<String> allowedHeaderNames) {
 		if (allowedHeaderNames == null) {
@@ -372,9 +372,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	 * values that contain ISO control characters and characters that are not defined.
 	 * </p>
 	 * @param allowedHeaderValues the predicate for testing hostnames
+	 * @since 5.4
 	 * @see Character#isISOControl(int)
 	 * @see Character#isDefined(int)
-	 * @since 5.4
 	 */
 	public void setAllowedHeaderValues(Predicate<String> allowedHeaderValues) {
 		if (allowedHeaderValues == null) {

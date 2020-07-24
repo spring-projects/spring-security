@@ -43,8 +43,8 @@ import org.springframework.security.core.GrantedAuthority;
  * @author Jitendra Singh
  * @author Greg Turnquist
  * @author Onur Kagan Ozcan
- * @see UsernamePasswordAuthenticationTokenMixin
  * @since 4.2
+ * @see UsernamePasswordAuthenticationTokenMixin
  */
 class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<UsernamePasswordAuthenticationToken> {
 

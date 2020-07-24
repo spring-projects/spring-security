@@ -53,11 +53,10 @@ public class OAuth2UserRequest {
 
 	/**
 	 * Constructs an {@code OAuth2UserRequest} using the provided parameters.
-	 *
-	 * @since 5.1
 	 * @param clientRegistration the client registration
 	 * @param accessToken the access token
 	 * @param additionalParameters the additional parameters, may be empty
+	 * @since 5.1
 	 */
 	public OAuth2UserRequest(ClientRegistration clientRegistration, OAuth2AccessToken accessToken,
 			Map<String, Object> additionalParameters) {
@@ -87,9 +86,8 @@ public class OAuth2UserRequest {
 
 	/**
 	 * Returns the additional parameters that may be used in the request.
-	 *
-	 * @since 5.1
 	 * @return a {@code Map} of the additional parameters, may be empty.
+	 * @since 5.1
 	 */
 	public Map<String, Object> getAdditionalParameters() {
 		return this.additionalParameters;

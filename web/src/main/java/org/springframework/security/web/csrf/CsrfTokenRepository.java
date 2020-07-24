@@ -24,10 +24,9 @@ import javax.servlet.http.HttpSession;
  * associated to the {@link HttpServletRequest}. For example, it may be stored in
  * {@link HttpSession}.
  *
- * @see HttpSessionCsrfTokenRepository
  * @author Rob Winch
  * @since 3.2
- *
+ * @see HttpSessionCsrfTokenRepository
  */
 public interface CsrfTokenRepository {
 

@@ -30,9 +30,9 @@ import java.nio.charset.Charset;
  * https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf
  * (line 2031)
  *
+ * @since 5.3
  * @see Saml2AuthenticationRequestFactory#createPostAuthenticationRequest(Saml2AuthenticationRequestContext)
  * @see Saml2AuthenticationRequestFactory#createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext)
- * @since 5.3
  */
 abstract class AbstractSaml2AuthenticationRequest {
 

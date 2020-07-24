@@ -160,10 +160,9 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 	 * Sets the {@link ReactiveJwtDecoderFactory} used for {@link OidcIdToken} signature
 	 * verification. The factory returns a {@link ReactiveJwtDecoder} associated to the
 	 * provided {@link ClientRegistration}.
-	 *
-	 * @since 5.2
 	 * @param jwtDecoderFactory the {@link ReactiveJwtDecoderFactory} used for
 	 * {@link OidcIdToken} signature verification
+	 * @since 5.2
 	 */
 	public final void setJwtDecoderFactory(ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory) {
 		Assert.notNull(jwtDecoderFactory, "jwtDecoderFactory cannot be null");
@@ -174,10 +173,9 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 	 * Sets the {@link GrantedAuthoritiesMapper} used for mapping
 	 * {@link OidcUser#getAuthorities()} to a new set of authorities which will be
 	 * associated to the {@link OAuth2LoginAuthenticationToken}.
-	 *
-	 * @since 5.4
 	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} used for mapping the
 	 * user's authorities
+	 * @since 5.4
 	 */
 	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");

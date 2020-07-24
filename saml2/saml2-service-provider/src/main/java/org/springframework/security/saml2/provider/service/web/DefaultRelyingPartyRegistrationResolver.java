@@ -40,8 +40,8 @@ import static org.springframework.web.util.UriComponentsBuilder.fromHttpUrl;
  * registration id from the request, querying a
  * {@link RelyingPartyRegistrationRepository}, and resolving any template values.
  *
- * @since 5.4
  * @author Josh Cummings
+ * @since 5.4
  */
 public final class DefaultRelyingPartyRegistrationResolver
 		implements Converter<HttpServletRequest, RelyingPartyRegistration> {

@@ -39,10 +39,10 @@ import java.util.stream.Collectors;
 /**
  * A {@link HttpMessageConverter} for an {@link OAuth2Error OAuth 2.0 Error}.
  *
- * @see AbstractHttpMessageConverter
- * @see OAuth2Error
  * @author Joe Grandja
  * @since 5.1
+ * @see AbstractHttpMessageConverter
+ * @see OAuth2Error
  */
 public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverter<OAuth2Error> {
 

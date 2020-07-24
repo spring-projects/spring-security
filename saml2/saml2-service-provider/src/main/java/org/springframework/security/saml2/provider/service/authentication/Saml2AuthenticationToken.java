@@ -30,9 +30,9 @@ import static org.springframework.security.saml2.provider.service.registration.R
  * Represents an incoming SAML 2.0 response containing an assertion that has not been
  * validated. {@link Saml2AuthenticationToken#isAuthenticated()} will always return false.
  *
- * @since 5.2
  * @author Filip Hanik
  * @author Josh Cummings
+ * @since 5.2
  */
 public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 
@@ -71,7 +71,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 * @param localSpEntityId the configured local SP, the relying party, entity ID
 	 * @param credentials the credentials configured for signature verification and
 	 * decryption
-	 * @deprecated Use {@link Saml2AuthenticationToken(RelyingPartyRegistration, String)}
+	 * @deprecated Use {@link #Saml2AuthenticationToken(RelyingPartyRegistration, String)}
 	 * instead
 	 */
 	@Deprecated
@@ -125,8 +125,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 * Returns the URI that the SAML 2 Response object came in on
 	 * @return URI as a string
 	 * @deprecated Use
-	 * {@link #getRelyingPartyRegistration().getAssertionConsumerServiceLocation()}
-	 * instead
+	 * {@code getRelyingPartyRegistration().getAssertionConsumerServiceLocation()} instead
 	 */
 	@Deprecated
 	public String getRecipientUri() {
@@ -136,7 +135,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	/**
 	 * Returns the configured entity ID of the receiving relying party, SP
 	 * @return an entityID for the configured local relying party
-	 * @deprecated Use {@link #getRelyingPartyRegistration().getEntityId()} instead
+	 * @deprecated Use {@code getRelyingPartyRegistration().getEntityId()} instead
 	 */
 	@Deprecated
 	public String getLocalSpEntityId() {
@@ -145,7 +144,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 
 	/**
 	 * Returns all the credentials associated with the relying party configuraiton
-	 * @return
+	 * @return all associated credentials
 	 * @deprecated Get the credentials through {@link #getRelyingPartyRegistration()}
 	 * instead
 	 */
@@ -165,7 +164,6 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	/**
 	 * The state of this object cannot be changed. Will always throw an exception
 	 * @param authenticated ignored
-	 * @throws {@link IllegalArgumentException}
 	 */
 	@Override
 	public void setAuthenticated(boolean authenticated) {
@@ -176,7 +174,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 * Returns the configured IDP, asserting party, entity ID
 	 * @return a string representing the entity ID
 	 * @deprecated Use
-	 * {@link #getRelyingPartyRegistration().getAssertingPartyDetails().getEntityId()}
+	 * {@code getRelyingPartyRegistration().getAssertingPartyDetails().getEntityId()}
 	 * instead
 	 */
 	@Deprecated

@@ -139,12 +139,11 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	/**
 	 * Constructs an {@code OAuth2LoginAuthenticationFilter} using the provided
 	 * parameters.
-	 *
-	 * @since 5.1
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClientRepository the authorized client repository
 	 * @param filterProcessesUrl the {@code URI} where this {@code Filter} will process
 	 * the authentication requests
+	 * @since 5.1
 	 */
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
 			OAuth2AuthorizedClientRepository authorizedClientRepository, String filterProcessesUrl) {

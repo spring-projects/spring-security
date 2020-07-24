@@ -24,8 +24,8 @@ import javax.servlet.Filter;
  * Provides Security related
  * {@link org.springframework.test.web.servlet.setup.MockMvcConfigurer} implementations.
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public final class SecurityMockMvcConfigurers {
 

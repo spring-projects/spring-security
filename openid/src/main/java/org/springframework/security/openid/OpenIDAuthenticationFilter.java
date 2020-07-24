@@ -59,15 +59,15 @@ import java.util.*;
  * where it should (normally) be processed by an <tt>OpenIDAuthenticationProvider</tt> in
  * order to load the authorities for the user.
  *
- * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
- * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
- * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
- * supported by <code>spring-security-oauth2</code>.
  * @author Robin Bramley
  * @author Ray Krueger
  * @author Luke Taylor
  * @since 2.0
  * @see OpenIDAuthenticationProvider
+ * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+ * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+ * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+ * supported by <code>spring-security-oauth2</code>.
  */
 public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 

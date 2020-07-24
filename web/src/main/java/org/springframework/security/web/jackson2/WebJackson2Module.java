@@ -37,8 +37,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * of all security modules.</b>
  *
  * @author Jitendra Singh
- * @see SecurityJackson2Modules
  * @since 4.2
+ * @see SecurityJackson2Modules
  */
 public class WebJackson2Module extends SimpleModule {
 

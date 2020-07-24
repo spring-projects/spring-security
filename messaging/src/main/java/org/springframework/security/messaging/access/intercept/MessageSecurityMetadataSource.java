@@ -21,10 +21,10 @@ import org.springframework.security.access.SecurityMetadataSource;
 /**
  * A {@link SecurityMetadataSource} that is used for securing {@link Message}
  *
+ * @author Rob Winch
+ * @since 4.0
  * @see ChannelSecurityInterceptor
  * @see DefaultMessageSecurityMetadataSource
- * @since 4.0
- * @author Rob Winch
  */
 public interface MessageSecurityMetadataSource extends SecurityMetadataSource {
 

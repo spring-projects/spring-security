@@ -51,8 +51,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 /**
- * Tests to verify that all the functionality of <x509> attributes is present in Java
- * config
+ * Tests to verify that all the functionality of &lt;x509&gt; attributes is present in
+ * Java config
  *
  * @author Rob Winch
  * @author Josh Cummings

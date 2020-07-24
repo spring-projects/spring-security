@@ -447,13 +447,13 @@ final class AuthenticationConfigBuilder {
 
 	/**
 	 * Parses OpenID 1.0 and 2.0 - related parts of configuration xmls
+	 * @param sessionStrategy sessionStrategy
+	 * @param openIDLoginElt the element from the xml file
+	 * @return the parsed filter as rootBeanDefinition
 	 * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
 	 * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
 	 * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
 	 * supported by <code>spring-security-oauth2</code>.
-	 * @param sessionStrategy sessionStrategy
-	 * @param openIDLoginElt the element from the xml file
-	 * @return the parsed filter as rootBeanDefinition
 	 */
 	private RootBeanDefinition parseOpenIDFilter(BeanReference sessionStrategy, Element openIDLoginElt) {
 		RootBeanDefinition openIDFilter;

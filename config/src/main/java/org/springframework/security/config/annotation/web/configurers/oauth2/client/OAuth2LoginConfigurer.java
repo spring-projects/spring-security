@@ -163,10 +163,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	/**
 	 * Sets the repository for authorized client(s).
-	 *
-	 * @since 5.1
 	 * @param authorizedClientRepository the authorized client repository
 	 * @return the {@link OAuth2LoginConfigurer} for further configuration
+	 * @since 5.1
 	 */
 	public OAuth2LoginConfigurer<B> authorizedClientRepository(
 			OAuth2AuthorizedClientRepository authorizedClientRepository) {
@@ -250,11 +249,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 		/**
 		 * Sets the resolver used for resolving {@link OAuth2AuthorizationRequest}'s.
-		 *
-		 * @since 5.1
 		 * @param authorizationRequestResolver the resolver used for resolving
 		 * {@link OAuth2AuthorizationRequest}'s
 		 * @return the {@link AuthorizationEndpointConfig} for further configuration
+		 * @since 5.1
 		 */
 		public AuthorizationEndpointConfig authorizationRequestResolver(
 				OAuth2AuthorizationRequestResolver authorizationRequestResolver) {

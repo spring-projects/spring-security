@@ -27,12 +27,12 @@ import org.springframework.util.Assert;
  * should be requested during a fetch request, or to hold values for an attribute which
  * are returned during the authentication process.
  *
+ * @author Luke Taylor
+ * @since 3.0
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
  * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
  * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
  * supported by <code>spring-security-oauth2</code>.
- * @author Luke Taylor
- * @since 3.0
  */
 public class OpenIDAttribute implements Serializable {
 

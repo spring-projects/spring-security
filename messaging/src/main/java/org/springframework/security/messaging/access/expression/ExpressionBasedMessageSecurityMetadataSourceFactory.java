@@ -32,8 +32,8 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
  * A class used to create a {@link MessageSecurityMetadataSource} that uses
  * {@link MessageMatcher} mapped to Spring Expressions.
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 

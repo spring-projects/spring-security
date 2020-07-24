@@ -34,9 +34,9 @@ import static org.springframework.util.Assert.state;
  * "https://www.oasis-open.org/committees/download.php/8958/sstc-saml-implementation-guidelines-draft-01.pdf">
  * usages </a> (Line 584, Section 4.3 Credentials).
  *
- * @since 5.4
  * @author Filip Hanik
  * @author Josh Cummings
+ * @since 5.4
  */
 public final class Saml2X509Credential {
 
@@ -140,7 +140,7 @@ public final class Saml2X509Credential {
 	/**
 	 * Get the private key for this credential
 	 * @return the private key, may be null
-	 * @see {@link #Saml2X509Credential(PrivateKey, X509Certificate, Saml2X509CredentialType...)}
+	 * @see #Saml2X509Credential(PrivateKey, X509Certificate, Saml2X509CredentialType...)
 	 */
 	public PrivateKey getPrivateKey() {
 		return this.privateKey;

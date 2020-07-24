@@ -46,9 +46,9 @@ import static org.springframework.security.oauth2.core.web.reactive.function.OAu
  * Accepts a JSON response body containing an OAuth 2.0 Access token or error.
  * </p>
  *
+ * @param <T> type of grant request
  * @author Phil Clay
  * @since 5.3
- * @param <T> type of grant request
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-3.2">RFC-6749 Token
  * Endpoint</a>
  * @see WebClientReactiveAuthorizationCodeTokenResponseClient

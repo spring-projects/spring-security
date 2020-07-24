@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -44,9 +45,9 @@ import org.springframework.util.ClassUtils;
  * {@link LocalVariableTableParameterNameDiscoverer} is added directly.</li>
  * </ul>
  *
- * @see AnnotationParameterNameDiscoverer
  * @author Rob Winch
  * @since 3.2
+ * @see AnnotationParameterNameDiscoverer
  */
 public class DefaultSecurityParameterNameDiscoverer extends PrioritizedParameterNameDiscoverer {
 

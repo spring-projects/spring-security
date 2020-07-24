@@ -185,7 +185,7 @@ public final class Saml2AuthenticationRequest {
 		/**
 		 * Creates a {@link Saml2AuthenticationRequest} object.
 		 * @return the Saml2AuthenticationRequest object
-		 * @throws {@link IllegalArgumentException} if a required property is not set
+		 * @throws IllegalArgumentException if a required property is not set
 		 */
 		public Saml2AuthenticationRequest build() {
 			return new Saml2AuthenticationRequest(this.issuer, this.destination, this.assertionConsumerServiceUrl,

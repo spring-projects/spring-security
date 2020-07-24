@@ -47,6 +47,7 @@ import java.lang.annotation.Target;
  *          return new MapReactiveUserDetailsService(user);
  *     }
  * }
+ * </pre>
  *
  * Below is the same as our minimal configuration, but explicitly declaring the
  * {@code ServerHttpSecurity}.
@@ -54,7 +55,6 @@ import java.lang.annotation.Target;
  * <pre class="code">
  * &#064;EnableWebFluxSecurity
  * public class MyExplicitSecurityConfiguration {
- *     // @formatter:off
  *     &#064;Bean
  *     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
  *          http
@@ -65,9 +65,7 @@ import java.lang.annotation.Target;
  *                    .formLogin();
  *          return http.build();
  *     }
- *     // @formatter:on
  *
- *     // @formatter:off
  *     &#064;Bean
  *     public MapReactiveUserDetailsService userDetailsService() {
  *          UserDetails user = User.withDefaultPasswordEncoder()
@@ -77,8 +75,8 @@ import java.lang.annotation.Target;
  *               .build();
  *          return new MapReactiveUserDetailsService(user);
  *     }
- *     // @formatter:on
  * }
+ * </pre>
  *
  * @author Rob Winch
  * @since 5.0

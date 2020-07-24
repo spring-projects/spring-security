@@ -22,8 +22,8 @@ import org.springframework.security.core.Authentication;
 /**
  * The {@link SecurityExpressionRoot} used for {@link Message} expressions.
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public class MessageSecurityExpressionRoot extends SecurityExpressionRoot {
 

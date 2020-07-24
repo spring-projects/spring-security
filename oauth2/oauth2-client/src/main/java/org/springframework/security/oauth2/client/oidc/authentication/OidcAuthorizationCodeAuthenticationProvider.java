@@ -205,10 +205,9 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	 * Sets the {@link JwtDecoderFactory} used for {@link OidcIdToken} signature
 	 * verification. The factory returns a {@link JwtDecoder} associated to the provided
 	 * {@link ClientRegistration}.
-	 *
-	 * @since 5.2
 	 * @param jwtDecoderFactory the {@link JwtDecoderFactory} used for {@link OidcIdToken}
 	 * signature verification
+	 * @since 5.2
 	 */
 	public final void setJwtDecoderFactory(JwtDecoderFactory<ClientRegistration> jwtDecoderFactory) {
 		Assert.notNull(jwtDecoderFactory, "jwtDecoderFactory cannot be null");

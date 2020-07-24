@@ -190,10 +190,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	/**
 	 * Sets the domain of the cookie that the expected CSRF token is saved to and read
 	 * from.
-	 *
-	 * @since 5.2
 	 * @param cookieDomain the domain of the cookie that the expected CSRF token is saved
 	 * to and read from
+	 * @since 5.2
 	 */
 	public void setCookieDomain(String cookieDomain) {
 		this.cookieDomain = cookieDomain;
@@ -202,10 +201,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	/**
 	 * Sets secure flag of the cookie that the expected CSRF token is saved to and read
 	 * from. By default secure flag depends on {@link ServletRequest#isSecure()}
-	 *
-	 * @since 5.4
 	 * @param secure the secure flag of the cookie that the expected CSRF token is saved
 	 * to and read from
+	 * @since 5.4
 	 */
 	public void setSecure(Boolean secure) {
 		this.secure = secure;

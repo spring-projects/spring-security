@@ -25,9 +25,9 @@ import org.springframework.expression.EvaluationContext;
  * This API is intentionally kept package scope as it may evolve over time.
  * </p>
  *
+ * @param <I> the invocation to use for post processing
  * @author Rob Winch
  * @since 4.1
- * @param <I> the invocation to use for post processing
  */
 interface EvaluationContextPostProcessor<I> {
 

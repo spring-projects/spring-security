@@ -147,10 +147,9 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	 * Sets the {@link RequestCache} used for loading a previously saved request (if
 	 * available) and replaying it after completing the processing of the OAuth 2.0
 	 * Authorization Response.
-	 *
-	 * @since 5.4
 	 * @param requestCache the cache used for loading a previously saved request (if
 	 * available)
+	 * @since 5.4
 	 */
 	public final void setRequestCache(RequestCache requestCache) {
 		Assert.notNull(requestCache, "requestCache cannot be null");

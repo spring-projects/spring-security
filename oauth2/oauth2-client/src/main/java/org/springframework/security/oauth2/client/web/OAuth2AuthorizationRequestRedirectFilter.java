@@ -127,10 +127,9 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	/**
 	 * Constructs an {@code OAuth2AuthorizationRequestRedirectFilter} using the provided
 	 * parameters.
-	 *
-	 * @since 5.1
 	 * @param authorizationRequestResolver the resolver used for resolving authorization
 	 * requests
+	 * @since 5.1
 	 */
 	public OAuth2AuthorizationRequestRedirectFilter(OAuth2AuthorizationRequestResolver authorizationRequestResolver) {
 		Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");

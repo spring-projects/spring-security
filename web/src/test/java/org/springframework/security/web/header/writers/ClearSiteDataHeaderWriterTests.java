@@ -33,7 +33,7 @@ import static org.springframework.security.web.header.writers.ClearSiteDataHeade
 /**
  * @author Rafiullah Hamedy
  * @author Josh Cummings
- * @see {@link ClearSiteDataHeaderWriter}
+ * @see ClearSiteDataHeaderWriter
  */
 public class ClearSiteDataHeaderWriterTests {
 

@@ -56,11 +56,10 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 	/**
 	 * Constructs an {@code InMemoryOAuth2AuthorizedClientService} using the provided
 	 * parameters.
-	 *
-	 * @since 5.2
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @param authorizedClients the initial {@code Map} of authorized client(s) keyed by
 	 * {@link OAuth2AuthorizedClientId}
+	 * @since 5.2
 	 */
 	public InMemoryOAuth2AuthorizedClientService(ClientRegistrationRepository clientRegistrationRepository,
 			Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients) {

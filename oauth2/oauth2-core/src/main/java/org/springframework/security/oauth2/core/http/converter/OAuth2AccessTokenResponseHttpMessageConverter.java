@@ -39,10 +39,10 @@ import org.springframework.util.Assert;
  * A {@link HttpMessageConverter} for an {@link OAuth2AccessTokenResponse OAuth 2.0 Access
  * Token Response}.
  *
- * @see AbstractHttpMessageConverter
- * @see OAuth2AccessTokenResponse
  * @author Joe Grandja
  * @since 5.1
+ * @see AbstractHttpMessageConverter
+ * @see OAuth2AccessTokenResponse
  */
 public class OAuth2AccessTokenResponseHttpMessageConverter
 		extends AbstractHttpMessageConverter<OAuth2AccessTokenResponse> {

@@ -157,7 +157,7 @@ public class Saml2X509Credential {
 	/**
 	 * Returns the private key, or null if this credential type doesn't require one.
 	 * @return the private key, or null
-	 * @see {@link #Saml2X509Credential(PrivateKey, X509Certificate, Saml2X509CredentialType...)}
+	 * @see #Saml2X509Credential(PrivateKey, X509Certificate, Saml2X509CredentialType...)
 	 */
 	public PrivateKey getPrivateKey() {
 		return this.privateKey;

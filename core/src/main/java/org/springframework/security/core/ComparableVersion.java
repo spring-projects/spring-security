@@ -78,11 +78,11 @@ import java.util.Stack;
  * </ul>
  * </p>
  *
+ * @author Kenney Westerhof
+ * @author Hervé Boutemy
  * @see <a href=
  * "https://cwiki.apache.org/confluence/display/MAVENOLD/Versioning">"Versioning" on Maven
  * Wiki</a>
- * @author <a href="mailto:kenney@apache.org">Kenney Westerhof</a>
- * @author <a href="mailto:hboutemy@apache.org">HervÃ© Boutemy</a>
  */
 class ComparableVersion implements Comparable<ComparableVersion> {
 
@@ -134,18 +134,18 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		@Override
 		public boolean isNull() {
-			return BigInteger_ZERO.equals(value);
+			return BigInteger_ZERO.equals(this.value);
 		}
 
 		@Override
 		public int compareTo(Item item) {
 			if (item == null) {
-				return BigInteger_ZERO.equals(value) ? 0 : 1; // 1.0 == 1, 1.1 > 1
+				return BigInteger_ZERO.equals(this.value) ? 0 : 1; // 1.0 == 1, 1.1 > 1
 			}
 
 			switch (item.getType()) {
 			case INTEGER_ITEM:
-				return value.compareTo(((IntegerItem) item).value);
+				return this.value.compareTo(((IntegerItem) item).value);
 
 			case STRING_ITEM:
 				return 1; // 1.1 > 1-sp
@@ -160,7 +160,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		@Override
 		public String toString() {
-			return value.toString();
+			return this.value.toString();
 		}
 
 	}
@@ -215,7 +215,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		@Override
 		public boolean isNull() {
-			return (comparableQualifier(value).compareTo(RELEASE_VERSION_INDEX) == 0);
+			return (comparableQualifier(this.value).compareTo(RELEASE_VERSION_INDEX) == 0);
 		}
 
 		/**
@@ -241,14 +241,14 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		public int compareTo(Item item) {
 			if (item == null) {
 				// 1-rc < 1, 1-ga > 1
-				return comparableQualifier(value).compareTo(RELEASE_VERSION_INDEX);
+				return comparableQualifier(this.value).compareTo(RELEASE_VERSION_INDEX);
 			}
 			switch (item.getType()) {
 			case INTEGER_ITEM:
 				return -1; // 1.any < 1.1 ?
 
 			case STRING_ITEM:
-				return comparableQualifier(value).compareTo(comparableQualifier(((StringItem) item).value));
+				return comparableQualifier(this.value).compareTo(comparableQualifier(((StringItem) item).value));
 
 			case LIST_ITEM:
 				return -1; // 1.any < 1-1
@@ -260,7 +260,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		@Override
 		public String toString() {
-			return value;
+			return this.value;
 		}
 
 	}
@@ -354,11 +354,11 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 	public final void parseVersion(String version) {
 		this.value = version;
 
-		items = new ListItem();
+		this.items = new ListItem();
 
 		version = version.toLowerCase(Locale.ENGLISH);
 
-		ListItem list = items;
+		ListItem list = this.items;
 
 		Stack<Item> stack = new Stack<>();
 		stack.push(list);
@@ -428,7 +428,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 			list.normalize();
 		}
 
-		canonical = items.toString();
+		this.canonical = this.items.toString();
 	}
 
 	private static Item parseItem(boolean isDigit, String buf) {
@@ -437,22 +437,22 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 	@Override
 	public int compareTo(ComparableVersion o) {
-		return items.compareTo(o.items);
+		return this.items.compareTo(o.items);
 	}
 
 	@Override
 	public String toString() {
-		return value;
+		return this.value;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		return (o instanceof ComparableVersion) && canonical.equals(((ComparableVersion) o).canonical);
+		return (o instanceof ComparableVersion) && this.canonical.equals(((ComparableVersion) o).canonical);
 	}
 
 	@Override
 	public int hashCode() {
-		return canonical.hashCode();
+		return this.canonical.hashCode();
 	}
 
 }

@@ -55,8 +55,8 @@ import org.springframework.util.xml.DomUtils;
  * A {@link BeanDefinitionParser} for &lt;http&gt;'s &lt;oauth2-resource-server&gt;
  * element.
  *
- * @since 5.3
  * @author Josh Cummings
+ * @since 5.3
  */
 final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionParser {
 

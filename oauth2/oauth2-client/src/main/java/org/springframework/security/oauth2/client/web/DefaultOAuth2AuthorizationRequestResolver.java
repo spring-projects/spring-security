@@ -118,10 +118,9 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	/**
 	 * Sets the {@code Consumer} to be provided the
 	 * {@link OAuth2AuthorizationRequest.Builder} allowing for further customizations.
-	 *
-	 * @since 5.3
 	 * @param authorizationRequestCustomizer the {@code Consumer} to be provided the
 	 * {@link OAuth2AuthorizationRequest.Builder}
+	 * @since 5.3
 	 */
 	public void setAuthorizationRequestCustomizer(
 			Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {

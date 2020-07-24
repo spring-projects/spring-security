@@ -71,10 +71,9 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
 	 * for an {@link OidcUserInfo}.
-	 *
-	 * @since 5.2
 	 * @return a {@link Map} of {@link Converter}'s keyed by {@link StandardClaimNames
 	 * claim name}
+	 * @since 5.2
 	 */
 	public static Map<String, Converter<Object, ?>> createDefaultClaimTypeConverters() {
 		Converter<Object, ?> booleanConverter = getConverter(TypeDescriptor.valueOf(Boolean.class));
@@ -148,11 +147,10 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 	 * Sets the factory that provides a {@link Converter} used for type conversion of
 	 * claim values for an {@link OidcUserInfo}. The default is {@link ClaimTypeConverter}
 	 * for all {@link ClientRegistration clients}.
-	 *
-	 * @since 5.2
 	 * @param claimTypeConverterFactory the factory that provides a {@link Converter} used
 	 * for type conversion of claim values for a specific {@link ClientRegistration
 	 * client}
+	 * @since 5.2
 	 */
 	public final void setClaimTypeConverterFactory(
 			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {

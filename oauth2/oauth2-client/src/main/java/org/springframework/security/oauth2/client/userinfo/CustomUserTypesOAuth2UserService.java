@@ -108,10 +108,9 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 	/**
 	 * Sets the {@link Converter} used for converting the {@link OAuth2UserRequest} to a
 	 * {@link RequestEntity} representation of the UserInfo Request.
-	 *
-	 * @since 5.1
 	 * @param requestEntityConverter the {@link Converter} used for converting to a
 	 * {@link RequestEntity} representation of the UserInfo Request
+	 * @since 5.1
 	 */
 	public final void setRequestEntityConverter(Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter) {
 		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
@@ -127,10 +126,9 @@ public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth
 	 * <ol>
 	 * <li>{@link ResponseErrorHandler} - {@link OAuth2ErrorResponseErrorHandler}</li>
 	 * </ol>
-	 *
-	 * @since 5.1
 	 * @param restOperations the {@link RestOperations} used when requesting the UserInfo
 	 * resource
+	 * @since 5.1
 	 */
 	public final void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");

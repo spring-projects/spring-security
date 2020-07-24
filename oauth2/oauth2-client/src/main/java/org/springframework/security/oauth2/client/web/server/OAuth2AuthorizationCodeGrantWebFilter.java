@@ -162,10 +162,9 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 	/**
 	 * Sets the repository used for storing {@link OAuth2AuthorizationRequest}'s. The
 	 * default is {@link WebSessionOAuth2ServerAuthorizationRequestRepository}.
-	 *
-	 * @since 5.2
 	 * @param authorizationRequestRepository the repository used for storing
 	 * {@link OAuth2AuthorizationRequest}'s
+	 * @since 5.2
 	 */
 	public final void setAuthorizationRequestRepository(
 			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
@@ -185,10 +184,9 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 	 * Sets the {@link ServerRequestCache} used for loading a previously saved request (if
 	 * available) and replaying it after completing the processing of the OAuth 2.0
 	 * Authorization Response.
-	 *
-	 * @since 5.4
 	 * @param requestCache the cache used for loading a previously saved request (if
 	 * available)
+	 * @since 5.4
 	 */
 	public final void setRequestCache(ServerRequestCache requestCache) {
 		Assert.notNull(requestCache, "requestCache cannot be null");

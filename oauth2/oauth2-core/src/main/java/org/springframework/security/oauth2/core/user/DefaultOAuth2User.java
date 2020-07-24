@@ -42,8 +42,8 @@ import java.util.LinkedHashSet;
  *
  * @author Joe Grandja
  * @author Eddú Meléndez
- * @see OAuth2User
  * @since 5.0
+ * @see OAuth2User
  */
 public class DefaultOAuth2User implements OAuth2User, Serializable {
 

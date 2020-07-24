@@ -42,7 +42,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests to verify that all the functionality of <request-cache> attributes is present
+ * Tests to verify that all the functionality of &lt;request-cache&gt; attributes is
+ * present
  *
  * @author Rob Winch
  * @author Josh Cummings

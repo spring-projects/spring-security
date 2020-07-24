@@ -70,12 +70,12 @@ import java.util.function.Function;
  *
  * @author Ankur Pathak
  * @author Phil Clay
+ * @since 5.2.2
  * @see ReactiveOAuth2AuthorizedClientManager
  * @see ReactiveOAuth2AuthorizedClientProvider
  * @see ReactiveOAuth2AuthorizedClientService
  * @see ReactiveOAuth2AuthorizationSuccessHandler
  * @see ReactiveOAuth2AuthorizationFailureHandler
- * @since 5.2.2
  */
 public final class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 		implements ReactiveOAuth2AuthorizedClientManager {
@@ -221,8 +221,8 @@ public final class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager
 	 * by default.
 	 * </p>
 	 * @param authorizationFailureHandler the handler that handles authorization failures.
-	 * @see RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler
 	 * @since 5.3
+	 * @see RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler
 	 */
 	public void setAuthorizationFailureHandler(ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler) {
 		Assert.notNull(authorizationFailureHandler, "authorizationFailureHandler cannot be null");

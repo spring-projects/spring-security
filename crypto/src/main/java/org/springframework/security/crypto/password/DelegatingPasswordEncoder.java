@@ -31,7 +31,7 @@ import java.util.Map;
  *
  * <pre>
  * String idForEncode = "bcrypt";
- * Map<String,PasswordEncoder> encoders = new HashMap<>();
+ * Map&lt;String,PasswordEncoder&gt; encoders = new HashMap<>();
  * encoders.put(idForEncode, new BCryptPasswordEncoder());
  * encoders.put("noop", NoOpPasswordEncoder.getInstance());
  * encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
@@ -114,10 +114,10 @@ import java.util.Map;
  * {@link IllegalArgumentException}. This behavior can be customized using
  * {@link #setDefaultPasswordEncoderForMatches(PasswordEncoder)}.
  *
- * @see org.springframework.security.crypto.factory.PasswordEncoderFactories
  * @author Rob Winch
  * @author Michael Simons
  * @since 5.0
+ * @see org.springframework.security.crypto.factory.PasswordEncoderFactories
  */
 public class DelegatingPasswordEncoder implements PasswordEncoder {
 

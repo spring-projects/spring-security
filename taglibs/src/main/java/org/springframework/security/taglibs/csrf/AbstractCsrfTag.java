@@ -25,8 +25,8 @@ import java.io.IOException;
 /**
  * An abstract tag for handling CSRF operations.
  *
- * @since 3.2.2
  * @author Nick Williams
+ * @since 3.2.2
  */
 abstract class AbstractCsrfTag extends TagSupport {
 

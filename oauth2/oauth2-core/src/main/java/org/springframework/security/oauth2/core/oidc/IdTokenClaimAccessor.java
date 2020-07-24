@@ -26,6 +26,8 @@ import java.util.List;
  * Token, which provides information about the authentication of an End-User by an
  * Authorization Server.
  *
+ * @author Joe Grandja
+ * @since 5.0
  * @see ClaimAccessor
  * @see StandardClaimAccessor
  * @see StandardClaimNames
@@ -36,8 +38,6 @@ import java.util.List;
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard
  * Claims</a>
- * @author Joe Grandja
- * @since 5.0
  */
 public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 

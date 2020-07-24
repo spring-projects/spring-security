@@ -38,10 +38,10 @@ import org.springframework.util.Assert;
  * timed out sessions) are removed. This is typically done by adding
  * {@link HttpSessionEventPublisher}.
  *
- * @see CompositeSessionAuthenticationStrategy
  * @author Luke Taylor
  * @author Rob Winch
  * @since 3.2
+ * @see CompositeSessionAuthenticationStrategy
  */
 public class RegisterSessionAuthenticationStrategy implements SessionAuthenticationStrategy {
 

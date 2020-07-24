@@ -20,12 +20,12 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * An interface for OpenID library implementations
  *
+ * @author Ray Krueger
+ * @author Robin Bramley, Opsera Ltd
  * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
  * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
  * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
  * supported by <code>spring-security-oauth2</code>.
- * @author Ray Krueger
- * @author Robin Bramley, Opsera Ltd
  */
 public interface OpenIDConsumer {
 

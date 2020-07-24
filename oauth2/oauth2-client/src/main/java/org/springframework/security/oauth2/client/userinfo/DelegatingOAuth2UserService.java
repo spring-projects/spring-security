@@ -32,13 +32,13 @@ import java.util.Objects;
  * {@link OAuth2UserService#loadUser(OAuth2UserRequest) load} an {@link OAuth2User} with
  * the first {@code non-null} {@link OAuth2User} being returned.
  *
+ * @param <R> The type of OAuth 2.0 User Request
+ * @param <U> The type of OAuth 2.0 User
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2UserService
  * @see OAuth2UserRequest
  * @see OAuth2User
- * @param <R> The type of OAuth 2.0 User Request
- * @param <U> The type of OAuth 2.0 User
  */
 public class DelegatingOAuth2UserService<R extends OAuth2UserRequest, U extends OAuth2User>
 		implements OAuth2UserService<R, U> {

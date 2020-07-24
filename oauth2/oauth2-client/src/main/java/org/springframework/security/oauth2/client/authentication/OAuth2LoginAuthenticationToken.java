@@ -154,9 +154,8 @@ public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken 
 
 	/**
 	 * Returns the {@link OAuth2RefreshToken refresh token}.
-	 *
-	 * @since 5.1
 	 * @return the {@link OAuth2RefreshToken}
+	 * @since 5.1
 	 */
 	public @Nullable OAuth2RefreshToken getRefreshToken() {
 		return this.refreshToken;

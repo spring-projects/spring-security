@@ -267,9 +267,8 @@ public class FilterChainProxy extends GenericFilterBean {
 	/**
 	 * Sets the {@link RequestRejectedHandler} to be used for requests rejected by the
 	 * firewall.
-	 *
-	 * @since 5.2
 	 * @param requestRejectedHandler the {@link RequestRejectedHandler}
+	 * @since 5.2
 	 */
 	public void setRequestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
 		Assert.notNull(requestRejectedHandler, "requestRejectedHandler may not be null");

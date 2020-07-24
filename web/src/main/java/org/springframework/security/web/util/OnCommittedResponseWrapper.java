@@ -28,8 +28,8 @@ import javax.servlet.http.HttpServletResponseWrapper;
  * Base class for response wrappers which encapsulate the logic for handling an event when
  * the {@link javax.servlet.http.HttpServletResponse} is committed.
  *
- * @since 4.0.2
  * @author Rob Winch
+ * @since 4.0.2
  */
 public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 

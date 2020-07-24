@@ -21,11 +21,11 @@ package org.springframework.security.config.annotation;
  * {@link #init(SecurityBuilder)} methods have been invoked, each
  * {@link #configure(SecurityBuilder)} method is invoked.
  *
- * @see AbstractConfiguredSecurityBuilder
- * @author Rob Winch
  * @param <O> The object being built by the {@link SecurityBuilder} B
  * @param <B> The {@link SecurityBuilder} that builds objects of type O. This is also the
  * {@link SecurityBuilder} that is being configured.
+ * @author Rob Winch
+ * @see AbstractConfiguredSecurityBuilder
  */
 public interface SecurityConfigurer<O, B extends SecurityBuilder<O>> {
 

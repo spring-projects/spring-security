@@ -279,9 +279,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
 	/**
 	 * Wrapper that is applied to every request/response to update the
-	 * <code>HttpSession<code> with
-	 * the <code>SecurityContext</code> when a <code>sendError()</code> or
-	 * <code>sendRedirect</code> happens. See SEC-398.
+	 * <code>HttpSession</code> with the <code>SecurityContext</code> when a
+	 * <code>sendError()</code> or <code>sendRedirect</code> happens. See SEC-398.
 	 * <p>
 	 * Stores the necessary state from the start of the request in order to make a
 	 * decision about whether the security context has changed before saving it.

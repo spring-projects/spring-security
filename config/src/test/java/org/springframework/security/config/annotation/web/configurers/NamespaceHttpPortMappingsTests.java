@@ -30,7 +30,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 
 /**
- * Tests to verify that all the functionality of <port-mappings> attributes is present
+ * Tests to verify that all the functionality of &lt;port-mappings&gt; attributes is
+ * present
  *
  * @author Rob Winch
  * @author Josh Cummings

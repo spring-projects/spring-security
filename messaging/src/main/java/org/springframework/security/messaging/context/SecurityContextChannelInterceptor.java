@@ -36,8 +36,8 @@ import org.springframework.util.Assert;
  * {@link Authentication} from the specified {@link Message#getHeaders()}.
  * </p>
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public final class SecurityContextChannelInterceptor extends ChannelInterceptorAdapter
 		implements ExecutorChannelInterceptor {

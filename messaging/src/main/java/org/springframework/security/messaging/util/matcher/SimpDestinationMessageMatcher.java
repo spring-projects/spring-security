@@ -32,8 +32,8 @@ import java.util.Map;
  * {@link SimpMessageType}.
  * </p>
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public final class SimpDestinationMessageMatcher implements MessageMatcher<Object> {
 

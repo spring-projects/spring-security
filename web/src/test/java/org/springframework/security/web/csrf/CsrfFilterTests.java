@@ -386,7 +386,7 @@ public class CsrfFilterTests {
 	private static class CsrfTokenAssert extends AbstractObjectAssert<CsrfTokenAssert, CsrfToken> {
 
 		/**
-		 * Creates a new </code>{@link ObjectAssert}</code>.
+		 * Creates a new {@link ObjectAssert}.
 		 * @param actual the target to verify.
 		 */
 		protected CsrfTokenAssert(CsrfToken actual) {

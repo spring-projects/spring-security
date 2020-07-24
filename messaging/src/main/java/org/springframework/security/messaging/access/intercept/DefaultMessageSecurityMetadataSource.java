@@ -31,10 +31,10 @@ import java.util.*;
  * {@code Collection<ConfigAttribute>} is returned.
  * </p>
  *
+ * @author Rob Winch
+ * @since 4.0
  * @see ChannelSecurityInterceptor
  * @see ExpressionBasedMessageSecurityMetadataSourceFactory
- * @since 4.0
- * @author Rob Winch
  */
 public final class DefaultMessageSecurityMetadataSource implements MessageSecurityMetadataSource {
 

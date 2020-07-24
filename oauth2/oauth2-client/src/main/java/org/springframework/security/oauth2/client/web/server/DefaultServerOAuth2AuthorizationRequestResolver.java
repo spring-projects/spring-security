@@ -134,10 +134,9 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 	/**
 	 * Sets the {@code Consumer} to be provided the
 	 * {@link OAuth2AuthorizationRequest.Builder} allowing for further customizations.
-	 *
-	 * @since 5.3
 	 * @param authorizationRequestCustomizer the {@code Consumer} to be provided the
 	 * {@link OAuth2AuthorizationRequest.Builder}
+	 * @since 5.3
 	 */
 	public final void setAuthorizationRequestCustomizer(
 			Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {

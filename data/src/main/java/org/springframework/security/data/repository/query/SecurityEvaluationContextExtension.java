@@ -75,8 +75,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * This works because the principal in this instance is a User which has an id field on
  * it.
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public class SecurityEvaluationContextExtension implements EvaluationContextExtension {
 
@@ -97,6 +97,7 @@ public class SecurityEvaluationContextExtension implements EvaluationContextExte
 		this.authentication = authentication;
 	}
 
+	@Override
 	public String getExtensionId() {
 		return "security";
 	}

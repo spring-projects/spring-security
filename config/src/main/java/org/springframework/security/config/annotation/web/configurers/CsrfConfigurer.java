@@ -74,6 +74,7 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * @author Rob Winch
+ * @author Michael Vitz
  * @since 3.2
  */
 public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
@@ -184,12 +185,10 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * Specify the {@link SessionAuthenticationStrategy} to use. The default is a
 	 * {@link CsrfAuthenticationStrategy}.
 	 * </p>
-	 *
-	 * @author Michael Vitz
-	 * @since 5.2
 	 * @param sessionAuthenticationStrategy the {@link SessionAuthenticationStrategy} to
 	 * use
 	 * @return the {@link CsrfConfigurer} for further customizations
+	 * @since 5.2
 	 */
 	public CsrfConfigurer<H> sessionAuthenticationStrategy(
 			SessionAuthenticationStrategy sessionAuthenticationStrategy) {
@@ -300,10 +299,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Gets the {@link SessionAuthenticationStrategy} to use. If none was set by the user
 	 * a {@link CsrfAuthenticationStrategy} is created.
-	 *
-	 * @author Michael Vitz
-	 * @since 5.2
 	 * @return the {@link SessionAuthenticationStrategy}
+	 * @since 5.2
 	 */
 	private SessionAuthenticationStrategy getSessionAuthenticationStrategy() {
 		if (sessionAuthenticationStrategy != null) {

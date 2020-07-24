@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Rafiullah Hamedy
  * @author Josh Cummings
- * @see {@link HeaderWriterLogoutHandler}
+ * @see HeaderWriterLogoutHandler
  */
 public class HeaderWriterLogoutHandlerTests {
 

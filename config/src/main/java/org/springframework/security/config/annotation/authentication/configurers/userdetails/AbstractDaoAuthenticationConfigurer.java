@@ -26,12 +26,11 @@ import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 /**
  * Allows configuring a {@link DaoAuthenticationProvider}
  *
- * @author Rob Winch
- * @since 3.2
  * @param <B> the type of the {@link SecurityBuilder}
  * @param <C> the type of {@link AbstractDaoAuthenticationConfigurer} this is
  * @param <U> The type of {@link UserDetailsService} that is being used
- *
+ * @author Rob Winch
+ * @since 3.2
  */
 abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuilder<B>, C extends AbstractDaoAuthenticationConfigurer<B, C, U>, U extends UserDetailsService>
 		extends UserDetailsAwareConfigurer<B, U> {

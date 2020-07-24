@@ -25,9 +25,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  * Base class that allows access to the {@link UserDetailsService} for using as a default
  * value with {@link AuthenticationManagerBuilder}.
  *
- * @author Rob Winch
  * @param <B> the type of the {@link ProviderManagerBuilder}
  * @param <U> the type of {@link UserDetailsService}
+ * @author Rob Winch
  */
 public abstract class UserDetailsAwareConfigurer<B extends ProviderManagerBuilder<B>, U extends UserDetailsService>
 		extends SecurityConfigurerAdapter<AuthenticationManager, B> {

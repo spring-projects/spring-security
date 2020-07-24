@@ -40,8 +40,8 @@ import org.springframework.util.StringUtils;
  * Allows mapping security constraints using {@link MessageMatcher} to the security
  * expressions.
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public class MessageSecurityMetadataSourceRegistry {
 
@@ -152,7 +152,7 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * from. Uses
 	 * {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}.
 	 * @return the {@link Constraint} that is associated to the {@link MessageMatcher}
-	 * @see {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
+	 * @see MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)
 	 */
 	private Constraint simpDestMatchers(SimpMessageType type, String... patterns) {
 		List<MatcherBuilder> matchers = new ArrayList<>(patterns.length);

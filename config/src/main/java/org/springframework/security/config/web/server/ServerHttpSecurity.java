@@ -189,25 +189,51 @@ import static org.springframework.security.web.server.DelegatingServerAuthentica
  *
  * A minimal configuration can be found below:
  *
- * <pre class="code"> &#064;EnableWebFluxSecurity public class
- * MyMinimalSecurityConfiguration {
+ * <pre class="code">
+ * &#064;EnableWebFluxSecurity
+ * public class MyMinimalSecurityConfiguration {
  *
- * &#064;Bean public MapReactiveUserDetailsService userDetailsService() { UserDetails user
- * = User.withDefaultPasswordEncoder() .username("user") .password("password")
- * .roles("USER") .build(); return new MapReactiveUserDetailsService(user); } }
+ *     &#064;Bean
+ *     public MapReactiveUserDetailsService userDetailsService() {
+ *         UserDetails user = User.withDefaultPasswordEncoder()
+ *             .username("user")
+ *             .password("password")
+ *             .roles("USER")
+ *             .build();
+ *         return new MapReactiveUserDetailsService(user);
+ *     }
+ * }
+ * </pre>
  *
  * Below is the same as our minimal configuration, but explicitly declaring the
  * {@code ServerHttpSecurity}.
  *
- * <pre class="code"> &#064;EnableWebFluxSecurity public class
- * MyExplicitSecurityConfiguration { &#064;Bean public SecurityWebFilterChain
- * springSecurityFilterChain(ServerHttpSecurity http) { http .authorizeExchange()
- * .anyExchange().authenticated() .and() .httpBasic().and() .formLogin(); return
- * http.build(); }
+ * <pre class="code">
+ * &#064;EnableWebFluxSecurity
+ * public class MyExplicitSecurityConfiguration {
  *
- * &#064;Bean public MapReactiveUserDetailsService userDetailsService() { UserDetails user
- * = User.withDefaultPasswordEncoder() .username("user") .password("password")
- * .roles("USER") .build(); return new MapReactiveUserDetailsService(user); } }
+ *     &#064;Bean
+ *     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+ *         http
+ *             .authorizeExchange()
+ *               .anyExchange().authenticated()
+ *             .and()
+ *               .httpBasic().and()
+ *               .formLogin();
+ *             return http.build();
+ *     }
+ *
+ *     &#064;Bean
+ *     public MapReactiveUserDetailsService userDetailsService() {
+ *         UserDetails user = User.withDefaultPasswordEncoder()
+ *             .username("user")
+ *             .password("password")
+ *             .roles("USER")
+ *             .build();
+ *         return new MapReactiveUserDetailsService(user);
+ *     }
+ * }
+ * </pre>
  *
  * @author Rob Winch
  * @author Vedran Pavic
@@ -829,11 +855,10 @@ public class ServerHttpSecurity {
 	 * Note that if extractor is not specified, {@link SubjectDnX509PrincipalExtractor}
 	 * will be used. If authenticationManager is not specified,
 	 * {@link ReactivePreAuthenticatedAuthenticationManager} will be used.
-	 *
-	 * @since 5.2
 	 * @param x509Customizer the {@link Customizer} to provide more options for the
 	 * {@link X509Spec}
 	 * @return the {@link ServerHttpSecurity} to customize
+	 * @since 5.2
 	 */
 	public ServerHttpSecurity x509(Customizer<X509Spec> x509Customizer) {
 		if (this.x509 == null) {
@@ -994,10 +1019,9 @@ public class ServerHttpSecurity {
 		 * The {@link ServerSecurityContextRepository} used to save the
 		 * {@code Authentication}. Defaults to
 		 * {@link WebSessionServerSecurityContextRepository}.
-		 *
-		 * @since 5.2
 		 * @param securityContextRepository the repository to use
 		 * @return the {@link OAuth2LoginSpec} to continue configuring
+		 * @since 5.2
 		 */
 		public OAuth2LoginSpec securityContextRepository(ServerSecurityContextRepository securityContextRepository) {
 			this.securityContextRepository = securityContextRepository;
@@ -1008,10 +1032,9 @@ public class ServerHttpSecurity {
 		 * The {@link ServerAuthenticationSuccessHandler} used after authentication
 		 * success. Defaults to {@link RedirectServerAuthenticationSuccessHandler}
 		 * redirecting to "/".
-		 *
-		 * @since 5.2
 		 * @param authenticationSuccessHandler the success handler to use
 		 * @return the {@link OAuth2LoginSpec} to customize
+		 * @since 5.2
 		 */
 		public OAuth2LoginSpec authenticationSuccessHandler(
 				ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
@@ -1024,10 +1047,9 @@ public class ServerHttpSecurity {
 		 * The {@link ServerAuthenticationFailureHandler} used after authentication
 		 * failure. Defaults to {@link RedirectServerAuthenticationFailureHandler}
 		 * redirecting to "/login?error".
-		 *
-		 * @since 5.2
 		 * @param authenticationFailureHandler the failure handler to use
 		 * @return the {@link OAuth2LoginSpec} to customize
+		 * @since 5.2
 		 */
 		public OAuth2LoginSpec authenticationFailureHandler(
 				ServerAuthenticationFailureHandler authenticationFailureHandler) {
@@ -1121,11 +1143,10 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Sets the repository to use for storing {@link OAuth2AuthorizationRequest}'s.
-		 *
-		 * @since 5.2
 		 * @param authorizationRequestRepository the repository to use for storing
 		 * {@link OAuth2AuthorizationRequest}'s
 		 * @return the {@link OAuth2LoginSpec} for further configuration
+		 * @since 5.2
 		 */
 		public OAuth2LoginSpec authorizationRequestRepository(
 				ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
@@ -1135,11 +1156,10 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Sets the resolver used for resolving {@link OAuth2AuthorizationRequest}'s.
-		 *
-		 * @since 5.2
 		 * @param authorizationRequestResolver the resolver used for resolving
 		 * {@link OAuth2AuthorizationRequest}'s
 		 * @return the {@link OAuth2LoginSpec} for further configuration
+		 * @since 5.2
 		 */
 		public OAuth2LoginSpec authorizationRequestResolver(
 				ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver) {
@@ -1150,11 +1170,10 @@ public class ServerHttpSecurity {
 		/**
 		 * Sets the {@link ServerWebExchangeMatcher matcher} used for determining if the
 		 * request is an authentication request.
-		 *
-		 * @since 5.2
 		 * @param authenticationMatcher the {@link ServerWebExchangeMatcher matcher} used
 		 * for determining if the request is an authentication request
 		 * @return the {@link OAuth2LoginSpec} for further configuration
+		 * @since 5.2
 		 */
 		public OAuth2LoginSpec authenticationMatcher(ServerWebExchangeMatcher authenticationMatcher) {
 			this.authenticationMatcher = authenticationMatcher;
@@ -1499,11 +1518,10 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Sets the repository to use for storing {@link OAuth2AuthorizationRequest}'s.
-		 *
-		 * @since 5.2
 		 * @param authorizationRequestRepository the repository to use for storing
 		 * {@link OAuth2AuthorizationRequest}'s
 		 * @return the {@link OAuth2ClientSpec} to customize
+		 * @since 5.2
 		 */
 		public OAuth2ClientSpec authorizationRequestRepository(
 				ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
@@ -3689,8 +3707,8 @@ public class ServerHttpSecurity {
 		/**
 		 * Configures {@code Content-Security-Policy} response header.
 		 *
-		 * @see #contentSecurityPolicy(String)
 		 * @since 5.1
+		 * @see #contentSecurityPolicy(String)
 		 */
 		public class ContentSecurityPolicySpec {
 
@@ -3740,8 +3758,8 @@ public class ServerHttpSecurity {
 		/**
 		 * Configures {@code Feature-Policy} response header.
 		 *
-		 * @see #featurePolicy(String)
 		 * @since 5.1
+		 * @see #featurePolicy(String)
 		 */
 		public class FeaturePolicySpec {
 
@@ -3763,9 +3781,9 @@ public class ServerHttpSecurity {
 		/**
 		 * Configures {@code Referrer-Policy} response header.
 		 *
+		 * @since 5.1
 		 * @see #referrerPolicy()
 		 * @see #referrerPolicy(ReferrerPolicy)
-		 * @since 5.1
 		 */
 		public class ReferrerPolicySpec {
 

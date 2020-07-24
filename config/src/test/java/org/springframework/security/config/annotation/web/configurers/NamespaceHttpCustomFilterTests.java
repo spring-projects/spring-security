@@ -46,7 +46,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests to verify that all the functionality of <custom-filter> attributes is present
+ * Tests to verify that all the functionality of &lt;custom-filter&gt; attributes is
+ * present
  *
  * @author Rob Winch
  * @author Josh Cummings

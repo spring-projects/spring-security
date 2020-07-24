@@ -26,8 +26,8 @@ import static org.springframework.security.saml2.provider.service.registration.S
  * https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf
  * (line 2031)
  *
- * @see Saml2AuthenticationRequestFactory
  * @since 5.3
+ * @see Saml2AuthenticationRequestFactory
  */
 public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
 

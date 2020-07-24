@@ -78,10 +78,9 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
 	 * for an {@link OidcUserInfo}.
-	 *
-	 * @since 5.2
 	 * @return a {@link Map} of {@link Converter}'s keyed by {@link StandardClaimNames
 	 * claim name}
+	 * @since 5.2
 	 */
 	public static Map<String, Converter<Object, ?>> createDefaultClaimTypeConverters() {
 		Converter<Object, ?> booleanConverter = getConverter(TypeDescriptor.valueOf(Boolean.class));
@@ -190,10 +189,9 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 
 	/**
 	 * Sets the {@link OAuth2UserService} used when requesting the user info resource.
-	 *
-	 * @since 5.1
 	 * @param oauth2UserService the {@link OAuth2UserService} used when requesting the
 	 * user info resource.
+	 * @since 5.1
 	 */
 	public final void setOauth2UserService(OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService) {
 		Assert.notNull(oauth2UserService, "oauth2UserService cannot be null");
@@ -204,11 +202,10 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * Sets the factory that provides a {@link Converter} used for type conversion of
 	 * claim values for an {@link OidcUserInfo}. The default is {@link ClaimTypeConverter}
 	 * for all {@link ClientRegistration clients}.
-	 *
-	 * @since 5.2
 	 * @param claimTypeConverterFactory the factory that provides a {@link Converter} used
 	 * for type conversion of claim values for a specific {@link ClientRegistration
 	 * client}
+	 * @since 5.2
 	 */
 	public final void setClaimTypeConverterFactory(
 			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
@@ -224,9 +221,8 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * {@link OidcUserRequest#getAccessToken() access token} to determine if the user info
 	 * resource is accessible or not. If there is at least one match, the user info
 	 * resource will be requested, otherwise it will not.
-	 *
-	 * @since 5.2
 	 * @param accessibleScopes the scope(s) that allow access to the user info resource
+	 * @since 5.2
 	 */
 	public final void setAccessibleScopes(Set<String> accessibleScopes) {
 		Assert.notNull(accessibleScopes, "accessibleScopes cannot be null");

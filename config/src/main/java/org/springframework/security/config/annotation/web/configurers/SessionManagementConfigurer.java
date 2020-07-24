@@ -214,8 +214,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @param sessionCreationPolicy the {@link SessionCreationPolicy} to use. Cannot be
 	 * null.
 	 * @return the {@link SessionManagementConfigurer} for further customizations
-	 * @see SessionCreationPolicy
 	 * @throws IllegalArgumentException if {@link SessionCreationPolicy} is null.
+	 * @see SessionCreationPolicy
 	 */
 	public SessionManagementConfigurer<H> sessionCreationPolicy(SessionCreationPolicy sessionCreationPolicy) {
 		Assert.notNull(sessionCreationPolicy, "sessionCreationPolicy cannot be null");

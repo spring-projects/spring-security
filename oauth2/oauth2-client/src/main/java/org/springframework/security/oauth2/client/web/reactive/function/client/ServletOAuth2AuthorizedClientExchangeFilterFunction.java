@@ -84,7 +84,7 @@ import java.util.stream.Stream;
  * WebClient webClient = WebClient.builder()
  *    .apply(oauth2.oauth2Configuration())
  *    .build();
- * Mono<String> response = webClient
+ * Mono&lt;String&gt; response = webClient
  *    .get()
  *    .uri(uri)
  *    .attributes(oauth2AuthorizedClient(authorizedClient))
@@ -190,10 +190,9 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	 * authentication and authorization failures returned from a Resource Server will
 	 * result in removing the authorized client, so that a new token is retrieved for
 	 * future requests.
-	 *
-	 * @since 5.2
 	 * @param authorizedClientManager the {@link OAuth2AuthorizedClientManager} which
 	 * manages the authorized client(s)
+	 * @since 5.2
 	 */
 	public ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager authorizedClientManager) {
 		Assert.notNull(authorizedClientManager, "authorizedClientManager cannot be null");

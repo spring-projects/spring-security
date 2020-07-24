@@ -16,6 +16,9 @@
 
 package org.springframework.security.jackson2;
 
+import java.io.IOException;
+import java.util.Set;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -24,20 +27,18 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-
-import java.io.IOException;
-import java.util.Set;
 
 /**
  * Custom Deserializer for {@link User} class. This is already registered with
  * {@link UserMixin}. You can also use it directly with your mixin class.
  *
  * @author Jitendra Singh
- * @see UserMixin
  * @since 4.2
+ * @see UserMixin
  */
 class UserDeserializer extends JsonDeserializer<User> {
 

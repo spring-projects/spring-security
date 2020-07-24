@@ -20,9 +20,9 @@ import java.io.Serializable;
 /**
  * Provides the information about an expected CSRF token.
  *
- * @see DefaultCsrfToken
  * @author Rob Winch
  * @since 3.2
+ * @see DefaultCsrfToken
  *
  */
 public interface CsrfToken extends Serializable {

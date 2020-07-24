@@ -55,8 +55,8 @@ public final class CookieClearingLogoutHandler implements LogoutHandler {
 	}
 
 	/**
-	 * @since 5.2
 	 * @param cookiesToClear - One or more Cookie objects that must have maxAge of 0
+	 * @since 5.2
 	 */
 	public CookieClearingLogoutHandler(Cookie... cookiesToClear) {
 		Assert.notNull(cookiesToClear, "List of cookies cannot be null");

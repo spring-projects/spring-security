@@ -17,7 +17,9 @@ package org.springframework.security.access.prepost;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.ConfigAttribute;
@@ -41,9 +43,9 @@ import org.springframework.util.ClassUtils;
  * combine annotations defined in multiple locations for a single method - they may be
  * defined on the method itself, or at interface or class level.
  *
- * @see PreInvocationAuthorizationAdviceVoter
  * @author Luke Taylor
  * @since 3.0
+ * @see PreInvocationAuthorizationAdviceVoter
  */
 public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
 
@@ -53,12 +55,13 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 		this.attributeFactory = attributeFactory;
 	}
 
+	@Override
 	public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
 		if (method.getDeclaringClass() == Object.class) {
 			return Collections.emptyList();
 		}
 
-		logger.trace("Looking for Pre/Post annotations for method '" + method.getName() + "' on target class '"
+		this.logger.trace("Looking for Pre/Post annotations for method '" + method.getName() + "' on target class '"
 				+ targetClass + "'");
 		PreFilter preFilter = findAnnotation(method, targetClass, PreFilter.class);
 		PreAuthorize preAuthorize = findAnnotation(method, targetClass, PreAuthorize.class);
@@ -68,7 +71,7 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 
 		if (preFilter == null && preAuthorize == null && postFilter == null && postAuthorize == null) {
 			// There is no meta-data so return
-			logger.trace("No expression annotations found");
+			this.logger.trace("No expression annotations found");
 			return Collections.emptyList();
 		}
 
@@ -80,14 +83,14 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 
 		ArrayList<ConfigAttribute> attrs = new ArrayList<>(2);
 
-		PreInvocationAttribute pre = attributeFactory.createPreInvocationAttribute(preFilterAttribute, filterObject,
-				preAuthorizeAttribute);
+		PreInvocationAttribute pre = this.attributeFactory.createPreInvocationAttribute(preFilterAttribute,
+				filterObject, preAuthorizeAttribute);
 
 		if (pre != null) {
 			attrs.add(pre);
 		}
 
-		PostInvocationAttribute post = attributeFactory.createPostInvocationAttribute(postFilterAttribute,
+		PostInvocationAttribute post = this.attributeFactory.createPostInvocationAttribute(postFilterAttribute,
 				postAuthorizeAttribute);
 
 		if (post != null) {
@@ -99,6 +102,7 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 		return attrs;
 	}
 
+	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		return null;
 	}
@@ -117,7 +121,7 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 		A annotation = AnnotationUtils.findAnnotation(specificMethod, annotationClass);
 
 		if (annotation != null) {
-			logger.debug(annotation + " found on specific method: " + specificMethod);
+			this.logger.debug(annotation + " found on specific method: " + specificMethod);
 			return annotation;
 		}
 
@@ -126,7 +130,7 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 			annotation = AnnotationUtils.findAnnotation(method, annotationClass);
 
 			if (annotation != null) {
-				logger.debug(annotation + " found on: " + method);
+				this.logger.debug(annotation + " found on: " + method);
 				return annotation;
 			}
 		}
@@ -136,7 +140,7 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 		annotation = AnnotationUtils.findAnnotation(specificMethod.getDeclaringClass(), annotationClass);
 
 		if (annotation != null) {
-			logger.debug(annotation + " found on: " + specificMethod.getDeclaringClass().getName());
+			this.logger.debug(annotation + " found on: " + specificMethod.getDeclaringClass().getName());
 			return annotation;
 		}
 
