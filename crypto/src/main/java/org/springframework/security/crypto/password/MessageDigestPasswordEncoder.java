@@ -169,6 +169,6 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 		if (end < 0) {
 			return "";
 		}
-		return prefixEncodedPassword.substring(start, end + 1);
+		return prefixEncodedPassword.substring(start + 1, end);
 	}
 }
