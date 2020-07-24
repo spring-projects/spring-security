@@ -37,9 +37,6 @@ public class OpenSamlInitializationServiceTests {
 		OpenSamlInitializationService.initialize();
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		assertThat(registry.getParserPool()).isNotNull();
-		registry.setParserPool(null);
-		OpenSamlInitializationService.initialize();
-		assertThat(registry.getParserPool()).isNull();
 		assertThatCode(() -> OpenSamlInitializationService.requireInitialize(r -> {}))
 				.isInstanceOf(Saml2Exception.class)
 				.hasMessageContaining("OpenSAML was already initialized previously");
