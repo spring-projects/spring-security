@@ -16,7 +16,9 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.AdviceMode;
@@ -41,8 +43,8 @@ import org.springframework.security.config.annotation.authentication.configurati
  * @author Rob Winch
  * @since 3.2
  */
-@Retention(value = java.lang.annotation.RetentionPolicy.RUNTIME)
-@Target(value = { java.lang.annotation.ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 @Documented
 @Import({ GlobalMethodSecuritySelector.class })
 @EnableGlobalAuthentication

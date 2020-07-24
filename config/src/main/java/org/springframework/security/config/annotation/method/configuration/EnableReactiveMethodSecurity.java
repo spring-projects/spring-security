@@ -16,24 +16,26 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 
 /**
  *
  * @author Rob Winch
  * @since 5.0
  */
-@Retention(value = java.lang.annotation.RetentionPolicy.RUNTIME)
-@Target(value = { java.lang.annotation.ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 @Documented
-@Import({ ReactiveMethodSecuritySelector.class })
+@Import(ReactiveMethodSecuritySelector.class)
 @Configuration
 public @interface EnableReactiveMethodSecurity {
 
