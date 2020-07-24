@@ -32,8 +32,8 @@ package org.springframework.security.core.userdetails;
  * configure a cache to store the <tt>UserDetails</tt> information rather than loading it
  * each time.
  *
- * @see org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider
  * @author Ben Alex
+ * @see org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider
  */
 public interface UserCache {
 

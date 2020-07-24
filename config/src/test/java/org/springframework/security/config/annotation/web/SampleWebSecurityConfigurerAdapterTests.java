@@ -109,29 +109,29 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	}
 
 	/**
-	 * <code>
-	 *   <http>
-	 *     <intercept-url pattern="/resources/**" access="permitAll"/>
-	 *     <intercept-url pattern="/**" access="authenticated"/>
-	 *     <logout
+	 * <pre>
+	 *   &lt;http&gt;
+	 *     &lt;intercept-url pattern="/resources/**" access="permitAll"/&gt;
+	 *     &lt;intercept-url pattern="/**" access="authenticated"/&gt;
+	 *     &lt;logout
 	 *         logout-success-url="/login?logout"
 	 *         logout-url="/logout"
-	 *     <form-login
+	 *     &lt;form-login
 	 *         authentication-failure-url="/login?error"
-	 *         login-page="/login" <!-- Except Spring Security renders the login page -->
-	 *         login-processing-url="/login" <!-- but only POST -->
+	 *         login-page="/login" &lt;!-- Except Spring Security renders the login page --&gt;
+	 *         login-processing-url="/login" &lt;!-- but only POST --&gt;
 	 *         password-parameter="password"
 	 *         username-parameter="username"
-	 *     />
-	 *   </http>
-	 *   <authentication-manager>
-	 *     <authentication-provider>
-	 *       <user-service>
-	 *         <user username="user" password="password" authorities="ROLE_USER"/>
-	 *       </user-service>
-	 *     </authentication-provider>
-	 *   </authentication-manager>
-	 * </code>
+	 *     /&gt;
+	 *   &lt;/http&gt;
+	 *   &lt;authentication-manager&gt;
+	 *     &lt;authentication-provider&gt;
+	 *       &lt;user-service&gt;
+	 *         &lt;user username="user" password="password" authorities="ROLE_USER"/&gt;
+	 *       &lt;/user-service&gt;
+	 *     &lt;/authentication-provider&gt;
+	 *   &lt;/authentication-manager&gt;
+	 * </pre>
 	 *
 	 * @author Rob Winch
 	 */
@@ -183,35 +183,35 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	}
 
 	/**
-	 * <code>
-	 *   <http security="none" pattern="/resources/**"/>
-	 *   <http>
-	 *     <intercept-url pattern="/logout" access="permitAll"/>
-	 *     <intercept-url pattern="/login" access="permitAll"/>
-	 *     <intercept-url pattern="/signup" access="permitAll"/>
-	 *     <intercept-url pattern="/about" access="permitAll"/>
-	 *     <intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
-	 *     <logout
+	 * <pre>
+	 *   &lt;http security="none" pattern="/resources/**"/&gt;
+	 *   &lt;http&gt;
+	 *     &lt;intercept-url pattern="/logout" access="permitAll"/&gt;
+	 *     &lt;intercept-url pattern="/login" access="permitAll"/&gt;
+	 *     &lt;intercept-url pattern="/signup" access="permitAll"/&gt;
+	 *     &lt;intercept-url pattern="/about" access="permitAll"/&gt;
+	 *     &lt;intercept-url pattern="/**" access="hasRole('ROLE_USER')"/&gt;
+	 *     &lt;logout
 	 *         logout-success-url="/login?logout"
 	 *         logout-url="/logout"
-	 *     <form-login
+	 *     &lt;form-login
 	 *         authentication-failure-url="/login?error"
 	 *         login-page="/login"
-	 *         login-processing-url="/login" <!-- but only POST -->
+	 *         login-processing-url="/login" &lt;!-- but only POST --&gt;
 	 *         password-parameter="password"
 	 *         username-parameter="username"
-	 *     />
-	 *   </http>
-	 *   <authentication-manager>
-	 *     <authentication-provider>
-	 *       <user-service>
-	 *         <user username="user" password="password" authorities="ROLE_USER"/>
-	 *         <user username="admin" password="password" authorities=
-	"ROLE_USER,ROLE_ADMIN"/>
-	 *       </user-service>
-	 *     </authentication-provider>
-	 *   </authentication-manager>
-	 * </code>
+	 *     /&gt;
+	 *   &lt;/http&gt;
+	 *   &lt;authentication-manager&gt;
+	 *     &lt;authentication-provider&gt;
+	 *       &lt;user-service&gt;
+	 *         &lt;user username="user" password="password" authorities="ROLE_USER"/&gt;
+	 *         &lt;user username="admin" password="password" authorities=
+	"ROLE_USER,ROLE_ADMIN"/&gt;
+	 *       &lt;/user-service&gt;
+	 *     &lt;/authentication-provider&gt;
+	 *   &lt;/authentication-manager&gt;
+	 * </pre>
 	 *
 	 * @author Rob Winch
 	 */
@@ -319,38 +319,38 @@ public class SampleWebSecurityConfigurerAdapterTests {
 
 	/**
 	 * <code>
-	 *   <http security="none" pattern="/resources/**"/>
-	 *   <http pattern="/api/**">
-	 *     <intercept-url pattern="/api/admin/**" access="hasRole('ROLE_ADMIN')"/>
-	 *     <intercept-url pattern="/api/**" access="hasRole('ROLE_USER')"/>
-	 *     <http-basic />
-	 *   </http>
-	 *   <http>
-	 *     <intercept-url pattern="/logout" access="permitAll"/>
-	 *     <intercept-url pattern="/login" access="permitAll"/>
-	 *     <intercept-url pattern="/signup" access="permitAll"/>
-	 *     <intercept-url pattern="/about" access="permitAll"/>
-	 *     <intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
-	 *     <logout
+	 *   &lt;http security="none" pattern="/resources/**"/&gt;
+	 *   &lt;http pattern="/api/**"&gt;
+	 *     &lt;intercept-url pattern="/api/admin/**" access="hasRole('ROLE_ADMIN')"/&gt;
+	 *     &lt;intercept-url pattern="/api/**" access="hasRole('ROLE_USER')"/&gt;
+	 *     &lt;http-basic /&gt;
+	 *   &lt;/http&gt;
+	 *   &lt;http&gt;
+	 *     &lt;intercept-url pattern="/logout" access="permitAll"/&gt;
+	 *     &lt;intercept-url pattern="/login" access="permitAll"/&gt;
+	 *     &lt;intercept-url pattern="/signup" access="permitAll"/&gt;
+	 *     &lt;intercept-url pattern="/about" access="permitAll"/&gt;
+	 *     &lt;intercept-url pattern="/**" access="hasRole('ROLE_USER')"/&gt;
+	 *     &lt;logout
 	 *         logout-success-url="/login?logout"
 	 *         logout-url="/logout"
-	 *     <form-login
+	 *     &lt;form-login
 	 *         authentication-failure-url="/login?error"
 	 *         login-page="/login"
-	 *         login-processing-url="/login" <!-- but only POST -->
+	 *         login-processing-url="/login" &lt;!-- but only POST --&gt;
 	 *         password-parameter="password"
 	 *         username-parameter="username"
-	 *     />
-	 *   </http>
-	 *   <authentication-manager>
-	 *     <authentication-provider>
-	 *       <user-service>
-	 *         <user username="user" password="password" authorities="ROLE_USER"/>
-	 *         <user username="admin" password="password" authorities=
-	"ROLE_USER,ROLE_ADMIN"/>
-	 *       </user-service>
-	 *     </authentication-provider>
-	 *   </authentication-manager>
+	 *     /&gt;
+	 *   &lt;/http&gt;
+	 *   &lt;authentication-manager&gt;
+	 *     &lt;authentication-provider&gt;
+	 *       &lt;user-service&gt;
+	 *         &lt;user username="user" password="password" authorities="ROLE_USER"/&gt;
+	 *         &lt;user username="admin" password="password" authorities=
+	"ROLE_USER,ROLE_ADMIN"/&gt;
+	 *       &lt;/user-service&gt;
+	 *     &lt;/authentication-provider&gt;
+	 *   &lt;/authentication-manager&gt;
 	 * </code>
 	 *
 	 * @author Rob Winch

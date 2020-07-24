@@ -23,7 +23,7 @@ public class MethodInvocationFactory {
 	/**
 	 * In order to reproduce the bug for SEC-2150, we must have a proxy object that
 	 * implements TargetSourceAware and implements our annotated interface.
-	 * @return
+	 * @return the mock method invocation
 	 * @throws NoSuchMethodException
 	 */
 	public static MockMethodInvocation createSec2150MethodInvocation() throws NoSuchMethodException {

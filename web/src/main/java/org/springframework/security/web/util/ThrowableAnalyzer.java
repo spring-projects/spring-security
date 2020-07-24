@@ -71,7 +71,7 @@ public class ThrowableAnalyzer {
 	};
 
 	/**
-	 * Map of registered cause extractors. key: Class<Throwable>; value:
+	 * Map of registered cause extractors. key: Class&lt;Throwable&gt;; value:
 	 * ThrowableCauseExctractor
 	 */
 	private final Map<Class<? extends Throwable>, ThrowableCauseExtractor> extractorMap;

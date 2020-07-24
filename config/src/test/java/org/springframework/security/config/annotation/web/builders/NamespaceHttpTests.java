@@ -63,8 +63,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Tests to verify that all the functionality of <http> attributes are present in Java
- * Config.
+ * Tests to verify that all the functionality of &lt;http&gt; attributes are present in
+ * Java Config.
  *
  * @author Rob Winch
  * @author Joe Grandja

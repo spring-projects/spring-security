@@ -143,11 +143,10 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * attacks</a>. If you really want to use an HTTP GET, you can use
 	 * <code>logoutRequestMatcher(new AntPathRequestMatcher(logoutUrl, "GET"));</code>
 	 * </p>
-	 *
-	 * @see #logoutRequestMatcher(RequestMatcher)
-	 * @see HttpSecurity#csrf()
 	 * @param logoutUrl the URL that will invoke logout.
 	 * @return the {@link LogoutConfigurer} for further customization
+	 * @see #logoutRequestMatcher(RequestMatcher)
+	 * @see HttpSecurity#csrf()
 	 */
 	public LogoutConfigurer<H> logoutUrl(String logoutUrl) {
 		this.logoutRequestMatcher = null;
@@ -158,11 +157,10 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * The RequestMatcher that triggers log out to occur. In most circumstances users will
 	 * use {@link #logoutUrl(String)} which helps enforce good practices.
-	 *
-	 * @see #logoutUrl(String)
 	 * @param logoutRequestMatcher the RequestMatcher used to determine if logout should
 	 * occur.
 	 * @return the {@link LogoutConfigurer} for further customization
+	 * @see #logoutUrl(String)
 	 */
 	public LogoutConfigurer<H> logoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
 		this.logoutRequestMatcher = logoutRequestMatcher;

@@ -44,8 +44,8 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 
 /**
- * @author Rob Winch
  * @param <H>
+ * @author Rob Winch
  */
 public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>>
 		extends SecurityBuilder<DefaultSecurityFilterChain> {

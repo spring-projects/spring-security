@@ -61,10 +61,10 @@ import org.springframework.util.Assert;
  * {@link CompositeSessionAuthenticationStrategy}.
  * </p>
  *
- * @see CompositeSessionAuthenticationStrategy
  * @author Luke Taylor
  * @author Rob Winch
  * @since 3.2
+ * @see CompositeSessionAuthenticationStrategy
  */
 public class ConcurrentSessionControlAuthenticationStrategy
 		implements MessageSourceAware, SessionAuthenticationStrategy {

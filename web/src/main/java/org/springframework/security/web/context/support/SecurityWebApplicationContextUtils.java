@@ -40,9 +40,9 @@ public abstract class SecurityWebApplicationContextUtils extends WebApplicationC
 	 * {@code DispatcherServlet} registrations in the web app.
 	 * @param servletContext ServletContext to find the web application context for
 	 * @return the desired WebApplicationContext for this web app
+	 * @throws IllegalStateException if no WebApplicationContext can be found
 	 * @see #getWebApplicationContext(ServletContext)
 	 * @see ServletContext#getAttributeNames()
-	 * @throws IllegalStateException if no WebApplicationContext can be found
 	 */
 	public static WebApplicationContext findRequiredWebApplicationContext(ServletContext servletContext) {
 		WebApplicationContext wac = _findWebApplicationContext(servletContext);

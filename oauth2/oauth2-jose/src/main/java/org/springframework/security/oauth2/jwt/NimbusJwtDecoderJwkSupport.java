@@ -119,10 +119,9 @@ public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {
 
 	/**
 	 * Sets the {@link RestOperations} used when requesting the JSON Web Key (JWK) Set.
-	 *
-	 * @since 5.1
 	 * @param restOperations the {@link RestOperations} used when requesting the JSON Web
 	 * Key (JWK) Set
+	 * @since 5.1
 	 */
 	public void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");

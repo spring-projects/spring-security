@@ -67,9 +67,9 @@ import org.springframework.util.Assert;
  * 			.build();
  * </pre>
  *
- * @since 5.2
  * @author Filip Hanik
  * @author Josh Cummings
+ * @since 5.2
  */
 public class RelyingPartyRegistration {
 
@@ -284,7 +284,7 @@ public class RelyingPartyRegistration {
 	 * @return a filtered list containing only credentials of type
 	 * {@link org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType#VERIFICATION}.
 	 * Returns an empty list of credentials are not found
-	 * @deprecated Use {@link #getAssertingPartyDetails().getSigningX509Credentials()}
+	 * @deprecated Use {code #getAssertingPartyDetails().getSigningX509Credentials()}
 	 * instead
 	 */
 	@Deprecated
@@ -909,8 +909,8 @@ public class RelyingPartyRegistration {
 		 * Provider.
 		 * @param entityId the IDP entityId
 		 * @return this object
-		 * @deprecated use {@link #assertingPartyDetails(Consumer<
-		 * AssertingPartyDetails.Builder >)}
+		 * @deprecated use
+		 * {@code #assertingPartyDetails(Consumer<AssertingPartyDetails.Builder >)}
 		 */
 		@Deprecated
 		public Builder remoteIdpEntityId(String entityId) {
@@ -923,8 +923,8 @@ public class RelyingPartyRegistration {
 		 * @param url - a URL that accepts authentication requests via REDIRECT or POST
 		 * bindings
 		 * @return this object
-		 * @deprecated use {@link #assertingPartyDetails(Consumer<
-		 * AssertingPartyDetails.Builder >)}
+		 * @deprecated use
+		 * {@code #assertingPartyDetails(Consumer<AssertingPartyDetails.Builder >)}
 		 */
 		@Deprecated
 		public Builder idpWebSsoUrl(String url) {

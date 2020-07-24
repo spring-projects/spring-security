@@ -61,9 +61,9 @@ import java.util.function.Function;
  * {@link DefaultLoginPageConfigurer} should be added and how to configure it.</li>
  * </ul>
  *
- * @see WebSecurityConfigurerAdapter
  * @author Rob Winch
  * @since 3.2
+ * @see WebSecurityConfigurerAdapter
  */
 public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<DefaultLoginPageConfigurer<H>, H> {

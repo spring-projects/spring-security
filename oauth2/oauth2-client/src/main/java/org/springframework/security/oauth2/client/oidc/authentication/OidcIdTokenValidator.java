@@ -136,9 +136,8 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	 * Sets the maximum acceptable clock skew. The default is 60 seconds. The clock skew
 	 * is used when validating the {@link JwtClaimNames#EXP exp} and
 	 * {@link JwtClaimNames#IAT iat} claims.
-	 *
-	 * @since 5.2
 	 * @param clockSkew the maximum acceptable clock skew
+	 * @since 5.2
 	 */
 	public void setClockSkew(Duration clockSkew) {
 		Assert.notNull(clockSkew, "clockSkew cannot be null");
@@ -149,9 +148,8 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 	/**
 	 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when validating the
 	 * {@link JwtClaimNames#EXP exp} and {@link JwtClaimNames#IAT iat} claims.
-	 *
-	 * @since 5.3
 	 * @param clock the clock
+	 * @since 5.3
 	 */
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");

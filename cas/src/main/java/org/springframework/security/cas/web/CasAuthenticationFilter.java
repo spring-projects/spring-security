@@ -381,7 +381,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	/**
 	 * A wrapper for the AuthenticationFailureHandler that will flex the
 	 * {@link AuthenticationFailureHandler} that is used. The value
-	 * {@link CasAuthenticationFilter#setProxyAuthenticationFailureHandler(AuthenticationFailureHandler)
+	 * {@link CasAuthenticationFilter#setProxyAuthenticationFailureHandler(AuthenticationFailureHandler)}
 	 * will be used for proxy requests that fail. The value
 	 * {@link CasAuthenticationFilter#setAuthenticationFailureHandler(AuthenticationFailureHandler)}
 	 * will be used for service tickets that fail.

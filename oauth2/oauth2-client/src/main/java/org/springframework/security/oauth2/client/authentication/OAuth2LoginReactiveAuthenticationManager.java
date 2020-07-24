@@ -109,10 +109,9 @@ public class OAuth2LoginReactiveAuthenticationManager implements ReactiveAuthent
 	 * Sets the {@link GrantedAuthoritiesMapper} used for mapping
 	 * {@link OAuth2User#getAuthorities()} to a new set of authorities which will be
 	 * associated to the {@link OAuth2LoginAuthenticationToken}.
-	 *
-	 * @since 5.4
 	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} used for mapping the
 	 * user's authorities
+	 * @since 5.4
 	 */
 	public final void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
 		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");

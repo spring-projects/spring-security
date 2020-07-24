@@ -368,11 +368,11 @@ public final class Base64 {
 	 * @param len Length of data to convert
 	 * @param options Specified options
 	 * @return The Base64-encoded data as a String
-	 * @see Base64#DO_BREAK_LINES
 	 * @throws java.io.IOException if there is an error
 	 * @throws NullPointerException if source array is null
 	 * @throws IllegalArgumentException if source array, offset, or length are invalid
 	 * @since 2.3.1
+	 * @see Base64#DO_BREAK_LINES
 	 */
 	private static byte[] encodeBytesToBytes(byte[] source, int off, int len, int options) {
 
@@ -603,8 +603,8 @@ public final class Base64 {
 			}
 			else {
 				// There's a bad input character in the Base64 stream.
-				throw new InvalidBase64CharacterException(String.format(
-						"Bad Base64 input character decimal %d in array position %d", ((int) source[i]) & 0xFF, i));
+				throw new InvalidBase64CharacterException(String
+						.format("Bad Base64 input character decimal %d in array position %d", (source[i]) & 0xFF, i));
 			}
 		}
 

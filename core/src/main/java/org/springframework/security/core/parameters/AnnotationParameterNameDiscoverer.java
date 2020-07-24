@@ -81,9 +81,9 @@ import org.springframework.util.ReflectionUtils;
  * {@link PrioritizedParameterNameDiscoverer} are an all or nothing operation.
  * </p>
  *
- * @see DefaultSecurityParameterNameDiscoverer
  * @author Rob Winch
  * @since 3.2
+ * @see DefaultSecurityParameterNameDiscoverer
  */
 public class AnnotationParameterNameDiscoverer implements ParameterNameDiscoverer {
 
@@ -104,6 +104,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	 * @see org.springframework.core.ParameterNameDiscoverer#getParameterNames(java
 	 * .lang.reflect.Method)
 	 */
+	@Override
 	public String[] getParameterNames(Method method) {
 		Method originalMethod = BridgeMethodResolver.findBridgedMethod(method);
 		String[] paramNames = lookupParameterNames(METHOD_METHODPARAM_FACTORY, originalMethod);
@@ -127,6 +128,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	 * @see org.springframework.core.ParameterNameDiscoverer#getParameterNames(java
 	 * .lang.reflect.Constructor)
 	 */
+	@Override
 	public String[] getParameterNames(Constructor<?> constructor) {
 		return lookupParameterNames(CONSTRUCTOR_METHODPARAM_FACTORY, constructor);
 	}
@@ -164,7 +166,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	 */
 	private String findParameterName(Annotation[] parameterAnnotations) {
 		for (Annotation paramAnnotation : parameterAnnotations) {
-			if (annotationClassesToUse.contains(paramAnnotation.annotationType().getName())) {
+			if (this.annotationClassesToUse.contains(paramAnnotation.annotationType().getName())) {
 				return (String) AnnotationUtils.getValue(paramAnnotation, "value");
 			}
 		}
@@ -180,9 +182,9 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	/**
 	 * Strategy interface for looking up the parameter names.
 	 *
+	 * @param <T> the type to inspect (i.e. {@link Method} or {@link Constructor})
 	 * @author Rob Winch
 	 * @since 3.2
-	 * @param <T> the type to inspect (i.e. {@link Method} or {@link Constructor})
 	 */
 	private interface ParameterNameFactory<T extends AccessibleObject> {
 

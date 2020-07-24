@@ -61,7 +61,7 @@ public final class ClearSiteDataHeaderWriter implements HeaderWriter {
 	 * request is secure as per the <b>Incomplete Clearing</b> section.
 	 * </p>
 	 * @param directives (i.e. "cache", "cookies", "storage", "executionContexts" or "*")
-	 * @throws {@link IllegalArgumentException} if sources is null or empty.
+	 * @throws IllegalArgumentException if sources is null or empty.
 	 */
 	public ClearSiteDataHeaderWriter(Directive... directives) {
 		Assert.notEmpty(directives, "directives cannot be empty or null");

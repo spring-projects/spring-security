@@ -947,9 +947,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @param roles The roles to populate. Note that if the role does not start with
 		 * {@link #ROLE_PREFIX} it will automatically be prepended. This means by default
 		 * {@code roles("ROLE_USER")} and {@code roles("USER")} are equivalent.
+		 * @return the UserRequestPostProcessor for further customizations
 		 * @see #authorities(GrantedAuthority...)
 		 * @see #ROLE_PREFIX
-		 * @return the UserRequestPostProcessor for further customizations
 		 */
 		public UserRequestPostProcessor roles(String... roles) {
 			List<GrantedAuthority> authorities = new ArrayList<>(roles.length);
@@ -969,8 +969,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 		/**
 		 * Populates the user's {@link GrantedAuthority}'s. The default is ROLE_USER.
 		 * @param authorities
-		 * @see #roles(String...)
 		 * @return the UserRequestPostProcessor for further customizations
+		 * @see #roles(String...)
 		 */
 		public UserRequestPostProcessor authorities(GrantedAuthority... authorities) {
 			return authorities(Arrays.asList(authorities));
@@ -979,8 +979,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 		/**
 		 * Populates the user's {@link GrantedAuthority}'s. The default is ROLE_USER.
 		 * @param authorities
-		 * @see #roles(String...)
 		 * @return the UserRequestPostProcessor for further customizations
+		 * @see #roles(String...)
 		 */
 		public UserRequestPostProcessor authorities(Collection<? extends GrantedAuthority> authorities) {
 			this.authorities = authorities;

@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 /**
- * Tests to verify that all the functionality of <expression-handler> attributes is
+ * Tests to verify that all the functionality of &lt;expression-handler&gt; attributes is
  * present
  *
  * @author Rob Winch

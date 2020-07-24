@@ -36,7 +36,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
- * Tests to verify that all the functionality of <http-firewall> attributes is present
+ * Tests to verify that all the functionality of &lt;http-firewall&gt; attributes is
+ * present
  *
  * @author Rob Winch
  * @author Josh Cummings

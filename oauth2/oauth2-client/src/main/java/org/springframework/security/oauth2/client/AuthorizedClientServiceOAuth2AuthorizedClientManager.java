@@ -219,8 +219,8 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 	 * default.
 	 * @param authorizationFailureHandler the {@link OAuth2AuthorizationFailureHandler}
 	 * that handles authorization failures
-	 * @see RemoveAuthorizedClientOAuth2AuthorizationFailureHandler
 	 * @since 5.3
+	 * @see RemoveAuthorizedClientOAuth2AuthorizationFailureHandler
 	 */
 	public void setAuthorizationFailureHandler(OAuth2AuthorizationFailureHandler authorizationFailureHandler) {
 		Assert.notNull(authorizationFailureHandler, "authorizationFailureHandler cannot be null");

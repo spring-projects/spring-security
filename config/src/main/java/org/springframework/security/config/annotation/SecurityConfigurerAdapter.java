@@ -27,11 +27,11 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
  * {@link SecurityConfigurer} and when done gaining access to the {@link SecurityBuilder}
  * that is being configured.
  *
- * @author Rob Winch
- * @author Wallace Wadge
  * @param <O> The Object being built by B
  * @param <B> The Builder that is building O and is configured by
  * {@link SecurityConfigurerAdapter}
+ * @author Rob Winch
+ * @author Wallace Wadge
  */
 public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>> implements SecurityConfigurer<O, B> {
 

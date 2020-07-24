@@ -33,8 +33,8 @@ import org.springframework.util.Assert;
  * <p>
  * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public final class ChannelSecurityInterceptor extends AbstractSecurityInterceptor implements ChannelInterceptor {
 

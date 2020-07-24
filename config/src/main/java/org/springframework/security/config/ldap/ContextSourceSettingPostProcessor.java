@@ -26,10 +26,10 @@ import org.springframework.util.ClassUtils;
 
 /**
  * Checks for the presence of a ContextSource instance. Also supplies the standard
- * reference to any unconfigured <ldap-authentication-provider> or <ldap-user-service>
- * beans. This is necessary in cases where the user has given the server a specific Id,
- * but hasn't used the server-ref attribute to link this to the other ldap definitions.
- * See SEC-799.
+ * reference to any unconfigured &lt;ldap-authentication-provider&gt; or
+ * &lt;ldap-user-service&gt; beans. This is necessary in cases where the user has given
+ * the server a specific Id, but hasn't used the server-ref attribute to link this to the
+ * other ldap definitions. See SEC-799.
  *
  * @author Luke Taylor
  * @since 3.0

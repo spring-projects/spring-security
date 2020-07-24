@@ -178,7 +178,7 @@ public class BCryptPasswordEncoderTests {
 
 	/**
 	 * @see <a href=
-	 * "https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</>
+	 * "https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</a>
 	 */
 	@Test
 	public void upgradeFromNullOrEmpty() {
@@ -189,7 +189,7 @@ public class BCryptPasswordEncoderTests {
 
 	/**
 	 * @see <a href=
-	 * "https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</>
+	 * "https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496">https://github.com/spring-projects/spring-security/pull/7042#issuecomment-506755496</a>
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void upgradeFromNonBCrypt() {

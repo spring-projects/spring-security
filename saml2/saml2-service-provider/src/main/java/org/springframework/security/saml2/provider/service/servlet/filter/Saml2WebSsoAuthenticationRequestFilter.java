@@ -64,9 +64,9 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
  * {@link RelyingPartyRegistration#getRegistrationId() registration identifier} of the
  * relying party that is used for initiating the authentication request.
  *
- * @since 5.2
  * @author Filip Hanik
  * @author Josh Cummings
+ * @since 5.2
  */
 public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter {
 

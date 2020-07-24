@@ -140,7 +140,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * If the value is null (default), the default container behavior will be retained
 	 * when invoking {@link HttpServletRequest#logout()}.
 	 * </p>
-	 * @param logoutHandlers the {@link List<LogoutHandler>}s when invoking
+	 * @param logoutHandlers the {@code List<LogoutHandler>}s when invoking
 	 * {@link HttpServletRequest#logout()}.
 	 */
 	public void setLogoutHandlers(List<LogoutHandler> logoutHandlers) {

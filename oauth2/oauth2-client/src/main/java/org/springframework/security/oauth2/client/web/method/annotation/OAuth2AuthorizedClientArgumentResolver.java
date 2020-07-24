@@ -78,10 +78,9 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClientArgumentResolver} using the provided
 	 * parameters.
-	 *
-	 * @since 5.2
 	 * @param authorizedClientManager the {@link OAuth2AuthorizedClientManager} which
 	 * manages the authorized client(s)
+	 * @since 5.2
 	 */
 	public OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientManager authorizedClientManager) {
 		Assert.notNull(authorizedClientManager, "authorizedClientManager cannot be null");

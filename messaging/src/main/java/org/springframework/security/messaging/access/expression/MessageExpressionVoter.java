@@ -33,9 +33,9 @@ import java.util.Collection;
  * If no {@code MessageExpressionConfigAttribute} is found, then {@code ACCESS_ABSTAIN} is
  * returned.
  *
- * @since 4.0
  * @author Rob Winch
  * @author Daniel Bustamante Ospina
+ * @since 4.0
  */
 public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>> {
 

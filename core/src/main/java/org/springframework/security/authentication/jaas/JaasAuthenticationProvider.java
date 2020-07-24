@@ -260,10 +260,9 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 	/**
 	 * If set, a call to {@code Configuration#refresh()} will be made by
 	 * {@code #configureJaas(Resource) } method. Defaults to {@code true}.
-	 *
-	 * @see <a href="https://jira.springsource.org/browse/SEC-1320">SEC-1320</a>
 	 * @param refresh set to {@code false} to disable reloading of the configuration. May
 	 * be useful in some environments.
+	 * @see <a href="https://jira.springsource.org/browse/SEC-1320">SEC-1320</a>
 	 */
 	public void setRefreshConfigurationOnStartup(boolean refresh) {
 		this.refreshConfigurationOnStartup = refresh;

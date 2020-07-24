@@ -231,11 +231,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * }
 	 * </pre>
 	 * @return the {@link OpenIDLoginConfigurer} for further customizations.
+	 * @throws Exception
 	 * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
 	 * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
 	 * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
 	 * supported by <code>spring-security-oauth2</code>.
-	 * @throws Exception
 	 * @see OpenIDLoginConfigurer
 	 */
 	public OpenIDLoginConfigurer<HttpSecurity> openidLogin() throws Exception {
@@ -351,16 +351,15 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see OpenIDLoginConfigurer
 	 * @param openidLoginCustomizer the {@link Customizer} to provide more options for the
 	 * {@link OpenIDLoginConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
 	 * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
 	 * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
 	 * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
 	 * supported by <code>spring-security-oauth2</code>.
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @see OpenIDLoginConfigurer
 	 */
 	public HttpSecurity openidLogin(Customizer<OpenIDLoginConfigurer<HttpSecurity>> openidLoginCustomizer)
 			throws Exception {
@@ -797,12 +796,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see #requiresChannel()
 	 * @param portMapperCustomizer the {@link Customizer} to provide more options for the
 	 * {@link PortMapperConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @see #requiresChannel()
 	 */
 	public HttpSecurity portMapper(Customizer<PortMapperConfigurer<HttpSecurity>> portMapperCustomizer)
 			throws Exception {
@@ -1158,10 +1156,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).antMatchers(&quot;/admin/**&quot;)
 	 * 		.hasRole(&quot;ADMIN&quot;)
 	 * </pre>
-	 *
-	 * @see #requestMatcher(RequestMatcher)
 	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 * @throws Exception
+	 * @see #requestMatcher(RequestMatcher)
 	 */
 	public ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests()
 			throws Exception {
@@ -1238,12 +1235,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see #requestMatcher(RequestMatcher)
 	 * @param authorizeRequestsCustomizer the {@link Customizer} to provide more options
 	 * for the {@link ExpressionUrlAuthorizationConfigurer.ExpressionInterceptUrlRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @see #requestMatcher(RequestMatcher)
 	 */
 	public HttpSecurity authorizeRequests(
 			Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> authorizeRequestsCustomizer)
@@ -1779,10 +1775,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see FormLoginConfigurer#loginPage(String)
 	 * @return the {@link FormLoginConfigurer} for further customizations
 	 * @throws Exception
+	 * @see FormLoginConfigurer#loginPage(String)
 	 */
 	public FormLoginConfigurer<HttpSecurity> formLogin() throws Exception {
 		return getOrApply(new FormLoginConfigurer<>());
@@ -1842,12 +1837,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see FormLoginConfigurer#loginPage(String)
 	 * @param formLoginCustomizer the {@link Customizer} to provide more options for the
 	 * {@link FormLoginConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @see FormLoginConfigurer#loginPage(String)
 	 */
 	public HttpSecurity formLogin(Customizer<FormLoginConfigurer<HttpSecurity>> formLoginCustomizer) throws Exception {
 		formLoginCustomizer.customize(getOrApply(new FormLoginConfigurer<>()));
@@ -1935,10 +1929,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 *
 	 * <p>
-	 *
-	 * @since 5.2
 	 * @return the {@link Saml2LoginConfigurer} for further customizations
 	 * @throws Exception
+	 * @since 5.2
 	 */
 	public Saml2LoginConfigurer<HttpSecurity> saml2Login() throws Exception {
 		return getOrApply(new Saml2LoginConfigurer<>());
@@ -2025,12 +2018,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 *
 	 * <p>
-	 *
-	 * @since 5.2
 	 * @param saml2LoginCustomizer the {@link Customizer} to provide more options for the
 	 * {@link Saml2LoginConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @since 5.2
 	 */
 	public HttpSecurity saml2Login(Customizer<Saml2LoginConfigurer<HttpSecurity>> saml2LoginCustomizer)
 			throws Exception {
@@ -2122,7 +2114,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <p>
 	 * For more advanced configuration, see {@link OAuth2LoginConfigurer} for available
 	 * options to customize the defaults.
-	 *
+	 * @return the {@link OAuth2LoginConfigurer} for further customizations
+	 * @throws Exception
 	 * @since 5.0
 	 * @see <a target="_blank" href=
 	 * "https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code
@@ -2132,8 +2125,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * Authorization Code Flow</a>
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
-	 * @return the {@link OAuth2LoginConfigurer} for further customizations
-	 * @throws Exception
 	 */
 	public OAuth2LoginConfigurer<HttpSecurity> oauth2Login() throws Exception {
 		return getOrApply(new OAuth2LoginConfigurer<>());
@@ -2224,7 +2215,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <p>
 	 * For more advanced configuration, see {@link OAuth2LoginConfigurer} for available
 	 * options to customize the defaults.
-	 *
+	 * @param oauth2LoginCustomizer the {@link Customizer} to provide more options for the
+	 * {@link OAuth2LoginConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
 	 * @see <a target="_blank" href=
 	 * "https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code
 	 * Grant</a>
@@ -2233,10 +2227,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * Authorization Code Flow</a>
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
-	 * @param oauth2LoginCustomizer the {@link Customizer} to provide more options for the
-	 * {@link OAuth2LoginConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
 	 */
 	public HttpSecurity oauth2Login(Customizer<OAuth2LoginConfigurer<HttpSecurity>> oauth2LoginCustomizer)
 			throws Exception {
@@ -2246,13 +2236,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Configures OAuth 2.0 Client support.
-	 *
+	 * @return the {@link OAuth2ClientConfigurer} for further customizations
+	 * @throws Exception
 	 * @since 5.1
 	 * @see <a target="_blank" href=
 	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
 	 * Framework</a>
-	 * @return the {@link OAuth2ClientConfigurer} for further customizations
-	 * @throws Exception
 	 */
 	public OAuth2ClientConfigurer<HttpSecurity> oauth2Client() throws Exception {
 		OAuth2ClientConfigurer<HttpSecurity> configurer = getOrApply(new OAuth2ClientConfigurer<>());
@@ -2283,14 +2272,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *	}
 	 * }
 	 * </pre>
-	 *
-	 * @see <a target="_blank" href=
-	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
-	 * Framework</a>
 	 * @param oauth2ClientCustomizer the {@link Customizer} to provide more options for
 	 * the {@link OAuth2ClientConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @see <a target="_blank" href=
+	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
+	 * Framework</a>
 	 */
 	public HttpSecurity oauth2Client(Customizer<OAuth2ClientConfigurer<HttpSecurity>> oauth2ClientCustomizer)
 			throws Exception {
@@ -2300,13 +2288,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Configures OAuth 2.0 Resource Server support.
-	 *
+	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
+	 * @throws Exception
 	 * @since 5.1
 	 * @see <a target="_blank" href=
 	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
 	 * Framework</a>
-	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
-	 * @throws Exception
 	 */
 	public OAuth2ResourceServerConfigurer<HttpSecurity> oauth2ResourceServer() throws Exception {
 		OAuth2ResourceServerConfigurer<HttpSecurity> configurer = getOrApply(
@@ -2353,14 +2340,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see <a target="_blank" href=
-	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
-	 * Framework</a>
 	 * @param oauth2ResourceServerCustomizer the {@link Customizer} to provide more
 	 * options for the {@link OAuth2ResourceServerConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @see <a target="_blank" href=
+	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
+	 * Framework</a>
 	 */
 	public HttpSecurity oauth2ResourceServer(
 			Customizer<OAuth2ResourceServerConfigurer<HttpSecurity>> oauth2ResourceServerCustomizer) throws Exception {

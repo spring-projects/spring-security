@@ -43,8 +43,8 @@ import org.springframework.security.web.FilterInvocation;
  * A JSP {@link Tag} implementation of {@link AbstractAuthorizeTag}.
  *
  * @author Rossen Stoyanchev
- * @see AbstractAuthorizeTag
  * @since 3.1.0
+ * @see AbstractAuthorizeTag
  */
 public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 

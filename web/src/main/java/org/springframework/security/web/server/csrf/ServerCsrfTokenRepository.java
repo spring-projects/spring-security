@@ -23,9 +23,9 @@ import reactor.core.publisher.Mono;
  * associated to the {@link ServerWebExchange}. For example, it may be stored in
  * {@link org.springframework.web.server.WebSession}.
  *
- * @see WebSessionServerCsrfTokenRepository
  * @author Rob Winch
  * @since 5.0
+ * @see WebSessionServerCsrfTokenRepository
  *
  */
 public interface ServerCsrfTokenRepository {

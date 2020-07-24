@@ -271,8 +271,8 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 	 * by default.
 	 * </p>
 	 * @param authorizationFailureHandler the handler that handles authorization failures.
-	 * @see RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler
 	 * @since 5.3
+	 * @see RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler
 	 */
 	public void setAuthorizationFailureHandler(ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler) {
 		Assert.notNull(authorizationFailureHandler, "authorizationFailureHandler cannot be null");

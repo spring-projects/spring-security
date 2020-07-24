@@ -35,8 +35,8 @@ import java.io.IOException;
  * registered with {@link CookieMixin} but you can also use it with your own mixin.
  *
  * @author Jitendra Singh
- * @see CookieMixin
  * @since 4.2
+ * @see CookieMixin
  */
 class CookieDeserializer extends JsonDeserializer<Cookie> {
 

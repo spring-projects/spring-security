@@ -19,8 +19,8 @@ package org.springframework.security.saml2.provider.service.registration;
 /**
  * A repository for {@link RelyingPartyRegistration}s
  *
- * @since 5.2
  * @author Filip Hanik
+ * @since 5.2
  */
 public interface RelyingPartyRegistrationRepository {
 

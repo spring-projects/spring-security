@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests to verify that all the functionality of <http-basic> attributes is present
+ * Tests to verify that all the functionality of &lt;http-basic&gt; attributes is present
  *
  * @author Rob Winch
  * @author Josh Cummings

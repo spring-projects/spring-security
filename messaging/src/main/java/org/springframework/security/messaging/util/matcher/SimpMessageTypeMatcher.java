@@ -26,8 +26,8 @@ import org.springframework.util.ObjectUtils;
  * A {@link MessageMatcher} that matches if the provided {@link Message} has a type that
  * is the same as the {@link SimpMessageType} that was specified in the constructor.
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  *
  */
 public class SimpMessageTypeMatcher implements MessageMatcher<Object> {

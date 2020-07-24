@@ -29,8 +29,8 @@ import org.springframework.util.Assert;
  * {@link MessageSecurityExpressionRoot}.
  *
  * @param <T> the type for the body of the Message
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurityExpressionHandler<Message<T>> {
 

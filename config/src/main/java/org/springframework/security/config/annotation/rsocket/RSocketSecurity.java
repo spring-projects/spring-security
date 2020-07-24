@@ -195,7 +195,7 @@ public class RSocketSecurity {
 	/**
 	 * Adds authentication with BasicAuthenticationPayloadExchangeConverter.
 	 * @param basic
-	 * @return
+	 * @return this instance
 	 * @deprecated Use {@link #simpleAuthentication(Customizer)}
 	 */
 	@Deprecated

@@ -34,7 +34,7 @@ public final class HeaderWriterLogoutHandler implements LogoutHandler {
 	/**
 	 * Constructs a new instance using the passed {@link HeaderWriter} implementation
 	 * @param headerWriter
-	 * @throws {@link IllegalArgumentException} if headerWriter is null.
+	 * @throws IllegalArgumentException if headerWriter is null.
 	 */
 	public HeaderWriterLogoutHandler(HeaderWriter headerWriter) {
 		Assert.notNull(headerWriter, "headerWriter cannot be null");

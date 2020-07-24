@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 /**
- * Tests to verify that all the functionality of <headers> attributes is present
+ * Tests to verify that all the functionality of &lt;headers&gt; attributes is present
  *
  * @author Rob Winch
  * @author Josh Cummings

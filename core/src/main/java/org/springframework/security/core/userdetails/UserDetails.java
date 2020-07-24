@@ -16,11 +16,11 @@
 
 package org.springframework.security.core.userdetails;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-
 import java.io.Serializable;
 import java.util.Collection;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Provides core user information.
@@ -36,9 +36,9 @@ import java.util.Collection;
  * {@link org.springframework.security.core.userdetails.User} for a reference
  * implementation (which you might like to extend or use in your code).
  *
+ * @author Ben Alex
  * @see UserDetailsService
  * @see UserCache
- * @author Ben Alex
  */
 public interface UserDetails extends Serializable {
 

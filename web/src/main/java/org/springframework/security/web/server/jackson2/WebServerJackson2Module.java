@@ -34,8 +34,8 @@ import org.springframework.security.web.server.csrf.DefaultCsrfToken;
  * of all security modules.</b>
  *
  * @author Boris Finkelshteyn
- * @see SecurityJackson2Modules
  * @since 5.1
+ * @see SecurityJackson2Modules
  */
 public class WebServerJackson2Module extends SimpleModule {
 

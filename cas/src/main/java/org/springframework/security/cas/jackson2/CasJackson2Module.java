@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.jasig.cas.client.authentication.AttributePrincipalImpl;
 import org.jasig.cas.client.validation.AssertionImpl;
+
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 
@@ -37,8 +38,8 @@ import org.springframework.security.jackson2.SecurityJackson2Modules;
  * of all security modules on the classpath.</b>
  *
  * @author Jitendra Singh.
- * @see org.springframework.security.jackson2.SecurityJackson2Modules
  * @since 4.2
+ * @see org.springframework.security.jackson2.SecurityJackson2Modules
  */
 public class CasJackson2Module extends SimpleModule {
 

@@ -41,8 +41,8 @@ import com.fasterxml.jackson.databind.node.MissingNode;
  * your own mixin class.
  *
  * @author Jitendra Singh
- * @see PreAuthenticatedAuthenticationTokenMixin
  * @since 4.2
+ * @see PreAuthenticatedAuthenticationTokenMixin
  */
 class PreAuthenticatedAuthenticationTokenDeserializer extends JsonDeserializer<PreAuthenticatedAuthenticationToken> {
 

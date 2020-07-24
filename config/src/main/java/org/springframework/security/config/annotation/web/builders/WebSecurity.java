@@ -72,11 +72,11 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * {@link WebSecurityConfigurerAdapter}.
  * </p>
  *
- * @see EnableWebSecurity
- * @see WebSecurityConfiguration
  * @author Rob Winch
  * @author Evgeniy Cheban
  * @since 3.2
+ * @see EnableWebSecurity
+ * @see WebSecurityConfiguration
  */
 public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter, WebSecurity>
 		implements SecurityBuilder<Filter>, ApplicationContextAware {

@@ -78,9 +78,8 @@ public final class InMemoryClientRegistrationRepository
 	 * Constructs an {@code InMemoryClientRegistrationRepository} using the provided
 	 * {@code Map} of {@link ClientRegistration#getRegistrationId() registration id} to
 	 * {@link ClientRegistration}.
-	 *
-	 * @since 5.2
 	 * @param registrations the {@code Map} of client registration(s)
+	 * @since 5.2
 	 */
 	public InMemoryClientRegistrationRepository(Map<String, ClientRegistration> registrations) {
 		Assert.notNull(registrations, "registrations cannot be null");

@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests to verify that all the functionality of <anonymous> attributes is present
+ * Tests to verify that all the functionality of &lt;anonymous&gt; attributes is present
  *
  * @author Rob Winch
  * @author Josh Cummings

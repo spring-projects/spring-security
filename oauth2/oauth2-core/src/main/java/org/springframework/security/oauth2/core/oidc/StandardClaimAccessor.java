@@ -25,6 +25,8 @@ import java.util.Map;
  * A {@link ClaimAccessor} for the &quot;Standard Claims&quot; that can be returned either
  * in the UserInfo Response or the ID Token.
  *
+ * @author Joe Grandja
+ * @since 5.0
  * @see ClaimAccessor
  * @see StandardClaimNames
  * @see OidcUserInfo
@@ -34,8 +36,6 @@ import java.util.Map;
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard
  * Claims</a>
- * @author Joe Grandja
- * @since 5.0
  */
 public interface StandardClaimAccessor extends ClaimAccessor {
 

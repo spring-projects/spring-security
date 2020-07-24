@@ -32,10 +32,10 @@ import org.springframework.security.web.SecurityFilterChain;
  * will automatically be applied to the {@link WebSecurity} by the
  * {@link EnableWebSecurity} annotation.
  *
- * @see WebSecurityConfigurerAdapter
- * @see SecurityFilterChain
  * @author Rob Winch
  * @since 3.2
+ * @see WebSecurityConfigurerAdapter
+ * @see SecurityFilterChain
  */
 public interface WebSecurityConfigurer<T extends SecurityBuilder<Filter>> extends SecurityConfigurer<Filter, T> {
 

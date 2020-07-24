@@ -28,9 +28,9 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * A base class for registering {@link RequestMatcher}'s. For example, it might allow for
  * specifying which {@link RequestMatcher} require a certain level of authorization.
  *
+ * @param <C> The object that is returned or Chained after creating the RequestMatcher
  * @author Rob Winch
  * @since 3.2
- * @param <C> The object that is returned or Chained after creating the RequestMatcher
  * @see ChannelSecurityConfigurer
  * @see UrlAuthorizationConfigurer
  * @see ExpressionUrlAuthorizationConfigurer

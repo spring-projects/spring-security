@@ -16,20 +16,21 @@
 
 package org.springframework.security.authorization;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
-
 import java.util.Arrays;
 import java.util.List;
+
+import reactor.core.publisher.Mono;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ReactiveAuthorizationManager} that determines if the current user is
  * authorized by evaluating if the {@link Authentication} contains a specified authority.
  *
+ * @param <T> the type of object being authorized
  * @author Rob Winch
  * @since 5.0
- * @param <T> the type of object being authorized
  */
 public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
 

@@ -15,18 +15,18 @@
  */
 package org.springframework.security.authorization;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-
-import reactor.core.publisher.Mono;
 
 /**
  * A reactive authorization manager which can determine if an {@link Authentication} has
  * access to a specific object.
  *
+ * @param <T> the type of object that the authorization check is being done one.
  * @author Rob Winch
  * @since 5.0
- * @param <T> the type of object that the authorization check is being done one.
  */
 public interface ReactiveAuthorizationManager<T> {
 

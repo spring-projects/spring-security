@@ -147,9 +147,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns the attribute(s) associated to the request.
-	 *
-	 * @since 5.2
 	 * @return a {@code Map} of the attribute(s), or an empty {@code Map} if not available
+	 * @since 5.2
 	 */
 	public Map<String, Object> getAttributes() {
 		return this.attributes;
@@ -157,12 +156,11 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns the value of an attribute associated to the request.
-	 *
-	 * @since 5.2
-	 * @param name the name of the attribute
 	 * @param <T> the type of the attribute
+	 * @param name the name of the attribute
 	 * @return the value of the attribute associated to the request, or {@code null} if
 	 * not available
+	 * @since 5.2
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getAttribute(String name) {
@@ -176,10 +174,9 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	 * <p>
 	 * <b>NOTE:</b> The {@code URI} string is encoded in the
 	 * {@code application/x-www-form-urlencoded} MIME format.
-	 *
-	 * @since 5.1
 	 * @return the {@code URI} string representation of the OAuth 2.0 Authorization
 	 * Request
+	 * @since 5.1
 	 */
 	public String getAuthorizationRequestUri() {
 		return this.authorizationRequestUri;
@@ -195,12 +192,12 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 	/**
 	 * Returns a new {@link Builder}, initialized with the implicit grant type.
+	 * @return the {@link Builder}
 	 * @deprecated It is not recommended to use the implicit flow due to the inherent
 	 * risks of returning access tokens in an HTTP redirect without any confirmation that
 	 * it has been received by the client.
 	 * @see <a target="_blank" href="https://oauth.net/2/grant-types/implicit/">OAuth 2.0
 	 * Implicit Grant</a>
-	 * @return the {@link Builder}
 	 */
 	@Deprecated
 	public static Builder implicit() {
@@ -210,11 +207,10 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	/**
 	 * Returns a new {@link Builder}, initialized with the values from the provided
 	 * {@code authorizationRequest}.
-	 *
-	 * @since 5.1
 	 * @param authorizationRequest the authorization request used for initializing the
 	 * {@link Builder}
 	 * @return the {@link Builder}
+	 * @since 5.1
 	 */
 	public static Builder from(OAuth2AuthorizationRequest authorizationRequest) {
 		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
@@ -352,10 +348,9 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		/**
 		 * A {@code Consumer} to be provided access to the additional parameter(s)
 		 * allowing the ability to add, replace, or remove.
-		 *
-		 * @since 5.3
 		 * @param additionalParametersConsumer a {@code Consumer} of the additional
 		 * parameters
+		 * @since 5.3
 		 */
 		public Builder additionalParameters(Consumer<Map<String, Object>> additionalParametersConsumer) {
 			if (additionalParametersConsumer != null) {
@@ -367,9 +362,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		/**
 		 * A {@code Consumer} to be provided access to all the parameters allowing the
 		 * ability to add, replace, or remove.
-		 *
-		 * @since 5.3
 		 * @param parametersConsumer a {@code Consumer} of all the parameters
+		 * @since 5.3
 		 */
 		public Builder parameters(Consumer<Map<String, Object>> parametersConsumer) {
 			if (parametersConsumer != null) {
@@ -380,10 +374,9 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
 		/**
 		 * Sets the attributes associated to the request.
-		 *
-		 * @since 5.2
 		 * @param attributes the attributes associated to the request
 		 * @return the {@link Builder}
+		 * @since 5.2
 		 */
 		public Builder attributes(Map<String, Object> attributes) {
 			if (!CollectionUtils.isEmpty(attributes)) {
@@ -395,9 +388,8 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		/**
 		 * A {@code Consumer} to be provided access to the attribute(s) allowing the
 		 * ability to add, replace, or remove.
-		 *
-		 * @since 5.3
 		 * @param attributesConsumer a {@code Consumer} of the attribute(s)
+		 * @since 5.3
 		 */
 		public Builder attributes(Consumer<Map<String, Object>> attributesConsumer) {
 			if (attributesConsumer != null) {
@@ -413,11 +405,10 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		 * <p>
 		 * <b>NOTE:</b> The {@code URI} string is <b>required</b> to be encoded in the
 		 * {@code application/x-www-form-urlencoded} MIME format.
-		 *
-		 * @since 5.1
 		 * @param authorizationRequestUri the {@code URI} string representation of the
 		 * OAuth 2.0 Authorization Request
 		 * @return the {@link Builder}
+		 * @since 5.1
 		 */
 		public Builder authorizationRequestUri(String authorizationRequestUri) {
 			this.authorizationRequestUri = authorizationRequestUri;
@@ -427,10 +418,9 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		/**
 		 * A {@code Function} to be provided a {@code UriBuilder} representation of the
 		 * OAuth 2.0 Authorization Request allowing for further customizations.
-		 *
-		 * @since 5.3
 		 * @param authorizationRequestUriFunction a {@code Function} to be provided a
 		 * {@code UriBuilder} representation of the OAuth 2.0 Authorization Request
+		 * @since 5.3
 		 */
 		public Builder authorizationRequestUri(Function<UriBuilder, URI> authorizationRequestUriFunction) {
 			if (authorizationRequestUriFunction != null) {

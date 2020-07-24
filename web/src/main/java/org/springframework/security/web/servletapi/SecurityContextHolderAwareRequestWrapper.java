@@ -41,11 +41,11 @@ import org.springframework.util.Assert;
  * <li>{@link HttpServletRequestWrapper#getRemoteUser()}.</li>
  * </ul>
  *
- * @see SecurityContextHolderAwareRequestFilter
  * @author Orlando Garcia Carmona
  * @author Ben Alex
  * @author Luke Taylor
  * @author Rob Winch
+ * @see SecurityContextHolderAwareRequestFilter
  */
 public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
 

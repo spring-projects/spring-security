@@ -35,11 +35,10 @@ import org.springframework.util.StringUtils;
  * A {@link WithUserDetailsSecurityContextFactory} that works with {@link WithUserDetails}
  * .
  *
- * @see WithUserDetails
  * @author Rob Winch
  * @since 4.0
+ * @see WithUserDetails
  */
-
 final class WithUserDetailsSecurityContextFactory implements WithSecurityContextFactory<WithUserDetails> {
 
 	private static final boolean reactorPresent = ClassUtils.isPresent("reactor.core.publisher.Mono",

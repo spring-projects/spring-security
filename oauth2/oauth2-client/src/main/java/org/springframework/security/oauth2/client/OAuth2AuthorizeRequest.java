@@ -145,11 +145,10 @@ public final class OAuth2AuthorizeRequest {
 		/**
 		 * Sets the name of the {@code Principal} (to be) associated to the authorized
 		 * client.
-		 *
-		 * @since 5.3
 		 * @param principalName the name of the {@code Principal} (to be) associated to
 		 * the authorized client
 		 * @return the {@link Builder}
+		 * @since 5.3
 		 */
 		public Builder principal(String principalName) {
 			return principal(createAuthentication(principalName));

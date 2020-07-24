@@ -43,8 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests to verify that all the functionality of <access-denied-handler> attributes is
- * present
+ * Tests to verify that all the functionality of &lt;access-denied-handler&gt; attributes
+ * is present
  *
  * @author Rob Winch
  * @author Josh Cummings

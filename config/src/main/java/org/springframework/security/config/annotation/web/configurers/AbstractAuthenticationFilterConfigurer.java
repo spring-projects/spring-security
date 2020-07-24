@@ -49,13 +49,13 @@ import java.util.Collections;
  * Base class for configuring {@link AbstractAuthenticationFilterConfigurer}. This is
  * intended for internal use only.
  *
- * @see FormLoginConfigurer
- * @see OpenIDLoginConfigurer
  * @param T refers to "this" for returning the current configurer
  * @param F refers to the {@link AbstractAuthenticationProcessingFilter} that is being
  * built
  * @author Rob Winch
  * @since 3.2
+ * @see FormLoginConfigurer
+ * @see OpenIDLoginConfigurer
  */
 public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecurityBuilder<B>, T extends AbstractAuthenticationFilterConfigurer<B, T, F>, F extends AbstractAuthenticationProcessingFilter>
 		extends AbstractHttpConfigurer<T, B> {

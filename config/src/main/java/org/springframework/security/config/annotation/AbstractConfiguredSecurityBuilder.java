@@ -44,10 +44,10 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * filters necessary for session management, form based login, authorization, etc.
  * </p>
  *
- * @see WebSecurity
- * @author Rob Winch
  * @param <O> The object that this builder returns
  * @param <B> The type of this builder (that is returned by the base class)
+ * @author Rob Winch
+ * @see WebSecurity
  */
 public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBuilder<O>>
 		extends AbstractSecurityBuilder<O> {

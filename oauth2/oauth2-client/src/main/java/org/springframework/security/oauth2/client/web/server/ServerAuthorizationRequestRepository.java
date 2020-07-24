@@ -34,11 +34,11 @@ import reactor.core.publisher.Mono;
  * used by the {@link OAuth2LoginAuthenticationFilter} for resolving the associated
  * Authorization Request when handling the callback of the Authorization Response.
  *
+ * @param <T> The type of OAuth 2.0 Authorization Request
  * @author Rob Winch
  * @since 5.1
  * @see OAuth2AuthorizationRequest
  * @see HttpSessionOAuth2AuthorizationRequestRepository
- * @param <T> The type of OAuth 2.0 Authorization Request
  */
 public interface ServerAuthorizationRequestRepository<T extends OAuth2AuthorizationRequest> {
 

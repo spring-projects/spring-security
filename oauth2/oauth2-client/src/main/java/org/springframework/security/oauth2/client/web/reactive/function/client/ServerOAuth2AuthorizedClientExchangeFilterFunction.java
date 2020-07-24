@@ -177,10 +177,9 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * will result in removing the authorized client, so that a new token is retrieved for
 	 * future requests.
 	 * </p>
-	 *
-	 * @since 5.2
 	 * @param authorizedClientManager the {@link ReactiveOAuth2AuthorizedClientManager}
 	 * which manages the authorized client(s)
+	 * @since 5.2
 	 */
 	public ServerOAuth2AuthorizedClientExchangeFilterFunction(
 			ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
@@ -258,7 +257,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * WebClient webClient = WebClient.builder()
 	 *    .filter(new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager))
 	 *    .build();
-	 * Mono<String> response = webClient
+	 * Mono&lt;String&gt; response = webClient
 	 *    .get()
 	 *    .uri(uri)
 	 *    .attributes(oauth2AuthorizedClient(authorizedClient))
@@ -297,7 +296,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * WebClient webClient = WebClient.builder()
 	 *    .filter(new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager))
 	 *    .build();
-	 * Mono<String> response = webClient
+	 * Mono&lt;String&gt; response = webClient
 	 *    .get()
 	 *    .uri(uri)
 	 *    .attributes(serverWebExchange(serverWebExchange))

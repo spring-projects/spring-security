@@ -16,19 +16,19 @@
 
 package org.springframework.security.authorization;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
-import reactor.core.publisher.Mono;
 
 /**
  * A {@link ReactiveAuthorizationManager} that determines if the current user is
  * authenticated.
  *
- * @author Rob Winch
- * @since 5.0
  * @param <T> The type of object authorization is being performed against. This does not
- * matter since the authorization decision does not use the object.
+ * @author Rob Winch
+ * @since 5.0 matter since the authorization decision does not use the object.
  */
 public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
 
@@ -47,7 +47,7 @@ public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAut
 	 * @return <code>true</code> if not anonymous, otherwise <code>false</code>.
 	 */
 	private boolean isNotAnonymous(Authentication authentication) {
-		return !authTrustResolver.isAnonymous(authentication);
+		return !this.authTrustResolver.isAnonymous(authentication);
 	}
 
 	/**

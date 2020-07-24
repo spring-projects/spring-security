@@ -20,8 +20,8 @@ import org.springframework.messaging.Message;
 /**
  * API for determining if a {@link Message} should be matched on.
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public interface MessageMatcher<T> {
 

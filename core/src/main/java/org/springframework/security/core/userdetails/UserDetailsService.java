@@ -27,9 +27,9 @@ package org.springframework.security.core.userdetails;
  * The interface requires only one read-only method, which simplifies support for new
  * data-access strategies.
  *
+ * @author Ben Alex
  * @see org.springframework.security.authentication.dao.DaoAuthenticationProvider
  * @see UserDetails
- * @author Ben Alex
  */
 public interface UserDetailsService {
 

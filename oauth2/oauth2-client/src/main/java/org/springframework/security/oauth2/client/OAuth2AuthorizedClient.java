@@ -107,9 +107,8 @@ public class OAuth2AuthorizedClient implements Serializable {
 
 	/**
 	 * Returns the {@link OAuth2RefreshToken refresh token} credential granted.
-	 *
-	 * @since 5.1
 	 * @return the {@link OAuth2RefreshToken}
+	 * @since 5.1
 	 */
 	public @Nullable OAuth2RefreshToken getRefreshToken() {
 		return this.refreshToken;

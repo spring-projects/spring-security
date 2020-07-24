@@ -774,11 +774,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <li>Content-Security-Policy</li>
 	 * <li>Content-Security-Policy-Report-Only</li>
 	 * </ul>
-	 *
-	 * @see ContentSecurityPolicyHeaderWriter
-	 * @since 4.1
 	 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policyDirectives is null or empty
+	 * @since 4.1
+	 * @see ContentSecurityPolicyHeaderWriter
 	 */
 	public ContentSecurityPolicyConfig contentSecurityPolicy(String policyDirectives) {
 		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter(policyDirectives);
@@ -805,11 +804,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <li>Content-Security-Policy</li>
 	 * <li>Content-Security-Policy-Report-Only</li>
 	 * </ul>
-	 *
-	 * @see ContentSecurityPolicyHeaderWriter
 	 * @param contentSecurityCustomizer the {@link Customizer} to provide more options for
 	 * the {@link ContentSecurityPolicyConfig}
 	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @see ContentSecurityPolicyHeaderWriter
 	 */
 	public HeadersConfigurer<H> contentSecurityPolicy(
 			Customizer<ContentSecurityPolicyConfig> contentSecurityCustomizer) {
@@ -944,10 +942,9 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <pre>
 	 * Referrer-Policy: no-referrer
 	 * </pre>
-	 *
-	 * @see ReferrerPolicyHeaderWriter
-	 * @since 4.2
 	 * @return the {@link ReferrerPolicyConfig} for additional configuration
+	 * @since 4.2
+	 * @see ReferrerPolicyHeaderWriter
 	 */
 	public ReferrerPolicyConfig referrerPolicy() {
 		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter();
@@ -967,11 +964,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <ul>
 	 * <li>Referrer-Policy</li>
 	 * </ul>
-	 *
-	 * @see ReferrerPolicyHeaderWriter
-	 * @since 4.2
 	 * @return the {@link ReferrerPolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policy is null or empty
+	 * @since 4.2
+	 * @see ReferrerPolicyHeaderWriter
 	 */
 	public ReferrerPolicyConfig referrerPolicy(ReferrerPolicy policy) {
 		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter(policy);
@@ -991,11 +987,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <ul>
 	 * <li>Referrer-Policy</li>
 	 * </ul>
-	 *
-	 * @see ReferrerPolicyHeaderWriter
 	 * @param referrerPolicyCustomizer the {@link Customizer} to provide more options for
 	 * the {@link ReferrerPolicyConfig}
 	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @see ReferrerPolicyHeaderWriter
 	 */
 	public HeadersConfigurer<H> referrerPolicy(Customizer<ReferrerPolicyConfig> referrerPolicyCustomizer) {
 		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter();
@@ -1036,11 +1031,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <p>
 	 * Configuration is provided to the {@link FeaturePolicyHeaderWriter} which is
 	 * responsible for writing the header.
-	 *
-	 * @see FeaturePolicyHeaderWriter
-	 * @since 5.1
 	 * @return the {@link FeaturePolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
+	 * @since 5.1
+	 * @see FeaturePolicyHeaderWriter
 	 */
 	public FeaturePolicyConfig featurePolicy(String policyDirectives) {
 		this.featurePolicy.writer = new FeaturePolicyHeaderWriter(policyDirectives);

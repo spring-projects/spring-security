@@ -38,10 +38,10 @@ import org.springframework.util.StringUtils;
  * and populate {@code WWW-Authenticate} HTTP header.
  *
  * @author Vedran Pavic
+ * @since 5.1
  * @see BearerTokenError
  * @see <a href="https://tools.ietf.org/html/rfc6750#section-3" target="_blank">RFC 6750
  * Section 3: The WWW-Authenticate Response Header Field</a>
- * @since 5.1
  */
 public final class BearerTokenAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

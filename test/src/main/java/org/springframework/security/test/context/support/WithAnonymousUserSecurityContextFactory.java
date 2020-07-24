@@ -28,11 +28,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * A {@link WithAnonymousUserSecurityContextFactory} that runs with an
  * {@link AnonymousAuthenticationToken}. .
  *
- * @see WithUserDetails
  * @author Rob Winch
  * @since 4.1
+ * @see WithUserDetails
  */
-
 final class WithAnonymousUserSecurityContextFactory implements WithSecurityContextFactory<WithAnonymousUser> {
 
 	public SecurityContext createSecurityContext(WithAnonymousUser withUser) {

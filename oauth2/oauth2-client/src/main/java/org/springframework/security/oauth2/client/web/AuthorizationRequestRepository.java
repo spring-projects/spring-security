@@ -30,11 +30,11 @@ import javax.servlet.http.HttpServletResponse;
  * used by the {@link OAuth2LoginAuthenticationFilter} for resolving the associated
  * Authorization Request when handling the callback of the Authorization Response.
  *
+ * @param <T> The type of OAuth 2.0 Authorization Request
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2AuthorizationRequest
  * @see HttpSessionOAuth2AuthorizationRequestRepository
- * @param <T> The type of OAuth 2.0 Authorization Request
  */
 public interface AuthorizationRequestRepository<T extends OAuth2AuthorizationRequest> {
 
@@ -72,11 +72,10 @@ public interface AuthorizationRequestRepository<T extends OAuth2AuthorizationReq
 	 * Removes and returns the {@link OAuth2AuthorizationRequest} associated to the
 	 * provided {@code HttpServletRequest} and {@code HttpServletResponse} or if not
 	 * available returns {@code null}.
-	 *
-	 * @since 5.1
 	 * @param request the {@code HttpServletRequest}
 	 * @param response the {@code HttpServletResponse}
 	 * @return the {@link OAuth2AuthorizationRequest} or {@code null} if not available
+	 * @since 5.1
 	 */
 	default T removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
 		return removeAuthorizationRequest(request);

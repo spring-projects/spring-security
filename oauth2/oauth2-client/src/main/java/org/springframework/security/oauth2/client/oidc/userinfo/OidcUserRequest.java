@@ -52,12 +52,11 @@ public class OidcUserRequest extends OAuth2UserRequest {
 
 	/**
 	 * Constructs an {@code OidcUserRequest} using the provided parameters.
-	 *
-	 * @since 5.1
 	 * @param clientRegistration the client registration
 	 * @param accessToken the access token credential
 	 * @param idToken the ID Token
 	 * @param additionalParameters the additional parameters, may be empty
+	 * @since 5.1
 	 */
 	public OidcUserRequest(ClientRegistration clientRegistration, OAuth2AccessToken accessToken, OidcIdToken idToken,
 			Map<String, Object> additionalParameters) {

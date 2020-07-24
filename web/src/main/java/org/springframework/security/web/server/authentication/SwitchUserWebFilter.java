@@ -86,8 +86,8 @@ import java.util.Optional;
  * </pre>
  *
  * @author Artur Otrzonsek
- * @see SwitchUserGrantedAuthority
  * @since 5.4
+ * @see SwitchUserGrantedAuthority
  */
 public class SwitchUserWebFilter implements WebFilter {
 

@@ -25,9 +25,9 @@ import org.springframework.util.Assert;
  * "https://www.oasis-open.org/committees/download.php/35711/sstc-saml-core-errata-2.0-wd-06-diff.pdf">
  * Assertions and Protocols for SAML 2 (line 2031)</a>
  *
+ * @since 5.3
  * @see Saml2AuthenticationRequestFactory#createPostAuthenticationRequest(Saml2AuthenticationRequestContext)
  * @see Saml2AuthenticationRequestFactory#createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext)
- * @since 5.3
  */
 public class Saml2AuthenticationRequestContext {
 
@@ -167,7 +167,7 @@ public class Saml2AuthenticationRequestContext {
 		/**
 		 * Creates a {@link Saml2AuthenticationRequestContext} object.
 		 * @return the Saml2AuthenticationRequest object
-		 * @throws {@link IllegalArgumentException} if a required property is not set
+		 * @throws IllegalArgumentException if a required property is not set
 		 */
 		public Saml2AuthenticationRequestContext build() {
 			return new Saml2AuthenticationRequestContext(this.relyingPartyRegistration, this.issuer,

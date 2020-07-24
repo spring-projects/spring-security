@@ -57,9 +57,8 @@ public final class OAuth2AccessTokenResponse {
 
 	/**
 	 * Returns the {@link OAuth2RefreshToken Refresh Token}.
-	 *
-	 * @since 5.1
 	 * @return the {@link OAuth2RefreshToken}
+	 * @since 5.1
 	 */
 	public @Nullable OAuth2RefreshToken getRefreshToken() {
 		return this.refreshToken;
