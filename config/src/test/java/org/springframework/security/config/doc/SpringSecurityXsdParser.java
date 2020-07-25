@@ -85,9 +85,7 @@ public class SpringSecurityXsdParser {
 			if ("attribute".equals(name)) {
 				attrs.add(attr(c));
 			}
-			else if ("element".equals(name)) {
-			}
-			else {
+			else if (!"element".equals(name)) {
 				attrs.addAll(attrs(c));
 			}
 		});
@@ -105,21 +103,20 @@ public class SpringSecurityXsdParser {
 		Collection<Attribute> attrgrp = new ArrayList<>();
 
 		element.children().forEach(c -> {
-			if ("element".equals(c.simpleName())) {
-
-			}
-			else if ("attributeGroup".equals(c.simpleName())) {
-				if (c.attribute("name") != null) {
-					attrgrp.addAll(attrgrp(c));
+			if (!"element".equals(c.simpleName())) {
+				if ("attributeGroup".equals(c.simpleName())) {
+					if (c.attribute("name") != null) {
+						attrgrp.addAll(attrgrp(c));
+					}
+					else {
+						String name = c.attribute("ref").split(":")[1];
+						XmlNode attrGrp = findNode(element, name);
+						attrgrp.addAll(attrgrp(attrGrp));
+					}
 				}
 				else {
-					String name = c.attribute("ref").split(":")[1];
-					XmlNode attrGrp = findNode(element, name);
-					attrgrp.addAll(attrgrp(attrGrp));
+					attrgrp.addAll(attrgrps(c));
 				}
-			}
-			else {
-				attrgrp.addAll(attrgrps(c));
 			}
 		});
 
