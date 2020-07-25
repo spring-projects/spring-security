@@ -30,7 +30,10 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class NoOpServerRequestCache implements ServerRequestCache {
+public final class NoOpServerRequestCache implements ServerRequestCache {
+
+	private NoOpServerRequestCache() {
+	}
 
 	@Override
 	public Mono<Void> saveRequest(ServerWebExchange exchange) {
@@ -49,9 +52,6 @@ public class NoOpServerRequestCache implements ServerRequestCache {
 
 	public static NoOpServerRequestCache getInstance() {
 		return new NoOpServerRequestCache();
-	}
-
-	private NoOpServerRequestCache() {
 	}
 
 }

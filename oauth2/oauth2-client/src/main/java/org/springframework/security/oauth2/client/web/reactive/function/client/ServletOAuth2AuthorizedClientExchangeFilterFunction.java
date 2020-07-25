@@ -637,7 +637,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	 *
 	 * @since 5.3
 	 */
-	private static class AuthorizationFailureForwarder implements ClientResponseHandler {
+	private static final class AuthorizationFailureForwarder implements ClientResponseHandler {
 
 		/**
 		 * A map of HTTP status code to OAuth 2.0 error code for HTTP status codes that

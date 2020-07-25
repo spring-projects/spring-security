@@ -113,7 +113,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
-	public class StandardInterceptUrlRegistry extends
+	public final class StandardInterceptUrlRegistry extends
 			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry, AuthorizedUrl> {
 
 		/**
@@ -134,7 +134,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		@Override
-		protected final AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
+		protected AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
 			return new AuthorizedUrl(requestMatchers);
 		}
 
@@ -275,7 +275,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @param requestMatchers the {@link RequestMatcher} instances to map to some
 		 * {@link ConfigAttribute} instances.
 		 */
-		private AuthorizedUrl(List<? extends RequestMatcher> requestMatchers) {
+		AuthorizedUrl(List<? extends RequestMatcher> requestMatchers) {
 			Assert.notEmpty(requestMatchers, "requestMatchers must contain at least one value");
 			this.requestMatchers = requestMatchers;
 		}

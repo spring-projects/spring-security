@@ -144,7 +144,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 
 	}
 
-	private static class TestConfiguredSecurityBuilder
+	private static final class TestConfiguredSecurityBuilder
 			extends AbstractConfiguredSecurityBuilder<Object, TestConfiguredSecurityBuilder> {
 
 		private TestConfiguredSecurityBuilder(ObjectPostProcessor<Object> objectPostProcessor) {

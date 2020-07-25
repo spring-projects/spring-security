@@ -94,7 +94,7 @@ public final class OAuth2AccessTokenResponse {
 	/**
 	 * A builder for {@link OAuth2AccessTokenResponse}.
 	 */
-	public static class Builder {
+	public static final class Builder {
 
 		private String tokenValue;
 

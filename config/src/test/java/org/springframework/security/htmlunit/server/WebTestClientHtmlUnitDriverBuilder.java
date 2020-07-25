@@ -30,7 +30,7 @@ import org.springframework.test.web.servlet.htmlunit.webdriver.WebConnectionHtml
  * @author Rob Winch
  * @since 5.0
  */
-public class WebTestClientHtmlUnitDriverBuilder {
+public final class WebTestClientHtmlUnitDriverBuilder {
 
 	private final WebTestClient webTestClient;
 

@@ -35,7 +35,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Mathieu Ouellet
  * @since 5.0
  */
-public class DelegatingReactiveAuthorizationManager implements ReactiveAuthorizationManager<ServerWebExchange> {
+public final class DelegatingReactiveAuthorizationManager implements ReactiveAuthorizationManager<ServerWebExchange> {
 
 	private static final Log logger = LogFactory.getLog(DelegatingReactiveAuthorizationManager.class);
 
@@ -63,7 +63,7 @@ public class DelegatingReactiveAuthorizationManager implements ReactiveAuthoriza
 		return new DelegatingReactiveAuthorizationManager.Builder();
 	}
 
-	public static class Builder {
+	public static final class Builder {
 
 		private final List<ServerWebExchangeMatcherEntry<ReactiveAuthorizationManager<AuthorizationContext>>> mappings = new ArrayList<>();
 

@@ -154,7 +154,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 	/**
 	 * Configuration options for the OAuth 2.0 Authorization Code Grant.
 	 */
-	public class AuthorizationCodeGrantConfigurer {
+	public final class AuthorizationCodeGrantConfigurer {
 
 		private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 

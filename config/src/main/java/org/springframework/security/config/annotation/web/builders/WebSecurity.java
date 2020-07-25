@@ -337,7 +337,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 */
 	public class IgnoredRequestConfigurer extends AbstractRequestMatcherRegistry<IgnoredRequestConfigurer> {
 
-		private IgnoredRequestConfigurer(ApplicationContext context) {
+		IgnoredRequestConfigurer(ApplicationContext context) {
 			setApplicationContext(context);
 		}
 

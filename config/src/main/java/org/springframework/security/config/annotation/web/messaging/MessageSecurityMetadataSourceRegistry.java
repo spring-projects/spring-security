@@ -251,7 +251,7 @@ public class MessageSecurityMetadataSourceRegistry {
 	 * Represents the security constraint to be applied to the {@link MessageMatcher}
 	 * instances.
 	 */
-	public class Constraint {
+	public final class Constraint {
 
 		private final List<? extends MatcherBuilder> messageMatchers;
 
@@ -409,7 +409,7 @@ public class MessageSecurityMetadataSourceRegistry {
 		return "hasAnyAuthority('" + anyAuthorities + "')";
 	}
 
-	private static class PreBuiltMatcherBuilder implements MatcherBuilder {
+	private final static class PreBuiltMatcherBuilder implements MatcherBuilder {
 
 		private MessageMatcher<?> matcher;
 
@@ -423,7 +423,7 @@ public class MessageSecurityMetadataSourceRegistry {
 
 	}
 
-	private class PathMatcherMessageMatcherBuilder implements MatcherBuilder {
+	private final class PathMatcherMessageMatcherBuilder implements MatcherBuilder {
 
 		private final String pattern;
 

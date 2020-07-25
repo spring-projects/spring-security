@@ -36,7 +36,7 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 
 	private final List<String> authorities;
 
-	private AuthorityReactiveAuthorizationManager(String... authorities) {
+	AuthorityReactiveAuthorizationManager(String... authorities) {
 		this.authorities = Arrays.asList(authorities);
 	}
 

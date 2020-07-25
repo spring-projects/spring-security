@@ -31,7 +31,7 @@ import static org.springframework.security.saml2.provider.service.registration.S
  */
 public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
 
-	private Saml2PostAuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri) {
+	Saml2PostAuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri) {
 		super(samlRequest, relayState, authenticationRequestUri);
 	}
 
@@ -59,7 +59,7 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 	/**
 	 * Builder class for a {@link Saml2PostAuthenticationRequest} object.
 	 */
-	public static class Builder extends AbstractSaml2AuthenticationRequest.Builder<Builder> {
+	public static final class Builder extends AbstractSaml2AuthenticationRequest.Builder<Builder> {
 
 		private Builder() {
 			super();

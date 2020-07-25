@@ -30,7 +30,7 @@ import org.springframework.web.server.handler.FilteringWebHandler;
  * @author Rob Winch
  * @since 5.0
  */
-public class WebTestHandler {
+public final class WebTestHandler {
 
 	private final MockWebHandler webHandler = new MockWebHandler();
 
@@ -50,7 +50,7 @@ public class WebTestHandler {
 		return new WebHandlerResult(webHandler.exchange);
 	}
 
-	public static class WebHandlerResult {
+	public static final class WebHandlerResult {
 
 		private final ServerWebExchange exchange;
 

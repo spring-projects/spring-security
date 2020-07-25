@@ -87,7 +87,7 @@ final class WithUserDetailsSecurityContextFactory implements WithSecurityContext
 		}
 	}
 
-	private class ReactiveUserDetailsServiceAdapter implements UserDetailsService {
+	private final class ReactiveUserDetailsServiceAdapter implements UserDetailsService {
 
 		private final ReactiveUserDetailsService userDetailsService;
 

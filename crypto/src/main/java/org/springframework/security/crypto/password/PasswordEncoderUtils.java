@@ -24,7 +24,10 @@ import org.springframework.security.crypto.codec.Utf8;
  *
  * @author Rob Winch
  */
-class PasswordEncoderUtils {
+final class PasswordEncoderUtils {
+
+	private PasswordEncoderUtils() {
+	}
 
 	/**
 	 * Constant time comparison to prevent against timing attacks.
@@ -43,12 +46,9 @@ class PasswordEncoderUtils {
 		if (s == null) {
 			return null;
 		}
-
-		return Utf8.encode(s); // need to check if Utf8.encode() runs in constant time
-								// (probably not). This may leak length of string.
-	}
-
-	private PasswordEncoderUtils() {
+		// need to check if Utf8.encode() runs in constant time (probably not).
+		// This may leak length of string.
+		return Utf8.encode(s);
 	}
 
 }

@@ -195,7 +195,7 @@ public final class ClientRegistration implements Serializable {
 
 		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 
-		private ProviderDetails() {
+		ProviderDetails() {
 		}
 
 		/**
@@ -263,7 +263,7 @@ public final class ClientRegistration implements Serializable {
 
 			private String userNameAttributeName;
 
-			private UserInfoEndpoint() {
+			UserInfoEndpoint() {
 			}
 
 			/**
@@ -322,7 +322,7 @@ public final class ClientRegistration implements Serializable {
 	/**
 	 * A builder for {@link ClientRegistration}.
 	 */
-	public static class Builder implements Serializable {
+	public static final class Builder implements Serializable {
 
 		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 

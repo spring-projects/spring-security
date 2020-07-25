@@ -29,7 +29,7 @@ import static org.springframework.security.saml2.provider.service.registration.S
  * @since 5.3
  * @see Saml2AuthenticationRequestFactory
  */
-public class Saml2RedirectAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
+public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
 
 	private final String sigAlg;
 
@@ -82,7 +82,7 @@ public class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authenticat
 	/**
 	 * Builder class for a {@link Saml2RedirectAuthenticationRequest} object.
 	 */
-	public static class Builder extends AbstractSaml2AuthenticationRequest.Builder<Builder> {
+	public static final class Builder extends AbstractSaml2AuthenticationRequest.Builder<Builder> {
 
 		private String sigAlg;
 

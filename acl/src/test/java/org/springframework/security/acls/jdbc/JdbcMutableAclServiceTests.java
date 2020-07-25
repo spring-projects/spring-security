@@ -550,7 +550,7 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
 	 */
 	private class CustomJdbcMutableAclService extends JdbcMutableAclService {
 
-		private CustomJdbcMutableAclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache) {
+		CustomJdbcMutableAclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache) {
 			super(dataSource, lookupStrategy, aclCache);
 		}
 

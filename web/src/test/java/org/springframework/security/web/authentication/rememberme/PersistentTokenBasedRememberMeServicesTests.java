@@ -138,7 +138,7 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		return services;
 	}
 
-	private class MockTokenRepository implements PersistentTokenRepository {
+	private final class MockTokenRepository implements PersistentTokenRepository {
 
 		private PersistentRememberMeToken storedToken;
 

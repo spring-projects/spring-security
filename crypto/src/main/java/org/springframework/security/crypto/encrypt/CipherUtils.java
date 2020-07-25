@@ -36,7 +36,10 @@ import javax.crypto.spec.PBEParameterSpec;
  *
  * @author Keith Donald
  */
-class CipherUtils {
+final class CipherUtils {
+
+	private CipherUtils() {
+	}
 
 	/**
 	 * Generates a SecretKey.
@@ -136,9 +139,6 @@ class CipherUtils {
 		catch (BadPaddingException e) {
 			throw new IllegalStateException("Unable to invoke Cipher due to bad padding", e);
 		}
-	}
-
-	private CipherUtils() {
 	}
 
 }

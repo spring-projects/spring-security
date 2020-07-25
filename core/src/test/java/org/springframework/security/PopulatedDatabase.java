@@ -26,7 +26,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  *
  * @author Ben Alex
  */
-public class PopulatedDatabase {
+public final class PopulatedDatabase {
 
 	private static TestDataSource dataSource = null;
 

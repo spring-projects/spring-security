@@ -34,6 +34,9 @@ public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAut
 
 	private AuthenticationTrustResolver authTrustResolver = new AuthenticationTrustResolverImpl();
 
+	AuthenticatedReactiveAuthorizationManager() {
+	}
+
 	@Override
 	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
 		return authentication.filter(this::isNotAnonymous).map(a -> new AuthorizationDecision(a.isAuthenticated()))
@@ -57,9 +60,6 @@ public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAut
 	 */
 	public static <T> AuthenticatedReactiveAuthorizationManager<T> authenticated() {
 		return new AuthenticatedReactiveAuthorizationManager<>();
-	}
-
-	private AuthenticatedReactiveAuthorizationManager() {
 	}
 
 }

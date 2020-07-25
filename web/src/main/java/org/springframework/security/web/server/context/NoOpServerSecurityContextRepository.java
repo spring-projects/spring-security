@@ -28,13 +28,15 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Rob Winch
  * @since 5.0
  */
-public class NoOpServerSecurityContextRepository implements ServerSecurityContextRepository {
+public final class NoOpServerSecurityContextRepository implements ServerSecurityContextRepository {
 
 	private static final NoOpServerSecurityContextRepository INSTANCE = new NoOpServerSecurityContextRepository();
 
+	private NoOpServerSecurityContextRepository() {
+	}
+
 	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
 		return Mono.empty();
-
 	}
 
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {
@@ -43,9 +45,6 @@ public class NoOpServerSecurityContextRepository implements ServerSecurityContex
 
 	public static NoOpServerSecurityContextRepository getInstance() {
 		return INSTANCE;
-	}
-
-	private NoOpServerSecurityContextRepository() {
 	}
 
 }

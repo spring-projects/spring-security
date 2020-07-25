@@ -28,6 +28,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.springframework.security.saml2.core.Saml2X509Credential;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.ProviderDetails;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 import org.springframework.util.Assert;
 
@@ -69,7 +71,7 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.2
  */
-public class RelyingPartyRegistration {
+public final class RelyingPartyRegistration {
 
 	private final String registrationId;
 

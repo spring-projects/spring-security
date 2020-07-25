@@ -294,7 +294,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * Internal {@code FilterChain} implementation that is used to pass a request through
 	 * the additional internal list of filters which match the request.
 	 */
-	private static class VirtualFilterChain implements FilterChain {
+	private static final class VirtualFilterChain implements FilterChain {
 
 		private final FilterChain originalChain;
 

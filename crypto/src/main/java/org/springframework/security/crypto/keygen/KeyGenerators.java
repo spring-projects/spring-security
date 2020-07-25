@@ -23,7 +23,10 @@ import java.security.SecureRandom;
  *
  * @author Keith Donald
  */
-public class KeyGenerators {
+public final class KeyGenerators {
+
+	private KeyGenerators() {
+	}
 
 	/**
 	 * Create a {@link BytesKeyGenerator} that uses a {@link SecureRandom} to generate
@@ -57,11 +60,6 @@ public class KeyGenerators {
 	 */
 	public static StringKeyGenerator string() {
 		return new HexEncodingStringKeyGenerator(secureRandom());
-	}
-
-	// internal helpers
-
-	private KeyGenerators() {
 	}
 
 }
