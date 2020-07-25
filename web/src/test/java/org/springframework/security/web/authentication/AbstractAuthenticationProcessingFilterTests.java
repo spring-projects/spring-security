@@ -533,10 +533,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		}
 
 		public void doFilter(ServletRequest request, ServletResponse response) {
-			if (expectToProceed) {
-
-			}
-			else {
+			if (!expectToProceed) {
 				fail("Did not expect filter chain to proceed");
 			}
 		}

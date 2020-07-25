@@ -3,7 +3,6 @@
 		"-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
 		"https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
-	<suppress files=".*" checks="EmptyBlock" />
 	<suppress files=".*" checks="FinalClass" />
 	<suppress files=".*" checks="InnerAssignment" />
 	<suppress files=".*" checks="InnerTypeLast" />
@@ -32,7 +31,6 @@
 	<suppress files=".*" checks="SpringCatch" />
 	<suppress files=".*" checks="SpringHeader" />
 	<suppress files=".*" checks="SpringHideUtilityClassConstructor" />
-	<suppress files=".*" checks="SpringImportOrder" />
 	<suppress files=".*" checks="SpringJavadoc" />
 	<suppress files=".*" checks="SpringLambda" />
 	<suppress files=".*" checks="SpringMethodOrder" />
