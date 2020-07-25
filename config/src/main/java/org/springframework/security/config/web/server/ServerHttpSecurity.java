@@ -628,9 +628,12 @@ public class ServerHttpSecurity {
 	 * Configures CORS support within Spring Security. This ensures that the
 	 * {@link CorsWebFilter} is place in the correct order.
 	 */
-	public class CorsSpec {
+	public final class CorsSpec {
 
 		private CorsWebFilter corsFilter;
+
+		private CorsSpec() {
+		}
 
 		/**
 		 * Configures the {@link CorsConfigurationSource} to be used
@@ -681,9 +684,6 @@ public class ServerHttpSecurity {
 			}
 			this.corsFilter = new CorsWebFilter(source, processor);
 			return this.corsFilter;
-		}
-
-		private CorsSpec() {
 		}
 
 	}
@@ -874,11 +874,14 @@ public class ServerHttpSecurity {
 	 * @since 5.2
 	 * @see #x509()
 	 */
-	public class X509Spec {
+	public final class X509Spec {
 
 		private X509PrincipalExtractor principalExtractor;
 
 		private ReactiveAuthenticationManager authenticationManager;
+
+		private X509Spec() {
+		}
 
 		public X509Spec principalExtractor(X509PrincipalExtractor principalExtractor) {
 			this.principalExtractor = principalExtractor;
@@ -921,9 +924,6 @@ public class ServerHttpSecurity {
 					userDetailsService);
 
 			return authenticationManager;
-		}
-
-		private X509Spec() {
 		}
 
 	}
@@ -981,7 +981,7 @@ public class ServerHttpSecurity {
 		return this;
 	}
 
-	public class OAuth2LoginSpec {
+	public final class OAuth2LoginSpec {
 
 		private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
@@ -1002,6 +1002,9 @@ public class ServerHttpSecurity {
 		private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
+
+		private OAuth2LoginSpec() {
+		}
 
 		/**
 		 * Configures the {@link ReactiveAuthenticationManager} to use. The default is
@@ -1378,9 +1381,6 @@ public class ServerHttpSecurity {
 			return service;
 		}
 
-		private OAuth2LoginSpec() {
-		}
-
 	}
 
 	/**
@@ -1434,7 +1434,7 @@ public class ServerHttpSecurity {
 		return this;
 	}
 
-	public class OAuth2ClientSpec {
+	public final class OAuth2ClientSpec {
 
 		private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
@@ -1445,6 +1445,9 @@ public class ServerHttpSecurity {
 		private ReactiveAuthenticationManager authenticationManager;
 
 		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+
+		private OAuth2ClientSpec() {
+		}
 
 		/**
 		 * Sets the converter to use
@@ -1593,9 +1596,6 @@ public class ServerHttpSecurity {
 				service = new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
 			}
 			return service;
-		}
-
-		private OAuth2ClientSpec() {
 		}
 
 	}
@@ -1794,8 +1794,9 @@ public class ServerHttpSecurity {
 
 			if (this.authenticationManagerResolver != null) {
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(this.authenticationManagerResolver);
-				oauth2.setServerAuthenticationConverter(bearerTokenConverter);
-				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
+				oauth2.setServerAuthenticationConverter(this.bearerTokenConverter);
+				oauth2.setAuthenticationFailureHandler(
+						new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 			else if (this.jwt != null) {
@@ -1961,8 +1962,9 @@ public class ServerHttpSecurity {
 			protected void configure(ServerHttpSecurity http) {
 				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
 				AuthenticationWebFilter oauth2 = new BearerTokenAuthenticationWebFilter(authenticationManager);
-				oauth2.setServerAuthenticationConverter(bearerTokenConverter);
-				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
+				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
+				oauth2.setAuthenticationFailureHandler(
+						new ServerAuthenticationEntryPointFailureHandler(OAuth2ResourceServerSpec.this.entryPoint));
 				// @formatter:off
 				http
 					.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
@@ -2003,7 +2005,7 @@ public class ServerHttpSecurity {
 		 * @author Josh Cummings
 		 * @since 5.2
 		 */
-		public class OpaqueTokenSpec {
+		public final class OpaqueTokenSpec {
 
 			private String introspectionUri;
 
@@ -2012,6 +2014,9 @@ public class ServerHttpSecurity {
 			private String clientSecret;
 
 			private Supplier<ReactiveOpaqueTokenIntrospector> introspector;
+
+			private OpaqueTokenSpec() {
+			}
 
 			/**
 			 * Configures the URI of the Introspection endpoint
@@ -2071,12 +2076,10 @@ public class ServerHttpSecurity {
 			protected void configure(ServerHttpSecurity http) {
 				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
 				AuthenticationWebFilter oauth2 = new BearerTokenAuthenticationWebFilter(authenticationManager);
-				oauth2.setServerAuthenticationConverter(bearerTokenConverter);
-				oauth2.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(entryPoint));
+				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
+				oauth2.setAuthenticationFailureHandler(
+						new ServerAuthenticationEntryPointFailureHandler(OAuth2ResourceServerSpec.this.entryPoint));
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
-			}
-
-			private OpaqueTokenSpec() {
 			}
 
 		}
@@ -2820,7 +2823,7 @@ public class ServerHttpSecurity {
 	 * @since 5.0
 	 * @see #csrf()
 	 */
-	public class CsrfSpec {
+	public final class CsrfSpec {
 
 		private CsrfWebFilter filter = new CsrfWebFilter();
 
@@ -2917,7 +2920,7 @@ public class ServerHttpSecurity {
 	 * @since 5.0
 	 * @see #exceptionHandling()
 	 */
-	public class ExceptionHandlingSpec {
+	public final class ExceptionHandlingSpec {
 
 		/**
 		 * Configures what to do when the application request authentication
@@ -2963,7 +2966,7 @@ public class ServerHttpSecurity {
 	 * @since 5.0
 	 * @see #requestCache()
 	 */
-	public class RequestCacheSpec {
+	public final class RequestCacheSpec {
 
 		private ServerRequestCache requestCache = new WebSessionServerRequestCache();
 
@@ -3013,7 +3016,7 @@ public class ServerHttpSecurity {
 	 * @since 5.0
 	 * @see #httpBasic()
 	 */
-	public class HttpBasicSpec {
+	public final class HttpBasicSpec {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
@@ -3104,7 +3107,7 @@ public class ServerHttpSecurity {
 	 * @since 5.0
 	 * @see #formLogin()
 	 */
-	public class FormLoginSpec {
+	public final class FormLoginSpec {
 
 		private final RedirectServerAuthenticationSuccessHandler defaultSuccessHandler = new RedirectServerAuthenticationSuccessHandler(
 				"/");
@@ -3282,7 +3285,7 @@ public class ServerHttpSecurity {
 
 	}
 
-	private class LoginPageSpec {
+	private final class LoginPageSpec {
 
 		protected void configure(ServerHttpSecurity http) {
 			if (http.authenticationEntryPoint != null) {
@@ -3321,7 +3324,7 @@ public class ServerHttpSecurity {
 	 * @since 5.0
 	 * @see #headers()
 	 */
-	public class HeaderSpec {
+	public final class HeaderSpec {
 
 		private final List<ServerHttpHeadersWriter> writers;
 
@@ -3535,7 +3538,7 @@ public class ServerHttpSecurity {
 		 *
 		 * @see #cache()
 		 */
-		public class CacheSpec {
+		public final class CacheSpec {
 
 			/**
 			 * Disables cache control response headers
@@ -3556,7 +3559,7 @@ public class ServerHttpSecurity {
 		 *
 		 * @see #contentTypeOptions()
 		 */
-		public class ContentTypeOptionsSpec {
+		public final class ContentTypeOptionsSpec {
 
 			/**
 			 * Disables the content type options response header
@@ -3577,7 +3580,7 @@ public class ServerHttpSecurity {
 		 *
 		 * @see #frameOptions()
 		 */
-		public class FrameOptionsSpec {
+		public final class FrameOptionsSpec {
 
 			/**
 			 * The mode to configure. Default is
@@ -3618,7 +3621,7 @@ public class ServerHttpSecurity {
 		 *
 		 * @see #hsts()
 		 */
-		public class HstsSpec {
+		public final class HstsSpec {
 
 			/**
 			 * Configures the max age. Default is one year.
@@ -3687,7 +3690,10 @@ public class ServerHttpSecurity {
 		 *
 		 * @see #xssProtection()
 		 */
-		public class XssProtectionSpec {
+		public final class XssProtectionSpec {
+
+			private XssProtectionSpec() {
+			}
 
 			/**
 			 * Disables the x-xss-protection response header
@@ -3698,9 +3704,6 @@ public class ServerHttpSecurity {
 				return HeaderSpec.this;
 			}
 
-			private XssProtectionSpec() {
-			}
-
 		}
 
 		/**
@@ -3709,7 +3712,7 @@ public class ServerHttpSecurity {
 		 * @since 5.1
 		 * @see #contentSecurityPolicy(String)
 		 */
-		public class ContentSecurityPolicySpec {
+		public final class ContentSecurityPolicySpec {
 
 			private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
 
@@ -3760,7 +3763,7 @@ public class ServerHttpSecurity {
 		 * @since 5.1
 		 * @see #featurePolicy(String)
 		 */
-		public class FeaturePolicySpec {
+		public final class FeaturePolicySpec {
 
 			/**
 			 * Allows method chaining to continue configuring the
@@ -3784,7 +3787,11 @@ public class ServerHttpSecurity {
 		 * @see #referrerPolicy()
 		 * @see #referrerPolicy(ReferrerPolicy)
 		 */
-		public class ReferrerPolicySpec {
+		public final class ReferrerPolicySpec {
+
+			private ReferrerPolicySpec(ReferrerPolicy referrerPolicy) {
+				HeaderSpec.this.referrerPolicy.setPolicy(referrerPolicy);
+			}
 
 			/**
 			 * Sets the policy to be used in the response header.
@@ -3806,10 +3813,6 @@ public class ServerHttpSecurity {
 			}
 
 			private ReferrerPolicySpec() {
-			}
-
-			private ReferrerPolicySpec(ReferrerPolicy referrerPolicy) {
-				HeaderSpec.this.referrerPolicy.setPolicy(referrerPolicy);
 			}
 
 		}
@@ -4095,17 +4098,18 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			if (authenticationFilter == null) {
-				authenticationFilter = new AnonymousAuthenticationWebFilter(getKey(), principal, authorities);
+			if (this.authenticationFilter == null) {
+				this.authenticationFilter = new AnonymousAuthenticationWebFilter(getKey(), this.principal,
+						this.authorities);
 			}
-			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.ANONYMOUS_AUTHENTICATION);
+			http.addFilterAt(this.authenticationFilter, SecurityWebFiltersOrder.ANONYMOUS_AUTHENTICATION);
 		}
 
 		private String getKey() {
-			if (key == null) {
-				key = UUID.randomUUID().toString();
+			if (this.key == null) {
+				this.key = UUID.randomUUID().toString();
 			}
-			return key;
+			return this.key;
 		}
 
 		private AnonymousSpec() {

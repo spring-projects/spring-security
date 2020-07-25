@@ -224,7 +224,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	/**
 	 * Configuration options for the Authorization Server's Authorization Endpoint.
 	 */
-	public class AuthorizationEndpointConfig {
+	public final class AuthorizationEndpointConfig {
 
 		private String authorizationRequestBaseUri;
 
@@ -308,7 +308,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	/**
 	 * Configuration options for the Authorization Server's Token Endpoint.
 	 */
-	public class TokenEndpointConfig {
+	public final class TokenEndpointConfig {
 
 		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
@@ -364,7 +364,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	/**
 	 * Configuration options for the Client's Redirection Endpoint.
 	 */
-	public class RedirectionEndpointConfig {
+	public final class RedirectionEndpointConfig {
 
 		private String authorizationResponseBaseUri;
 
@@ -416,7 +416,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	/**
 	 * Configuration options for the Authorization Server's UserInfo Endpoint.
 	 */
-	public class UserInfoEndpointConfig {
+	public final class UserInfoEndpointConfig {
 
 		private OAuth2UserService<OAuth2UserRequest, OAuth2User> userService;
 

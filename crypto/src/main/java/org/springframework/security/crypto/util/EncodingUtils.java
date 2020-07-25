@@ -22,7 +22,10 @@ package org.springframework.security.crypto.util;
  *
  * @author Keith Donald
  */
-public class EncodingUtils {
+public final class EncodingUtils {
+
+	private EncodingUtils() {
+	}
 
 	/**
 	 * Combine the individual byte arrays into one array.
@@ -52,9 +55,6 @@ public class EncodingUtils {
 		byte[] subarray = new byte[length];
 		System.arraycopy(array, beginIndex, subarray, 0, length);
 		return subarray;
-	}
-
-	private EncodingUtils() {
 	}
 
 }

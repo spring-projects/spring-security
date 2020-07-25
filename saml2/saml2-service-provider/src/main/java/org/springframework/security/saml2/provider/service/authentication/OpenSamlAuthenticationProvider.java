@@ -673,7 +673,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	 *
 	 * @since 5.4
 	 */
-	public static class Tuple {
+	public static final class Tuple {
 
 		private final Saml2AuthenticationToken authentication;
 

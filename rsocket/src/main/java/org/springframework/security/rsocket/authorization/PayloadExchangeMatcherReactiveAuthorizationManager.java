@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 5.2
  */
-public class PayloadExchangeMatcherReactiveAuthorizationManager
+public final class PayloadExchangeMatcherReactiveAuthorizationManager
 		implements ReactiveAuthorizationManager<PayloadExchange> {
 
 	private final List<PayloadExchangeMatcherEntry<ReactiveAuthorizationManager<PayloadExchangeAuthorizationContext>>> mappings;
@@ -63,7 +63,7 @@ public class PayloadExchangeMatcherReactiveAuthorizationManager
 		return new PayloadExchangeMatcherReactiveAuthorizationManager.Builder();
 	}
 
-	public static class Builder {
+	public static final class Builder {
 
 		private final List<PayloadExchangeMatcherEntry<ReactiveAuthorizationManager<PayloadExchangeAuthorizationContext>>> mappings = new ArrayList<>();
 

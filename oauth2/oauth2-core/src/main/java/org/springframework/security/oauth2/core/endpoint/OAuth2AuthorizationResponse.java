@@ -118,7 +118,7 @@ public final class OAuth2AuthorizationResponse {
 	/**
 	 * A builder for {@link OAuth2AuthorizationResponse}.
 	 */
-	public static class Builder {
+	public static final class Builder {
 
 		private String redirectUri;
 

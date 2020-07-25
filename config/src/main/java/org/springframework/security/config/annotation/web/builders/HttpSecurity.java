@@ -2942,10 +2942,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 		protected List<RequestMatcher> matchers = new ArrayList<>();
 
-		/**
-		 * @param context
-		 */
-		private RequestMatcherConfigurer(ApplicationContext context) {
+		RequestMatcherConfigurer(ApplicationContext context) {
 			setApplicationContext(context);
 		}
 

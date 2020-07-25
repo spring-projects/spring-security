@@ -164,7 +164,7 @@ public class RSocketSecurity {
 	/**
 	 * @since 5.3
 	 */
-	public class SimpleAuthenticationSpec {
+	public final class SimpleAuthenticationSpec {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
@@ -208,7 +208,7 @@ public class RSocketSecurity {
 		return this;
 	}
 
-	public class BasicAuthenticationSpec {
+	public final class BasicAuthenticationSpec {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
@@ -244,7 +244,7 @@ public class RSocketSecurity {
 		return this;
 	}
 
-	public class JwtSpec {
+	public final class JwtSpec {
 
 		private ReactiveAuthenticationManager authenticationManager;
 
@@ -370,7 +370,7 @@ public class RSocketSecurity {
 			return new Access(matcher);
 		}
 
-		public class Access {
+		public final class Access {
 
 			private final PayloadExchangeMatcher matcher;
 

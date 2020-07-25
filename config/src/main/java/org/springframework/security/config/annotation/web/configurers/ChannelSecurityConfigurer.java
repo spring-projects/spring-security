@@ -220,7 +220,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 
 		protected List<? extends RequestMatcher> requestMatchers;
 
-		private RequiresChannelUrl(List<? extends RequestMatcher> requestMatchers) {
+		RequiresChannelUrl(List<? extends RequestMatcher> requestMatchers) {
 			this.requestMatchers = requestMatchers;
 		}
 

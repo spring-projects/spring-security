@@ -27,7 +27,10 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
  * @author Rob Winch
  * @since 4.2
  */
-class GrantedAuthorityDefaultsParserUtils {
+final class GrantedAuthorityDefaultsParserUtils {
+
+	private GrantedAuthorityDefaultsParserUtils() {
+	}
 
 	static RootBeanDefinition registerWithDefaultRolePrefix(ParserContext pc,
 			Class<? extends AbstractGrantedAuthorityDefaultsBeanFactory> beanFactoryClass) {
@@ -58,9 +61,6 @@ class GrantedAuthorityDefaultsParserUtils {
 
 		abstract Object getBean();
 
-	}
-
-	private GrantedAuthorityDefaultsParserUtils() {
 	}
 
 }

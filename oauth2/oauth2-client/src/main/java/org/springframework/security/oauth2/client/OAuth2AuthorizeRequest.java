@@ -122,7 +122,7 @@ public final class OAuth2AuthorizeRequest {
 	/**
 	 * A builder for {@link OAuth2AuthorizeRequest}.
 	 */
-	public static class Builder {
+	public static final class Builder {
 
 		private String clientRegistrationId;
 

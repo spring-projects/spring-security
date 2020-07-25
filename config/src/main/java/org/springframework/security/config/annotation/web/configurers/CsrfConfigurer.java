@@ -303,8 +303,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @since 5.2
 	 */
 	private SessionAuthenticationStrategy getSessionAuthenticationStrategy() {
-		if (sessionAuthenticationStrategy != null) {
-			return sessionAuthenticationStrategy;
+		if (this.sessionAuthenticationStrategy != null) {
+			return this.sessionAuthenticationStrategy;
 		}
 		else {
 			return new CsrfAuthenticationStrategy(this.csrfTokenRepository);
@@ -321,10 +321,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	private class IgnoreCsrfProtectionRegistry extends AbstractRequestMatcherRegistry<IgnoreCsrfProtectionRegistry> {
 
-		/**
-		 * @param context
-		 */
-		private IgnoreCsrfProtectionRegistry(ApplicationContext context) {
+		IgnoreCsrfProtectionRegistry(ApplicationContext context) {
 			setApplicationContext(context);
 		}
 

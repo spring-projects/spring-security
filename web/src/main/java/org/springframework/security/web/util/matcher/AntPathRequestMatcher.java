@@ -263,7 +263,7 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 
 	}
 
-	private static class SpringAntMatcher implements Matcher {
+	private static final class SpringAntMatcher implements Matcher {
 
 		private final AntPathMatcher antMatcher;
 
@@ -296,7 +296,7 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 	/**
 	 * Optimized matcher for trailing wildcards
 	 */
-	private static class SubpathMatcher implements Matcher {
+	private static final class SubpathMatcher implements Matcher {
 
 		private final String subpath;
 

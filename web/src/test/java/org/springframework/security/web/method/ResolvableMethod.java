@@ -126,7 +126,7 @@ import static java.util.stream.Collectors.joining;
  * @author Rossen Stoyanchev
  * @since 5.0
  */
-public class ResolvableMethod {
+public final class ResolvableMethod {
 
 	private static final Log logger = LogFactory.getLog(ResolvableMethod.class);
 
@@ -253,7 +253,7 @@ public class ResolvableMethod {
 	/**
 	 * Builder for {@code ResolvableMethod}.
 	 */
-	public static class Builder<T> {
+	public static final class Builder<T> {
 
 		private final Class<?> objectClass;
 
@@ -386,7 +386,7 @@ public class ResolvableMethod {
 		 * <p>
 		 * {@code build().method()}
 		 */
-		public final Method resolveMethod() {
+		public Method resolveMethod() {
 			return build().method();
 		}
 
@@ -404,7 +404,7 @@ public class ResolvableMethod {
 		 * <p>
 		 * {@code build().returnType()}
 		 */
-		public final MethodParameter resolveReturnType() {
+		public MethodParameter resolveReturnType() {
 			return build().returnType();
 		}
 
@@ -452,7 +452,7 @@ public class ResolvableMethod {
 	/**
 	 * Predicate with a descriptive label.
 	 */
-	private static class LabeledPredicate<T> implements Predicate<T> {
+	private static final class LabeledPredicate<T> implements Predicate<T> {
 
 		private final String label;
 
@@ -493,7 +493,7 @@ public class ResolvableMethod {
 	/**
 	 * Resolver for method arguments.
 	 */
-	public class ArgResolver {
+	public final class ArgResolver {
 
 		private final List<Predicate<MethodParameter>> filters = new ArrayList<>(4);
 
@@ -564,7 +564,7 @@ public class ResolvableMethod {
 		/**
 		 * Resolve the argument.
 		 */
-		public final MethodParameter arg() {
+		public MethodParameter arg() {
 			List<MethodParameter> matches = applyFilters();
 			Assert.state(!matches.isEmpty(), () -> "No matching arg in method\n" + formatMethod());
 			Assert.state(matches.size() == 1,

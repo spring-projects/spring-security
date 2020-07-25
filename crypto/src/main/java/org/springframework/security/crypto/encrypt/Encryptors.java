@@ -24,7 +24,10 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
  *
  * @author Keith Donald
  */
-public class Encryptors {
+public final class Encryptors {
+
+	private Encryptors() {
+	}
 
 	/**
 	 * Creates a standard password-based bytes encryptor using 256 bit AES encryption with
@@ -110,9 +113,6 @@ public class Encryptors {
 	 */
 	public static TextEncryptor noOpText() {
 		return NO_OP_TEXT_INSTANCE;
-	}
-
-	private Encryptors() {
 	}
 
 	private static final TextEncryptor NO_OP_TEXT_INSTANCE = new NoOpTextEncryptor();

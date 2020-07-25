@@ -127,7 +127,7 @@ import static java.util.stream.Collectors.joining;
  * @author Rossen Stoyanchev
  * @since 5.2
  */
-public class ResolvableMethod {
+public final class ResolvableMethod {
 
 	private static final Log logger = LogFactory.getLog(ResolvableMethod.class);
 
@@ -258,7 +258,7 @@ public class ResolvableMethod {
 	/**
 	 * Builder for {@code ResolvableMethod}.
 	 */
-	public static class Builder<T> {
+	public static final class Builder<T> {
 
 		private final Class<?> objectClass;
 
@@ -400,7 +400,7 @@ public class ResolvableMethod {
 		 * <p>
 		 * {@code build().method()}
 		 */
-		public final Method resolveMethod() {
+		public Method resolveMethod() {
 			return method().method();
 		}
 
@@ -418,7 +418,7 @@ public class ResolvableMethod {
 		 * <p>
 		 * {@code build().returnType()}
 		 */
-		public final MethodParameter resolveReturnType() {
+		public MethodParameter resolveReturnType() {
 			return method().returnType();
 		}
 
@@ -466,7 +466,7 @@ public class ResolvableMethod {
 	/**
 	 * Predicate with a descriptive label.
 	 */
-	private static class LabeledPredicate<T> implements Predicate<T> {
+	private static final class LabeledPredicate<T> implements Predicate<T> {
 
 		private final String label;
 
@@ -507,7 +507,7 @@ public class ResolvableMethod {
 	/**
 	 * Resolver for method arguments.
 	 */
-	public class ArgResolver {
+	public final class ArgResolver {
 
 		private final List<Predicate<MethodParameter>> filters = new ArrayList<>(4);
 
@@ -578,7 +578,7 @@ public class ResolvableMethod {
 		/**
 		 * Resolve the argument.
 		 */
-		public final MethodParameter arg() {
+		public MethodParameter arg() {
 			List<MethodParameter> matches = applyFilters();
 			Assert.state(!matches.isEmpty(), () -> "No matching arg in method\n" + formatMethod());
 			Assert.state(matches.size() == 1,
@@ -588,8 +588,8 @@ public class ResolvableMethod {
 
 		private List<MethodParameter> applyFilters() {
 			List<MethodParameter> matches = new ArrayList<>();
-			for (int i = 0; i < method.getParameterCount(); i++) {
-				MethodParameter param = new SynthesizingMethodParameter(method, i);
+			for (int i = 0; i < ResolvableMethod.this.method.getParameterCount(); i++) {
+				MethodParameter param = new SynthesizingMethodParameter(ResolvableMethod.this.method, i);
 				param.initParameterNameDiscovery(nameDiscoverer);
 				if (this.filters.stream().allMatch(p -> p.test(param))) {
 					matches.add(param);

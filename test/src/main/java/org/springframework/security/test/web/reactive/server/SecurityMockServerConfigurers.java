@@ -242,7 +242,10 @@ public class SecurityMockServerConfigurers {
 		return new CsrfMutator();
 	}
 
-	public static class CsrfMutator implements WebTestClientConfigurer, MockServerConfigurer {
+	public static final class CsrfMutator implements WebTestClientConfigurer, MockServerConfigurer {
+
+		private CsrfMutator() {
+		}
 
 		@Override
 		public void afterConfigurerAdded(WebTestClient.Builder builder,
@@ -262,9 +265,6 @@ public class SecurityMockServerConfigurers {
 
 		}
 
-		private CsrfMutator() {
-		}
-
 	}
 
 	/**
@@ -272,7 +272,7 @@ public class SecurityMockServerConfigurers {
 	 * SecurityMockServerConfigurers#mockUser(UserDetails)}}. Defaults to use a password
 	 * of "password" and granted authorities of "ROLE_USER".
 	 */
-	public static class UserExchangeMutator implements WebTestClientConfigurer, MockServerConfigurer {
+	public static final class UserExchangeMutator implements WebTestClientConfigurer, MockServerConfigurer {
 
 		private final User.UserBuilder userBuilder;
 
@@ -376,7 +376,7 @@ public class SecurityMockServerConfigurers {
 
 	}
 
-	private static class MutatorWebTestClientConfigurer implements WebTestClientConfigurer, MockServerConfigurer {
+	private static final class MutatorWebTestClientConfigurer implements WebTestClientConfigurer, MockServerConfigurer {
 
 		private final Supplier<Mono<SecurityContext>> context;
 
@@ -402,7 +402,7 @@ public class SecurityMockServerConfigurers {
 
 	}
 
-	private static class SetupMutatorFilter implements WebFilter {
+	private static final class SetupMutatorFilter implements WebFilter {
 
 		private final Supplier<Mono<SecurityContext>> context;
 
@@ -443,7 +443,7 @@ public class SecurityMockServerConfigurers {
 	 * @author Josh Cummings
 	 * @since 5.2
 	 */
-	public static class JwtMutator implements WebTestClientConfigurer, MockServerConfigurer {
+	public static final class JwtMutator implements WebTestClientConfigurer, MockServerConfigurer {
 
 		private Jwt jwt;
 
@@ -1149,7 +1149,7 @@ public class SecurityMockServerConfigurers {
 		 * Used to wrap the {@link OAuth2AuthorizedClientManager} to provide support for
 		 * testing when the request is wrapped
 		 */
-		private static class TestReactiveOAuth2AuthorizedClientManager
+		private static final class TestReactiveOAuth2AuthorizedClientManager
 				implements ReactiveOAuth2AuthorizedClientManager {
 
 			final static String TOKEN_ATTR_NAME = TestReactiveOAuth2AuthorizedClientManager.class.getName()
@@ -1186,9 +1186,12 @@ public class SecurityMockServerConfigurers {
 
 		}
 
-		private static class OAuth2ClientServerTestUtils {
+		private static final class OAuth2ClientServerTestUtils {
 
 			private static final ServerOAuth2AuthorizedClientRepository DEFAULT_CLIENT_REPO = new WebSessionServerOAuth2AuthorizedClientRepository();
+
+			private OAuth2ClientServerTestUtils() {
+			}
 
 			/**
 			 * Gets the {@link ReactiveOAuth2AuthorizedClientManager} for the specified
@@ -1276,9 +1279,6 @@ public class SecurityMockServerConfigurers {
 					return null;
 				}
 
-			}
-
-			private OAuth2ClientServerTestUtils() {
 			}
 
 		}

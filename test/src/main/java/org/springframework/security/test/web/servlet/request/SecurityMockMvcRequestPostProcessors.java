@@ -457,7 +457,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	/**
 	 * Populates the X509Certificate instances onto the request
 	 */
-	private static class X509RequestPostProcessor implements RequestPostProcessor {
+	private static final class X509RequestPostProcessor implements RequestPostProcessor {
 
 		private final X509Certificate[] certificates;
 
@@ -480,11 +480,14 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	public static class CsrfRequestPostProcessor implements RequestPostProcessor {
+	public static final class CsrfRequestPostProcessor implements RequestPostProcessor {
 
 		private boolean asHeader;
 
 		private boolean useInvalidToken;
+
+		private CsrfRequestPostProcessor() {
+		}
 
 		/*
 		 * (non-Javadoc)
@@ -529,9 +532,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 		public CsrfRequestPostProcessor useInvalidToken() {
 			this.useInvalidToken = true;
 			return this;
-		}
-
-		private CsrfRequestPostProcessor() {
 		}
 
 		/**
@@ -759,7 +759,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * Used to wrap the SecurityContextRepository to provide support for testing in
 		 * stateless mode
 		 */
-		static class TestSecurityContextRepository implements SecurityContextRepository {
+		static final class TestSecurityContextRepository implements SecurityContextRepository {
 
 			private final static String ATTR_NAME = TestSecurityContextRepository.class.getName().concat(".REPO");
 
@@ -1035,7 +1035,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 	}
 
-	private static class HttpBasicRequestPostProcessor implements RequestPostProcessor {
+	private static final class HttpBasicRequestPostProcessor implements RequestPostProcessor {
 
 		private String headerValue;
 
@@ -1648,7 +1648,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * Used to wrap the {@link OAuth2AuthorizedClientManager} to provide support for
 		 * testing when the request is wrapped
 		 */
-		private static class TestOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
+		private static final class TestOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
 
 			final static String TOKEN_ATTR_NAME = TestOAuth2AuthorizedClientManager.class.getName().concat(".TOKEN");
 
@@ -1682,7 +1682,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		}
 
-		private static class OAuth2ClientServletTestUtils {
+		private static final class OAuth2ClientServletTestUtils {
 
 			private static final OAuth2AuthorizedClientRepository DEFAULT_CLIENT_REPO = new HttpSessionOAuth2AuthorizedClientRepository();
 

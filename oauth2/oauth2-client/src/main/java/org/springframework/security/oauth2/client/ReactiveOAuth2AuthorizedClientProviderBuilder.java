@@ -89,7 +89,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	/**
 	 * A builder for the {@code authorization_code} grant.
 	 */
-	public class AuthorizationCodeGrantBuilder implements Builder {
+	public final class AuthorizationCodeGrantBuilder implements Builder {
 
 		private AuthorizationCodeGrantBuilder() {
 		}
@@ -133,7 +133,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	/**
 	 * A builder for the {@code refresh_token} grant.
 	 */
-	public class RefreshTokenGrantBuilder implements Builder {
+	public final class RefreshTokenGrantBuilder implements Builder {
 
 		private ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
 
@@ -230,7 +230,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	/**
 	 * A builder for the {@code client_credentials} grant.
 	 */
-	public class ClientCredentialsGrantBuilder implements Builder {
+	public final class ClientCredentialsGrantBuilder implements Builder {
 
 		private ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
 
@@ -325,7 +325,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	/**
 	 * A builder for the {@code password} grant.
 	 */
-	public class PasswordGrantBuilder implements Builder {
+	public final class PasswordGrantBuilder implements Builder {
 
 		private ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient;
 

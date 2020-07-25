@@ -119,7 +119,7 @@ public final class Saml2AuthenticationRequest {
 	/**
 	 * A builder for {@link Saml2AuthenticationRequest}.
 	 */
-	public static class Builder {
+	public static final class Builder {
 
 		private String issuer;
 

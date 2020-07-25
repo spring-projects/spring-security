@@ -140,7 +140,7 @@ public final class OAuth2AuthorizationContext {
 	/**
 	 * A builder for {@link OAuth2AuthorizationContext}.
 	 */
-	public static class Builder {
+	public static final class Builder {
 
 		private ClientRegistration clientRegistration;
 

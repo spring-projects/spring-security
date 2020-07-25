@@ -109,7 +109,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		return REGISTRY;
 	}
 
-	public class ExpressionInterceptUrlRegistry extends
+	public final class ExpressionInterceptUrlRegistry extends
 			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<ExpressionInterceptUrlRegistry, AuthorizedUrl> {
 
 		/**
@@ -130,7 +130,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		}
 
 		@Override
-		protected final AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
+		protected AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
 			return new AuthorizedUrl(requestMatchers);
 		}
 
@@ -267,7 +267,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 	 *
 	 * @author Rob Winch
 	 */
-	public class MvcMatchersAuthorizedUrl extends AuthorizedUrl {
+	public final class MvcMatchersAuthorizedUrl extends AuthorizedUrl {
 
 		/**
 		 * Creates a new instance
@@ -296,7 +296,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		 * Creates a new instance
 		 * @param requestMatchers the {@link RequestMatcher} instances to map
 		 */
-		private AuthorizedUrl(List<? extends RequestMatcher> requestMatchers) {
+		AuthorizedUrl(List<? extends RequestMatcher> requestMatchers) {
 			this.requestMatchers = requestMatchers;
 		}
 

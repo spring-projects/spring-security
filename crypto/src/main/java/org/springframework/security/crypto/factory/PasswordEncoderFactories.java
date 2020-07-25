@@ -32,7 +32,10 @@ import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
  * @author Rob Winch
  * @since 5.0
  */
-public class PasswordEncoderFactories {
+public final class PasswordEncoderFactories {
+
+	private PasswordEncoderFactories() {
+	}
 
 	/**
 	 * Creates a {@link DelegatingPasswordEncoder} with default mappings. Additional
@@ -77,9 +80,6 @@ public class PasswordEncoderFactories {
 		encoders.put("argon2", new Argon2PasswordEncoder());
 
 		return new DelegatingPasswordEncoder(encodingId, encoders);
-	}
-
-	private PasswordEncoderFactories() {
 	}
 
 }
